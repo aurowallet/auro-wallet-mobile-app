@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="15px" height="10px" viewBox="0 0 15 10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
+    <title>Oval箭头</title>
+    <desc>Created with Sketch.</desc>
+    <g id="app-中文" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="首页单页面" transform="translate(-297.000000, -388.000000)" stroke="#FFFFFF" stroke-width="2">
+            <g id="路径-2" transform="translate(298.000000, 389.090088)">
+                <line x1="0" y1="3.40991211" x2="12" y2="3.40991211"></line>
+                <polyline id="路径-3" stroke-linejoin="round" points="9.05126953 2.20788665e-13 12.8730469 3.40991211 9.05126953 7.03393555"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

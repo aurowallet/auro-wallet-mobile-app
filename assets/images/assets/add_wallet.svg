@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
+    <title>钱包管理页加号</title>
+    <desc>Created with Sketch.</desc>
+    <g id="app-中文" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="钱包管理" transform="translate(-41.000000, -613.000000)">
+            <g id="编组" transform="translate(41.000000, 613.000000)">
+                <g id="椭圆形">
+                    <circle fill="#00C89C" fill-rule="evenodd" cx="12" cy="12" r="12"></circle>
+                    <line x1="6.92431641" y1="12" x2="17.277832" y2="12" id="路径-5" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"></line>
+                    <line x1="6.92431641" y1="12" x2="17.277832" y2="12" id="路径-5" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" transform="translate(12.101074, 12.000000) rotate(90.000000) translate(-12.101074, -12.000000) "></line>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

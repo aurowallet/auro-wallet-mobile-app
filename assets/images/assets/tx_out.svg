@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>转出箭头图标</title>
+    <g id="app-中文" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="首页，超过50条记录去浏览器查询更多" transform="translate(-30.000000, -378.000000)">
+            <g id="编组" transform="translate(30.000000, 378.000000)">
+                <circle id="椭圆形" fill="#6D5FFE" cx="8" cy="8" r="8"></circle>
+                <line x1="8" y1="11.2597656" x2="8" y2="5" id="Path" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(8.000000, 8.500000) scale(-1, 1) translate(-8.000000, -8.500000) "></line>
+                <polyline id="Path" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(8.000000, 6.500000) scale(-1, 1) translate(-8.000000, -6.500000) " points="11 8 8 5 5 8"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

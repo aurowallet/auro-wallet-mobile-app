@@ -1,0 +1,212 @@
+name: auro_wallet
+description: MinaWallet made with Flutter.
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 1.0.3+1027
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  # intl - format numbers
+  intl: ^0.17.0
+  json_annotation: ^4.0.0
+  # state management with mobx & provider
+  mobx: ^2.0.1
+  flutter_mobx: ^2.0.0
+  mobx_codegen: ^2.0.1+3
+  provider: ^3.1.0
+  shared_preferences: ^2.0.5
+  get_storage: ^2.0.2
+  convert: ^3.0.0
+  http: ^0.13.1
+  webview_flutter: ^2.0.3
+  rxdart: ^0.26.0
+  flutter_local_notifications: ^5.0.0+4
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  update_app: ^0.1.5
+  device_info: ^0.4.2
+  biometric_storage: ^2.0.3
+  fluttertoast: ^8.0.3
+  bip39: 1.0.6
+  circular_check_box:
+    git:
+      url: git://github.com/mashnoon33/circular_check_box.git
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.0
+  # QR code generator & reader
+  qr_flutter: ^4.0.0
+  permission_handler: ^4.2.0
+  # PackageInfo
+  package_info: ^0.4.0
+  # charts
+  charts_flutter: ^0.10.0
+  # svg renderer
+  flutter_svg: ^0.22.0
+  # open link in browser
+  url_launcher: ^6.0.3
+  # GraphQL
+  graphql_flutter: ^5.0.0-nullsafety.2
+  dropdown_search: ^0.4.4
+  flutter_easyloading: ^3.0.0
+  flutter_sodium: ^0.2.0
+  bs58check: ^1.0.2
+  flutter_svg_provider: ^0.1.8
+  flutter_slidable: ^0.6.0
+  percent_indicator: ^3.0.1
+  flutter_secure_storage: ^4.2.0
+  trust_fall: ^1.0.4
+  encrypt: ^5.0.0
+  share: ^2.0.2
+  path_provider: ^2.0.2
+  bip32: ^2.0.0
+  hex: ^0.2.0
+  qr_code_scanner: ^0.5.2
+  qr_code_tools: ^0.0.7
+  image_picker: ^0.8.3+1
+
+dev_dependencies:
+  build_runner: ^1.12.2
+  json_serializable: ^4.0.0
+  mockito: ^4.1.1
+#  flutter_launcher_icons: ^0.9.0
+  flutter_native_splash: ^1.1.8+4
+  flutter_test:
+    sdk: flutter
+
+dependency_overrides:
+  crypto: '3.0.0'
+  xml: '^5.0.0'
+#  yaml: '^2.1.15'
+  image: '^3.0.2'
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/public/app.png"
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/public/splash_screen.png
+  android_gravity: fill
+  ios_content_mode: scaleAspectFill
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+
+    # images
+    ## images - settings
+    - assets/images/assets/Mina.png
+    ## images - mina
+    - assets/images/assets/2x/top_header_bg@2x.png
+    - assets/images/assets/2x/mina_round_logo@2x.png
+    - assets/images/assets/2x/wallet_manage@2x.png
+    - assets/images/assets/2x/round_checked@2x.png
+    - assets/images/assets/tx_in.svg
+    - assets/images/assets/tx_out.svg
+    - assets/images/assets/tx_stake.svg
+    - assets/images/assets/right_arrow.svg
+    - assets/images/assets/copy.svg
+    - assets/images/assets/more.svg
+    - assets/images/assets/add_wallet.svg
+    - assets/images/assets/import_wallet.svg
+    - assets/images/public/top_cornor.svg
+    - assets/images/public/2x/m_logo@2x.png
+    - assets/images/public/button_arrow.svg
+    - assets/images/public/error_tip.svg
+    - assets/images/public/success_tip.svg
+    - assets/images/public/next.svg
+    - assets/images/public/2x/create_btn_bg@2x.png
+    - assets/images/public/wallet_success.png
+    - assets/images/setting/aboutus.svg
+    - assets/images/setting/locale.svg
+    - assets/images/setting/network.svg
+    - assets/images/setting/security.svg
+    - assets/images/setting/twitter.png
+    - assets/images/setting/telegram.png
+    - assets/images/setting/website.png
+    - assets/images/setting/wechat.png
+    - assets/images/setting/usd.svg
+    - assets/images/setting/contact.svg
+    - assets/images/public/pending_tip.svg
+    - assets/images/public/terms.svg
+    - assets/images/public/privacy.svg
+    - assets/images/public/scan_bg.png
+    - assets/images/public/2x/mina_text_logo@2x.png
+    - assets/images/assets/scanner.svg
+    - assets/images/public/red_alert.svg
+
+    ## tab bar bottom
+    - assets/images/public/home_tab.svg
+    - assets/images/public/stake_tab.svg
+    - assets/images/public/setting_tab.svg
+    - assets/images/assets/scanner_black.png
+    - assets/images/assets/receive_line_black.png
+
+    ## images - public
+    - assets/images/public/app.png
+    - assets/images/public/logo_about.png
+    - assets/images/public/copy.png
+    - assets/images/public/splash_screen.png
+    - assets/images/public/no.svg
+
+    - assets/images/assets/logo.png
+    - assets/images/assets/assets_send.png
+    - assets/images/assets/assets_receive.png
+    - assets/images/assets/assets_up.png
+    - assets/images/assets/assets_down.png
+    - assets/images/assets/assets_fail.png
+    - assets/images/assets/success.png
+    - assets/images/assets/contacts.svg
+
+    - assets/images/public/loading.gif
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware.
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>扫码图标</title>
+    <g id="app-中文" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="发送（高级模式）-矿工费格式校验" transform="translate(-293.000000, -144.000000)" stroke="#979797" stroke-width="2">
+            <g id="编组" transform="translate(292.000000, 145.000000)">
+                <path d="M20,13.0922852 L20,15 C20,16.6568542 18.6568542,18 17,18 C16.2352431,18 15.6616753,18 15.2792969,18 M7.04248047,18 C6.60371006,18 5.92288324,18 5,18 C3.34314575,18 2,16.6568542 2,15 L2,13.0449219 M2,4.99804688 L2,3 C2,1.34314575 3.34314575,0 5,0 C5.98914931,0 6.73101128,0 7.22558594,0 M15.0698242,0 C15.4846896,0 16.1280816,0 17,0 C18.6568542,0 20,1.34314575 20,3 L20,5.17724609" id="形状"></path>
+                <line x1="3" y1="9" x2="19" y2="9" id="路径-8"></line>
+            </g>
+        </g>
+    </g>
+</svg>
