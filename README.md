@@ -32,6 +32,9 @@ installed on your computer to compile the project. check [Flutter Documentation]
 #### mina sdk
 we use flutter ffi and mina c file to derive public key and sign transactions.
 
+### api config 
+```lib/consts/apiConfig.example.drat``` is a api config for auro wallet, you can remove the ```.example ```
+and fill your custom api
 
 #### run auro App
 ```
