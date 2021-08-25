@@ -256,26 +256,28 @@ class _AssetsState extends State<Assets> {
     var i18n = I18n.of(context).main;
     List<Widget> res = [];
     List<TransferData> txs = [...store.assets!.pendingTxs, ...store.assets!.txs];
-    res.addAll(txs.map((i) {
-      return TransferListItem(
-        data: i,
-        isOut: i.sender == store.wallet!.currentAddress,
-        hasDetail: true,
-      );
-    }));
-    if (store.assets!.txs.length >= 20) {
-      res.add(Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-              child: BrowserLink(
-                '$TRANSACTIONS_EXPLORER_URL${store.wallet!.currentAddress}',
-                text: i18n['goToExplorer']!,
-              )
-          )
-        ],
-      ));
+    if (store.settings!.isDefaultNode) {
+      res.addAll(txs.map((i) {
+        return TransferListItem(
+          data: i,
+          isOut: i.sender == store.wallet!.currentAddress,
+          hasDetail: true,
+        );
+      }));
+      if (store.assets!.txs.length >= 20) {
+        res.add(Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                child: BrowserLink(
+                  '$TRANSACTIONS_EXPLORER_URL${store.wallet!.currentAddress}',
+                  text: i18n['goToExplorer']!,
+                )
+            )
+          ],
+        ));
+      }
     }
     res.add(HomeListTip(
         isEmpty: txs.length == 0,
