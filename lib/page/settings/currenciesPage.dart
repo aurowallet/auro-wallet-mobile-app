@@ -48,6 +48,8 @@ class _Currencies extends State<CurrenciesPage> {
                 LocaleItem(text: 'USD', localeKey: 'usd', checked: store.currencyCode == 'usd', onChecked: onChange,),
                 LocaleItem(text: 'CNY', localeKey: 'cny', checked: store.currencyCode == 'cny', onChecked: onChange,),
                 LocaleItem(text: 'RUB', localeKey: 'rub', checked: store.currencyCode == 'rub', onChecked: onChange,),
+                LocaleItem(text: 'EUR', localeKey: 'eur', checked: store.currencyCode == 'eur', onChecked: onChange,),
+                LocaleItem(text: 'GBP', localeKey: 'gbp', checked: store.currencyCode == 'gbp', onChecked: onChange,),
               ],
             ),
           );
