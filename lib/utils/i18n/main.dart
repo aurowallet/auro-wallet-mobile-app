@@ -230,7 +230,8 @@ const Map<String, String> zhMain = {
   "termsDialogTitle": "使用条款及隐私政策",
   "validatorTotalStake": "总委托",
   "validatorStakeFee": "佣金",
-  "scan": "扫描"
+  "scan": "扫描",
+  "restoreTip": "提示: 若要导入私钥匙/Keystore或连接Ledger，需先[创建钱包]或者[恢复钱包]"
 };
 
 const Map<String, String> enMain = {
@@ -463,5 +464,6 @@ const Map<String, String> enMain = {
   "validatorTotalStake": "Stake",
   "validatorStakeFee": "Fee",
   "privacy": "Privacy Policy",
-  "scan": "Scan"
+  "scan": "Scan",
+  "restoreTip": "Tips: If you want to import private key/keystore or connect Ledger, need to [Create Wallet] or [Restore Wallet] first."
 };

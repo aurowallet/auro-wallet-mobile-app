@@ -34,6 +34,7 @@ class CreateAccountEntryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var i18n = I18n.of(context);
+    var theme = Theme.of(context).textTheme;
     var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
     _ctx = context;
     return Scaffold(
@@ -87,7 +88,7 @@ class CreateAccountEntryPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.all(16),
                 child: EntryButton(
-                  text: I18n.of(context).main['importAccount']!,
+                  text: i18n.main['importAccount']!,
                   isOutlined: true,
                   onPressed: () {
                     _onClick('import');
@@ -95,7 +96,11 @@ class CreateAccountEntryPage extends StatelessWidget {
                 },),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(16, 100, 16, 30),
+                padding: EdgeInsets.fromLTRB(21, 31, 21, 0),
+                child: Text(i18n.main['restoreTip']!, style: theme.headline6!.copyWith(color: ColorsUtil.hexColor(0xCCCCCC))),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(16, 60, 16, 30),
                 child: Text('Powered by Bit Cat', style: TextStyle(fontSize: 14, color: ColorsUtil.hexColor(0xB9B9B9))),
               ),
             ],
