@@ -139,7 +139,7 @@ const Map<String, String> zhMain = {
   "emptyDelegateTitle": "你还没有委托MINA",
   "emptyDelegateDesc1": "将 MINA 委托给网络中的出块节点可以帮助你获得出块收益，出块节点将根据你的委托比重进行分配收益，收益百分比取决于出块节点的费率设置。",
   "emptyDelegateDesc2": "委托生效时间和奖励机制请访问: ",
-  "emptyDelegateDesc3": "Mina委托教程",
+  "emptyDelegateDesc3": "委托教程",
   "changeNode": "更改",
   "stakingProviderName": "出块节点",
   "stakingProviderAddress": "出块节点地址",
