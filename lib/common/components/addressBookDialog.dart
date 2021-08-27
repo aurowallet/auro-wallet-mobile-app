@@ -10,10 +10,12 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
 class AddressBookDialog extends StatefulWidget {
-  AddressBookDialog({this.onOk, this.onCancel});
+  AddressBookDialog({this.onOk, this.onCancel, this.name, this.address});
 
   final bool Function(String name, String address)? onOk;
   final Function? onCancel;
+  final String? name;
+  final String? address;
 
   @override
   _AddressBookDialogState createState() => _AddressBookDialogState();
@@ -72,13 +74,13 @@ class _AddressBookDialogState extends State<AddressBookDialog> {
                   child: Text(dic['addaddress']!, style: TextStyle(fontSize: 20)),
                 ),
                 InputItem(
-                  initialValue: '',
+                  initialValue: widget.name,
                   placeholder: dic['name'],
                   padding: EdgeInsets.only(top: 25),
                   controller: _nameCtrl,
                 ),
                 InputItem(
-                  initialValue: '',
+                  initialValue: widget.address,
                   placeholder: dic['address'],
                   padding: EdgeInsets.only(top: 16),
                   controller: _addressCtrl,

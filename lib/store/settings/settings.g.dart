@@ -280,8 +280,9 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.updateContact');
 
   @override
-  Future<void> updateContact(Map<String, dynamic> con) {
-    return _$updateContactAsyncAction.run(() => super.updateContact(con));
+  Future<void> updateContact(ContactData contact, String address) {
+    return _$updateContactAsyncAction
+        .run(() => super.updateContact(contact, address));
   }
 
   final _$_SettingsStoreActionController =

@@ -189,8 +189,8 @@ abstract class _SettingsStore with Store {
   }
 
   @action
-  Future<void> updateContact(Map<String, dynamic> con) async {
-    await rootStore.localStorage.updateContact(con);
+  Future<void> updateContact(ContactData contact, String address) async {
+    await rootStore.localStorage.updateContact(contact.toJson(), address);
     loadContacts();
   }
 }

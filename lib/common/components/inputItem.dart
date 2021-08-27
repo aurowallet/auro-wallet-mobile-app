@@ -52,6 +52,18 @@ class InputItem extends StatefulWidget {
 class _InputItemState extends State<InputItem> {
 
   bool _passwordVisibility = false;
+  TextEditingController? _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? new TextEditingController();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (widget.initialValue != null) {
+        _controller!.text =  widget.initialValue!;
+      }
+    });
+  }
+
   Widget _buildSuffixIcon() {
     return IconButton(
       icon: Icon(!_passwordVisibility ? Icons.visibility : Icons.visibility_off, color: ColorsUtil.hexColor(0xB0B3BF)),

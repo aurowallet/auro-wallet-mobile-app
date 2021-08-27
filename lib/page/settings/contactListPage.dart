@@ -24,15 +24,17 @@ class _ContactListPageState extends State<ContactListPage> {
 
   final Api api = webApi;
 
-  void _addContact() async {
+  Future<Map<String, String>?> _showAddressDialog(String? initName, String? initAddress) async {
     var i18n = I18n.of(context).main;
     List<String>? inputs = await showDialog<List<String>>(
       context: context,
       builder: (_) {
         return AddressBookDialog(
+            name: initName,
+            address: initAddress,
             onOk:(String? name, String? address) {
               if (name == null || name.isEmpty
-              || address == null || address.isEmpty
+                  || address == null || address.isEmpty
               ) {
                 UI.toast(i18n['urlError_1']!);
                 return false;
@@ -43,7 +45,7 @@ class _ContactListPageState extends State<ContactListPage> {
       },
     );
     if (inputs == null) {
-      return;
+      return null;
     }
     String name = inputs[0].trim();
     String address = inputs[1].trim();
@@ -52,8 +54,21 @@ class _ContactListPageState extends State<ContactListPage> {
     bool isValid = await webApi.account.isAddressValid(address);
     if (!isValid) {
       UI.toast(i18n['sendAddressError']!);
+      return null;
+    }
+    return {
+      "name": name,
+      "address": address
+    };
+  }
+  void _addContact() async {
+    var i18n = I18n.of(context).main;
+    var nameAndAddressMap = await _showAddressDialog(null, null);
+    if (nameAndAddressMap == null) {
       return;
     }
+    String name = nameAndAddressMap["name"]!;
+    String address = nameAndAddressMap["address"]!;
     if (widget.store.contactList.any((element) => element.address == address)) {
       UI.toast(i18n['repeatContact']!);
       return;
@@ -84,8 +99,7 @@ class _ContactListPageState extends State<ContactListPage> {
     if (contacts.length == 0) {
       return Container();
     }
-    List<Widget> list = contacts
-        .map((contact) {
+    List<Widget> list = contacts.map((contact) {
       return GestureDetector(
         child: Padding(
           key: Key(contact.address + contact.name),
@@ -98,6 +112,8 @@ class _ContactListPageState extends State<ContactListPage> {
               child: ContactItem(
                 name: contact.name,
                 address: contact.address,
+                store: widget.store,
+                showEditDialog: _showAddressDialog,
               ),
             ),
             secondaryActions: <Widget>[
@@ -174,12 +190,25 @@ class ContactItem extends StatelessWidget {
       {
         required this.name,
         required this.address,
+        required this.store,
+        required this.showEditDialog,
         this.margin = const EdgeInsets.only(top: 0),
       });
   final String name;
   final String address;
   final EdgeInsetsGeometry margin;
+  final Function showEditDialog;
+  final SettingsStore store;
 
+  void _onClick () async {
+    var nameAndAddressMap = await this.showEditDialog(this.name, this.address);
+    if (nameAndAddressMap == null) {
+      return;
+    }
+    String name = nameAndAddressMap["name"]!;
+    String address = nameAndAddressMap["address"]!;
+    this.store.updateContact(ContactData(name: name, address: address), this.address);
+  }
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
@@ -197,6 +226,7 @@ class ContactItem extends StatelessWidget {
                 color: ColorsUtil.hexColor(0x666666), fontWeight: FontWeight.w500
             )),
           ),
+          onTap: _onClick,
         )
     );
   }
