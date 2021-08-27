@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -96,8 +97,9 @@ class DelegateInfo extends StatelessWidget {
               Row(
                   children: [
                     DelegateInfoItem(
-                        labelText: i18n['blockProducerAddress']!,
-                        value: Fmt.address(validatorInfo.address, pad: 10)
+                      labelText: i18n['blockProducerAddress']!,
+                      value: Fmt.address(validatorInfo.address, pad: 10),
+                      copyValue: validatorInfo.address,
                     )
                   ]
               ),
@@ -165,9 +167,10 @@ class DelegateInfo extends StatelessWidget {
   }
 }
 class DelegateInfoItem extends StatelessWidget {
-  DelegateInfoItem({required this.labelText,required this.value});
+  DelegateInfoItem({required this.labelText,required this.value, this.copyValue});
   final String labelText;
   final String value;
+  final String? copyValue;
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
@@ -181,10 +184,14 @@ class DelegateInfoItem extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.only(top: 2, bottom: 8),
-            child: Text(
-              value,
-              textAlign: TextAlign.left,
-              style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x000000), height: 1.2, fontWeight: FontWeight.w500),
+            child: CopyContainer(
+              child: Text(
+                value,
+                textAlign: TextAlign.left,
+                style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x000000), height: 1.2, fontWeight: FontWeight.w500),
+              ),
+              text: copyValue,
+              showIcon: true,
             ),
           )
         ]
