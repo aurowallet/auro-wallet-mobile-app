@@ -22,6 +22,7 @@ abstract class _AssetsStore with Store {
 
   final String localStorageFeesKey = 'fees';
   final String cacheBalanceKey = 'balance';
+  final String cachePriceKey = 'coin_price';
   final String cacheTxsKey = 'txs';
   final String cacheTimeKey = 'assets_cache_time';
 
@@ -157,6 +158,7 @@ abstract class _AssetsStore with Store {
   @action
   void setMarketPrices(String token, double price) {
     marketPrices[token] = price;
+    rootStore.localStorage.setObject(cachePriceKey, marketPrices.map((key, value) => MapEntry(key, value)));
   }
 
   @action
@@ -186,13 +188,27 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> loadCache() async {
+  Future<void> loadMarketPricesCache() async {
+    Map<String, dynamic>? prices = await rootStore.localStorage.getObject(cachePriceKey) as Map<String, dynamic>?;
+    if (prices != null) {
+      marketPrices.addAll(prices.map((key, value) => MapEntry(key, value as double)));
+    }
+  }
+
+  @action
+  Future<void> loadFeesCache() async {
     Map<String, dynamic>? fees = await rootStore.localStorage.getObject(localStorageFeesKey) as Map<String, dynamic>?;
     if (fees != null) {
       transferFees = Fees.fromJson(fees);
     } else {
       transferFees = Fees.fromDefault();
     }
+  }
+
+  @action
+  Future<void> loadCache() async {
+    await loadFeesCache();
+    await loadMarketPricesCache();
     await loadAccountCache();
   }
 }
