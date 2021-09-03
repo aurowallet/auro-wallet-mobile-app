@@ -41,7 +41,6 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   @override
   void initState() {
     super.initState();
-    _checkBiometricAuth();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _passCtrl.addListener(_monitorSummitStatus);
       _pass2Ctrl.addListener(_monitorSummitStatus);
@@ -57,31 +56,8 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   }
 
 
-  Future<void> _checkBiometricAuth() async {
-    return;
-    final response = await BiometricStorage().canAuthenticate();
-    final supportBiometric = response == CanAuthenticateResponse.success;
-    if (!supportBiometric) {
-      return;
-    }
-    setState(() {
-      _supportBiometric = supportBiometric;
-    });
-  }
 
-  Future<void> _authBiometric() async {
-    final storeFile = await webApi.account.getBiometricPassStoreFile(
-      context,
-      widget.store.wallet!.currentAccountPubKey,
-    );
 
-    try {
-      await storeFile.write(widget.store.wallet!.newWalletParams.password);
-      webApi.account.setBiometricEnabled(widget.store.wallet!.currentAccountPubKey);
-    } catch (err) {
-      // ignore
-    }
-  }
 
   void _monitorSummitStatus() {
     if (_passCtrl.text.isEmpty || _pass2Ctrl.text.isEmpty) {
