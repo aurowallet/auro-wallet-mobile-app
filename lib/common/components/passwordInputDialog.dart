@@ -70,20 +70,17 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     final response = await BiometricStorage().canAuthenticate();
 
     final supportBiometric = response == CanAuthenticateResponse.success;
-    final isBiometricAuthorized =
-        webApi.account.getBiometricEnabled(widget.wallet.pubKey);
+    final isBiometricAuthorized = webApi.account.getBiometricEnabled();
     setState(() {
       _isBiometricAuthorized = isBiometricAuthorized;
     });
     if (supportBiometric) {
-      final authStorage = await webApi.account
-          .getBiometricPassStoreFile(context, widget.wallet.pubKey);
       // we prompt biometric auth here if device supported
       // and user authorized to use biometric.
       if (isBiometricAuthorized) {
         try {
+          final authStorage = await webApi.account.getBiometricPassStoreFile(context);
           final result = await authStorage.read();
-          print('read password from authStorage: $result');
           if (result != null) {
             await _onOk(result);
           }
@@ -113,7 +110,9 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-
+    if (_isBiometricAuthorized) {
+      return Container();
+    }
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 28),
       shape: RoundedRectangleBorder(

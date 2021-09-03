@@ -16,6 +16,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:biometric_storage/biometric_storage.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage(this.store);
@@ -31,11 +32,13 @@ class _SecurityPageState extends State<SecurityPage> {
   _SecurityPageState(this.store);
 
   final AppStore store;
-
+  bool _isBiometricAuthorized = false;
+  bool _supportBiometric = false;
 
   @override
   void initState() {
     super.initState();
+    _checkBiometricAuth();
 
   }
   @override
@@ -80,11 +83,53 @@ class _SecurityPageState extends State<SecurityPage> {
     // ));
   }
 
+  Future<void> _checkBiometricAuth() async {
+    final response = await BiometricStorage().canAuthenticate();
+    final supportBiometric = response == CanAuthenticateResponse.success;
+    if (!supportBiometric) {
+      return;
+    }
+    setState(() {
+      _supportBiometric = supportBiometric;
+    });
+    final isBiometricAuthorized = webApi.account.getBiometricEnabled();
+    setState(() {
+      _isBiometricAuthorized = isBiometricAuthorized;
+    });
+  }
+
+  Future<void> _authBiometric() async {
+    final storeFile = await webApi.account.getBiometricPassStoreFile(
+      context,
+    );
+    String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet);
+    try {
+      if (password != null) {
+        await storeFile.write(password);
+        webApi.account.setBiometricEnabled();
+        setState(() {
+          _isBiometricAuthorized = true;
+        });
+      }
+    } catch (err) {
+      // ignore
+    }
+  }
+
   void _onChangePassword() {
-    print('changepassword');
     Navigator.pushReplacementNamed(context, ChangePasswordPage.route);
   }
 
+  void _onToggleBiometric(bool isOn) {
+    if (isOn) {
+      _authBiometric();
+    } else {
+      webApi.account.setBiometricDisabled();
+      this.setState(() {
+        this._isBiometricAuthorized = false;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
@@ -102,6 +147,9 @@ class _SecurityPageState extends State<SecurityPage> {
             children: <Widget>[
               ImportItem(text: dic['restoreSeed']!, onClick: _onBackup,),
               ImportItem(text: dic['changePassword']!, onClick: _onChangePassword,),
+              _supportBiometric ?
+              SwitchItem(text: dic['unlock.bio.enable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
+                  : Container()
             ],
           )
         ),
@@ -144,6 +192,42 @@ class ImportItem extends StatelessWidget {
           ],
         )
       )
+    );
+  }
+}
+
+class SwitchItem extends StatelessWidget {
+  SwitchItem({
+    required this.text,
+    required this.isOn,
+    required this.onClick
+  });
+
+  final String text;
+  final bool isOn;
+  final void Function(bool) onClick;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 15),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x010000)),),
+            Switch(
+              value: isOn,
+              onChanged: (value) {
+                onClick(value);
+              },
+              activeTrackColor: Colors.yellow,
+              activeColor: Colors.orangeAccent,
+            ),
+          ],
+        )
     );
   }
 }

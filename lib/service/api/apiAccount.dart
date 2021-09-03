@@ -405,23 +405,22 @@ $validUntil: String!,$scalar: String!, $field: String!) {
     return isCorrect;
   }
 
-  void setBiometricEnabled(String pubKey) {
-    apiRoot.configStorage.write(
-        '$_biometricEnabledKey$pubKey', DateTime.now().millisecondsSinceEpoch);
+  void setBiometricEnabled() {
+    apiRoot.configStorage.write('$_biometricEnabledKey',
+        DateTime.now().millisecondsSinceEpoch);
   }
 
-  void setBiometricDisabled(String pubKey) {
-    apiRoot.configStorage.write('$_biometricEnabledKey$pubKey',
+  void setBiometricDisabled() {
+    apiRoot.configStorage.write('$_biometricEnabledKey',
         DateTime.now().millisecondsSinceEpoch - SECONDS_OF_DAY * 7000);
   }
 
-  bool getBiometricEnabled(String pubKey) {
+  bool getBiometricEnabled() {
     final timestamp =
-        apiRoot.configStorage.read('$_biometricEnabledKey$pubKey');
+        apiRoot.configStorage.read('$_biometricEnabledKey');
     // we cache user's password with biometric for 7 days.
     if (timestamp != null &&
-        timestamp + SECONDS_OF_DAY * 7000 >
-            DateTime.now().millisecondsSinceEpoch) {
+        timestamp + SECONDS_OF_DAY * 7000 > DateTime.now().millisecondsSinceEpoch) {
       return true;
     }
     return false;
@@ -429,13 +428,11 @@ $validUntil: String!,$scalar: String!, $field: String!) {
 
   Future<BiometricStorageFile> getBiometricPassStoreFile(
     BuildContext context,
-    String pubKey,
   ) async {
     final dic = I18n.of(context).main;
     return BiometricStorage().getStorage(
-      '$_biometricPasswordKey$pubKey',
-      options:
-          StorageFileInitOptions(authenticationValidityDurationSeconds: 30),
+      '$_biometricPasswordKey',
+      options:  StorageFileInitOptions(authenticationValidityDurationSeconds: 30),
       androidPromptInfo: AndroidPromptInfo(
         title: dic['unlock.bio']!,
         negativeButton: dic['cancel']!,
