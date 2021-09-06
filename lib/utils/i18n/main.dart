@@ -252,7 +252,7 @@ const Map<String, String> enMain = {
   "backTips_title": "Backup Mnemonic Phrase",
   "backTips_1": "Backup your mnemonic phrase now!",
   "backTips_2": "The Mnemonic phrase consists of 12 English words, which cannot be retrieved if they are lost. Make sure the mnemonic phrase is kept in a secure location.",
-  "backTips_3": "When the wallet can't be accessed because the device is lost or any other reasons,importing mnemonic phrase is the only way to retrieve your assets.",
+  "backTips_3": "When the wallet can't be accessed because the device is lost or any other reasons, importing mnemonic phrase is the only way to retrieve your assets.",
   "show_seed_content": "Please write down the following mnemonic phrase and keep it in a safe place.",
   "show_seed_button": "Confirmed Backup",
   "seed_error": "The mnemonic phrase is entered incorrectly, please re-enter",
