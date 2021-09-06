@@ -150,45 +150,39 @@ class TransactionDetailPage extends StatelessWidget {
 
     final TransferData tx = ModalRoute.of(context)!.settings.arguments as TransferData;
     var link = 'https://hubble.figment.io/mina/chains/mainnet/transactions/${tx.hash}';
-    return new WillPopScope(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('${I18n.of(context).main['details']!}'),
-          centerTitle: true,
-        ),
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.only(bottom: 32, right: 30, left: 30),
-                  children: _buildListView(context),
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${I18n.of(context).main['details']!}'),
+        centerTitle: true,
+      ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.only(bottom: 32, right: 30, left: 30),
+                children: _buildListView(context),
               ),
-              CustomDivider(
-                  margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 30)
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 30),
-                      child: BrowserLink(
-                        link,
-                        text: i18n['goToExplrer']!,
-                      )
-                  )
-                ],
-              )
-            ],
-          ),
+            ),
+            CustomDivider(
+                margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 30)
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: BrowserLink(
+                      link,
+                      text: i18n['goToExplrer']!,
+                    )
+                )
+              ],
+            )
+          ],
         ),
       ),
-      onWillPop: () async {
-        Navigator.of(context).pop();
-        return true;
-      },
     );
   }
 }

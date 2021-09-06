@@ -18,11 +18,15 @@ class CopyContainer extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment:  MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Padding(
-              padding: !showIcon ? EdgeInsets.zero :  EdgeInsets.only(right: 4),
-              child: child,
-            ),
+            Flexible(
+              fit: FlexFit.loose,
+              flex: 1,
+              child:  Padding(
+                padding: !showIcon ? EdgeInsets.zero :  EdgeInsets.only(right: 4),
+                child: child,
+              ),),
             showIcon ? Icon(Icons.copy_outlined, size: 16, color: Theme.of(context).primaryColor) : Container()
           ],
         ) ,
