@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 ThemeData theme = ThemeData();
+TextButtonThemeData textButtonData = const TextButtonThemeData();
 final appTheme = ThemeData(
   primaryColor: ColorsUtil.hexColor(0x6B5DFB),
   highlightColor: Colors.transparent,
   splashColor: Colors.transparent,
   splashFactory: NoSplashFactory(),
+  textButtonTheme: TextButtonThemeData(
+    style: ButtonStyle(
+      foregroundColor: MaterialStateProperty.all(Colors.transparent),
+    )
+  ),
   appBarTheme: AppBarTheme(
       color: Colors.white,
       iconTheme: IconThemeData(

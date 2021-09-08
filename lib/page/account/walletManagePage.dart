@@ -18,6 +18,7 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/import/importWaysPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class WalletManagePage extends StatefulWidget {
   const WalletManagePage(this.store);
@@ -77,7 +78,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
   }
   List<Widget> _renderAccountList() {
     Map<String, WalletData> walletMap = store.wallet!.walletsMap;
-    return store.wallet!.accountListAll.map((account){
+    List<Widget> items = [];
+    items.addAll(store.wallet!.accountListAll.map((account){
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
       return WalletItem(
         account: account,
@@ -85,7 +87,29 @@ class _WalletManagePageState extends State<WalletManagePage> {
         store: store,
         wallet: walletMap[account.walletId]!,
       );
-    }).toList();
+    }).toList());
+    items.add(this._renderResetButton());
+    return items;
+  }
+  Widget _renderResetButton() {
+    var theme = Theme.of(context).textTheme;
+    final Map<String, String> dic = I18n.of(context).main;
+    return TextButton(onPressed: _onResetApp, child: Text(
+      dic['resetWallet']!,
+      style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
+    ));
+  }
+  void _onResetApp() async {
+    final Map<String, String> dic = I18n.of(context).main;
+    bool? confirm = await UI.showConfirmDialog(context: context, contents: [
+      dic['resetWarnContent']!
+    ], okText: dic['confirmReset']!, cancelText: dic['cancelReset']!);
+    if (confirm != true) {
+      return;
+    }
+    store.wallet!.clearWallets();
+    store.assets!.clearAccountCache();
+    Phoenix.rebirth(context);
   }
   @override
   Widget build(BuildContext context) {

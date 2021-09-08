@@ -231,7 +231,11 @@ const Map<String, String> zhMain = {
   "validatorTotalStake": "总委托",
   "validatorStakeFee": "佣金",
   "scan": "扫描",
-  "restoreTip": "提示: 若要导入私钥匙/Keystore或连接Ledger，需先[创建钱包]或者[恢复钱包]"
+  "restoreTip": "提示: 若要导入私钥匙/Keystore或连接Ledger，需先[创建钱包]或者[恢复钱包]",
+  "resetWallet": "重置钱包",
+  "resetWarnContent":"确定要重置钱包吗？\n\n重置后现有钱包的数据将会全部丢失，只能使用助记词恢复，请确保你已经备份好助记词后再重置钱包。",
+  "confirmReset": "确定重置",
+  "cancelReset": "取消重置"
 };
 
 const Map<String, String> enMain = {
@@ -465,5 +469,9 @@ const Map<String, String> enMain = {
   "validatorStakeFee": "Fee",
   "privacy": "Privacy Policy",
   "scan": "Scan",
-  "restoreTip": "Tips: If you want to import private key/keystore or connect Ledger, need to [Create Wallet] or [Restore Wallet] first."
+  "restoreTip": "Tips: If you want to import private key/keystore or connect Ledger, need to [Create Wallet] or [Restore Wallet] first.",
+  "resetWallet": "Reset Wallet",
+  "resetWarnContent":"Are you sure erase your wallet?\n\nAfter reset the wallet, all data will be lost and can only be restored using the mnemonic words. Please make sure that you have backed up the mnemonic before reset the wallet.",
+  "confirmReset": "Confirm",
+  "cancelReset": "Cancel"
 };

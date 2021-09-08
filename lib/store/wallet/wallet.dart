@@ -138,7 +138,14 @@ abstract class _WalletStore with Store {
     await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
     await loadWallet();
   }
-
+  @action
+  Future<void> clearWallets() async {
+    await rootStore.localStorage.clearWallets();
+    await rootStore.localStorage.setCurrentAccount('');
+    await rootStore.localStorage.setCurrentWallet('');
+    await rootStore.secureStorage.clearSeeds();
+    await loadWallet();
+  }
   @action
   Future<void> addAccount(Map<String, dynamic> acc, String accountName, WalletData wallet) async {
     String pubKey = acc['pubKey'];

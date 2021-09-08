@@ -4,7 +4,9 @@ import 'dart:convert';
 class SecureStorage {
   final storage = new FlutterSecureStorage();
   final seedKey = 'wallet_seed';
-
+  Future<void> clearSeeds() async {
+    return storage.deleteAll();
+  }
   Future<void> setSeeds(String seedType, Map value) async {
     return storage.write(key: '${seedKey}_$seedType', value: jsonEncode(value));
   }

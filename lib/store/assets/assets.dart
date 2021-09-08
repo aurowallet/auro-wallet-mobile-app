@@ -26,10 +26,6 @@ abstract class _AssetsStore with Store {
   final String cacheTxsKey = 'txs';
   final String cacheTimeKey = 'assets_cache_time';
 
-  String _getCacheKey(String key) {
-    return '$key';
-  }
-
   @observable
   int cacheTxsTimestamp = 0;
 
@@ -132,13 +128,13 @@ abstract class _AssetsStore with Store {
     if (shouldCache) {
       rootStore.localStorage.setAccountCache(
           rootStore.wallet!.currentWallet.pubKey,
-          _getCacheKey(cacheTxsKey),
+          cacheTxsKey,
           ls);
 
       cacheTxsTimestamp = DateTime.now().millisecondsSinceEpoch;
       rootStore.localStorage.setAccountCache(
           rootStore.wallet!.currentWallet.pubKey,
-          _getCacheKey(cacheTimeKey),
+          cacheTimeKey,
           cacheTxsTimestamp);
     }
   }
@@ -171,8 +167,8 @@ abstract class _AssetsStore with Store {
 
     List cache = await Future.wait([
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
-      rootStore.localStorage.getAccountCache(pubKey, _getCacheKey(cacheTxsKey)),
-      rootStore.localStorage.getAccountCache(pubKey, _getCacheKey(cacheTimeKey)),
+      rootStore.localStorage.getAccountCache(pubKey, cacheTxsKey),
+      rootStore.localStorage.getAccountCache(pubKey, cacheTimeKey),
     ]);
     if (cache[0] != null) {
       setAccountInfo(pubKey, cache[0], needCache: false);
@@ -205,6 +201,15 @@ abstract class _AssetsStore with Store {
     }
   }
 
+  @action
+  Future<void> clearAccountCache() async {
+    rootStore.localStorage.clearAccountsCache(cacheTxsKey);
+    rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
+    rootStore.localStorage.clearAccountsCache(cacheTimeKey);
+    cacheTxsTimestamp = 0;
+    txs = ObservableList();
+    accountsInfo = ObservableMap<String, AccountInfo>();
+  }
   @action
   Future<void> loadCache() async {
     await loadFeesCache();

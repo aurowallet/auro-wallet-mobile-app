@@ -87,6 +87,7 @@ dev_dependencies:
   flutter_native_splash: ^1.1.8+4
   flutter_test:
     sdk: flutter
+  flutter_phoenix: ^1.0.0
 
 dependency_overrides:
   crypto: '3.0.0'

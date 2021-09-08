@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:auro_wallet/service/notification.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +37,9 @@ Future<void> main() async {
   String graphqlEndpoint = await SettingsStore.loadEndpointGlobally();
 
   runApp(
-    WalletApp(graphqlEndpoint: graphqlEndpoint),
+      Phoenix(
+        child: WalletApp(graphqlEndpoint: graphqlEndpoint),
+      )
   );
   configLoading();
 }

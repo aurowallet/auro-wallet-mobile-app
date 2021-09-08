@@ -21,6 +21,10 @@ class LocalStorage {
     return storage.removeItemFromList(walletsKey, 'id', pubKey);
   }
 
+  Future<void> clearWallets() async {
+    return storage.clearList(walletsKey);
+  }
+
   Future<void> updateWallet(Map<String, dynamic> acc) async {
     return storage.updateItemInList(walletsKey, 'id', acc['id'], acc);
   }
@@ -71,6 +75,12 @@ class LocalStorage {
       return data;
     }
     return null;
+  }
+
+  Future<void> clearAccountsCache(String key) async {
+    Map? data = await getObject(key) as Map?;
+    data = {};
+    setObject(key, data);
   }
 
   Future<void> setAccountCache(
@@ -124,7 +134,12 @@ class _LocalStorage {
 
     setKV(storeKey, jsonEncode(ls));
   }
-
+  Future<void> clearList(
+      String storeKey) async {
+    var ls = await getList(storeKey);
+    ls.clear();
+    setKV(storeKey, jsonEncode(ls));
+  }
   Future<void> removeItemFromList(
       String storeKey, String itemKey, String itemValue) async {
     var ls = await getList(storeKey);
