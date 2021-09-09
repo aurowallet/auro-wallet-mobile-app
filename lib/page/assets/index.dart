@@ -59,7 +59,6 @@ class _AssetsState extends State<Assets> {
   Future<void> _fetchBalance() async {
     await Future.wait([
       _fetchTransactions(),
-      webApi.assets.fetchAccountInfo(),
     ]);
   }
 
