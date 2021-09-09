@@ -70,6 +70,14 @@ class _ChangePassword extends State<ChangePasswordPage> {
       return;
     }
     await store.updateAllWalletSeed(passOld, passNew);
+    final response = await BiometricStorage().canAuthenticate();
+    final supportBiometric = response == CanAuthenticateResponse.success;
+    if (supportBiometric) {
+      final isBiometricAuthorized = webApi.account.getBiometricEnabled();
+      if (isBiometricAuthorized) {
+        webApi.account.saveBiometricPass(context, passNew);
+      }
+    }
     UI.toast(dic['pwdChangeSuccess']!);
     setState(() {
       _submitting = false;

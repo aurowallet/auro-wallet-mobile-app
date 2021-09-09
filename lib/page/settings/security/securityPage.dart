@@ -101,13 +101,11 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 
   Future<void> _authBiometric() async {
-    final storeFile = await webApi.account.getBiometricPassStoreFile(
-      context,
-    );
     String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet);
+
     try {
       if (password != null) {
-        await storeFile.write(password);
+        webApi.account.saveBiometricPass(context, password);
         webApi.account.setBiometricEnabled();
         setState(() {
           _isBiometricAuthorized = true;
