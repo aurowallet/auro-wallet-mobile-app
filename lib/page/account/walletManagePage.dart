@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
+import 'package:auro_wallet/common/components/customPromptDialog.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -107,10 +108,27 @@ class _WalletManagePageState extends State<WalletManagePage> {
     if (confirm != true) {
       return;
     }
-    store.wallet!.clearWallets();
-    store.assets!.clearAccountCache();
-    webApi.account.setBiometricDisabled();
-    Phoenix.rebirth(context);
+    String? confirmInput = await showDialog<String>(
+      context: context,
+      builder: (_) {
+        return CustomPromptDialog(
+            title: dic['deleteConfirm']!,
+            placeholder: '',
+            onOk:(String? text) {
+              if (text == null || text.isEmpty) {
+                return false;
+              }
+              return true;
+            }
+        );
+      },
+    );
+    if (confirmInput != null && confirmInput.toLowerCase() == dic['delete']!.toLowerCase()) {
+      store.wallet!.clearWallets();
+      store.assets!.clearAccountCache();
+      webApi.account.setBiometricDisabled();
+      Phoenix.rebirth(context);
+    }
   }
   @override
   Widget build(BuildContext context) {
