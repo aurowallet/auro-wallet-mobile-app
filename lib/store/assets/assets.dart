@@ -122,6 +122,7 @@ abstract class _AssetsStore with Store {
     ls.forEach((i) {
       TransferData tx = TransferData.fromJson(i);
       tx.success = tx.status != 'failed';
+      i['success'] = tx.success;
       txs.add(tx);
     });
 
