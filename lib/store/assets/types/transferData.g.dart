@@ -8,7 +8,7 @@ part of 'transferData.dart';
 
 TransferData _$TransferDataFromJson(Map<String, dynamic> json) {
   return TransferData()
-    ..success = json['success'] as bool
+    ..success = json['success'] as bool?
     ..nonce = json['nonce'] as int?
     ..paymentId = json['paymentId'] as String
     ..hash = json['hash'] as String

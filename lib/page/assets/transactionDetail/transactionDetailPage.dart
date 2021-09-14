@@ -43,7 +43,7 @@ class TransactionDetailPage extends StatelessWidget {
       statusIcon = 'assets/images/public/pending_tip.svg';
       statusColor = ColorsUtil.hexColor(0xFFC633);
       statusText = dic['PENDING']!;
-    } else if (success) {
+    } else if (success == true) {
       statusIcon = 'assets/images/public/success_tip.svg';
       statusColor = ColorsUtil.hexColor(0x38d79f);
       statusText = dic['APPLIED']!;

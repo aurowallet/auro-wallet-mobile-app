@@ -4,8 +4,13 @@ part 'transferData.g.dart';
 
 @JsonSerializable()
 class TransferData extends _TransferData {
-  static TransferData fromJson(Map<String, dynamic> json) =>
-      _$TransferDataFromJson(json);
+  static TransferData fromJson(Map<String, dynamic> json) {
+    final td =  _$TransferDataFromJson(json);
+    if (td.success == null) {
+      td.success = td.status != 'failed';
+    }
+    return td;
+  }
   static Map<String, dynamic> toJson(TransferData data) =>
       _$TransferDataToJson(data);
   static TransferData fromPendingJson(Map<String, dynamic> json) {
@@ -21,7 +26,7 @@ class TransferData extends _TransferData {
 }
 
 abstract class _TransferData {
-  bool success = true;
+  bool? success = true;
   int? nonce = 0;
   String paymentId = "";
   String hash = "";

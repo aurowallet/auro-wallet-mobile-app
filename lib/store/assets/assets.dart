@@ -68,7 +68,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> setAccountInfo(String pubKey, Map amt, {bool needCache = true}) async {
-    if (rootStore.wallet!.currentWallet.pubKey != pubKey) return;
+    // if (rootStore.wallet!.currentWallet.pubKey != pubKey) return;
 
     accountsInfo[pubKey] = AccountInfo.fromJson(amt as Map<String, dynamic>);
 
@@ -122,6 +122,7 @@ abstract class _AssetsStore with Store {
     ls.forEach((i) {
       TransferData tx = TransferData.fromJson(i);
       tx.success = tx.status != 'failed';
+      i['success'] = tx.success;
       txs.add(tx);
     });
 

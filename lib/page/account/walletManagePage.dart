@@ -126,6 +126,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
     if (confirmInput != null && confirmInput.toLowerCase() == dic['delete']!.toLowerCase()) {
       store.wallet!.clearWallets();
       store.assets!.clearAccountCache();
+      webApi.account.setBiometricDisabled();
       Phoenix.rebirth(context);
     }
   }

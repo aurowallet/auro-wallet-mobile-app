@@ -426,6 +426,13 @@ $validUntil: String!,$scalar: String!, $field: String!) {
     return false;
   }
 
+  Future saveBiometricPass( BuildContext context, String password) async{
+    final storeFile = await webApi.account.getBiometricPassStoreFile(
+      context,
+    );
+    await storeFile.write(password);
+  }
+
   Future<BiometricStorageFile> getBiometricPassStoreFile(
     BuildContext context,
   ) async {
