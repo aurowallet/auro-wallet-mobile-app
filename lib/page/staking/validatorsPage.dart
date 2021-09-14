@@ -9,6 +9,8 @@ import 'package:auro_wallet/page/staking/components/validatorItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:math' as math;
+
 class ValidatorsPage extends StatefulWidget {
   ValidatorsPage(this.store);
   static final String route = '/staking/validators';
@@ -23,8 +25,8 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
   _ValidatorsPageState(this.store);
 
   final AppStore store;
-  late List<ValidatorData> validatorsList;
-  late List<ValidatorData> uiList;
+  List<ValidatorData> validatorsList = [];
+  List<ValidatorData> uiList = [];
   late ReactionDisposer monitorListDisposer;
   TextEditingController editingController = new TextEditingController();
   String? keywords;
@@ -32,9 +34,16 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    monitorListDisposer = reaction((_) => store.staking!.validatorsInfo, _onListChange);
-    uiList = validatorsList = store.staking!.validatorsInfo;
-    editingController.addListener(_onKeywordsChange);
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      monitorListDisposer = reaction((_) => store.staking!.validatorsInfo, _onListChange);
+      editingController.addListener(_onKeywordsChange);
+      Future.delayed(const Duration(milliseconds: 230), () {
+        validatorsList = store.staking!.validatorsInfo;
+        setState(() {
+          uiList = validatorsList;
+        });
+      });
+    });
   }
 
   @override
@@ -52,8 +61,8 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
   }
 
   void _onListChange(List<ValidatorData> vs) {
+    validatorsList = vs;
     setState(() {
-      validatorsList = vs;
       uiList = _filter(vs);
     });
   }
@@ -109,7 +118,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
                 SearchInput(editingController: editingController,),
                 Expanded(
                   child: ListView.builder(
-                    padding: EdgeInsets.only(left: 28, right: 28, bottom: 20, top: 12),
+                    padding: const EdgeInsets.only(left: 28, right: 28, bottom: 20, top: 12),
                     itemCount: uiList.length + 1,
                     itemBuilder: (context, index) {
                       if (index == uiList.length) {
@@ -124,7 +133,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
                   )
                 ),
                Padding(
-                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                  child:  NormalButton(
                    disabled: selectedValidatorAddress.isEmpty,
                    color: ColorsUtil.hexColor(0x6D5FFE),
@@ -151,7 +160,7 @@ class ManualAddValidatorButton extends StatelessWidget {
             },
             behavior: HitTestBehavior.opaque,
             child: Container(
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding:const EdgeInsets.symmetric(vertical: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

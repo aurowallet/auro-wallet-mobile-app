@@ -14,23 +14,21 @@ class SearchInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
-    TextStyle labelStyle = TextStyle(fontSize: 14, color: ColorsUtil.hexColor(0x333333));
-    TextStyle valueStyle = TextStyle(fontSize: 14, color: ColorsUtil.hexColor(0x737be4), fontWeight: FontWeight.bold, );
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 28, right: 28),
+      margin:const EdgeInsets.only(top: 10, left: 28, right: 28),
       child: TextField(
         controller: editingController,
         autocorrect: false,
-        style: TextStyle(
+        style:const TextStyle(
             fontSize: 16.0,
             color: Colors.black
         ),
         decoration: InputDecoration(
             hintText: i18n['searchPlaceholder']!,
-            prefixIcon: Icon(Icons.search,),
+            prefixIcon: const Icon(Icons.search,),
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
             isDense: true,
-            border: OutlineInputBorder(
+            border:const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(6.0)))),
       ),
     );

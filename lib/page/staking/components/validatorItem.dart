@@ -28,12 +28,11 @@ class ValidatorItem extends StatelessWidget {
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     final Map<String, String> i18n = I18n.of(context).main;
-    Runes input = new Runes( data.name == null ? Fmt.address(data.address, pad: 8) : data.name!);
     return GestureDetector(
       onTap: onItemClick,
       child: FormPanel(
-          padding: EdgeInsets.only(left: 20, top: 20, bottom: 20, right: 10),
-          margin: EdgeInsets.only(top: 10),
+          padding:const EdgeInsets.only(left: 20, top: 20, bottom: 20, right: 10),
+          margin:const EdgeInsets.only(top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,7 +45,7 @@ class ValidatorItem extends StatelessWidget {
                     children: [
                     Expanded(
                         child: Text(
-                            String.fromCharCodes(input),
+                            data.name == null ? Fmt.address(data.address, pad: 8) : data.name!,
                             style: theme.headline5!.copyWith(
                                 color: ColorsUtil.hexColor(0x010000D),
                                 fontWeight: FontWeight.w600
