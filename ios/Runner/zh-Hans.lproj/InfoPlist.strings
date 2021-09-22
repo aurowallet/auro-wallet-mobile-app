@@ -1,0 +1,7 @@
+/* 
+  InfoPlist.strings
+  Runner
+
+  Copyright © 2021 The Chromium Authors. All rights reserved.
+*/
+CFBundleDisplayName = "Auro钱包";
