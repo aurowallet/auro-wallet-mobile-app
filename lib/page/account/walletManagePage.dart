@@ -95,16 +95,30 @@ class _WalletManagePageState extends State<WalletManagePage> {
   Widget _renderResetButton() {
     var theme = Theme.of(context).textTheme;
     final Map<String, String> dic = I18n.of(context).main;
-    return TextButton(onPressed: _onResetApp, child: Text(
-      dic['resetWallet']!,
-      style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
-    ));
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Text(
+            dic['resetWallet']!,
+            style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
+          ),
+        ),
+        onTap: _onResetApp,
+      ),
+    );
   }
   void _onResetApp() async {
     final Map<String, String> dic = I18n.of(context).main;
-    bool? confirm = await UI.showConfirmDialog(context: context, contents: [
-      dic['resetWarnContent']!
-    ], okText: dic['confirmReset']!, cancelText: dic['cancelReset']!);
+    bool? confirm = await UI.showConfirmDialog(
+        context: context,
+        contents: [
+          dic['resetWarnContent']!
+        ],
+        okText: dic['confirmReset']!,
+        cancelText: dic['cancelReset']!
+    );
     if (confirm != true) {
       return;
     }
@@ -119,7 +133,10 @@ class _WalletManagePageState extends State<WalletManagePage> {
                 return false;
               }
               return true;
-            }
+            },
+          validate: (text){
+            return text.toLowerCase() == dic['delete']!.toLowerCase();
+          },
         );
       },
     );

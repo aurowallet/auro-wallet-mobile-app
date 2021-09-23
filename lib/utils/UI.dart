@@ -93,7 +93,12 @@ class UI {
     );
   }
 
-  static Future<bool?> showConfirmDialog({required BuildContext context,required List<String> contents, String? okText, String? cancelText}) {
+  static Future<bool?> showConfirmDialog({
+    required BuildContext context,
+    required List<String> contents,
+    String? okText,
+    String? cancelText
+  }) {
     return showDialog<bool>(
       context: context,
       builder: (_) {
@@ -102,7 +107,7 @@ class UI {
           title: dic['prompt']!,
           okText: okText,
           cancelText: cancelText,
-          contents:contents
+          contents: contents
         );
       },
     );

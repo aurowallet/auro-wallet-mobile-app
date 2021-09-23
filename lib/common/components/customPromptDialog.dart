@@ -10,12 +10,13 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
 class CustomPromptDialog extends StatefulWidget {
-  CustomPromptDialog({this.onOk, this.onCancel, this.placeholder, required this.title});
+  CustomPromptDialog({this.onOk, this.onCancel, this.placeholder, required this.title, this.validate});
 
   final bool Function(String text)? onOk;
   final Function? onCancel;
   final String? placeholder;
   final String title;
+  final bool Function (String text)? validate;
 
   @override
   _CustomPromptDialogState createState() => _CustomPromptDialogState();
@@ -24,10 +25,30 @@ class CustomPromptDialog extends StatefulWidget {
 class _CustomPromptDialogState extends State<CustomPromptDialog> {
 
   final TextEditingController _textCtrl = new TextEditingController();
+  bool _isCorrect = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.validate != null) {
+      _textCtrl.addListener(_doValidate);
+    }
+    _doValidate();
+  }
 
   @override
   void dispose() {
     super.dispose();
+    _textCtrl.dispose();
+  }
+
+  void _doValidate() {
+    if (widget.validate != null) {
+      var isCor = widget.validate!(_textCtrl.text);
+      setState(() {
+        _isCorrect = isCor;
+      });
+    }
   }
 
   @override
@@ -86,13 +107,15 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                         minWidth: 130,
                         color: Theme.of(context).primaryColor,
                         shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        disabledColor: Colors.black12,
+                        disabledTextColor: Colors.blueGrey,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(dic['confirm']!, style: TextStyle(color: Colors.white, fontSize: 16))
                           ],
                         ),
-                        onPressed: () {
+                        onPressed: _isCorrect ? () {
                           if (widget.onOk != null) {
                             bool close = widget.onOk!(_textCtrl.text);
                             if (!close) {
@@ -100,7 +123,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                             }
                           }
                           Navigator.of(context).pop(_textCtrl.text.trim());
-                        },
+                        } : null,
                       ),
                     ]
                 ),
