@@ -97,15 +97,15 @@ class _WalletManagePageState extends State<WalletManagePage> {
     final Map<String, String> dic = I18n.of(context).main;
     return Padding(
       padding: EdgeInsets.only(top: 20),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        child: Center(
+      child: Center(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _onResetApp,
           child: Text(
             dic['resetWallet']!,
             style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
           ),
         ),
-        onTap: _onResetApp,
       ),
     );
   }
