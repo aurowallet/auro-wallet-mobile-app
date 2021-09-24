@@ -54,7 +54,7 @@ class _TransferPageState extends State<TransferPage> {
   final TextEditingController _nonceCtrl = new TextEditingController();
   final TextEditingController _feeCtrl = new TextEditingController();
   late ReactionDisposer _monitorFeeDisposer;
-
+  final addressFocusNode = FocusNode();
   bool _submitDisabled = true;
   double? currentFee;
   String? _contactName;
@@ -125,6 +125,11 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<void> _onScan() async {
+    addressFocusNode.unfocus();
+    addressFocusNode.canRequestFocus = false;
+    Future.delayed(Duration(milliseconds: 100), () {
+      addressFocusNode.canRequestFocus = true;
+    });
     var to = await Navigator.of(context).pushNamed(ScanPage.route);
     if (to == null) return;
     String address = (to as QRCodeAddressResult).address;
@@ -335,6 +340,7 @@ class _TransferPageState extends State<TransferPage> {
                                         (_contactName != null ? '($_contactName)' : ''),
                                     initialValue: '',
                                     controller: _toAddressCtrl,
+                                    focusNode: addressFocusNode,
                                     suffixIcon: IconButton(
                                       icon: SvgPicture.asset(
                                           'assets/images/assets/scanner.svg',
