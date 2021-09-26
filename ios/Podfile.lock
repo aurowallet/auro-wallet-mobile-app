@@ -32,6 +32,8 @@ PODS:
   - qr_code_tools (0.0.7):
     - Flutter
   - Reachability (3.2)
+  - scan (0.0.1):
+    - Flutter
   - share (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
@@ -62,6 +64,7 @@ DEPENDENCIES:
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - qr_code_tools (from `.symlinks/plugins/qr_code_tools/ios`)
+  - scan (from `.symlinks/plugins/scan/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - trust_fall (from `.symlinks/plugins/trust_fall/ios`)
@@ -105,6 +108,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
   qr_code_tools:
     :path: ".symlinks/plugins/qr_code_tools/ios"
+  scan:
+    :path: ".symlinks/plugins/scan/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences:
@@ -136,6 +141,7 @@ SPEC CHECKSUMS:
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   qr_code_tools: 5b5dd44ccdfa4b81f645c251e421f61003254b81
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  scan: aea35bb4aa59ccc8839c576a18cd57c7d492cc86
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
