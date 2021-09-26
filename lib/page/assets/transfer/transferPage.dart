@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:auro_wallet/store/settings/types/contactData.dart';
+import 'package:auro_wallet/utils/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -125,6 +126,10 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<void> _onScan() async {
+    var canOpen = await CameraUtils.canOpenCamera();
+    if (!canOpen) {
+      return;
+    }
     addressFocusNode.unfocus();
     addressFocusNode.canRequestFocus = false;
     Future.delayed(Duration(milliseconds: 100), () {
