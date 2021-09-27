@@ -69,20 +69,28 @@ class _ChangePassword extends State<ChangePasswordPage> {
       });
       return;
     }
-    await store.updateAllWalletSeed(passOld, passNew);
     final response = await BiometricStorage().canAuthenticate();
+    bool biometricFail = false;
     final supportBiometric = response == CanAuthenticateResponse.success;
     if (supportBiometric) {
       final isBiometricAuthorized = webApi.account.getBiometricEnabled();
       if (isBiometricAuthorized) {
-        webApi.account.saveBiometricPass(context, passNew);
+        try {
+          await webApi.account.saveBiometricPass(context, passNew);
+        } catch(e) {
+          biometricFail = true;
+          print('biometric fail');
+        }
       }
     }
-    UI.toast(dic['pwdChangeSuccess']!);
+    if (!biometricFail) {
+      await store.updateAllWalletSeed(passOld, passNew);
+      UI.toast(dic['pwdChangeSuccess']!);
+      Navigator.of(context).pop();
+    }
     setState(() {
       _submitting = false;
     });
-    Navigator.of(context).pop();
   }
 
   @override
