@@ -7,6 +7,7 @@ import 'package:auro_wallet/common/components/termsDialog.dart';
 import 'package:auro_wallet/page/account/termPage.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart' as sp;
 import 'package:auro_wallet/store/settings/settings.dart';
@@ -35,7 +36,6 @@ class CreateAccountEntryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var i18n = I18n.of(context);
     var theme = Theme.of(context).textTheme;
-    var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
     _ctx = context;
     return Scaffold(
       backgroundColor: Colors.white,
@@ -59,19 +59,23 @@ class CreateAccountEntryPage extends StatelessWidget {
                       Container(
                         child: Image.asset("assets/images/public/2x/m_logo@2x.png", width: 121, height: 30,) ,
                       ),
-                      CustomDropdownButton(
-                        items: [
-                          DropdownItem(text: '中文', key: 'zh'),
-                          DropdownItem(text: 'English', key: 'en'),
-                        ],
-                        value: languageCode,
-                        onChoose: (String? value) {
-                          if (value != null) {
-                            changeLang(context, value);
-                          }
-                        },
-                        placeholder: '',
-                      )
+                      Observer(builder: (_) {
+                        var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
+                        return CustomDropdownButton(
+                          items: [
+                            DropdownItem(text: '中文', key: 'zh'),
+                            DropdownItem(text: 'English', key: 'en'),
+                          ],
+                          value: languageCode,
+                          onChoose: (String? value) async {
+                            if (value != null) {
+                              await store.setLocalCode(value);
+                              changeLang(context, value);
+                            }
+                          },
+                          placeholder: '',
+                        );
+                      })
                     ],
                   )
                 ],
