@@ -113,6 +113,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
     final Map<String, String> dic = I18n.of(context).main;
     bool? rejected = await UI.showConfirmDialog(
         context: context,
+        icon: Icon(Icons.error,size: 60,color: Color(0xfff95051),),
         contents: [
           dic['resetWarnContent']!
         ],

@@ -9,7 +9,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class CustomConfirmDialog extends StatefulWidget {
-  CustomConfirmDialog({required this.title,required this.contents, this.onOk, this.onCancel, this.cancelText, this.okText});
+  CustomConfirmDialog({required this.title,required this.contents, this.onOk, this.onCancel, this.cancelText, this.okText, this.icon});
 
   final String title;
   final String? okText;
@@ -17,6 +17,7 @@ class CustomConfirmDialog extends StatefulWidget {
   final List<String> contents;
   final Function? onOk;
   final Function? onCancel;
+  final Widget? icon;
 
   @override
   _CustomConfirmDialogDialogState createState() => _CustomConfirmDialogDialogState();
@@ -46,6 +47,12 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
             padding: EdgeInsets.all(20),
             child: Column(
               children: [
+                widget.icon != null ? Padding(padding: EdgeInsets.only(bottom: 10),child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    widget.icon!
+                  ],
+                ),): Container(),
                 Padding(
                   padding: EdgeInsets.only(top: 0),
                   child: Text(widget.title, style: TextStyle(fontSize: 20)),

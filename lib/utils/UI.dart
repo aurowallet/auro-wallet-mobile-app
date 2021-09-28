@@ -97,7 +97,8 @@ class UI {
     required BuildContext context,
     required List<String> contents,
     String? okText,
-    String? cancelText
+    String? cancelText,
+    Widget? icon
   }) {
     return showDialog<bool>(
       context: context,
@@ -107,7 +108,8 @@ class UI {
           title: dic['prompt']!,
           okText: okText,
           cancelText: cancelText,
-          contents: contents
+          contents: contents,
+          icon: icon,
         );
       },
     );
