@@ -19,16 +19,12 @@ PODS:
     - Toast
   - image_picker (0.0.1):
     - Flutter
-  - MTBBarcodeScanner (5.0.11)
   - package_info (0.0.1):
     - Flutter
   - path_provider (0.0.1):
     - Flutter
   - permission_handler (4.3.0):
     - Flutter
-  - qr_code_scanner (0.2.0):
-    - Flutter
-    - MTBBarcodeScanner
   - qr_code_tools (0.0.7):
     - Flutter
   - Reachability (3.2)
@@ -62,7 +58,6 @@ DEPENDENCIES:
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
-  - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - qr_code_tools (from `.symlinks/plugins/qr_code_tools/ios`)
   - scan (from `.symlinks/plugins/scan/ios`)
   - share (from `.symlinks/plugins/share/ios`)
@@ -75,7 +70,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - DTTJailbreakDetection
-    - MTBBarcodeScanner
     - Reachability
     - Toast
 
@@ -104,8 +98,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider/ios"
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
-  qr_code_scanner:
-    :path: ".symlinks/plugins/qr_code_scanner/ios"
   qr_code_tools:
     :path: ".symlinks/plugins/qr_code_tools/ios"
   scan:
@@ -134,11 +126,9 @@ SPEC CHECKSUMS:
   flutter_sodium: c84426b4de738514b5b66cfdeb8a06634e72fe0b
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
   image_picker: e06f7a68f000bd36f552c1847e33cda96ed31f1f
-  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: 5c75cfde1229eb85f22d367c093900fac03c6c9e
-  qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   qr_code_tools: 5b5dd44ccdfa4b81f645c251e421f61003254b81
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   scan: aea35bb4aa59ccc8839c576a18cd57c7d492cc86

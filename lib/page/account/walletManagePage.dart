@@ -111,7 +111,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
   }
   void _onResetApp() async {
     final Map<String, String> dic = I18n.of(context).main;
-    bool? reject = await UI.showConfirmDialog(
+    bool? rejected = await UI.showConfirmDialog(
         context: context,
         contents: [
           dic['resetWarnContent']!
@@ -119,7 +119,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
         okText: dic['cancelReset']!,
         cancelText: dic['confirmReset']!
     );
-    if (reject != false) {
+    if (rejected != false) {
       return;
     }
     String? confirmInput = await showDialog<String>(
