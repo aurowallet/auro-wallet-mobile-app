@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -41,24 +40,37 @@ class TxConfirmDialog extends StatelessWidget {
         ),
         padding: EdgeInsets.only(left:28, top: 22, right: 28, bottom: 16),
         child: SafeArea(
-          child: Wrap(
+          child: Stack(
             children: [
-              Center(child: Text(title, style: TextStyle(
-                color: ColorsUtil.hexColor(0x090909),
-                fontSize: 20,
-                fontFamily: "PingFangSC-Medium",
-              )),),
-              ...items.map((e) {
-                return TxConfirmItem(data: e,);
-              }).toList(),
-              Padding(
-                padding: EdgeInsets.only(top: 40),
-                child:
-                NormalButton(
-                  disabled: disabled,
-                  text: buttonText ?? dic['confirm']!,
-                  onPressed: onConfirm,
+              Wrap(
+                children: [
+                  Center(child: Text(title, style: TextStyle(
+                    color: ColorsUtil.hexColor(0x090909),
+                    fontSize: 20,
+                    fontFamily: "PingFangSC-Medium",
+                  )),),
+                  ...items.map((e) {
+                    return TxConfirmItem(data: e,);
+                  }).toList(),
+                  Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child:
+                    NormalButton(
+                      disabled: disabled,
+                      text: buttonText ?? dic['confirm']!,
+                      onPressed: onConfirm,
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  child: Icon(Icons.cancel, color: Colors.grey,),
+                  onTap: ()=> Navigator.pop(context),
                 ),
+                top: 0,
+                right: 0,
               ),
             ],
           ),
