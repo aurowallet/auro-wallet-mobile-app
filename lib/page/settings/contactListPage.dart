@@ -11,6 +11,7 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/addressBookDialog.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
+import 'package:circular_check_box/circular_check_box.dart';
 
 class ContactListPage extends StatefulWidget {
   final SettingsStore store;
@@ -23,6 +24,7 @@ class ContactListPage extends StatefulWidget {
 class _ContactListPageState extends State<ContactListPage> {
 
   final Api api = webApi;
+  String? currentAddress;
 
   Future<Map<String, String>?> _showAddressDialog(String? initName, String? initAddress) async {
     var i18n = I18n.of(context).main;
@@ -61,6 +63,17 @@ class _ContactListPageState extends State<ContactListPage> {
       "address": address
     };
   }
+  void _onCheckContact (bool checked, String address) {
+    if (checked) {
+      setState(() {
+        currentAddress = address;
+      });
+    }
+  }
+  void _confirmContact() {
+    var contact = widget.store.contactList.firstWhere((element) => element.address == currentAddress);
+    Navigator.of(context).pop(contact);
+  }
   void _addContact() async {
     var i18n = I18n.of(context).main;
     var nameAndAddressMap = await _showAddressDialog(null, null);
@@ -88,50 +101,41 @@ class _ContactListPageState extends State<ContactListPage> {
     }
     widget.store.removeContact(contact);
   }
-  Widget _renderContactList(BuildContext context) {
+  Widget _renderContactList(BuildContext context, bool isToSelect) {
     var i18n = I18n.of(context).main;
-    final Map? params = ModalRoute.of(context)!.settings.arguments as Map;
-    var isToSelect = false;
-    if (params != null) {
-      isToSelect = params['isToSelect'] as bool;
-    }
     var contacts = widget.store.contactList;
     if (contacts.length == 0) {
       return Container();
     }
     List<Widget> list = contacts.map((contact) {
-      return GestureDetector(
-        child: Padding(
-          key: Key(contact.address + contact.name),
-          padding: EdgeInsets.zero,
-          child: Slidable(
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.2,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30,),
-              child: ContactItem(
-                name: contact.name,
-                address: contact.address,
-                store: widget.store,
-                showEditDialog: _showAddressDialog,
-              ),
+      return Padding(
+        key: Key(contact.address + contact.name),
+        padding: EdgeInsets.zero,
+        child: Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.2,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30,),
+            child: ContactItem(
+              name: contact.name,
+              address: contact.address,
+              store: widget.store,
+              showEditDialog: !isToSelect ? _showAddressDialog : null,
+              onChecked: isToSelect ? _onCheckContact:null,
+              checked: currentAddress == contact.address,
             ),
-            secondaryActions: <Widget>[
-              IconSlideAction(
-                caption: i18n['delete']!,
-                color: ColorsUtil.hexColor(0xF95051),
-                icon: Icons.delete,
-                onTap: () {
-                  _removeContact(contact);
-                },
-              ),
-            ],
           ),
+          secondaryActions: !isToSelect ? <Widget>[
+            IconSlideAction(
+              caption: i18n['delete']!,
+              color: ColorsUtil.hexColor(0xF95051),
+              icon: Icons.delete,
+              onTap: () {
+                _removeContact(contact);
+              },
+            ),
+          ] : [],
         ),
-        behavior: HitTestBehavior.opaque,
-        onTap: isToSelect ? (){
-          Navigator.of(context).pop(contact);
-        } : null,
       );
     })
         .toList();
@@ -150,7 +154,11 @@ class _ContactListPageState extends State<ContactListPage> {
   @override
   Widget build(BuildContext context) {
     var i18n = I18n.of(context).main;
-
+    final Map? params = ModalRoute.of(context)!.settings.arguments as Map;
+    var isToSelect = false;
+    if (params != null) {
+      isToSelect = params['isToSelect'] as bool;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n['addressbook']!),
@@ -165,15 +173,16 @@ class _ContactListPageState extends State<ContactListPage> {
                 Expanded(
                   child: ListView(
                       children: [
-                        _renderContactList(context),
+                        _renderContactList(context, isToSelect),
                       ]
                   ),
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   child: NormalButton(
-                    text: I18n.of(context).main['add']!,
-                    onPressed: _addContact,
+                    disabled: isToSelect && currentAddress == null,
+                    text: I18n.of(context).main[isToSelect ? 'confirm' : 'add']!,
+                    onPressed: isToSelect ? _confirmContact : _addContact ,
                   ),
                 ),
               ],
@@ -192,16 +201,20 @@ class ContactItem extends StatelessWidget {
         required this.address,
         required this.store,
         required this.showEditDialog,
+        required this.onChecked,
+        this.checked = false,
         this.margin = const EdgeInsets.only(top: 0),
       });
+  final bool checked;
   final String name;
   final String address;
   final EdgeInsetsGeometry margin;
-  final Function showEditDialog;
+  final Function? showEditDialog;
   final SettingsStore store;
+  final void Function(bool, String)? onChecked;
 
   void _onClick () async {
-    var nameAndAddressMap = await this.showEditDialog(this.name, this.address);
+    var nameAndAddressMap = await this.showEditDialog!(this.name, this.address);
     if (nameAndAddressMap == null) {
       return;
     }
@@ -226,7 +239,16 @@ class ContactItem extends StatelessWidget {
                 color: ColorsUtil.hexColor(0x666666), fontWeight: FontWeight.w500
             )),
           ),
-          onTap: _onClick,
+          onTap: this.showEditDialog != null ? _onClick : null,
+          trailing: this.onChecked != null ? CircularCheckBox(
+            value: this.checked,
+            checkColor: Colors.white,
+            activeColor: ColorsUtil.hexColor(0x59c49c),
+            // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+            onChanged: (bool? checkedFlag) {
+              this.onChecked!(checkedFlag!, address);
+            },
+          ) : null,
         )
     );
   }
