@@ -8,7 +8,7 @@ class COIN {
 
 /// graphql for mina
 const GraphQLConfig = {
-  'httpUri': GRAPTH_QL_NODE_URL,
+  'httpUri': GRAPH_QL_MAINNET_NODE_URL,
   'wsUri': null,
 };
 

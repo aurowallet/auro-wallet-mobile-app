@@ -51,8 +51,6 @@ class _ContactListPageState extends State<ContactListPage> {
     }
     String name = inputs[0].trim();
     String address = inputs[1].trim();
-    name = name.trim();
-    address = address.trim();
     bool isValid = await webApi.account.isAddressValid(address);
     if (!isValid) {
       UI.toast(i18n['sendAddressError']!);

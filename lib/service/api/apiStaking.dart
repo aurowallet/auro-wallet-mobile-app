@@ -21,7 +21,7 @@ class ApiStaking {
   }
 
   Future<void> fetchValidators() async {
-    String txUrl =  "$TRANSACTION_URL/validators";
+    String txUrl =  "${apiRoot.getTransactionsApiUrl()}/validators";
     var response = await http.get(Uri.parse(txUrl), headers: {'Content-Type': 'application/json; charset=utf-8'});
     if (response.statusCode == 200) {
       List list = convert.jsonDecode(utf8.decode(response.bodyBytes));

@@ -58,20 +58,15 @@ import 'package:trust_fall/trust_fall.dart';
 
 
 class WalletApp extends StatefulWidget {
-  const WalletApp({required this.graphqlEndpoint});
-  final String graphqlEndpoint;
+  const WalletApp();
   @override
-  _WalletAppState createState() => _WalletAppState(graphqlEndpoint: graphqlEndpoint);
+  _WalletAppState createState() => _WalletAppState();
 }
 
 class _WalletAppState extends State<WalletApp> {
-  _WalletAppState({required graphqlEndpoint}) {
-    this._graphqlEndpoint = graphqlEndpoint;
-  }
+  _WalletAppState();
   AppStore? _appStore;
   Locale _locale = const Locale('en', '');
-
-  late String _graphqlEndpoint;
 
   ThemeData _theme = appTheme;
   bool _isDangerous = false;
@@ -120,14 +115,6 @@ class _WalletAppState extends State<WalletApp> {
     });
   }
 
-  void _changeEndpoint(String endpoint) {
-    if (endpoint != _graphqlEndpoint) {
-      setState(() {
-        _graphqlEndpoint = endpoint;
-      });
-    }
-  }
-
 
   Future<int> _initStore(BuildContext context) async {
     if (_appStore == null) {
@@ -135,9 +122,8 @@ class _WalletAppState extends State<WalletApp> {
       print('initailizing app state');
       print('sys locale: ${Localizations.localeOf(context)}');
       await _appStore!.init(Localizations.localeOf(context).toString());
-      final GraphQLClient _graphQLClient = GraphQLProvider.of(context).value;
       // init webApi after store initiated
-      webApi = Api(context, _appStore!, _graphQLClient);
+      webApi = Api(context, _appStore!);
       webApi.init();
       _changeLang(context, _appStore!.settings!.localeCode);
     }
@@ -165,92 +151,86 @@ class _WalletAppState extends State<WalletApp> {
 
   @override
   Widget build(BuildContext context) {
-    print('_graphqlEndpoint: ' + _graphqlEndpoint);
-    return ClientProvider(
-      uri: _graphqlEndpoint,
-      // uri: 'https://mina-mainnet--graphql.datahub.figment.io/apikey/7a749c8fca4cd8a8644db2375f28b6a6/graphql',
-      // subscriptionUri: null,
-      child: MaterialApp(
-        title: 'Auro Wallet',
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: [
-          AppLocalizationsDelegate(_locale),
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: [
-          const Locale('en', ''),
-          const Locale('zh', ''),
-        ],
-        initialRoute: HomePage.route,
-        theme: _theme,
-        builder: EasyLoading.init(builder: (BuildContext context, Widget? child) {
-          return GestureDetector(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
-              if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
-                FocusManager.instance.primaryFocus?.unfocus();
+    return MaterialApp(
+      title: 'Auro Wallet',
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: [
+        AppLocalizationsDelegate(_locale),
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', ''),
+        const Locale('zh', ''),
+      ],
+      initialRoute: HomePage.route,
+      theme: _theme,
+      builder: EasyLoading.init(builder: (BuildContext context, Widget? child) {
+        return GestureDetector(
+          onTap: () {
+            FocusScopeNode currentFocus = FocusScope.of(context);
+            if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            }
+          },
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+            child: _isDangerous ? RootAlertPage() : child ?? Container(),
+          ),
+        );
+      }),
+      routes: {
+        HomePage.route: (context) => WillPopScopWrapper(
+          child: FutureBuilder<int>(
+            future: _initStore(context),
+            builder: (_, AsyncSnapshot<int> snapshot) {
+              if (snapshot.hasData) {
+                return snapshot.data! > 0 ? HomePage(_appStore!) : CreateAccountEntryPage(_appStore!.settings!, _changeLang);
+              } else {
+                return SplashScreen();
               }
             },
-            child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
-              child: _isDangerous ? RootAlertPage() : child ?? Container(),
-            ),
-          );
-        }),
-        routes: {
-          HomePage.route: (context) => WillPopScopWrapper(
-            child: FutureBuilder<int>(
-              future: _initStore(context),
-              builder: (_, AsyncSnapshot<int> snapshot) {
-                if (snapshot.hasData) {
-                  return snapshot.data! > 0 ? HomePage(_appStore!) : CreateAccountEntryPage(_appStore!.settings!, _changeLang);
-                } else {
-                  return SplashScreen();
-                }
-              },
-            ),
           ),
+        ),
 
-          // wallet
-          CreateAccountEntryPage.route: (_) => CreateAccountEntryPage(_appStore!.settings!, _changeLang),
-          SetNewWalletPasswordPage.route: (_) => SetNewWalletPasswordPage(_appStore!),
-          BackupMnemonicTipsPage.route: (_) => BackupMnemonicTipsPage(_appStore!),
-          WalletManagePage.route: (_) => WalletManagePage(_appStore!),
-          ImportPrivateKeyPage.route: (_) => ImportPrivateKeyPage(_appStore!),
-          ImportKeyStorePage.route: (_) => ImportKeyStorePage(_appStore!),
-          ImportWaysPage.route: (_) => ImportWaysPage(_appStore!),
-          AccountNamePage.route: (_) => AccountNamePage(_appStore!),
-          BackupMnemonicPage.route: (_) => BackupMnemonicPage(_appStore!),
-          ImportMnemonicPage.route: (_) => ImportMnemonicPage(_appStore!),
-          ImportSuccessPage.route: (_) => ImportSuccessPage(_appStore!),
-          ScanPage.route: (_) => ScanPage(),
-          TermPage.route: (_) => TermPage(_appStore!),
-          ImportWatchedAccountPage.route: (_) => ImportWatchedAccountPage(_appStore!),
+        // wallet
+        CreateAccountEntryPage.route: (_) => CreateAccountEntryPage(_appStore!.settings!, _changeLang),
+        SetNewWalletPasswordPage.route: (_) => SetNewWalletPasswordPage(_appStore!),
+        BackupMnemonicTipsPage.route: (_) => BackupMnemonicTipsPage(_appStore!),
+        WalletManagePage.route: (_) => WalletManagePage(_appStore!),
+        ImportPrivateKeyPage.route: (_) => ImportPrivateKeyPage(_appStore!),
+        ImportKeyStorePage.route: (_) => ImportKeyStorePage(_appStore!),
+        ImportWaysPage.route: (_) => ImportWaysPage(_appStore!),
+        AccountNamePage.route: (_) => AccountNamePage(_appStore!),
+        BackupMnemonicPage.route: (_) => BackupMnemonicPage(_appStore!),
+        ImportMnemonicPage.route: (_) => ImportMnemonicPage(_appStore!),
+        ImportSuccessPage.route: (_) => ImportSuccessPage(_appStore!),
+        ScanPage.route: (_) => ScanPage(),
+        TermPage.route: (_) => TermPage(_appStore!),
+        ImportWatchedAccountPage.route: (_) => ImportWatchedAccountPage(_appStore!),
 
-          // assets
-          TransferPage.route: (_) => TransferPage(_appStore!),
-          ReceivePage.route: (_) => ReceivePage(_appStore!),
-          TransactionDetailPage.route: (_) => TransactionDetailPage(_appStore!),
+        // assets
+        TransferPage.route: (_) => TransferPage(_appStore!),
+        ReceivePage.route: (_) => ReceivePage(_appStore!),
+        TransactionDetailPage.route: (_) => TransactionDetailPage(_appStore!),
 
-          // setting
-          AccountManagePage.route: (_) => AccountManagePage(_appStore!),
-          ChangePasswordPage.route: (_) => ChangePasswordPage(_appStore!.wallet!),
-          ExportResultPage.route: (_) => ExportResultPage(),
-          RemoteNodeListPage.route: (_) => RemoteNodeListPage(_appStore!.settings!, _changeEndpoint),
-          AboutPage.route: (_) => AboutPage(_appStore!),
-          LocalesPage.route: (_) => LocalesPage(_appStore!.settings!, _changeLang),
-          CurrenciesPage.route: (_) => CurrenciesPage(_appStore!.settings!),
-          ContactListPage.route: (_) => ContactListPage(_appStore!.settings!),
-          SecurityPage.route: (_) => SecurityPage(_appStore!),
-          ExportMnemonicResultPage.route: (_) => ExportMnemonicResultPage(),
+        // setting
+        AccountManagePage.route: (_) => AccountManagePage(_appStore!),
+        ChangePasswordPage.route: (_) => ChangePasswordPage(_appStore!.wallet!),
+        ExportResultPage.route: (_) => ExportResultPage(),
+        RemoteNodeListPage.route: (_) => RemoteNodeListPage(_appStore!.settings!),
+        AboutPage.route: (_) => AboutPage(_appStore!),
+        LocalesPage.route: (_) => LocalesPage(_appStore!.settings!, _changeLang),
+        CurrenciesPage.route: (_) => CurrenciesPage(_appStore!.settings!),
+        ContactListPage.route: (_) => ContactListPage(_appStore!.settings!),
+        SecurityPage.route: (_) => SecurityPage(_appStore!),
+        ExportMnemonicResultPage.route: (_) => ExportMnemonicResultPage(),
 
-          // staking
-          DelegatePage.route: (_) => DelegatePage(_appStore!),
-          ValidatorsPage.route: (_) => ValidatorsPage(_appStore!),
-        },
-      ),
+        // staking
+        DelegatePage.route: (_) => DelegatePage(_appStore!),
+        ValidatorsPage.route: (_) => ValidatorsPage(_appStore!),
+      },
     );
   }
 }

@@ -231,6 +231,30 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$loadAccountCacheAsyncAction.run(() => super.loadAccountCache());
   }
 
+  final _$loadMarketPricesCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadMarketPricesCache');
+
+  @override
+  Future<void> loadMarketPricesCache() {
+    return _$loadMarketPricesCacheAsyncAction
+        .run(() => super.loadMarketPricesCache());
+  }
+
+  final _$loadFeesCacheAsyncAction = AsyncAction('_AssetsStore.loadFeesCache');
+
+  @override
+  Future<void> loadFeesCache() {
+    return _$loadFeesCacheAsyncAction.run(() => super.loadFeesCache());
+  }
+
+  final _$clearAccountCacheAsyncAction =
+      AsyncAction('_AssetsStore.clearAccountCache');
+
+  @override
+  Future<void> clearAccountCache() {
+    return _$clearAccountCacheAsyncAction.run(() => super.clearAccountCache());
+  }
+
   final _$loadCacheAsyncAction = AsyncAction('_AssetsStore.loadCache');
 
   @override

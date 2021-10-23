@@ -1,3 +1,5 @@
+import 'package:auro_wallet/common/components/customNodeDialog.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -17,8 +19,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 class RemoteNodeListPage extends StatefulWidget {
   final SettingsStore store;
   static final String route = '/profile/endpoint';
-  final Function changeEndpoint;
-  RemoteNodeListPage(this.store, this.changeEndpoint);
+  RemoteNodeListPage(this.store);
   @override
   _RemoteNodeListPageState createState() => _RemoteNodeListPageState();
 }
@@ -29,14 +30,16 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   void _addCustomNode() async {
     var i18n = I18n.of(context).main;
-    String? endpoint = await showDialog<String>(
+    List<String>? inputs = await showDialog<List<String>>(
       context: context,
       builder: (_) {
-        return CustomPromptDialog(
-            title: i18n['addNetWork']!,
-            placeholder: 'https://',
-            onOk:(String? text) {
-              if (text == null || text.isEmpty) {
+        return CustomNodeDialog(
+            name: '',
+            url: '',
+            onOk:(String? name, String? url) {
+              if (name == null || name.isEmpty
+                  || url == null || url.isEmpty
+              ) {
                 UI.toast(i18n['urlError_1']!);
                 return false;
               }
@@ -45,29 +48,51 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         );
       },
     );
-    if (endpoint == null || endpoint.isEmpty) {
+    if (inputs == null) {
+      return null;
+    }
+    String name = inputs[0].trim();
+    String url = inputs[1].trim();
+    if (name.length > 50 || url.length > 500) {
+      UI.toast('text too long!');
       return;
     }
-    endpoint = endpoint.trim();
-    var uri = Uri.tryParse(endpoint);
+    CustomNode endpoint = CustomNode(name: name, url: url);
+    var uri = Uri.tryParse(endpoint.url);
     if (uri == null || !uri.isAbsolute) {
       UI.toast(i18n['urlError_1']!);
       return;
     }
-    EasyLoading.show(status: '');
-    bool isValid = await webApi.setting.validateGraphqlEndpoint(endpoint);
-    if(!isValid) {
-      UI.toast(i18n['urlError_1']!);
-      EasyLoading.show(status: '');
+    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
+    if (endpoints.any((element) => element.url == endpoint.url)
+        || GRAPH_QL_MAINNET_NODE_URL == endpoint.url
+        || GRAPH_QL_TESTNET_NODE_URL == endpoint.url
+    ) {
+      UI.toast(i18n['urlError_3']!);
       return;
     }
-    List<String> endpoints = List<String>.of(widget.store.customNodeList);
+    EasyLoading.show(status: '');
+    bool isValid = await webApi.setting.validateGraphqlEndpoint(endpoint.url);
+    if(!isValid) {
+      UI.toast(i18n['urlError_1']!);
+      EasyLoading.dismiss();
+      return;
+    }
+    if (endpoints.any((element) => element.url == endpoint.url)
+        || GRAPH_QL_MAINNET_NODE_URL == endpoint.url
+        || GRAPH_QL_TESTNET_NODE_URL == endpoint.url
+    ) {
+      UI.toast(i18n['urlError_3']!);
+      EasyLoading.dismiss();
+      return;
+    }
     endpoints.add(endpoint);
-    widget.store.setEndpoint(endpoint);
+    widget.store.setEndpoint(endpoint.url);
     widget.store.setCustomNodeList(endpoints);
+    webApi.refreshAccount();
     EasyLoading.dismiss();
   }
-  void _removeNode (String endpoint) async {
+  void _removeNode (CustomNode endpoint) async {
     var i18n = I18n.of(context).main;
     bool? rejected = await UI.showConfirmDialog(context: context, contents: [
       i18n['confirmDeleteNode']!
@@ -75,29 +100,32 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     if (rejected != true) {
       return;
     }
-    List<String> endpoints = List<String>.of(widget.store.customNodeList);
-    endpoints.remove(endpoint);
-    if(widget.store.endpoint == endpoint) {
-      widget.store.setEndpoint(GRAPTH_QL_NODE_URL);
+    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
+    endpoints.removeWhere((endpointItem)=> endpointItem.url == endpoint.url);
+    if(widget.store.endpoint == endpoint.url) {
+      widget.store.setEndpoint(GRAPH_QL_MAINNET_NODE_URL);
+      webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
+      webApi.refreshAccount();
     }
     widget.store.setCustomNodeList(endpoints);
   }
   void onChangeEndpoint (bool checked, String key) {
     if (checked) {
       widget.store.setEndpoint(key);
-      widget.changeEndpoint(key);
+      webApi.updateGqlClient(key);
+      webApi.refreshAccount();
     }
   }
   Widget _renderCustomNodeList(BuildContext context) {
     var i18n = I18n.of(context).main;
-    List<String> endpoints = List<String>.of(widget.store.customNodeList);
+    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
     if (endpoints.length == 0) {
       return Container();
     }
     List<Widget> list = endpoints
         .map((endpoint) {
       return Padding(
-        key: Key(endpoint),
+        key: Key(endpoint.url),
         padding: EdgeInsets.only(top: 10),
         child: Slidable(
           actionPane: SlidableDrawerActionPane(),
@@ -105,9 +133,9 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
           child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 30,),
               child: NodeItem(
-                text: endpoint,
-                value: endpoint,
-                checked: widget.store.endpoint == endpoint,
+                text: endpoint.name,
+                value: endpoint.url,
+                checked: widget.store.endpoint == endpoint.url,
                 onChecked: onChangeEndpoint,
               ),
           ),
@@ -164,10 +192,17 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                               Text(i18n['defaultNetwork']!, style: TextStyle(color: ColorsUtil.hexColor(0x666666), fontSize: 16)),
                               NodeItem(
                                 margin: EdgeInsets.only(top: 10),
-                                text: GRAPTH_QL_NODE_URL,
-                                value: GRAPTH_QL_NODE_URL,
+                                text: i18n['mainnet']!,
+                                value: GRAPH_QL_MAINNET_NODE_URL,
                                 onChecked: onChangeEndpoint,
-                                checked: GRAPTH_QL_NODE_URL == widget.store.endpoint,
+                                checked: GRAPH_QL_MAINNET_NODE_URL == widget.store.endpoint,
+                              ),
+                              NodeItem(
+                                margin: EdgeInsets.only(top: 10),
+                                text: i18n['testnet']!,
+                                value: GRAPH_QL_TESTNET_NODE_URL,
+                                onChecked: onChangeEndpoint,
+                                checked: GRAPH_QL_TESTNET_NODE_URL == widget.store.endpoint,
                               )
                             ],
                           ),
@@ -209,12 +244,19 @@ class NodeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context).textTheme;
     return FormPanel(
         margin: margin,
         padding: EdgeInsets.symmetric(vertical: 10),
         child: ListTile(
           leading: null,
-          title: Text(text, style: TextStyle(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(text, style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
+              Text(value, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
+            ],
+          ),
           trailing: CircularCheckBox(
             value: checked,
             checkColor: Colors.white,

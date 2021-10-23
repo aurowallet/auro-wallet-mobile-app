@@ -33,12 +33,9 @@ Future<void> main() async {
   // get_storage dependency
   await GetStorage.init();
 
-  // get graph ql endpoint
-  String graphqlEndpoint = await SettingsStore.loadEndpointGlobally();
-
   runApp(
       Phoenix(
-        child: WalletApp(graphqlEndpoint: graphqlEndpoint),
+        child: WalletApp(),
       )
   );
   configLoading();
