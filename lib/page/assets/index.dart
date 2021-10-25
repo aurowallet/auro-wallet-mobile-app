@@ -201,6 +201,7 @@ class _AssetsState extends State<Assets> {
                         ],
                       ),
                     ),
+                    store.settings!.isMainnet ?
                     Padding(
                       padding: EdgeInsets.only(top: 4, bottom: 23,),
                       child: Row(
@@ -211,7 +212,7 @@ class _AssetsState extends State<Assets> {
                           Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),)
                         ],
                       ),
-                    ),
+                    ) : Container(height: 23,),
                   ]
                 ),
               ),

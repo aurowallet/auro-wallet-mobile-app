@@ -60,6 +60,10 @@ abstract class _SettingsStore with Store {
     return GRAPH_QL_MAINNET_NODE_URL == endpoint || GRAPH_QL_TESTNET_NODE_URL == endpoint;
   }
 
+  bool get isMainnet {
+    return GRAPH_QL_MAINNET_NODE_URL == endpoint;
+  }
+
   @observable
   AboutUsData? aboutus;
 

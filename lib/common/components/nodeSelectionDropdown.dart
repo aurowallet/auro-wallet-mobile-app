@@ -43,7 +43,6 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
   }
 
   String _getName(String? endpoint) {
-    var i18n = I18n.of(context).main;
     var currentEndpoint = endpoint ?? widget.store.endpoint;
     if (currentEndpoint == GRAPH_QL_MAINNET_NODE_URL) {
       return 'Mainnet';
