@@ -40,12 +40,18 @@ class NodeSelectionDialog extends StatelessWidget {
                   topLeft: Radius.circular(20),
                 )
             ),
-            padding: EdgeInsets.only(left: 28, top: 40, right: 28, bottom: 16),
+            padding: EdgeInsets.only(left: 28, top: 22, right: 28, bottom: 16),
             child: SafeArea(
               child: Wrap(
                 children: [
+                  Center(child: Text(dic['network']!, style: TextStyle(
+                    color: ColorsUtil.hexColor(0x090909),
+                    fontSize: 20,
+                    fontFamily: "PingFangSC-Medium",
+                  )),),
+                  Container(height: 5,),
                   NodeItem(
-                    noMargin: true,
+                    // noMargin: true,
                     onSelectNode: onSelectNode,
                     data: CustomNode(
                       name: 'Mainnet',
@@ -72,7 +78,7 @@ class NodeSelectionDialog extends StatelessWidget {
             child: Icon(Icons.cancel, color: Colors.grey,),
             onTap: () => Navigator.pop(context),
           ),
-          top: 10,
+          top: 22,
           right: 10,
         ),
       ],
