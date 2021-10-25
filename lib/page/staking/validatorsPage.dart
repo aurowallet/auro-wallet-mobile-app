@@ -153,6 +153,7 @@ class ManualAddValidatorButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
+    var theme = Theme.of(context).textTheme;
     return Padding(
         padding: EdgeInsets.only(top: 10),
         child: GestureDetector(
@@ -165,9 +166,8 @@ class ManualAddValidatorButton extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(i18n['manualAdd']!, style: TextStyle(
-                        color: ColorsUtil.hexColor(0x7055FF),
-                        fontSize: 14
+                    Text(i18n['manualAdd']!, style: theme.headline5!.copyWith(
+                      color: ColorsUtil.hexColor(0x7055FF),
                     )),
                     Container(width: 8),
                     SvgPicture.asset(
