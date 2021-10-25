@@ -444,7 +444,7 @@ class TransferListItem extends StatelessWidget {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : data.time, style: theme.headline6!.copyWith(
+                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: theme.headline6!.copyWith(
                                 color:  ColorsUtil.hexColor(0x96969A)
                             ),),
                             Text(statusText, style: theme.headline6!.copyWith(

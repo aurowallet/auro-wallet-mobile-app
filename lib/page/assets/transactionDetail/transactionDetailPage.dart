@@ -74,7 +74,7 @@ class TransactionDetailPage extends StatelessWidget {
       ),
       TxInfoItem(
         label: dic['time']!,
-        title: tx.time,
+        title: Fmt.dateTimeFromUTC(tx.time),
       ),
       TxInfoItem(
         label: 'Nonce',
