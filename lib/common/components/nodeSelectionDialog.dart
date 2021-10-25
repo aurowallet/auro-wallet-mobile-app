@@ -48,14 +48,14 @@ class NodeSelectionDialog extends StatelessWidget {
                     noMargin: true,
                     onSelectNode: onSelectNode,
                     data: CustomNode(
-                      name: dic['mainnet']!,
+                      name: 'Mainnet',
                       url: GRAPH_QL_MAINNET_NODE_URL,
                     ),
                   ),
                   NodeItem(
                     onSelectNode: onSelectNode,
                     data: CustomNode(
-                      name: dic['testnet']!,
+                      name: 'Testnet',
                       url: GRAPH_QL_TESTNET_NODE_URL,
                     ),
                   ),

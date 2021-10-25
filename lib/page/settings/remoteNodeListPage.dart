@@ -192,14 +192,14 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                               Text(i18n['defaultNetwork']!, style: TextStyle(color: ColorsUtil.hexColor(0x666666), fontSize: 16)),
                               NodeItem(
                                 margin: EdgeInsets.only(top: 10),
-                                text: i18n['mainnet']!,
+                                text: 'Mainnet',
                                 value: GRAPH_QL_MAINNET_NODE_URL,
                                 onChecked: onChangeEndpoint,
                                 checked: GRAPH_QL_MAINNET_NODE_URL == widget.store.endpoint,
                               ),
                               NodeItem(
                                 margin: EdgeInsets.only(top: 10),
-                                text: i18n['testnet']!,
+                                text: 'Testnet',
                                 value: GRAPH_QL_TESTNET_NODE_URL,
                                 onChecked: onChangeEndpoint,
                                 checked: GRAPH_QL_TESTNET_NODE_URL == widget.store.endpoint,

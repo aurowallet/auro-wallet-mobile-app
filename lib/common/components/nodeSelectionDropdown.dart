@@ -46,10 +46,10 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
     var i18n = I18n.of(context).main;
     var currentEndpoint = endpoint ?? widget.store.endpoint;
     if (currentEndpoint == GRAPH_QL_MAINNET_NODE_URL) {
-      return i18n['mainnet']!;
+      return 'Mainnet';
     }
     if (currentEndpoint == GRAPH_QL_TESTNET_NODE_URL) {
-      return i18n['testnet']!;
+      return 'Testnet';
     }
     try {
       var res =  widget.store.customNodeListV2.firstWhere((element) => element.url == currentEndpoint);
@@ -89,7 +89,7 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
     return OutlinedButtonSmall(
         color: Colors.transparent,
         borderColor: Colors.white,
-        padding: EdgeInsets.fromLTRB(18, 8, 12, 8),
+        padding: EdgeInsets.fromLTRB(18, 4, 12, 4),
         active: true,
         onPressed: _onToggle,
         radius: 30,

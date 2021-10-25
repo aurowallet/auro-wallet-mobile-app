@@ -238,9 +238,7 @@ const Map<String, String> zhMain = {
   "resetWarnContent":"确定要重置钱包吗？\n\n重置后现有钱包的数据将会全部丢失，只能使用助记词恢复，请确保你已经备份好助记词后再重置钱包。",
   "confirmReset": "确定重置",
   "cancelReset": "取消重置",
-  "deleteConfirm":"请在输入“删除”确定重置钱包",
-  "mainnet": "主网",
-  "testnet":"测试网"
+  "deleteConfirm":"请在输入“删除”确定重置钱包"
 };
 
 const Map<String, String> enMain = {
@@ -482,6 +480,4 @@ const Map<String, String> enMain = {
   "confirmReset": "Confirm",
   "cancelReset": "Cancel",
   "deleteConfirm":"Type 'delete' to erase current  wallet permanently",
-  "mainnet": "Mainnet",
-  "testnet":"Testnet"
 };
