@@ -11,7 +11,6 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/addressBookDialog.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
-import 'package:circular_check_box/circular_check_box.dart';
 
 class ContactListPage extends StatefulWidget {
   final SettingsStore store;
@@ -24,7 +23,6 @@ class ContactListPage extends StatefulWidget {
 class _ContactListPageState extends State<ContactListPage> {
 
   final Api api = webApi;
-  String? currentAddress;
 
   Future<Map<String, String>?> _showAddressDialog(String? initName, String? initAddress) async {
     var i18n = I18n.of(context).main;
@@ -60,17 +58,6 @@ class _ContactListPageState extends State<ContactListPage> {
       "name": name,
       "address": address
     };
-  }
-  void _onCheckContact (bool checked, String address) {
-    if (checked) {
-      setState(() {
-        currentAddress = address;
-      });
-    }
-  }
-  void _confirmContact() {
-    var contact = widget.store.contactList.firstWhere((element) => element.address == currentAddress);
-    Navigator.of(context).pop(contact);
   }
   void _addContact() async {
     var i18n = I18n.of(context).main;
@@ -119,8 +106,6 @@ class _ContactListPageState extends State<ContactListPage> {
               address: contact.address,
               store: widget.store,
               showEditDialog: !isToSelect ? _showAddressDialog : null,
-              onChecked: isToSelect ? _onCheckContact:null,
-              checked: currentAddress == contact.address,
             ),
           ),
           secondaryActions: !isToSelect ? <Widget>[
@@ -178,9 +163,8 @@ class _ContactListPageState extends State<ContactListPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   child: NormalButton(
-                    disabled: isToSelect && currentAddress == null,
                     text: I18n.of(context).main[isToSelect ? 'confirm' : 'add']!,
-                    onPressed: isToSelect ? _confirmContact : _addContact ,
+                    onPressed: _addContact ,
                   ),
                 ),
               ],
@@ -199,29 +183,32 @@ class ContactItem extends StatelessWidget {
         required this.address,
         required this.store,
         required this.showEditDialog,
-        required this.onChecked,
-        this.checked = false,
         this.margin = const EdgeInsets.only(top: 0),
       });
-  final bool checked;
   final String name;
   final String address;
   final EdgeInsetsGeometry margin;
   final Function? showEditDialog;
   final SettingsStore store;
-  final void Function(bool, String)? onChecked;
+  BuildContext? _ctx;
 
   void _onClick () async {
-    var nameAndAddressMap = await this.showEditDialog!(this.name, this.address);
-    if (nameAndAddressMap == null) {
-      return;
+    if (this.showEditDialog != null) {
+      var nameAndAddressMap = await this.showEditDialog!(this.name, this.address);
+      if (nameAndAddressMap == null) {
+        return;
+      }
+      String name = nameAndAddressMap["name"]!;
+      String address = nameAndAddressMap["address"]!;
+      this.store.updateContact(ContactData(name: name, address: address), this.address);
+    } else {
+      var contact = this.store.contactList.firstWhere((element) => element.address == this.address);
+      Navigator.of(this._ctx!).pop(contact);
     }
-    String name = nameAndAddressMap["name"]!;
-    String address = nameAndAddressMap["address"]!;
-    this.store.updateContact(ContactData(name: name, address: address), this.address);
   }
   @override
   Widget build(BuildContext context) {
+    _ctx = context;
     var theme = Theme.of(context).textTheme;
     return FormPanel(
         margin: margin,
@@ -238,15 +225,6 @@ class ContactItem extends StatelessWidget {
             )),
           ),
           onTap: this.showEditDialog != null ? _onClick : null,
-          trailing: this.onChecked != null ? CircularCheckBox(
-            value: this.checked,
-            checkColor: Colors.white,
-            activeColor: ColorsUtil.hexColor(0x59c49c),
-            // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-            onChanged: (bool? checkedFlag) {
-              this.onChecked!(checkedFlag!, address);
-            },
-          ) : null,
         )
     );
   }
