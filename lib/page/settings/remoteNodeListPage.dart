@@ -28,14 +28,15 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   final Api api = webApi;
 
-  void _addCustomNode() async {
+  void _addCustomNode(CustomNode? originEndpoint) async {
     var i18n = I18n.of(context).main;
+    var isEdit = originEndpoint != null;
     List<String>? inputs = await showDialog<List<String>>(
       context: context,
       builder: (_) {
         return CustomNodeDialog(
-            name: '',
-            url: '',
+            name: isEdit ? originEndpoint!.name : '',
+            url: isEdit ? originEndpoint!.url : '',
             onOk:(String? name, String? url) {
               if (name == null || name.isEmpty
                   || url == null || url.isEmpty
@@ -68,8 +69,10 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         || GRAPH_QL_MAINNET_NODE_URL == endpoint.url
         || GRAPH_QL_TESTNET_NODE_URL == endpoint.url
     ) {
-      UI.toast(i18n['urlError_3']!);
-      return;
+      if (!(isEdit && endpoint.url == originEndpoint!.url)) {
+        UI.toast(i18n['urlError_3']!);
+        return;
+      }
     }
     EasyLoading.show(status: '');
     bool isValid = await webApi.setting.validateGraphqlEndpoint(endpoint.url);
@@ -78,19 +81,22 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       EasyLoading.dismiss();
       return;
     }
-    if (endpoints.any((element) => element.url == endpoint.url)
-        || GRAPH_QL_MAINNET_NODE_URL == endpoint.url
-        || GRAPH_QL_TESTNET_NODE_URL == endpoint.url
-    ) {
-      UI.toast(i18n['urlError_3']!);
-      EasyLoading.dismiss();
-      return;
+    if (isEdit) {
+      widget.store.updateCustomNode(endpoint, originEndpoint!);
+      if (widget.store.endpoint == originEndpoint.url && originEndpoint.url != endpoint.url) {
+        widget.store.setEndpoint(endpoint.url);
+        webApi.refreshAccount();
+      }
+    } else {
+      endpoints.add(endpoint);
+      widget.store.setEndpoint(endpoint.url);
+      widget.store.setCustomNodeList(endpoints);
+      webApi.refreshAccount();
     }
-    endpoints.add(endpoint);
-    widget.store.setEndpoint(endpoint.url);
-    widget.store.setCustomNodeList(endpoints);
-    webApi.refreshAccount();
     EasyLoading.dismiss();
+  }
+  void _editNode(CustomNode endpoint) async {
+    this._addCustomNode(endpoint);
   }
   void _removeNode (CustomNode endpoint) async {
     var i18n = I18n.of(context).main;
@@ -140,6 +146,28 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
               ),
           ),
           secondaryActions: <Widget>[
+            SlideAction(
+              // color: Colors.transparent,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+                color: ColorsUtil.hexColor(0x59c49c),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.edit, color: Colors.white,),
+                    Text(
+                      i18n['edit']!,
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+              ),
+              onTap: () {
+                _editNode(endpoint);
+              },
+            ),
             IconSlideAction(
               caption: i18n['delete']!,
               color: ColorsUtil.hexColor(0xF95051),
@@ -215,7 +243,9 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   child: NormalButton(
                     text: I18n.of(context).main['addNetWork']!,
-                    onPressed: _addCustomNode,
+                    onPressed: () {
+                      _addCustomNode(null);
+                    },
                   ),
                 ),
               ],

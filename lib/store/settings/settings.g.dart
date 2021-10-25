@@ -244,6 +244,15 @@ mixin _$SettingsStore on _SettingsStore, Store {
     return _$loadCurrencyCodeAsyncAction.run(() => super.loadCurrencyCode());
   }
 
+  final _$updateCustomNodeAsyncAction =
+      AsyncAction('_SettingsStore.updateCustomNode');
+
+  @override
+  Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) {
+    return _$updateCustomNodeAsyncAction
+        .run(() => super.updateCustomNode(newNode, oldNode));
+  }
+
   final _$setCustomNodeListAsyncAction =
       AsyncAction('_SettingsStore.setCustomNodeList');
 

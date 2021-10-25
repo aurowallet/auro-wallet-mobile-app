@@ -118,7 +118,13 @@ abstract class _SettingsStore with Store {
       currencyCode = stored;
     }
   }
-
+  @action
+  Future<void> updateCustomNode(CustomNode newNode,CustomNode oldNode) async {
+    var target = customNodeListV2.toList().firstWhere((element) => element.url == oldNode.url);
+    target.name = newNode.name;
+    target.url = newNode.url;
+    setCustomNodeList(customNodeListV2);
+  }
   @action
   Future<void> setCustomNodeList(List<CustomNode> nodeList) async {
     await rootStore.localStorage.setObject(localStorageCustomNodesV2, nodeList);
