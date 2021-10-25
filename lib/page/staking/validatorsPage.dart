@@ -3,6 +3,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
@@ -94,7 +95,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
 
   void _toggle (String validatorAddress, bool isChecked) {
     if (isChecked) {
-      print('checked:'+validatorAddress);
+      UI.unfocus(context);
       setState(() {
         selectedValidatorAddress = validatorAddress;
       });
