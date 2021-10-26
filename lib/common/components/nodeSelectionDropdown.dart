@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/outlinedButtonSmall.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
@@ -83,6 +84,7 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
       globalBalanceRefreshKey.currentState!.show();
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return OutlinedButtonSmall(
@@ -92,13 +94,10 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
         active: true,
         onPressed: _onToggle,
         radius: 30,
-        content: netName ?? "",
+        content: Fmt.breakWord(netName) ?? "",
         shadowColor: Colors.transparent,
         suffixIcon: Icon(
           !netSelectionVisibility ? Icons.keyboard_arrow_down_sharp : Icons.keyboard_arrow_up_sharp, color: Colors.white,
-          // padding: EdgeInsets.zero,
-          // constraints: BoxConstraints(),
-          // size: 20,
         )
     );
   }

@@ -163,7 +163,7 @@ class _ContactListPageState extends State<ContactListPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   child: NormalButton(
-                    text: I18n.of(context).main[isToSelect ? 'confirm' : 'add']!,
+                    text: I18n.of(context).main['add']!,
                     onPressed: _addContact ,
                   ),
                 ),
@@ -224,7 +224,7 @@ class ContactItem extends StatelessWidget {
                 color: ColorsUtil.hexColor(0x666666), fontWeight: FontWeight.w500
             )),
           ),
-          onTap: this.showEditDialog != null ? _onClick : null,
+          onTap: _onClick,
         )
     );
   }

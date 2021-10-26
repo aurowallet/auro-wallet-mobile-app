@@ -116,26 +116,29 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Image.asset('assets/images/public/2x/m_logo@2x.png', width: 121, height: 30,),
-        Container(
-          child: Row(
-            children: [
-              NodeSelectionDropdown(store: store.settings!),
-              Container(
-                width: 10,
-              ),
-              IconButton(
-                  iconSize: 30,
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(),
-                  icon: Image.asset('assets/images/assets/2x/wallet_manage@2x.png', width: 30, height: 30,),
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(WalletManagePage.route);
-                  }
-                // ,
-              ),
-            ],
-          ),
-        )
+        Expanded(child:  Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              width: 30,
+            ),
+            Flexible(child: NodeSelectionDropdown(store: store.settings!),),
+            Container(
+              width: 10,
+            ),
+            IconButton(
+                iconSize: 30,
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+                icon: Image.asset('assets/images/assets/2x/wallet_manage@2x.png', width: 30, height: 30,),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(WalletManagePage.route);
+                }
+              // ,
+            ),
+          ],
+        ),)
       ],
     ),);
   }

@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
+import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -24,32 +25,33 @@ class NodeSelectionDialog extends StatelessWidget {
   final Function(CustomNode node) onSelectNode;
   final SettingsStore settingsStore;
 
+
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n
         .of(context)
         .main;
 
-    return Stack(
-      children: [
-        Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(20),
-                  topLeft: Radius.circular(20),
-                )
-            ),
-            padding: EdgeInsets.only(left: 28, top: 22, right: 28, bottom: 16),
-            child: SafeArea(
-              child: Wrap(
+    return  Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(20),
+              topLeft: Radius.circular(20),
+            )
+        ),
+        padding: EdgeInsets.only(left: 28, top: 22, right: 28, bottom: 16),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Wrap(
                 children: [
                   Center(child: Text(dic['network']!, style: TextStyle(
                     color: ColorsUtil.hexColor(0x090909),
                     fontSize: 20,
                     fontFamily: "PingFangSC-Medium",
                   )),),
-                  Container(height: 5,),
+                  Container(height: 10,),
                   NodeItem(
                     // noMargin: true,
                     onSelectNode: onSelectNode,
@@ -70,18 +72,18 @@ class NodeSelectionDialog extends StatelessWidget {
                   }).toList(),
                 ],
               ),
-            )
-        ),
-        Positioned(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            child: Icon(Icons.cancel, color: Colors.grey,),
-            onTap: () => Navigator.pop(context),
+              Positioned(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  child: Icon(Icons.cancel, color: Colors.grey,),
+                  onTap: ()=> Navigator.pop(context),
+                ),
+                top: 0,
+                right: 0,
+              ),
+            ],
           ),
-          top: 22,
-          right: 10,
-        ),
-      ],
+        )
     );
   }
 }
@@ -103,7 +105,7 @@ class NodeItem extends StatelessWidget {
         onTap: _onClick,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(10)),
             color: Colors.white,
@@ -121,7 +123,7 @@ class NodeItem extends StatelessWidget {
             ],
           ),
           child: Center(
-            child: Text(data.name, style: theme.headline4!,),
+            child: Text(Fmt.breakWord(data.name)!, style: theme.headline4!,),
           ),
         ),
       )

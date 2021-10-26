@@ -1,5 +1,6 @@
 import 'package:auro_wallet/common/components/customNodeDialog.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -283,8 +284,8 @@ class NodeItem extends StatelessWidget {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(text, style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-              Text(value, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
+              Text(Fmt.breakWord(text)!, style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
+              Text(Fmt.breakWord(value)!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
             ],
           ),
           trailing: CircularCheckBox(

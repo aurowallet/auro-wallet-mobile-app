@@ -53,7 +53,14 @@ class OutlinedButtonSmall extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(content, style: TextStyle(color: active ? white : textGrey, fontSize: 14)),
+            Flexible(
+              child: Text(
+                content,
+                style: TextStyle(color: active ? white : textGrey, fontSize: 14),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
             suffixIcon ?? Container()
           ],
         ),
