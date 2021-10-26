@@ -80,17 +80,6 @@ mixin _$StakingStore on _StakingStore, Store {
   }
 
   @override
-  void clearStackingCache() {
-    final _$actionInfo = _$_StakingStoreActionController.startAction(
-        name: '_StakingStore.clearStackingCache');
-    try {
-      return super.clearStackingCache();
-    } finally {
-      _$_StakingStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   String toString() {
     return '''
 validatorsInfo: ${validatorsInfo},

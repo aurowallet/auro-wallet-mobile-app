@@ -155,9 +155,9 @@ abstract class _SettingsStore with Store {
 
 
   @action
-  void setEndpoint(String value) {
+  Future<void> setEndpoint(String value) async {
     endpoint = value;
-    rootStore.localStorage.setObject(localStorageEndpointKey, value);
+    await rootStore.localStorage.setObject(localStorageEndpointKey, value);
   }
 
 

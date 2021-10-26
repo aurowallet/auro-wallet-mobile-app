@@ -271,6 +271,13 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.loadCustomNodeList());
   }
 
+  final _$setEndpointAsyncAction = AsyncAction('_SettingsStore.setEndpoint');
+
+  @override
+  Future<void> setEndpoint(String value) {
+    return _$setEndpointAsyncAction.run(() => super.setEndpoint(value));
+  }
+
   final _$loadEndpointAsyncAction = AsyncAction('_SettingsStore.loadEndpoint');
 
   @override
@@ -318,17 +325,6 @@ mixin _$SettingsStore on _SettingsStore, Store {
         name: '_SettingsStore.setNetworkLoading');
     try {
       return super.setNetworkLoading(isLoading);
-    } finally {
-      _$_SettingsStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setEndpoint(String value) {
-    final _$actionInfo = _$_SettingsStoreActionController.startAction(
-        name: '_SettingsStore.setEndpoint');
-    try {
-      return super.setEndpoint(value);
     } finally {
       _$_SettingsStoreActionController.endAction(_$actionInfo);
     }

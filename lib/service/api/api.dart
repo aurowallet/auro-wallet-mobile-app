@@ -69,9 +69,8 @@ class Api {
   }
 
   Future<void> refreshNetwork () async {
-    store.staking!.clearStackingCache();
-    staking.fetchStakingOverview();
     assets.fetchAccountInfo();
+    staking.refreshStaking();
     assets.fetchPendingTransactions(store.wallet!.currentAddress);
     assets.fetchTransactions(store.wallet!.currentAddress);
   }

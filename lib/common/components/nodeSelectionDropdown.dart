@@ -78,9 +78,10 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
     setState(() {
       netSelectionVisibility = !netSelectionVisibility;
     });
-    if (endpoint != null) {
-      widget.store.setEndpoint(endpoint.url);
+    if (endpoint != null && endpoint.url != widget.store.endpoint) {
+      await widget.store.setEndpoint(endpoint.url);
       webApi.updateGqlClient(endpoint.url);
+      webApi.staking.refreshStaking();
       globalBalanceRefreshKey.currentState!.show();
     }
   }

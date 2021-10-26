@@ -85,12 +85,12 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     if (isEdit) {
       widget.store.updateCustomNode(endpoint, originEndpoint!);
       if (widget.store.endpoint == originEndpoint.url && originEndpoint.url != endpoint.url) {
-        widget.store.setEndpoint(endpoint.url);
+        await widget.store.setEndpoint(endpoint.url);
         webApi.refreshNetwork();
       }
     } else {
       endpoints.add(endpoint);
-      widget.store.setEndpoint(endpoint.url);
+      await widget.store.setEndpoint(endpoint.url);
       widget.store.setCustomNodeList(endpoints);
       webApi.refreshNetwork();
     }
@@ -110,15 +110,15 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
     endpoints.removeWhere((endpointItem)=> endpointItem.url == endpoint.url);
     if(widget.store.endpoint == endpoint.url) {
-      widget.store.setEndpoint(GRAPH_QL_MAINNET_NODE_URL);
+      await widget.store.setEndpoint(GRAPH_QL_MAINNET_NODE_URL);
       webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
       webApi.refreshNetwork();
     }
     widget.store.setCustomNodeList(endpoints);
   }
-  void onChangeEndpoint (bool checked, String key) {
+  void onChangeEndpoint (bool checked, String key) async {
     if (checked) {
-      widget.store.setEndpoint(key);
+      await widget.store.setEndpoint(key);
       webApi.updateGqlClient(key);
       webApi.refreshNetwork();
     }

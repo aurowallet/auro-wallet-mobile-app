@@ -141,7 +141,7 @@ return '''account$index: account (publicKey: \$account$index) {
   Future<void> fetchAccountInfo() async {
     String pubKey = store.wallet!.currentWallet.pubKey;
     if (pubKey.isNotEmpty) {
-      fetchBatchAccountsInfo([pubKey]);
+      await fetchBatchAccountsInfo([pubKey]);
     }
     _fetchMarketPrice();
   }

@@ -13,11 +13,12 @@ class ApiStaking {
   final Api apiRoot;
   final store = globalAppStore;
 
-  Future<void> fetchAccountStaking() async {
-    final String pubKey = store.wallet!.currentAccountPubKey;
-    if (pubKey != null && pubKey.isNotEmpty) {
-      return;
+  Future<void> refreshStaking({clearCache: true}) async {
+    if (clearCache) {
+      store.staking!.setValidatorsInfo([]);
     }
+    fetchStakingOverview();
+    fetchValidators();
   }
 
   Future<void> fetchValidators() async {

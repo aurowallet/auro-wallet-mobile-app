@@ -57,12 +57,6 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  void clearStackingCache() {
-    setValidatorsInfo([]);
-    setOverviewInfo(OverviewData.toJson(OverviewData()));
-  }
-
-  @action
   Future<void> loadCache() async {
     List cacheOverview = await Future.wait([
       rootStore.localStorage.getObject(localStorageValidatorsKey),
