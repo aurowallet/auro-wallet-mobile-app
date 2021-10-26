@@ -55,7 +55,6 @@ class Api {
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
         assets.fetchAccountInfo(),
-        staking.fetchAccountStaking(),
       ]);
     }
     staking.fetchStakingOverview();
@@ -69,7 +68,9 @@ class Api {
     }
   }
 
-  Future<void> refreshAccount () async {
+  Future<void> refreshNetwork () async {
+    store.staking!.clearStackingCache();
+    staking.fetchStakingOverview();
     assets.fetchAccountInfo();
     assets.fetchPendingTransactions(store.wallet!.currentAddress);
     assets.fetchTransactions(store.wallet!.currentAddress);

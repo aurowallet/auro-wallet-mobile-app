@@ -86,13 +86,13 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       widget.store.updateCustomNode(endpoint, originEndpoint!);
       if (widget.store.endpoint == originEndpoint.url && originEndpoint.url != endpoint.url) {
         widget.store.setEndpoint(endpoint.url);
-        webApi.refreshAccount();
+        webApi.refreshNetwork();
       }
     } else {
       endpoints.add(endpoint);
       widget.store.setEndpoint(endpoint.url);
       widget.store.setCustomNodeList(endpoints);
-      webApi.refreshAccount();
+      webApi.refreshNetwork();
     }
     EasyLoading.dismiss();
   }
@@ -112,7 +112,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     if(widget.store.endpoint == endpoint.url) {
       widget.store.setEndpoint(GRAPH_QL_MAINNET_NODE_URL);
       webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
-      webApi.refreshAccount();
+      webApi.refreshNetwork();
     }
     widget.store.setCustomNodeList(endpoints);
   }
@@ -120,7 +120,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     if (checked) {
       widget.store.setEndpoint(key);
       webApi.updateGqlClient(key);
-      webApi.refreshAccount();
+      webApi.refreshNetwork();
     }
   }
   Widget _renderCustomNodeList(BuildContext context) {

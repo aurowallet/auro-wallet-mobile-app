@@ -13,7 +13,7 @@ class StakingOverview extends StatelessWidget {
   final AppStore store;
   List<String> _getTime() {
     OverviewData data = store.staking!.overviewData;
-    if (data != null) {
+    if (data.slotsPerEpoch != 0) {
       double lastTime = (data.slotsPerEpoch - data.slot) * data.slotDuration / 1000;
       int days = (lastTime / 60 / 60 / 24).floor();
       double leave1 = (lastTime % (24 * 3600));
@@ -86,7 +86,7 @@ class StakingOverview extends StatelessWidget {
                       ),
                     ],
                   ),
-                  PercentageCircle(percentage: data.slotsPerEpoch != null ? (data.slot / data.slotsPerEpoch) : 0,)
+                  PercentageCircle(percentage: data.slotsPerEpoch != 0 ? (data.slot / data.slotsPerEpoch) : 0,)
                 ],
               ),
             )
