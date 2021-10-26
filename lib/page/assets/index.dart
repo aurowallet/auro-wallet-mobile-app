@@ -45,7 +45,7 @@ class Assets extends StatefulWidget {
   _AssetsState createState() => _AssetsState(store);
 }
 
-class _AssetsState extends State<Assets> {
+class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   _AssetsState(this.store);
 
   final AppStore store;
@@ -54,9 +54,24 @@ class _AssetsState extends State<Assets> {
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _fetchTransactions();
-
+      WidgetsBinding.instance?.addObserver(this);
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    var isInForeground = state == AppLifecycleState.resumed;
+    if (isInForeground) {
+      this._onRefresh();
+    }
   }
 
   Future<void> _onRefresh() async {
