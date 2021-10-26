@@ -159,6 +159,13 @@ mixin _$WalletStore on _WalletStore, Store {
     return _$updateAccountAsyncAction.run(() => super.updateAccount(acc));
   }
 
+  final _$clearWalletsAsyncAction = AsyncAction('_WalletStore.clearWallets');
+
+  @override
+  Future<void> clearWallets() {
+    return _$clearWalletsAsyncAction.run(() => super.clearWallets());
+  }
+
   final _$addAccountAsyncAction = AsyncAction('_WalletStore.addAccount');
 
   @override

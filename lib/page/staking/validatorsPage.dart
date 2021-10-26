@@ -3,6 +3,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
@@ -94,7 +95,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
 
   void _toggle (String validatorAddress, bool isChecked) {
     if (isChecked) {
-      print('checked:'+validatorAddress);
+      UI.unfocus(context);
       setState(() {
         selectedValidatorAddress = validatorAddress;
       });
@@ -152,6 +153,7 @@ class ManualAddValidatorButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
+    var theme = Theme.of(context).textTheme;
     return Padding(
         padding: EdgeInsets.only(top: 10),
         child: GestureDetector(
@@ -164,9 +166,8 @@ class ManualAddValidatorButton extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(i18n['manualAdd']!, style: TextStyle(
-                        color: ColorsUtil.hexColor(0x7055FF),
-                        fontSize: 14
+                    Text(i18n['manualAdd']!, style: theme.headline5!.copyWith(
+                      color: ColorsUtil.hexColor(0x7055FF),
                     )),
                     Container(width: 8),
                     SvgPicture.asset(

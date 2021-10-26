@@ -22,7 +22,15 @@ class Fmt {
     if (time == null) {
       return 'date-time';
     }
-    return DateFormat('yyyy-MM-dd hh:mm').format(time);
+    return DateFormat('yyyy-MM-dd HH:mm').format(time);
+  }
+
+  static String dateTimeFromUTC(String utcTime) {
+    if (utcTime.isEmpty) {
+      return "";
+    }
+    var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
+    return dateTime(dateValue);
   }
 
   /// number transform 1:
@@ -184,6 +192,18 @@ class Fmt {
 
   static String validatorName(BuildContext ctx, String? name) {
     return '${name != null && name.isNotEmpty ? name : 'Block Producer'}';
+  }
+
+  static String? breakWord(String? word){
+    if(word == null || word.isEmpty){
+      return word;
+    }
+    String breakWord = '';
+    word.runes.forEach((element){
+      breakWord += String.fromCharCode(element);
+      breakWord +='\u200B';
+    });
+    return breakWord;
   }
 
 }

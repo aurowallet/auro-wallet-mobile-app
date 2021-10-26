@@ -14,7 +14,7 @@ class ApiAssets {
 
 
   Future<void> fetchTransactions(pubKey, {page = 0}) async {
-    String txUrl =  "$TRANSACTION_URL/transactions?account=$pubKey&limit=20";
+    String txUrl =  "${apiRoot.getTransactionsApiUrl()}/transactions?account=$pubKey&limit=20";
     var response = await  http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {
       var list = convert.jsonDecode(response.body);
@@ -136,17 +136,18 @@ return '''account$index: account (publicKey: \$account$index) {
        store.assets!.setAccountInfo(pubKey, accountInfo);
      });
   }
+
   /// get balance and delegate info
   Future<void> fetchAccountInfo() async {
     String pubKey = store.wallet!.currentWallet.pubKey;
     if (pubKey.isNotEmpty) {
-      fetchBatchAccountsInfo([pubKey]);
+      await fetchBatchAccountsInfo([pubKey]);
     }
     _fetchMarketPrice();
   }
 
   Future<void> _fetchMarketPrice() async {
-    String txUrl =  "$TRANSACTION_URL/prices?currency=" + store.settings!.currencyCode;
+    String txUrl =  "${apiRoot.getTransactionsApiUrl()}/prices?currency=" + store.settings!.currencyCode;
     var response = await  http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {
       Map priceRes = convert.jsonDecode(convert.utf8.decode(response.bodyBytes));

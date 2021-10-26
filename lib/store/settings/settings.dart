@@ -1,3 +1,4 @@
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:mobx/mobx.dart';
 
 import 'package:json_annotation/json_annotation.dart';
@@ -19,7 +20,7 @@ class SettingsStore extends _SettingsStore with _$SettingsStore {
     LocalStorage localStorage = LocalStorage();
     String? value = await localStorage.getObject(localStorageEndpointKeyForGlobal) as String?;
     if (value == null) {
-      return GRAPTH_QL_NODE_URL;
+      return GRAPH_QL_MAINNET_NODE_URL;
     } else {
       return value;
     }
@@ -37,6 +38,7 @@ abstract class _SettingsStore with Store {
   final String localStorageEndpointKey = 'endpoint';
   final String localStorageAboutUsKey = 'about_us';
   final String localStorageCustomNodes = 'custom_node_list';
+  final String localStorageCustomNodesV2 = 'custom_node_list_v2';
 
   final String cacheNetworkStateKey = 'network';
   final String cacheNetworkConstKey = 'network_const';
@@ -55,7 +57,11 @@ abstract class _SettingsStore with Store {
   String endpoint = '';
 
   bool get isDefaultNode {
-    return GRAPTH_QL_NODE_URL == endpoint;
+    return GRAPH_QL_MAINNET_NODE_URL == endpoint || GRAPH_QL_TESTNET_NODE_URL == endpoint;
+  }
+
+  bool get isMainnet {
+    return GRAPH_QL_MAINNET_NODE_URL == endpoint;
   }
 
   @observable
@@ -64,6 +70,9 @@ abstract class _SettingsStore with Store {
 
   @observable
   List<String> customNodeList = [];
+
+  @observable
+  List<CustomNode> customNodeListV2 = [];
 
   @observable
   String networkName = '';
@@ -113,19 +122,25 @@ abstract class _SettingsStore with Store {
       currencyCode = stored;
     }
   }
-
   @action
-  Future<void> setCustomNodeList(List<String> nodeList) async {
-    await rootStore.localStorage.setObject(localStorageCustomNodes, nodeList);
-    customNodeList = nodeList;
+  Future<void> updateCustomNode(CustomNode newNode,CustomNode oldNode) async {
+    var target = customNodeListV2.toList().firstWhere((element) => element.url == oldNode.url);
+    target.name = newNode.name;
+    target.url = newNode.url;
+    setCustomNodeList(customNodeListV2);
+  }
+  @action
+  Future<void> setCustomNodeList(List<CustomNode> nodeList) async {
+    await rootStore.localStorage.setObject(localStorageCustomNodesV2, nodeList);
+    customNodeListV2 = nodeList;
   }
 
   @action
   Future<void> loadCustomNodeList() async {
     try{
-      List<dynamic>? stored = await rootStore.localStorage.getObject(localStorageCustomNodes) as List<dynamic>?;
+      List<dynamic>? stored = await rootStore.localStorage.getObject(localStorageCustomNodesV2) as List<dynamic>?;
       if (stored != null) {
-        customNodeList = stored.map((s) => s as String).toList();
+        customNodeListV2 = stored.map((s) => CustomNode.fromJson(s)).toList();
       }
     } catch(e){
       print(e);
@@ -140,9 +155,9 @@ abstract class _SettingsStore with Store {
 
 
   @action
-  void setEndpoint(String value) {
+  Future<void> setEndpoint(String value) async {
     endpoint = value;
-    rootStore.localStorage.setObject(localStorageEndpointKey, value);
+    await rootStore.localStorage.setObject(localStorageEndpointKey, value);
   }
 
 
@@ -150,7 +165,7 @@ abstract class _SettingsStore with Store {
   Future<void> loadEndpoint() async {
     String? value = await rootStore.localStorage.getObject(localStorageEndpointKey) as String?;
     if (value == null) {
-      endpoint = GRAPTH_QL_NODE_URL;
+      endpoint = GRAPH_QL_MAINNET_NODE_URL;
     } else {
       endpoint = value;
     }

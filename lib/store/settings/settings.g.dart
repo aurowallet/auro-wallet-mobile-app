@@ -146,6 +146,21 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
+  final _$customNodeListV2Atom = Atom(name: '_SettingsStore.customNodeListV2');
+
+  @override
+  List<CustomNode> get customNodeListV2 {
+    _$customNodeListV2Atom.reportRead();
+    return super.customNodeListV2;
+  }
+
+  @override
+  set customNodeListV2(List<CustomNode> value) {
+    _$customNodeListV2Atom.reportWrite(value, super.customNodeListV2, () {
+      super.customNodeListV2 = value;
+    });
+  }
+
   final _$networkNameAtom = Atom(name: '_SettingsStore.networkName');
 
   @override
@@ -229,11 +244,20 @@ mixin _$SettingsStore on _SettingsStore, Store {
     return _$loadCurrencyCodeAsyncAction.run(() => super.loadCurrencyCode());
   }
 
+  final _$updateCustomNodeAsyncAction =
+      AsyncAction('_SettingsStore.updateCustomNode');
+
+  @override
+  Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) {
+    return _$updateCustomNodeAsyncAction
+        .run(() => super.updateCustomNode(newNode, oldNode));
+  }
+
   final _$setCustomNodeListAsyncAction =
       AsyncAction('_SettingsStore.setCustomNodeList');
 
   @override
-  Future<void> setCustomNodeList(List<String> nodeList) {
+  Future<void> setCustomNodeList(List<CustomNode> nodeList) {
     return _$setCustomNodeListAsyncAction
         .run(() => super.setCustomNodeList(nodeList));
   }
@@ -245,6 +269,13 @@ mixin _$SettingsStore on _SettingsStore, Store {
   Future<void> loadCustomNodeList() {
     return _$loadCustomNodeListAsyncAction
         .run(() => super.loadCustomNodeList());
+  }
+
+  final _$setEndpointAsyncAction = AsyncAction('_SettingsStore.setEndpoint');
+
+  @override
+  Future<void> setEndpoint(String value) {
+    return _$setEndpointAsyncAction.run(() => super.setEndpoint(value));
   }
 
   final _$loadEndpointAsyncAction = AsyncAction('_SettingsStore.loadEndpoint');
@@ -300,17 +331,6 @@ mixin _$SettingsStore on _SettingsStore, Store {
   }
 
   @override
-  void setEndpoint(String value) {
-    final _$actionInfo = _$_SettingsStoreActionController.startAction(
-        name: '_SettingsStore.setEndpoint');
-    try {
-      return super.setEndpoint(value);
-    } finally {
-      _$_SettingsStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setAboutUs(AboutUsData value) {
     final _$actionInfo = _$_SettingsStoreActionController.startAction(
         name: '_SettingsStore.setAboutUs');
@@ -330,6 +350,7 @@ currencyCode: ${currencyCode},
 endpoint: ${endpoint},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
+customNodeListV2: ${customNodeListV2},
 networkName: ${networkName},
 networkConst: ${networkConst},
 contactList: ${contactList}

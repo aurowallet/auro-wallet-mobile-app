@@ -10,19 +10,21 @@ import 'package:auro_wallet/service/api/apiAssets.dart';
 import 'package:auro_wallet/service/api/apiStaking.dart';
 import 'package:auro_wallet/service/api/apiSetting.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
+import 'package:auro_wallet/service/graphql.dart';
 
 // global api instance
 late Api webApi;
 
 class Api {
-  Api(this.context, this.store, this.graphQLClient);
+  Api(this.context, this.store);
 
   final BuildContext context;
   final AppStore store;
-  final GraphQLClient graphQLClient;
   final jsStorage = GetStorage();
+  late GraphQLClient graphQLClient;
 
   final configStorage = GetStorage('configuration');
 
@@ -36,11 +38,16 @@ class Api {
     assets = ApiAssets(this);
     staking = ApiStaking(this);
     setting = ApiSetting(this);
-
+    graphQLClient = clientFor(uri: store.settings!.endpoint, subscriptionUri: null).value;
     fetchNetworkProps();
   }
 
   void dispose() {
+
+  }
+
+  void updateGqlClient(String endpoint) {
+    graphQLClient = clientFor(uri: endpoint, subscriptionUri: null).value;
   }
 
   Future<void> fetchNetworkProps() async {
@@ -48,10 +55,24 @@ class Api {
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
         assets.fetchAccountInfo(),
-        staking.fetchAccountStaking(),
       ]);
     }
     staking.fetchStakingOverview();
+  }
+
+  String getTransactionsApiUrl () {
+    if (store.settings!.endpoint == GRAPH_QL_TESTNET_NODE_URL) {
+      return TESTNET_TRANSACTION_URL;
+    } else {
+      return MAINNET_TRANSACTION_URL;
+    }
+  }
+
+  Future<void> refreshNetwork () async {
+    assets.fetchAccountInfo();
+    staking.refreshStaking();
+    assets.fetchPendingTransactions(store.wallet!.currentAddress);
+    assets.fetchTransactions(store.wallet!.currentAddress);
   }
 
 

@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auro_wallet/common/components/nodeSelectionDialog.dart';
+import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
+import 'package:auro_wallet/common/components/outlinedButtonSmall.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,24 +45,39 @@ class Assets extends StatefulWidget {
   _AssetsState createState() => _AssetsState(store);
 }
 
-class _AssetsState extends State<Assets> {
+class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   _AssetsState(this.store);
 
   final AppStore store;
 
-
-
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _fetchBalance();
+      _fetchTransactions();
+      WidgetsBinding.instance?.addObserver(this);
     });
     super.initState();
   }
 
-  Future<void> _fetchBalance() async {
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    var isInForeground = state == AppLifecycleState.resumed;
+    if (isInForeground) {
+      this._onRefresh();
+    }
+  }
+
+  Future<void> _onRefresh() async {
     await Future.wait([
       _fetchTransactions(),
+      webApi.assets.fetchAccountInfo()
     ]);
   }
 
@@ -89,6 +108,7 @@ class _AssetsState extends State<Assets> {
     );
   }
   Widget _buildTopBar(BuildContext context) {
+    var i18n = I18n.of(context).main;
     return Padding(
       padding: EdgeInsets.fromLTRB(13, ui.window.viewPadding.top > 0 ? 16 : 36, 15, 0),
       child: Row(
@@ -96,16 +116,29 @@ class _AssetsState extends State<Assets> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Image.asset('assets/images/public/2x/m_logo@2x.png', width: 121, height: 30,),
-        IconButton(
-            iconSize: 30,
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
-            icon: Image.asset('assets/images/assets/2x/wallet_manage@2x.png', width: 30, height: 30,),
-            onPressed: () {
-              Navigator.of(context).pushNamed(WalletManagePage.route);
-            }
-          // ,
-        ),
+        Expanded(child:  Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              width: 30,
+            ),
+            Flexible(child: NodeSelectionDropdown(store: store.settings!),),
+            Container(
+              width: 10,
+            ),
+            IconButton(
+                iconSize: 30,
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+                icon: Image.asset('assets/images/assets/2x/wallet_manage@2x.png', width: 30, height: 30,),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(WalletManagePage.route);
+                }
+              // ,
+            ),
+          ],
+        ),)
       ],
     ),);
   }
@@ -186,6 +219,7 @@ class _AssetsState extends State<Assets> {
                         ],
                       ),
                     ),
+                    store.settings!.isMainnet ?
                     Padding(
                       padding: EdgeInsets.only(top: 4, bottom: 23,),
                       child: Row(
@@ -196,7 +230,7 @@ class _AssetsState extends State<Assets> {
                           Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),)
                         ],
                       ),
-                    ),
+                    ) : Container(height: 23,),
                   ]
                 ),
               ),
@@ -293,7 +327,7 @@ class _AssetsState extends State<Assets> {
       builder: (_) {
         return RefreshIndicator(
           key: globalBalanceRefreshKey,
-          onRefresh: _fetchBalance,
+          onRefresh: _onRefresh,
           child: Column(
             children: <Widget>[
               _buildTopBar(context),
@@ -428,7 +462,7 @@ class TransferListItem extends StatelessWidget {
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : data.time, style: theme.headline6!.copyWith(
+                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: theme.headline6!.copyWith(
                                 color:  ColorsUtil.hexColor(0x96969A)
                             ),),
                             Text(statusText, style: theme.headline6!.copyWith(

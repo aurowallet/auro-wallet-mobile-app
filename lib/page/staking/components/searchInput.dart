@@ -25,7 +25,7 @@ class SearchInput extends StatelessWidget {
         ),
         decoration: InputDecoration(
             hintText: i18n['searchPlaceholder']!,
-            prefixIcon: const Icon(Icons.search,),
+            prefixIcon: const Icon(Icons.search, size: 36,),
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
             isDense: true,
             border:const OutlineInputBorder(

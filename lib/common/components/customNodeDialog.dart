@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
-class AddressBookDialog extends StatefulWidget {
-  AddressBookDialog({this.onOk, this.onCancel, this.name, this.address});
+class CustomNodeDialog extends StatefulWidget {
+  CustomNodeDialog({this.onOk, this.onCancel, this.name, this.url});
 
   final bool Function(String name, String address)? onOk;
   final Function? onCancel;
   final String? name;
-  final String? address;
+  final String? url;
 
   @override
-  _AddressBookDialogState createState() => _AddressBookDialogState();
+  _CustomNodeDialogState createState() => _CustomNodeDialogState();
 }
 
-class _AddressBookDialogState extends State<AddressBookDialog> {
+class _CustomNodeDialogState extends State<CustomNodeDialog> {
 
   final TextEditingController _nameCtrl = new TextEditingController();
-  final TextEditingController _addressCtrl = new TextEditingController();
+  final TextEditingController _urlCtrl = new TextEditingController();
 
   bool _submitDisabled = true;
 
@@ -25,7 +25,7 @@ class _AddressBookDialogState extends State<AddressBookDialog> {
   void initState() {
     super.initState();
     _nameCtrl.addListener(_monitorSummitStatus);
-    _addressCtrl.addListener(_monitorSummitStatus);
+    _urlCtrl.addListener(_monitorSummitStatus);
   }
 
   @override
@@ -33,7 +33,7 @@ class _AddressBookDialogState extends State<AddressBookDialog> {
     super.dispose();
   }
   void _monitorSummitStatus() {
-    if (_nameCtrl.text.isEmpty || _addressCtrl.text.isEmpty) {
+    if (_nameCtrl.text.isEmpty || _urlCtrl.text.isEmpty) {
       if (!_submitDisabled) {
         setState((){
           _submitDisabled = true;
@@ -64,19 +64,19 @@ class _AddressBookDialogState extends State<AddressBookDialog> {
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 0),
-                  child: Text(dic['addaddress']!, style: TextStyle(fontSize: 20)),
+                  child: Text(dic['addNetWork']!, style: TextStyle(fontSize: 20)),
                 ),
                 InputItem(
                   initialValue: widget.name,
-                  placeholder: dic['name'],
+                  placeholder: dic['networkName'],
                   padding: EdgeInsets.only(top: 25),
                   controller: _nameCtrl,
                 ),
                 InputItem(
-                  initialValue: widget.address,
-                  placeholder: dic['address'],
+                  initialValue: widget.url,
+                  placeholder: 'https://',
                   padding: EdgeInsets.only(top: 16),
-                  controller: _addressCtrl,
+                  controller: _urlCtrl,
                   maxLines: 2,
                 ),
                 Padding(
@@ -118,12 +118,12 @@ class _AddressBookDialogState extends State<AddressBookDialog> {
                         disabledTextColor: Colors.blueGrey,
                         onPressed: _submitDisabled ? null : () {
                           if (widget.onOk != null) {
-                            bool close = widget.onOk!(_nameCtrl.text, _addressCtrl.text);
+                            bool close = widget.onOk!(_nameCtrl.text, _urlCtrl.text);
                             if (!close) {
                               return;
                             }
                           }
-                          Navigator.of(context).pop([_nameCtrl.text, _addressCtrl.text]);
+                          Navigator.of(context).pop([_nameCtrl.text, _urlCtrl.text]);
                         },
                       ),
                     ]

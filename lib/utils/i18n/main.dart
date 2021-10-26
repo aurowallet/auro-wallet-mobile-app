@@ -89,7 +89,7 @@ const Map<String, String> zhMain = {
   "privateKeyTip_3": "Auro钱包不承担因用户遗失，损毁或者其它原因导致备份的私钥丢失页造成的资产损失",
   "over": "完成",
   "security": "安全",
-  "network": "节点",
+  "network": "网络",
   "language": "语言",
   "currency": "法币类型",
   "about": "关于我们",
@@ -99,13 +99,15 @@ const Map<String, String> zhMain = {
   "inputNewPwd": "请输入新密码",
   "inputNewPwdRepeat": "请重复输入新密码",
   "pwdChangeSuccess": "密码修改成功",
-  "networkConfig": "节点设置",
+  "networkConfig": "网络",
+  "networkName": "名称",
   "defaultNetwork": "默认节点",
   "customNetwork": "自定义节点",
   "addNetWork": "添加节点",
   "delete": "删除",
   "urlError_1": "请输入有效的节点地址",
   "urlError_2": "地址已存在",
+  "urlError_3": "节点地址已存在",
   "prompt": "提示",
   "deleteAccountTip": "删除的账户只能通过私记词或者私钥恢复，请确认你已经备份好助记词和私钥。",
   "isee": "我知道了",
@@ -236,7 +238,8 @@ const Map<String, String> zhMain = {
   "resetWarnContent":"确定要重置钱包吗？\n\n重置后现有钱包的数据将会全部丢失，只能使用助记词恢复，请确保你已经备份好助记词后再重置钱包。",
   "confirmReset": "确定重置",
   "cancelReset": "取消重置",
-  "deleteConfirm":"请在输入“删除”确定重置钱包"
+  "deleteConfirm":"请在输入“删除”确定重置钱包",
+  "edit": "编辑"
 };
 
 const Map<String, String> enMain = {
@@ -330,7 +333,7 @@ const Map<String, String> enMain = {
   "privateKeyTip_3": "Auro Wallet is not responsible for asset loss caused by users lost their backed up private keys due to any reasons. ",
   "over": "Done",
   "security": "Security",
-  "network": "Endpoint",
+  "network": "Network",
   "language": "Language",
   "currency": "Currency",
   "about": "About",
@@ -340,13 +343,15 @@ const Map<String, String> enMain = {
   "inputNewPwd": "Please enter the new password",
   "inputNewPwdRepeat": "Please re-enter the new password",
   "pwdChangeSuccess": "Password changed successfully",
-  "networkConfig": "Node Settings",
+  "networkConfig": "Network",
+  "networkName": "Name",
   "defaultNetwork": "Default node",
   "customNetwork": "Custom node",
   "addNetWork": "Add Node",
   "delete": "Delete",
   "urlError_1": "Please enter a valid node address",
   "urlError_2": "Address already exists",
+  "urlError_3": "Node address already exists",
   "prompt": "Reminder",
   "deleteAccountTip": "The deleted account can only be restored by Mnemonic Phrase or Private Key. Please make sure you have backed up your mnemonic phrase and private key.",
   "isee": "OK",
@@ -475,5 +480,6 @@ const Map<String, String> enMain = {
   "resetWarnContent":"Are you sure erase your wallet?\n\nAfter reset the wallet, all data will be lost and can only be restored using the mnemonic words. Please make sure that you have backed up the mnemonic before reset the wallet.",
   "confirmReset": "Confirm",
   "cancelReset": "Cancel",
-  "deleteConfirm":"Type 'delete' to erase current  wallet permanently"
+  "deleteConfirm":"Type 'delete' to erase current  wallet permanently",
+  "edit": "Edit"
 };

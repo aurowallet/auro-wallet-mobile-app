@@ -49,8 +49,6 @@ class _ContactListPageState extends State<ContactListPage> {
     }
     String name = inputs[0].trim();
     String address = inputs[1].trim();
-    name = name.trim();
-    address = address.trim();
     bool isValid = await webApi.account.isAddressValid(address);
     if (!isValid) {
       UI.toast(i18n['sendAddressError']!);
@@ -88,50 +86,39 @@ class _ContactListPageState extends State<ContactListPage> {
     }
     widget.store.removeContact(contact);
   }
-  Widget _renderContactList(BuildContext context) {
+  Widget _renderContactList(BuildContext context, bool isToSelect) {
     var i18n = I18n.of(context).main;
-    final Map? params = ModalRoute.of(context)!.settings.arguments as Map;
-    var isToSelect = false;
-    if (params != null) {
-      isToSelect = params['isToSelect'] as bool;
-    }
     var contacts = widget.store.contactList;
     if (contacts.length == 0) {
       return Container();
     }
     List<Widget> list = contacts.map((contact) {
-      return GestureDetector(
-        child: Padding(
-          key: Key(contact.address + contact.name),
-          padding: EdgeInsets.zero,
-          child: Slidable(
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.2,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30,),
-              child: ContactItem(
-                name: contact.name,
-                address: contact.address,
-                store: widget.store,
-                showEditDialog: _showAddressDialog,
-              ),
+      return Padding(
+        key: Key(contact.address + contact.name),
+        padding: EdgeInsets.zero,
+        child: Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.2,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 30,),
+            child: ContactItem(
+              name: contact.name,
+              address: contact.address,
+              store: widget.store,
+              showEditDialog: !isToSelect ? _showAddressDialog : null,
             ),
-            secondaryActions: <Widget>[
-              IconSlideAction(
-                caption: i18n['delete']!,
-                color: ColorsUtil.hexColor(0xF95051),
-                icon: Icons.delete,
-                onTap: () {
-                  _removeContact(contact);
-                },
-              ),
-            ],
           ),
+          secondaryActions: !isToSelect ? <Widget>[
+            IconSlideAction(
+              caption: i18n['delete']!,
+              color: ColorsUtil.hexColor(0xF95051),
+              icon: Icons.delete,
+              onTap: () {
+                _removeContact(contact);
+              },
+            ),
+          ] : [],
         ),
-        behavior: HitTestBehavior.opaque,
-        onTap: isToSelect ? (){
-          Navigator.of(context).pop(contact);
-        } : null,
       );
     })
         .toList();
@@ -150,7 +137,11 @@ class _ContactListPageState extends State<ContactListPage> {
   @override
   Widget build(BuildContext context) {
     var i18n = I18n.of(context).main;
-
+    final Map? params = ModalRoute.of(context)!.settings.arguments as Map;
+    var isToSelect = false;
+    if (params != null) {
+      isToSelect = params['isToSelect'] as bool;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n['addressbook']!),
@@ -165,7 +156,7 @@ class _ContactListPageState extends State<ContactListPage> {
                 Expanded(
                   child: ListView(
                       children: [
-                        _renderContactList(context),
+                        _renderContactList(context, isToSelect),
                       ]
                   ),
                 ),
@@ -173,7 +164,7 @@ class _ContactListPageState extends State<ContactListPage> {
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   child: NormalButton(
                     text: I18n.of(context).main['add']!,
-                    onPressed: _addContact,
+                    onPressed: _addContact ,
                   ),
                 ),
               ],
@@ -197,20 +188,27 @@ class ContactItem extends StatelessWidget {
   final String name;
   final String address;
   final EdgeInsetsGeometry margin;
-  final Function showEditDialog;
+  final Function? showEditDialog;
   final SettingsStore store;
+  BuildContext? _ctx;
 
   void _onClick () async {
-    var nameAndAddressMap = await this.showEditDialog(this.name, this.address);
-    if (nameAndAddressMap == null) {
-      return;
+    if (this.showEditDialog != null) {
+      var nameAndAddressMap = await this.showEditDialog!(this.name, this.address);
+      if (nameAndAddressMap == null) {
+        return;
+      }
+      String name = nameAndAddressMap["name"]!;
+      String address = nameAndAddressMap["address"]!;
+      this.store.updateContact(ContactData(name: name, address: address), this.address);
+    } else {
+      var contact = this.store.contactList.firstWhere((element) => element.address == this.address);
+      Navigator.of(this._ctx!).pop(contact);
     }
-    String name = nameAndAddressMap["name"]!;
-    String address = nameAndAddressMap["address"]!;
-    this.store.updateContact(ContactData(name: name, address: address), this.address);
   }
   @override
   Widget build(BuildContext context) {
+    _ctx = context;
     var theme = Theme.of(context).textTheme;
     return FormPanel(
         margin: margin,

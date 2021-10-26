@@ -8,7 +8,7 @@ class COIN {
 
 /// graphql for mina
 const GraphQLConfig = {
-  'httpUri': GRAPTH_QL_NODE_URL,
+  'httpUri': GRAPH_QL_MAINNET_NODE_URL,
   'wsUri': null,
 };
 
@@ -20,7 +20,7 @@ const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 
 /// app versions
-const String app_version = 'v1.0.4(1040)';
+const String app_version = 'v1.0.5(1046)';
 
 
 

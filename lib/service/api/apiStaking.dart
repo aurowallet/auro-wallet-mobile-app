@@ -13,15 +13,16 @@ class ApiStaking {
   final Api apiRoot;
   final store = globalAppStore;
 
-  Future<void> fetchAccountStaking() async {
-    final String pubKey = store.wallet!.currentAccountPubKey;
-    if (pubKey != null && pubKey.isNotEmpty) {
-      return;
+  Future<void> refreshStaking({clearCache: true}) async {
+    if (clearCache) {
+      store.staking!.setValidatorsInfo([]);
     }
+    fetchStakingOverview();
+    fetchValidators();
   }
 
   Future<void> fetchValidators() async {
-    String txUrl =  "$TRANSACTION_URL/validators";
+    String txUrl =  "${apiRoot.getTransactionsApiUrl()}/validators";
     var response = await http.get(Uri.parse(txUrl), headers: {'Content-Type': 'application/json; charset=utf-8'});
     if (response.statusCode == 200) {
       List list = convert.jsonDecode(utf8.decode(response.bodyBytes));
