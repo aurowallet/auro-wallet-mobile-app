@@ -26,8 +26,8 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _monitorFeeDisposer = reaction((_) =>  widget.store.endpoint, this._setNetName);
-      this._setNetName(null);
     });
+    netName = _getName(null);
     super.initState();
   }
   _setNetName (String? endpoint) {
