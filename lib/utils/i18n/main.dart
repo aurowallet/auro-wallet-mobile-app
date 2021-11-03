@@ -239,7 +239,8 @@ const Map<String, String> zhMain = {
   "confirmReset": "确定重置",
   "cancelReset": "取消重置",
   "deleteConfirm":"请在输入“删除”确定重置钱包",
-  "edit": "编辑"
+  "edit": "编辑",
+  "nodeAlert": "请务必只添加受您信任的节点。使用未知节点会有一定风险。"
 };
 
 const Map<String, String> enMain = {
@@ -481,5 +482,6 @@ const Map<String, String> enMain = {
   "confirmReset": "Confirm",
   "cancelReset": "Cancel",
   "deleteConfirm":"Type 'delete' to erase current  wallet permanently",
-  "edit": "Edit"
+  "edit": "Edit",
+  "nodeAlert": "Only add custom networks you trust. Using unknown nodes can be risky."
 };

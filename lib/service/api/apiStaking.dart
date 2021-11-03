@@ -22,6 +22,10 @@ class ApiStaking {
   }
 
   Future<void> fetchValidators() async {
+    if (!store.settings!.isSupportedNode) {
+      store.staking!.setValidatorsInfo([]);
+      return;
+    }
     String txUrl =  "${apiRoot.getTransactionsApiUrl()}/validators";
     var response = await http.get(Uri.parse(txUrl), headers: {'Content-Type': 'application/json; charset=utf-8'});
     if (response.statusCode == 200) {
@@ -29,7 +33,7 @@ class ApiStaking {
       store.staking!.setValidatorsInfo(list.map((e) => e as Map<String, dynamic>).toList());
       print('validators cached' + list.length.toString());
     } else {
-      print('Request failed with status: ${response.statusCode}.');
+      print('Request validators failed with status: ${response.statusCode}.');
     }
   }
 

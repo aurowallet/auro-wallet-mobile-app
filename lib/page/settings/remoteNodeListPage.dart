@@ -1,5 +1,6 @@
 import 'package:auro_wallet/common/components/customNodeDialog.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -75,23 +76,38 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         return;
       }
     }
+
     EasyLoading.show(status: '');
-    bool isValid = await webApi.setting.validateGraphqlEndpoint(endpoint.url);
-    if(!isValid) {
+    String? chainId = await webApi.setting.fetchChainId(endpoint.url);
+    if(chainId == null) {
       UI.toast(i18n['urlError_1']!);
       EasyLoading.dismiss();
       return;
     }
+    endpoint.chainId = chainId;
+
+    List<NetworkType> fetchNetworkTypes = await webApi.setting.fetchNetworkTypes();
+    final targetNetworks = fetchNetworkTypes.where((element) => element.chainId == endpoint.chainId);
+    if (targetNetworks.isNotEmpty) {
+      endpoint.networksType = targetNetworks.first.type;
+    }
+
     if (isEdit) {
       widget.store.updateCustomNode(endpoint, originEndpoint!);
-      if (widget.store.endpoint == originEndpoint.url && originEndpoint.url != endpoint.url) {
-        await widget.store.setEndpoint(endpoint.url);
-        webApi.refreshNetwork();
+      if (widget.store.endpoint == originEndpoint.url) {
+        if (originEndpoint.url != endpoint.url
+            || originEndpoint.chainId != endpoint.chainId
+        ) {
+          await widget.store.setEndpoint(endpoint.url);
+          webApi.updateGqlClient(endpoint.url);
+          webApi.refreshNetwork();
+        }
       }
     } else {
       endpoints.add(endpoint);
       await widget.store.setEndpoint(endpoint.url);
       widget.store.setCustomNodeList(endpoints);
+      webApi.updateGqlClient(endpoint.url);
       webApi.refreshNetwork();
     }
     EasyLoading.dismiss();
@@ -129,8 +145,14 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     if (endpoints.length == 0) {
       return Container();
     }
-    List<Widget> list = endpoints
-        .map((endpoint) {
+    final networks = widget.store.networks;
+    List<Widget> list = endpoints.map((endpoint) {
+      final filterNetworks = networks.where((element) => element.chainId == endpoint.chainId);
+      NetworkType? networkType;
+      if (filterNetworks.isNotEmpty) {
+        networkType = filterNetworks.first;
+      }
+      final tagStr = networkType != null ? networkType.name : "Unknown";
       return Padding(
         key: Key(endpoint.url),
         padding: EdgeInsets.only(top: 10),
@@ -144,6 +166,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                 value: endpoint.url,
                 checked: widget.store.endpoint == endpoint.url,
                 onChecked: onChangeEndpoint,
+                tag: tagStr,
               ),
           ),
           secondaryActions: <Widget>[
@@ -225,13 +248,15 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                                 value: GRAPH_QL_MAINNET_NODE_URL,
                                 onChecked: onChangeEndpoint,
                                 checked: GRAPH_QL_MAINNET_NODE_URL == widget.store.endpoint,
+                                tag: null,
                               ),
                               NodeItem(
                                 margin: EdgeInsets.only(top: 10),
-                                text: 'Testnet',
+                                text: 'Devnet',
                                 value: GRAPH_QL_TESTNET_NODE_URL,
                                 onChecked: onChangeEndpoint,
                                 checked: GRAPH_QL_TESTNET_NODE_URL == widget.store.endpoint,
+                                tag: null,
                               )
                             ],
                           ),
@@ -265,11 +290,13 @@ class NodeItem extends StatelessWidget {
         required this.text,
         required this.value,
         required this.onChecked,
+        required this.tag,
         this.margin = const EdgeInsets.only(top: 0),
       });
   final bool checked;
   final String text;
   final String value;
+  final String? tag;
   final void Function(bool, String) onChecked;
   final EdgeInsetsGeometry margin;
 
@@ -284,7 +311,25 @@ class NodeItem extends StatelessWidget {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(Fmt.breakWord(text)!, style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
+              Row(
+                children: [
+                  Flexible(
+                    flex:1,
+                    child: Text(Fmt.breakWord(text)!,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
+                  ),
+                  tag != null ? Container(
+                    margin: EdgeInsets.only(left: 5),
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: ColorsUtil.hexColor(0xDDDDDD),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Text(tag!, style: theme.headline6!.copyWith(color: Colors.white, fontWeight: FontWeight.w500)),
+                  ) : Container()
+                ],
+              ),
               Text(Fmt.breakWord(value)!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
             ],
           ),

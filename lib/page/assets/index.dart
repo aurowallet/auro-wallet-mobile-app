@@ -83,7 +83,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   Future<void> _fetchTransactions() async {
     print('start fetch tx list');
-    if(!store.settings!.isDefaultNode) {
+    if(!store.settings!.isSupportedNode) {
       return;
     }
     store.assets!.setTxsLoading(true);
@@ -289,7 +289,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var i18n = I18n.of(context).main;
     List<Widget> res = [];
     List<TransferData> txs = [...store.assets!.pendingTxs, ...store.assets!.txs];
-    if (store.settings!.isDefaultNode) {
+    if (store.settings!.isSupportedNode) {
       res.addAll(txs.map((i) {
         return TransferListItem(
           data: i,
@@ -315,7 +315,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     res.add(HomeListTip(
         isEmpty: txs.length == 0,
         isLoading: store.assets!.isTxsLoading,
-        isDefaultNode: store.settings!.isDefaultNode
+        isSupportedNode: store.settings!.isSupportedNode
     ));
     return res;
   }

@@ -147,6 +147,9 @@ return '''account$index: account (publicKey: \$account$index) {
   }
 
   Future<void> _fetchMarketPrice() async {
+    if (!store.settings!.isMainnet) {
+      return;
+    }
     String txUrl =  "${apiRoot.getTransactionsApiUrl()}/prices?currency=" + store.settings!.currencyCode;
     var response = await  http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {
@@ -161,7 +164,7 @@ return '''account$index: account (publicKey: \$account$index) {
         store.assets!.setMarketPrices(COIN.coinSymbol.toLowerCase(), price);
       }
     } else {
-      print('Request failed with status: ${response.statusCode}.');
+      print('Request price failed with status: ${response.statusCode}.');
     }
   }
 }

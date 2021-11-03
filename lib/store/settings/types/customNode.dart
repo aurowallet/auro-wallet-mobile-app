@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'customNode.g.dart';
@@ -12,4 +13,6 @@ class CustomNode {
 
   String name;
   String url;
+  String? networksType;
+  String? chainId;
 }

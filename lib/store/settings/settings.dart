@@ -1,4 +1,5 @@
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:mobx/mobx.dart';
 
 import 'package:json_annotation/json_annotation.dart';
@@ -35,6 +36,7 @@ abstract class _SettingsStore with Store {
 
   final String localStorageLocaleKey = 'locale';
   final String localStorageCurrencyKey = 'currency';
+  final String localStorageNetworksKey = 'network_types';
   final String localStorageEndpointKey = 'endpoint';
   final String localStorageAboutUsKey = 'about_us';
   final String localStorageCustomNodes = 'custom_node_list';
@@ -60,8 +62,32 @@ abstract class _SettingsStore with Store {
     return GRAPH_QL_MAINNET_NODE_URL == endpoint || GRAPH_QL_TESTNET_NODE_URL == endpoint;
   }
 
+  bool get isSupportedNode {
+    if( GRAPH_QL_MAINNET_NODE_URL == endpoint || GRAPH_QL_TESTNET_NODE_URL == endpoint) {
+      return true;
+    }
+    final targetNets = customNodeListV2.where((element) => element.url == endpoint);
+    if (targetNets.isNotEmpty) {
+      final targetNet = customNodeListV2.first;
+      if (targetNet.networksType == '0'  || targetNet.networksType == '1') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool get isMainnet {
-    return GRAPH_QL_MAINNET_NODE_URL == endpoint;
+    if(GRAPH_QL_MAINNET_NODE_URL == endpoint) {
+      return true;
+    }
+    final targetNets = customNodeListV2.where((element) => element.url == endpoint);
+    if (targetNets.isNotEmpty) {
+      final targetNet = customNodeListV2.first;
+      if (targetNet.networksType == '0') {
+        return true;
+      }
+    }
+    return false;
   }
 
   @observable
@@ -73,6 +99,9 @@ abstract class _SettingsStore with Store {
 
   @observable
   List<CustomNode> customNodeListV2 = [];
+
+  @observable
+  List<NetworkType> networks = [];
 
   @observable
   String networkName = '';
@@ -93,6 +122,7 @@ abstract class _SettingsStore with Store {
     await loadAboutUs();
     await loadCustomNodeList();
     await loadContacts();
+    await loadNetworkTypes();
   }
 
   @action
@@ -105,6 +135,22 @@ abstract class _SettingsStore with Store {
   Future<void> setCurrencyCode(String code) async {
     await rootStore.localStorage.setObject(localStorageCurrencyKey, code);
     currencyCode = code;
+  }
+
+  @action
+  Future<void> setNetworkTypes(List<NetworkType> networkTypes, {shouldCache = false}) async {
+    networks = networkTypes;    // cache data
+    if (shouldCache) {
+      rootStore.localStorage.setObject(localStorageNetworksKey, networks.map((i)=>i.toJson()).toList());
+    }
+  }
+
+  @action
+  Future<void> loadNetworkTypes() async {
+    List<dynamic>? netList = await rootStore.localStorage.getObject(localStorageNetworksKey) as List<dynamic>?;
+    if (netList != null) {
+      networks = ObservableList.of(netList.map((i) => NetworkType.fromJson(i as Map<String, dynamic>)));
+    }
   }
 
   @action
@@ -127,6 +173,8 @@ abstract class _SettingsStore with Store {
     var target = customNodeListV2.toList().firstWhere((element) => element.url == oldNode.url);
     target.name = newNode.name;
     target.url = newNode.url;
+    target.chainId = newNode.chainId;
+    target.networksType = newNode.networksType;
     setCustomNodeList(customNodeListV2);
   }
   @action
