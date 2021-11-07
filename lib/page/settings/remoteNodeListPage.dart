@@ -141,6 +141,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   }
   Widget _renderCustomNodeList(BuildContext context) {
     var i18n = I18n.of(context).main;
+    final theme = Theme.of(context).textTheme;
     List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
     if (endpoints.length == 0) {
       return Container();
@@ -211,7 +212,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         children: [
           Padding(
             padding: EdgeInsets.only(left: 30, right: 30, top: 20),
-            child: Text(i18n['customNetwork']!, style: TextStyle(color: ColorsUtil.hexColor(0x666666), fontSize: 16)),
+            child: Text(i18n['customNetwork']!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666))),
           ),
           ...list
         ],
@@ -221,7 +222,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   @override
   Widget build(BuildContext context) {
     var i18n = I18n.of(context).main;
-
+    final theme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n['networkConfig']!),
@@ -241,7 +242,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(i18n['defaultNetwork']!, style: TextStyle(color: ColorsUtil.hexColor(0x666666), fontSize: 16)),
+                              Text(i18n['defaultNetwork']!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666))),
                               NodeItem(
                                 margin: EdgeInsets.only(top: 10),
                                 text: 'Mainnet',

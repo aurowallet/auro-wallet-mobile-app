@@ -105,7 +105,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
           ),
           child: Text(
             dic['noMoreSupported']!,
-            style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x666666)),
+            style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),
           ),
         )
       );

@@ -63,7 +63,7 @@ class NodeSelectionDialog extends StatelessWidget {
                   NodeItem(
                     onSelectNode: onSelectNode,
                     data: CustomNode(
-                      name: 'Testnet',
+                      name: 'Devnet',
                       url: GRAPH_QL_TESTNET_NODE_URL,
                     ),
                   ),
