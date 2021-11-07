@@ -76,13 +76,19 @@ class UI {
     );
   }
 
-  static Future<void> showAlertDialog({required BuildContext context,required List<String> contents,CrossAxisAlignment? crossAxisAlignment}) {
+  static Future<void> showAlertDialog({
+    required BuildContext context,
+    required List<String> contents,
+    String? confirm,
+    CrossAxisAlignment? crossAxisAlignment
+  }) {
     return showDialog<String>(
       context: context,
       builder: (_) {
         final Map<String, String> dic = I18n.of(context).main;
         return CustomAlertDialog(
           title: dic['prompt']!,
+          confirm: confirm,
           contents:contents,
           crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
           onOk: () {

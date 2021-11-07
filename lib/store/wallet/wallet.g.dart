@@ -30,6 +30,14 @@ mixin _$WalletStore on _WalletStore, Store {
           Computed<List<AccountData>>(() => super.accountListAll,
               name: '_WalletStore.accountListAll'))
       .value;
+  Computed<List<AccountData>>? _$watchModeAccountListAllComputed;
+
+  @override
+  List<AccountData> get watchModeAccountListAll =>
+      (_$watchModeAccountListAllComputed ??= Computed<List<AccountData>>(
+              () => super.watchModeAccountListAll,
+              name: '_WalletStore.watchModeAccountListAll'))
+          .value;
   Computed<List<WalletData>>? _$walletListAllComputed;
 
   @override
@@ -290,6 +298,7 @@ walletList: ${walletList},
 currentWallet: ${currentWallet},
 walletsMap: ${walletsMap},
 accountListAll: ${accountListAll},
+watchModeAccountListAll: ${watchModeAccountListAll},
 walletListAll: ${walletListAll},
 mnemonicWallet: ${mnemonicWallet},
 currentAddress: ${currentAddress},

@@ -1,17 +1,17 @@
-import 'package:biometric_storage/biometric_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class CustomAlertDialog extends StatefulWidget {
-  CustomAlertDialog({required this.title, required this.contents, this.onOk, this.crossAxisAlignment = CrossAxisAlignment.center});
+  CustomAlertDialog({
+    required this.title,
+    required this.contents,
+    this.onOk,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.confirm
+  });
 
   final String title;
+  final String? confirm;
   final List<String> contents;
   final void Function()? onOk;
   final CrossAxisAlignment crossAxisAlignment;
@@ -71,7 +71,7 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(dic['confirm']!, style: TextStyle(color: Colors.white))
+                              Text(widget.confirm ?? dic['confirm']!, style: TextStyle(color: Colors.white))
                             ],
                           ),
                           onPressed: widget.onOk,

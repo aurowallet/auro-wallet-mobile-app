@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
@@ -91,7 +88,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
             children: <Widget>[
               ImportItem(text: dic['privateKey']!, onClick: _onPrivateKey,),
               ImportItem(text: 'Keystore', onClick: _onKeyStore,),
-              ImportItem(text: dic['watchAccount']!, onClick: _onWatchMode,),
+              // ImportItem(text: dic['watchAccount']!, onClick: _onWatchMode,),
             ],
           )
         ),

@@ -78,9 +78,13 @@ class _WalletManagePageState extends State<WalletManagePage> {
     Navigator.pushNamed(context, ImportWaysPage.route);
   }
   List<Widget> _renderAccountList() {
+
     Map<String, WalletData> walletMap = store.wallet!.walletsMap;
     List<Widget> items = [];
-    items.addAll(store.wallet!.accountListAll.map((account){
+    final watchModeAccounts = store.wallet!.watchModeAccountListAll;
+    final theme = Theme.of(context).textTheme;
+    final Map<String, String> dic = I18n.of(context).main;
+    final renderItem = (account) {
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
       return WalletItem(
         account: account,
@@ -88,7 +92,30 @@ class _WalletManagePageState extends State<WalletManagePage> {
         store: store,
         wallet: walletMap[account.walletId]!,
       );
-    }).toList());
+    };
+    items.addAll(store.wallet!.accountListAll.map((account){
+      return renderItem(account);
+    }));
+    if (watchModeAccounts.length > 0) {
+      items.add(
+        Padding(
+          padding: EdgeInsets.only(
+              left: 28,
+              top: 20
+          ),
+          child: Text(
+            dic['noMoreSupported']!,
+            style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x666666)),
+          ),
+        )
+      );
+      items.addAll(
+          watchModeAccounts.map((account){
+            return renderItem(account);
+          })
+      );
+    }
+    
     items.add(this._renderResetButton());
     return items;
   }

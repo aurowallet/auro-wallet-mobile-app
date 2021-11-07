@@ -1,5 +1,4 @@
 import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -27,16 +26,16 @@ class WalletItem extends StatelessWidget {
   final AccountData account;
   final BigInt balance;
   final AppStore store;
-
+  BuildContext? _context;
   void _changeCurrentAccount(bool? isChecked) async {
     if (isChecked! && account.address != store.wallet!.currentAddress) {
       await webApi.account.changeCurrentAccount(pubKey: account.address, fetchData: true);
     }
   }
 
-  void _viewAccountInfo(BuildContext context) {
+  void _viewAccountInfo() {
     print('account info');
-    Navigator.pushNamed(context, AccountManagePage.route, arguments: {
+    Navigator.pushNamed(_context!, AccountManagePage.route, arguments: {
       "account": account,
       "wallet": wallet
     });
@@ -44,21 +43,27 @@ class WalletItem extends StatelessWidget {
 
   void _onTapWallet() {
     print('tab wallet');
+    if(wallet.walletType == WalletStore.seedTypeNone) {
+      _viewAccountInfo();
+      return;
+    }
     _changeCurrentAccount(account.address != store.wallet!.currentAddress);
   }
 
   @override
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
-    var theme = Theme.of(context).textTheme;
+    final TextTheme theme = Theme.of(context).textTheme;
     String? labelText;
     bool isObserve = false;
+    _context = context;
     if (wallet.source == WalletSource.outside && wallet.walletType == WalletStore.seedTypePrivateKey) {
       labelText = i18n['accountImport'];
     } else if(wallet.walletType == WalletStore.seedTypeNone) {
       labelText = i18n['watchLabel'];
       isObserve = true;
     }
+    final bool isChecked = account.address == store.wallet!.currentAddress;
     return Padding(
       padding: EdgeInsets.only(top: 20, right: 30, left: 30),
       child: GestureDetector(
@@ -117,8 +122,8 @@ class WalletItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        CircularCheckBox(
-                          value: account.address == store.wallet!.currentAddress,
+                        isObserve && !isChecked ? IconButton(icon: Icon(Icons.info, color: Colors.red, size: 30,), onPressed: _viewAccountInfo) : CircularCheckBox(
+                          value: isChecked,
                           checkColor: Colors.white,
                           activeColor: ColorsUtil.hexColor(0x59c49c),
                           // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
@@ -127,9 +132,7 @@ class WalletItem extends StatelessWidget {
                         Padding(padding: EdgeInsets.only(top: 10),),
                         GestureDetector(
                           child: Icon(Icons.more_horiz, size: 20,),
-                          onTap: () {
-                            _viewAccountInfo(context);
-                          },
+                          onTap: _viewAccountInfo,
                         )
                       ]
                   )

@@ -54,6 +54,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _fetchTransactions();
+      _checkWatchMode();
       WidgetsBinding.instance?.addObserver(this);
     });
     super.initState();
@@ -106,6 +107,20 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       context,
       TransferPage.route,
     );
+  }
+  void _checkWatchMode() {
+    if (store.wallet!.hasWatchModeWallet()) {
+      Future.delayed(Duration(milliseconds: 600), () {
+        var i18n = I18n.of(context).main;
+        UI.showAlertDialog(
+            context: context,
+            contents: [
+              i18n['watchModeWarn']!,
+            ],
+            confirm: i18n['isee']!
+        );
+      });
+    }
   }
   Widget _buildTopBar(BuildContext context) {
     var i18n = I18n.of(context).main;
