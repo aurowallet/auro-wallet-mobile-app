@@ -34,6 +34,7 @@ class ApiAccount {
 
   final _biometricEnabledKey = 'biometric_enabled_';
   final _biometricPasswordKey = 'biometric_password_';
+  final _watchModeWarnedKey = 'watch_mode_warned';
 
   Future<void> changeCurrentAccount({
     String? pubKey,
@@ -421,6 +422,18 @@ $validUntil: String!,$scalar: String!, $field: String!) {
     // we cache user's password with biometric for 7 days.
     if (timestamp != null &&
         timestamp + SECONDS_OF_DAY * 7000 > DateTime.now().millisecondsSinceEpoch) {
+      return true;
+    }
+    return false;
+  }
+
+  void setWatchModeWarned() {
+    apiRoot.configStorage.write(_watchModeWarnedKey, true);
+  }
+
+  bool getWatchModeWarned() {
+    final warned = apiRoot.configStorage.read(_watchModeWarnedKey);
+    if (warned != null && warned) {
       return true;
     }
     return false;

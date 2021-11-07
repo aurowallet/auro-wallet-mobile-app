@@ -25,8 +25,6 @@ abstract class _AppStore with Store {
   @observable
    StakingStore? staking;
 
-
-
   @observable
   bool isReady = false;
 

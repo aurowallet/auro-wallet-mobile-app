@@ -138,12 +138,16 @@ return '''account$index: account (publicKey: \$account$index) {
   }
 
   /// get balance and delegate info
-  Future<void> fetchAccountInfo() async {
+  Future<void> fetchAccountInfo({bool showIndicator = false}) async {
     String pubKey = store.wallet!.currentWallet.pubKey;
+    if (showIndicator) {
+      store.assets!.setBalanceLoading(true);
+    }
+    _fetchMarketPrice();
     if (pubKey.isNotEmpty) {
       await fetchBatchAccountsInfo([pubKey]);
     }
-    _fetchMarketPrice();
+    store.assets!.setBalanceLoading(false);
   }
 
   Future<void> _fetchMarketPrice() async {

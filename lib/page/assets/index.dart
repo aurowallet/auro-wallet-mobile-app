@@ -71,14 +71,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     var isInForeground = state == AppLifecycleState.resumed;
     if (isInForeground) {
-      this._onRefresh();
+      this._onRefresh(showIndicator: true);
     }
   }
 
-  Future<void> _onRefresh() async {
+  Future<void> _onRefresh({showIndicator = false}) async {
     await Future.wait([
       _fetchTransactions(),
-      webApi.assets.fetchAccountInfo()
+      webApi.assets.fetchAccountInfo(showIndicator: showIndicator)
     ]);
   }
 
@@ -110,15 +110,19 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
   void _checkWatchMode() {
     if (store.wallet!.hasWatchModeWallet()) {
-      Future.delayed(Duration(milliseconds: 600), () {
+      if (webApi.account.getWatchModeWarned()) {
+        return;
+      }
+      Future.delayed(Duration(milliseconds: 600), () async {
         var i18n = I18n.of(context).main;
-        UI.showAlertDialog(
+        await UI.showAlertDialog(
             context: context,
             contents: [
               i18n['watchModeWarn']!,
             ],
             confirm: i18n['isee']!
         );
+        webApi.account.setWatchModeWarned();
       });
     }
   }
@@ -177,6 +181,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! * Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
     }
     var currencySymbol = Currency(code: store.settings!.currencyCode).symbol;
+    final amountColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x1E1F20;
+    final priceColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x666666;
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(15, 30, 15, 0),
       padding: EdgeInsets.all(0),
@@ -228,9 +234,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         textBaseline: TextBaseline.alphabetic,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         children: [
-                          Text(Fmt.balance(total.toString(), COIN.decimals), style: TextStyle(fontSize: 30, color: ColorsUtil.hexColor(0x1E1F20)),),
+                          Text(
+                            Fmt.balance(total.toString(), COIN.decimals),
+                            style: TextStyle(fontSize: 30, color: ColorsUtil.hexColor(amountColor)),
+                          ),
                           Container(width:8),
-                          Text(COIN.coinSymbol.toUpperCase(), style: theme.headline3!.copyWith(color: ColorsUtil.hexColor(0x1E1F20)),)
+                          Text(COIN.coinSymbol.toUpperCase(), style: theme.headline3!.copyWith(color: ColorsUtil.hexColor(amountColor)),)
                         ],
                       ),
                     ),
@@ -241,8 +250,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         textBaseline: TextBaseline.alphabetic,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         children: [
-                          Text(currencySymbol, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),),
-                          Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),)
+                          Text(currencySymbol, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),),
+                          Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),)
                         ],
                       ),
                     ) : Container(height: 23,),

@@ -25,7 +25,6 @@ class Api {
 
   final BuildContext context;
   final AppStore store;
-  final jsStorage = GetStorage();
   late GraphQLClient graphQLClient;
 
   final configStorage = GetStorage('configuration');
@@ -41,7 +40,7 @@ class Api {
     staking = ApiStaking(this);
     setting = ApiSetting(this);
     graphQLClient = clientFor(uri: store.settings!.endpoint, subscriptionUri: null).value;
-    fetchNetworkProps();
+    fetchInitialInfo();
   }
 
   void dispose() {
@@ -52,11 +51,11 @@ class Api {
     graphQLClient = clientFor(uri: endpoint, subscriptionUri: null).value;
   }
 
-  Future<void> fetchNetworkProps() async {
+  Future<void> fetchInitialInfo() async {
     setting.fetchAboutUs();
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
-        assets.fetchAccountInfo(),
+        assets.fetchAccountInfo(showIndicator: true),
       ]);
     }
     staking.fetchStakingOverview();

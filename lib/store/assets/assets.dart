@@ -33,7 +33,7 @@ abstract class _AssetsStore with Store {
   bool isTxsLoading = true;
 
   @observable
-  bool submitting = false;
+  bool isBalanceLoading = false;
 
   @observable
   ObservableMap<String, AccountInfo> accountsInfo =
@@ -147,8 +147,8 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  void setSubmitting(bool isSubmitting) {
-    submitting = isSubmitting;
+  void setBalanceLoading(bool isLoading) {
+    isBalanceLoading = isLoading;
   }
 
 

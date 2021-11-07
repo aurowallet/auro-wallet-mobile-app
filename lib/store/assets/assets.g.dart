@@ -39,18 +39,18 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$submittingAtom = Atom(name: '_AssetsStore.submitting');
+  final _$isBalanceLoadingAtom = Atom(name: '_AssetsStore.isBalanceLoading');
 
   @override
-  bool get submitting {
-    _$submittingAtom.reportRead();
-    return super.submitting;
+  bool get isBalanceLoading {
+    _$isBalanceLoadingAtom.reportRead();
+    return super.isBalanceLoading;
   }
 
   @override
-  set submitting(bool value) {
-    _$submittingAtom.reportWrite(value, super.submitting, () {
-      super.submitting = value;
+  set isBalanceLoading(bool value) {
+    _$isBalanceLoadingAtom.reportWrite(value, super.isBalanceLoading, () {
+      super.isBalanceLoading = value;
     });
   }
 
@@ -276,11 +276,11 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
-  void setSubmitting(bool isSubmitting) {
+  void setBalanceLoading(bool isLoading) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
-        name: '_AssetsStore.setSubmitting');
+        name: '_AssetsStore.setBalanceLoading');
     try {
-      return super.setSubmitting(isSubmitting);
+      return super.setBalanceLoading(isLoading);
     } finally {
       _$_AssetsStoreActionController.endAction(_$actionInfo);
     }
@@ -302,7 +302,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return '''
 cacheTxsTimestamp: ${cacheTxsTimestamp},
 isTxsLoading: ${isTxsLoading},
-submitting: ${submitting},
+isBalanceLoading: ${isBalanceLoading},
 accountsInfo: ${accountsInfo},
 tokenBalances: ${tokenBalances},
 transferFees: ${transferFees},
