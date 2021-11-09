@@ -139,9 +139,9 @@ abstract class _SettingsStore with Store {
 
   @action
   Future<void> setNetworkTypes(List<NetworkType> networkTypes, {shouldCache = false}) async {
-    networks = networkTypes;    // cache data
-    if (shouldCache) {
-      rootStore.localStorage.setObject(localStorageNetworksKey, networks.map((i)=>i.toJson()).toList());
+    networks = networkTypes;
+    if (shouldCache) { // cache data
+      await rootStore.localStorage.setObject(localStorageNetworksKey, networks.map((i)=>i.toJson()).toList());
     }
   }
 
@@ -179,8 +179,8 @@ abstract class _SettingsStore with Store {
   }
   @action
   Future<void> setCustomNodeList(List<CustomNode> nodeList) async {
-    await rootStore.localStorage.setObject(localStorageCustomNodesV2, nodeList);
     customNodeListV2 = nodeList;
+    await rootStore.localStorage.setObject(localStorageCustomNodesV2, nodeList);
   }
 
   @action

@@ -33,7 +33,7 @@ class ApiSetting {
       List<NetworkType> networkTypes =  networks.map((e)  {
           return NetworkType.fromJson( e as Map<String, dynamic>);
       }).toList();
-      store.settings!.setNetworkTypes(networkTypes, shouldCache: true);
+      await store.settings!.setNetworkTypes(networkTypes, shouldCache: true);
       return networkTypes;
       // store.settings!.setAboutUs(AboutUsData.fromJson(data));
     } else {

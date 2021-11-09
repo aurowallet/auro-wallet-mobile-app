@@ -109,7 +109,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     } else {
       endpoints.add(endpoint);
       await widget.store.setEndpoint(endpoint.url);
-      widget.store.setCustomNodeList(endpoints);
+      await widget.store.setCustomNodeList(endpoints);
       webApi.updateGqlClient(endpoint.url);
       webApi.refreshNetwork();
     }
