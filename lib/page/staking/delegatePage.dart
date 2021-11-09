@@ -83,7 +83,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   void _onFeeInputChange() {
     setState((){
       if (_feeCtrl.text.isNotEmpty) {
-        currentFee = double.parse(_feeCtrl.text);
+        currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
       } else {
         currentFee = store.assets!.transferFees.medium;
       }
@@ -237,16 +237,6 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
               "nonce": inferredNonce,
               "memo": memo,
             };
-
-            /*   var data = TransferData()
-              ..hash = "CkpYxs7Ky43F5giVbri4msoB4tGoVdTdp2sgxxTK1HH9TuCcJvUoF"
-              ..paymentId = "29oBRYxP4TVPTfR9pdTJBfEDiE1KHGXiBzdTXmzA7KLeYrQRrCErxH4W69Xek2uDLuu9nFC7puaLBqkEmwq2vLBMKBWxaR5KGuY2GmrgjSKrqbHyrUzrNGHrRG166Kr61nme11FWFYywZsRgdmdTMKYoCoMx4evam2J3Q76patqgRZNj8BnaiEux6TSuZR65mQnzH7S9ZfsLL7vtbCwSjYG7wE6UrPccbHkY6vfkvYZz2LUSqARANvqLLnGKvu16nzbx1obok7PXjZbAbUYFGZCnm3KqriWmvZj25MYvB1gDytjvpqcg7YcSkfu6443ZUPRByLKTnTznLjePff5AmNsENDMmMLRUfzpockxW8SispsHWZ7R5pVnwnD8RBDGCckiVcPe8yzF"
-              ..type = "PAYMENT"
-              ..fee = "1000000"
-              ..amount = "10000000"
-              ..nonce = 45
-              ..sender = "B62qoQSggXskw3YQjTCmi24Yh9HuuiXBSBKDKzgyxg1G7oe3ng2r4jo"
-              ..receiver = "B62qoQSggXskw3YQjTCmi24Yh9HuuiXBSBKDKzgyxg1G7oe3ng2r4jo";*/
 
             TransferData? data = await webApi.account.signAndSendDelegationTx(txInfo, context: context);
             EasyLoading.dismiss();

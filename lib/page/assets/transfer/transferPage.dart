@@ -91,7 +91,7 @@ class _TransferPageState extends State<TransferPage> {
   void _onFeeInputChange() {
     setState((){
       if (_feeCtrl.text.isNotEmpty) {
-        currentFee = double.parse(_feeCtrl.text);
+        currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
       } else {
         currentFee = store.assets!.transferFees.medium;
       }
@@ -165,7 +165,7 @@ class _TransferPageState extends State<TransferPage> {
       }
     }
     if (await _validate()) {
-      double amount = double.parse(_amountCtrl.text.trim());
+      double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
       String toAddress = _toAddressCtrl.text.trim();
       String memo = _memoCtrl.text.trim();
       double fee;
@@ -220,16 +220,6 @@ class _TransferPageState extends State<TransferPage> {
               "nonce": inferredNonce,
               "memo": memo,
             };
-
-         /*   var data = TransferData()
-              ..hash = "CkpYxs7Ky43F5giVbri4msoB4tGoVdTdp2sgxxTK1HH9TuCcJvUoF"
-              ..paymentId = "29oBRYxP4TVPTfR9pdTJBfEDiE1KHGXiBzdTXmzA7KLeYrQRrCErxH4W69Xek2uDLuu9nFC7puaLBqkEmwq2vLBMKBWxaR5KGuY2GmrgjSKrqbHyrUzrNGHrRG166Kr61nme11FWFYywZsRgdmdTMKYoCoMx4evam2J3Q76patqgRZNj8BnaiEux6TSuZR65mQnzH7S9ZfsLL7vtbCwSjYG7wE6UrPccbHkY6vfkvYZz2LUSqARANvqLLnGKvu16nzbx1obok7PXjZbAbUYFGZCnm3KqriWmvZj25MYvB1gDytjvpqcg7YcSkfu6443ZUPRByLKTnTznLjePff5AmNsENDMmMLRUfzpockxW8SispsHWZ7R5pVnwnD8RBDGCckiVcPe8yzF"
-              ..type = "PAYMENT"
-              ..fee = "1000000"
-              ..amount = "10000000"
-              ..nonce = 45
-              ..sender = "B62qoQSggXskw3YQjTCmi24Yh9HuuiXBSBKDKzgyxg1G7oe3ng2r4jo"
-              ..receiver = "B62qoQSggXskw3YQjTCmi24Yh9HuuiXBSBKDKzgyxg1G7oe3ng2r4jo";*/
 
             TransferData? data = await webApi.account.signAndSendTx(txInfo, context: context);
             EasyLoading.dismiss();
@@ -286,7 +276,7 @@ class _TransferPageState extends State<TransferPage> {
     if (_amountCtrl.text.isEmpty) {
       return dic['amountError']!;
     }
-    if (double.parse(_amountCtrl.text.trim()) >= available / BigInt.from(pow(10, decimals)) - fee) {
+    if (double.parse(Fmt.parseNumber(_amountCtrl.text)) >= available / BigInt.from(pow(10, decimals)) - fee) {
       return dic['balanceNotEnough']!;
     }
     return null;

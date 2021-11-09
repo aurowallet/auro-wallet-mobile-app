@@ -205,5 +205,9 @@ class Fmt {
     });
     return breakWord;
   }
+  
+  static String parseNumber(String number) {
+    return number.trim().replaceAll(',', '.');
+  }
 
 }
