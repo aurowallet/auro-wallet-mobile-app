@@ -255,7 +255,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
             } else {
               Navigator.popUntil(context, ModalRoute.withName('/'));
             }
-            globalBalanceRefreshKey.currentState!.show();
+            globalBalanceRefreshKey.currentState?.show();
           }
       );
       return;

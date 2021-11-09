@@ -85,13 +85,16 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       return;
     }
     endpoint.chainId = chainId;
-
     List<NetworkType> fetchNetworkTypes = await webApi.setting.fetchNetworkTypes();
     final targetNetworks = fetchNetworkTypes.where((element) => element.chainId == endpoint.chainId);
-    if (targetNetworks.isNotEmpty) {
-      endpoint.networksType = targetNetworks.first.type;
-    }
 
+    // only support mainnet and testnet
+    if (targetNetworks.isEmpty || (targetNetworks.first.type != '0' && targetNetworks.first.type != '1')) {
+      UI.toast(i18n['urlError_1']!);
+      EasyLoading.dismiss();
+      return;
+    }
+    endpoint.networksType = targetNetworks.first.type;
     if (isEdit) {
       widget.store.updateCustomNode(endpoint, originEndpoint!);
       if (widget.store.endpoint == originEndpoint.url) {

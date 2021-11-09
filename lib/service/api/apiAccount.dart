@@ -198,6 +198,7 @@ $validUntil: String!,$scalar: String!, $field: String!) {
       fee: txInfo['fee'],
       nonce: txInfo['nonce'],
       memo: txInfo['memo'],
+      networkId: store.settings!.isMainnet ? 1 : 0
     );
     TransferData? transferData = await sendTx(signedTx['payload'], signedTx['signature'], context: context);
     return transferData;
@@ -211,6 +212,7 @@ $validUntil: String!,$scalar: String!, $field: String!) {
       fee: txInfo['fee'],
       nonce: txInfo['nonce'],
       memo: txInfo['memo'],
+        networkId: store.settings!.isMainnet ? 1 : 0
     );
     TransferData? transferData = await sendDelegationTx(signedTx['payload'], signedTx['signature'], context: context);
     return transferData;
