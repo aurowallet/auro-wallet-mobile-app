@@ -158,7 +158,8 @@ Future<Map> signPayment(
       required double amount,
       required double fee,
       required int nonce,
-      required String memo
+      required String memo,
+      int networkId = 1
     }) async {
   final Pointer<Utf8> privateHexNative = getRawPrivateKey(privateKey).toNativeUtf8();
   final field = calloc<Uint8>(78);
@@ -180,7 +181,7 @@ Future<Map> signPayment(
       4294967295,
       memoNative,
       0,
-      1
+      networkId
   );
   final fieldStr = fieldNative.toDartString();
   final scalarStr = scalarNative.toDartString();
@@ -209,7 +210,8 @@ Future<Map> signDelegation(
       required String to,
       required double fee,
       required int nonce,
-      required String memo
+      required String memo,
+      int networkId = 1
     }) async {
   final Pointer<Utf8> privateHexNative = getRawPrivateKey(privateKey).toNativeUtf8();
   final field = calloc<Uint8>(78);
@@ -230,7 +232,7 @@ Future<Map> signDelegation(
       4294967295,
       memoNative,
       1,
-      1
+      networkId
   );
   final fieldStr = fieldNative.toDartString();
   final scalarStr = scalarNative.toDartString();

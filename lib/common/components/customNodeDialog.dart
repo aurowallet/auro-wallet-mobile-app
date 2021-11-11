@@ -1,3 +1,4 @@
+import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
@@ -48,7 +49,7 @@ class _CustomNodeDialogState extends State<CustomNodeDialog> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-
+    var theme = Theme.of(context).textTheme;
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 28),
       shape: RoundedRectangleBorder(
@@ -63,13 +64,16 @@ class _CustomNodeDialogState extends State<CustomNodeDialog> {
             child: Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: 0),
+                  padding: EdgeInsets.only(top: 0, bottom: 16),
                   child: Text(dic['addNetWork']!, style: TextStyle(fontSize: 20)),
+                ),
+                Container(
+                  child: Text(dic['nodeAlert']!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0xFF3B48), fontWeight: FontWeight.w500)),
                 ),
                 InputItem(
                   initialValue: widget.name,
                   placeholder: dic['networkName'],
-                  padding: EdgeInsets.only(top: 25),
+                  padding: EdgeInsets.only(top: 10),
                   controller: _nameCtrl,
                 ),
                 InputItem(

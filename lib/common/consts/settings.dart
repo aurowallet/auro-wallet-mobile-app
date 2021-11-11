@@ -20,7 +20,7 @@ const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 
 /// app versions
-const String app_version = 'v1.0.5(1046)';
+const String app_version = 'v1.0.6(1052)';
 
 
 

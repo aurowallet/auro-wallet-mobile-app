@@ -49,7 +49,7 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
       return 'Mainnet';
     }
     if (currentEndpoint == GRAPH_QL_TESTNET_NODE_URL) {
-      return 'Testnet';
+      return 'Devnet';
     }
     try {
       var res =  widget.store.customNodeListV2.firstWhere((element) => element.url == currentEndpoint);

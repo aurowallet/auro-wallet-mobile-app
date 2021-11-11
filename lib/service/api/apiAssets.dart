@@ -138,15 +138,22 @@ return '''account$index: account (publicKey: \$account$index) {
   }
 
   /// get balance and delegate info
-  Future<void> fetchAccountInfo() async {
+  Future<void> fetchAccountInfo({bool showIndicator = false}) async {
     String pubKey = store.wallet!.currentWallet.pubKey;
+    if (showIndicator) {
+      store.assets!.setBalanceLoading(true);
+    }
+    _fetchMarketPrice();
     if (pubKey.isNotEmpty) {
       await fetchBatchAccountsInfo([pubKey]);
     }
-    _fetchMarketPrice();
+    store.assets!.setBalanceLoading(false);
   }
 
   Future<void> _fetchMarketPrice() async {
+    if (!store.settings!.isMainnet) {
+      return;
+    }
     String txUrl =  "${apiRoot.getTransactionsApiUrl()}/prices?currency=" + store.settings!.currencyCode;
     var response = await  http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {
@@ -161,7 +168,7 @@ return '''account$index: account (publicKey: \$account$index) {
         store.assets!.setMarketPrices(COIN.coinSymbol.toLowerCase(), price);
       }
     } else {
-      print('Request failed with status: ${response.statusCode}.');
+      print('Request price failed with status: ${response.statusCode}.');
     }
   }
 }

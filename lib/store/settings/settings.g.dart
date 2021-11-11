@@ -161,6 +161,21 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
+  final _$networksAtom = Atom(name: '_SettingsStore.networks');
+
+  @override
+  List<NetworkType> get networks {
+    _$networksAtom.reportRead();
+    return super.networks;
+  }
+
+  @override
+  set networks(List<NetworkType> value) {
+    _$networksAtom.reportWrite(value, super.networks, () {
+      super.networks = value;
+    });
+  }
+
   final _$networkNameAtom = Atom(name: '_SettingsStore.networkName');
 
   @override
@@ -226,6 +241,24 @@ mixin _$SettingsStore on _SettingsStore, Store {
   @override
   Future<void> setCurrencyCode(String code) {
     return _$setCurrencyCodeAsyncAction.run(() => super.setCurrencyCode(code));
+  }
+
+  final _$setNetworkTypesAsyncAction =
+      AsyncAction('_SettingsStore.setNetworkTypes');
+
+  @override
+  Future<void> setNetworkTypes(List<NetworkType> networkTypes,
+      {dynamic shouldCache = false}) {
+    return _$setNetworkTypesAsyncAction.run(
+        () => super.setNetworkTypes(networkTypes, shouldCache: shouldCache));
+  }
+
+  final _$loadNetworkTypesAsyncAction =
+      AsyncAction('_SettingsStore.loadNetworkTypes');
+
+  @override
+  Future<void> loadNetworkTypes() {
+    return _$loadNetworkTypesAsyncAction.run(() => super.loadNetworkTypes());
   }
 
   final _$loadLocalCodeAsyncAction =
@@ -351,6 +384,7 @@ endpoint: ${endpoint},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
 customNodeListV2: ${customNodeListV2},
+networks: ${networks},
 networkName: ${networkName},
 networkConst: ${networkConst},
 contactList: ${contactList}

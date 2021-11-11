@@ -54,6 +54,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _fetchTransactions();
+      _checkWatchMode();
       WidgetsBinding.instance?.addObserver(this);
     });
     super.initState();
@@ -70,20 +71,20 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     var isInForeground = state == AppLifecycleState.resumed;
     if (isInForeground) {
-      this._onRefresh();
+      this._onRefresh(showIndicator: true);
     }
   }
 
-  Future<void> _onRefresh() async {
+  Future<void> _onRefresh({showIndicator = false}) async {
     await Future.wait([
       _fetchTransactions(),
-      webApi.assets.fetchAccountInfo()
+      webApi.assets.fetchAccountInfo(showIndicator: showIndicator)
     ]);
   }
 
   Future<void> _fetchTransactions() async {
     print('start fetch tx list');
-    if(!store.settings!.isDefaultNode) {
+    if(!store.settings!.isSupportedNode) {
       return;
     }
     store.assets!.setTxsLoading(true);
@@ -106,6 +107,24 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       context,
       TransferPage.route,
     );
+  }
+  void _checkWatchMode() {
+    if (store.wallet!.hasWatchModeWallet()) {
+      if (webApi.account.getWatchModeWarned()) {
+        return;
+      }
+      Future.delayed(Duration(milliseconds: 600), () async {
+        var i18n = I18n.of(context).main;
+        await UI.showAlertDialog(
+            context: context,
+            contents: [
+              i18n['watchModeWarn']!,
+            ],
+            confirm: i18n['isee']!
+        );
+        webApi.account.setWatchModeWarned();
+      });
+    }
   }
   Widget _buildTopBar(BuildContext context) {
     var i18n = I18n.of(context).main;
@@ -162,6 +181,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! * Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
     }
     var currencySymbol = Currency(code: store.settings!.currencyCode).symbol;
+    final amountColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x1E1F20;
+    final priceColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x666666;
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(15, 30, 15, 0),
       padding: EdgeInsets.all(0),
@@ -213,9 +234,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         textBaseline: TextBaseline.alphabetic,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         children: [
-                          Text(Fmt.balance(total.toString(), COIN.decimals), style: TextStyle(fontSize: 30, color: ColorsUtil.hexColor(0x1E1F20)),),
+                          Text(
+                            Fmt.balance(total.toString(), COIN.decimals),
+                            style: TextStyle(fontSize: 30, color: ColorsUtil.hexColor(amountColor)),
+                          ),
                           Container(width:8),
-                          Text(COIN.coinSymbol.toUpperCase(), style: theme.headline3!.copyWith(color: ColorsUtil.hexColor(0x1E1F20)),)
+                          Text(COIN.coinSymbol.toUpperCase(), style: theme.headline3!.copyWith(color: ColorsUtil.hexColor(amountColor)),)
                         ],
                       ),
                     ),
@@ -226,8 +250,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         textBaseline: TextBaseline.alphabetic,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         children: [
-                          Text(currencySymbol, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),),
-                          Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),)
+                          Text(currencySymbol, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),),
+                          Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),)
                         ],
                       ),
                     ) : Container(height: 23,),
@@ -289,7 +313,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var i18n = I18n.of(context).main;
     List<Widget> res = [];
     List<TransferData> txs = [...store.assets!.pendingTxs, ...store.assets!.txs];
-    if (store.settings!.isDefaultNode) {
+    if (store.settings!.isSupportedNode) {
       res.addAll(txs.map((i) {
         return TransferListItem(
           data: i,
@@ -315,7 +339,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     res.add(HomeListTip(
         isEmpty: txs.length == 0,
         isLoading: store.assets!.isTxsLoading,
-        isDefaultNode: store.settings!.isDefaultNode
+        isSupportedNode: store.settings!.isSupportedNode
     ));
     return res;
   }

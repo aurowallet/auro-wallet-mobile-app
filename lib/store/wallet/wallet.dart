@@ -66,7 +66,16 @@ abstract class _WalletStore with Store {
   @computed
   List<AccountData> get accountListAll {
     List<AccountData> accountList = [];
-    walletList.forEach((wallet) {
+    walletList.where((wallet) => wallet.walletType != WalletStore.seedTypeNone).forEach((wallet) {
+      accountList.addAll(wallet.accounts);
+    });
+    return accountList;
+  }
+
+  @computed
+  List<AccountData> get watchModeAccountListAll {
+    List<AccountData> accountList = [];
+    walletList.where((wallet) => wallet.walletType == WalletStore.seedTypeNone).forEach((wallet) {
       accountList.addAll(wallet.accounts);
     });
     return accountList;
@@ -384,6 +393,10 @@ abstract class _WalletStore with Store {
       stored.remove(pubKey);
       rootStore.secureStorage.setSeeds(seedType, stored);
     }
+  }
+
+  bool hasWatchModeWallet() {
+    return  walletList.any((element) => element.walletType == WalletStore.seedTypeNone);
   }
 
 }

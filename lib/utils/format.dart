@@ -25,8 +25,8 @@ class Fmt {
     return DateFormat('yyyy-MM-dd HH:mm').format(time);
   }
 
-  static String dateTimeFromUTC(String utcTime) {
-    if (utcTime.isEmpty) {
+  static String dateTimeFromUTC(String? utcTime) {
+    if (utcTime == null || utcTime.isEmpty) {
       return "";
     }
     var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
@@ -204,6 +204,10 @@ class Fmt {
       breakWord +='\u200B';
     });
     return breakWord;
+  }
+  
+  static String parseNumber(String number) {
+    return number.trim().replaceAll(',', '.');
   }
 
 }

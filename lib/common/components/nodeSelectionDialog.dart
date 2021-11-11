@@ -31,6 +31,8 @@ class NodeSelectionDialog extends StatelessWidget {
     final Map<String, String> dic = I18n
         .of(context)
         .main;
+    double height = MediaQuery.of(context).size.height;
+
 
     return  Container(
         decoration: BoxDecoration(
@@ -51,25 +53,35 @@ class NodeSelectionDialog extends StatelessWidget {
                     fontSize: 20,
                     fontFamily: "PingFangSC-Medium",
                   )),),
-                  Container(height: 10,),
-                  NodeItem(
-                    // noMargin: true,
-                    onSelectNode: onSelectNode,
-                    data: CustomNode(
-                      name: 'Mainnet',
-                      url: GRAPH_QL_MAINNET_NODE_URL,
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    constraints: BoxConstraints(
+                        maxHeight: height * 0.3,
+                    ),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        NodeItem(
+                          // noMargin: true,
+                          onSelectNode: onSelectNode,
+                          data: CustomNode(
+                            name: 'Mainnet',
+                            url: GRAPH_QL_MAINNET_NODE_URL,
+                          ),
+                        ),
+                        NodeItem(
+                          onSelectNode: onSelectNode,
+                          data: CustomNode(
+                            name: 'Devnet',
+                            url: GRAPH_QL_TESTNET_NODE_URL,
+                          ),
+                        ),
+                        ...settingsStore.customNodeListV2.map((e) {
+                          return NodeItem(data: e, onSelectNode: onSelectNode,);
+                        }).toList(),
+                      ],
                     ),
                   ),
-                  NodeItem(
-                    onSelectNode: onSelectNode,
-                    data: CustomNode(
-                      name: 'Testnet',
-                      url: GRAPH_QL_TESTNET_NODE_URL,
-                    ),
-                  ),
-                  ...settingsStore.customNodeListV2.map((e) {
-                    return NodeItem(data: e, onSelectNode: onSelectNode,);
-                  }).toList(),
                 ],
               ),
               Positioned(

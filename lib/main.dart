@@ -31,7 +31,7 @@ Future<void> main() async {
   print('notification_plugin initialised: $initialised');
 
   // get_storage dependency
-  await GetStorage.init();
+  await GetStorage.init('configuration');
 
   runApp(
       Phoenix(

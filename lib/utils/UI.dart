@@ -76,13 +76,19 @@ class UI {
     );
   }
 
-  static Future<void> showAlertDialog({required BuildContext context,required List<String> contents,CrossAxisAlignment? crossAxisAlignment}) {
+  static Future<void> showAlertDialog({
+    required BuildContext context,
+    required List<String> contents,
+    String? confirm,
+    CrossAxisAlignment? crossAxisAlignment
+  }) {
     return showDialog<String>(
       context: context,
       builder: (_) {
         final Map<String, String> dic = I18n.of(context).main;
         return CustomAlertDialog(
           title: dic['prompt']!,
+          confirm: confirm,
           contents:contents,
           crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
           onOk: () {
@@ -133,7 +139,7 @@ class UI {
 
   static TextInputFormatter decimalInputFormatter(int decimals) {
     return RegExInputFormatter.withRegex(
-        '^[0-9]{0,$decimals}(\\.[0-9]{0,$decimals})?\$');
+        '^[0-9]{0,$decimals}([\\.\\,][0-9]{0,$decimals})?\$');
   }
 
   static unfocus(BuildContext context) {

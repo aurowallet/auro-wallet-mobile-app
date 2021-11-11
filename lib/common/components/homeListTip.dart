@@ -8,15 +8,15 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeListTip extends StatelessWidget {
-  HomeListTip({required this.isEmpty,required this.isLoading, required this.isDefaultNode});
+  HomeListTip({required this.isEmpty,required this.isLoading, required this.isSupportedNode});
   final bool isLoading;
   final bool isEmpty;
-  final bool isDefaultNode;
+  final bool isSupportedNode;
   @override
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
-    if (!isDefaultNode) {
+    if (!isSupportedNode) {
       return FormPanel(
         margin: EdgeInsets.only(top: 20),
         padding: EdgeInsets.only(top: 60, bottom: 60, left: 20, right: 20),

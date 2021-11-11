@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_storage/get_storage.dart';
@@ -23,7 +25,6 @@ class Api {
 
   final BuildContext context;
   final AppStore store;
-  final jsStorage = GetStorage();
   late GraphQLClient graphQLClient;
 
   final configStorage = GetStorage('configuration');
@@ -39,7 +40,7 @@ class Api {
     staking = ApiStaking(this);
     setting = ApiSetting(this);
     graphQLClient = clientFor(uri: store.settings!.endpoint, subscriptionUri: null).value;
-    fetchNetworkProps();
+    fetchInitialInfo();
   }
 
   void dispose() {
@@ -50,21 +51,38 @@ class Api {
     graphQLClient = clientFor(uri: endpoint, subscriptionUri: null).value;
   }
 
-  Future<void> fetchNetworkProps() async {
+  Future<void> fetchInitialInfo() async {
     setting.fetchAboutUs();
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
-        assets.fetchAccountInfo(),
+        assets.fetchAccountInfo(showIndicator: true),
       ]);
     }
     staking.fetchStakingOverview();
   }
 
   String getTransactionsApiUrl () {
+    String currentUrl = store.settings!.endpoint;
+    // List<NetworkType> networks = store.settings!.networks;
+    List<CustomNode> customNodes = store.settings!.customNodeListV2;
     if (store.settings!.endpoint == GRAPH_QL_TESTNET_NODE_URL) {
       return TESTNET_TRANSACTION_URL;
-    } else {
+    } else if(store.settings!.endpoint == GRAPH_QL_MAINNET_NODE_URL){
       return MAINNET_TRANSACTION_URL;
+    } else { // custom node
+      final targetNets = customNodes.where((customNode) => customNode.url == currentUrl);
+      if (targetNets.isNotEmpty) {
+        CustomNode targetNet = targetNets.first;
+        if (targetNet.networksType == '0') { // mainnet
+          return MAINNET_TRANSACTION_URL;
+        } else if (targetNet.networksType == '1') { // testnet
+          return TESTNET_TRANSACTION_URL;
+        } else {
+          return MAINNET_TRANSACTION_URL;
+        }
+      } else {
+        return MAINNET_TRANSACTION_URL;
+      }
     }
   }
 
@@ -74,7 +92,6 @@ class Api {
     assets.fetchPendingTransactions(store.wallet!.currentAddress);
     assets.fetchTransactions(store.wallet!.currentAddress);
   }
-
 
   Future<GqlResult> gqlRequest(dynamic options, {required BuildContext context, int timeout = 20}) async {
     QueryResult? result;

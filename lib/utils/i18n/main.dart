@@ -165,27 +165,12 @@ const Map<String, String> zhMain = {
   "txFailed":"失败",
   "loading":"加载中",
 
-  "connected": "已连接",
-  "ledgerWallet": "Ledger钱包",
-  "ledgerSuccessTip":"恭喜你，已经成功导入硬件钱包。",
-  "waitLedgerConfirm":"等待确认",
-  "ledgerConnectSuccess":"已成功连接Ledger钱包。",
-  "ledgerImportTip":"请点击【导入】按钮，并在Ledger钱包中确认。",
-  "firstStep":"第一步",
-  "secondStep":"第二步",
-  "pleaseConnectLedger":"将Ledger连接到电脑",
-  "pleaseOpenInLedger":"在Ledger硬件中打开Mina的App",
-  "ledgerRejected": "已被Ledger拒绝",
-  "back2extension": "请在返回钱包应用中继续操作。",
-  "dontclose": "在此之前<b>请勿关闭</b>此窗口。",
-  "confirmInfoLedger":"请在Ledger钱包中进行确认",
   "keystoreError":"keystore格式错误或密码不正确",
   "pleaseInputKeyPair":"请将Keystore 文件的内容输入在下方",
   "pleaseInputKeyPairPwd":"输入Keystore密码",
   "pleaseInputPriKey":"请将私钥输入在下方",
   "privateKey":"私钥",
   "importKeyStore":"导入Keystore",
-  "ledgerConnect":"连接 Ledger",
 
   "inputFeeError":"请输入有效的矿工费",
   "inputNonceError":"请输入有效的Nonce",
@@ -239,7 +224,10 @@ const Map<String, String> zhMain = {
   "confirmReset": "确定重置",
   "cancelReset": "取消重置",
   "deleteConfirm":"请在输入“删除”确定重置钱包",
-  "edit": "编辑"
+  "edit": "编辑",
+  "nodeAlert": "请务必只添加受您信任的节点。使用未知节点会有一定风险。",
+  "watchModeWarn": "为了提供更加良好的Dapp体验，Auro 钱包在之后的版本中将不提供【观察钱包】功能，请前往【账户管理】页面将已添加的【观察钱包】删除。",
+  "noMoreSupported": "不再支持的账户"
 };
 
 const Map<String, String> enMain = {
@@ -408,26 +396,12 @@ const Map<String, String> enMain = {
   "txPending": "Pending",
   "txFailed":"Failed",
   "loading":"Loading",
-  "ledgerRejected": "Rejected by Ledger",
-  "connected": "Connected",
-  "ledgerWallet": "Ledger wallet",
-  "ledgerSuccessTip":"Congrats! You've successfully imported the ledger wallet.",
-  "waitLedgerConfirm":"Waiting for confirmation",
-  "ledgerConnectSuccess":"Your Ledger wallet has been successfully connected.",
-  "ledgerImportTip":"Please click the [Import] button and confirm on your Ledger wallet",
-  "firstStep":"Step 1",
-  "secondStep":"Step 2",
-  "pleaseConnectLedger":"Connect your Ledger to the computer",
-  "pleaseOpenInLedger":"Open the Mina app on your Ledger device",
-  "back2extension": "Please continue the operation in the wallet app.",
-  "dontclose": "And <b>do not close</b> this window.",
   "keystoreError":"Keystore format error or password incorrect",
   "pleaseInputKeyPair":"Please enter the contents of the Keystore file below",
   "pleaseInputKeyPairPwd":"Enter Keystore Password",
   "pleaseInputPriKey":"Please enter the private key below",
   "privateKey":"Private Key",
   "importKeyStore":"Import Keystore",
-  "ledgerConnect":"Connect Ledger" ,
 
   "inputFeeError":"Please enter a valid fee",
   "inputNonceError":"Please enter a valid nonce",
@@ -481,5 +455,8 @@ const Map<String, String> enMain = {
   "confirmReset": "Confirm",
   "cancelReset": "Cancel",
   "deleteConfirm":"Type 'delete' to erase current  wallet permanently",
-  "edit": "Edit"
+  "edit": "Edit",
+  "nodeAlert": "Only add custom networks you trust. Using unknown nodes can be risky.",
+  "watchModeWarn": "In order to provide a better Dapp experience, Auro Wallet will not provide the [Watch Account] function in future versions. Please go to the [Account management] to delete all [Watch Wallet].",
+  "noMoreSupported": "No longer supported account"
 };
