@@ -78,6 +78,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildPage(i) {
     if (i == 0) {
+      double statusBarHeight = MediaQuery.of(context).padding.top;
       // return assets page
       return BackgroundContainer(
         AssetImage("assets/images/assets/2x/top_header_bg@2x.png"),
@@ -96,6 +97,8 @@ class _HomePageState extends State<HomePage> {
           ),
           body: _getPage(0),
         ),
+        maxHeight: 240 + statusBarHeight,
+        fit: BoxFit.fill,
       );
     }
     // return staking page

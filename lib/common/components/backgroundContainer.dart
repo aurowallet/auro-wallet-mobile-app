@@ -2,16 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BackgroundContainer extends StatelessWidget {
-  BackgroundContainer(this.image, this.child, {this.fit = BoxFit.contain});
+  BackgroundContainer(this.image, this.child, {this.fit = BoxFit.contain, this.maxHeight = double.infinity});
 
   final ImageProvider image;
   final Widget child;
   final BoxFit fit;
+  final double maxHeight;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      fit: StackFit.expand,
+      fit: StackFit.loose,
       children: <Widget>[
         Container(
           width: double.infinity,
@@ -20,6 +21,9 @@ class BackgroundContainer extends StatelessWidget {
         ),
         Container(
           width: double.infinity,
+          constraints: BoxConstraints(
+            maxHeight: maxHeight
+          ),
           decoration: BoxDecoration(
             image: DecorationImage(
               alignment: Alignment.topLeft,
