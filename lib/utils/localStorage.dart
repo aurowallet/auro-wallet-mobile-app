@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:auro_wallet/utils/secureStorage.dart';
 
 class LocalStorage {
   final walletsKey = 'wallet_account_list';
@@ -11,7 +12,11 @@ class LocalStorage {
   final seedKey = 'wallet_seed';
   final customKVKey = 'wallet_kv';
 
-  final storage = _LocalStorage();
+  _LocalStorage storage = _LocalStorage();
+
+  setSecureStorage(SecureStorage ss) {
+    storage.setSecureStorage(ss);
+  }
 
   Future<void> addWallet(Map<String, dynamic> acc) async {
     return storage.addItemToList(walletsKey, acc);
@@ -108,17 +113,52 @@ class LocalStorage {
     return DateTime.now().millisecondsSinceEpoch - customCacheTimeLength >
         cacheTime;
   }
+
+  Future<bool> checkMigrate() async {
+    return storage.checkMigrate();
+  }
 }
 
 class _LocalStorage {
+  SecureStorage? secureStorage;
+  bool isMigrateChecked = false;
+
+  setSecureStorage(SecureStorage ss) {
+    secureStorage = ss;
+  }
+
   Future<String?> getKV(String key) async {
+    if (isMigrateChecked) {
+      return await secureStorage!.getKV(key);
+    }
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
 
-  Future<bool> setKV(String key, value) async {
+  Future<bool> setKV(String key, String value) async {
+    if (isMigrateChecked) {
+      try {
+        await secureStorage!.setKV(key, value);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
     final prefs = await SharedPreferences.getInstance();
     return prefs.setString(key, value);
+  }
+
+  Future<bool> checkMigrate() async {
+    if (!isMigrateChecked) {
+      final isMigrated = await secureStorage!.isStorageMigrated();
+      if (!isMigrated) {
+        final success = await secureStorage!.migrate();
+        isMigrateChecked = success;
+      } else {
+        isMigrateChecked = true;
+      }
+    }
+    return isMigrateChecked;
   }
 
   Future<void> addItemToList(String storeKey, Map<String, dynamic> acc) async {
@@ -134,12 +174,13 @@ class _LocalStorage {
 
     setKV(storeKey, jsonEncode(ls));
   }
-  Future<void> clearList(
-      String storeKey) async {
+
+  Future<void> clearList(String storeKey) async {
     var ls = await getList(storeKey);
     ls.clear();
     setKV(storeKey, jsonEncode(ls));
   }
+
   Future<void> removeItemFromList(
       String storeKey, String itemKey, String itemValue) async {
     var ls = await getList(storeKey);
