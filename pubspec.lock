@@ -1113,6 +1113,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
+  webcrypto:
+    dependency: "direct main"
+    description:
+      name: webcrypto
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.5.2"
   webview_flutter:
     dependency: "direct main"
     description:
