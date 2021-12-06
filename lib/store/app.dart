@@ -32,15 +32,8 @@ abstract class _AppStore with Store {
 
   LocalStorage localStorage = LocalStorage();
 
-  _AppStore() {
-    localStorage.setSecureStorage(secureStorage);
-  }
-
   @action
   Future<void> init(String sysLocaleCode) async {
-    await localStorage.checkMigrate();
-
-    // wait settings store loaded
     try {
       settings = SettingsStore(this as AppStore);
       await settings!.init();
