@@ -14,13 +14,8 @@ const GraphQLConfig = {
 
 const int mina_token_decimals = 9;
 
-
 const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
-
 /// app versions
-const String app_version = 'v1.0.6(1053)';
-
-
-
+const String app_version = 'v1.0.7(1057)';

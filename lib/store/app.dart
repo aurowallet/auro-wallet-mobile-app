@@ -14,30 +14,30 @@ class AppStore extends _AppStore with _$AppStore {}
 
 abstract class _AppStore with Store {
   @observable
-   SettingsStore? settings;
+  SettingsStore? settings;
 
   @observable
-   WalletStore? wallet;
+  WalletStore? wallet;
 
   @observable
-   AssetsStore? assets;
+  AssetsStore? assets;
 
   @observable
-   StakingStore? staking;
+  StakingStore? staking;
 
   @observable
   bool isReady = false;
 
-  LocalStorage localStorage = LocalStorage();
   SecureStorage secureStorage = SecureStorage();
+
+  LocalStorage localStorage = LocalStorage();
 
   @action
   Future<void> init(String sysLocaleCode) async {
-    // wait settings store loaded
     try {
       settings = SettingsStore(this as AppStore);
       await settings!.init();
-    } catch(e) {
+    } catch (e) {
       print(e);
     }
 

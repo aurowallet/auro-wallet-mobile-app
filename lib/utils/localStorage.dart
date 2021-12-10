@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:auro_wallet/utils/secureStorage.dart';
 
 class LocalStorage {
   final walletsKey = 'wallet_account_list';
@@ -11,7 +12,7 @@ class LocalStorage {
   final seedKey = 'wallet_seed';
   final customKVKey = 'wallet_kv';
 
-  final storage = _LocalStorage();
+  _LocalStorage storage = _LocalStorage();
 
   Future<void> addWallet(Map<String, dynamic> acc) async {
     return storage.addItemToList(walletsKey, acc);
@@ -111,12 +112,13 @@ class LocalStorage {
 }
 
 class _LocalStorage {
+
   Future<String?> getKV(String key) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
 
-  Future<bool> setKV(String key, value) async {
+  Future<bool> setKV(String key, String value) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.setString(key, value);
   }
@@ -134,12 +136,13 @@ class _LocalStorage {
 
     setKV(storeKey, jsonEncode(ls));
   }
-  Future<void> clearList(
-      String storeKey) async {
+
+  Future<void> clearList(String storeKey) async {
     var ls = await getList(storeKey);
     ls.clear();
     setKV(storeKey, jsonEncode(ls));
   }
+
   Future<void> removeItemFromList(
       String storeKey, String itemKey, String itemValue) async {
     var ls = await getList(storeKey);

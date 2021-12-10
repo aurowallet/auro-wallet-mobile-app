@@ -322,7 +322,7 @@ abstract class _WalletStore with Store {
     var encryption = Encryption();
     String? decryptedStr = await encryption.decrypt(data: encrypted, password:password);
     var seedData = SeedData.fromJson(encrypted);
-    if (decryptedStr != null && seedData.version != 2) {
+    if (decryptedStr != null && seedData.version != 3) {
       await encryptSeed(pubKey, decryptedStr, seedType, password);
     }
     return decryptedStr;
