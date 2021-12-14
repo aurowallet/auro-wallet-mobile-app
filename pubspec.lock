@@ -959,6 +959,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.8.0"
+  sprintf:
+    dependency: "direct main"
+    description:
+      name: sprintf
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "6.0.0"
   stack_trace:
     dependency: transitive
     description:

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:auro_wallet/common/components/nodeSelectionDialog.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
@@ -33,8 +34,7 @@ import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
-import 'dart:ui' as ui;
-
+import 'package:sprintf/sprintf.dart';
 
 class Assets extends StatefulWidget {
   Assets(this.store);
@@ -328,10 +328,13 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                 child: BrowserLink(
-                  '$TRANSACTIONS_EXPLORER_URL${store.wallet!.currentAddress}',
+                  sprintf(
+                      !store.settings!.isMainnet
+                          ? TESTNET_TRANSACTIONS_EXPLORER_URL
+                          : MAINNET_TRANSACTIONS_EXPLORER_URL,
+                      store.wallet!.currentAddress),
                   text: i18n['goToExplorer']!,
-                )
-            )
+                ))
           ],
         ));
       }
