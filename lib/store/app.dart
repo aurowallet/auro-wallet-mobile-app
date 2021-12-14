@@ -42,14 +42,17 @@ abstract class _AppStore with Store {
     }
 
     staking = StakingStore(this as AppStore);
-    try{
+    try {
       await staking!.init();
-    } catch(e) {
+    } catch (e) {
       print(e);
     }
 
     wallet = WalletStore(this as AppStore);
     await wallet!.loadWallet();
+
+    // remove watchmode wallet if existed
+    await wallet!.deleteWatchModeWallets();
 
     assets = AssetsStore(this as AppStore);
 

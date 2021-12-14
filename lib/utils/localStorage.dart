@@ -6,7 +6,6 @@ import 'package:auro_wallet/utils/secureStorage.dart';
 
 class LocalStorage {
   final walletsKey = 'wallet_account_list';
-  final currentAccountKey = 'wallet_current_account';
   final currentWalletKey = 'wallet_current_id';
   final contactsKey = 'wallet_contact_list';
   final seedKey = 'wallet_seed';
@@ -32,10 +31,6 @@ class LocalStorage {
 
   Future<List<Map<String, dynamic>>> getWalletList() async {
     return storage.getList(walletsKey);
-  }
-
-  Future<bool> setCurrentAccount(String pubKey) async {
-    return storage.setKV(currentAccountKey, pubKey);
   }
 
   Future<bool> setCurrentWallet(String walletId) async {

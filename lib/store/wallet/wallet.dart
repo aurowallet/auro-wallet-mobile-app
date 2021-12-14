@@ -150,7 +150,6 @@ abstract class _WalletStore with Store {
   @action
   Future<void> clearWallets() async {
     await rootStore.localStorage.clearWallets();
-    await rootStore.localStorage.setCurrentAccount('');
     await rootStore.localStorage.setCurrentWallet('');
     await rootStore.secureStorage.clearSeeds();
     await loadWallet();
@@ -169,7 +168,6 @@ abstract class _WalletStore with Store {
     wallet.accounts.add(accountData);
     wallet.currentAccountIndex = hdIndex;
     await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
-    await rootStore.localStorage.setCurrentAccount(pubKey);
     await rootStore.localStorage.setCurrentWallet(wallet.id);
     await loadWallet();
   }
@@ -396,11 +394,36 @@ abstract class _WalletStore with Store {
   }
 
   bool hasWatchModeWallet() {
-    return  walletList.any((element) => element.walletType == WalletStore.seedTypeNone);
+    return walletList
+        .any((element) => element.walletType == WalletStore.seedTypeNone);
   }
 
+  @action
+  Future<void> deleteWatchModeWallets() async {
+    bool isCurrentWalletAWatchMode = false;
+    List<WalletData> noneWatchModeWallets = [];
+    final wallets = walletList.where((wallet) {
+      if (!isCurrentWalletAWatchMode && wallet.id == currentWalletId) {
+        isCurrentWalletAWatchMode = true;
+      }
+      var isWatchMode = wallet.walletType == WalletStore.seedTypeNone;
+      if (!isWatchMode) {
+        noneWatchModeWallets.add(wallet);
+      }
+      return isWatchMode;
+    });
+
+    if (wallets.length > 0) {
+      for (final wallet in wallets) {
+        await rootStore.localStorage.removeWallet(wallet.id);
+      }
+      if (noneWatchModeWallets.length > 0) {
+        await rootStore.localStorage
+            .setCurrentWallet(noneWatchModeWallets[0].id);
+      } else {
+        await rootStore.localStorage.setCurrentWallet('');
+      }
+      await loadWallet();
+    }
+  }
 }
-
-
-
-
