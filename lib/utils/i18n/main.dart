@@ -370,9 +370,11 @@ const Map<String, String> enMain = {
   "createPassword": "Create Password",
   "epochInfo": "Epoch Info",
   "delegationInfo": "Delegation Info",
-  "emptyDelegateTitle": "You have not yet delegate your MINA",
-  "emptyDelegateDesc1": "Delegating MINA to the block producer node can help you obtain rewards for producing blocks. The Block Producer will distribute the rewards according to your delegated proportion, and the percentage of rewards depends on the rate setting by the block producer.",
-  "emptyDelegateDesc2": "Delegate effective time and reward mechanism please visit: ",
+  "emptyDelegateTitle": "You have not yet delegated",
+  "emptyDelegateDesc1":
+      "Delegating MINA to the block producer node can help you obtain rewards for producing blocks. The Block Producer will distribute the rewards according to your delegated proportion, and the percentage of rewards depends on the rate setting by the Block Producer.",
+  "emptyDelegateDesc2":
+      "About the effective time of delegating and rewards distributing rules: ",
   "emptyDelegateDesc3": "Staking Guide",
   "changeNode": "Change",
   "stakingProviderName": "Block Producer",
