@@ -109,19 +109,18 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
   void _checkWatchMode() {
     if (store.wallet!.hasWatchModeWallet()) {
-      if (webApi.account.getWatchModeWarned()) {
-        return;
-      }
       Future.delayed(Duration(milliseconds: 600), () async {
         var i18n = I18n.of(context).main;
         await UI.showAlertDialog(
             context: context,
+            barrierDismissible: false,
             contents: [
-              i18n['watchModeWarn']!,
+              i18n['watchModeWarn2']!,
             ],
-            confirm: i18n['isee']!
-        );
-        webApi.account.setWatchModeWarned();
+            confirm: i18n['deleteWatch']!,
+            onConfirm: () {
+              store.wallet!.deleteWatchModeWallets();
+            });
       });
     }
   }

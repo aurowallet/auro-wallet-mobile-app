@@ -63,18 +63,20 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 130,
-                        height: 40,
-                        child: FlatButton(
-                          color: Theme.of(context).primaryColor,
-                          shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(widget.confirm ?? dic['confirm']!, style: TextStyle(color: Colors.white))
-                            ],
-                          ),
-                          onPressed: widget.onOk,
+                        width: 140,
+                  height: 40,
+                  child: FlatButton(
+                    color: Theme.of(context).primaryColor,
+                    shape: new RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(widget.confirm ?? dic['confirm']!,
+                            style: TextStyle(color: Colors.white))
+                      ],
+                    ),
+                    onPressed: widget.onOk,
                         ),
 
                       ),

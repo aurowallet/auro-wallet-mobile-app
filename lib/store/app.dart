@@ -51,9 +51,6 @@ abstract class _AppStore with Store {
     wallet = WalletStore(this as AppStore);
     await wallet!.loadWallet();
 
-    // remove watchmode wallet if existed
-    await wallet!.deleteWatchModeWallets();
-
     assets = AssetsStore(this as AppStore);
 
     await assets!.loadCache();
