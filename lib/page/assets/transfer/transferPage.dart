@@ -197,7 +197,8 @@ class _TransferPageState extends State<TransferPage> {
       var txItems = [
         TxItem(
             label: i18n['amount']!,
-            value: '${Fmt.priceCeil(amountToTransfer)} ${COIN.coinSymbol}',
+            value:
+                '${Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals)} ${COIN.coinSymbol}',
             type: TxItemTypes.amount),
         TxItem(
             label: i18n['toAddress']!,
