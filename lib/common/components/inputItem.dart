@@ -38,12 +38,13 @@ class InputItem extends StatefulWidget {
   final TextEditingController? controller;
   final EdgeInsetsGeometry padding;
   final FocusNode? focusNode;
-  final int maxLines;
+  final int? maxLines;
   final Color backgroundColor;
   final Color borderColor;
   final Color focusColor;
   final EdgeInsetsGeometry inputPadding;
   final Widget? suffixIcon;
+
   @override
   _InputItemState createState() => _InputItemState();
 }
