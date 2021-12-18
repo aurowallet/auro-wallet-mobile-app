@@ -120,15 +120,20 @@ class _InputItemState extends State<InputItem> {
                 hintText: widget.placeholder,
                 filled: true,
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                contentPadding: EdgeInsets.only(
+                    top: 15,
+                    bottom: 15,
+                    left: 12,
+                    right: widget.suffixIcon != null ? 0 : 12),
                 fillColor: widget.backgroundColor,
                 enabledBorder: border,
-                suffixIcon: widget.isPassword ? _buildSuffixIcon() : (widget.suffixIcon ?? null),
+                suffixIcon: widget.isPassword
+                    ? _buildSuffixIcon()
+                    : (widget.suffixIcon ?? null),
                 // enabledBorder: InputBorder.none,
                 focusedBorder: border.copyWith(
-                  borderSide: border.borderSide.copyWith(
-                      color: widget.focusColor
-                  ),
+                  borderSide:
+                      border.borderSide.copyWith(color: widget.focusColor),
                 ),
                 // focusColor: this.borderColor,
                 // enabledBorder: InputBorder.none,

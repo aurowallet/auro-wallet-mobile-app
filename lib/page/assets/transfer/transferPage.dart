@@ -426,7 +426,7 @@ class _TransferPageState extends State<TransferPage> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            '全部',
+                                            dic['allTransfer']!,
                                             style: theme.headline6!.copyWith(
                                                 color: Theme.of(context)
                                                     .primaryColor),

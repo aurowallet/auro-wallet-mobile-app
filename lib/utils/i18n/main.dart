@@ -132,14 +132,15 @@ const Map<String, String> zhMain = {
   "accountNameLimit": "不超过16个字符",
   "addressQrTip": "扫描二维码，转入MINA",
   "goToExplorer": "去浏览器查看交易记录",
-  "homeNoTx": "非默认节点，无法提供交易记录",
+  "homeNoTx": "未知类型节点，无法提供相关记录",
   "versionInfo": "版本日志",
   "followUs": "关注我们",
   "createPassword": "创建密码",
   "epochInfo": "Epoch 信息",
   "delegationInfo": "委托信息",
   "emptyDelegateTitle": "你还没有委托MINA",
-  "emptyDelegateDesc1": "将 MINA 委托给网络中的出块节点可以帮助你获得出块收益，出块节点将根据你的委托比重进行分配收益，收益百分比取决于出块节点的费率设置。",
+  "emptyDelegateDesc1":
+      "将 MINA 委托给网络中的出块节点可以帮助你获得出块收益，出块节点将根据你的委托比重进行分配收益，收益百分比取决于出块节点的费率设置。",
   "emptyDelegateDesc2": "委托生效时间和奖励机制请访问: ",
   "emptyDelegateDesc3": "委托教程",
   "changeNode": "更改",
@@ -226,7 +227,8 @@ const Map<String, String> zhMain = {
   "nodeAlert": "请务必只添加受您信任的节点。使用未知节点会有一定风险。",
   "watchModeWarn2": "Auro 钱包已经不再支持【观察钱包】功能，你需要删除所有观察钱包之后才可以继续使用。",
   "noMoreSupported": "不再支持的账户",
-  "deleteWatch": "删除观察钱包"
+  "deleteWatch": "删除观察钱包",
+  "allTransfer": "全部",
 };
 
 const Map<String, String> enMain = {
@@ -356,17 +358,20 @@ const Map<String, String> enMain = {
   "confirmDeleteNode": "Are you sure to delete it?",
   "deleteSuccess": "Successfully Deleted",
   "backupSuccess": "Success",
-  "walletAbout": "Auro Wallet is a community-driven wallet developed by the Bit Cat team. It is simple, convenient, and fully open sourced, which currently supports all the functions of the Mina mainnet.",
-  "copyTipContent": "Copying the private key is risky, and the clipboard is easily monitored and stolen by third-party applications.",
+  "walletAbout":
+      "Auro Wallet is a community-driven wallet developed by the Bit Cat team. It is simple, convenient, and fully open sourced, which currently supports all the functions of the Mina mainnet.",
+  "copyTipContent":
+      "Copying the private key is risky, and the clipboard is easily monitored and stolen by third-party applications.",
   "copyConfirm": "Copy Anyway",
   "copyCancel": "Stop Copying ",
   "notificationTitle": "Transaction Confirmed",
-  "notificationContent": "The transfer has been confirmed, click to view the transaction.",
+  "notificationContent":
+      "The transfer has been confirmed, click to view the transaction.",
   "welcomeBack": "Welcome Back!",
   "accountNameLimit": "No more than 16 characters",
   "addressQrTip": "Scan the QR code and transfer MINA to it",
   "goToExplorer": "Check more transaction history",
-  "homeNoTx": "Non-default node, unable to provide transaction records",
+  "homeNoTx": "Unknown node, unable to provide history",
   "versionInfo": "Version Log",
   "followUs": "Follow Us",
   "createPassword": "Create Password",
@@ -469,6 +474,7 @@ const Map<String, String> enMain = {
   "watchModeWarn":
       "In order to provide a better Dapp experience, Auro Wallet will not provide the [Watch Account] function in future versions. Please go to the [Account management] to delete all [Watch Wallet].",
   "watchModeWarn2": "Auro 钱包已经不再支持【观察钱包】功能，你需要删除所有观察钱包之后才可以继续使用。",
-  "deleteWatch": "删除观察钱包",
+  "deleteWatch": "Delete watch account",
+  "allTransfer": "All",
   "noMoreSupported": "No longer supported account"
 };

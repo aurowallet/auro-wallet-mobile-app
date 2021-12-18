@@ -82,23 +82,27 @@ class UI {
       String? confirm,
       Function()? onConfirm,
       CrossAxisAlignment? crossAxisAlignment,
-      bool barrierDismissible = true}) {
+      bool barrierDismissible = true,
+      bool disableBack = false}) {
     return showDialog<String>(
       context: context,
       barrierDismissible: barrierDismissible,
       builder: (_) {
         final Map<String, String> dic = I18n.of(context).main;
-        return CustomAlertDialog(
-          title: dic['prompt']!,
-          confirm: confirm,
-          contents: contents,
-          crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
-          onOk: () {
-            Navigator.of(context).pop();
-            if (onConfirm != null) {
-              onConfirm();
-            }
-          },
+        return WillPopScope(
+          onWillPop: () async => !disableBack,
+          child: CustomAlertDialog(
+            title: dic['prompt']!,
+            confirm: confirm,
+            contents: contents,
+            crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+            onOk: () {
+              Navigator.of(context).pop();
+              if (onConfirm != null) {
+                onConfirm();
+              }
+            },
+          ),
         );
       },
     );
@@ -144,7 +148,7 @@ class UI {
 
   static TextInputFormatter decimalInputFormatter(int decimals) {
     return RegExInputFormatter.withRegex(
-        '^[0-9]{0,$decimals}([\\.\\,][0-9]{0,$decimals})?\$');
+        '^[0-9]{0,}([\\.\\,][0-9]{0,$decimals})?\$');
   }
 
   static unfocus(BuildContext context) {

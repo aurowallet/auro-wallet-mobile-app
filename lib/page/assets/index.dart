@@ -114,12 +114,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
         await UI.showAlertDialog(
             context: context,
             barrierDismissible: false,
+            disableBack: true,
             contents: [
               i18n['watchModeWarn2']!,
             ],
             confirm: i18n['deleteWatch']!,
-            onConfirm: () {
-              store.wallet!.deleteWatchModeWallets();
+            onConfirm: () async {
+              await store.wallet!.deleteWatchModeWallets();
+              _onRefresh(showIndicator: true);
             });
       });
     }
