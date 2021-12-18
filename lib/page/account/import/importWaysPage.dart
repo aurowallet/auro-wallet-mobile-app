@@ -86,10 +86,19 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
             padding: EdgeInsets.only(left: 30, right: 30),
           child: Column(
             children: <Widget>[
-              ImportItem(text: dic['privateKey']!, onClick: _onPrivateKey,),
-              ImportItem(text: 'Keystore', onClick: _onKeyStore,),
-              // ImportItem(text: dic['watchAccount']!, onClick: _onWatchMode,),
-            ],
+                ImportItem(
+                  text: dic['privateKey']!,
+                  onClick: _onPrivateKey,
+                ),
+                ImportItem(
+                  text: 'Keystore',
+                  onClick: _onKeyStore,
+                ),
+                ImportItem(
+                  text: dic['watchAccount']!,
+                  onClick: _onWatchMode,
+                ),
+              ],
           )
         ),
       ),

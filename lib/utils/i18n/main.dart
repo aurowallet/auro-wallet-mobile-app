@@ -225,10 +225,10 @@ const Map<String, String> zhMain = {
   "deleteConfirm": "请在输入“删除”确定重置钱包",
   "edit": "编辑",
   "nodeAlert": "请务必只添加受您信任的节点。使用未知节点会有一定风险。",
-  "watchModeWarn2": "Auro 钱包已经不再支持【观察钱包】功能，你需要删除所有观察钱包之后才可以继续使用。",
+  "watchModeWarn2": "Auro 钱包已经不再支持【观察钱包】功能，你需要<red>删除所有观察钱包</red>之后才可以继续使用。",
   "noMoreSupported": "不再支持的账户",
   "deleteWatch": "删除观察钱包",
-  "allTransfer": "全部",
+  "allTransfer": "全部"
 };
 
 const Map<String, String> enMain = {
@@ -473,7 +473,8 @@ const Map<String, String> enMain = {
       "Only add custom networks you trust. Using unknown nodes can be risky.",
   "watchModeWarn":
       "In order to provide a better Dapp experience, Auro Wallet will not provide the [Watch Account] function in future versions. Please go to the [Account management] to delete all [Watch Wallet].",
-  "watchModeWarn2": "Auro 钱包已经不再支持【观察钱包】功能，你需要删除所有观察钱包之后才可以继续使用。",
+  "watchModeWarn2":
+      "Auro wallet no longer support the [Watch Account] , you need to <red>delete all watch accounts</red> before you can continue to use.",
   "deleteWatch": "Delete watch account",
   "allTransfer": "All",
   "noMoreSupported": "No longer supported account"

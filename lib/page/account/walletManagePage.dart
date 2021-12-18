@@ -200,7 +200,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                 color: ColorsUtil.hexColor(0xf5f5f5),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -209,8 +209,10 @@ class _WalletManagePageState extends State<WalletManagePage> {
                           boxShadow: [
                             BoxShadow(
                               color: ColorsUtil.hexColor(0x252275, alpha: 0.08),
-                              blurRadius: 30.0, // has the effect of softening the shadow
-                              spreadRadius: 0, // has the effect of extending the shadow
+                              blurRadius: 30.0,
+                              // has the effect of softening the shadow
+                              spreadRadius: 0,
+                              // has the effect of extending the shadow
                               offset: Offset(
                                 0, // horizontal, move right 10
                                 12.0, // vertical, move down 10
@@ -230,14 +232,16 @@ class _WalletManagePageState extends State<WalletManagePage> {
                           ),
                           label: Text(dic['createAccount']!, style: theme.headline6),
                           style: ButtonStyle(
-                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(28.0),
-                                  // side: BorderSide(color: Colors.red)
-                                )
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                            padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28.0),
+                              // side: BorderSide(color: Colors.red)
+                            )),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                    EdgeInsets.all(12)),
                           ),
                           // padding: EdgeInsets.all(16),
                           onPressed: _onCreate,
@@ -269,14 +273,16 @@ class _WalletManagePageState extends State<WalletManagePage> {
                           ),
                           label: Text(dic['importAccount']!, style:  theme.headline6),
                           style: ButtonStyle(
-                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(28.0),
-                                  // side: BorderSide(color: Colors.red)
-                                )
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                            padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28.0),
+                              // side: BorderSide(color: Colors.red)
+                            )),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                    EdgeInsets.all(12)),
                           ),
                           // padding: EdgeInsets.all(16),
                           onPressed: _showActions,

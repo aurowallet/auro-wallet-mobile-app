@@ -23,7 +23,6 @@ import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:auro_wallet/page/settings/remoteNodeListPage.dart';
-import 'package:auro_wallet/service/graphql.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/service/notification.dart';
 import 'package:auro_wallet/store/app.dart';

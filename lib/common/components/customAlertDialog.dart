@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
@@ -40,50 +41,55 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
       child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 0),
-                  child: Text(widget.title, style: theme.headline3),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: Column(
-                    crossAxisAlignment: widget.crossAxisAlignment,
-                    children: widget.contents.map((content) => Text(content, style: theme.headline5,)).toList(),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 0),
+                    child: Text(widget.title, style: theme.headline3),
                   ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: Column(
+                      crossAxisAlignment: widget.crossAxisAlignment,
+                  children: widget.contents
+                      .map((content) => CustomStyledText(
+                            text: content,
+                            style: theme.headline5,
+                          ))
+                      .toList(),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 27),
-                ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: 140, minHeight: 40),
-                      child: FlatButton(
-                        color: Theme.of(context).primaryColor,
-                        shape: new RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(widget.confirm ?? dic['confirm']!,
-                                style: TextStyle(color: Colors.white))
-                          ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 27),
+                  ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: 140, minHeight: 40),
+                          child: FlatButton(
+                            color: Theme.of(context).primaryColor,
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(widget.confirm ?? dic['confirm']!,
+                                    style: TextStyle(color: Colors.white))
+                              ],
+                            ),
+                            onPressed: widget.onOk,
+                          ),
                         ),
-                        onPressed: widget.onOk,
-                      ),
-                    ),
-                  ]),
-              ],
-            ),
-          )
-        ]
+                      ]),
+                ],
+              ),
+            )
+          ]
       ),
     );
   }
