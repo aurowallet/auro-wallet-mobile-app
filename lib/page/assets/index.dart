@@ -96,17 +96,21 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   void _onReceive() {
-    Navigator.pushNamed(
-      context,
-      ReceivePage.route
-    );
+    Navigator.pushNamed(context, ReceivePage.route);
   }
+
   void _onTransfer() {
     Navigator.pushNamed(
       context,
       TransferPage.route,
     );
   }
+
+  void _onConfirmDeleteWatchWallet() async {
+    await Navigator.of(context).pushNamed(WalletManagePage.route);
+    this._checkWatchMode();
+  }
+
   void _checkWatchMode() {
     if (store.wallet!.hasWatchModeWallet()) {
       Future.delayed(Duration(milliseconds: 600), () async {
@@ -119,9 +123,10 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
               i18n['watchModeWarn2']!,
             ],
             confirm: i18n['deleteWatch']!,
-            onConfirm: () async {
-              await store.wallet!.deleteWatchModeWallets();
-              _onRefresh(showIndicator: true);
+            onConfirm: () {
+              // await store.wallet!.deleteWatchModeWallets();
+              // _onRefresh(showIndicator: true);
+              this._onConfirmDeleteWatchWallet();
             });
       });
     }
