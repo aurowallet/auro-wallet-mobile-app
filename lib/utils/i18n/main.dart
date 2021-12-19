@@ -138,7 +138,7 @@ const Map<String, String> zhMain = {
   "createPassword": "创建密码",
   "epochInfo": "Epoch 信息",
   "delegationInfo": "委托信息",
-  "emptyDelegateTitle": "你还没有委托MINA",
+  "emptyDelegateTitle": "你还没有委托",
   "emptyDelegateDesc1":
       "将 MINA 委托给网络中的出块节点可以帮助你获得出块收益，出块节点将根据你的委托比重进行分配收益，收益百分比取决于出块节点的费率设置。",
   "emptyDelegateDesc2": "委托生效时间和奖励机制请访问: ",

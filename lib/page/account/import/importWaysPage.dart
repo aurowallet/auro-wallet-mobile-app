@@ -94,10 +94,10 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
                   text: 'Keystore',
                   onClick: _onKeyStore,
                 ),
-                ImportItem(
-                  text: dic['watchAccount']!,
-                  onClick: _onWatchMode,
-                ),
+                // ImportItem(
+                //   text: dic['watchAccount']!,
+                //   onClick: _onWatchMode,
+                // ),
               ],
           )
         ),
