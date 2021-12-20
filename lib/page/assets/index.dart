@@ -333,7 +333,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                 child: BrowserLink(
-                  '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}${store.wallet!.currentAddress}/transactions',
+                  '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/wallet/${store.wallet!.currentAddress}/transactions',
                   text: i18n['goToExplorer']!,
                 ))
           ],

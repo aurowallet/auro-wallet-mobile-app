@@ -445,7 +445,7 @@ const Map<String, String> enMain = {
   'exit.confirm': 'Do you want to exit the App?',
   'unlock.bio.enable': 'Fingerprint/Face ID',
   'unlock.bio': 'Authenticate to unlock',
-  'feeTooLarge': 'Fees are much higher than average?',
+  'feeTooLarge': 'Fees are much higher than average',
   'add': 'Add',
   'addaddress': 'Add Address',
   'addressbook': 'Address Book',
