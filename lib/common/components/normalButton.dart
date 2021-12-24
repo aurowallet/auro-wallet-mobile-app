@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class NormalButton extends StatelessWidget {

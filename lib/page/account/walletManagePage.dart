@@ -59,8 +59,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
     if (wallet != null) {
       final accountData = await webApi.account
           .createAccountByAccountIndex(wallet, accountName, password);
+      final Map<String, String> dic = I18n.of(context).main;
       if (accountData == null) {
-        final Map<String, String> dic = I18n.of(context).main;
         UI.toast(dic['passwordError']!);
         return false;
       } else {
@@ -68,10 +68,20 @@ class _WalletManagePageState extends State<WalletManagePage> {
             .map((e) => e as AccountData?)
             .firstWhere((account) => account!.pubKey == accountData['pubKey'],
                 orElse: () => null);
+
         if (matchedAccount != null) {
+          UI.showAlertDialog(
+              context: context,
+              contents: [
+                dic['accountRepeatAlert']!.replaceAll('{address}', matchedAccount.address).replaceAll('{accountName}', matchedAccount.name)
+              ],
+              confirm: dic['isee']!
+          );
+          return false;
         } else {
           await store.wallet!.addAccount(accountData, accountName, wallet);
           store.assets!.loadAccountCache();
+          return true;
         }
       }
     }

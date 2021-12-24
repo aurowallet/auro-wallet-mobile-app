@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
 
@@ -131,17 +130,6 @@ class _WalletAppState extends State<WalletApp> {
 
   @override
   void dispose() {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final Map<String, String> dic = I18n.of(context).main;
-        return CupertinoAlertDialog(
-          title: Container(),
-          content: Text('${dic['copySuccess']!}'),
-        );
-      },
-    );
-
     didReceiveLocalNotificationSubject.close();
     selectNotificationSubject.close();
     webApi.dispose();

@@ -1,6 +1,5 @@
 import 'package:auro_wallet/utils/i18n/terms.dart';
 import 'package:biometric_storage/biometric_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';

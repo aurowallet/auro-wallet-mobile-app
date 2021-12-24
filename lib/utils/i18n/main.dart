@@ -228,7 +228,8 @@ const Map<String, String> zhMain = {
   "watchModeWarn2": "Auro 钱包已经不再支持【观察钱包】功能，你需要<red>删除所有观察钱包</red>之后才可以继续使用。",
   "noMoreSupported": "不再支持的账户",
   "deleteWatch": "删除观察钱包",
-  "allTransfer": "全部"
+  "allTransfer": "全部",
+  "accountRepeatAlert": "即将创建的账户地址为：\n<theme>{address}</theme>\n\n已存在导入账户【{accountName}】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<link href='aurowallet://back' route='/wallet/manage'>账户管理页</link>将已导入的账户删除。"
 };
 
 const Map<String, String> enMain = {
@@ -284,8 +285,7 @@ const Map<String, String> enMain = {
   "feePlaceHolder": "Transaction fee",
   "postFailed": "Transaction broadcast failed",
   "sendAddressError": "Please enter a valid wallet address",
-  "amountError":
-      "The format of the amount you entered is incorrect, please check and re-enter",
+  "amountError": "The format of the amount you entered is incorrect, please check and re-enter",
   "balanceNotEnough": "Insufficient Balance",
   "txHash": "Transaction Hash",
   "time": "Time",
@@ -434,8 +434,8 @@ const Map<String, String> enMain = {
   "agree": "Agree",
   "userAgree":"Terms and Conditions",
   "imported": "Imported",
-  "watchAccount": "Watch Mode",
-  "watchMode": "观察模式",
+  "watchAccount": "Watch Account",
+  "watchMode": "Watch Mode",
   "textWatchModeAddress": "Enter or paste wallet address",
   "watchLabel": "Watch",
   "timeout": "Request Timeout",
@@ -477,5 +477,6 @@ const Map<String, String> enMain = {
       "Auro wallet no longer support the [Watch Account] , you need to <red>delete all watch accounts</red> before you can continue to use.",
   "deleteWatch": "Delete watch account",
   "allTransfer": "All",
-  "noMoreSupported": "No longer supported account"
+  "noMoreSupported": "No longer supported account",
+  "accountRepeatAlert": "The address of the account to be created is:\n<theme>{address}</theme>\n\nAn existing imported account [{accountName}] is a duplicate of this address. Auro Wallet does not support the creation of duplicate account addresses. Please go to the <link href='aurowallet://back' route='/wallet/manage'>Account Management</link> to delete the imported account."
 };

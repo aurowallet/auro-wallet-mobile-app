@@ -14,15 +14,24 @@ class CustomStyledText extends StatelessWidget {
     return StyledText(
       text: text,
       style: st,
+      newLineAsBreaks: true,
       styles: {
         'red': st.copyWith(color: Colors.red),
         'theme': st.copyWith(color: primaryColor),
         'link': ActionTextStyle(
           color: primaryColor,
-          decoration: TextDecoration.underline,
+          decoration: TextDecoration.none,
           onTap: (TextSpan? text, Map<String?, String?>? attrs) {
             if (attrs != null) {
               final String? link = attrs['href'];
+              final String? route = attrs['route'];
+              if (link == 'aurowallet://back') {
+                if (route != null) {
+                  Navigator.popUntil(context, ModalRoute.withName(route));
+                } else {
+                  Navigator.of(context).pop();
+                }
+              }
               print('The "$link" link is tapped.');
             }
           },

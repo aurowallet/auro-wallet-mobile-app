@@ -7,7 +7,6 @@ import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
 import 'package:auro_wallet/common/components/outlinedButtonSmall.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';

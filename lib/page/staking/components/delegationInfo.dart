@@ -1,5 +1,4 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
