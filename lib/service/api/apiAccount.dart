@@ -320,16 +320,16 @@ $validUntil: String!,$scalar: String!, $field: String!) {
     }
   }
 
-  Future<bool> createAccountByAccountIndex(WalletData wallet, accountName, String password) async {
+  Future<Map<String, dynamic>?> createAccountByAccountIndex(
+      WalletData wallet, accountName, String password) async {
     int nextAccountIndex = store.wallet!.getNextWalletAccountIndex(wallet);
     String? mnemonic = await store.wallet!.getMnemonic(wallet, password);
     if (mnemonic == null) {
-      return false;
+      return null;
     }
-    Map<String, dynamic> acc = await createWalletByMnemonic(mnemonic, nextAccountIndex, false);
-    await store.wallet!.addAccount(acc, accountName, wallet);
-    store.assets!.loadAccountCache();
-    return true;
+    Map<String, dynamic> acc =
+        await createWalletByMnemonic(mnemonic, nextAccountIndex, false);
+    return acc;
   }
 
   Future<String?> getPrivateKey(WalletData wallet, int accountIndex, String password) async {

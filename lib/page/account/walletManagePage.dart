@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
@@ -59,11 +57,22 @@ class _WalletManagePageState extends State<WalletManagePage> {
     }
     WalletData? wallet = store.wallet!.mnemonicWallet;
     if (wallet != null) {
-      bool success = await webApi.account.createAccountByAccountIndex(wallet, accountName, password);
-      if (!success) {
+      final accountData = await webApi.account
+          .createAccountByAccountIndex(wallet, accountName, password);
+      if (accountData == null) {
         final Map<String, String> dic = I18n.of(context).main;
         UI.toast(dic['passwordError']!);
         return false;
+      } else {
+        AccountData? matchedAccount = store.wallet!.accountListAll
+            .map((e) => e as AccountData?)
+            .firstWhere((account) => account!.pubKey == accountData['pubKey'],
+                orElse: () => null);
+        if (matchedAccount != null) {
+        } else {
+          await store.wallet!.addAccount(accountData, accountName, wallet);
+          store.assets!.loadAccountCache();
+        }
       }
     }
     return true;
