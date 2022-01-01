@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';

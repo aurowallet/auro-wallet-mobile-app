@@ -1,6 +1,6 @@
 import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class WillPopScopWrapper extends StatelessWidget {
@@ -14,22 +14,11 @@ class WillPopScopWrapper extends StatelessWidget {
       child: child,
       onWillPop: () async {
         if (Platform.isAndroid) {
-          bool? res = await showCupertinoDialog<bool>(
+          bool? res = await UI.showConfirmDialog(
             context: context,
-            builder: (context) => CupertinoAlertDialog(
-              title: Text(I18n.of(context).main['exit.confirm']!),
-              actions: <Widget>[
-                CupertinoButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(I18n.of(context).main['cancel']!),
-                ),
-                CupertinoButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  /*Navigator.of(context).pop(true)*/
-                  child: Text(I18n.of(context).main['confirm']!),
-                ),
-              ],
-            ),
+            contents: [I18n.of(context).main['exit.confirm']!],
+            okText: I18n.of(context).main['confirm']!,
+            cancelText: I18n.of(context).main['cancel']!,
           );
           if (res == null || res == false) {
             return Future.value(false);

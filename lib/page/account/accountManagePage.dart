@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
@@ -20,7 +17,6 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:auro_wallet/page/account/import/importWaysPage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -178,19 +174,23 @@ class AccountInfoItem extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width: 300,
+                Expanded(
+                  // width: 300,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(label, style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000d), fontWeight: FontWeight.w500)),
-                      value == null || value!.isEmpty ?
-                      Container() :
-                      Padding(
-                          padding:  EdgeInsets.only(top: 9),
-                          child: Text(value!,
-                            style: theme.headline5!.copyWith( color: Theme.of(context).primaryColor),)
+                      Text(label,
+                          style: theme.headline4!.copyWith(
+                              color: ColorsUtil.hexColor(0x01000d),
+                              fontWeight: FontWeight.w500)),
+                      value == null || value!.isEmpty
+                          ? Container()
+                          : Padding(
+                              padding: EdgeInsets.only(top: 9),
+                              child: Text(
+                                value!,
+                                style: theme.headline5!.copyWith( color: Theme.of(context).primaryColor),)
                       )
                     ],
                   ),

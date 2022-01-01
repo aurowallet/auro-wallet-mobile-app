@@ -42,9 +42,9 @@ abstract class _AppStore with Store {
     }
 
     staking = StakingStore(this as AppStore);
-    try{
+    try {
       await staking!.init();
-    } catch(e) {
+    } catch (e) {
       print(e);
     }
 

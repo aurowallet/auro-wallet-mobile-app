@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/camera.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -155,10 +154,22 @@ class _TransferPageState extends State<TransferPage> {
     return true;
   }
 
+  bool _isAllTransfer() {
+    var accountInfo = store.assets!.accountsInfo[store.wallet!.currentAddress];
+    if (accountInfo != null) {
+      double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
+      if (amount == Fmt.bigIntToDouble(accountInfo.total, COIN.decimals)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void _handleSubmit() async {
     _unFocus();
     if (_nonceCtrl.text.isEmpty) {
-      if (_loading.value && currentFee == null) { // waiting nonce data from server and user does not choose fee
+      if (_loading.value && currentFee == null) {
+        // waiting nonce data from server and user does not choose fee
         EasyLoading.show(status: '');
         await asyncWhen((r) => _loading.value == false);
         EasyLoading.dismiss();
@@ -173,18 +184,37 @@ class _TransferPageState extends State<TransferPage> {
       if (_nonceCtrl.text.isNotEmpty) {
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        inferredNonce = store.assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
+        inferredNonce = store
+            .assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
       }
       fee = currentFee!;
+      double amountToTransfer = amount;
+      if (_isAllTransfer()) {
+        amountToTransfer = amount - fee;
+      }
       final Map<String, String> i18n = I18n.of(context).main;
       var txItems = [
-        TxItem(label: i18n['amount']!, value: '${Fmt.priceCeil(amount)} ${COIN.coinSymbol}', type: TxItemTypes.amount),
-        TxItem(label: i18n['toAddress']!, value: toAddress, type: TxItemTypes.address),
-        TxItem(label: i18n['fromAddress']!, value: store.wallet!.currentAddress, type: TxItemTypes.address),
-        TxItem(label: i18n['fee']!, value: '${fee.toString()} ${COIN.coinSymbol}', type: TxItemTypes.amount),
+        TxItem(
+            label: i18n['amount']!,
+            value:
+                '${Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals)} ${COIN.coinSymbol}',
+            type: TxItemTypes.amount),
+        TxItem(
+            label: i18n['toAddress']!,
+            value: toAddress,
+            type: TxItemTypes.address),
+        TxItem(
+            label: i18n['fromAddress']!,
+            value: store.wallet!.currentAddress,
+            type: TxItemTypes.address),
+        TxItem(
+            label: i18n['fee']!,
+            value: '${fee.toString()} ${COIN.coinSymbol}',
+            type: TxItemTypes.amount),
       ];
       if (memo.isNotEmpty) {
-        txItems.insert(3, TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
+        txItems.insert(3,
+            TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
       }
       bool isWatchMode = store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
       UI.showTxConfirm(
@@ -215,7 +245,7 @@ class _TransferPageState extends State<TransferPage> {
               "privateKey": privateKey,
               "fromAddress": store.wallet!.currentAddress,
               "toAddress": toAddress,
-              "amount": amount,
+              "amount": amountToTransfer,
               "fee": fee,
               "nonce": inferredNonce,
               "memo": memo,
@@ -269,14 +299,22 @@ class _TransferPageState extends State<TransferPage> {
     FocusScope.of(context).requestFocus(new FocusNode());
   }
   String? _validateAmount () {
+    bool isAllTransferFlag = _isAllTransfer();
     final Map<String, String> dic = I18n.of(context).main;
-    BigInt available = store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ?? BigInt.from(0);
+    BigInt available =
+        store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
+            BigInt.from(0);
     final int decimals = COIN.decimals;
-    double fee =  currentFee!;
+    double fee = currentFee!;
     if (_amountCtrl.text.isEmpty) {
       return dic['amountError']!;
     }
-    if (double.parse(Fmt.parseNumber(_amountCtrl.text)) >= available / BigInt.from(pow(10, decimals)) - fee) {
+    if (isAllTransferFlag) {
+      if (double.parse(Fmt.parseNumber(_amountCtrl.text)) - fee <= 0) {
+        return dic['balanceNotEnough']!;
+      }
+    } else if (double.parse(Fmt.parseNumber(_amountCtrl.text)) >=
+        available / BigInt.from(pow(10, decimals)) - fee) {
       return dic['balanceNotEnough']!;
     }
     return null;
@@ -289,8 +327,7 @@ class _TransferPageState extends State<TransferPage> {
   }
   void _onChooseContact() async {
     var contact = await Navigator.of(context).pushNamed(ContactListPage.route, arguments: {
-      "isToSelect": true
-    });
+      "isToSelect": true});
     if (contact != null) {
       ContactData contactData = contact as ContactData;
       _toAddressCtrl.text = contactData.address;
@@ -300,6 +337,15 @@ class _TransferPageState extends State<TransferPage> {
       });
     }
   }
+
+  void _onAllClick() {
+    var accountInfo = store.assets!.accountsInfo[store.wallet!.currentAddress];
+    if (accountInfo != null) {
+      _amountCtrl.text =
+          Fmt.bigIntToDouble(accountInfo.total, COIN.decimals).toString();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Observer(
@@ -307,7 +353,9 @@ class _TransferPageState extends State<TransferPage> {
         var theme = Theme.of(context).textTheme;
         final Map<String, String> dic = I18n.of(context).main;
         final int decimals = COIN.decimals;
-        BigInt available = store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ?? BigInt.from(0);
+        BigInt available =
+            store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
+                BigInt.from(0);
         final fees = store.assets!.transferFees;
         return Scaffold(
           appBar: AppBar(
@@ -359,17 +407,32 @@ class _TransferPageState extends State<TransferPage> {
                                   controller: _amountCtrl,
                                   inputFormatters: [
                                     UI.decimalInputFormatter(decimals)
-                                  ],
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      decimal: true),
-                                  rightWidget: Text(
-                                    '${dic['balance']!}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: 6)}',
-                                    textAlign: TextAlign.right,
-                                    style: theme.headline6!.copyWith(
-                                        color: ColorsUtil.hexColor(0xB1B3BD)
+                                    ],
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    rightWidget: Text(
+                                      '${dic['balance']!}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
+                                      textAlign: TextAlign.right,
+                                      style: theme.headline6!.copyWith(
+                                          color: ColorsUtil.hexColor(0xB1B3BD)),
                                     ),
-                                  ),
-                                ),
+                                    suffixIcon: GestureDetector(
+                                      onTap: _onAllClick,
+                                      behavior: HitTestBehavior.opaque,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            dic['allTransfer']!,
+                                            style: theme.headline6!.copyWith(
+                                                color: Theme.of(context)
+                                                    .primaryColor),
+                                          )
+                                        ],
+                                      ),
+                                    )),
                                 InputItem(
                                   label: dic['memo']!,
                                   initialValue: '',

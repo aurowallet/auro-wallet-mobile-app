@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:auro_wallet/common/components/nodeSelectionDialog.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
 import 'package:auro_wallet/common/components/outlinedButtonSmall.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -33,8 +33,6 @@ import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
-import 'dart:ui' as ui;
-
 
 class Assets extends StatefulWidget {
   Assets(this.store);
@@ -97,32 +95,38 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   void _onReceive() {
-    Navigator.pushNamed(
-      context,
-      ReceivePage.route
-    );
+    Navigator.pushNamed(context, ReceivePage.route);
   }
+
   void _onTransfer() {
     Navigator.pushNamed(
       context,
       TransferPage.route,
     );
   }
+
+  void _onConfirmDeleteWatchWallet() async {
+    await Navigator.of(context).pushNamed(WalletManagePage.route);
+    this._checkWatchMode();
+  }
+
   void _checkWatchMode() {
     if (store.wallet!.hasWatchModeWallet()) {
-      if (webApi.account.getWatchModeWarned()) {
-        return;
-      }
       Future.delayed(Duration(milliseconds: 600), () async {
         var i18n = I18n.of(context).main;
         await UI.showAlertDialog(
             context: context,
+            barrierDismissible: false,
+            disableBack: true,
             contents: [
-              i18n['watchModeWarn']!,
+              i18n['watchModeWarn2']!,
             ],
-            confirm: i18n['isee']!
-        );
-        webApi.account.setWatchModeWarned();
+            confirm: i18n['deleteWatch']!,
+            onConfirm: () {
+              // await store.wallet!.deleteWatchModeWallets();
+              // _onRefresh(showIndicator: true);
+              this._onConfirmDeleteWatchWallet();
+            });
       });
     }
   }
@@ -328,10 +332,9 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                 child: BrowserLink(
-                  '$TRANSACTIONS_EXPLORER_URL${store.wallet!.currentAddress}',
+                  '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/wallet/${store.wallet!.currentAddress}/transactions',
                   text: i18n['goToExplorer']!,
-                )
-            )
+                ))
           ],
         ));
       }

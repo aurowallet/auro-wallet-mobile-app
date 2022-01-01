@@ -6,7 +6,6 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
@@ -86,10 +85,19 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
             padding: EdgeInsets.only(left: 30, right: 30),
           child: Column(
             children: <Widget>[
-              ImportItem(text: dic['privateKey']!, onClick: _onPrivateKey,),
-              ImportItem(text: 'Keystore', onClick: _onKeyStore,),
-              // ImportItem(text: dic['watchAccount']!, onClick: _onWatchMode,),
-            ],
+                ImportItem(
+                  text: dic['privateKey']!,
+                  onClick: _onPrivateKey,
+                ),
+                ImportItem(
+                  text: 'Keystore',
+                  onClick: _onKeyStore,
+                ),
+                // ImportItem(
+                //   text: dic['watchAccount']!,
+                //   onClick: _onWatchMode,
+                // ),
+              ],
           )
         ),
       ),

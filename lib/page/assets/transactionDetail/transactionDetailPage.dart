@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -149,7 +149,6 @@ class TransactionDetailPage extends StatelessWidget {
     final Map<String, String> i18n = I18n.of(context).main;
 
     final TransferData tx = ModalRoute.of(context)!.settings.arguments as TransferData;
-    var link = 'https://hubble.figment.io/mina/chains/mainnet/transactions/${tx.hash}';
     return Scaffold(
       appBar: AppBar(
         title: Text('${I18n.of(context).main['details']!}'),
@@ -174,7 +173,7 @@ class TransactionDetailPage extends StatelessWidget {
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30),
                     child: BrowserLink(
-                      link,
+                      '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/transaction/${tx.hash}',
                       text: i18n['goToExplrer']!,
                     )
                 )

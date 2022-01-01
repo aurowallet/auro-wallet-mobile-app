@@ -1,5 +1,4 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -212,21 +211,13 @@ class EmptyInfo extends StatelessWidget {
       children: [
         Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              CupertinoIcons.exclamationmark_circle_fill,
-              size: 20,
-              color: ColorsUtil.hexColor(0xFFC633)
-            ),
-            Expanded(child: Padding(
-                padding: EdgeInsets.only(top: 3, left: 5),
-                child: Text(
-                    i18n['emptyDelegateTitle']!,
-                    style: theme.headline4
-                )
-            ),)
-          ]
-        ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                  padding: EdgeInsets.only(top: 3),
+                  child:
+                      Text(i18n['emptyDelegateTitle']!, style: theme.headline4))
+            ]),
         Padding(
           padding: EdgeInsets.only(top: 14),
           child: Text(

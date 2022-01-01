@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
 
@@ -23,7 +22,6 @@ import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:auro_wallet/page/settings/remoteNodeListPage.dart';
-import 'package:auro_wallet/service/graphql.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/service/notification.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -132,17 +130,6 @@ class _WalletAppState extends State<WalletApp> {
 
   @override
   void dispose() {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final Map<String, String> dic = I18n.of(context).main;
-        return CupertinoAlertDialog(
-          title: Container(),
-          content: Text('${dic['copySuccess']!}'),
-        );
-      },
-    );
-
     didReceiveLocalNotificationSubject.close();
     selectNotificationSubject.close();
     webApi.dispose();

@@ -2,7 +2,6 @@ import 'package:auro_wallet/common/components/customNodeDialog.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';

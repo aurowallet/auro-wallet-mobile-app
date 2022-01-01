@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
@@ -59,11 +57,32 @@ class _WalletManagePageState extends State<WalletManagePage> {
     }
     WalletData? wallet = store.wallet!.mnemonicWallet;
     if (wallet != null) {
-      bool success = await webApi.account.createAccountByAccountIndex(wallet, accountName, password);
-      if (!success) {
-        final Map<String, String> dic = I18n.of(context).main;
+      final accountData = await webApi.account
+          .createAccountByAccountIndex(wallet, accountName, password);
+      final Map<String, String> dic = I18n.of(context).main;
+      if (accountData == null) {
         UI.toast(dic['passwordError']!);
         return false;
+      } else {
+        AccountData? matchedAccount = store.wallet!.accountListAll
+            .map((e) => e as AccountData?)
+            .firstWhere((account) => account!.pubKey == accountData['pubKey'],
+                orElse: () => null);
+
+        if (matchedAccount != null) {
+          UI.showAlertDialog(
+              context: context,
+              contents: [
+                dic['accountRepeatAlert']!.replaceAll('{address}', matchedAccount.address).replaceAll('{accountName}', matchedAccount.name)
+              ],
+              confirm: dic['isee']!
+          );
+          return false;
+        } else {
+          await store.wallet!.addAccount(accountData, accountName, wallet);
+          store.assets!.loadAccountCache();
+          return true;
+        }
       }
     }
     return true;
@@ -200,7 +219,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                 color: ColorsUtil.hexColor(0xf5f5f5),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -209,8 +228,10 @@ class _WalletManagePageState extends State<WalletManagePage> {
                           boxShadow: [
                             BoxShadow(
                               color: ColorsUtil.hexColor(0x252275, alpha: 0.08),
-                              blurRadius: 30.0, // has the effect of softening the shadow
-                              spreadRadius: 0, // has the effect of extending the shadow
+                              blurRadius: 30.0,
+                              // has the effect of softening the shadow
+                              spreadRadius: 0,
+                              // has the effect of extending the shadow
                               offset: Offset(
                                 0, // horizontal, move right 10
                                 12.0, // vertical, move down 10
@@ -230,14 +251,16 @@ class _WalletManagePageState extends State<WalletManagePage> {
                           ),
                           label: Text(dic['createAccount']!, style: theme.headline6),
                           style: ButtonStyle(
-                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(28.0),
-                                  // side: BorderSide(color: Colors.red)
-                                )
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                            padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28.0),
+                              // side: BorderSide(color: Colors.red)
+                            )),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                    EdgeInsets.all(12)),
                           ),
                           // padding: EdgeInsets.all(16),
                           onPressed: _onCreate,
@@ -269,14 +292,16 @@ class _WalletManagePageState extends State<WalletManagePage> {
                           ),
                           label: Text(dic['importAccount']!, style:  theme.headline6),
                           style: ButtonStyle(
-                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(28.0),
-                                  // side: BorderSide(color: Colors.red)
-                                )
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                            padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(16)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28.0),
+                              // side: BorderSide(color: Colors.red)
+                            )),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                    EdgeInsets.all(12)),
                           ),
                           // padding: EdgeInsets.all(16),
                           onPressed: _showActions,

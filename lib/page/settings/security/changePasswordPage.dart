@@ -1,6 +1,6 @@
 import 'package:biometric_storage/biometric_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:auro_wallet/common/components/passwordInputDialog.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
