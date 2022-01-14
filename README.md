@@ -1,21 +1,21 @@
-# auro wallet
+# Auro Wallet Mobile App
 
-auro wallet built with Flutter for mina protocol
+Auro Wallet built with Flutter for mina protocol
 
 
 
 ### Introduction
 
-auro wallet provide one-stop management for mina protocol, convenient staking, and the private key is self-owned.
+Auro Wallet provide one-stop management for mina protocol, convenient staking, and the private key is self-owned.
 
 
-auro wallet is aiming to provide a more convenient entrance of the mina network.
+Auro Wallet is aiming to provide a more convenient entrance of the mina network.
 
 - Friendly UI.
 - Secure local accounts storage.
 - Intuitive Assets management.
 - Simplified staking.
-- Available for both IOS and Android.
+- Available for both iOS and Android.
 
 ### Building
 
@@ -25,7 +25,7 @@ auro wallet is aiming to provide a more convenient entrance of the mina network.
 - `Dart 2.12.2`
 
 #### Install Flutter 
-`auro wallet` is built with [Flutter](https://flutter.dev/), you need to have `Flutter` dev tools
+`Auro Wallet` is built with [Flutter](https://flutter.dev/), you need to have `Flutter` dev tools
 installed on your computer to compile the project. check [Flutter Documentation](https://flutter.dev/docs)
  to learn how to install `Flutter` and initialize a Flutter App.
 
@@ -33,7 +33,7 @@ installed on your computer to compile the project. check [Flutter Documentation]
 we use flutter ffi and mina c file to derive public key and sign transactions.
 
 ### api config 
-```lib/consts/apiConfig.example.drat``` is a api config for auro wallet, you can remove the ```.example ```
+```lib/consts/apiConfig.example.drat``` is a api config for Auro Wallet, you can remove the ```.example ```
 and fill your custom api
 
 #### run auro App
