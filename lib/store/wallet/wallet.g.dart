@@ -252,6 +252,15 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.deleteSeed(seedType, pubKey));
   }
 
+  final _$deleteWatchModeWalletsAsyncAction =
+      AsyncAction('_WalletStore.deleteWatchModeWallets');
+
+  @override
+  Future<void> deleteWatchModeWallets() {
+    return _$deleteWatchModeWalletsAsyncAction
+        .run(() => super.deleteWatchModeWallets());
+  }
+
   final _$_WalletStoreActionController = ActionController(name: '_WalletStore');
 
   @override

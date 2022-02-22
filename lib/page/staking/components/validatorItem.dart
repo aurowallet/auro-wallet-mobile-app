@@ -10,7 +10,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:circular_check_box/circular_check_box.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 
 
 class ValidatorItem extends StatelessWidget {
@@ -122,12 +122,12 @@ class ValidatorItem extends StatelessWidget {
                   )
                 ],
               )),
-              CircularCheckBox(
-                value: checked,
-                checkColor: Colors.white,
-                activeColor: ColorsUtil.hexColor(0x59c49c),
+              RoundCheckBox(
+                isChecked: checked,
+                uncheckedColor: Colors.white,
+                checkedColor: ColorsUtil.hexColor(0x59c49c),
                 // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                onChanged: _onClick,
+                onTap: _onClick,
               ),
             ],
           )

@@ -8,7 +8,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
-import 'package:circular_check_box/circular_check_box.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -336,12 +336,12 @@ class NodeItem extends StatelessWidget {
               Text(Fmt.breakWord(value)!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
             ],
           ),
-          trailing: CircularCheckBox(
-            value: checked,
-            checkColor: Colors.white,
-            activeColor: ColorsUtil.hexColor(0x59c49c),
+          trailing: RoundCheckBox(
+            isChecked: checked,
+            uncheckedColor: Colors.white,
+            checkedColor: ColorsUtil.hexColor(0x59c49c),
             // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-            onChanged: (bool? checkedFlag) {
+            onTap: (bool? checkedFlag) {
               onChecked(checkedFlag!, value);
             },
           ),

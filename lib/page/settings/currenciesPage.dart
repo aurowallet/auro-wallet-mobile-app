@@ -3,7 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:circular_check_box/circular_check_box.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -76,11 +76,11 @@ class LocaleItem extends StatelessWidget {
       child: ListTile(
         leading: null,
         title: Text(text, style: TextStyle(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-        trailing: CircularCheckBox(
-          value: checked,
-          checkColor: Colors.white,
-          activeColor: ColorsUtil.hexColor(0x59c49c),
-          onChanged: (bool? checkedFlag) {
+        trailing: RoundCheckBox(
+          isChecked: checked,
+          uncheckedColor: Colors.white,
+          checkedColor: ColorsUtil.hexColor(0x59c49c),
+          onTap: (bool? checkedFlag) {
             onChecked(checkedFlag ?? false, localeKey);
           },
         ),

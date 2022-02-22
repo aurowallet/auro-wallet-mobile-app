@@ -6,19 +6,17 @@ part of 'walletData.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-WalletData _$WalletDataFromJson(Map<String, dynamic> json) {
-  return WalletData()
-    ..createTime = json['createTime'] as int
-    ..currentAccountIndex = json['currentAccountIndex'] as int
-    ..walletTypeIndex = json['walletTypeIndex'] as int
-    ..walletType = json['walletType'] as String
-    ..id = json['id'] as String
-    ..source = json['source'] as String
-    ..meta = json['meta'] as Map<String, dynamic>
-    ..accounts = (json['accounts'] as List<dynamic>)
-        .map((e) => AccountData.fromJson(e as Map<String, dynamic>))
-        .toList();
-}
+WalletData _$WalletDataFromJson(Map<String, dynamic> json) => WalletData()
+  ..createTime = json['createTime'] as int
+  ..currentAccountIndex = json['currentAccountIndex'] as int
+  ..walletTypeIndex = json['walletTypeIndex'] as int
+  ..walletType = json['walletType'] as String
+  ..id = json['id'] as String
+  ..source = json['source'] as String
+  ..meta = json['meta'] as Map<String, dynamic>
+  ..accounts = (json['accounts'] as List<dynamic>)
+      .map((e) => AccountData.fromJson(e as Map<String, dynamic>))
+      .toList();
 
 Map<String, dynamic> _$WalletDataToJson(WalletData instance) =>
     <String, dynamic>{

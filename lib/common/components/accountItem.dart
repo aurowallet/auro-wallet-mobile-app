@@ -9,8 +9,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:circular_check_box/circular_check_box.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/common/components/roundedCard.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
@@ -122,12 +121,13 @@ class WalletItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        isObserve && !isChecked ? IconButton(icon: Icon(Icons.info, color: Colors.red, size: 30,), onPressed: _viewAccountInfo) : CircularCheckBox(
-                          value: isChecked,
-                          checkColor: Colors.white,
-                          activeColor: ColorsUtil.hexColor(0x59c49c),
+                        isObserve && !isChecked ? IconButton(icon: Icon(Icons.info, color: Colors.red, size: 30,), onPressed: _viewAccountInfo)
+                            : RoundCheckBox(
+                          isChecked: isChecked,
+                          uncheckedColor: Colors.white,
+                          checkedColor: ColorsUtil.hexColor(0x59c49c),
                           // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                          onChanged: _changeCurrentAccount,
+                          onTap: _changeCurrentAccount,
                         ),
                         Padding(padding: EdgeInsets.only(top: 10),),
                         GestureDetector(

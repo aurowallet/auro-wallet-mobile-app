@@ -6,22 +6,21 @@ part of 'settings.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AboutUsData _$AboutUsDataFromJson(Map<String, dynamic> json) {
-  return AboutUsData(
-    changelog: json['changelog_app'] as String,
-    gitReponame: json['gitReponame_app'] as String,
-    followus: (json['followus'] as List<dynamic>)
-        .map((e) =>
-            e == null ? null : FollowUsData.fromJson(e as Map<String, dynamic>))
-        .toList(),
-  )
-    ..stakingGuideCN = json['staking_guide_cn'] as String
-    ..termsAndContionsEN = json['terms_and_contions'] as String
-    ..privacyPolicyEN = json['privacy_policy'] as String
-    ..termsAndContionsZH = json['terms_and_contions_cn'] as String
-    ..privacyPolicyZH = json['privacy_policy_cn'] as String
-    ..stakingGuide = json['staking_guide'] as String;
-}
+AboutUsData _$AboutUsDataFromJson(Map<String, dynamic> json) => AboutUsData(
+      changelog: json['changelog_app'] as String,
+      gitReponame: json['gitReponame_app'] as String,
+      followus: (json['followus'] as List<dynamic>)
+          .map((e) => e == null
+              ? null
+              : FollowUsData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    )
+      ..stakingGuideCN = json['staking_guide_cn'] as String
+      ..termsAndContionsEN = json['terms_and_contions'] as String
+      ..privacyPolicyEN = json['privacy_policy'] as String
+      ..termsAndContionsZH = json['terms_and_contions_cn'] as String
+      ..privacyPolicyZH = json['privacy_policy_cn'] as String
+      ..stakingGuide = json['staking_guide'] as String;
 
 Map<String, dynamic> _$AboutUsDataToJson(AboutUsData instance) =>
     <String, dynamic>{
@@ -36,12 +35,10 @@ Map<String, dynamic> _$AboutUsDataToJson(AboutUsData instance) =>
       'followus': instance.followus,
     };
 
-FollowUsData _$FollowUsDataFromJson(Map<String, dynamic> json) {
-  return FollowUsData(
-    website: json['website'] as String,
-    name: json['name'] as String,
-  );
-}
+FollowUsData _$FollowUsDataFromJson(Map<String, dynamic> json) => FollowUsData(
+      website: json['website'] as String,
+      name: json['name'] as String,
+    );
 
 Map<String, dynamic> _$FollowUsDataToJson(FollowUsData instance) =>
     <String, dynamic>{

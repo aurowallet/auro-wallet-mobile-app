@@ -49,7 +49,8 @@ import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:auro_wallet/page/account/termPage.dart';
 import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 import 'package:auro_wallet/page/rootAlertPage.dart';
-import 'package:trust_fall/trust_fall.dart';
+import 'package:safe_device/safe_device.dart';
+
 
 
 
@@ -84,8 +85,8 @@ class _WalletAppState extends State<WalletApp> {
     bool isJailBroken = false;
     bool isRealDevice = true;
     try {
-      isJailBroken = await TrustFall.isJailBroken;
-      isRealDevice = await TrustFall.isRealDevice;
+      isJailBroken = await SafeDevice.isJailBroken;
+      isRealDevice = await SafeDevice.isRealDevice;
     } catch(e) {
       isJailBroken = true;
     }

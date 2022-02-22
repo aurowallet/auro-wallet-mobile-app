@@ -55,11 +55,13 @@ class _HomePageState extends State<HomePage> {
           color: tabColor,
           height: 20,
         ),
-        title: Text(
-          tabs[label]!,
-          style: theme.headline6!.copyWith(
-              color: tabColor,
-        )),
+        label: tabs[label]!
+        // todo 版本升级
+        // title: Text(
+        //   tabs[label]!,
+        //   style: theme.headline6!.copyWith(
+        //       color: tabColor,
+        // )),
       );
     }).toList();
   }
