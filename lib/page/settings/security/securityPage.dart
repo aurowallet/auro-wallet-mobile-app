@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -59,7 +60,7 @@ class _SecurityPageState extends State<SecurityPage> {
         dic['backTips_3']!,
       ],
     );
-    WalletData? wallet = (store.wallet!.walletList as List<WalletData?>).firstWhere((wallet) => wallet!.walletType == WalletStore.seedTypeMnemonic, orElse: ()=> null);
+    WalletData? wallet = store.wallet!.walletList.firstWhereOrNull((wallet) => wallet.walletType == WalletStore.seedTypeMnemonic);
     if (wallet == null) {
       return;
     }

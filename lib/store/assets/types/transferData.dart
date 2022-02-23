@@ -28,7 +28,7 @@ class TransferData extends _TransferData {
 abstract class _TransferData {
   bool? success = true;
   int? nonce = 0;
-  String paymentId = "";
+  String? paymentId = "";
   String hash = "";
   String type = "";
   String time = "";

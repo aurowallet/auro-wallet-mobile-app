@@ -455,9 +455,15 @@ $validUntil: String!,$scalar: String!, $field: String!) {
     return BiometricStorage().getStorage(
       '$_biometricPasswordKey',
       options:  StorageFileInitOptions(authenticationValidityDurationSeconds: 30),
-      androidPromptInfo: AndroidPromptInfo(
-        title: dic['unlock.bio']!,
-        negativeButton: dic['cancel']!,
+      promptInfo: PromptInfo(
+        androidPromptInfo: AndroidPromptInfo(
+          title: dic['unlock.bio']!,
+          negativeButton: dic['cancel']!,
+        ),
+        iosPromptInfo: IosPromptInfo(
+          saveTitle: dic['unlock.bio']!,
+          accessTitle: dic['unlock.bio']!,
+        )
       ),
     );
   }

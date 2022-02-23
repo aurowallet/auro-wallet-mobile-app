@@ -9,7 +9,7 @@ part of 'transferData.dart';
 TransferData _$TransferDataFromJson(Map<String, dynamic> json) => TransferData()
   ..success = json['success'] as bool?
   ..nonce = json['nonce'] as int?
-  ..paymentId = json['paymentId'] as String
+  ..paymentId = json['paymentId'] as String?
   ..hash = json['hash'] as String
   ..type = json['type'] as String
   ..time = json['time'] as String

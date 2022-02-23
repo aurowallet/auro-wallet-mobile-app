@@ -38,7 +38,7 @@ dependencies:
     sdk: flutter
   update_app: ^0.1.5
   device_info: ^0.4.2
-  biometric_storage: ^2.0.3
+  biometric_storage: ^4.0.1
   fluttertoast: ^8.0.3
   bip39: 1.0.6
   roundcheckbox: ^2.0.4+1

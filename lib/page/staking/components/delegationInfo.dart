@@ -9,12 +9,12 @@ import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:cupertino_icons/cupertino_icons.dart';
 import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:collection/collection.dart';
 
 class DelegationInfo extends StatelessWidget {
   DelegationInfo({required this.store, required this.loading});
@@ -56,7 +56,7 @@ class DelegateInfo extends StatelessWidget {
   }
   Widget _buildDelegateInfo(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
-    ValidatorData? validatorInfo = (store.staking!.validatorsInfo as List<ValidatorData?>).firstWhere((e)=>e!.address == delegate, orElse: ()=> null);
+    final ValidatorData? validatorInfo = store.staking!.validatorsInfo.firstWhereOrNull((e)=>e.address == delegate);
     if (validatorInfo == null) {
       return Container(
           constraints: BoxConstraints(

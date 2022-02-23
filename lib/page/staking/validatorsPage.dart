@@ -5,6 +5,7 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:mobx/mobx.dart';
+import 'package:collection/collection.dart';
 import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -87,7 +88,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
     if (selectedValidatorAddress.isEmpty) {
       return;
     }
-    ValidatorData? selectedValidator = (validatorsList as List<ValidatorData?>).firstWhere((validator) => validator!.address == selectedValidatorAddress, orElse: ()=> null);
+    ValidatorData? selectedValidator = validatorsList.firstWhereOrNull((validator) => validator.address == selectedValidatorAddress);
     if (selectedValidator != null) {
       Navigator.pushNamed(context, DelegatePage.route, arguments: DelegateParams(validatorData: selectedValidator, manualAddValidator: false));
     }
