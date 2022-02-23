@@ -77,6 +77,8 @@ class LocaleItem extends StatelessWidget {
         leading: null,
         title: Text(text, style: TextStyle(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
         trailing: RoundCheckBox(
+          size: 30,
+          borderColor: ColorsUtil.hexColor(0xcccccc),
           isChecked: checked,
           uncheckedColor: Colors.white,
           checkedColor: ColorsUtil.hexColor(0x59c49c),

@@ -42,7 +42,6 @@ class _HomePageState extends State<HomePage> {
 
   List<BottomNavigationBarItem> _navBarItems(int activeItem) {
     Map<String, String> tabs = I18n.of(context).main;
-    var theme = Theme.of(context).textTheme;
     return _tabList.asMap().keys.map((index) {
       String icon = 'assets/images/public/${_tabIcons[index]}.svg';
       String label = _tabList[index];
@@ -56,12 +55,6 @@ class _HomePageState extends State<HomePage> {
           height: 20,
         ),
         label: tabs[label]!
-        // todo 版本升级
-        // title: Text(
-        //   tabs[label]!,
-        //   style: theme.headline6!.copyWith(
-        //       color: tabColor,
-        // )),
       );
     }).toList();
   }
@@ -131,6 +124,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context).textTheme;
     return Scaffold(
       body: _buildPage(_tabIndex),
       bottomNavigationBar: BottomNavigationBar(
@@ -141,6 +135,10 @@ class _HomePageState extends State<HomePage> {
             _tabIndex = index;
           });
         },
+        unselectedLabelStyle: theme.headline6!,
+        selectedLabelStyle: theme.headline5!,
+        selectedItemColor: Theme.of(context).primaryColor,
+        unselectedItemColor: ColorsUtil.hexColor(0x898DA2),
         type: BottomNavigationBarType.fixed,
         items: _navBarItems(_tabIndex),
       ),

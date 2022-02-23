@@ -337,6 +337,8 @@ class NodeItem extends StatelessWidget {
             ],
           ),
           trailing: RoundCheckBox(
+            size: 30,
+            borderColor: ColorsUtil.hexColor(0xcccccc),
             isChecked: checked,
             uncheckedColor: Colors.white,
             checkedColor: ColorsUtil.hexColor(0x59c49c),

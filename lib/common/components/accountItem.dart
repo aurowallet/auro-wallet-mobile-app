@@ -123,6 +123,8 @@ class WalletItem extends StatelessWidget {
                       children: [
                         isObserve && !isChecked ? IconButton(icon: Icon(Icons.info, color: Colors.red, size: 30,), onPressed: _viewAccountInfo)
                             : RoundCheckBox(
+                          size: 30,
+                          borderColor: ColorsUtil.hexColor(0xcccccc),
                           isChecked: isChecked,
                           uncheckedColor: Colors.white,
                           checkedColor: ColorsUtil.hexColor(0x59c49c),
