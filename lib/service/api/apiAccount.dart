@@ -350,7 +350,8 @@ $validUntil: String!,$scalar: String!, $field: String!) {
   }
 
   bool isMnemonicValid(String mnemonic) {
-    if(mnemonic.trim().split(' ').length < 12) {
+    final words = mnemonic.trim().split(RegExp(r"(\s)"));
+    if(words.length < 12) {
       return false;
     }
     return bip39.validateMnemonic(mnemonic);
