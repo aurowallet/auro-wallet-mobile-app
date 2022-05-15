@@ -32,6 +32,18 @@ pub extern "C" fn wire_hi(port_: i64, name: *mut wire_uint_8_list) {
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_sign(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "sign",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| Ok(sign()),
+    )
+}
+
 // Section: wire structs
 
 #[repr(C)]

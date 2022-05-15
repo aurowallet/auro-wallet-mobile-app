@@ -33,6 +33,7 @@ import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
+import 'package:auro_wallet/walletSdk/rustSDK.dart';
 
 class Assets extends StatefulWidget {
   Assets(this.store);

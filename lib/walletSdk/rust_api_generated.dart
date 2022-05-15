@@ -13,6 +13,8 @@ import 'dart:ffi' as ffi;
 
 abstract class RustSigner {
   Future<String> hi({required String name, dynamic hint});
+
+  Future<String> sign({dynamic hint});
 }
 
 class RustSignerImpl extends FlutterRustBridgeBase<RustSignerWire>
@@ -31,6 +33,17 @@ class RustSignerImpl extends FlutterRustBridgeBase<RustSignerWire>
           argNames: ["name"],
         ),
         argValues: [name],
+        hint: hint,
+      ));
+
+  Future<String> sign({dynamic hint}) => executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_sign(port_),
+        parseSuccessData: _wire2api_String,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "sign",
+          argNames: [],
+        ),
+        argValues: [],
         hint: hint,
       ));
 
@@ -104,6 +117,18 @@ class RustSignerWire implements FlutterRustBridgeWireBase {
               ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_hi');
   late final _wire_hi = _wire_hiPtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_sign(
+    int port_,
+  ) {
+    return _wire_sign(
+      port_,
+    );
+  }
+
+  late final _wire_signPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_sign');
+  late final _wire_sign = _wire_signPtr.asFunction<void Function(int)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list(
     int len,

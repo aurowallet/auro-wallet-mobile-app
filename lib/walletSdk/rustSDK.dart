@@ -12,5 +12,10 @@ late final api = RustSignerImpl(dylib);
 
 Future<void> callHi(String name) async {
   final words = await api.hi(name: name);
-  print(words as String);
+  print(words);
+}
+
+Future<void> callSign() async {
+  final sig = await api.sign();
+  print(sig);
 }
