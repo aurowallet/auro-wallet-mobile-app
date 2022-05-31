@@ -166,11 +166,11 @@ bool sign_transaction(char *out_field, char *out_scalar,
   }
   uint64_t tmp[4];
   memset(tmp, 0, sizeof(tmp));
-  fiat_pasta_fp_from_montgomery(tmp, sig.rx);
-  bigint_to_string(out_field, tmp);
+  //fiat_pasta_fp_from_montgomery(tmp, sig.rx);
+  bigint_to_string(out_field, sig.rx);
   memset(tmp, 0, sizeof(tmp));
-  fiat_pasta_fq_from_montgomery(tmp, sig.s);
-  bigint_to_string(out_scalar, tmp);
+  //fiat_pasta_fq_from_montgomery(tmp, sig.s);
+  bigint_to_string(out_scalar, sig.s);
 
   return true;
 }

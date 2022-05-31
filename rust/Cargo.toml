@@ -12,5 +12,7 @@ crate-type = ["lib", "staticlib", "cdylib"]
 flutter_rust_bridge = "1"
 array-init = "2.0.0"
 rand = "0.8.0"
+num-bigint = "0.4.3"
 mina-signer = { git = "https://github.com/o1-labs/proof-systems", branch="master" }
 mina-hasher = { git = "https://github.com/o1-labs/proof-systems", branch="master" }
+o1-utils = { git = "https://github.com/o1-labs/proof-systems", branch="master" }

@@ -12,9 +12,39 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
 import 'dart:ffi' as ffi;
 
 abstract class RustSigner {
-  Future<String> hi({required String name, dynamic hint});
+  Future<String> getAddressFromSecretHex(
+      {required String secretHex, dynamic hint});
 
-  Future<String> sign({dynamic hint});
+  Future<SignatureData> signPayment(
+      {required String secretHex,
+      required String to,
+      required int amount,
+      required int fee,
+      required int nonce,
+      required int validUntil,
+      required String memo,
+      required int networkId,
+      dynamic hint});
+
+  Future<SignatureData> signDelegation(
+      {required String secretHex,
+      required String to,
+      required int fee,
+      required int nonce,
+      required int validUntil,
+      required String memo,
+      required int networkId,
+      dynamic hint});
+}
+
+class SignatureData {
+  final String field;
+  final String scalar;
+
+  SignatureData({
+    required this.field,
+    required this.scalar,
+  });
 }
 
 class RustSignerImpl extends FlutterRustBridgeBase<RustSignerWire>
@@ -24,32 +54,115 @@ class RustSignerImpl extends FlutterRustBridgeBase<RustSignerWire>
 
   RustSignerImpl.raw(RustSignerWire inner) : super(inner);
 
-  Future<String> hi({required String name, dynamic hint}) =>
+  Future<String> getAddressFromSecretHex(
+          {required String secretHex, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_hi(port_, _api2wire_String(name)),
+        callFfi: (port_) => inner.wire_getAddressFromSecretHex(
+            port_, _api2wire_String(secretHex)),
         parseSuccessData: _wire2api_String,
         constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "hi",
-          argNames: ["name"],
+          debugName: "getAddressFromSecretHex",
+          argNames: ["secretHex"],
         ),
-        argValues: [name],
+        argValues: [secretHex],
         hint: hint,
       ));
 
-  Future<String> sign({dynamic hint}) => executeNormal(FlutterRustBridgeTask(
-        callFfi: (port_) => inner.wire_sign(port_),
-        parseSuccessData: _wire2api_String,
+  Future<SignatureData> signPayment(
+          {required String secretHex,
+          required String to,
+          required int amount,
+          required int fee,
+          required int nonce,
+          required int validUntil,
+          required String memo,
+          required int networkId,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_signPayment(
+            port_,
+            _api2wire_String(secretHex),
+            _api2wire_String(to),
+            _api2wire_u64(amount),
+            _api2wire_u64(fee),
+            _api2wire_u32(nonce),
+            _api2wire_u32(validUntil),
+            _api2wire_String(memo),
+            _api2wire_u8(networkId)),
+        parseSuccessData: _wire2api_signature_data,
         constMeta: const FlutterRustBridgeTaskConstMeta(
-          debugName: "sign",
-          argNames: [],
+          debugName: "signPayment",
+          argNames: [
+            "secretHex",
+            "to",
+            "amount",
+            "fee",
+            "nonce",
+            "validUntil",
+            "memo",
+            "networkId"
+          ],
         ),
-        argValues: [],
+        argValues: [
+          secretHex,
+          to,
+          amount,
+          fee,
+          nonce,
+          validUntil,
+          memo,
+          networkId
+        ],
+        hint: hint,
+      ));
+
+  Future<SignatureData> signDelegation(
+          {required String secretHex,
+          required String to,
+          required int fee,
+          required int nonce,
+          required int validUntil,
+          required String memo,
+          required int networkId,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_signDelegation(
+            port_,
+            _api2wire_String(secretHex),
+            _api2wire_String(to),
+            _api2wire_u64(fee),
+            _api2wire_u32(nonce),
+            _api2wire_u32(validUntil),
+            _api2wire_String(memo),
+            _api2wire_u8(networkId)),
+        parseSuccessData: _wire2api_signature_data,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "signDelegation",
+          argNames: [
+            "secretHex",
+            "to",
+            "fee",
+            "nonce",
+            "validUntil",
+            "memo",
+            "networkId"
+          ],
+        ),
+        argValues: [secretHex, to, fee, nonce, validUntil, memo, networkId],
         hint: hint,
       ));
 
   // Section: api2wire
   ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
     return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  int _api2wire_u32(int raw) {
+    return raw;
+  }
+
+  int _api2wire_u64(int raw) {
+    return raw;
   }
 
   int _api2wire_u8(int raw) {
@@ -69,6 +182,16 @@ class RustSignerImpl extends FlutterRustBridgeBase<RustSignerWire>
 // Section: wire2api
 String _wire2api_String(dynamic raw) {
   return raw as String;
+}
+
+SignatureData _wire2api_signature_data(dynamic raw) {
+  final arr = raw as List<dynamic>;
+  if (arr.length != 2)
+    throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+  return SignatureData(
+    field: _wire2api_String(arr[0]),
+    scalar: _wire2api_String(arr[1]),
+  );
 }
 
 int _wire2api_u8(dynamic raw) {
@@ -101,34 +224,114 @@ class RustSignerWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
-  void wire_hi(
+  void wire_getAddressFromSecretHex(
     int port_,
-    ffi.Pointer<wire_uint_8_list> name,
+    ffi.Pointer<wire_uint_8_list> secret_hex,
   ) {
-    return _wire_hi(
+    return _wire_getAddressFromSecretHex(
       port_,
-      name,
+      secret_hex,
     );
   }
 
-  late final _wire_hiPtr = _lookup<
+  late final _wire_getAddressFromSecretHexPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_hi');
-  late final _wire_hi = _wire_hiPtr
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_getAddressFromSecretHex');
+  late final _wire_getAddressFromSecretHex = _wire_getAddressFromSecretHexPtr
       .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
-  void wire_sign(
+  void wire_signPayment(
     int port_,
+    ffi.Pointer<wire_uint_8_list> secret_hex,
+    ffi.Pointer<wire_uint_8_list> to,
+    int amount,
+    int fee,
+    int nonce,
+    int valid_until,
+    ffi.Pointer<wire_uint_8_list> memo,
+    int network_id,
   ) {
-    return _wire_sign(
+    return _wire_signPayment(
       port_,
+      secret_hex,
+      to,
+      amount,
+      fee,
+      nonce,
+      valid_until,
+      memo,
+      network_id,
     );
   }
 
-  late final _wire_signPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_sign');
-  late final _wire_sign = _wire_signPtr.asFunction<void Function(int)>();
+  late final _wire_signPaymentPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Uint64,
+              ffi.Uint64,
+              ffi.Uint32,
+              ffi.Uint32,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Uint8)>>('wire_signPayment');
+  late final _wire_signPayment = _wire_signPaymentPtr.asFunction<
+      void Function(
+          int,
+          ffi.Pointer<wire_uint_8_list>,
+          ffi.Pointer<wire_uint_8_list>,
+          int,
+          int,
+          int,
+          int,
+          ffi.Pointer<wire_uint_8_list>,
+          int)>();
+
+  void wire_signDelegation(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> secret_hex,
+    ffi.Pointer<wire_uint_8_list> to,
+    int fee,
+    int nonce,
+    int valid_until,
+    ffi.Pointer<wire_uint_8_list> memo,
+    int network_id,
+  ) {
+    return _wire_signDelegation(
+      port_,
+      secret_hex,
+      to,
+      fee,
+      nonce,
+      valid_until,
+      memo,
+      network_id,
+    );
+  }
+
+  late final _wire_signDelegationPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Uint64,
+              ffi.Uint32,
+              ffi.Uint32,
+              ffi.Pointer<wire_uint_8_list>,
+              ffi.Uint8)>>('wire_signDelegation');
+  late final _wire_signDelegation = _wire_signDelegationPtr.asFunction<
+      void Function(
+          int,
+          ffi.Pointer<wire_uint_8_list>,
+          ffi.Pointer<wire_uint_8_list>,
+          int,
+          int,
+          int,
+          ffi.Pointer<wire_uint_8_list>,
+          int)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list(
     int len,

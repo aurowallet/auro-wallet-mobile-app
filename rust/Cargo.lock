@@ -720,6 +720,8 @@ dependencies = [
  "flutter_rust_bridge",
  "mina-hasher",
  "mina-signer",
+ "num-bigint",
+ "o1-utils",
  "rand",
 ]
 

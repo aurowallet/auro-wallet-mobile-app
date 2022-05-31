@@ -18,29 +18,100 @@ use flutter_rust_bridge::*;
 // Section: wire functions
 
 #[no_mangle]
-pub extern "C" fn wire_hi(port_: i64, name: *mut wire_uint_8_list) {
+pub extern "C" fn wire_getAddressFromSecretHex(port_: i64, secret_hex: *mut wire_uint_8_list) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "hi",
+            debug_name: "getAddressFromSecretHex",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
         move || {
-            let api_name = name.wire2api();
-            move |task_callback| Ok(hi(api_name))
+            let api_secret_hex = secret_hex.wire2api();
+            move |task_callback| Ok(getAddressFromSecretHex(api_secret_hex))
         },
     )
 }
 
 #[no_mangle]
-pub extern "C" fn wire_sign(port_: i64) {
+pub extern "C" fn wire_signPayment(
+    port_: i64,
+    secret_hex: *mut wire_uint_8_list,
+    to: *mut wire_uint_8_list,
+    amount: u64,
+    fee: u64,
+    nonce: u32,
+    valid_until: u32,
+    memo: *mut wire_uint_8_list,
+    network_id: u8,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
-            debug_name: "sign",
+            debug_name: "signPayment",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| Ok(sign()),
+        move || {
+            let api_secret_hex = secret_hex.wire2api();
+            let api_to = to.wire2api();
+            let api_amount = amount.wire2api();
+            let api_fee = fee.wire2api();
+            let api_nonce = nonce.wire2api();
+            let api_valid_until = valid_until.wire2api();
+            let api_memo = memo.wire2api();
+            let api_network_id = network_id.wire2api();
+            move |task_callback| {
+                Ok(signPayment(
+                    api_secret_hex,
+                    api_to,
+                    api_amount,
+                    api_fee,
+                    api_nonce,
+                    api_valid_until,
+                    api_memo,
+                    api_network_id,
+                ))
+            }
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_signDelegation(
+    port_: i64,
+    secret_hex: *mut wire_uint_8_list,
+    to: *mut wire_uint_8_list,
+    fee: u64,
+    nonce: u32,
+    valid_until: u32,
+    memo: *mut wire_uint_8_list,
+    network_id: u8,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "signDelegation",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_secret_hex = secret_hex.wire2api();
+            let api_to = to.wire2api();
+            let api_fee = fee.wire2api();
+            let api_nonce = nonce.wire2api();
+            let api_valid_until = valid_until.wire2api();
+            let api_memo = memo.wire2api();
+            let api_network_id = network_id.wire2api();
+            move |task_callback| {
+                Ok(signDelegation(
+                    api_secret_hex,
+                    api_to,
+                    api_fee,
+                    api_nonce,
+                    api_valid_until,
+                    api_memo,
+                    api_network_id,
+                ))
+            }
+        },
     )
 }
 
@@ -94,6 +165,18 @@ impl Wire2Api<String> for *mut wire_uint_8_list {
     }
 }
 
+impl Wire2Api<u32> for u32 {
+    fn wire2api(self) -> u32 {
+        self
+    }
+}
+
+impl Wire2Api<u64> for u64 {
+    fn wire2api(self) -> u64 {
+        self
+    }
+}
+
 impl Wire2Api<u8> for u8 {
     fn wire2api(self) -> u8 {
         self
@@ -122,6 +205,13 @@ impl<T> NewWithNullPtr for *mut T {
 }
 
 // Section: impl IntoDart
+
+impl support::IntoDart for SignatureData {
+    fn into_dart(self) -> support::DartCObject {
+        vec![self.field.into_dart(), self.scalar.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for SignatureData {}
 
 // Section: executor
 
