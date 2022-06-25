@@ -100,7 +100,7 @@ class FeeItem extends StatelessWidget {
     return GestureDetector(
       onTap: _onClick,
       child:  Stack(
-        overflow:Overflow.visible,
+        clipBehavior: Clip.none,
         children: [
           Container(
             width: 86,

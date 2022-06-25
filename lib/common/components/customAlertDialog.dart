@@ -71,10 +71,10 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                       children: [
                         ConstrainedBox(
                           constraints: BoxConstraints(minWidth: 140, minHeight: 40),
-                          child: FlatButton(
-                            color: Theme.of(context).primaryColor,
-                            shape: new RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
+                          child: TextButton(
+                            // color: Theme.of(context).primaryColor,
+                            // shape: new RoundedRectangleBorder(
+                            //     borderRadius: BorderRadius.circular(20)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

@@ -16,6 +16,8 @@ version: 1.0.9+1063
 environment:
   sdk: ">=2.16.0 <3.0.0"
 
+publish_to: none
+
 dependencies:
   # intl - format numbers
   intl: ^0.17.0

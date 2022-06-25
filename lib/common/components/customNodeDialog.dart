@@ -103,11 +103,11 @@ class _CustomNodeDialogState extends State<CustomNodeDialog> {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               ConstrainedBox(
                 constraints: BoxConstraints(minWidth: 130, minHeight: 40),
-                child: OutlineButton(
-                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                  highlightedBorderColor: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
+                child: OutlinedButton(
+                  // borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                  // highlightedBorderColor: Theme.of(context).primaryColor,
+                  // shape: RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.circular(20)),
                   child: Text(dic['cancel']!,
                       style: TextStyle(
                           color: Theme.of(context).primaryColor, fontSize: 16)),
@@ -119,12 +119,12 @@ class _CustomNodeDialogState extends State<CustomNodeDialog> {
                   },
                 ),
               ),
-              FlatButton(
-                height: 40,
-                minWidth: 130,
-                color: Theme.of(context).primaryColor,
-                shape: new RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
+              TextButton(
+                // height: 40,
+                // minWidth: 130,
+                // color: Theme.of(context).primaryColor,
+                // shape: new RoundedRectangleBorder(
+                //     borderRadius: BorderRadius.circular(20)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -132,8 +132,8 @@ class _CustomNodeDialogState extends State<CustomNodeDialog> {
                         style: TextStyle(color: Colors.white, fontSize: 16))
                   ],
                 ),
-                disabledColor: Colors.black12,
-                disabledTextColor: Colors.blueGrey,
+                // disabledColor: Colors.black12,
+                // disabledTextColor: Colors.blueGrey,
                 onPressed: _submitDisabled
                     ? null
                     : () {

@@ -88,21 +88,21 @@ class _TermsDialogState extends State<TermsDialog> {
                             minWidth: 130,
                             minHeight: 40
                         ),
-                        child: OutlineButton(
-                          borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                          highlightedBorderColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        child: OutlinedButton(
+                          // borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                          // highlightedBorderColor: Theme.of(context).primaryColor,
+                          // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           child: Text(dic['refuse']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16)),
                           onPressed: () {
                             Navigator.of(context).pop(false);
                           },
                         ),
                       ),
-                      FlatButton(
-                        height: 40,
-                        minWidth: 130,
-                        color: Theme.of(context).primaryColor,
-                        shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      TextButton(
+                        // height: 40,
+                        // minWidth: 130,
+                        // color: Theme.of(context).primaryColor,
+                        // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

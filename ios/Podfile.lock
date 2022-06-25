@@ -130,7 +130,7 @@ SPEC CHECKSUMS:
   connectivity_plus: 5f0eb61093bec56935f21a1699dd2758bc895587
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
-  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
@@ -152,6 +152,6 @@ SPEC CHECKSUMS:
   webcrypto: ac37b97f415c7114abb8af22d58048b5cbcb23d3
   webview_flutter_wkwebview: 005fbd90c888a42c5690919a1527ecc6649e1162
 
-PODFILE CHECKSUM: 9b3a3d60aca669b9e32c9b3eb8b5ca4199ed6018
+PODFILE CHECKSUM: 000e34589240e75bda94fee3f855b0fcf15db8ed
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.10.0

@@ -88,10 +88,10 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                             minWidth: 130,
                             minHeight: 40
                         ),
-                        child: OutlineButton(
-                          borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                          highlightedBorderColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        child: OutlinedButton(
+                          // borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                          // highlightedBorderColor: Theme.of(context).primaryColor,
+                          // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           child: Text(dic['cancel']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16)),
                           onPressed: () {
                             if (widget.onCancel != null) {
@@ -101,13 +101,13 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                           },
                         ),
                       ),
-                      FlatButton(
-                        height: 40,
-                        minWidth: 130,
-                        color: Theme.of(context).primaryColor,
-                        shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        disabledColor: Colors.black12,
-                        disabledTextColor: Colors.blueGrey,
+                      TextButton(
+                        // height: 40,
+                        // minWidth: 130,
+                        // color: Theme.of(context).primaryColor,
+                        // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        // disabledColor: Colors.black12,
+                        // disabledTextColor: Colors.blueGrey,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

@@ -147,9 +147,9 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                   SizedBox(
                     width: 130,
                     height: 40,
-                    child: OutlineButton(
-                      borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    child: OutlinedButton(
+                      // borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: Text(dic['cancel']!, style: TextStyle(color: Theme.of(context).primaryColor)),
                       onPressed: () {
                         Navigator.of(context).pop();
@@ -159,9 +159,9 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                   SizedBox(
                       width: 130,
                       height: 40,
-                      child: FlatButton(
-                        color: Theme.of(context).primaryColor,
-                        shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: TextButton(
+                        // color: Theme.of(context).primaryColor,
+                        // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

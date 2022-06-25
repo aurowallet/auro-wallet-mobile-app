@@ -36,8 +36,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       context: context,
       builder: (_) {
         return CustomNodeDialog(
-            name: isEdit ? originEndpoint!.name : '',
-            url: isEdit ? originEndpoint!.url : '',
+            name: isEdit ? originEndpoint.name : '',
+            url: isEdit ? originEndpoint.url : '',
             onOk:(String? name, String? url) {
               if (name == null || name.isEmpty
                   || url == null || url.isEmpty
@@ -70,7 +70,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         || GRAPH_QL_MAINNET_NODE_URL == endpoint.url
         || GRAPH_QL_TESTNET_NODE_URL == endpoint.url
     ) {
-      if (!(isEdit && endpoint.url == originEndpoint!.url)) {
+      if (!(isEdit && endpoint.url == originEndpoint.url)) {
         UI.toast(i18n['urlError_3']!);
         return;
       }
@@ -95,7 +95,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     }
     endpoint.networksType = targetNetworks.first.type;
     if (isEdit) {
-      widget.store.updateCustomNode(endpoint, originEndpoint!);
+      widget.store.updateCustomNode(endpoint, originEndpoint);
       if (widget.store.endpoint == originEndpoint.url) {
         if (originEndpoint.url != endpoint.url
             || originEndpoint.chainId != endpoint.chainId

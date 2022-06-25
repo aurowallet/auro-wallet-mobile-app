@@ -40,11 +40,11 @@ class NormalButton extends StatelessWidget {
       style: Theme.of(context).textTheme.button,
     ));
     Color normalColor = color ?? Theme.of(context).primaryColor;
-    return RaisedButton(
-      padding: padding,
-      color: normalColor,
-      disabledColor: normalColor.withOpacity(0.5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+    return ElevatedButton(
+      // padding: padding,
+      // color: normalColor,
+      // disabledColor: normalColor.withOpacity(0.5),
+      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
       // highlightColor: ColorsUtil.darken(normalColor, 0.05),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

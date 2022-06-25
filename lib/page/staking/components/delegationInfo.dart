@@ -144,13 +144,16 @@ class DelegateInfo extends StatelessWidget {
         Positioned(
           right: 0,
           top: 0,
-          child: FlatButton(
-            height: 30,
-            minWidth: 70,
-            color: Theme.of(context).primaryColor,
-            shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: TextButton(
+            // style:TextButton.styleFrom(
+            //   textStyle: theme.headline5!.copyWith(color: Colors.white),
+            // ),
+            // height: 30,
+            // minWidth: 70,
+            // color: Theme.of(context).primaryColor,
+            // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Text(i18n['changeNode']!, style: theme.headline5!.copyWith(color: Colors.white)),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             onPressed: (){
               _onChangeNode(context);
             },
