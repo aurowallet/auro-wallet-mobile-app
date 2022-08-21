@@ -5,6 +5,7 @@ class FormPanel extends StatelessWidget {
   FormPanel({
     this.border,
     this.margin,
+    this.color,
     this.padding = const EdgeInsets.all(20),
     this.child
   });
@@ -12,6 +13,7 @@ class FormPanel extends StatelessWidget {
   final BoxBorder? border;
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
+  final Color? color;
   final Widget? child;
 
   @override
@@ -22,8 +24,8 @@ class FormPanel extends StatelessWidget {
       child: this.child,
       decoration: BoxDecoration(
         border: border,
-        borderRadius: const BorderRadius.all(const Radius.circular(10)),
-        color: Theme.of(context).cardColor,
+        borderRadius: const BorderRadius.all(const Radius.circular(12)),
+        color: color ?? Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
             color: ColorsUtil.hexColor(0x252275, alpha: 0.08),

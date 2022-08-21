@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/staking/components/delegationInfo.dart';
 import 'package:auro_wallet/page/staking/components/stakingOverview.dart';
@@ -8,6 +9,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 
@@ -64,22 +66,24 @@ class _StakingState extends State<Staking> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(i18n['staking']!, style: TextStyle(color: Colors.white, fontSize: 20),),
-        centerTitle: true,
-        elevation: 0.0,
-        backgroundColor: primaryColor,
+        leading: null,
+        title: null,
+        toolbarHeight: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       body: SafeArea(
         child: RefreshIndicator(
         key: globalStakingRefreshKey,
         onRefresh: _fetchData,
-            child:ListView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StakingOverview(store: store,),
-                DelegationInfo(store: store, loading: loading),
-                !loading && !isDelegated ? Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: GestureDetector(
+                TabPageTitle(title: i18n['staking']!),
+                Expanded(child: ListView(
+                  children: [
+                    StakingOverview(store: store,),
+                    DelegationInfo(store: store, loading: loading),
+                    !loading && !isDelegated ? GestureDetector(
                         onTap: _onPress,
                         behavior: HitTestBehavior.opaque,
                         child: Container(
@@ -99,8 +103,9 @@ class _StakingState extends State<Staking> {
                               ],
                             )
                         )
-                    )
-                ) : Container()
+                    ) : Container()
+                  ],
+                ))
               ],
             )
         ),

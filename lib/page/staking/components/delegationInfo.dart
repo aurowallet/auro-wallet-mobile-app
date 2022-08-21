@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -13,6 +14,7 @@ import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:collection/collection.dart';
 
@@ -27,19 +29,38 @@ class DelegationInfo extends StatelessWidget {
     bool isDelegated = acc != null ? acc.isDelegated : false;
     String? delegate = isDelegated ? acc.delegate : null;
     var theme = Theme.of(context).textTheme;
+    var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
+    var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
+
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 28, right: 28),
+      margin: EdgeInsets.only(top: 30, left: 20, right: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            i18n['delegationInfo']!,
-            textAlign: TextAlign.left,
-            style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x020028), fontWeight: FontWeight.w600),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  SvgPicture.asset( 'assets/images/stake/icon_delegation.svg', width: 16, color: Colors.black,),
+                  Container(
+                    width: 8,
+                  ),
+                  Text(i18n['delegationInfo']!, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600), )
+                ],
+              ),
+              BrowserLink(url, text: i18n['emptyDelegateDesc3']!, showIcon: false,)
+            ],
           ),
-          FormPanel(
-            margin: EdgeInsets.only(top: 14),
-            child: loading ? LoadingBox() : (!isDelegated ? EmptyInfo(store: store) : DelegateInfo(delegate: delegate!, store: store))
+          Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                  color: Color(0xFFF9FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)
+              ),
+              margin: EdgeInsets.only(top: 10),
+              child: loading ? LoadingBox() : (!isDelegated ? EmptyInfo(store: store) : DelegateInfo(delegate: delegate!, store: store))
           ),
         ],
       )
@@ -69,6 +90,7 @@ class DelegateInfo extends StatelessWidget {
                     DelegateInfoItem(
                       labelText: i18n['blockProducerAddress']!,
                       value: Fmt.address(delegate, pad: 8),
+                      noBottom: false,
                     )
                   ]
               ),
@@ -122,7 +144,8 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                         labelText: i18n['blocksProduced']!,
-                        value: validatorInfo.blocksCreated.toString()
+                        value: validatorInfo.blocksCreated.toString(),
+                      noBottom: true,
                     )
                   ]
               ),
@@ -135,44 +158,40 @@ class DelegateInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
-    var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
-    var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
 
     return Stack(
       children: [
         _buildDelegateInfo(context),
         Positioned(
           right: 0,
-          top: 0,
-          child: TextButton(
-            // style:TextButton.styleFrom(
-            //   textStyle: theme.headline5!.copyWith(color: Colors.white),
-            // ),
-            // height: 30,
-            // minWidth: 70,
-            // color: Theme.of(context).primaryColor,
-            // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Text(i18n['changeNode']!, style: theme.headline5!.copyWith(color: Colors.white)),
-            // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          bottom: 0,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                primary: Color(0xFF594AF1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                minimumSize: Size(60, 32),
+                elevation: 0,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap
+            ),
+            child: Text(i18n['changeNode']!, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),),
             onPressed: (){
               _onChangeNode(context);
             },
           )
         ),
-        Positioned(
-          right: 0,
-            bottom: 0,
-            child: BrowserLink(url, text: i18n['emptyDelegateDesc3']!,)
-        )
       ],
     );
   }
 }
 class DelegateInfoItem extends StatelessWidget {
-  DelegateInfoItem({required this.labelText,required this.value, this.copyValue});
+  DelegateInfoItem({required this.labelText,required this.value, this.copyValue, this.noBottom = false});
   final String labelText;
   final String value;
   final String? copyValue;
+  final bool noBottom;
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
@@ -182,15 +201,15 @@ class DelegateInfoItem extends StatelessWidget {
           Text(
             labelText,
             textAlign: TextAlign.left,
-            style: theme.headline6!.copyWith(color: ColorsUtil.hexColor(0x96969a), height: 1.5, fontWeight: FontWeight.w400),
+            style: TextStyle(fontSize: 12, color: Colors.black.withOpacity(0.5), height: 1.42, fontWeight: FontWeight.w500),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 2, bottom: 8),
+            padding: EdgeInsets.only(top: 0, bottom: noBottom ? 0 : 10),
             child: CopyContainer(
               child: Text(
                 value,
                 textAlign: TextAlign.left,
-                style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x000000), height: 1.2, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 18, color: Colors.black, height: 1.16, fontWeight: FontWeight.w500),
               ),
               text: copyValue,
               showIcon: true,

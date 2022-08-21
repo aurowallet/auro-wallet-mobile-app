@@ -6,6 +6,7 @@ import 'package:auro_wallet/store/staking/staking.dart';
 import 'package:auro_wallet/store/staking/types/overviewData.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class StakingOverview extends StatelessWidget {
@@ -30,16 +31,30 @@ class StakingOverview extends StatelessWidget {
     OverviewData data = store.staking!.overviewData;
     List<String> time = _getTime();
     var theme = Theme.of(context).textTheme;
-    TextStyle labelStyle = theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x333333));
-    TextStyle valueStyle = theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x737be4), fontWeight: FontWeight.bold, );
+    TextStyle labelStyle = TextStyle(fontSize: 12, color: Colors.black.withOpacity(0.5), fontWeight: FontWeight.w500);
+    TextStyle valueStyle = TextStyle(fontSize: 18, color: Theme.of(context).primaryColor, fontWeight: FontWeight.w500, );
     return Container(
-        margin: EdgeInsets.only(top: 10, left: 28, right: 28),
+        margin: EdgeInsets.only(top: 10, left: 20, right: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(i18n['epochInfo']!, style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x020028), fontWeight: FontWeight.w600), ),
+            Row(
+              children: [
+                SvgPicture.asset( 'assets/images/stake/icon_epoch.svg', width: 16, color: Colors.black,),
+                Container(
+                  width: 8,
+                ),
+                Text(i18n['epochInfo']!, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600), )
+              ],
+            ),
             Container(
-              padding: EdgeInsets.only(left: 20, right: 20, top: 29, bottom: 20),
+              padding: EdgeInsets.all(20),
+              margin: EdgeInsets.only(top: 10),
+              decoration: BoxDecoration(
+                color: Color(0xFFF9FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -47,34 +62,25 @@ class StakingOverview extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 60,
-                            child: Text(
-                              'Epoch',
-                              style: labelStyle,
-                            ),
-                          ),
-                          Text(data.epoch.toString(), style: valueStyle,),
-                        ],
+                      Text(
+                        'Epoch',
+                        style: labelStyle,
                       ),
-                      Padding(padding: EdgeInsets.only(top: 14)),
+                      Text(data.epoch.toString(), style: valueStyle,),
+                      Padding(padding: EdgeInsets.only(top: 10)),
+                      Container(
+                        width: 60,
+                        child: Text('Slot', style: labelStyle,),
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 60,
-                            child: Text('Slot', style: labelStyle,),
-                          ),
                           Text(data.slot.toString(), style: valueStyle),
                           Text(' / ${data.slotsPerEpoch.toString()}', style: valueStyle.copyWith(color: ColorsUtil.hexColor(0xb1b3be))),
                         ],
                       ),
-                      Padding(padding: EdgeInsets.only(top: 14)),
+                      Padding(padding: EdgeInsets.only(top: 10)),
                       Text(i18n['epochEndTime']!, style: labelStyle,),
-                      Padding(padding: EdgeInsets.only(top: 14)),
                       Row(
                         children: [
                           TimeInfo(time: time[0] + 'd'),
@@ -103,13 +109,6 @@ class TimeInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     return Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-              color: ColorsUtil.hexColor(0x979797),
-              width: 1
-          ),
-          borderRadius: BorderRadius.circular(4),
-        ),
         constraints: BoxConstraints(
           minWidth: 40,
         ),
@@ -117,7 +116,10 @@ class TimeInfo extends StatelessWidget {
         child: Text(
             time,
             textAlign: TextAlign.center,
-            style: theme.headline6
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500
+            )
         )
     );
   }
@@ -135,13 +137,21 @@ class PercentageCircle extends StatelessWidget {
         lineWidth: 10.0,
         percent: percentage,
         circularStrokeCap: CircularStrokeCap.round,
-        center: new Text((percentage * 100).toStringAsFixed(0) + '%', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x1e1f20), fontWeight: FontWeight.bold)),
+        center: Row(
+          textBaseline: TextBaseline.alphabetic,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text((percentage * 100).toStringAsFixed(0), style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.normal, height: 1)),
+            Text('%', style: TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.normal, height: 1)),
+          ],
+        ),
         backgroundColor: Colors.grey,
         maskFilter: MaskFilter.blur(BlurStyle.solid, 3),
         linearGradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [ColorsUtil.hexColor(0x9B4EDE), ColorsUtil.hexColor(0x737BE4)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFFF7870), Color(0xFF594AF1)],
         ),
       )
     );

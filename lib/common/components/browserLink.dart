@@ -36,7 +36,7 @@ class _BrowserLinkState extends State<BrowserLink> {
         mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.center,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(right: 4),
+            padding: EdgeInsets.only(right: widget.showIcon ? 4: 0),
             child: Text(
               widget.text ?? widget.url,
               style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
