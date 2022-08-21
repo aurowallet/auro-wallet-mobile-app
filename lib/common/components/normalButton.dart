@@ -5,12 +5,13 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 class NormalButton extends StatelessWidget {
   NormalButton({
     required this.text,
+    this.textStyle,
     this.onPressed,
     this.icon,
     this.color,
     this.submitting = false,
     this.disabled = false,
-    this.radius = 8,
+    this.radius = 12,
     this.padding = const EdgeInsets.only(top: 12, bottom: 12)
   }) : assert(text != null);
 
@@ -22,6 +23,7 @@ class NormalButton extends StatelessWidget {
   final bool disabled;
   final double radius;
   final EdgeInsets padding;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -30,22 +32,27 @@ class NormalButton extends StatelessWidget {
       row.add(CupertinoActivityIndicator());
     }
     if (icon != null) {
-      row.add(Container(
-        width: 32,
+      row.add(Padding(
+        padding: EdgeInsets.only(right: 10),
         child: icon,
       ));
     }
     row.add(Text(
       text,
-      style: Theme.of(context).textTheme.button,
+      style: textStyle ?? Theme.of(context).textTheme.button,
     ));
     Color normalColor = color ?? Theme.of(context).primaryColor;
     return ElevatedButton(
       // padding: padding,
-      // color: normalColor,
-      // disabledColor: normalColor.withOpacity(0.5),
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
       // highlightColor: ColorsUtil.darken(normalColor, 0.05),
+      style: ElevatedButton.styleFrom(
+          primary: normalColor,
+          // onSurface: normalColor.withOpacity(0.5),
+          minimumSize: Size(double.infinity, 48),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(radius))
+          )
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: row,

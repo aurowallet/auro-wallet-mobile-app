@@ -72,7 +72,7 @@ class _WalletAppState extends State<WalletApp> {
 
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _detectDanger();
     });
     super.initState();

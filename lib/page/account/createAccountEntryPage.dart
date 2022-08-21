@@ -39,123 +39,56 @@ class CreateAccountEntryPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: null,
-      body: BackgroundContainer(
-        sp.Svg(
-          'assets/images/public/top_cornor.svg',
-        ),
-        SafeArea(
-          child:  Column(
+      body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 30, left: 30, right: 30),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        child: Image.asset("assets/images/public/2x/m_logo@2x.png", width: 121, height: 30,) ,
-                      ),
-                      Observer(builder: (_) {
-                        var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
-                        return CustomDropdownButton(
-                          items: [
-                            DropdownItem(text: '中文', key: 'zh'),
-                            DropdownItem(text: 'English', key: 'en'),
-                          ],
-                          value: languageCode,
-                          onChoose: (String? value) async {
-                            if (value != null) {
-                              await store.setLocalCode(value);
-                              changeLang(context, value);
-                            }
-                          },
-                          placeholder: '',
-                        );
-                      })
-                    ],
-                  )
-                ],
-              ),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 89),
+                    child: Image.asset("assets/images/entry/auro_logo.png", width: 245, height: 221,),
+                  ),
                 ),
-          ),
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: EntryButton(text: I18n.of(context).main['createAccount']!, onPressed: () {
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(300, 48),
+                  primary: ColorsUtil.hexColor(0x594AF1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () {
                   _onClick('create');
-                  // Navigator.pushNamed(context, TermPage.route, arguments: TermParams(arguments: {"type": "create"}));
-                },),
+                },
+                child: Text(I18n.of(context).main['createAccount']!, style: TextStyle(color: Colors.white, fontSize: 20)),
               ),
               Padding(
-                padding: EdgeInsets.all(16),
-                child: EntryButton(
-                  text: i18n.main['importAccount']!,
-                  isOutlined: true,
+                padding: EdgeInsets.only(top: 20),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    fixedSize: Size(300, 48),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                   onPressed: () {
                     _onClick('import');
-                    // Navigator.pushNamed(context, TermPage.route, arguments: TermParams(arguments: {"type": "import"}));
-                },),
+                  },
+                  child: Text(I18n.of(context).main['importAccount']!, style: TextStyle(color: ColorsUtil.hexColor(0x594AF1), fontSize: 20)),
+                ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(21, 31, 21, 0),
-                child: Text(i18n.main['restoreTip']!, style: theme.headline6!.copyWith(color: ColorsUtil.hexColor(0xCCCCCC))),
+                padding: EdgeInsets.fromLTRB(0, 31, 0, 0),
+                child: Text(i18n.main['restoreTip']!, style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xCCCCCC)), textAlign: TextAlign.center,),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(16, 60, 16, 30),
-                child: Text('Powered by Bit Cat', style: TextStyle(fontSize: 14, color: ColorsUtil.hexColor(0xB9B9B9))),
+                padding: EdgeInsets.fromLTRB(0, 16, 0, 21),
+                child: Text('Powered by Bit Cat', style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xB9B9B9))),
               ),
             ],
-          ),
-        )
-      )
+          )
+      ),
     );
   }
 }
 
-class EntryButton extends StatelessWidget {
-  EntryButton({required this.text, this.onPressed, this.isOutlined = false});
-
-  final String text;
-  final bool isOutlined;
-  final Function()? onPressed;
-  @override
-  Widget build(BuildContext context) {
-    Color color = isOutlined ? Theme.of(context).primaryColor : Colors.white;
-    return GestureDetector(
-        child: Container(
-            width: 315,
-            height: 55,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              image: isOutlined ? null : DecorationImage(
-                  image: AssetImage("assets/images/public/2x/create_btn_bg@2x.png"),
-                  fit: BoxFit.cover
-              ),
-              border: isOutlined ? Border.all(
-                  color: color,
-                  width: 1
-              ): null,
-              borderRadius: BorderRadius.circular(55),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(text, style: TextStyle(color: color, fontSize: 20)),
-                  SvgPicture.asset(
-                    'assets/images/public/button_arrow.svg',
-                    width: 18,
-                    height: 12,
-                    color: color,
-                  ),
-                ],
-              )
-            ) // button text
-        ),
-        onTap: onPressed
-    );
-  }
-}

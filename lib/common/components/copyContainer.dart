@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/UI.dart';
 class CopyContainer extends StatelessWidget {
-  CopyContainer({this.text, required this.child, this.showIcon = false});
+  CopyContainer({this.text, required this.child, this.showIcon = false, this.iconColor});
   final String? text;
   final Widget child;
   final bool showIcon;
+  final Color? iconColor;
 
   void _copyAddress(BuildContext context) {
     UI.copyAndNotify(context, text!);
@@ -27,7 +28,7 @@ class CopyContainer extends StatelessWidget {
                 padding: !showIcon ? EdgeInsets.zero :  EdgeInsets.only(right: 4),
                 child: child,
               ),),
-            showIcon ? Icon(Icons.copy_outlined, size: 16, color: Theme.of(context).primaryColor) : Container()
+            showIcon ? Icon(Icons.copy_outlined, size: 16, color: iconColor ?? Theme.of(context).primaryColor) : Container()
           ],
         ) ,
         onTap: () {

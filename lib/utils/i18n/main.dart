@@ -216,7 +216,7 @@ const Map<String, String> zhMain = {
   "validatorTotalStake": "总委托",
   "validatorStakeFee": "佣金",
   "scan": "扫描",
-  "restoreTip": "提示: 若要导入私钥匙/Keystore或连接Ledger，需先[创建钱包]或者[恢复钱包]",
+  "restoreTip": "提示: 若要导入私钥匙/Keystore或连接Ledger，\n需先[创建钱包]或者[恢复钱包]",
   "resetWallet": "重置钱包",
   "resetWarnContent":
       "确定要重置钱包吗？\n\n重置后现有钱包的数据将会全部丢失，只能使用助记词恢复，请确保你已经备份好助记词后再重置钱包。",
@@ -229,7 +229,14 @@ const Map<String, String> zhMain = {
   "noMoreSupported": "不再支持的账户",
   "deleteWatch": "删除观察钱包",
   "allTransfer": "全部",
-  "accountRepeatAlert": "即将创建的账户地址为：\n<theme>{address}</theme>\n\n已存在导入账户【{accountName}】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<link href='aurowallet://back' route='/wallet/manage'>账户管理页</link>将已导入的账户删除。"
+  "accountRepeatAlert": "即将创建的账户地址为：\n<theme>{address}</theme>\n\n已存在导入账户【{accountName}】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<link href='aurowallet://back' route='/wallet/manage'>账户管理页</link>将已导入的账户删除。",
+  "password":"密码",
+  "confirmPasswordShort": "确认密码",
+
+  // backup tip pages
+  "mnemonicLost": "If mnemonic phrase lost, my funds will be lost forever.",
+  "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
+
 };
 
 const Map<String, String> enMain = {
@@ -478,5 +485,12 @@ const Map<String, String> enMain = {
   "deleteWatch": "Delete watch account",
   "allTransfer": "All",
   "noMoreSupported": "No longer supported account",
-  "accountRepeatAlert": "The address of the account to be created is:\n<theme>{address}</theme>\n\nAn existing imported account [{accountName}] is a duplicate of this address. Auro Wallet does not support the creation of duplicate account addresses. Please go to the <link href='aurowallet://back' route='/wallet/manage'>Account Management</link> to delete the imported account."
+  "accountRepeatAlert": "The address of the account to be created is:\n<theme>{address}</theme>\n\nAn existing imported account [{accountName}] is a duplicate of this address. Auro Wallet does not support the creation of duplicate account addresses. Please go to the <link href='aurowallet://back' route='/wallet/manage'>Account Management</link> to delete the imported account.",
+  "password":"Password",
+  "confirmPasswordShort": "Confirm Password",
+
+
+  // backup tip pages
+  "mnemonicLost": "If mnemonic phrase lost, my funds will be lost forever.",
+  "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
 };

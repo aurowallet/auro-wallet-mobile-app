@@ -29,7 +29,7 @@ class OutlinedButtonSmall extends StatelessWidget {
     Color primary = color ?? Theme.of(context).primaryColor;
     Color grey = ColorsUtil.hexColor(0xeeeeee);
     Color textGrey = ColorsUtil.hexColor(0x666666);
-    Color white = Theme.of(context).cardColor;
+    Color white = Colors.black;
     return GestureDetector(
       child: Container(
         margin: margin ?? EdgeInsets.only(right: 8),
@@ -56,7 +56,7 @@ class OutlinedButtonSmall extends StatelessWidget {
             Flexible(
               child: Text(
                 content,
-                style: TextStyle(color: active ? white : textGrey, fontSize: 14),
+                style: TextStyle(color: active ? white : textGrey, fontSize: 14, fontWeight: FontWeight.w600),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),

@@ -42,7 +42,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _nameCtrl.addListener(_onTextChange);
     });
   }

@@ -96,7 +96,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkBiometricAuthenticate();
     });
   }

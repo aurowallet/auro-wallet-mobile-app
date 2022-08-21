@@ -55,7 +55,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
       _monitorFeeDisposer = reaction((_) =>  store.assets!.transferFees, _onFeeLoaded);
       _feeCtrl.addListener(_onFeeInputChange);

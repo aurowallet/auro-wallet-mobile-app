@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show SynchronousFuture;
 import 'main.dart';
+import 'home.dart';
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<I18n> {
   const AppLocalizationsDelegate(this.overriddenLocale);
@@ -32,14 +33,20 @@ class I18n {
   static Map<String, Map<String, Map<String, String>>> _localizedValues = {
     'en': {
       'main': enMain,
+      'home': enHome,
     },
     'zh': {
       'main': zhMain,
+      'home': zhHome,
     },
   };
 
   Map<String, String> get main {
     return _localizedValues[locale.languageCode]!['main']!;
+  }
+
+  Map<String, String> get home {
+    return _localizedValues[locale.languageCode]!['home']!;
   }
 
 }

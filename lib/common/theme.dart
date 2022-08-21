@@ -3,15 +3,15 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 ThemeData theme = ThemeData();
 TextButtonThemeData textButtonData = const TextButtonThemeData();
 final appTheme = ThemeData(
-  primaryColor: ColorsUtil.hexColor(0x6B5DFB),
-  highlightColor: Colors.transparent,
-  splashColor: Colors.transparent,
-  splashFactory: NoSplashFactory(),
-  textButtonTheme: TextButtonThemeData(
-    style: ButtonStyle(
-      foregroundColor: MaterialStateProperty.all(Colors.transparent),
-    )
-  ),
+  primaryColor: Color(0xFF594AF1),
+  // highlightColor: Colors.transparent,
+  // splashColor: Colors.transparent,
+  // splashFactory: NoSplashFactory(),
+  // textButtonTheme: TextButtonThemeData(
+  //   style: ButtonStyle(
+  //     foregroundColor: MaterialStateProperty.all(Colors.transparent),
+  //   )
+  // ),
   appBarTheme: AppBarTheme(
       color: Colors.white,
       iconTheme: IconThemeData(
@@ -38,10 +38,11 @@ final appTheme = ThemeData(
       headline4: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       headline5: TextStyle(
           fontSize: 16,
-          color: ColorsUtil.hexColor(0x333333)),
+          // color: ColorsUtil.hexColor(0x333333)
+      ),
       headline6: TextStyle(
           fontSize: 14,
-          color: ColorsUtil.hexColor(0x333333)
+          // color: ColorsUtil.hexColor(0x333333)
       ),
       button: TextStyle(
         color: Colors.white,

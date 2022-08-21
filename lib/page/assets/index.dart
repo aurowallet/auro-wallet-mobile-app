@@ -2,22 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
 
-import 'package:auro_wallet/common/components/nodeSelectionDialog.dart';
+import 'package:blur/blur.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
-import 'package:auro_wallet/common/components/outlinedButtonSmall.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart' as sp;
 import 'package:auro_wallet/common/consts/Currency.dart';
-import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
-import 'package:auro_wallet/service/notification.dart';
 import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/common/components/roundedCard.dart';
-import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -33,7 +28,6 @@ import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
-import 'package:auro_wallet/walletSdk/rustSDK.dart';
 
 class Assets extends StatefulWidget {
   Assets(this.store);
@@ -51,17 +45,17 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchTransactions();
       _checkWatchMode();
-      WidgetsBinding.instance?.addObserver(this);
+      WidgetsBinding.instance.addObserver(this);
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -132,30 +126,43 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
   }
   Widget _buildTopBar(BuildContext context) {
-    var i18n = I18n.of(context).main;
+    var theme = Theme.of(context).textTheme;
+    var i18nHome = I18n.of(context).home;
     return Padding(
       padding: EdgeInsets.fromLTRB(13, ui.window.viewPadding.top > 0 ? 16 : 36, 15, 0),
       child: Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Image.asset('assets/images/public/2x/m_logo@2x.png', width: 121, height: 30,),
-        Expanded(child:  Row(
+
+        Container(
+          width: 10,
+        ),
+        Text(
+          i18nHome['myWallet']!,
+          style: theme.headline1!.copyWith(
+            color: ColorsUtil.hexColor(0x020028),
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign:TextAlign.left,
+        ),
+        Expanded(child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Container(
-              width: 30,
-            ),
             Flexible(child: NodeSelectionDropdown(store: store.settings!),),
             Container(
-              width: 10,
+              width: 15,
             ),
             IconButton(
                 iconSize: 30,
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(),
-                icon: Image.asset('assets/images/assets/2x/wallet_manage@2x.png', width: 30, height: 30,),
+                icon: SvgPicture.asset(
+                    'assets/images/assets/wallet_manage.svg',
+                    width: 30,
+                    height: 30
+                ),
                 onPressed: () {
                   Navigator.of(context).pushNamed(WalletManagePage.route);
                 }
@@ -186,127 +193,189 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! * Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
     }
     var currencySymbol = Currency(code: store.settings!.currencyCode).symbol;
-    final amountColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x1E1F20;
-    final priceColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x666666;
-    return RoundedCard(
-      margin: EdgeInsets.fromLTRB(15, 30, 15, 0),
+    final amountColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0xFFFFFF;
+    final priceColor = store.assets!.isBalanceLoading ? Color(0xFFDDDDDD) : Color(0x99FFFFFF);
+    final currencyStyle = TextStyle(fontSize: 16, color: priceColor, fontStyle: FontStyle.normal, fontWeight: FontWeight.w600);
+    final buttonTextStyle = TextStyle(fontSize: 16, color: Color(0xFF594AF1), fontStyle: FontStyle.normal, fontWeight: FontWeight.w600, letterSpacing: -0.3);
+    return Container(
+      margin: EdgeInsets.fromLTRB(20, 22, 20, 0),
       padding: EdgeInsets.all(0),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: [
+              0.1,
+              0.46,
+              1.0,
+            ],
+            colors: [
+              Color(0xFFCA5C89),
+              Color(0xFF4F55EC),
+              Color(0xFF3531FF),
+            ],
+          ),
+      ),
       child: Stack(
         children:[
+          Positioned.fill(
+              child: FittedBox(
+                fit: BoxFit.fill,
+                child: Image.asset('assets/images/assets/card_mask.png'),
+              )
+          ),
+          Positioned(
+            right: 20,
+            top: 60,
+            child: Image.asset('assets/images/assets/card_logo.png', width: 99, height: 90,),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(top: 20, right: 20, left: 20),
+                padding: EdgeInsets.only(top: 16, right: 20, left: 20),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: new Text(Fmt.accountName(acc.currentAccount), style: theme.headline5!.copyWith(height: 1),),
+                          padding: EdgeInsets.only(right: 3),
+                          child: new Text(
+                            Fmt.accountName(acc.currentAccount),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                            ),
+                          ),
                         ),
                         Container(
-                            child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
-                              style: theme.headline6!.copyWith(color: Colors.white),),
+                          height: 20,
+                            child: Center(
+                              child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
+                                style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),),
+                            ),
                             margin: EdgeInsets.only(left: 5),
                             padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: ColorsUtil.hexColor(isDelegated ? 0xFFC633: 0xB1B3BD),
-                              borderRadius: BorderRadius.circular(10),
+                              color: isDelegated ? Color(0x33FFFFFF) : ColorsUtil.hexColor(0xB1B3BD),
+                              borderRadius: BorderRadius.circular(29),
                             )
                         )
                       ],
                     ),
                     Row(
                       children: [
-                        CopyContainer(
-                            child: Container(
-                              child: Text(
-                                Fmt.address(store.wallet!.currentAddress),
-                                textAlign: TextAlign.left,
-                                style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0xB1B3BD)),
+                        Padding(
+                          padding: EdgeInsets.only(top: 7),
+                          child: CopyContainer(
+                              showIcon: true,
+                              iconColor: const Color(0x80FFFFFF),
+                              child: Container(
+                                child: Text(
+                                  Fmt.address(store.wallet!.currentAddress),
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(color: const Color(0x80FFFFFF), fontSize: 12, fontWeight: FontWeight.w400),
+                                ),
                               ),
-                              margin: EdgeInsets.only(top:10),
-                            ),
-                            text: store.wallet!.currentAddress
-                        ),
+                              text: store.wallet!.currentAddress
+                          ),
+                        )
                       ],
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 18,),
+                      padding: EdgeInsets.only(top: 27,),
                       child: Row(
                         textBaseline: TextBaseline.alphabetic,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         children: [
                           Text(
                             Fmt.balance(total.toString(), COIN.decimals),
-                            style: TextStyle(fontSize: 30, color: ColorsUtil.hexColor(amountColor)),
+                            style: TextStyle(fontSize: 32, color: Colors.white, fontStyle: FontStyle.normal, fontWeight: FontWeight.w700),
                           ),
-                          Container(width:8),
-                          Text(COIN.coinSymbol.toUpperCase(), style: theme.headline3!.copyWith(color: ColorsUtil.hexColor(amountColor)),)
+                          Container(width: 4),
+                          Text(
+                            COIN.coinSymbol.toUpperCase(),
+                            style: TextStyle(fontSize: 15, color: ColorsUtil.hexColor(amountColor), fontStyle: FontStyle.normal, fontWeight: FontWeight.w600),)
                         ],
                       ),
                     ),
                     store.settings!.isMainnet ?
                     Padding(
-                      padding: EdgeInsets.only(top: 4, bottom: 23,),
+                      padding: EdgeInsets.only(top: 8, bottom: 24,),
                       child: Row(
                         textBaseline: TextBaseline.alphabetic,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         children: [
-                          Text(currencySymbol, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),),
-                          Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),)
+                          Text(currencySymbol, style: currencyStyle,),
+                          Text(coinPrice ?? '0', style: currencyStyle,)
                         ],
                       ),
                     ) : Container(height: 23,),
                   ]
                 ),
               ),
-              Row(
+              Padding(
+                padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 150.0,
+                  Flexible(child: Container(
                     height: 40.0,
-                    margin: EdgeInsets.only(left: 20, bottom: 20),
+                    constraints: BoxConstraints(
+                        maxWidth: 140
+                    ),
                     child: NormalButton(
-                      color: ColorsUtil.hexColor(0x6B5DFB),
+                      color: Colors.white,
                       text: i18n['send']!,
+                      textStyle: buttonTextStyle,
                       onPressed: _onTransfer,
-                      radius: 20,
+                      icon: SvgPicture.asset('assets/images/assets/send.svg', width: 10),
                       padding: EdgeInsets.zero,
                     ),
-                  ),
-                  Container(
-                      width: 150,
+                  )),
+                  Flexible(child: Container(
                       height: 40,
-                      margin: EdgeInsets.only(right: 20, bottom: 20),
+                      constraints: BoxConstraints(
+                          maxWidth: 140
+                      ),
                       child: NormalButton(
-                        color: ColorsUtil.hexColor(0x00C89C),
+                        color: Colors.white,
                         text: i18n['receive']!,
+                        textStyle: buttonTextStyle,
                         onPressed: _onReceive,
-                        radius: 20,
+                        icon: SvgPicture.asset('assets/images/assets/receive.svg', width: 10,),
                         padding: EdgeInsets.zero,
                       )
-                  ),
+                  )),
                 ],
+              ),
               ),
             ],
           ),
           Positioned(
             right: 8,
             top: 8,
-            child: IconButton(
-                iconSize: 23,
-                padding: EdgeInsets.all(8),
-                constraints: BoxConstraints(minHeight: 0, minWidth: 0),
-                icon: SvgPicture.asset(
-                    'assets/images/assets/more.svg',
-                    width: 23,
-                    height: 23
-                ),
-                onPressed: _viewAccountDetail
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: Color(0x1A000000),
+                borderRadius: BorderRadius.circular(10)
+              ),
+              child: IconButton(
+                  iconSize: 28,
+                  color: Colors.red,
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                  icon: Icon(
+                    Icons.more_horiz,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  onPressed: _viewAccountDetail
+              ),
             )
           ),
         ]
@@ -323,7 +392,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
         return TransferListItem(
           data: i,
           isOut: i.sender == store.wallet!.currentAddress,
-          hasDetail: true,
         );
       }));
       if (store.assets!.txs.length >= 20) {
@@ -361,25 +429,42 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
               _buildTopBar(context),
               _buildTopCard(context),
               store.assets!.txs.length !=0 || store.assets!.pendingTxs.length != 0 ? Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 30,left: 15, right: 15, bottom: 0),
-                  child: Text(
-                      I18n.of(context).main['history']!,
-                      style: theme.headline4!.copyWith(
-                          color: ColorsUtil.hexColor(0x020028),
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.bold,
-                      ),
-                      textAlign:TextAlign.left,
-                  ),
-                ),
-              ],): Container(),
+                  Flexible(
+                      flex: 1,
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                        margin: EdgeInsets.only(top: 30),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.black.withOpacity(0.1),
+                                  width: 0.5,
+                                )
+                            )
+                        ),
+                        child: Text(
+                          I18n.of(context).main['history']!,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            letterSpacing: -0.3,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                      )
+                  )
+                ],): Container(),
               Expanded(
-                child: ListView(
-                  padding: EdgeInsets.only(left: 15, right: 15, top: 0),
-                  children: _buildTxList(),
+                child: Ink(
+                  color: Colors.white,
+                  child: ListView(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    children: _buildTxList(),
+                  ),
                 ),
               )
             ],
@@ -394,12 +479,10 @@ class TransferListItem extends StatelessWidget {
   TransferListItem({
     required this.data,
     required this.isOut,
-    required this.hasDetail,
   });
 
   final TransferData data;
   final bool isOut;
-  final bool hasDetail;
   BuildContext? _ctx;
 
   void _viewRecordDetail() {
@@ -453,19 +536,27 @@ class TransferListItem extends StatelessWidget {
         statusColor = ColorsUtil.hexColor(0xFFC633);
         break;
     }
-    return Padding(
-      padding: EdgeInsets.only(top: 20),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 17),
+      decoration: BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+                color: Colors.black.withOpacity(0.1),
+                width: 0.5,
+              )
+          )
+      ),
       child: GestureDetector(
-          onTap: hasDetail ? _viewRecordDetail : null,
+          onTap: _viewRecordDetail,
           behavior: HitTestBehavior.opaque,
           child: Row(
             children: [
               Container(
-                  width: 20,
-                  margin: EdgeInsets.only(right: 11),
+                  width: 28,
+                  margin: EdgeInsets.only(right: 16),
                   child: SvgPicture.asset(
                     'assets/images/assets/$icon.svg',
-                    width: 20,
+                    width: 28,
                   )
               ),
               Expanded(
@@ -475,41 +566,50 @@ class TransferListItem extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('$title', style: theme.headline5!.copyWith(
-                              color: Colors.black
-                          ),),
+                          Text('$title',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black
+                            ),
+                          ),
                           Text(
                             '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
-                            style: theme.headline5!.copyWith(
-                                color: Colors.black
+                            style: TextStyle(
+                                color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500
                             ),
                           )
                         ],
                       ),
-                      Padding(padding: EdgeInsets.only(top:7)),
+                      Padding(padding: EdgeInsets.only(top:4)),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: theme.headline6!.copyWith(
+                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: TextStyle(
+                                fontSize: 10,
                                 color:  ColorsUtil.hexColor(0x96969A)
                             ),),
-                            Text(statusText, style: theme.headline6!.copyWith(
-                                color:  statusColor
-                            ),),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: statusColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4)
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
+                              child: Center(
+                                child: Text(statusText, style: TextStyle(
+                                  fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    color:  statusColor
+                                ),),
+                              ),
+                            ),
                           ]
                       )
                     ]
                 ),
-              ),
-              Container(
-                  width: 6,
-                  margin: EdgeInsets.only(left: 14,),
-                  child: SvgPicture.asset(
-                      'assets/images/assets/right_arrow.svg',
-                      width: 6,
-                      height: 12
-                  )
-              ),
+              )
             ],
           )
       )

@@ -121,19 +121,21 @@ return '''account$index: account (publicKey: \$account$index) {
        return;
      }
      pubkeys.asMap().forEach((index, pubKey) {
-       var accountData = result.data!['account$index'];
-       final String delegate = accountData['delegate'] as String;
-       final String balance = accountData['balance']['total'] as String;
-       final String inferredNonce = accountData['inferredNonce'] as String;
-       final String publicKey = accountData['publicKey'] as String;
-       final Map<String, dynamic> accountInfo = {
-         "total": balance,
-         "delegate": delegate,
-         "inferredNonce": inferredNonce,
-         "publicKey": publicKey,
-       };
-       print('balance:' + balance);
-       store.assets!.setAccountInfo(pubKey, accountInfo);
+       var accountData = result.data?['account$index'];
+       if (accountData != null) {
+         final String delegate = accountData['delegate'] as String;
+         final String balance = accountData['balance']['total'] as String;
+         final String inferredNonce = accountData['inferredNonce'] as String;
+         final String publicKey = accountData['publicKey'] as String;
+         final Map<String, dynamic> accountInfo = {
+           "total": balance,
+           "delegate": delegate,
+           "inferredNonce": inferredNonce,
+           "publicKey": publicKey,
+         };
+         print('balance:' + balance);
+         store.assets!.setAccountInfo(pubKey, accountInfo);
+       }
      });
   }
 

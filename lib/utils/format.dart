@@ -10,11 +10,11 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class Fmt {
-  static String address(String? addr, {int pad = 10}) {
+  static String address(String? addr, {int pad = 4}) {
     if (addr == null || addr.length == 0) {
       return '';
     }
-    return addr.substring(0, pad) + '...' + addr.substring(addr.length - pad);
+    return addr.substring(0, pad + 2) + '...' + addr.substring(addr.length - pad);
   }
 
   static String dateTime(DateTime? time) {

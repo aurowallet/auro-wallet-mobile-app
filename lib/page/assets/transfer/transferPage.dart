@@ -65,7 +65,7 @@ class _TransferPageState extends State<TransferPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _monitorFeeDisposer = reaction((_) =>  store.assets!.transferFees, _onFeeLoaded);
       _amountCtrl.addListener(_monitorSummitStatus);
       _toAddressCtrl.addListener(_monitorSummitStatus);

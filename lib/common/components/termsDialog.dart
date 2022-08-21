@@ -81,38 +81,26 @@ class _TermsDialogState extends State<TermsDialog> {
                   padding: EdgeInsets.only(top: 27),
                 ),
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                            minWidth: 130,
-                            minHeight: 40
+                      Expanded(child: TextButton(
+                        style: TextButton.styleFrom(
+                            primary: Colors.black
                         ),
-                        child: OutlinedButton(
-                          // borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                          // highlightedBorderColor: Theme.of(context).primaryColor,
-                          // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: Text(dic['refuse']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16)),
-                          onPressed: () {
-                            Navigator.of(context).pop(false);
-                          },
+                        child: Text(dic['refuse']!, style: theme.headline5!),
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                      ),),
+                      Expanded(child: TextButton(
+                        style: TextButton.styleFrom(
+                            primary: Theme.of(context).primaryColor
                         ),
-                      ),
-                      TextButton(
-                        // height: 40,
-                        // minWidth: 130,
-                        // color: Theme.of(context).primaryColor,
-                        // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(dic['agree']!, style: TextStyle(color: Colors.white, fontSize: 16))
-                          ],
-                        ),
+                        child: Text(dic['agree']!, style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor)),
                         onPressed: () {
                           Navigator.of(context).pop(true);
                         },
-                      ),
+                      )),
                     ]
                 ),
               ],

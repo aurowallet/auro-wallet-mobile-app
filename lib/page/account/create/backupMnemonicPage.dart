@@ -7,10 +7,6 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
-
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
-
 class BackupMnemonicPage extends StatefulWidget {
   const BackupMnemonicPage(this.store);
 
@@ -38,7 +34,6 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
   }
 
   Widget _buildStep0(BuildContext context) {
-
     return Observer(
       builder: (_) => Scaffold(
         appBar: AppBar(
@@ -62,9 +57,10 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 16, right: 16, top: 20),
-                      child: _buildWords(store.wallet!.newWalletParams.seed.split(' '), false)
-                    )
+                        margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                        child: _buildWords(
+                            store.wallet!.newWalletParams.seed.split(' '),
+                            false))
                   ],
                 ),
               ),
@@ -76,7 +72,8 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                     setState(() {
                       _step = 1;
                       _wordsSelected = <String>[];
-                      _wordsLeft = store.wallet!.newWalletParams.seed.split(' ');
+                      _wordsLeft =
+                          store.wallet!.newWalletParams.seed.split(' ');
                     });
                   },
                 ),
@@ -114,14 +111,16 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                     padding: EdgeInsets.only(top: 16, left: 30, right: 30),
                     child: Text(
                       I18n.of(context).main['backupInOrder']!,
+                      style: Theme.of(context).textTheme.headline6!,
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 20, left: 16, right: 16),
                     child: _buildWords(_wordsSelected, true),
                   ),
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20), child:  Divider(),),
                   Padding(
-                    padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+                    padding: EdgeInsets.only(left: 16, right: 16),
                     child: _buildWordsButtons(),
                   ),
                 ],
@@ -131,26 +130,30 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
               padding: EdgeInsets.all(16),
               child: NormalButton(
                 text: I18n.of(context).main['next']!,
-                onPressed:
-                _wordsSelected.length == store.wallet!.newWalletParams.seed.split(' ').length
-                    ? () async  {
-                  if (_wordsSelected.join(' ') != store.wallet!.newWalletParams.seed) {
-                    UI.toast(I18n.of(context).main['seed_error']!);
-                    setState(() {
-                      _wordsLeft.clear();
-                      _wordsLeft.addAll(store.wallet!.newWalletParams.seed.split(' '));
-                      _wordsSelected.clear();
-                    });
-                    return;
-                  }
-                  final Map args = ModalRoute.of(context)!.settings.arguments as Map;
-                  Future<void> Function(bool) callback = args['callback'];
-                  if (callback != null) {
-                    await callback(true);
-                  } else {
-                    Navigator.of(context).pop(true);
-                  }
-                } : null,
+                onPressed: _wordsSelected.length ==
+                        store.wallet!.newWalletParams.seed.split(' ').length
+                    ? () async {
+                        if (_wordsSelected.join(' ') !=
+                            store.wallet!.newWalletParams.seed) {
+                          UI.toast(I18n.of(context).main['seed_error']!);
+                          setState(() {
+                            _wordsLeft.clear();
+                            _wordsLeft.addAll(
+                                store.wallet!.newWalletParams.seed.split(' '));
+                            _wordsSelected.clear();
+                          });
+                          return;
+                        }
+                        final Map args =
+                            ModalRoute.of(context)!.settings.arguments as Map;
+                        Future<void> Function(bool) callback = args['callback'];
+                        if (callback != null) {
+                          await callback(true);
+                        } else {
+                          Navigator.of(context).pop(true);
+                        }
+                      }
+                    : null,
               ),
             ),
           ],
@@ -158,36 +161,47 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
       ),
     );
   }
+
   Widget _buildWords(List<String> words, bool clickable) {
     List<Widget> cells = <Widget>[];
-    for (var index = 0; index < words.length; index++) {
-      String word = words[index];
+    for (var index = 0; index < 12; index++) {
+      bool isEmpty = index >= words.length;
+      String word = isEmpty ? '' : words[index];
       cells.add(
-          GestureDetector(
-            child: Container(
-              margin:  EdgeInsets.only(left: 3, right: 3, bottom: 10),
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: ColorsUtil.hexColor(0x02A8FF),
-                borderRadius: BorderRadius.circular(17),
-              ),
-              child: Text(
-                '${index + 1}. $word',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16
-                ),
-              ),
+        GestureDetector(
+          child: Container(
+            // margin: EdgeInsets.only(left: 3, right: 3, bottom: 10),
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: isEmpty ? Color(0x33C4C4C4): Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(20),
             ),
-            onTap: clickable ? () {
-              setState(() {
-                _wordsLeft.add(word);
-                _wordsSelected.remove(word);
-              });
-            } : null,
-          )
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '${index + 1}. ${isEmpty ?  '' : word}',
+              style: Theme.of(context).textTheme.headline6!.copyWith(color: isEmpty ? Color(0x80000000) : Colors.white),
+            ),
+          ),
+          onTap: clickable
+              ? () {
+                  setState(() {
+                    _wordsLeft.add(word);
+                    _wordsSelected.remove(word);
+                  });
+                }
+              : null,
+        ),
       );
     }
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 3,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 10,
+      childAspectRatio: 3.4666,
+      children: cells,
+    );
+
     return Container(
       padding: EdgeInsets.only(top: 0),
       child: Wrap(
@@ -195,6 +209,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
       ),
     );
   }
+
   Widget _buildWordsButtons() {
     if (_wordsLeft.length > 0) {
       _wordsLeft.sort();
@@ -203,36 +218,39 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
     List<Widget> cells = <Widget>[];
     for (var index = 0; index < _wordsLeft.length; index++) {
       String word = _wordsLeft[index];
-      cells.add(
-          Container(
-              padding: EdgeInsets.only(left: 4, right: 4),
-              child:
-              GestureDetector(
-                child: Container(
-                  margin:  EdgeInsets.only(left: 3, right: 3, bottom: 10),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: ColorsUtil.hexColor(0xe4e4e4),
-                    borderRadius: BorderRadius.circular(17),
-                  ),
-                  child: Text(
-                    '$word',
-                    style: TextStyle(
-                        color: ColorsUtil.hexColor(0x333333),
-                        fontSize: 16
-                    ),
-                  ),
+      cells.add(Container(
+          padding: EdgeInsets.only(left: 4, right: 4),
+          child: GestureDetector(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: ColorsUtil.hexColor(0xe4e4e4),
+                borderRadius: BorderRadius.circular(17),
+              ),
+              child: Text(
+                '$word',
+                style: Theme.of(context).textTheme.headline6!.copyWith(
+                    color: Color(0xFF000000)
                 ),
-                onTap: () {
-                  setState(() {
-                    _wordsLeft.remove(word);
-                    _wordsSelected.add(word);
-                  });
-                },
-              )
-          )
-      );
+              ),
+            ),
+            onTap: () {
+              setState(() {
+                _wordsLeft.remove(word);
+                _wordsSelected.add(word);
+              });
+            },
+          )));
     }
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 3,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 10,
+      childAspectRatio: 3.4666,
+      children: cells,
+    );
     return Container(
       child: Wrap(
         children: cells,

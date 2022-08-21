@@ -14,14 +14,14 @@ class InputItem extends StatefulWidget {
         this.controller,
         this.maxLines = 1,
         this.isPassword = false,
-        this.padding = const EdgeInsets.only(top: 20),
+        this.padding = const EdgeInsets.only(top: 22),
         this.maxLength,
         this.focusNode,
         this.placeholder = '',
-        this.backgroundColor = const Color.fromRGBO(246, 247, 248, 1.0),
-        this.borderColor = Colors.transparent,
+        this.backgroundColor =  Colors.white,
+        this.borderColor =  const Color(0x1A000000),
         this.focusColor = Colors.transparent,
-        this.inputPadding = const EdgeInsets.only(top: 10),
+        this.inputPadding = const EdgeInsets.only(top: 4),
         this.suffixIcon,
         this.autoFocus = false,
       });
@@ -57,7 +57,7 @@ class _InputItemState extends State<InputItem> {
   void initState() {
     super.initState();
     _controller = widget.controller ?? new TextEditingController();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialValue != null) {
         _controller!.text =  widget.initialValue!;
       }
@@ -98,7 +98,7 @@ class _InputItemState extends State<InputItem> {
                   child: Text(
                     widget.label!,
                     textAlign: TextAlign.left,
-                    style: theme.headline5,
+                    style: theme.headline5?.copyWith(color: const Color(0xD9000000), fontWeight: FontWeight.w600),
                   )),
               widget.rightWidget == null ? Container() : widget.rightWidget!,
             ],
@@ -121,8 +121,8 @@ class _InputItemState extends State<InputItem> {
                 filled: true,
                 isDense: true,
                 contentPadding: EdgeInsets.only(
-                    top: 15,
-                    bottom: 15,
+                    top: 12,
+                    bottom: 12,
                     left: 12,
                     right: widget.suffixIcon != null ? 0 : 12),
                 fillColor: widget.backgroundColor,

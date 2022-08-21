@@ -38,7 +38,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       webApi.assets.fetchBatchAccountsInfo(store.wallet!.accountListAll.map((acc)=>acc.pubKey).toList());
     });
   }

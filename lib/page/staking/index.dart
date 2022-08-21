@@ -27,7 +27,7 @@ class _StakingState extends State<Staking> {
   bool loading = true;
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchData();
     });
     loading = !_haveCacheData();

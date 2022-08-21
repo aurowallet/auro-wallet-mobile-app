@@ -1,13 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>转出箭头图标</title>
-    <g id="app-中文" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="首页，超过50条记录去浏览器查询更多" transform="translate(-30.000000, -378.000000)">
-            <g id="编组" transform="translate(30.000000, 378.000000)">
-                <circle id="椭圆形" fill="#6D5FFE" cx="8" cy="8" r="8"></circle>
-                <line x1="8" y1="11.2597656" x2="8" y2="5" id="Path" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(8.000000, 8.500000) scale(-1, 1) translate(-8.000000, -8.500000) "></line>
-                <polyline id="Path" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(8.000000, 6.500000) scale(-1, 1) translate(-8.000000, -6.500000) " points="11 8 8 5 5 8"></polyline>
-            </g>
-        </g>
-    </g>
+<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="14" cy="14" r="14" fill="#594AF1" fill-opacity="0.1"/>
+<path d="M17.5498 15.4502L13.8947 11.7951L10.2395 15.4502" stroke="#594AF1" stroke-width="1.5"/>
+<rect x="14.75" y="20.5" width="1.5" height="8" transform="rotate(180 14.75 20.5)" fill="#594AF1"/>
+<rect x="18.5" y="9.5" width="9" height="1.5" transform="rotate(180 18.5 9.5)" fill="#594AF1"/>
 </svg>

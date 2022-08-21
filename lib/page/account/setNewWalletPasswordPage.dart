@@ -41,7 +41,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _passCtrl.addListener(_monitorSummitStatus);
       _pass2Ctrl.addListener(_monitorSummitStatus);
     });
@@ -155,140 +155,128 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    Map params = ModalRoute.of(context)!.settings.arguments as Map;
-    double statusBarHeight = MediaQuery.of(context).padding.top;
     final Map<String, String> dic = I18n.of(context).main;
     return Scaffold(
+      appBar: AppBar(
+        title: Text(dic['createPassword']!),
+        // backgroundColor: Colors.transparent,
+        // iconTheme: IconThemeData(
+        //   color: Colors.white, //change your color here
+        // ),
+      ),
       backgroundColor: Colors.white,
       body: GestureDetector(
           onTap: _unFocus,
-          child: BackgroundContainer(
-            AssetImage("assets/images/assets/2x/top_header_bg@2x.png"),
-            SafeArea(
-              child: Column(
-                children: <Widget>[
-                  AppBar(
-                    title: null,
-                    backgroundColor: Colors.transparent,
-                    iconTheme: IconThemeData(
-                      color: Colors.white, //change your color here
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(top: 30),
-                            child: Image.asset("assets/images/assets/2x/mina_round_logo@2x.png", width: 75, height: 75,),
-                          ),
-                          FormPanel(
-                            margin: EdgeInsets.only(left:28, right: 28, top: 31),
-                            child: Column(
-                              children: <Widget>[
-                                InputItem(
-                                  initialValue: '',
-                                  controller: _passCtrl,
-                                  isPassword: true,
-                                  placeholder: dic['inputPassword']!,
-                                ),
-                                InputErrorTip(
-                                  padding: EdgeInsets.only(top: 8),
-                                  ctrl: _passCtrl,
-                                  keepShow: false,
-                                  showSuccess: true,
-                                  message: dic['passwordRequires']!,
-                                  validate: _validateLength,
-                                ),
-                                InputErrorTip(
-                                  ctrl: _passCtrl,
-                                  keepShow: false,
-                                  showSuccess: true,
-                                  message: dic['atLeastOneUppercaseLetter']!,
-                                  validate: _validateUpCase,
-                                ),
-                                InputErrorTip(
-                                  ctrl: _passCtrl,
-                                  keepShow: false,
-                                  showSuccess: true,
-                                  message: dic['atLeastOneLowercaseLetter']!,
-                                  validate: _validateLowerCase,
-                                ),
-                                InputErrorTip(
-                                  ctrl: _passCtrl,
-                                  keepShow: false,
-                                  showSuccess: true,
-                                  message: dic['atLeastOneNumber']!,
-                                  validate: _validateNumber,
-                                ),
-                                InputItem(
-                                  initialValue: '',
-                                  controller: _pass2Ctrl,
-                                  isPassword: true,
-                                  focusNode: _pass2Focus,
-                                  placeholder: dic['confirmPassword']!,
-                                ),
-                                InputErrorTip(
-                                  padding: EdgeInsets.only(top: 8),
-                                  ctrl: _pass2Ctrl,
-                                  message: dic['passwordDifferent']!,
-                                  validate: _validateSame,
-                                  keepShow: false,
-                                  focusNode: _pass2Focus,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top:36),
-                                  child: Text(dic['createPasswordTip']!,
-                                      style: Theme.of(context).textTheme.headline6!.copyWith(
-                                        color: ColorsUtil.hexColor(0x666666),
-                                      )),
-                                ),
-                                _supportBiometric
-                                    ? Padding(
-                                  padding: EdgeInsets.only(top: 24),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        height: 24,
-                                        width: 24,
-                                        child: Checkbox(
-                                          value: _enableBiometric,
-                                          onChanged: (v) {
-                                            setState(() {
-                                              _enableBiometric = v != null && v == true;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 16),
-                                        child: Text(
-                                            I18n.of(context).main['unlock.bio.enable']!),
-                                      )
-                                    ],
-                                  ),
-                                )
-                                    : Container(),
-                              ],
-                            ),
-                          )
-                        ]
-                    ),
-                  ),
+          child: SafeArea(
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: ListView(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      children: [
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                    child: NormalButton(
-                      disabled: _isFormError() || _submitDisabled,
-                      text: I18n.of(context).main['next']!,
-                      onPressed: _onSubmit,
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.only(bottom: 22),
+                    child:  Text(dic['createPasswordTip']!, style: Theme.of(context).textTheme.headline6!.copyWith(
+                      color: Theme.of(context).primaryColor,
+                    ),),
+                    decoration: BoxDecoration(
+                      color: Color(0x1A594AF1),
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
                     ),
                   ),
-                ],
-              ),
+                        InputItem(
+                          label: dic['password']!,
+                          initialValue: '',
+                          controller: _passCtrl,
+                          isPassword: true,
+                          placeholder: dic['inputPassword']!,
+                        ),
+                        InputErrorTip(
+                          padding: EdgeInsets.only(top: 8),
+                          ctrl: _passCtrl,
+                          keepShow: false,
+                          showSuccess: true,
+                          message: dic['passwordRequires']!,
+                          validate: _validateLength,
+                        ),
+                        InputErrorTip(
+                          ctrl: _passCtrl,
+                          keepShow: false,
+                          showSuccess: true,
+                          message: dic['atLeastOneUppercaseLetter']!,
+                          validate: _validateUpCase,
+                        ),
+                        InputErrorTip(
+                          ctrl: _passCtrl,
+                          keepShow: false,
+                          showSuccess: true,
+                          message: dic['atLeastOneLowercaseLetter']!,
+                          validate: _validateLowerCase,
+                        ),
+                        InputErrorTip(
+                          ctrl: _passCtrl,
+                          keepShow: false,
+                          showSuccess: true,
+                          message: dic['atLeastOneNumber']!,
+                          validate: _validateNumber,
+                        ),
+                        InputItem(
+                          label: dic['confirmPasswordShort']!,
+                          initialValue: '',
+                          controller: _pass2Ctrl,
+                          isPassword: true,
+                          focusNode: _pass2Focus,
+                          placeholder: dic['confirmPassword']!,
+                        ),
+                        InputErrorTip(
+                          padding: EdgeInsets.only(top: 8),
+                          ctrl: _pass2Ctrl,
+                          message: dic['passwordDifferent']!,
+                          validate: _validateSame,
+                          keepShow: false,
+                          focusNode: _pass2Focus,
+                        ),
+                        _supportBiometric
+                            ? Padding(
+                          padding: EdgeInsets.only(top: 24),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: Checkbox(
+                                  value: _enableBiometric,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _enableBiometric = v != null && v == true;
+                                    });
+                                  },
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 16),
+                                child: Text(
+                                    I18n.of(context).main['unlock.bio.enable']!),
+                              )
+                            ],
+                          ),
+                        )
+                            : Container(),
+                      ]
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  child: NormalButton(
+                    disabled: _isFormError() || _submitDisabled,
+                    text: I18n.of(context).main['next']!,
+                    onPressed: _onSubmit,
+                  ),
+                ),
+              ],
             ),
-            maxHeight: 220 + statusBarHeight,
-            fit: BoxFit.fill,
           )
       )
     );

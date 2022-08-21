@@ -27,7 +27,7 @@ class _RootAlertPageState extends State<RootAlertPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     });
   }
   @override

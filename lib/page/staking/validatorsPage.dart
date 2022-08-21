@@ -36,7 +36,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       monitorListDisposer = reaction((_) => store.staking!.validatorsInfo, _onListChange);
       editingController.addListener(_onKeywordsChange);
       Future.delayed(const Duration(milliseconds: 230), () {

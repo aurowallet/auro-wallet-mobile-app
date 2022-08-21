@@ -96,7 +96,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _newPassCtrl.addListener(_monitorSummitStatus);
       _newPass2Ctrl.addListener(_monitorSummitStatus);
       _oldPassCtrl.addListener(_monitorSummitStatus);
