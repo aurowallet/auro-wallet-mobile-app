@@ -166,8 +166,8 @@ flutter:
     - assets/images/setting/usd.svg
     - assets/images/setting/contact.svg
     - assets/images/public/pending_tip.svg
-    - assets/images/public/terms.svg
-    - assets/images/public/privacy.svg
+    - assets/images/setting/terms.svg
+    - assets/images/setting/privacy.svg
     - assets/images/public/scan_bg.png
     - assets/images/public/2x/mina_text_logo@2x.png
     - assets/images/assets/scanner.svg

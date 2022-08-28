@@ -52,8 +52,8 @@ class _Settings extends State<LocalesPage> {
             child: ListView(
               padding: EdgeInsets.only(left: 30, right: 30),
               children: <Widget>[
-                LocaleItem(text: 'English', localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
-                LocaleItem(text: '中文（简体）', localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
+                LocaleItem(text: I18n.getLanguageDisplay('en'), localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
+                LocaleItem(text: I18n.getLanguageDisplay('zh'), localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
               ],
             ),
           );

@@ -30,6 +30,15 @@ class I18n {
     return Localizations.of<I18n>(context, I18n)!;
   }
 
+  static String getLanguageDisplay(localeCode) {
+    switch (localeCode) {
+      case 'zh':
+        return '中文（简体）';
+      default:
+        return 'English';
+    }
+  }
+
   static Map<String, Map<String, Map<String, String>>> _localizedValues = {
     'en': {
       'main': enMain,

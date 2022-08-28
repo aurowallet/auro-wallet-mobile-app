@@ -1,16 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
-    <title>Rectangle</title>
-    <desc>Created with Sketch.</desc>
-    <g id="app-中文" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="设置" transform="translate(-50.000000, -111.000000)">
-            <g id="Rectangle" transform="translate(50.000000, 111.000000)">
-                <rect fill="#38D79F" x="0" y="0" width="28" height="28" rx="10"></rect>
-                <g id="盾牌-(1)" stroke-width="1" transform="translate(8.000000, 7.000000)" fill="#FFFFFF">
-                    <path d="M11.7113924,2.4182853 L6.1721519,0.0354142199 C6.06075949,-0.01180474 5.93586498,-0.01180474 5.82447257,0.0354142199 L0.286919831,2.4182853 C0.113080169,2.49248652 0,2.66449845 0,2.85337429 L0,8.61914657 C0,11.4539705 4.89113924,13.5821965 5.84135021,13.9683802 C5.9443038,14.0105399 6.05738397,14.0105399 6.15864979,13.9683802 C7.10886076,13.5821965 12,11.4556569 12,8.61914657 L12,2.85337429 C11.9983122,2.66449845 11.8852321,2.49248652 11.7113924,2.4182853 Z M5.99831224,10.3257747 L5.99831224,7.58876141 L4.10126582,7.58876141 L5.99831224,3.66621495 L5.99831224,6.40154184 L7.89535865,6.40154184 L5.99831224,10.3257747 Z" id="形状" fill-rule="nonzero"></path>
-                </g>
-            </g>
-        </g>
-    </g>
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.75 14.3049V8.90788L15 5.81538L22.25 8.90788V14.3049C22.25 16.6974 21.0697 18.9358 19.0955 20.2873L15 23.0911L10.9045 20.2873C8.93032 18.9358 7.75 16.6974 7.75 14.3049Z" stroke="black" stroke-width="1.5"/>
+<path d="M11.8889 13.252L14.5109 15.9208L18.2822 12.0822" stroke="black" stroke-width="1.5"/>
 </svg>

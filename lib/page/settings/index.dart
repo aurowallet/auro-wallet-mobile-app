@@ -1,6 +1,9 @@
+import 'package:auro_wallet/common/components/tabPageTitle.dart';
+import 'package:auro_wallet/page/settings/components/settingItem.dart';
+import 'package:auro_wallet/utils/network.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/page/settings/aboutPage.dart';
 import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/page/settings/currenciesPage.dart';
@@ -25,178 +28,122 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
-    var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
-    var aboutUsData = store.settings!.aboutus;
     return Observer(builder: (_) {
-      WalletData acc = store.wallet!.currentWallet;
-      Color primaryColor = Theme.of(context).primaryColor;
+      // WalletData acc = store.wallet!.currentWallet;
+      // Color primaryColor = Theme.of(context).primaryColor;
+      final Map<String, String> i18n = I18n.of(context).main;
+      var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
+      var aboutUsData = store.settings!.aboutus;
+      var networkName = NetworkUtil.getNetworkName(store.settings!.endpoint, store.settings!.customNodeListV2);
       return Scaffold(
         appBar: AppBar(
-          title: Text(i18n['setting']!, style: TextStyle(color: Colors.white, fontSize: 20),),
-          centerTitle: true,
-          elevation: 0.0,
-          backgroundColor: primaryColor,
+          leading: null,
+          title: null,
+          toolbarHeight: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
         ),
         backgroundColor: Colors.white,
-        body: ListView(
-          children: <Widget>[
-            FormPanel(
-              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: Container(
-                      width: 28,
-                      child: SvgPicture.asset(
-                          'assets/images/setting/security.svg',
-                          width: 28,
-                          height: 28
-                      ),
-                    ),
-                    minLeadingWidth: 0,
-                    title: Text(i18n['security']!),
-                    trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                    onTap: () => Navigator.of(context).pushNamed(SecurityPage.route),
-                  ),
-                  ListTile(
-                    leading: Container(
-                      width: 28,
-                      child: SvgPicture.asset(
-                          'assets/images/setting/network.svg',
-                          width: 28,
-                          height: 28
-                      ),
-                    ),
-                    minLeadingWidth: 0,
-                    title: Text(i18n['network']!),
-                    trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                    onTap: () => Navigator.of(context).pushNamed(RemoteNodeListPage.route),
-                  ),
-                  ListTile(
-                    leading: Container(
-                      width: 28,
-                      child: SvgPicture.asset(
-                          'assets/images/setting/locale.svg',
-                          width: 28,
-                          height: 28
-                      ),
-                    ),
-                    minLeadingWidth: 0,
-                    title: Text(i18n['language']!),
-                    trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                    onTap: () => Navigator.of(context).pushNamed(LocalesPage.route),
-                  ),
-                  ListTile(
-                    leading: Container(
-                      width: 28,
-                      child: SvgPicture.asset(
-                          'assets/images/setting/usd.svg',
-                          width: 28,
-                          height: 28
-                      ),
-                    ),
-                    minLeadingWidth: 0,
-                    title: Text(i18n['currency']!),
-                    trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                    onTap: () => Navigator.of(context).pushNamed(CurrenciesPage.route),
-                  ),
-                  ListTile(
-                    leading: Container(
-                      width: 28,
-                      child: SvgPicture.asset(
-                          'assets/images/setting/contact.svg',
-                          width: 28,
-                          height: 28
-                      ),
-                    ),
-                    minLeadingWidth: 0,
-                    title: Text(i18n['addressbook']!),
-                    trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                    onTap: () => Navigator.of(context).pushNamed(ContactListPage.route),
-                  ),
-                ],
-              ),
-            ),
-            FormPanel(
-              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 0),
-              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-              child: Column(
-                  children: [
-                    ListTile(
-                      leading: Container(
-                        width: 28,
-                        child: SvgPicture.asset(
-                            'assets/images/setting/aboutus.svg',
-                            width: 28,
-                            height: 28
+        body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TabPageTitle(title: i18n['setting']!),
+              Expanded(child: ListView(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(top: 10),
+                    padding: EdgeInsets.only(left: 16, right: 10),
+                    child: Column(
+                      children: [
+                        SettingItem(
+                          icon: 'assets/images/setting/security.svg',
+                          title: i18n['security']!,
+                          onTap: () => Navigator.of(context).pushNamed(SecurityPage.route),
                         ),
-                      ),
-                      minLeadingWidth: 0,
-                      title: Text(i18n['about']!),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                      onTap: () => Navigator.of(context).pushNamed(AboutPage.route),
-                    ),
-                    ListTile(
-                      leading: Container(
-                        width: 28,
-                        child: SvgPicture.asset(
-                            'assets/images/public/terms.svg',
-                            width: 28,
-                            height: 28
+                        SettingItem(
+                          icon: 'assets/images/setting/network.svg',
+                          title:i18n['network']!,
+                          value: networkName,
+                          onTap: () => Navigator.of(context).pushNamed(RemoteNodeListPage.route),
                         ),
-                      ),
-                      minLeadingWidth: 0,
-                      title: Text(i18n['userAgree']!),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                      onTap: ()  {
-                        var termsUrl = '';
-                        if (aboutUsData != null) {
-                          switch(languageCode) {
-                            case 'en':
-                              termsUrl = aboutUsData.termsAndContionsEN;
-                              break;
-                            case 'zh':
-                              termsUrl = aboutUsData.termsAndContionsZH;
-                              break;
-                          }
-                        }
-                        launch(termsUrl);
-                      },
-                    ),
-                    ListTile(
-                      leading: Container(
-                        width: 28,
-                        child: SvgPicture.asset(
-                            'assets/images/public/privacy.svg',
-                            width: 28,
-                            height: 28
+                        SettingItem(
+                          icon:  'assets/images/setting/locale.svg',
+                          title: i18n['language']!,
+                          value: I18n.getLanguageDisplay(languageCode),
+                          onTap: () => Navigator.of(context).pushNamed(LocalesPage.route),
                         ),
-                      ),
-                      minLeadingWidth: 0,
-                      title: Text(i18n['privacy']!),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 18),
-                      onTap: ()  {
-                        var termsUrl = '';
-                        if (aboutUsData != null) {
-                          switch(languageCode) {
-                            case 'en':
-                              termsUrl = aboutUsData.privacyPolicyEN;
-                              break;
-                            case 'zh':
-                              termsUrl = aboutUsData.privacyPolicyZH;
-                              break;
-                          }
-                        }
-                        launch(termsUrl);
-                      },
+                        SettingItem(
+                          icon:  'assets/images/setting/usd.svg',
+                          title: i18n['currency']!,
+                          value: store.settings?.currencyCode.toUpperCase(),
+                          onTap: () => Navigator.of(context).pushNamed(CurrenciesPage.route),
+                        ),
+                        SettingItem(
+                          icon:  'assets/images/setting/contact.svg',
+                          title: i18n['addressbook']!,
+                          onTap: () => Navigator.of(context).pushNamed(ContactListPage.route),
+                        ),
+                      ],
                     ),
-                  ]),
-            ),
+                  ),
+                  Container(
+                    height: 0.5,
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                        color: Color(0x1A000000)
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Column(
+                        children: [
+                          SettingItem(
+                            icon:  'assets/images/setting/aboutus.svg',
+                            title: i18n['about']!,
+                            onTap: () => Navigator.of(context).pushNamed(AboutPage.route),
+                          ),
+                          SettingItem(
+                            icon:  'assets/images/setting/terms.svg',
+                            title: i18n['userAgree']!,
+                            onTap: ()  {
+                              var termsUrl = '';
+                              if (aboutUsData != null) {
+                                switch(languageCode) {
+                                  case 'en':
+                                    termsUrl = aboutUsData.termsAndContionsEN;
+                                    break;
+                                  case 'zh':
+                                    termsUrl = aboutUsData.termsAndContionsZH;
+                                    break;
+                                }
+                              }
+                              launch(termsUrl);
+                            },
+                          ),
+                          SettingItem(
+                            icon:  'assets/images/setting/privacy.svg',
+                            title: i18n['privacy']!,
+                            onTap: ()  {
+                              var termsUrl = '';
+                              if (aboutUsData != null) {
+                                switch(languageCode) {
+                                  case 'en':
+                                    termsUrl = aboutUsData.privacyPolicyEN;
+                                    break;
+                                  case 'zh':
+                                    termsUrl = aboutUsData.privacyPolicyZH;
+                                    break;
+                                }
+                              }
+                              launch(termsUrl);
+                            },
+                          ),
+                        ]),
+                  ),
 
-          ],
-        ),
+                ],
+              ))
+            ]),
       );
     });
   }
