@@ -44,18 +44,25 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
 
 
     return Padding(
-      padding: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(top: 10),
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            OutlinedButtonSmall(
+            TextButton(
                 onPressed: onToggle,
-                radius: 30,
-                content: dic['advanceMode']!,
-                shadowColor: Colors.transparent,
-                suffixIcon: Icon(!visibility ? Icons.keyboard_arrow_down_sharp : Icons.keyboard_arrow_up_sharp)
+                style: TextButton.styleFrom(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  primary: Theme.of(context).primaryColor,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(dic['advanceMode']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),
+                    Icon(!visibility ? Icons.arrow_drop_down : Icons.arrow_drop_up, size: 20,)
+                  ],
+                ),
             ),
-            visibility ? FormPanel(
+            visibility ? Container(
               margin: EdgeInsets.only(top: 10),
               child: Column(
                   children: [

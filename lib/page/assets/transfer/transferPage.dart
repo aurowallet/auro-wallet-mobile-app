@@ -372,9 +372,9 @@ class _TransferPageState extends State<TransferPage> {
                   children: <Widget>[
                     Expanded(
                       child: ListView(
-                        padding: EdgeInsets.fromLTRB(28, 10, 28, 30),
+                        padding: EdgeInsets.fromLTRB(20, 22, 20, 0),
                         children: <Widget>[
-                          FormPanel(
+                          Container(
                             child: Column(
                               children: [
                                 InputItem(
@@ -388,15 +388,20 @@ class _TransferPageState extends State<TransferPage> {
                                       icon: SvgPicture.asset(
                                           'assets/images/assets/scanner.svg',
                                           width: 20,
-                                          height: 20
+                                          height: 20,
+                                        color: Colors.black,
                                       ),
                                       onPressed: _onScan,
                                     ),
                                     rightWidget: GestureDetector(
-                                      child: SvgPicture.asset(
-                                          'assets/images/assets/contacts.svg',
-                                          width: 20,
-                                          height: 20
+                                      child: Text(
+                                        dic['addressbook']!,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context)
+                                              .primaryColor
+                                        ),
                                       ),
                                       onTap: _onChooseContact,
                                     )
@@ -414,8 +419,10 @@ class _TransferPageState extends State<TransferPage> {
                                     rightWidget: Text(
                                       '${dic['balance']!}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
                                       textAlign: TextAlign.right,
-                                      style: theme.headline6!.copyWith(
-                                          color: ColorsUtil.hexColor(0xB1B3BD)),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          color: Color(0x80000000)),
                                     ),
                                     suffixIcon: GestureDetector(
                                       onTap: _onAllClick,
@@ -426,7 +433,9 @@ class _TransferPageState extends State<TransferPage> {
                                         children: [
                                           Text(
                                             dic['allTransfer']!,
-                                            style: theme.headline6!.copyWith(
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                                fontWeight: FontWeight.w600,
                                                 color: Theme.of(context)
                                                     .primaryColor),
                                           )
@@ -445,6 +454,13 @@ class _TransferPageState extends State<TransferPage> {
                             fees: fees,
                             onChoose: _onChooseFee,
                             value: currentFee,
+                          ),
+                          Container(
+                            height: 0.5,
+                            margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                            decoration: BoxDecoration(
+                                color: Color(0x1A000000)
+                            ),
                           ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,

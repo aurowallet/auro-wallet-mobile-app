@@ -98,7 +98,7 @@ class _InputItemState extends State<InputItem> {
                   child: Text(
                     widget.label!,
                     textAlign: TextAlign.left,
-                    style: theme.headline5?.copyWith(color: const Color(0xD9000000), fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 12, color: const Color(0xD9000000), fontWeight: FontWeight.w600),
                   )),
               widget.rightWidget == null ? Container() : widget.rightWidget!,
             ],
