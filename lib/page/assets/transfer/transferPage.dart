@@ -195,11 +195,6 @@ class _TransferPageState extends State<TransferPage> {
       final Map<String, String> i18n = I18n.of(context).main;
       var txItems = [
         TxItem(
-            label: i18n['amount']!,
-            value:
-                '${Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals)} ${COIN.coinSymbol}',
-            type: TxItemTypes.amount),
-        TxItem(
             label: i18n['toAddress']!,
             value: toAddress,
             type: TxItemTypes.address),
@@ -223,6 +218,16 @@ class _TransferPageState extends State<TransferPage> {
           items: txItems,
           disabled: isWatchMode,
           buttonText: isWatchMode ? i18n['watchMode']: i18n['confirm'],
+          headLabel: i18n['amount']!,
+          headValue: Row(
+            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals), style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),),
+              Text(COIN.coinSymbol, style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),),
+            ],
+          ),
           onConfirm: () async {
              String? password = await UI.showPasswordDialog(
                 context: context,
@@ -472,7 +477,7 @@ class _TransferPageState extends State<TransferPage> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+                      padding: EdgeInsets.symmetric(horizontal: 38, vertical: 20),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: dic['next']!,

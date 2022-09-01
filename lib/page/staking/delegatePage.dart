@@ -196,9 +196,9 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
       ValidatorData? validatorData = params.validatorData;
       String validatorAddress = params.manualAddValidator ? _validatorCtrl.text.trim() : validatorData!.address;
       List<TxItem> txItems = [];
-      if (!params.manualAddValidator) {
-        txItems.add(TxItem(label: i18n['producerName']!, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
-      }
+      // if (!params.manualAddValidator) {
+      //   txItems.add(TxItem(label: i18n['producerName']!, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
+      // }
       txItems.addAll([
         TxItem(label: i18n['providerAddress']!, value: validatorAddress, type: TxItemTypes.address),
         TxItem(label: i18n['fromAddress']!, value: store.wallet!.currentAddress, type: TxItemTypes.address),
@@ -212,6 +212,15 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
           context: context,
           title: i18n['delegationInfo']!,
           items: txItems,
+          headLabel: !params.manualAddValidator ? i18n['producerName']! : null,
+          headValue: !params.manualAddValidator ? Text(
+            validatorData!.name ?? Fmt.address(validatorAddress, pad: 8),
+            style: TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+                fontWeight: FontWeight.w600
+            ),
+          ) : null,
           disabled: isWatchMode,
           buttonText: isWatchMode ? i18n['watchMode']: i18n['confirm'],
           onConfirm: () async {

@@ -131,10 +131,7 @@ class _InputItemState extends State<InputItem> {
                     ? _buildSuffixIcon()
                     : (widget.suffixIcon ?? null),
                 // enabledBorder: InputBorder.none,
-                focusedBorder: border.copyWith(
-                  borderSide:
-                      border.borderSide.copyWith(color: widget.focusColor),
-                ),
+                focusedBorder: border,
                 // focusColor: this.borderColor,
                 // enabledBorder: InputBorder.none,
                 // errorBorder: InputBorder.none,

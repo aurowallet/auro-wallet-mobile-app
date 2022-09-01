@@ -82,6 +82,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                       keepShow: false,
                       validate: _validateFee,
                       tipType: TipType.warn,
+                      hideIcon: true,
                     ),
                     InputItem(
                       placeholder: 'Nonce ' +  (widget.noncePlaceHolder ?? '').toString(),

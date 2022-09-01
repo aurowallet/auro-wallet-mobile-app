@@ -53,6 +53,8 @@ class UI {
     required List<TxItem> items,
     Function()? onConfirm,
     String? buttonText,
+    String? headLabel,
+    Widget? headValue,
     bool disabled = false,
   }) {
     showModalBottomSheet<void>(
@@ -62,7 +64,10 @@ class UI {
       builder: (BuildContext context) {
         return TxConfirmDialog(
             title: title,
-            items: items, disabled: disabled,
+            items: items,
+            disabled: disabled,
+            headerLabel: headLabel,
+            headerValue: headValue,
             buttonText: buttonText,
             onConfirm: (){
               Navigator.pop(context);

@@ -190,6 +190,7 @@ flutter:
     - assets/images/public/copy.png
     - assets/images/public/splash_screen.png
     - assets/images/public/no.svg
+    - assets/images/public/icon_nav_close.svg
 
     - assets/images/assets/logo.png
     - assets/images/assets/assets_send.png

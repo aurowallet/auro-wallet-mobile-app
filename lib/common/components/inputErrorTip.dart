@@ -4,7 +4,7 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 enum TipType  {
   error,
-  warn
+  warn,
 }
 class InputErrorTip extends StatefulWidget {
   InputErrorTip({
@@ -14,6 +14,7 @@ class InputErrorTip extends StatefulWidget {
     this.keepShow = true,
     this.showSuccess = false,
     this.focusNode,
+    this.hideIcon = false,
     this.padding = const EdgeInsets.only(top: 5),
     this.tipType = TipType.error
   });
@@ -21,6 +22,7 @@ class InputErrorTip extends StatefulWidget {
   final TextEditingController ctrl;
   final bool Function(String text) validate;
   final bool keepShow;
+  final bool hideIcon;
   final bool showSuccess;
   final String message;
   final FocusNode? focusNode;
@@ -58,6 +60,25 @@ class _InputErrorTipState extends State<InputErrorTip> {
       });
     }
   }
+  Widget renderTip (TipType tipType, bool hideIcon) {
+    if (hideIcon) {
+      return Container();
+    }
+    switch(tipType) {
+      case TipType.error:
+        return SvgPicture.asset(
+            isCorrect ? 'assets/images/public/success_tip.svg' : 'assets/images/public/error_tip.svg',
+            width: 15,
+            height: 15
+        );
+      default:
+        return Icon(
+            CupertinoIcons.exclamationmark_circle_fill,
+            size: 20,
+            color: ColorsUtil.hexColor(0xFFC633)
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,18 +95,10 @@ class _InputErrorTipState extends State<InputErrorTip> {
       padding: widget.padding,
       child: Row(
           children:[
-            widget.tipType == TipType.error ? SvgPicture.asset(
-                isCorrect ? 'assets/images/public/success_tip.svg' : 'assets/images/public/error_tip.svg',
-                width: 15,
-                height: 15
-            ):   Icon(
-        CupertinoIcons.exclamationmark_circle_fill,
-        size: 20,
-        color: ColorsUtil.hexColor(0xFFC633)
-    ),
+            this.renderTip(widget.tipType, widget.hideIcon),
             Padding(
-                padding: EdgeInsets.only(left: 6),
-                child: Text(widget.message, style: TextStyle(color: textColor))
+                padding: EdgeInsets.only(left: widget.hideIcon ? 0 :6),
+                child: Text(widget.message, style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.w500))
             )
           ]
       ),
