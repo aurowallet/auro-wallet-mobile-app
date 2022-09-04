@@ -35,11 +35,11 @@ class TxConfirmDialog extends StatelessWidget {
   final Function()? onConfirm;
   Widget renderHead(String headerLabel, Widget headerValue) {
     return Padding(
-      padding: EdgeInsets.only(top: 40),
+      padding:const EdgeInsets.only(top: 40),
       child: Center(
         child:  Column(
           children: [
-            Text(headerLabel, style: TextStyle(color: Color(0x80000000), fontSize: 12),),
+            Text(headerLabel, style: TextStyle(color:const Color(0x80000000), fontSize: 14, fontWeight: FontWeight.w500),),
             headerValue
           ],
         ),
@@ -66,7 +66,7 @@ class TxConfirmDialog extends StatelessWidget {
                   Padding(
                       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                       child: Text(title, style: TextStyle(
-                          color: ColorsUtil.hexColor(0x090909),
+                          color: Color(0xFF222222),
                           fontSize: 16,
                           fontWeight: FontWeight.w600
                       )),
@@ -145,12 +145,12 @@ class TxConfirmItem extends StatelessWidget {
           children: [
             Container(
               width: 85,
-              child: Text(data.label, style: TextStyle(fontSize: 12, color: ColorsUtil.hexColor(0x999999), height: 1.33),),
+              child: Text(data.label, style: TextStyle(fontSize: 14, color: Color(0x80000000), height: 1.33, fontWeight: FontWeight.w500),),
             ),
             Container(
               height: 4,
             ),
-            Text(text, style: TextStyle(color: Colors.black, fontSize: 12, height: 1.33, fontWeight: FontWeight.w500)),
+            Text(text, style: TextStyle(color: Colors.black, fontSize: 14, height: 1.33, fontWeight: FontWeight.w500)),
           ]
       )
     );

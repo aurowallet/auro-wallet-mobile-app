@@ -224,7 +224,7 @@ class _TransferPageState extends State<TransferPage> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals), style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),),
+              Text(Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals), style: TextStyle(color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),),
               Text(COIN.coinSymbol, style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),),
             ],
           ),

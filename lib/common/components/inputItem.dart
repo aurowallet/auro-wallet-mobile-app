@@ -108,7 +108,7 @@ class _InputItemState extends State<InputItem> {
             child:  TextField(
               maxLength: widget.maxLength,
               maxLines: widget.maxLines,
-              cursorColor: Colors.black,
+              cursorColor: Theme.of(context).primaryColor,
               inputFormatters: widget.inputFormatters,
               keyboardType: widget.keyboardType,
               controller: widget.controller,
@@ -131,10 +131,18 @@ class _InputItemState extends State<InputItem> {
                     ? _buildSuffixIcon()
                     : (widget.suffixIcon ?? null),
                 // enabledBorder: InputBorder.none,
-                focusedBorder: border,
+                focusedBorder: border.copyWith(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor
+                  )
+                ),
                 // focusColor: this.borderColor,
                 // enabledBorder: InputBorder.none,
-                // errorBorder: InputBorder.none,
+                errorBorder: border.copyWith(
+                    borderSide: BorderSide(
+                        color: Color(0xFFD65A5A)
+                    )
+                ),
                 // disabledBorder: InputBorder.none,
               ),
             )

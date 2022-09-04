@@ -183,6 +183,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
 
+
     WalletData acc = store.wallet!.currentWallet;
     AccountInfo? balancesInfo = store.assets!.accountsInfo[acc.pubKey];
     BigInt total = balancesInfo != null ? balancesInfo.total :  BigInt.from(0);
@@ -588,7 +589,7 @@ class TransferListItem extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 12,
                                 color:  ColorsUtil.hexColor(0x96969A)
                             ),),
                             Container(

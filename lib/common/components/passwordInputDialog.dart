@@ -120,62 +120,72 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       ),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.only(top: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
               padding: EdgeInsets.only(top: 0),
-              child: Text(dic['securityPassword']!, style: TextStyle(fontSize: 20)),
+              child: Text(dic['securityPassword']!, style: TextStyle(fontSize: 18)),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 12),
+              padding: EdgeInsets.only(top: 20, left: 30, right: 30),
               child: InputItem(
                 autoFocus: true,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                 controller: _passCtrl,
                 isPassword: true,
                 // clearButtonMode: OverlayVisibilityMode.editing,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 27),
-            ),
+      Container(
+        margin: EdgeInsets.only(top: 30),
+        height: 1,
+        color: Colors.black.withOpacity(0.05),
+      ),
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    width: 130,
-                    height: 40,
-                    child: OutlinedButton(
-                      // borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: Text(dic['cancel']!, style: TextStyle(color: Theme.of(context).primaryColor)),
+                  Expanded(child: SizedBox(
+                    height: 48,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).primaryColor,
+                          textStyle: TextStyle(
+                              color: Colors.black
+                          )
+                      ),
+                      child: Text(dic['cancel']!, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                     ),
+                  )),
+                  Container(
+                    width: 0.5,
+                    height: 48,
+                    color: Colors.black.withOpacity(0.1),
                   ),
-                  SizedBox(
-                      width: 130,
-                      height: 40,
-                      child: TextButton(
-                        // color: Theme.of(context).primaryColor,
-                        // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _submitting ? Padding(
+                  Expanded(child: SizedBox(
+                    height: 48,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).primaryColor
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _submitting ? Padding(
                               padding: EdgeInsets.only(right: 5),
                               child: CupertinoTheme( data: CupertinoTheme.of(context).copyWith(brightness: Brightness.dark), child: CupertinoActivityIndicator(),)
-                            ): Container(),
-                            Text(dic['confirm']!, style: TextStyle(color: Colors.white))
-                          ],
-                        ),
-                        onPressed: _submitting ? (){} : () => _onOk(_passCtrl.text.trim()),
+                          ): Container(),
+                          Text(dic['confirm']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16, fontWeight: FontWeight.w600))
+                        ],
                       ),
+                      onPressed: _submitting ? (){} : () => _onOk(_passCtrl.text.trim()),
+                    ),
 
-                  ),
+                  ),)
                 ]
             ),
           ],
