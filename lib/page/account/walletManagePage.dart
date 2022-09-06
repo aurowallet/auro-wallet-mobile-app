@@ -135,38 +135,26 @@ class _WalletManagePageState extends State<WalletManagePage> {
       );
     }
     
-    items.add(this._renderResetButton());
     return items;
   }
-  Widget _renderResetButton() {
-    var theme = Theme.of(context).textTheme;
-    final Map<String, String> dic = I18n.of(context).main;
-    return Padding(
-      padding: EdgeInsets.only(top: 20),
-      child: Center(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _onResetApp,
-          child: Text(
-            dic['resetWallet']!,
-            style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
-          ),
-        ),
-      ),
-    );
-  }
+
   void _onResetApp() async {
     final Map<String, String> dic = I18n.of(context).main;
-    bool? rejected = await UI.showConfirmDialog(
+    bool? confirmed = await UI.showConfirmDialog(
         context: context,
-        icon: Icon(Icons.error,size: 60,color: Color(0xfff95051),),
+        icon: SvgPicture.asset(
+          'assets/images/public/error.svg',
+          width: 58,
+          height: 58,
+        ),
+        title: dic['resetWarnContentTitle']!,
         contents: [
           dic['resetWarnContent']!
         ],
-        okText: dic['cancelReset']!,
-        cancelText: dic['confirmReset']!
+        okText: dic['confirmReset']!,
+        cancelText: dic['cancelReset']!
     );
-    if (rejected != false) {
+    if (confirmed != true) {
       return;
     }
     String? confirmInput = await showDialog<String>(
@@ -200,8 +188,21 @@ class _WalletManagePageState extends State<WalletManagePage> {
     var theme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountManage']!),
+        foregroundColor: Colors.black,
+        title: Text(dic['accountManage']!, style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600
+        ),),
         centerTitle: true,
+        actions: <Widget>[
+          TextButton(
+            child: Text(dic['resetWallet']!, style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFFD65A5A)
+            ),),
+            onPressed: _onResetApp,
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -213,13 +214,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
                   children: _renderAccountList(),
                 ),
               ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 9, horizontal: 30),
-                height: 1,
-                color: ColorsUtil.hexColor(0xf5f5f5),
-              ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[

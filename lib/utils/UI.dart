@@ -115,6 +115,7 @@ class UI {
     required BuildContext context,
     required List<String> contents,
     String? okText,
+    String? title,
     String? cancelText,
     Widget? icon
   }) {
@@ -123,7 +124,7 @@ class UI {
       builder: (_) {
         final Map<String, String> dic = I18n.of(context).main;
         return CustomConfirmDialog(
-          title: dic['prompt']!,
+          title: title ?? dic['prompt']!,
           okText: okText,
           cancelText: cancelText,
           contents: contents,
