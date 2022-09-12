@@ -117,10 +117,10 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
         body: SafeArea(
             child: Column(
               children: [
-                SearchInput(editingController: editingController,),
+                Padding(padding: EdgeInsets.only(bottom: 8), child: SearchInput(editingController: editingController,),),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.only(left: 28, right: 28, bottom: 20, top: 12),
+                    padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 0),
                     itemCount: uiList.length + 1,
                     itemBuilder: (context, index) {
                       if (index == uiList.length) {
@@ -135,10 +135,10 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
                   )
                 ),
                Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                 padding: const EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                  child:  NormalButton(
                    disabled: selectedValidatorAddress.isEmpty,
-                   color: ColorsUtil.hexColor(0x6D5FFE),
+                   // color: ColorsUtil.hexColor(0x6D5FFE),
                    text: I18n.of(context).main['next']!,
                    onPressed: _handleStake,
                  ),
@@ -163,19 +163,17 @@ class ManualAddValidatorButton extends StatelessWidget {
             },
             behavior: HitTestBehavior.opaque,
             child: Container(
-                padding:const EdgeInsets.symmetric(vertical: 15),
+                padding:const EdgeInsets.symmetric(vertical: 21),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(i18n['manualAdd']!, style: theme.headline5!.copyWith(
-                      color: ColorsUtil.hexColor(0x7055FF),
+                    Text(i18n['manualAdd']!, style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).primaryColor,
                     )),
                     Container(width: 8),
-                    SvgPicture.asset(
-                        'assets/images/public/next.svg',
-                        width: 16,
-                        color: ColorsUtil.hexColor(0x7055FF)
-                    ),
+                    Icon(Icons.open_in_new, size: 16, color: Theme.of(context).primaryColor),
                   ],
                 )
             )
