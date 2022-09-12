@@ -219,90 +219,53 @@ class _WalletManagePageState extends State<WalletManagePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton.icon(
+                      onPressed: _onCreate,
+                      icon: SvgPicture.asset(
+                        'assets/images/assets/add_wallet.svg',
+                        width: 20,
+                        height: 20,
+                      ),
+                      label: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [Text(dic['createAccount']!)],
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          alignment: Alignment.centerLeft,
+                        backgroundColor: Theme.of(context).primaryColor,
+                        textStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(12))
+                        ),
+                        minimumSize: Size(0, 48)
+                      ),
+                    ),),
                     Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: ColorsUtil.hexColor(0x252275, alpha: 0.08),
-                              blurRadius: 30.0,
-                              // has the effect of softening the shadow
-                              spreadRadius: 0,
-                              // has the effect of extending the shadow
-                              offset: Offset(
-                                0, // horizontal, move right 10
-                                12.0, // vertical, move down 10
-                              ),
-                            )
-                          ],
-                        ),
-                        constraints: BoxConstraints(
-                            minWidth: 114,
-                            minHeight: 45
-                        ),
-                        child:  TextButton.icon(
-                          icon: SvgPicture.asset(
-                            'assets/images/assets/add_wallet.svg',
-                            width: 24,
-                            height: 24,
-                          ),
-                          label: Text(dic['createAccount']!, style: theme.headline6),
-                          style: ButtonStyle(
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28.0),
-                              // side: BorderSide(color: Colors.red)
-                            )),
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.white),
-                            padding:
-                                MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                    EdgeInsets.all(12)),
-                          ),
-                          // padding: EdgeInsets.all(16),
-                          onPressed: _onCreate,
-                        )
+                      width: 15,
                     ),
-                    Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: ColorsUtil.hexColor(0x252275, alpha: 0.08),
-                              blurRadius: 30.0, // has the effect of softening the shadow
-                              spreadRadius: 0, // has the effect of extending the shadow
-                              offset: Offset(
-                                0, // horizontal, move right 10
-                                12.0, // vertical, move down 10
-                              ),
-                            )
-                          ],
-                        ),
-                        constraints: BoxConstraints(
-                            minWidth: 114,
-                            minHeight: 45
-                        ),
-                        child:  TextButton.icon(
-                          icon: SvgPicture.asset(
-                            'assets/images/assets/import_wallet.svg',
-                            width: 24,
-                            height: 24,
+                    Expanded(child: OutlinedButton.icon(
+                      onPressed: _showActions,
+                      icon: SvgPicture.asset(
+                        'assets/images/assets/import_wallet.svg',
+                        width: 16,
+                        height: 15,
+                      ),
+                      label:Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [Text(dic['importAccount']!)],
+                      ),
+                      style: OutlinedButton.styleFrom(
+                          alignment: Alignment.centerLeft,
+                          foregroundColor: Theme.of(context).primaryColor,
+                        // backgroundColor: Theme.of(context).primaryColor,
+                          textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(12))
                           ),
-                          label: Text(dic['importAccount']!, style:  theme.headline6),
-                          style: ButtonStyle(
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28.0),
-                              // side: BorderSide(color: Colors.red)
-                            )),
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.white),
-                            padding:
-                                MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                    EdgeInsets.all(12)),
-                          ),
-                          // padding: EdgeInsets.all(16),
-                          onPressed: _showActions,
-                        )
-                    ),
+                          minimumSize: Size(0, 48)
+                      ),
+                    ),),
                   ],
                 ),
               )
