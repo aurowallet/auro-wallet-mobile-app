@@ -9,14 +9,14 @@ final appTheme = ThemeData(
   // splashFactory: NoSplashFactory(),
   appBarTheme: AppBarTheme(
       color: Colors.white,
+      foregroundColor: Colors.black,
       iconTheme: IconThemeData(
           color: Colors.black
       ),
-      textTheme: theme.textTheme.copyWith(
-        headline6: theme.textTheme.headline6!.copyWith(
-            fontSize: 20,
-            color: Colors.black
-        ),
+      titleTextStyle: TextStyle(
+          fontSize: 18,
+          color: Colors.black,
+          fontWeight: FontWeight.w600
       ),
       shadowColor: Colors.transparent
   ),

@@ -126,14 +126,15 @@ class _AccountManagePageState extends State<AccountManagePage> {
     final bool isMnemonicWallet = wallet.walletType == WalletStore.seedTypeMnemonic;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountInfo']!),
-        centerTitle: true,
+          title: Text(dic['accountInfo']!),
+          centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30),
+          padding: EdgeInsets.symmetric(horizontal: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               CopyContainer(
                   child:  AccountInfoItem(label: dic['accountAddress']!, value: account.pubKey),
@@ -141,7 +142,17 @@ class _AccountManagePageState extends State<AccountManagePage> {
               ),
               AccountInfoItem(label: dic['accountName']!, value: Fmt.accountName(account), onClick: _changeAccountName,),
               !isWatchedAccount ? AccountInfoItem(label: dic['exportPrivateKey']!, onClick: _onExportPrivateKey) : Container(),
-              !isMnemonicWallet ? AccountInfoItem(label: dic['accountDelete']!, onClick: _deleteAccount) : Container(),
+              !isMnemonicWallet || true ? TextButton(
+                child: Text(dic['accountDelete']!),
+                onPressed: _deleteAccount,
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  foregroundColor: Color(0xFFD65A5A),
+                  minimumSize: Size(double.infinity, 54),
+                  alignment: Alignment.centerLeft,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ) : Container(),
             ],
           )
         ),
@@ -181,16 +192,17 @@ class AccountInfoItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(label,
-                          style: theme.headline4!.copyWith(
-                              color: ColorsUtil.hexColor(0x01000d),
-                              fontWeight: FontWeight.w500)),
+                          style: TextStyle(
+                            fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600)),
                       value == null || value!.isEmpty
                           ? Container()
                           : Padding(
-                              padding: EdgeInsets.only(top: 9),
+                              padding: EdgeInsets.only(top: 4),
                               child: Text(
                                 value!,
-                                style: theme.headline5!.copyWith( color: Theme.of(context).primaryColor),)
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black.withOpacity(0.3), height: 1.2))
                       )
                     ],
                   ),
@@ -201,7 +213,8 @@ class AccountInfoItem extends StatelessWidget {
                     child: SvgPicture.asset(
                         'assets/images/assets/right_arrow.svg',
                         width: 6,
-                        height: 12
+                        height: 12,
+                      color: Colors.black.withOpacity(0.3),
                     )
                 ): Container(),
               ],
