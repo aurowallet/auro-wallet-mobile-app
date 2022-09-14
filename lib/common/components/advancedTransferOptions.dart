@@ -44,15 +44,17 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
 
 
     return Padding(
-      padding: EdgeInsets.only(top: 10),
+      padding: EdgeInsets.zero,
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextButton(
                 onPressed: onToggle,
                 style: TextButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  primary: Theme.of(context).primaryColor,
+                  foregroundColor: Theme.of(context).primaryColor,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -63,10 +65,11 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                 ),
             ),
             visibility ? Container(
-              margin: EdgeInsets.only(top: 10),
+              margin: EdgeInsets.only(top: 20),
               child: Column(
                   children: [
                     InputItem(
+                      label: dic['fee']!,
                       padding: EdgeInsets.zero,
                       placeholder: dic['feePlaceHolder']!,
                       controller: widget.feeCtrl,
@@ -85,6 +88,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                       hideIcon: true,
                     ),
                     InputItem(
+                      label: 'Nonce',
                       placeholder: 'Nonce ' +  (widget.noncePlaceHolder ?? '').toString(),
                       keyboardType: TextInputType.number,
                       controller: widget.nonceCtrl,

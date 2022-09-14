@@ -38,8 +38,8 @@ class ValidatorItem extends StatelessWidget {
             color: checked ? Theme.of(context).primaryColor : Colors.black.withOpacity(0.05)
           )
         ),
-          padding:const EdgeInsets.all(12),
-          margin:const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.all(12),
+          margin: const EdgeInsets.only(top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,

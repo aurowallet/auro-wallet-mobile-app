@@ -286,9 +286,9 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                   children: <Widget>[
                     Expanded(
                       child: ListView(
-                        padding: EdgeInsets.fromLTRB(28, 10, 28, 0),
+                        padding: EdgeInsets.fromLTRB(20, 28, 20, 0),
                         children: <Widget>[
-                          FormPanel(
+                          Container(
                             child: Column(
                               children: [
                                 !params.manualAddValidator ?
@@ -311,6 +311,13 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                             value: currentFee,
                             onChoose: _onChooseFee,
                           ),
+                          Container(
+                            height: 0.5,
+                            margin: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                            decoration: BoxDecoration(
+                                color: Color(0x1A000000)
+                            ),
+                          ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
@@ -321,7 +328,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+                      padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: i18n['next']!,
@@ -356,8 +363,9 @@ class ValidatorSelector extends StatelessWidget {
           i18n['stakingProviderName']!,
           textAlign: TextAlign.left,
           style: TextStyle(
-              fontSize: 16,
-              color: ColorsUtil.hexColor(0x333333)
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xD9000000)
           ),
         ),
         GestureDetector(
@@ -367,11 +375,12 @@ class ValidatorSelector extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           child: Container(
               height: 50,
-              margin: EdgeInsets.only(top: 10),
+              margin: EdgeInsets.only(top: 6),
               padding: EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color:  ColorsUtil.hexColor(0xF6F7F8),
-                borderRadius: BorderRadius.circular(10),
+                // color:  ColorsUtil.hexColor(0xF6F7F8),
+                border: Border.all(color: Color(0x1A000000), width: 0.5),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -381,10 +390,11 @@ class ValidatorSelector extends StatelessWidget {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                           fontSize: 16,
-                          color: ColorsUtil.hexColor(0x333333)
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xD9000000)
                       ),
                     ),
-                    Icon(Icons.arrow_forward_ios, size: 15, color: ColorsUtil.hexColor(0xcdcdd7),)
+                    Icon(Icons.arrow_forward_ios, size: 15, color: Colors.black,)
                   ]
               )
           ),

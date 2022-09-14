@@ -21,7 +21,7 @@ class InputItem extends StatefulWidget {
         this.backgroundColor =  Colors.white,
         this.borderColor =  const Color(0x1A000000),
         this.focusColor = Colors.transparent,
-        this.inputPadding = const EdgeInsets.only(top: 4),
+        this.inputPadding = const EdgeInsets.only(top: 6),
         this.suffixIcon,
         this.autoFocus = false,
       });
@@ -81,7 +81,7 @@ class _InputItemState extends State<InputItem> {
       gapPadding: 0,
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(
-          width: widget.borderColor == Colors.transparent ? 0 : 1,
+          width: widget.borderColor == Colors.transparent ? 0 : 0.5,
           style: BorderStyle.solid,
           color: widget.borderColor
       ),

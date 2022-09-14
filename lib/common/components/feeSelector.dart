@@ -118,7 +118,7 @@ class FeeItem extends StatelessWidget {
                 )
             ),
             child:  Center(
-              child: Text(this.text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x666666))),
+              child: Text(this.text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: isActive ? Theme.of(context).primaryColor : Colors.black)),
             ),
           ),
           // isActive ? Positioned(
