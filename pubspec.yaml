@@ -155,6 +155,12 @@ flutter:
     - assets/images/public/success_tip.svg
     - assets/images/public/next.svg
     - assets/images/public/wallet_success.png
+    - assets/images/public/scan_bg.png
+    - assets/images/public/2x/mina_text_logo@2x.png
+    - assets/images/public/red_alert.svg
+    - assets/images/public/pending_tip.svg
+
+    # setting
     - assets/images/setting/aboutus.svg
     - assets/images/setting/locale.svg
     - assets/images/setting/network.svg
@@ -165,13 +171,10 @@ flutter:
     - assets/images/setting/wechat.png
     - assets/images/setting/usd.svg
     - assets/images/setting/contact.svg
-    - assets/images/public/pending_tip.svg
     - assets/images/setting/terms.svg
     - assets/images/setting/privacy.svg
-    - assets/images/public/scan_bg.png
-    - assets/images/public/2x/mina_text_logo@2x.png
-    - assets/images/assets/scanner.svg
-    - assets/images/public/red_alert.svg
+    - assets/images/setting/2.0x/setting_logo.png
+    - assets/images/setting/setting_logo.png
 
     ## stake
     - assets/images/stake/icon_delegation.svg
@@ -201,6 +204,7 @@ flutter:
     - assets/images/assets/assets_fail.png
     - assets/images/assets/success.png
     - assets/images/assets/contacts.svg
+    - assets/images/assets/scanner.svg
 
     - assets/images/public/loading.gif
 

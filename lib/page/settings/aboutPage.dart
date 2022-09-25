@@ -42,25 +42,25 @@ class _AboutPage extends State<AboutPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Image.asset('assets/images/assets/2x/mina_round_logo@2x.png', width: 65, height: 65,),
+                  padding: EdgeInsets.only(top: 55, bottom: 10),
+                  child: Image.asset('assets/images/setting/setting_logo.png', width: 65, height: 65,),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
                         i18n['walletName']!,
-                        style: theme.headline3!.copyWith(color: ColorsUtil.hexColor(0x000000))
+                        style: TextStyle(fontSize:18, fontWeight: FontWeight.w500, color: Colors.black)
                     ),
                   ],
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text('$app_version', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
+                  padding: EdgeInsets.only(top: 5),
+                  child: Text('$app_version', style: TextStyle(fontSize:14, fontWeight: FontWeight.w400, color: Colors.black.withOpacity(0.5))),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 27, vertical: 20),
-                  child: Text(i18n['walletAbout']!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x000000), height: 1.3)),
+                  padding: EdgeInsets.only(top: 10, right: 30, left: 30),
+                  child: Text(i18n['walletAbout']!, style: TextStyle(fontSize:14, fontWeight: FontWeight.w400, color: ColorsUtil.hexColor(0x000000), height: 1.3)),
                 ),
                 aboutus != null ? Padding(
                   padding: EdgeInsets.only(top: 70, left: 27, right: 27),
