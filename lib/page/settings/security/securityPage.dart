@@ -140,16 +140,16 @@ class _SecurityPageState extends State<SecurityPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
-          child: Column(
-            children: <Widget>[
-              ImportItem(text: dic['restoreSeed']!, onClick: _onBackup,),
-              ImportItem(text: dic['changePassword']!, onClick: _onChangePassword,),
-              _supportBiometric ?
-              SwitchItem(text: dic['unlock.bio.enable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
-                  : Container()
-            ],
-          )
+            padding: EdgeInsets.only(left: 20, right: 20, top: 20),
+            child: Column(
+              children: <Widget>[
+                ImportItem(text: dic['restoreSeed']!, onClick: _onBackup,),
+                ImportItem(text: dic['changePassword']!, onClick: _onChangePassword,),
+                _supportBiometric ?
+                SwitchItem(text: dic['unlock.bio.enable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
+                    : Container()
+              ],
+            )
         ),
       ),
     );
@@ -168,28 +168,25 @@ class ImportItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onClick,
-      child: Container(
-          padding: EdgeInsets.symmetric(vertical: 15),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-          ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x010000)),),
-            Container(
-                width: 6,
-                margin: EdgeInsets.only(left: 14,),
-                child: SvgPicture.asset(
-                    'assets/images/assets/right_arrow.svg',
+        onTap: onClick,
+        child: Container(
+            height: 54,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(text, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+                Container(
                     width: 6,
-                    height: 12
-                )
-            ),
-          ],
+                    margin: EdgeInsets.only(left: 14,),
+                    child: SvgPicture.asset(
+                        'assets/images/assets/right_arrow.svg',
+                        width: 6,
+                        height: 12
+                    )
+                ),
+              ],
+            )
         )
-      )
     );
   }
 }
@@ -208,14 +205,11 @@ class SwitchItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-        ),
+        height: 54,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x010000)),),
+            Text(text, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
             FlutterSwitch(
               value: isOn,
               width: 54,
@@ -223,7 +217,7 @@ class SwitchItem extends StatelessWidget {
               onToggle: (value) {
                 onClick(value);
               },
-              activeColor: ColorsUtil.hexColor(0x6B5DFB),
+              activeColor: Theme.of(context).primaryColor,
             ),
           ],
         )

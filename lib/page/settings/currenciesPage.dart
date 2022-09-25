@@ -41,13 +41,13 @@ class _Currencies extends State<CurrenciesPage> {
         builder: (_) {
           return SafeArea(
             child: ListView(
-              padding: EdgeInsets.only(left: 30, right: 30),
+              padding: EdgeInsets.only(top: 20),
               children: <Widget>[
-                LocaleItem(text: 'USD', localeKey: 'usd', checked: store.currencyCode == 'usd', onChecked: onChange,),
-                LocaleItem(text: 'CNY', localeKey: 'cny', checked: store.currencyCode == 'cny', onChecked: onChange,),
-                LocaleItem(text: 'RUB', localeKey: 'rub', checked: store.currencyCode == 'rub', onChecked: onChange,),
-                LocaleItem(text: 'EUR', localeKey: 'eur', checked: store.currencyCode == 'eur', onChecked: onChange,),
-                LocaleItem(text: 'GBP', localeKey: 'gbp', checked: store.currencyCode == 'gbp', onChecked: onChange,),
+                CurrencyItem(text: 'USD', localeKey: 'usd', checked: store.currencyCode == 'usd', onChecked: onChange,),
+                CurrencyItem(text: 'CNY', localeKey: 'cny', checked: store.currencyCode == 'cny', onChecked: onChange,),
+                CurrencyItem(text: 'RUB', localeKey: 'rub', checked: store.currencyCode == 'rub', onChecked: onChange,),
+                CurrencyItem(text: 'EUR', localeKey: 'eur', checked: store.currencyCode == 'eur', onChecked: onChange,),
+                CurrencyItem(text: 'GBP', localeKey: 'gbp', checked: store.currencyCode == 'gbp', onChecked: onChange,),
               ],
             ),
           );
@@ -56,8 +56,8 @@ class _Currencies extends State<CurrenciesPage> {
     );
   }
 }
-class LocaleItem extends StatelessWidget {
-  LocaleItem(
+class CurrencyItem extends StatelessWidget {
+  CurrencyItem(
       {
         this.checked = false,
         required this.text,
@@ -70,24 +70,27 @@ class LocaleItem extends StatelessWidget {
   final void Function(bool, String) onChecked;
   @override
   Widget build(BuildContext context) {
-    return FormPanel(
-      margin: EdgeInsets.only(top: 10),
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: ListTile(
-        leading: null,
-        title: Text(text, style: TextStyle(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-        trailing: RoundCheckBox(
-          size: 30,
-          borderColor: ColorsUtil.hexColor(0xcccccc),
-          isChecked: checked,
-          uncheckedColor: Colors.white,
-          checkedColor: ColorsUtil.hexColor(0x59c49c),
-          onTap: (bool? checkedFlag) {
-            onChecked(checkedFlag ?? false, localeKey);
-          },
-        ),
-        onTap: () => onChecked(!checked, localeKey),
-      )
+    return Container(
+        height: 54,
+        child: ListTile(
+          leading: null,
+          minLeadingWidth: 0,
+          minVerticalPadding: 0,
+          contentPadding: EdgeInsets.only(left: 20, right: 20),
+          title: Text(text, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
+          trailing: RoundCheckBox(
+            size: 18,
+            borderColor: Colors.transparent,
+            isChecked: checked,
+            uncheckedColor: Colors.white,
+            checkedColor: Theme.of(context).primaryColor,
+            checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
+            onTap: (bool? checkedFlag) {
+              onChecked(checkedFlag ?? false, localeKey);
+            },
+          ),
+          onTap: () => onChecked(!checked, localeKey),
+        )
     );
   }
 }

@@ -50,7 +50,7 @@ class _Settings extends State<LocalesPage> {
           var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
           return SafeArea(
             child: ListView(
-              padding: EdgeInsets.only(left: 30, right: 30),
+              padding: EdgeInsets.only(top: 20),
               children: <Widget>[
                 LocaleItem(text: I18n.getLanguageDisplay('en'), localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
                 LocaleItem(text: I18n.getLanguageDisplay('zh'), localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
@@ -76,23 +76,28 @@ class LocaleItem extends StatelessWidget {
   final void Function(bool, String) onChecked;
   @override
   Widget build(BuildContext context) {
-    return FormPanel(
-      margin: EdgeInsets.only(top: 10),
-      padding: EdgeInsets.symmetric(vertical: 10),
+    return Container(
+      height: 54,
       child: ListTile(
         leading: null,
-        title: Text(text, style: TextStyle(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-        trailing: RoundCheckBox(
-          size: 30,
-          borderColor: ColorsUtil.hexColor(0xcccccc),
+        minLeadingWidth: 0,
+        minVerticalPadding: 0,
+        contentPadding: EdgeInsets.only(left: 20, right: 20),
+        selectedColor: Colors.red,
+        focusColor: Colors.amber,
+        title: Text(text, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
+        trailing: checked ? RoundCheckBox(
+          size: 18,
+          borderColor: Colors.transparent,
           isChecked: checked,
           uncheckedColor: Colors.white,
-          checkedColor: ColorsUtil.hexColor(0x59c49c),
+          checkedColor: Theme.of(context).primaryColor,
+          checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
           // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
           onTap: (bool? checkedFlag) {
             onChecked(checkedFlag!, localeKey);
           },
-        ),
+        ) : null,
         onTap: () => onChecked(!checked, localeKey),
       )
     );
