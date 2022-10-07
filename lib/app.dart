@@ -1,3 +1,4 @@
+import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
 
@@ -41,7 +42,7 @@ import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/createAccountEntryPage.dart';
 import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/page/settings/currenciesPage.dart';
-import 'package:auro_wallet/page/settings/contactListPage.dart';
+import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/page/settings/security/securityPage.dart';
 import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
@@ -212,6 +213,7 @@ class _WalletAppState extends State<WalletApp> {
         LocalesPage.route: (_) => LocalesPage(_appStore!.settings!, _changeLang),
         CurrenciesPage.route: (_) => CurrenciesPage(_appStore!.settings!),
         ContactListPage.route: (_) => ContactListPage(_appStore!.settings!),
+        ContactEditPage.route: (_) => ContactEditPage(_appStore!.settings!),
         SecurityPage.route: (_) => SecurityPage(_appStore!),
         ExportMnemonicResultPage.route: (_) => ExportMnemonicResultPage(),
 

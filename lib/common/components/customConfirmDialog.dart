@@ -56,14 +56,14 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                   padding: EdgeInsets.only(top: 0),
                   child: Text(widget.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 ),
-                Padding(
+                widget.contents.length > 0 ? Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Column(
                     children: widget.contents.map((content) => Text(content, style: TextStyle(
                       fontSize: 14, fontWeight: FontWeight.w400
                     ),)).toList(),
                   ),
-                ),
+                ): Container(),
               ],
             ),
           ),

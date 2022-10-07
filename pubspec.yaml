@@ -173,6 +173,7 @@ flutter:
     - assets/images/setting/contact.svg
     - assets/images/setting/terms.svg
     - assets/images/setting/privacy.svg
+    - assets/images/setting/empty_contact.svg
     - assets/images/setting/2.0x/setting_logo.png
     - assets/images/setting/setting_logo.png
 

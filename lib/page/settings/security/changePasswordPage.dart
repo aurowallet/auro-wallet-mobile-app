@@ -175,7 +175,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
             children: <Widget>[
               Expanded(
                 child: ListView(
-                  padding: EdgeInsets.fromLTRB(30, 8, 30, 8),
+                  padding: EdgeInsets.fromLTRB(20, 23, 20, 23),
                   children: <Widget>[
                     InputItem(
                       label: dic['inputOldPwd']!,
@@ -225,7 +225,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.all(16),
+                margin: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                 child: NormalButton(
                   text: dic['confirm']!,
                   disabled: _submitDisabled,

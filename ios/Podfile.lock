@@ -19,13 +19,13 @@ PODS:
   - fluttertoast (0.0.2):
     - Flutter
     - Toast
-  - image_picker (0.0.1):
+  - image_picker_ios (0.0.1):
     - Flutter
   - package_info (0.0.1):
     - Flutter
   - path_provider_ios (0.0.1):
     - Flutter
-  - permission_handler_apple (9.0.2):
+  - permission_handler_apple (9.0.4):
     - Flutter
   - qr_code_tools (0.0.7):
     - Flutter
@@ -59,7 +59,7 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - flutter_sodium (from `.symlinks/plugins/flutter_sodium/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
-  - image_picker (from `.symlinks/plugins/image_picker/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
@@ -98,8 +98,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_sodium/ios"
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
-  image_picker:
-    :path: ".symlinks/plugins/image_picker/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   path_provider_ios:
@@ -135,11 +135,11 @@ SPEC CHECKSUMS:
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   flutter_sodium: c84426b4de738514b5b66cfdeb8a06634e72fe0b
-  fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
-  image_picker: 541dcbb3b9cf32d87eacbd957845d8651d6c62c3
+  fluttertoast: 16fbe6039d06a763f3533670197d01fc73459037
+  image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
-  path_provider_ios: 7d7ce634493af4477d156294792024ec3485acd5
-  permission_handler_apple: d21b38e1a4b2e041c63af9568f9165e114e507a6
+  path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
+  permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   qr_code_tools: 5b5dd44ccdfa4b81f645c251e421f61003254b81
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   safe_device: 4539eb6bdbeb4b61a763a51c4e73e6b37dea4e3d
@@ -150,7 +150,7 @@ SPEC CHECKSUMS:
   update_app: 03c24a56ba197e2a036d5230b02e85825b76e045
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
   webcrypto: ac37b97f415c7114abb8af22d58048b5cbcb23d3
-  webview_flutter_wkwebview: 005fbd90c888a42c5690919a1527ecc6649e1162
+  webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
 
 PODFILE CHECKSUM: 000e34589240e75bda94fee3f855b0fcf15db8ed
 

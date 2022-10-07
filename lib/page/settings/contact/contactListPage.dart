@@ -1,15 +1,13 @@
+import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/common/components/addressBookDialog.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ContactListPage extends StatefulWidget {
   final SettingsStore store;
@@ -24,52 +22,44 @@ class _ContactListPageState extends State<ContactListPage> {
   final Api api = webApi;
 
   Future<Map<String, String>?> _showAddressDialog(String? initName, String? initAddress) async {
-    var i18n = I18n.of(context).main;
-    List<String>? inputs = await showDialog<List<String>>(
-      context: context,
-      builder: (_) {
-        return AddressBookDialog(
-            name: initName,
-            address: initAddress,
-            onOk:(String? name, String? address) {
-              if (name == null || name.isEmpty
-                  || address == null || address.isEmpty
-              ) {
-                UI.toast(i18n['urlError_1']!);
-                return false;
-              }
-              return true;
-            }
-        );
-      },
-    );
+    var contactInputs = await Navigator.of(context).pushNamed(ContactEditPage.route, arguments: {
+      "name": initName, "address": initAddress});
+    List<String>? inputs  = contactInputs as List<String>?;
+    // List<String>? inputs = await showDialog<List<String>>(
+    //   context: context,
+    //   builder: (_) {
+    //     return AddressBookDialog(
+    //         name: initName,
+    //         address: initAddress,
+    //         onOk:(String? name, String? address) {
+    //           if (name == null || name.isEmpty
+    //               || address == null || address.isEmpty
+    //           ) {
+    //             UI.toast(i18n['urlError_1']!);
+    //             return false;
+    //           }
+    //           return true;
+    //         }
+    //     );
+    //   },
+    // );
     if (inputs == null) {
       return null;
     }
     String name = inputs[0].trim();
     String address = inputs[1].trim();
-    bool isValid = await webApi.account.isAddressValid(address);
-    if (!isValid) {
-      UI.toast(i18n['sendAddressError']!);
-      return null;
-    }
     return {
       "name": name,
       "address": address
     };
   }
   void _addContact() async {
-    var i18n = I18n.of(context).main;
     var nameAndAddressMap = await _showAddressDialog(null, null);
     if (nameAndAddressMap == null) {
       return;
     }
     String name = nameAndAddressMap["name"]!;
     String address = nameAndAddressMap["address"]!;
-    if (widget.store.contactList.any((element) => element.address == address)) {
-      UI.toast(i18n['repeatContact']!);
-      return;
-    }
     widget.store.addContact({
       "name": name,
       "address": address
@@ -85,58 +75,63 @@ class _ContactListPageState extends State<ContactListPage> {
     }
     widget.store.removeContact(contact);
   }
+
+  Widget _renderEmpty() {
+    var i18n = I18n.of(context).settings;
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SvgPicture.asset(
+          'assets/images/setting/empty_contact.svg',
+          width: 100,
+          height: 100,
+        ),
+        Text(
+          i18n['noAddress']!,
+          style: TextStyle(
+              color: Colors.black.withOpacity(0.3),
+              fontSize: 12,
+              fontWeight: FontWeight.w400
+          ),
+        )
+      ],
+    );
+  }
+
   Widget _renderContactList(BuildContext context, bool isToSelect) {
     var i18n = I18n.of(context).main;
     var contacts = widget.store.contactList;
     if (contacts.length == 0) {
-      return Container();
+      return this._renderEmpty();
     }
-    List<Widget> list = contacts.map((contact) {
-      return Padding(
-        key: Key(contact.address + contact.name),
-        padding: EdgeInsets.zero,
-        child: Slidable(
-          actionPane: SlidableDrawerActionPane(),
-          actionExtentRatio: 0.2,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30,),
+    return ListView.separated(
+      itemCount: contacts.length,
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        separatorBuilder: (BuildContext context, int index) =>  Container(
+          color: Colors.black.withOpacity(0.1),
+          height: 0.5,
+          margin: EdgeInsets.symmetric(vertical: 10),
+        ),
+        itemBuilder: (BuildContext context, int index) {
+          final contact = contacts[index];
+          return Padding(
+            key: Key(contact.address + contact.name),
+            padding: EdgeInsets.zero,
             child: ContactItem(
               name: contact.name,
               address: contact.address,
               store: widget.store,
               showEditDialog: !isToSelect ? _showAddressDialog : null,
             ),
-          ),
-          secondaryActions: !isToSelect ? <Widget>[
-            IconSlideAction(
-              caption: i18n['delete']!,
-              color: ColorsUtil.hexColor(0xF95051),
-              icon: Icons.delete,
-              onTap: () {
-                _removeContact(contact);
-              },
-            ),
-          ] : [],
-        ),
-      );
-    })
-        .toList();
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 30, right: 30, top: 20),
-          ),
-          ...list
-        ],
-      )
+          );
+        }
     );
   }
   @override
   Widget build(BuildContext context) {
     var i18n = I18n.of(context).main;
-    final Map? params = ModalRoute.of(context)!.settings.arguments as Map;
+    final Map? params = ModalRoute.of(context)!.settings.arguments as Map?;
     var isToSelect = false;
     if (params != null) {
       isToSelect = params['isToSelect'] as bool;
@@ -153,14 +148,10 @@ class _ContactListPageState extends State<ContactListPage> {
             return Column(
               children: [
                 Expanded(
-                  child: ListView(
-                      children: [
-                        _renderContactList(context, isToSelect),
-                      ]
-                  ),
+                  child: _renderContactList(context, isToSelect),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                   child: NormalButton(
                     text: I18n.of(context).main['add']!,
                     onPressed: _addContact ,
@@ -208,19 +199,23 @@ class ContactItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _ctx = context;
-    var theme = Theme.of(context).textTheme;
-    return FormPanel(
+    return Container(
         margin: margin,
         padding: EdgeInsets.symmetric(vertical: 10),
         child: ListTile(
           leading: null,
-          title: Text(name, style: theme.headline4!.copyWith(
-              color: ColorsUtil.hexColor(0x333333), fontWeight: FontWeight.w500
+          minLeadingWidth: 0,
+          minVerticalPadding: 0,
+          contentPadding: EdgeInsets.zero,
+          title: Text(name, style: TextStyle(
+              fontSize: 16,
+              color: Colors.black, fontWeight: FontWeight.w600
           )),
           subtitle: Padding(
             padding: EdgeInsets.only(top: 5),
-            child: Text(address, style: theme.headline5!.copyWith(
-                color: ColorsUtil.hexColor(0x666666), fontWeight: FontWeight.w500
+            child: Text(address, style: TextStyle(
+                fontSize: 14,
+                color: Colors.black.withOpacity(0.3), fontWeight: FontWeight.w500
             )),
           ),
           onTap: _onClick,

@@ -15,7 +15,7 @@ import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
-import 'package:auro_wallet/page/settings/contactListPage.dart';
+import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';

@@ -17,7 +17,7 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/settings/security/securityPage.dart';
-import 'package:auro_wallet/page/settings/contactListPage.dart';
+import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Profile extends StatelessWidget {

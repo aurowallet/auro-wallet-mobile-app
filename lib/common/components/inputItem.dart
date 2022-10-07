@@ -24,9 +24,11 @@ class InputItem extends StatefulWidget {
         this.inputPadding = const EdgeInsets.only(top: 6),
         this.suffixIcon,
         this.autoFocus = false,
+        this.isError,
       });
   final int? maxLength;
   final bool autoFocus;
+  final bool? isError;
   final String? label;
   final Widget? rightWidget;
   final String? placeholder;
@@ -83,7 +85,7 @@ class _InputItemState extends State<InputItem> {
       borderSide: BorderSide(
           width: widget.borderColor == Colors.transparent ? 0 : 0.5,
           style: BorderStyle.solid,
-          color: widget.borderColor
+          color: widget.isError == true ? Color(0xFFD65A5A) : widget.borderColor
       ),
     );
     return Padding(
@@ -133,11 +135,22 @@ class _InputItemState extends State<InputItem> {
                 // enabledBorder: InputBorder.none,
                 focusedBorder: border.copyWith(
                   borderSide: BorderSide(
-                    color: Theme.of(context).primaryColor
+                    color: widget.isError == true ? Color(0xFFD65A5A) : Theme.of(context).primaryColor
                   )
+                ),
+                focusedErrorBorder: border.copyWith(
+                    borderSide: BorderSide(
+                        color: Color(0xFFD65A5A)
+                    )
                 ),
                 // focusColor: this.borderColor,
                 // enabledBorder: InputBorder.none,
+                // errorText: widget.errorText,
+                errorStyle: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFD65A5A)
+                ),
                 errorBorder: border.copyWith(
                     borderSide: BorderSide(
                         color: Color(0xFFD65A5A)

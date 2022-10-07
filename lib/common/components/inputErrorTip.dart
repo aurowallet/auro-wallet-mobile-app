@@ -9,18 +9,21 @@ enum TipType  {
 class InputErrorTip extends StatefulWidget {
   InputErrorTip({
     required this.ctrl,
-    required this.validate,
+    // required this.validate,
     required this.message,
     this.keepShow = true,
     this.showSuccess = false,
     this.focusNode,
     this.hideIcon = false,
     this.padding = const EdgeInsets.only(top: 5),
-    this.tipType = TipType.error
+    this.tipType = TipType.error,
+    this.validate,
+    this.asyncValidate
   });
 
   final TextEditingController ctrl;
-  final bool Function(String text) validate;
+  final bool Function(String text)? validate;
+  final Future<bool> Function(String text)? asyncValidate;
   final bool keepShow;
   final bool hideIcon;
   final bool showSuccess;
@@ -48,13 +51,18 @@ class _InputErrorTipState extends State<InputErrorTip> {
       widget.ctrl.addListener(_onChange);
     }
   }
-  void _onChange() {
+  void _onChange() async {
     String text = widget.ctrl.text.trim();
     if(text.length > 0 && !isDirty) {
       isDirty = true;
     }
     if (isDirty) {
-      bool success = widget.validate(text);
+      bool success = true;
+      if (widget.validate != null) {
+        success = widget.validate!(text);
+      } else if (widget.asyncValidate != null) {
+        success = await widget.asyncValidate!(text);
+      }
       setState(() {
         isCorrect = success;
       });
