@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show SynchronousFuture;
 import 'main.dart';
 import 'home.dart';
+import 'settings.dart';
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<I18n> {
   const AppLocalizationsDelegate(this.overriddenLocale);
@@ -43,10 +44,12 @@ class I18n {
     'en': {
       'main': enMain,
       'home': enHome,
+      'settings': enSettings,
     },
     'zh': {
       'main': zhMain,
       'home': zhHome,
+      'settings': zhSettings,
     },
   };
 
@@ -56,6 +59,11 @@ class I18n {
 
   Map<String, String> get home {
     return _localizedValues[locale.languageCode]!['home']!;
+  }
+
+
+  Map<String, String> get settings {
+    return _localizedValues[locale.languageCode]!['settings']!;
   }
 
 }

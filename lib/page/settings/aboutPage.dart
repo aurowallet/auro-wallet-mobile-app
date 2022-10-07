@@ -27,7 +27,24 @@ class _AboutPage extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     final Map i18n = I18n.of(context).main;
+    final Map i18nSettings = I18n.of(context).settings;
     var theme = Theme.of(context).textTheme;
+    var languageCode = widget.store.settings!.localeCode.isNotEmpty ? widget.store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
+    var aboutUsData = widget.store.settings!.aboutus;
+    var termsUrl = '';
+    var privacyUrl = '';
+    if (aboutUsData != null) {
+      switch(languageCode) {
+        case 'en':
+          termsUrl = aboutUsData.termsAndContionsEN;
+          privacyUrl = aboutUsData.privacyPolicyEN;
+          break;
+        case 'zh':
+          termsUrl = aboutUsData.termsAndContionsZH;
+          privacyUrl = aboutUsData.privacyPolicyZH;
+          break;
+      }
+    }
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       appBar: AppBar(
@@ -61,6 +78,18 @@ class _AboutPage extends State<AboutPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 10, right: 30, left: 30),
                   child: Text(i18n['walletAbout']!, style: TextStyle(fontSize:14, fontWeight: FontWeight.w400, color: ColorsUtil.hexColor(0x000000), height: 1.3)),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 52),
+                  child: BrowserLink(termsUrl, text: i18n['userAgree']!, showIcon: false,),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10),
+                  child: BrowserLink(privacyUrl, text: i18n['privacy']!, showIcon: false,),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10),
+                  child: BrowserLink(privacyUrl, text: i18nSettings['github']!, showIcon: false,),
                 ),
                 aboutus != null ? Padding(
                   padding: EdgeInsets.only(top: 70, left: 27, right: 27),
