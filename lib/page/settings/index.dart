@@ -7,7 +7,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/page/settings/aboutPage.dart';
 import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/page/settings/currenciesPage.dart';
-import 'package:auro_wallet/page/settings/RemoteNodeListPage.dart';
+import 'package:auro_wallet/page/settings/nodes/RemoteNodeListPage.dart';
 import 'package:auro_wallet/page/account/termPage.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';

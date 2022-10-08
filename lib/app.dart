@@ -1,4 +1,5 @@
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
+import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
 
@@ -22,7 +23,7 @@ import 'package:auro_wallet/page/account/accountManagePage.dart';
 import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
-import 'package:auro_wallet/page/settings/remoteNodeListPage.dart';
+import 'package:auro_wallet/page/settings/nodes/remoteNodeListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/service/notification.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -209,6 +210,7 @@ class _WalletAppState extends State<WalletApp> {
         ChangePasswordPage.route: (_) => ChangePasswordPage(_appStore!.wallet!),
         ExportResultPage.route: (_) => ExportResultPage(),
         RemoteNodeListPage.route: (_) => RemoteNodeListPage(_appStore!.settings!),
+        NodeEditPage.route: (_) => NodeEditPage(_appStore!.settings!),
         AboutPage.route: (_) => AboutPage(_appStore!),
         LocalesPage.route: (_) => LocalesPage(_appStore!.settings!, _changeLang),
         CurrenciesPage.route: (_) => CurrenciesPage(_appStore!.settings!),

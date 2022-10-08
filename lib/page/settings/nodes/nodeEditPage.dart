@@ -1,6 +1,8 @@
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
+import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -9,15 +11,15 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class ContactEditPage extends StatefulWidget {
+class NodeEditPage extends StatefulWidget {
   final SettingsStore store;
-  static final String route = '/profile/edit_contacts';
-  ContactEditPage(this.store);
+  static final String route = '/profile/edit_nodes';
+  NodeEditPage(this.store);
   @override
-  _ContactEditPageState createState() => _ContactEditPageState();
+  _NodeEditPageState createState() => _NodeEditPageState();
 }
 
-class _ContactEditPageState extends State<ContactEditPage> {
+class _NodeEditPageState extends State<NodeEditPage> {
 
   final Api api = webApi;
   final TextEditingController _nameCtrl = new TextEditingController();
@@ -81,32 +83,28 @@ class _ContactEditPageState extends State<ContactEditPage> {
 
   Future<bool> _validateAddress(String address) async {
     var i18n = I18n.of(context).main;
-    bool isValid = await webApi.account.isAddressValid(address);
+    var uri = Uri.tryParse(address);
     String? error;
-    if (!isValid) {
-      error = i18n['sendAddressError']!;
+    final Map args =
+    ModalRoute.of(context)!.settings.arguments as Map;
+    final originEndpoint = args['name'] as String?;
+    if (uri == null || !uri.isAbsolute) {
+      error = i18n['urlError_1']!;
     }
-    if (!isEdit && isValid && widget.store.contactList.any((element) => element.address == address)) {
-      error = i18n['repeatContact']!;
+    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
+    if (endpoints.any((element) => element.url == address)
+        || GRAPH_QL_MAINNET_NODE_URL == address
+        || GRAPH_QL_TESTNET_NODE_URL == address
+    ) {
+      if (!(isEdit && address == originEndpoint)) {
+        error = i18n['urlError_3']!;
+      }
     }
     setState(() {
       errorText = error;
       addressError = error != null;
     });
     return error == null;
-  }
-
-  void _onDelete() async {
-    var i18n = I18n.of(context).main;
-    var i18nSettings = I18n.of(context).settings;
-    final args = ModalRoute.of(context)!.settings.arguments as Map;
-    final name = args['name'] as String;
-    final address = args['address'] as String;
-    bool? rejected = await UI.showConfirmDialog(context: context, title: i18nSettings['deleteaddress']!, contents: [], okText: i18n['confirm']!, cancelText: i18n['cancel']!);
-    if (rejected != true) {
-      return;
-    }
-    await widget.store.removeContact(new ContactData(name: name, address: address));
   }
 
   @override
@@ -116,18 +114,8 @@ class _ContactEditPageState extends State<ContactEditPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? i18nSettings['editaddress']! : i18nSettings['addaddress']!),
+        title: Text(isEdit ? i18nSettings['editNetWork']! : i18nSettings['addNetWork']!),
         centerTitle: true,
-        actions: isEdit ? [
-          TextButton(
-            child: Text(i18n['delete']!, style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFFD65A5A)
-            ),),
-            onPressed: _onDelete,
-          )
-        ] : [],
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -135,30 +123,47 @@ class _ContactEditPageState extends State<ContactEditPage> {
           children: [
             Expanded(
               child: ListView(
-                  padding: EdgeInsets.fromLTRB(20, 22, 20, 0),
+                  padding: EdgeInsets.only(top: 0),
                   children: <Widget>[
-                    InputItem(
-                      padding: const EdgeInsets.only(top: 0),
-                      label: i18n['name']!,
-                      controller: _nameCtrl,
+                    Container(
+                      child: Text(i18nSettings['nodeAlert']!,
+                          style: TextStyle(
+                              color: Color(0xFFD65A5A),
+                              fontWeight: FontWeight.w500
+                          )
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      color: Color(0x1AD65A5A),
                     ),
-                    InputItem(
-                      label: i18n['address'],
-                      focusNode: _addressFocus,
-                      padding: EdgeInsets.only(top: 22),
-                      controller: _addressCtrl,
-                      maxLines: 2,
-                      isError: addressError,
-                    ),
-                    InputErrorTip(
-                      padding: EdgeInsets.only(top: 8),
-                      ctrl: _addressCtrl,
-                      message: errorText ?? '',
-                      asyncValidate: _validateAddress,
-                      keepShow: false,
-                      hideIcon: true,
-                      focusNode: _addressFocus,
-                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                      child: Wrap(
+                        children: [
+                          InputItem(
+                            padding: const EdgeInsets.only(top: 0),
+                            label: i18n['networkName']!,
+                            controller: _nameCtrl,
+                          ),
+                          InputItem(
+                            label: i18nSettings['nodeAddress'],
+                            placeholder: 'https://',
+                            focusNode: _addressFocus,
+                            padding: EdgeInsets.only(top: 22),
+                            controller: _addressCtrl,
+                            maxLines: 2,
+                            isError: addressError,
+                          ),
+                          InputErrorTip(
+                            padding: EdgeInsets.only(top: 8),
+                            ctrl: _addressCtrl,
+                            message: errorText ?? '',
+                            asyncValidate: _validateAddress,
+                            keepShow: false,
+                            hideIcon: true,
+                            focusNode: _addressFocus,
+                          ),
+                        ],
+                      ),)
                   ]
               ),
             ),

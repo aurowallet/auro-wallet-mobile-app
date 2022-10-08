@@ -103,7 +103,6 @@ const Map<String, String> zhMain = {
   "networkName": "名称",
   "defaultNetwork": "默认节点",
   "customNetwork": "自定义节点",
-  "addNetWork": "添加节点",
   "delete": "删除",
   "urlError_1": "请输入有效的节点地址",
   "urlError_2": "地址已存在",
@@ -225,7 +224,7 @@ const Map<String, String> zhMain = {
   "cancelReset": "取消重置",
   "deleteConfirm": "请在输入“删除”确定重置钱包",
   "edit": "编辑",
-  "nodeAlert": "请务必只添加受您信任的节点。使用未知节点会有一定风险。",
+  "save": "保存",
   "watchModeWarn2": "Auro 钱包已经不再支持【观察钱包】功能，你需要<red>删除所有观察钱包</red>之后才可以继续使用。",
   "noMoreSupported": "不再支持的账户",
   "deleteWatch": "删除观察钱包",
@@ -345,7 +344,7 @@ const Map<String, String> enMain = {
   "networkName": "Name",
   "defaultNetwork": "Default Node",
   "customNetwork": "Custom Node",
-  "addNetWork": "Add Node",
+
   "delete": "Delete",
   "urlError_1": "Please enter a valid node address",
   "urlError_2": "Address already exists",
@@ -477,8 +476,7 @@ const Map<String, String> enMain = {
   "cancelReset": "Cancel",
   "deleteConfirm": "Type 'delete' to erase current  wallet permanently",
   "edit": "Edit",
-  "nodeAlert":
-      "Only add custom networks you trust. Using unknown nodes can be risky.",
+  "save": "Save",
   "watchModeWarn":
       "In order to provide a better Dapp experience, Auro Wallet will not provide the [Watch Account] function in future versions. Please go to the [Account management] to delete all [Watch Wallet].",
   "watchModeWarn2":

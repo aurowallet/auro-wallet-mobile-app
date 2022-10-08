@@ -27,7 +27,11 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    var selectedText = widget.items.firstWhere((element) => element.key == widget.value).text;
+    var selectedItem = widget.items.map((e) => e as DropdownItem?).firstWhere((element) => element?.key == widget.value, orElse: null);
+    if (selectedItem == null) {
+      return Container();
+    }
+    var selectedText = selectedItem.text;
     return FittedBox(
         child: Container(
           padding: const EdgeInsets.only(left: 14.0, right: 8),

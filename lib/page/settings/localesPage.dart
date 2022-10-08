@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/page/settings/remoteNodeListPage.dart';
+import 'package:auro_wallet/page/settings/nodes/remoteNodeListPage.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
