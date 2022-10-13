@@ -201,12 +201,12 @@ class ContactItem extends StatelessWidget {
     _ctx = context;
     return Container(
         margin: margin,
-        padding: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: null,
           minLeadingWidth: 0,
           minVerticalPadding: 0,
-          contentPadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.symmetric(vertical: 10),
           title: Text(name, style: TextStyle(
               fontSize: 16,
               color: Colors.black, fontWeight: FontWeight.w600

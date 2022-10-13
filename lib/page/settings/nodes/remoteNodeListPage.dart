@@ -146,81 +146,18 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       final tagStr = networkType != null ? networkType.name : "Unknown";
       return Padding(
           key: Key(endpoint.url),
-          padding: EdgeInsets.only(top: 10, left: 20, right: isEditing ? 0 : 20),
-          child: IntrinsicHeight(child: Row(
-            children: [
-              Expanded(
-                  child: NodeItem(
-                      text: endpoint.name,
-                      value: endpoint.url,
-                      checked: widget.store.endpoint == endpoint.url,
-                      onChecked: onChangeEndpoint,
-                      tag: tagStr,
-                      isEditing: isEditing,
-                      editable: true
-                  )
-              ),
-              isEditing ? Container(
-                alignment: Alignment.centerRight,
-                width: 58,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints.expand(),
-                  icon: Icon(Icons.remove_circle_outlined),
-                  color: Color(0xFFD65A5A),
-                  iconSize: 20,
-                  onPressed: () {},
-                ),
-              ) : Container()
-            ],
-          ),)
-        //
-        // Slidable(
-        //   actionPane: SlidableDrawerActionPane(),
-        //   actionExtentRatio: 0.2,
-        //   child: Padding(
-        //       padding: EdgeInsets.symmetric(horizontal: 30,),
-        //       child: NodeItem(
-        //         text: endpoint.name,
-        //         value: endpoint.url,
-        //         checked: widget.store.endpoint == endpoint.url,
-        //         onChecked: onChangeEndpoint,
-        //         tag: tagStr,
-        //       ),
-        //   ),
-        //   secondaryActions: <Widget>[
-        //     SlideAction(
-        //       // color: Colors.transparent,
-        //       decoration: BoxDecoration(
-        //         borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
-        //         color: ColorsUtil.hexColor(0x59c49c),
-        //       ),
-        //       child: Center(
-        //         child: Column(
-        //           mainAxisSize: MainAxisSize.min,
-        //           children: [
-        //             Icon(Icons.edit, color: Colors.white,),
-        //             Text(
-        //               i18n['edit']!,
-        //               style: TextStyle(color: Colors.white),
-        //             )
-        //           ],
-        //         ),
-        //       ),
-        //       onTap: () {
-        //         _editNode(endpoint);
-        //       },
-        //     ),
-        //     IconSlideAction(
-        //       caption: i18n['delete']!,
-        //       color: ColorsUtil.hexColor(0xF95051),
-        //       icon: Icons.delete,
-        //       onTap: () {
-        //         _removeNode(endpoint);
-        //       },
-        //     ),
-        //   ],
-        // ),
+          padding: EdgeInsets.only(top: 10, left: 20, right: 20),
+          child: NodeItem(
+            text: endpoint.name,
+            value: endpoint.url,
+            checked: widget.store.endpoint == endpoint.url,
+            onChecked: onChangeEndpoint,
+            tag: tagStr,
+            isEditing: isEditing,
+            editable: true,
+            onEdit: _editNode,
+            endpoint: endpoint,
+          )
       );
     })
         .toList();
@@ -333,6 +270,8 @@ class NodeItem extends StatelessWidget {
         required this.tag,
         required this.isEditing,
         this.editable = false,
+        this.onEdit,
+        this.endpoint,
         this.margin = const EdgeInsets.only(top: 0),
       });
   final bool checked;
@@ -341,74 +280,89 @@ class NodeItem extends StatelessWidget {
   final String text;
   final String value;
   final String? tag;
+  final CustomNode? endpoint;
   final void Function(bool, String) onChecked;
+  final void Function(CustomNode)? onEdit;
   final EdgeInsetsGeometry margin;
-
+  onPressed() {
+    if (isEditing && onEdit != null && endpoint != null) {
+      onEdit!(endpoint!);
+    } else {
+      onChecked(!checked, value);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     return Container(
         margin: margin,
-        padding: EdgeInsets.all(16).copyWith(bottom: 12),
-        decoration: BoxDecoration(
-            color: Color(0xFFF9FAFC),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            border: Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)
-        ),
-        child: Row(
-          children: [
-            Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          flex:1,
-                          child: Text(Fmt.breakWord(text)!,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-                        ),
-                        tag != null ? Container(
-                          margin: EdgeInsets.only(left: 5),
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: ColorsUtil.hexColor(0xDDDDDD),
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: Text(tag!, style: theme.headline6!.copyWith(color: Colors.white, fontWeight: FontWeight.w500)),
-                        ) : Container()
-                      ],
-                    ),
-                    Text(Fmt.breakWord(value)!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
-                  ],
-                )
+        child:ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFFF9FAFC),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              side: BorderSide(color: Colors.black.withOpacity(0.05), width: 0.5),
+              minimumSize: Size(60, 32),
+              elevation: 0,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: EdgeInsets.all(16).copyWith(bottom: 12),
             ),
-            isEditing && editable ? Container(
-                width: 6,
-                margin: EdgeInsets.only(left: 14,),
-                child: SvgPicture.asset(
-                    'assets/images/assets/right_arrow.svg',
+            child: Row(
+              children: [
+                Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              flex:1,
+                              child: Text(Fmt.breakWord(text)!,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
+                            ),
+                            tag != null ? Container(
+                              margin: EdgeInsets.only(left: 5),
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: ColorsUtil.hexColor(0xDDDDDD),
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: Text(tag!, style: theme.headline6!.copyWith(color: Colors.white, fontWeight: FontWeight.w500)),
+                            ) : Container()
+                          ],
+                        ),
+                        Text(Fmt.breakWord(value)!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
+                      ],
+                    )
+                ),
+                isEditing && editable ? Container(
                     width: 6,
-                    height: 12
-                )
-            ): Container(),
-            checked && !isEditing ? Padding(
-              padding: EdgeInsets.only(left: 14),
-              child: RoundCheckBox(
-                size: 18,
-                borderColor: Colors.transparent,
-                isChecked: checked,
-                uncheckedColor: Colors.white,
-                checkedColor: Theme.of(context).primaryColor,
-                checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
-                // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                onTap: (bool? checkedFlag) {
-                  onChecked(checkedFlag!, value);
-                },
-              ),) : Container()
-          ],
-        )
-    );
+                    margin: EdgeInsets.only(left: 14,),
+                    child: SvgPicture.asset(
+                        'assets/images/assets/right_arrow.svg',
+                        width: 6,
+                        height: 12
+                    )
+                ): Container(),
+                checked && !isEditing ? Padding(
+                  padding: EdgeInsets.only(left: 14),
+                  child: RoundCheckBox(
+                    size: 18,
+                    borderColor: Colors.transparent,
+                    isChecked: checked,
+                    uncheckedColor: Colors.white,
+                    checkedColor: Theme.of(context).primaryColor,
+                    checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
+                    // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+                    onTap: (bool? checkedFlag) {
+                      onChecked(checkedFlag!, value);
+                    },
+                  ),) : Container()
+              ],
+            )
+        ));
   }
 }
