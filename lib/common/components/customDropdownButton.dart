@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class DropdownItem {
-  DropdownItem({required this.text,required this.key});
+  DropdownItem({required this.text,required this.value});
   final String text;
-  final String key;
+  final String value;
 }
 class CustomDropdownButton extends StatefulWidget {
   CustomDropdownButton({
@@ -27,11 +27,6 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    var selectedItem = widget.items.map((e) => e as DropdownItem?).firstWhere((element) => element?.key == widget.value, orElse: null);
-    if (selectedItem == null) {
-      return Container();
-    }
-    var selectedText = selectedItem.text;
     return FittedBox(
         child: Container(
           padding: const EdgeInsets.only(left: 14.0, right: 8),
@@ -52,33 +47,31 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                     itemHeight: 44,
                     dropdownPadding: EdgeInsets.symmetric(vertical: 11),
                     selectedItemBuilder: (context) {
-                      return [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(right: 4),
-                              child: Text(
-                                selectedText,
-                                style: theme.headline6!.copyWith(
-                                    color: Colors.black
-                                ),
+                      return widget.items.map((item) => Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 4),
+                            child: Text(
+                              item.text,
+                              style: theme.headline6!.copyWith(
+                                  color: Colors.black
                               ),
-                            )
-                          ],
-                        )
-                      ];
+                            ),
+                          )
+                        ],
+                      )).toList();
                     },
                     items: widget.items
                         .map((item) =>
                         DropdownMenuItem<String>(
-                            value: item.key,
+                            value: item.value,
                             child: Center(
                               child: Text(
                                 item.text,
                                 style: theme.headline5!.copyWith(
                                     fontWeight: FontWeight.w500,
-                                    color: item.key == widget.value ? Theme.of(context).primaryColor : Colors.black
+                                    color: item.value == widget.value ? Theme.of(context).primaryColor : Colors.black
                                 ),),
                             )
                         ),
@@ -101,32 +94,6 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                       widget.onChoose(value);
                     },
                   ))),
-          // child: DropdownButton<String>(
-          //   focusColor: Colors.white,
-          //   value: widget.value,
-          //   isDense: true,
-          //   isExpanded: true,
-          //   style: TextStyle(color: Colors.white),
-          //   underline: Container(height: 0),
-          //   iconEnabledColor: Colors.black,
-          //   items: widget.items.map<DropdownMenuItem<String>>((DropdownItem item) {
-          //     return DropdownMenuItem<String>(
-          //       value: item.key,
-          //       child: Text(item.text,style:TextStyle(color:Colors.black),),
-          //     );
-          //   }).toList(),
-          //   hint: widget.placeholder != null ? Text(
-          //     widget.placeholder!,
-          //     style: TextStyle(
-          //         color: Colors.black,
-          //         fontSize: 14,
-          //         fontWeight: FontWeight.w500),
-          //   ): null,
-          //   onChanged: (String? value) {
-          //     widget.onChoose(value);
-          //   },
-          // ),
-          // )
         ));
   }
 }

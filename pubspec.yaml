@@ -85,7 +85,7 @@ dependencies:
   styled_text: ^4.0.0+1
   flutter_rust_bridge: ^1.30.0
   freezed_annotation: ^2.0.3
-  dropdown_button2: ^1.7.1
+  dropdown_button2: ^1.8.5
   blur: ^3.1.0
 
 dev_dependencies:

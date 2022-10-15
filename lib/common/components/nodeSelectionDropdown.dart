@@ -14,44 +14,15 @@ class NodeSelectionDropdown extends StatefulWidget {
 }
 
 class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
-  String? netName;
-  ReactionDisposer? _monitorFeeDisposer;
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _monitorFeeDisposer = reaction((_) =>  widget.store.endpoint, this._setNetName);
-    });
-    netName = _getName(null);
     super.initState();
   }
-  _setNetName (String? endpoint) {
-    setState(() {
-      netName = _getName(endpoint);
-    });
-  }
+
   @override
   void dispose() {
-    if (_monitorFeeDisposer != null) {
-      _monitorFeeDisposer!();
-    }
     super.dispose();
-  }
-
-  String _getName(String? endpoint) {
-    var currentEndpoint = endpoint ?? widget.store.endpoint;
-    if (currentEndpoint == GRAPH_QL_MAINNET_NODE_URL) {
-      return 'Mainnet';
-    }
-    if (currentEndpoint == GRAPH_QL_TESTNET_NODE_URL) {
-      return 'Devnet';
-    }
-    try {
-      var res =  widget.store.customNodeListV2.firstWhere((element) => element.url == currentEndpoint);
-      return res.name;
-    } catch (e) {
-      return 'unknown';
-    }
   }
 
   void onChoose(String? endpoint) async {
@@ -66,11 +37,14 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
   @override
   Widget build(BuildContext context) {
     return CustomDropdownButton(items: [
-      DropdownItem(text: 'Mainnet', key: GRAPH_QL_MAINNET_NODE_URL),
-      DropdownItem(text: 'Devnet', key: GRAPH_QL_TESTNET_NODE_URL),
+      DropdownItem(text: 'Mainnet', value: GRAPH_QL_MAINNET_NODE_URL),
+      DropdownItem(text: 'Devnet', value: GRAPH_QL_TESTNET_NODE_URL),
       ...widget.store.customNodeListV2.map((e) {
-        return DropdownItem(text: e.name, key: e.url);
+        return DropdownItem(text: e.name, value: e.url);
       }).toList()
-    ], onChoose: onChoose, value: widget.store.endpoint);
+    ], onChoose: onChoose,
+        // value: GRAPH_QL_TESTNET_NODE_URL
+        value: widget.store.endpoint
+    );
   }
 }

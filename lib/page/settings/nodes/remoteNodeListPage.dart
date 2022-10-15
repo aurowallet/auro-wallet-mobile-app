@@ -294,75 +294,73 @@ class NodeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    return Container(
-        margin: margin,
-        child:ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFF9FAFC),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              side: BorderSide(color: Colors.black.withOpacity(0.05), width: 0.5),
-              minimumSize: Size(60, 32),
-              elevation: 0,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return Padding(
+        padding: margin,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onPressed,
+          child: Container(
               padding: EdgeInsets.all(16).copyWith(bottom: 12),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              flex:1,
-                              child: Text(Fmt.breakWord(text)!,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-                            ),
-                            tag != null ? Container(
-                              margin: EdgeInsets.only(left: 5),
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                color: ColorsUtil.hexColor(0xDDDDDD),
-                                borderRadius: BorderRadius.circular(12.0),
+              decoration: BoxDecoration(
+                  color: Color(0xFFF9FAFC),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                flex:1,
+                                child: Text(Fmt.breakWord(text)!,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
                               ),
-                              child: Text(tag!, style: theme.headline6!.copyWith(color: Colors.white, fontWeight: FontWeight.w500)),
-                            ) : Container()
-                          ],
-                        ),
-                        Text(Fmt.breakWord(value)!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
-                      ],
-                    )
-                ),
-                isEditing && editable ? Container(
-                    width: 6,
-                    margin: EdgeInsets.only(left: 14,),
-                    child: SvgPicture.asset(
-                        'assets/images/assets/right_arrow.svg',
-                        width: 6,
-                        height: 12
-                    )
-                ): Container(),
-                checked && !isEditing ? Padding(
-                  padding: EdgeInsets.only(left: 14),
-                  child: RoundCheckBox(
-                    size: 18,
-                    borderColor: Colors.transparent,
-                    isChecked: checked,
-                    uncheckedColor: Colors.white,
-                    checkedColor: Theme.of(context).primaryColor,
-                    checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
-                    // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                    onTap: (bool? checkedFlag) {
-                      onChecked(checkedFlag!, value);
-                    },
-                  ),) : Container()
-              ],
-            )
-        ));
+                              tag != null ? Container(
+                                margin: EdgeInsets.only(left: 5),
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: ColorsUtil.hexColor(0xDDDDDD),
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                child: Text(tag!, style: theme.headline6!.copyWith(color: Colors.white, fontWeight: FontWeight.w500)),
+                              ) : Container()
+                            ],
+                          ),
+                          Text(Fmt.breakWord(value)!, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))),
+                        ],
+                      )
+                  ),
+                  isEditing && editable ? Container(
+                      width: 6,
+                      margin: EdgeInsets.only(left: 14,),
+                      child: SvgPicture.asset(
+                          'assets/images/assets/right_arrow.svg',
+                          width: 6,
+                          height: 12
+                      )
+                  ): Container(),
+                  checked && !isEditing ? Padding(
+                    padding: EdgeInsets.only(left: 14),
+                    child: RoundCheckBox(
+                      size: 18,
+                      borderColor: Colors.transparent,
+                      isChecked: checked,
+                      uncheckedColor: Colors.white,
+                      checkedColor: Theme.of(context).primaryColor,
+                      checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
+                      // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+                      onTap: (bool? checkedFlag) {
+                        onChecked(checkedFlag!, value);
+                      },
+                    ),) : Container()
+                ],
+              )
+          )),
+    );
   }
 }
