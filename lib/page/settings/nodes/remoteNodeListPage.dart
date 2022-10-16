@@ -32,96 +32,29 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   final Api api = webApi;
 
   bool isEditing = false;
+
   void _addCustomNode(CustomNode? originEndpoint) async {
-    var i18n = I18n.of(context).main;
-    var isEdit = originEndpoint != null;
-    var nodeInputs = await Navigator.of(context).pushNamed(NodeEditPage.route, arguments: {
-      "name": originEndpoint?.name, "address": originEndpoint?.url });
-    var inputs = nodeInputs as List<String>?;
-    if (inputs == null) {
-      return null;
-    }
-    String name = inputs[0].trim();
-    String url = inputs[1].trim();
-    if (name.length > 50 || url.length > 500) {
-      UI.toast('text too long!');
-      return;
-    }
-    CustomNode endpoint = CustomNode(name: name, url: url);
-    var uri = Uri.tryParse(endpoint.url);
-    if (uri == null || !uri.isAbsolute) {
-      UI.toast(i18n['urlError_1']!);
-      return;
-    }
-    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
-    if (endpoints.any((element) => element.url == endpoint.url)
-        || GRAPH_QL_MAINNET_NODE_URL == endpoint.url
-        || GRAPH_QL_TESTNET_NODE_URL == endpoint.url
-    ) {
-      if (!(isEdit && endpoint.url == originEndpoint.url)) {
-        UI.toast(i18n['urlError_3']!);
-        return;
-      }
-    }
-
-    EasyLoading.show(status: '');
-    String? chainId = await webApi.setting.fetchChainId(endpoint.url);
-    if(chainId == null) {
-      UI.toast(i18n['urlError_1']!);
-      EasyLoading.dismiss();
-      return;
-    }
-    endpoint.chainId = chainId;
-    List<NetworkType> fetchNetworkTypes = await webApi.setting.fetchNetworkTypes();
-    final targetNetworks = fetchNetworkTypes.where((element) => element.chainId == endpoint.chainId);
-
-    // only support mainnet and testnet
-    if (targetNetworks.isEmpty || (targetNetworks.first.type != '0' && targetNetworks.first.type != '1')) {
-      UI.toast(i18n['urlError_1']!);
-      EasyLoading.dismiss();
-      return;
-    }
-    endpoint.networksType = targetNetworks.first.type;
-    if (isEdit) {
-      widget.store.updateCustomNode(endpoint, originEndpoint);
-      if (widget.store.endpoint == originEndpoint.url) {
-        if (originEndpoint.url != endpoint.url
-            || originEndpoint.chainId != endpoint.chainId
-        ) {
-          await widget.store.setEndpoint(endpoint.url);
-          webApi.updateGqlClient(endpoint.url);
-          webApi.refreshNetwork();
-        }
-      }
-    } else {
-      endpoints.add(endpoint);
-      await widget.store.setEndpoint(endpoint.url);
-      await widget.store.setCustomNodeList(endpoints);
-      webApi.updateGqlClient(endpoint.url);
-      webApi.refreshNetwork();
-    }
-    EasyLoading.dismiss();
+    Navigator.of(context).pushNamed(NodeEditPage.route, arguments: {
+      "name": originEndpoint?.name,
+      "address": originEndpoint?.url,
+      "removeNode": originEndpoint != null ? _removeNode : null
+    });
   }
+
   void _editNode(CustomNode endpoint) async {
     this._addCustomNode(endpoint);
   }
-  void _removeNode (CustomNode endpoint) async {
-    var i18n = I18n.of(context).main;
-    bool? rejected = await UI.showConfirmDialog(context: context, contents: [
-      i18n['confirmDeleteNode']!
-    ], okText: i18n['confirm']!, cancelText: i18n['cancel']!);
-    if (rejected != true) {
-      return;
-    }
+  void _removeNode (String url) async {
     List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
-    endpoints.removeWhere((endpointItem)=> endpointItem.url == endpoint.url);
-    if(widget.store.endpoint == endpoint.url) {
+    endpoints.removeWhere((endpointItem)=> endpointItem.url == url);
+    if(widget.store.endpoint == url) {
       await widget.store.setEndpoint(GRAPH_QL_MAINNET_NODE_URL);
       webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
       webApi.refreshNetwork();
     }
     widget.store.setCustomNodeList(endpoints);
   }
+
   void onChangeEndpoint (bool checked, String key) async {
     if (checked) {
       await widget.store.setEndpoint(key);

@@ -169,6 +169,7 @@ class ImportItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: onClick,
+        behavior: HitTestBehavior.opaque,
         child: Container(
             height: 54,
             child: Row(
