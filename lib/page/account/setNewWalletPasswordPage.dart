@@ -36,6 +36,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   bool numberError = false;
   bool unRepeatError = false;
   bool _submitDisabled = true;
+  String? passwordErrorText = null;
 
 
   @override
@@ -156,6 +157,20 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
+    final List<String> errors = [];
+    if (lengthError) {
+      errors.add(dic['passwordRequires']!);
+    }
+    if (upCaseError) {
+      errors.add(dic['atLeastOneUppercaseLetter']!);
+    }
+    if (lowerCaseError) {
+      errors.add(dic['atLeastOneLowercaseLetter']!);
+    }
+    if (numberError) {
+      errors.add(dic['atLeastOneNumber']!);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(dic['createPassword']!),
@@ -193,32 +208,51 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           isPassword: true,
                           placeholder: dic['inputPassword']!,
                         ),
+                        Container(
+                          padding: EdgeInsets.only(top: 4),
+                          child: Text(
+                            errors.join("/"),
+                            style: TextStyle(
+                                color: Color(0xFFD65A5A),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600
+                            ),
+                          ),
+                        ),
                         InputErrorTip(
                           padding: EdgeInsets.only(top: 8),
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: true,
+                          showSuccess: false,
+                          hideIcon: true,
+                          showMessage: false,
                           message: dic['passwordRequires']!,
                           validate: _validateLength,
                         ),
                         InputErrorTip(
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: true,
+                          showSuccess: false,
+                          showMessage: false,
+                          hideIcon: true,
                           message: dic['atLeastOneUppercaseLetter']!,
                           validate: _validateUpCase,
                         ),
                         InputErrorTip(
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: true,
+                          showSuccess: false,
+                          showMessage: false,
+                          hideIcon: true,
                           message: dic['atLeastOneLowercaseLetter']!,
                           validate: _validateLowerCase,
                         ),
                         InputErrorTip(
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: true,
+                          showSuccess: false,
+                          showMessage: false,
+                          hideIcon: true,
                           message: dic['atLeastOneNumber']!,
                           validate: _validateNumber,
                         ),

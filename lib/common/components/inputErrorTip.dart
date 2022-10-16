@@ -6,6 +6,8 @@ enum TipType  {
   error,
   warn,
 }
+
+
 class InputErrorTip extends StatefulWidget {
   InputErrorTip({
     required this.ctrl,
@@ -18,13 +20,15 @@ class InputErrorTip extends StatefulWidget {
     this.padding = const EdgeInsets.only(top: 5),
     this.tipType = TipType.error,
     this.validate,
-    this.asyncValidate
+    this.asyncValidate,
+    this.showMessage = true
   });
 
   final TextEditingController ctrl;
   final bool Function(String text)? validate;
   final Future<bool> Function(String text)? asyncValidate;
   final bool keepShow;
+  final bool showMessage;
   final bool hideIcon;
   final bool showSuccess;
   final String message;
@@ -42,8 +46,8 @@ class _InputErrorTipState extends State<InputErrorTip> {
   void initState() {
     super.initState();
     if (widget.focusNode != null) {
-      widget.focusNode!.addListener((){
-        if (!widget.focusNode!.hasFocus) {
+      widget.focusNode?.addListener((){
+        if (widget.focusNode != null && widget.focusNode!.hasFocus) {
           _onChange();
         }
       });
@@ -63,9 +67,11 @@ class _InputErrorTipState extends State<InputErrorTip> {
       } else if (widget.asyncValidate != null) {
         success = await widget.asyncValidate!(text);
       }
-      setState(() {
-        isCorrect = success;
-      });
+      if (mounted) {
+        setState(() {
+          isCorrect = success;
+        });
+      }
     }
   }
   Widget renderTip (TipType tipType, bool hideIcon) {
@@ -90,7 +96,7 @@ class _InputErrorTipState extends State<InputErrorTip> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.keepShow && (!isDirty && widget.showSuccess) || (isCorrect && !widget.showSuccess)) {
+    if (!widget.keepShow && (!isDirty && widget.showSuccess) || (isCorrect && !widget.showSuccess) || !widget.showMessage) {
       return Container();
     }
     Color? textColor;
