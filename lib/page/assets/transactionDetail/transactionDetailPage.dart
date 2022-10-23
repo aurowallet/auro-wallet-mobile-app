@@ -22,8 +22,9 @@ class TransactionDetailPage extends StatelessWidget {
         padding: EdgeInsets.only(left: 0),
         child: Text(name,
             style: TextStyle(
+              fontSize: 12,
               fontWeight: FontWeight.normal,
-              color: ColorsUtil.hexColor(0x999999),
+              color: Colors.black.withOpacity(0.5),
             )));
   }
 
@@ -96,7 +97,7 @@ class TransactionDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.only(top: 30, bottom: 14),
             child: SvgPicture.asset(
                 statusIcon,
                 width: 71,
@@ -111,7 +112,7 @@ class TransactionDetailPage extends StatelessWidget {
             ),
           ),
           CustomDivider(
-              margin: const EdgeInsets.only(top: 9)
+              margin: const EdgeInsets.only(top: 23)
           ),
         ],
       ),
@@ -126,13 +127,14 @@ class TransactionDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children:[
                 _buildLabel(i.label),
-                Container(height: 4),
+                // Container(height: 4),
                 CopyContainer(
                   child: Text(
                       i.title!,
                       style: Theme.of(context).textTheme.headline5!.copyWith(
                           color: ColorsUtil.hexColor(0x333333),
-                          height: 1.2
+                          height: 1.2,
+                          fontSize: 14
                       )
                   ),
                   text: i.copyText,
@@ -160,15 +162,12 @@ class TransactionDetailPage extends StatelessWidget {
           children: [
             Expanded(
               child: ListView(
-                padding: EdgeInsets.only(bottom: 32, right: 30, left: 30),
+                padding: EdgeInsets.only(bottom: 30, right: 20, left: 20),
                 children: _buildListView(context),
               ),
             ),
-            CustomDivider(
-                margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 30)
-            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30),

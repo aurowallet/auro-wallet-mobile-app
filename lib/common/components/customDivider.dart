@@ -11,7 +11,7 @@ class CustomDivider extends StatelessWidget {
     return Container(
       margin: margin,
       height: 1,
-      color: ColorsUtil.hexColor(0xf5f5f5),
+      color: Color(0x1A000000),
     );
   }
 }

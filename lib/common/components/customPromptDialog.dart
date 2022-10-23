@@ -57,14 +57,14 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 28),
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20.0))
+          borderRadius: BorderRadius.all(Radius.circular(12.0))
       ),
       child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(20).copyWith(bottom: 0),
             child: Column(
               children: [
                 Padding(
@@ -74,25 +74,27 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                 InputItem(
                   initialValue: '',
                   placeholder: widget.placeholder,
-                  padding: EdgeInsets.only(top: 33),
+                  padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                   controller: _textCtrl,
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 27),
+                Container(
+                  margin: EdgeInsets.only(top: 30),
+                  height: 1,
+                  color: Colors.black.withOpacity(0.05),
                 ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                            minWidth: 130,
-                            minHeight: 40
-                        ),
-                        child: OutlinedButton(
-                          // borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                          // highlightedBorderColor: Theme.of(context).primaryColor,
-                          // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: Text(dic['cancel']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16)),
+                      Expanded(child: SizedBox(
+                        height: 48,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                              foregroundColor: Theme.of(context).primaryColor,
+                              textStyle: TextStyle(
+                                  color: Colors.black
+                              )
+                          ),
+                          child: Text(dic['cancel']!, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
                           onPressed: () {
                             if (widget.onCancel != null) {
                               widget.onCancel!();
@@ -100,30 +102,36 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                             Navigator.of(context).pop();
                           },
                         ),
+                      )),
+                      Container(
+                        width: 0.5,
+                        height: 48,
+                        color: Colors.black.withOpacity(0.1),
                       ),
-                      TextButton(
-                        // height: 40,
-                        // minWidth: 130,
-                        // color: Theme.of(context).primaryColor,
-                        // shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        // disabledColor: Colors.black12,
-                        // disabledTextColor: Colors.blueGrey,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(dic['confirm']!, style: TextStyle(color: Colors.white, fontSize: 16))
-                          ],
-                        ),
-                        onPressed: _isCorrect ? () {
-                          if (widget.onOk != null) {
-                            bool close = widget.onOk!(_textCtrl.text);
-                            if (!close) {
-                              return;
+                      Expanded(child: SizedBox(
+                        height: 48,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                              foregroundColor: Theme.of(context).primaryColor
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(dic['confirm']!, style: TextStyle(color: _isCorrect ? Theme.of(context).primaryColor: Colors.black.withOpacity(0.3), fontSize: 16, fontWeight: FontWeight.w600))
+                            ],
+                          ),
+                          onPressed: _isCorrect ? () {
+                            if (widget.onOk != null) {
+                              bool close = widget.onOk!(_textCtrl.text);
+                              if (!close) {
+                                return;
+                              }
                             }
-                          }
-                          Navigator.of(context).pop(_textCtrl.text.trim());
-                        } : null,
-                      ),
+                            Navigator.of(context).pop(_textCtrl.text.trim());
+                          } : null,
+                        ),
+
+                      ),)
                     ]
                 ),
               ],

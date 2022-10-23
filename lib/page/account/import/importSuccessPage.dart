@@ -62,7 +62,7 @@ class _ImportSuccessPageState extends State<ImportSuccessPage> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(top: 8),child:  Image.asset('assets/images/public/wallet_success.png', width: 110, height: 110),
+                      padding: EdgeInsets.only(top: 162),child:  Image.asset('assets/images/public/wallet_success.png', width: 213, height: 182),
                     ),
                     Padding(
                         padding: EdgeInsets.only(top: 8),

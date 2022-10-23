@@ -155,6 +155,7 @@ flutter:
     - assets/images/public/success_tip.svg
     - assets/images/public/next.svg
     - assets/images/public/wallet_success.png
+    - assets/images/public/2.0x/wallet_success.png
     - assets/images/public/scan_bg.png
     - assets/images/public/2x/mina_text_logo@2x.png
     - assets/images/public/red_alert.svg

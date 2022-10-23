@@ -60,7 +60,7 @@ class _TermsDialogState extends State<TermsDialog> {
           children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(20).copyWith(bottom: 0),
             child: Column(
               children: [
                 Padding(
@@ -77,8 +77,10 @@ class _TermsDialogState extends State<TermsDialog> {
                       privacyUrl: privacyUrl
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 27),
+                Container(
+                  margin: EdgeInsets.only(top: 30),
+                  height: 1,
+                  color: Colors.black.withOpacity(0.05),
                 ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -92,6 +94,11 @@ class _TermsDialogState extends State<TermsDialog> {
                           Navigator.of(context).pop(false);
                         },
                       ),),
+                      Container(
+                        width: 0.5,
+                        height: 48,
+                        color: Colors.black.withOpacity(0.1),
+                      ),
                       Expanded(child: TextButton(
                         style: TextButton.styleFrom(
                             primary: Theme.of(context).primaryColor

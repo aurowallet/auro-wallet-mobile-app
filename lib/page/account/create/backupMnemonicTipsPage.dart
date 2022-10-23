@@ -174,6 +174,7 @@ class CheckItem extends StatelessWidget {
               uncheckedColor: Colors.white,
               checkedColor: Theme.of(context).primaryColor,
               onTap: (bool? checkedFlag) {
+                onChecked(checkedFlag == true);
                 // onChecked(checkedFlag == true);
               },
             ),

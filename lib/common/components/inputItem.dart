@@ -23,6 +23,7 @@ class InputItem extends StatefulWidget {
         this.focusColor = Colors.transparent,
         this.inputPadding = const EdgeInsets.only(top: 6),
         this.suffixIcon,
+        this.labelStyle,
         this.autoFocus = false,
         this.isError,
       });
@@ -30,6 +31,7 @@ class InputItem extends StatefulWidget {
   final bool autoFocus;
   final bool? isError;
   final String? label;
+  final TextStyle? labelStyle;
   final Widget? rightWidget;
   final String? placeholder;
   final bool isPassword;
@@ -79,6 +81,10 @@ class _InputItemState extends State<InputItem> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
+    var labelStyle = TextStyle(fontSize: 12, color: const Color(0xD9000000), fontWeight: FontWeight.w600);
+    if (widget.labelStyle != null) {
+      labelStyle = labelStyle.merge(widget.labelStyle);
+    }
     OutlineInputBorder border = OutlineInputBorder(
       gapPadding: 0,
       borderRadius: BorderRadius.circular(8),
@@ -100,7 +106,7 @@ class _InputItemState extends State<InputItem> {
                   child: Text(
                     widget.label!,
                     textAlign: TextAlign.left,
-                    style: TextStyle(fontSize: 12, color: const Color(0xD9000000), fontWeight: FontWeight.w600),
+                    style: labelStyle,
                   )),
               widget.rightWidget == null ? Container() : widget.rightWidget!,
             ],

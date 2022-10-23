@@ -94,6 +94,9 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
               Expanded(
                 child: InputItem(
                   initialValue: '',
+                  labelStyle: TextStyle(
+                    fontSize: 14
+                  ),
                   label: dic['inputSeed']!,
                   controller: _mnemonicCtrl,
                   backgroundColor: Colors.transparent,

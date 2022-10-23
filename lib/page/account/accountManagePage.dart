@@ -142,7 +142,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
               ),
               AccountInfoItem(label: dic['accountName']!, value: Fmt.accountName(account), onClick: _changeAccountName,),
               !isWatchedAccount ? AccountInfoItem(label: dic['exportPrivateKey']!, onClick: _onExportPrivateKey) : Container(),
-              !isMnemonicWallet || true ? TextButton(
+              !isMnemonicWallet ? TextButton(
                 child: Text(dic['accountDelete']!),
                 onPressed: _deleteAccount,
                 style: TextButton.styleFrom(
