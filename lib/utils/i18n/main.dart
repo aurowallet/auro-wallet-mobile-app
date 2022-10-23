@@ -236,7 +236,6 @@ const Map<String, String> zhMain = {
   // backup tip pages
   "mnemonicLost": "If mnemonic phrase lost, my funds will be lost forever.",
   "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
-
 };
 
 const Map<String, String> enMain = {

@@ -12,6 +12,8 @@ class NormalButton extends StatelessWidget {
     this.submitting = false,
     this.disabled = false,
     this.radius = 12,
+    this.height = 48,
+    this.shrink = false,
     this.padding = const EdgeInsets.only(top: 12, bottom: 12)
   }) : assert(text != null);
 
@@ -22,6 +24,8 @@ class NormalButton extends StatelessWidget {
   final bool submitting;
   final bool disabled;
   final double radius;
+  final bool shrink;
+  final double height;
   final EdgeInsets padding;
   final TextStyle? textStyle;
 
@@ -46,9 +50,9 @@ class NormalButton extends StatelessWidget {
       // padding: padding,
       // highlightColor: ColorsUtil.darken(normalColor, 0.05),
       style: ElevatedButton.styleFrom(
-          primary: normalColor,
+          backgroundColor: normalColor,
           // onSurface: normalColor.withOpacity(0.5),
-          minimumSize: Size(double.infinity, 48),
+          minimumSize: Size(!shrink ? double.infinity : 0, height),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(radius))
           )

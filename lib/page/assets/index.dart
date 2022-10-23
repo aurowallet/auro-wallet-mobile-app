@@ -182,8 +182,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   Widget _buildTopCard(BuildContext context) {
     var i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
-
-
     WalletData acc = store.wallet!.currentWallet;
     AccountInfo? balancesInfo = store.assets!.accountsInfo[acc.pubKey];
     BigInt total = balancesInfo != null ? balancesInfo.total :  BigInt.from(0);
@@ -461,7 +459,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                 ],): Container(),
               Expanded(
                 child: Ink(
-                  color: Colors.white,
+                  color: Color(0xFFEDEFF2),
                   child: ListView(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     children: _buildTxList(),

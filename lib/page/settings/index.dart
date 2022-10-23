@@ -93,50 +93,13 @@ class Profile extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                     child: Column(
                         children: [
                           SettingItem(
                             icon:  'assets/images/setting/aboutus.svg',
                             title: i18n['about']!,
                             onTap: () => Navigator.of(context).pushNamed(AboutPage.route),
-                          ),
-                          SettingItem(
-                            icon:  'assets/images/setting/terms.svg',
-                            title: i18n['userAgree']!,
-                            onTap: ()  {
-                              var termsUrl = '';
-                              if (aboutUsData != null) {
-                                switch(languageCode) {
-                                  case 'en':
-                                    termsUrl = aboutUsData.termsAndContionsEN;
-                                    break;
-                                  case 'zh':
-                                    termsUrl = aboutUsData.termsAndContionsZH;
-                                    break;
-                                }
-                              }
-                              launch(termsUrl);
-                            },
-                          ),
-                          SettingItem(
-                            icon:  'assets/images/setting/privacy.svg',
-                            title: i18n['privacy']!,
-                            onTap: ()  {
-                              var termsUrl = '';
-                              if (aboutUsData != null) {
-                                switch(languageCode) {
-                                  case 'en':
-                                    termsUrl = aboutUsData.privacyPolicyEN;
-                                    break;
-                                  case 'zh':
-                                    termsUrl = aboutUsData.privacyPolicyZH;
-                                    break;
-                                }
-                              }
-                              launch(termsUrl);
-                            },
                           ),
                         ]),
                   ),

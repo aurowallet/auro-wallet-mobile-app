@@ -227,58 +227,65 @@ class EmptyInfo extends StatelessWidget {
     final Map<String, String> i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
     var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                  padding: EdgeInsets.only(top: 3),
-                  child:
-                      Text(i18n['emptyDelegateTitle']!, style: theme.headline4))
-            ]),
-        Padding(
-          padding: EdgeInsets.only(top: 14),
-          child: Text(
-            i18n['emptyDelegateDesc1']!,
-            style: theme.headline5!.copyWith(
-                color: ColorsUtil.hexColor(0x666666)
-            ),
+    return Container(
+      margin: EdgeInsets.only(top: 109, left: 20, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                    padding: EdgeInsets.only(top: 3),
+                    child:
+                    Text(i18n['emptyDelegateTitle']!, style: theme.headline4?.copyWith(
+                      color: Colors.black,
+                      fontSize: 16
+                    )))
+              ]),
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                i18n['emptyDelegateDesc1']!,
+                style: theme.headline5!.copyWith(
+                    color: Colors.black.withOpacity(0.5),
+                  fontSize: 12
+                ),
+              )
+          ),
+          Padding(
+              padding: EdgeInsets.only(top: 14, bottom: 20),
+              child: Wrap(
+                children: [
+                  new RichText(
+                    text: TextSpan(
+                        children: [
+                          new TextSpan(
+                            text: i18n['emptyDelegateDesc2']!,
+                            style: theme.headline5!.copyWith(
+                                color: Colors.black.withOpacity(0.5),
+                                fontSize: 12
+                            ),
+                          ),
+                          new TextSpan(
+                            text: i18n['emptyDelegateDesc3']!,
+                            style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor, fontSize: 12),
+                            recognizer: new TapGestureRecognizer()
+                              ..onTap = () {
+                                var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
+                                print('url' + url);
+                                launch(url);
+                              },
+                          ),
+                        ]
+                    ),
+                  ),
+                ],
+              )
           )
-        ),
-        Padding(
-            padding: EdgeInsets.only(top: 14, bottom: 20),
-            child: Wrap(
-    children: [
-      new RichText(
-        text: TextSpan(
-          children: [
-            new TextSpan(
-              text: i18n['emptyDelegateDesc2']!,
-              style: theme.headline5!.copyWith(
-                  color: ColorsUtil.hexColor(0x666666)
-              ),
-            ),
-            new TextSpan(
-              text: i18n['emptyDelegateDesc3']!,
-              style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
-              recognizer: new TapGestureRecognizer()
-                ..onTap = () {
-                  var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
-                  print('url' + url);
-                  launch(url);
-                },
-            ),
-          ]
-        ),
+        ],
       ),
-    ],
-    )
-        )
-      ],
     );
   }
 }

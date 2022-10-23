@@ -1,8 +1,9 @@
+import 'package:auro_wallet/common/components/loadingCircle.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/staking/components/delegationInfo.dart';
 import 'package:auro_wallet/page/staking/components/stakingOverview.dart';
-import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -73,39 +74,39 @@ class _StakingState extends State<Staking> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-        key: globalStakingRefreshKey,
-        onRefresh: _fetchData,
+          key: globalStakingRefreshKey,
+            onRefresh: _fetchData,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TabPageTitle(title: i18n['staking']!),
-                Expanded(child: ListView(
+                Expanded(child:  ListView(
                   children: [
                     StakingOverview(store: store,),
-                    DelegationInfo(store: store, loading: loading),
-                    !loading && !isDelegated ? GestureDetector(
-                        onTap: _onPress,
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(i18n['goStake']!, style: theme.headline5!.copyWith(
-                                  color: ColorsUtil.hexColor(0x7055FF),
-                                )),
-                                Container(width: 8),
-                                SvgPicture.asset(
-                                    'assets/images/public/next.svg',
-                                    width: 16,
-                                    color: ColorsUtil.hexColor(0x7055FF)
-                                ),
-                              ],
-                            )
-                        )
-                    ) : Container()
+                    !loading ? Wrap(
+                      children: [
+                        !isDelegated ? EmptyInfo(store: store) : DelegationInfo(store: store, loading: loading),
+                        !isDelegated ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            NormalButton(
+                              text: i18n['goStake']!,
+                              disabled: false,
+                              onPressed: _onPress,
+                              shrink: true,
+                              height: 32,
+                            ),
+                          ],
+                        ) : Container()
+                      ],
+                    ): Container(
+                      padding: EdgeInsets.only(top: 167),
+                      child: LoadingCircle(),
+                    )
                   ],
-                ))
+                )
+                )
+
               ],
             )
         ),

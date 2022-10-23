@@ -17,9 +17,12 @@ class HomeListTip extends StatelessWidget {
     final Map<String, String> i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
     if (!isSupportedNode) {
-      return FormPanel(
+      return Container(
         margin: EdgeInsets.only(top: 20),
         padding: EdgeInsets.only(top: 60, bottom: 60, left: 20, right: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
         child: Row(
           children: [
             SvgPicture.asset(
@@ -46,8 +49,13 @@ class HomeListTip extends StatelessWidget {
       );
     }
     if (isEmpty) {
-      return FormPanel(
+      return Container(
         margin: EdgeInsets.only(top: 20),
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          color: Colors.white
+        ),
         child:  Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -55,24 +63,28 @@ class HomeListTip extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                      CupertinoIcons.exclamationmark_circle_fill,
+                      Icons.error_outline_outlined,
                       size: 20,
-                      color: ColorsUtil.hexColor(0xFFC633)
+                      color: Colors.black
                   ),
                   Padding(
                       padding: EdgeInsets.only(top: 4 ,left: 5),
                       child: Text(
                         i18n['prompt']!,
-                        style: theme.headline4
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600
+                        )
                       )
                   ),
                 ]
             ),
             Padding(
-                padding: EdgeInsets.only(top: 15, bottom: 20),
+                padding: EdgeInsets.only(top: 10, bottom: 0),
                 child: Text(
                   i18n['walletHomeTip']!,
                   style: theme.headline5!.copyWith(
+                      fontSize: 12,
                       color: ColorsUtil.hexColor(0x666666)
                   ),
                 )
