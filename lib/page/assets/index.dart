@@ -459,7 +459,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                 ],): Container(),
               Expanded(
                 child: Ink(
-                  color: Color(0xFFEDEFF2),
+                  color: Color(0xFFFFFFFF),
                   child: ListView(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     children: _buildTxList(),

@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:bip39/src/wordlists/english.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -30,11 +31,41 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
   final AppStore store;
   final TextEditingController _mnemonicCtrl = new TextEditingController();
 
+  List<String> tips = [];
   @override
   void initState() {
     super.initState();
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mnemonicCtrl.addListener(onTextChange);
+    });
   }
+
+  void onTextChange() {
+    final selection = _mnemonicCtrl.value.selection;
+    final text = _mnemonicCtrl.value.text;
+    final before = selection.textBefore(text);
+    final after = selection.textAfter(text);
+    print('after'+  after);
+    print('before' + before);
+    RegExp blank = new RegExp(r'\s$');
+    if (after.isEmpty && !blank.hasMatch(before)) {
+      String? lastChars = new RegExp(r'[\w]+$').stringMatch(before);
+      if (lastChars != null) {
+        List<String> words = WORDLIST.where((word) => word.lastIndexOf(lastChars) == 0).toList();
+        List<String> shortWords = words.sublist(0, min(words.length, 10));
+        if (!(words.length == 1 && words[0] == lastChars)) {
+          setState(() {
+            tips = shortWords;
+          });
+          return;
+        }
+      }
+    }
+    setState(() {
+      tips = [];
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -76,6 +107,46 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
       'type': 'restore'
     });
   }
+  void selectWord(String word) {
+    final text = _mnemonicCtrl.text.replaceAll(new RegExp(r'[\w]+$'), word);
+
+    _mnemonicCtrl.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.fromPosition(TextPosition( affinity: TextAffinity.downstream, offset: text.length))
+    );
+  }
+  Widget renderTips(BuildContext context) {
+    return SizedBox(
+      height: 27,
+      child: ListView.separated(
+        itemCount: tips.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) => GestureDetector(
+          child: Container(
+            height: 27,
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+                color: Color(0x0D000000),
+              borderRadius: BorderRadius.all(Radius.circular(4))
+            ),
+            child: Center(
+              child: Text(tips[index], style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black
+              ),),
+            ),
+          ),
+          onTap: () {
+            selectWord(tips[index]);
+          },
+        ),
+        separatorBuilder: (context, index) => SizedBox(
+          height: 27,
+          width: 10,
+        ),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
@@ -106,6 +177,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                   maxLines: 6,
                 ),
               ),
+              renderTips(context),
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
                   child: NormalButton(
