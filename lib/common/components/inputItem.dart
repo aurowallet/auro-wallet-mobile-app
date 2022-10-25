@@ -128,6 +128,7 @@ class _InputItemState extends State<InputItem> {
                 hintText: widget.placeholder,
                 filled: true,
                 isDense: true,
+                counterText: "",
                 contentPadding: EdgeInsets.only(
                     top: 12,
                     bottom: 12,
