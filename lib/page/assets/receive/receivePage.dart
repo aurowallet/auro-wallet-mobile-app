@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -7,6 +6,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:auro_wallet/common/components/backgroundContainer.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
@@ -46,38 +46,41 @@ class ReceivePage extends StatelessWidget {
     var theme = Theme.of(context).textTheme;
     return  RepaintBoundary(
         key: _globalKey,
-        child: BackgroundContainer(
-            AssetImage("assets/images/assets/2x/top_header_bg@2x.png"),
-            Scaffold(
-              backgroundColor: Colors.transparent,
-              appBar: AppBar(
-                iconTheme: IconThemeData(
-                  color: Colors.white, //change your color here
-                ),
-                backgroundColor: Colors.transparent,
-                title: Text(i18n['receiveTitle']!, style: TextStyle(color: Colors.white),),
-                centerTitle: true,
-                actions: [
-                  IconButton(
-                    icon: Icon(Icons.share),
-                    onPressed: _onShare,
-                  )
-                ],
-              ),
-              body: SafeArea(
-                child: Column(
+        child: Scaffold(
+          backgroundColor: Color(0xFF594AF1),
+          appBar: AppBar(
+            iconTheme: IconThemeData(
+              color: Colors.white, //change your color here
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(i18n['receiveTitle']!, style: TextStyle(color: Colors.white),),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: _onShare,
+              )
+            ],
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Positioned(child: Image.asset(
+                    'assets/images/receive/dot2.png',
+                    width: 303,
+                    height: 595
+                ), left: 0, top: -50,),
+                Positioned(child: Image.asset(
+                    'assets/images/receive/dot1.png',
+                    width: 251,
+                    height: 340
+                ), right: 0, bottom: 0,),
+                Column(
                   children: [
                     Expanded(
                       child: ListView(
                         children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(top: 32),
-                            child: Image.asset(
-                                'assets/images/public/2x/mina_text_logo@2x.png',
-                                width: 63,
-                                height: 57
-                            ),
-                          ),
                           FormPanel(
                             margin: EdgeInsets.only(top: 64, left: 28, right: 28, bottom: 20),
                             child: Column(
@@ -123,18 +126,23 @@ class ReceivePage extends StatelessWidget {
                                 )
                               ],
                             ),
-                          )
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 33),
+                            child: Image.asset('assets/images/assets/card_logo.png', width: 119, height: 107,),
+                          ),
                         ],
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.all(16),
-                      child: Text('Powered by Bit Cat', style: TextStyle(color: ColorsUtil.hexColor(0xb9b9b9), fontSize: 14),),
+                      child: Text('aurowallet.com', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),),
                     )
                   ],
                 ),
-              ),
-            )
+              ],
+            ),
+          ),
         )
     );
   }

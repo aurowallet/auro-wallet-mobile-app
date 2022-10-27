@@ -157,7 +157,6 @@ flutter:
     - assets/images/public/wallet_success.png
     - assets/images/public/2.0x/wallet_success.png
     - assets/images/public/scan_bg.png
-    - assets/images/public/2x/mina_text_logo@2x.png
     - assets/images/public/red_alert.svg
     - assets/images/public/loading_circle.png
     - assets/images/public/2.0x/loading_circle.png
@@ -191,6 +190,14 @@ flutter:
     - assets/images/public/setting_tab.svg
     - assets/images/assets/scanner_black.png
     - assets/images/assets/receive_line_black.png
+    ## receive
+    - assets/images/receive/dot1.png
+    - assets/images/receive/2.0x/dot1.png
+    - assets/images/receive/dot2.png
+    - assets/images/receive/2.0x/dot2.png
+    - assets/images/receive/mina_text_logo.png
+    - assets/images/receive/2.0x/mina_text_logo.png
+
 
     ## images - public
     - assets/images/public/app.png
