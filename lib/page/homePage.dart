@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/assets/index.dart';
 import 'package:auro_wallet/page/settings/index.dart';
 import 'package:auro_wallet/page/staking/index.dart';
-import 'package:auro_wallet/service/notification.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,9 +21,6 @@ class _HomePageState extends State<HomePage> {
   _HomePageState(this.store);
 
   final AppStore store;
-
-
-  NotificationPlugin? _notificationPlugin;
 
   List<String> _tabList = [
     'wallet',
@@ -100,13 +96,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    if (_notificationPlugin == null) {
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        _notificationPlugin = NotificationPlugin();
-        _notificationPlugin!.init(context);
-
-      });
-    }
     super.initState();
   }
 

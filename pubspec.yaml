@@ -33,15 +33,15 @@ dependencies:
   http: ^0.13.1
   webview_flutter: ^2.0.3
   rxdart: ^0.26.0
-  flutter_local_notifications: ^5.0.0+4
+#  flutter_local_notifications: ^12.0.3
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   update_app: ^0.1.5
-  device_info: ^0.4.2
+#  device_info: ^0.4.2
   biometric_storage: ^4.0.1
-  fluttertoast: ^8.0.3
+  fluttertoast: ^8.1.1
   bip39: 1.0.6
   roundcheckbox: ^2.0.4+1
   # The following adds the Cupertino Icons font to your application.
