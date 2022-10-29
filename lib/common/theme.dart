@@ -10,6 +10,7 @@ final appTheme = ThemeData(
   appBarTheme: AppBarTheme(
       color: Colors.white,
       foregroundColor: Colors.black,
+      elevation: 0,
       iconTheme: IconThemeData(
           color: Colors.black
       ),

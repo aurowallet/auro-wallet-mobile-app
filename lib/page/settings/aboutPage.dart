@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/iconBrowserLink.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AboutPage extends StatefulWidget {
   AboutPage(this.store);
@@ -91,56 +89,86 @@ class _AboutPage extends State<AboutPage> {
                   margin: EdgeInsets.only(top: 10),
                   child: BrowserLink(privacyUrl, text: i18nSettings['github']!, showIcon: false,),
                 ),
-                aboutus != null ? Padding(
-                  padding: EdgeInsets.only(top: 70, left: 27, right: 27),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                          i18n['versionInfo']!,
-                          style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))
-                      ),
-                      BrowserLink(aboutus.changelog, text: aboutus.gitReponame, showIcon: false,),
-                    ],
+                Container(
+                  padding: EdgeInsets.only(top: 40, bottom: 23),
+                  child: Text(
+                      i18n['followUs']!,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0x80000000)
+                      )
                   ),
-                ): Container(),
-                aboutus != null ? Padding(
-                  padding: EdgeInsets.only(top: 8, left: 27, right: 27),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                          i18n['followUs']!,
-                          style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x999999))
-                      ),
-                      Row(
-                        children: [
-                          aboutus.website != null ? IconBrowserLink(aboutus.website!.website, icon: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 9),
-                            child: Image.asset('assets/images/setting/website.png', width: 16),
-                          )) : Container(),
-                          aboutus.twitter != null ? IconBrowserLink(aboutus.twitter!.website, icon: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 9),
-                            child: Image.asset('assets/images/setting/twitter.png', width: 16),
-                          )): Container(),
-                          aboutus.telegram != null ? IconBrowserLink(aboutus.telegram!.website, icon: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 9),
-                            child: Image.asset('assets/images/setting/telegram.png', width: 16),
-                          )): Container(),
-                          aboutus.wechat != null ? IconBrowserLink(aboutus.wechat!.website, icon: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 9),
-                            child: Image.asset('assets/images/setting/wechat.png', width: 16),
-                          )): Container(),
-                        ],
-                      ),
-                    ],
-                  ),
+                ),
+                aboutus != null ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        aboutus.website != null ? SocialItem(
+                          name: 'Website',
+                          link: aboutus.website!.website,
+                          icon: 'assets/images/setting/website.svg',
+                        ) : Container(),
+                        SizedBox(width: 20,),
+                        aboutus.website != null ? SocialItem(
+                          name: 'Twitter',
+                          link: aboutus.twitter!.website,
+                          icon: 'assets/images/setting/twitter.svg',
+                        ) : Container(),
+                        SizedBox(width: 20,),
+                        aboutus.website != null ? SocialItem(
+                          name: 'Telegram',
+                          link: aboutus.telegram!.website,
+                          image: Image.asset('assets/images/setting/telegram.png', width: 24, height: 24,),
+                        ) : Container(),
+                      ],
+                    ),
+                  ],
                 ): Container(),
               ],
             );
           },
         ),
       ),
+    );
+  }
+}
+
+class SocialItem extends StatelessWidget {
+  SocialItem({required this.name, required this.link, this.icon, this.image});
+  final String name;
+  final String? icon;
+  final String link;
+  final Widget? image;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Color(0x1AC4C4C4),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: Color(0x1A000000),
+              width: 1
+            )
+          ),
+          child: IconBrowserLink(link, icon: image ?? (icon != null ? SvgPicture.asset(icon!): Container())),
+        ),
+        SizedBox(height: 4),
+        Text(
+          name,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Color(0x80000000),
+            height: 1.4
+          ),
+        )
+      ],
     );
   }
 }

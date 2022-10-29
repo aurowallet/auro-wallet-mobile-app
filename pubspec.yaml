@@ -168,9 +168,10 @@ flutter:
     - assets/images/setting/locale.svg
     - assets/images/setting/network.svg
     - assets/images/setting/security.svg
-    - assets/images/setting/twitter.png
+    - assets/images/setting/twitter.svg
     - assets/images/setting/telegram.png
-    - assets/images/setting/website.png
+    - assets/images/setting/2.0x/telegram.png
+    - assets/images/setting/website.svg
     - assets/images/setting/wechat.png
     - assets/images/setting/usd.svg
     - assets/images/setting/contact.svg
