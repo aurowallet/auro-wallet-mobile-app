@@ -86,7 +86,7 @@ dependencies:
   flutter_rust_bridge: ^1.30.0
   freezed_annotation: ^2.0.3
   dropdown_button2: ^1.8.5
-  blur: ^3.1.0
+  dotted_line: ^3.1.0
 
 dev_dependencies:
   build_runner: ^2.1.7
@@ -195,8 +195,10 @@ flutter:
     - assets/images/receive/2.0x/dot1.png
     - assets/images/receive/dot2.png
     - assets/images/receive/2.0x/dot2.png
-    - assets/images/receive/mina_text_logo.png
-    - assets/images/receive/2.0x/mina_text_logo.png
+    - assets/images/receive/seperator.png
+    - assets/images/receive/2.0x/seperator.png
+    - assets/images/receive/icon_copy.svg
+    - assets/images/receive/icon_share.svg
 
 
     ## images - public

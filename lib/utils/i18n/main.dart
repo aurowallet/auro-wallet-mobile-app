@@ -128,6 +128,7 @@ const Map<String, String> zhMain = {
   "notificationContent": "转账已确认，点击在浏览器查看交易",
   "welcomeBack": "欢迎回来!",
   "accountNameLimit": "不超过16个字符",
+  "scantopay": "扫码支付",
   "addressQrTip": "扫描二维码，转入MINA",
   "goToExplorer": "去浏览器查看交易记录",
   "homeNoTx": "未知类型节点，无法提供相关记录",
@@ -231,7 +232,8 @@ const Map<String, String> zhMain = {
   "accountRepeatAlert": "即将创建的账户地址为：\n<theme>{address}</theme>\n\n已存在导入账户【{accountName}】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<link href='aurowallet://back' route='/wallet/manage'>账户管理页</link>将已导入的账户删除。",
   "password":"密码",
   "confirmPasswordShort": "确认密码",
-
+  "share": "分享",
+  "copy": "复制",
   // backup tip pages
   "mnemonicLost": "If mnemonic phrase lost, my funds will be lost forever.",
   "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
@@ -373,6 +375,7 @@ const Map<String, String> enMain = {
       "The transfer has been confirmed, click to view the transaction.",
   "welcomeBack": "Welcome Back!",
   "accountNameLimit": "No more than 16 characters",
+  "scantopay": "Scan to pay me",
   "addressQrTip": "Scan the QR code and transfer MINA to it",
   "goToExplorer": "Check more transaction history",
   "homeNoTx": "Unknown node, unable to provide history",
@@ -485,7 +488,8 @@ const Map<String, String> enMain = {
   "password":"Password",
   "confirmPasswordShort": "Confirm Password",
 
-
+  "share": "Share",
+  "copy": "Copy",
   // backup tip pages
   "mnemonicLost": "If mnemonic phrase lost, my funds will be lost forever.",
   "protectMnemonic": "I take full responsibility for protecting the mnemonic.",

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
 
-import 'package:blur/blur.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart' as sp;
 import 'package:auro_wallet/common/consts/Currency.dart';
