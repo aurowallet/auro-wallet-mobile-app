@@ -41,7 +41,7 @@ class _Settings extends State<LocalesPage> {
     var i18n = I18n.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(I18n.of(context).main['setting']!),
+        title: Text(I18n.of(context).main['language']!),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,

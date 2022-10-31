@@ -10,8 +10,7 @@ import 'package:auro_wallet/walletSdk/types.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 
 import 'package:auro_wallet/walletSdk/rust_api_generated.dart';
-const base = 'rust-signer';
-final path = 'lib$base.so';
+final path = 'librust_signer.so';
 late final dylib = Platform.isIOS
     ? DynamicLibrary.process()
     : DynamicLibrary.open(path);

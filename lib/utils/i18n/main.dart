@@ -100,8 +100,8 @@ const Map<String, String> zhMain = {
   "pwdChangeSuccess": "密码修改成功",
   "networkConfig": "网络",
   "networkName": "名称",
-  "defaultNetwork": "默认节点",
-  "customNetwork": "自定义节点",
+  "defaultNetwork": "默认",
+  "customNetwork": "自定义",
   "delete": "删除",
   "urlError_1": "请输入有效的节点地址",
   "urlError_2": "地址已存在",
@@ -120,7 +120,7 @@ const Map<String, String> zhMain = {
   "confirmDeleteNode": "确认删除？",
   "deleteSuccess": "删除成功",
   "backupSuccess": "成功",
-  "walletAbout": "Auro Wallet 是一款由Bit Cat团队开发的社区钱包，它简便易用，完全开源，目前支持Mina主网的所有功能。",
+  "walletAbout": "Auro 钱包是一款由社区开发的 Mina 钱包，它简单，易用，完全开源，支持 Mina 的所有的功能。",
   "copyTipContent": "复制私钥存在风险，剪切板容易被第三方应用监听并盗取。",
   "copyConfirm": "仍要复制",
   "copyCancel": "不再复制",
@@ -215,7 +215,7 @@ const Map<String, String> zhMain = {
   "validatorStakeFee": "佣金",
   "scan": "扫描",
   "restoreTip": "提示: 若要导入私钥匙/Keystore或连接Ledger，\n需先[创建钱包]或者[恢复钱包]",
-  "resetWallet": "重置钱包",
+  "resetWallet": "重置",
   "resetWarnContentTitle":
       "确定要重置钱包吗？",
   "resetWarnContent":
@@ -341,8 +341,8 @@ const Map<String, String> enMain = {
   "pwdChangeSuccess": "Password changed successfully",
   "networkConfig": "Network",
   "networkName": "Name",
-  "defaultNetwork": "Default Node",
-  "customNetwork": "Custom Node",
+  "defaultNetwork": "Default",
+  "customNetwork": "Custom",
 
   "delete": "Delete",
   "urlError_1": "Please enter a valid node address",
@@ -364,8 +364,7 @@ const Map<String, String> enMain = {
   "confirmDeleteNode": "Are you sure to delete it?",
   "deleteSuccess": "Successfully Deleted",
   "backupSuccess": "Success",
-  "walletAbout":
-      "Auro Wallet is a community-driven wallet developed by the Bit Cat team. It is simple, convenient, and fully open sourced, which currently supports all the functions of the Mina mainnet.",
+  "walletAbout": "Auro Wallet is a Mina wallet developed by the community. It is simple, convenient, and fully open source, which supports all the functions of the Mina mainnet.",
   "copyTipContent":
       "Copying the private key is risky, and the clipboard is easily monitored and stolen by third-party applications.",
   "copyConfirm": "Copy Anyway",
@@ -468,7 +467,7 @@ const Map<String, String> enMain = {
   "scan": "Scan",
   "restoreTip":
       "Tips: If you want to import private key/keystore or connect Ledger, need to [Create Wallet] or [Restore Wallet] first.",
-  "resetWallet": "Reset Wallet",
+  "resetWallet": "Reset",
   "resetWarnContentTitle": "Are you sure erase your wallet?",
   "resetWarnContent":
       "After reset the wallet, all data will be lost and can only be restored using the mnemonic words. Please make sure that you have backed up the mnemonic before reset the wallet.",

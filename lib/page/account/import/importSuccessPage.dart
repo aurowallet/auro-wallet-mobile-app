@@ -48,10 +48,7 @@ class _ImportSuccessPageState extends State<ImportSuccessPage> {
     bool isRestore = type == 'restore';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(dic['backup_success_title']!),
-        centerTitle: true,
-      ),
+      appBar: null,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
@@ -65,18 +62,18 @@ class _ImportSuccessPageState extends State<ImportSuccessPage> {
                       padding: EdgeInsets.only(top: 162),child:  Image.asset('assets/images/public/wallet_success.png', width: 213, height: 182),
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: Text(dic['backupSuccess']!, style: TextStyle(color: ColorsUtil.hexColor(0x38D79F), fontWeight: FontWeight.w600))
+                        padding: EdgeInsets.only(top: 25),
+                        child: Text(dic['backupSuccess']!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 22))
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 21, right: 0, left: 0),
-                        child: Text(isRestore ? dic['backup_success_restore']! : dic['backup_success']!, style: TextStyle(color: ColorsUtil.hexColor(0x666666), fontWeight: FontWeight.w600))
+                        padding: EdgeInsets.only(top: 18, right: 0, left: 0),
+                        child: Text(isRestore ? dic['backup_success_restore']! : dic['backup_success']!, style: TextStyle(color: Color(0x80000000), fontWeight: FontWeight.w500, fontSize: 16), textAlign: TextAlign.center,)
                     ),
                   ],
                 ),
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 30),
                   child: NormalButton(
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: I18n.of(context).main['startHome']!,

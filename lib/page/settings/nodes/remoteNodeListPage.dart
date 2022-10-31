@@ -116,11 +116,13 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   Widget build(BuildContext context) {
     var i18n = I18n.of(context).main;
     final theme = Theme.of(context).textTheme;
+    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n['networkConfig']!),
         centerTitle: true,
-        actions: [
+        actions: endpoints.length > 0 ? [
           TextButton(
             child: Text(isEditing ? i18n['save']! :i18n['edit']!, style: TextStyle(
                 fontSize: 14,
@@ -129,7 +131,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
             ),),
             onPressed: _onEdit,
           )
-        ],
+        ] : [],
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
