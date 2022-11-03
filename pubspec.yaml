@@ -92,18 +92,12 @@ dev_dependencies:
   build_runner: ^2.1.7
   json_serializable: ^6.1.4
   mockito: ^5.1.0
-#  flutter_launcher_icons: ^0.9.0
-  flutter_native_splash: ^2.0.5
+  flutter_launcher_icons: ^0.10.0
+  flutter_native_splash: ^2.2.13
   flutter_test:
     sdk: flutter
   flutter_phoenix: ^1.0.0
   freezed: ^2.0.3+1
-
-#dependency_overrides:
-#  crypto: '3.0.0'
-#  xml: '^5.0.0'
-#  yaml: '^2.1.15'
-#  image: '^3.0.2'
 
 flutter_icons:
   android: "launcher_icon"
@@ -113,8 +107,10 @@ flutter_icons:
 flutter_native_splash:
   color: "#ffffff"
   image: assets/images/public/splash_screen.png
-  android_gravity: fill
-  ios_content_mode: scaleAspectFill
+  android_12:
+    image: "assets/images/public/app.png"
+  android_gravity: center
+  ios_content_mode: center
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -135,7 +131,6 @@ flutter:
     - assets/images/assets/Mina.png
     ## images - mina
     - assets/images/assets/2x/top_header_bg@2x.png
-    - assets/images/assets/2x/mina_round_logo@2x.png
     - assets/images/assets/wallet_manage.svg
     - assets/images/assets/send.svg
     - assets/images/assets/receive.svg
@@ -162,6 +157,7 @@ flutter:
     - assets/images/public/2.0x/loading_circle.png
     - assets/images/public/3.0x/loading_circle.png
     - assets/images/public/pending_tip.svg
+    - assets/images/public/icon_copy.svg
 
     # setting
     - assets/images/setting/aboutus.svg
@@ -224,6 +220,9 @@ flutter:
     - assets/images/public/loading.gif
 
 
+    - assets/images/entry/icon_add.svg
+    - assets/images/entry/icon_restore.svg
+    - assets/images/entry/desc.svg
     - assets/images/entry/auro_logo.png
     - assets/images/entry/2.0x/auro_logo.png
 

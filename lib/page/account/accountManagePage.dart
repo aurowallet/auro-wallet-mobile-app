@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
@@ -14,11 +13,8 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
-import 'package:auro_wallet/page/account/import/importWaysPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class AccountManagePage extends StatefulWidget {
   const AccountManagePage(this.store);

@@ -165,9 +165,10 @@ class ReceivePage extends StatelessWidget {
                                         margin: EdgeInsets.only(top: 22),
                                         child: QrImage(
                                           data: codeAddress,
+                                          padding: EdgeInsets.zero,
                                           size: 150,
-                                          embeddedImage: AssetImage('assets/images/assets/2x/mina_round_logo@2x.png'),
-                                          embeddedImageStyle: QrEmbeddedImageStyle(size: Size(40, 40)),
+                                          embeddedImage: AssetImage('assets/images/setting/setting_logo.png'),
+                                          embeddedImageStyle: QrEmbeddedImageStyle(size: Size(36, 36)),
                                         ),
                                       ),
                                       Container(

@@ -55,6 +55,7 @@ class _TermPageState extends State<TermPage> {
         title: Text(dic['userAgree']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(

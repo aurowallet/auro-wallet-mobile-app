@@ -79,6 +79,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
         title: Text(dic['accountImport']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(

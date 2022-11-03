@@ -42,71 +42,74 @@ class Profile extends StatelessWidget {
           toolbarHeight: 0,
           systemOverlayStyle: SystemUiOverlayStyle.dark,
         ),
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
-        body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TabPageTitle(title: i18n['setting']!),
-              Expanded(child: ListView(
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(top: 10),
-                    padding: EdgeInsets.only(left: 16, right: 10),
-                    child: Column(
-                      children: [
-                        SettingItem(
-                          icon: 'assets/images/setting/security.svg',
-                          title: i18n['security']!,
-                          onTap: () => Navigator.of(context).pushNamed(SecurityPage.route),
-                        ),
-                        SettingItem(
-                          icon: 'assets/images/setting/network.svg',
-                          title:i18n['network']!,
-                          value: networkName,
-                          onTap: () => Navigator.of(context).pushNamed(RemoteNodeListPage.route),
-                        ),
-                        SettingItem(
-                          icon:  'assets/images/setting/locale.svg',
-                          title: i18n['language']!,
-                          value: I18n.getLanguageDisplay(languageCode),
-                          onTap: () => Navigator.of(context).pushNamed(LocalesPage.route),
-                        ),
-                        SettingItem(
-                          icon:  'assets/images/setting/usd.svg',
-                          title: i18n['currency']!,
-                          value: store.settings?.currencyCode.toUpperCase(),
-                          onTap: () => Navigator.of(context).pushNamed(CurrenciesPage.route),
-                        ),
-                        SettingItem(
-                          icon:  'assets/images/setting/contact.svg',
-                          title: i18n['addressbook']!,
-                          onTap: () => Navigator.of(context).pushNamed(ContactListPage.route),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: 0.5,
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                        color: Color(0x1A000000)
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                    child: Column(
+        body: SafeArea(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TabPageTitle(title: i18n['setting']!),
+                Expanded(child: ListView(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 0),
+                      padding: EdgeInsets.only(left: 16, right: 10),
+                      child: Column(
                         children: [
                           SettingItem(
-                            icon:  'assets/images/setting/aboutus.svg',
-                            title: i18n['about']!,
-                            onTap: () => Navigator.of(context).pushNamed(AboutPage.route),
+                            icon: 'assets/images/setting/security.svg',
+                            title: i18n['security']!,
+                            onTap: () => Navigator.of(context).pushNamed(SecurityPage.route),
                           ),
-                        ]),
-                  ),
+                          SettingItem(
+                            icon: 'assets/images/setting/network.svg',
+                            title:i18n['network']!,
+                            value: networkName,
+                            onTap: () => Navigator.of(context).pushNamed(RemoteNodeListPage.route),
+                          ),
+                          SettingItem(
+                            icon:  'assets/images/setting/locale.svg',
+                            title: i18n['language']!,
+                            value: I18n.getLanguageDisplay(languageCode),
+                            onTap: () => Navigator.of(context).pushNamed(LocalesPage.route),
+                          ),
+                          SettingItem(
+                            icon:  'assets/images/setting/usd.svg',
+                            title: i18n['currency']!,
+                            value: store.settings?.currencyCode.toUpperCase(),
+                            onTap: () => Navigator.of(context).pushNamed(CurrenciesPage.route),
+                          ),
+                          SettingItem(
+                            icon:  'assets/images/setting/contact.svg',
+                            title: i18n['addressbook']!,
+                            onTap: () => Navigator.of(context).pushNamed(ContactListPage.route),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 0.5,
+                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                          color: Color(0x1A000000)
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                      child: Column(
+                          children: [
+                            SettingItem(
+                              icon:  'assets/images/setting/aboutus.svg',
+                              title: i18n['about']!,
+                              onTap: () => Navigator.of(context).pushNamed(AboutPage.route),
+                            ),
+                          ]),
+                    ),
 
-                ],
-              ))
-            ]),
+                  ],
+                ))
+              ]),
+        ),
       );
     });
   }

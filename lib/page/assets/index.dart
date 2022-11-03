@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
 
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
-import 'package:flutter_svg_provider/flutter_svg_provider.dart' as sp;
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -128,15 +128,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var theme = Theme.of(context).textTheme;
     var i18nHome = I18n.of(context).home;
     return Padding(
-      padding: EdgeInsets.fromLTRB(13, ui.window.viewPadding.top > 0 ? 16 : 36, 15, 0),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-
-        Container(
-          width: 10,
-        ),
+        // Container(
+        //   width: 10,
+        // ),
         Text(
           i18nHome['myWallet']!,
           style: theme.headline1!.copyWith(
@@ -196,7 +195,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     final currencyStyle = TextStyle(fontSize: 16, color: priceColor, fontStyle: FontStyle.normal, fontWeight: FontWeight.w600);
     final buttonTextStyle = TextStyle(fontSize: 16, color: Color(0xFF594AF1), fontStyle: FontStyle.normal, fontWeight: FontWeight.w600, letterSpacing: -0.3);
     return Container(
-      margin: EdgeInsets.fromLTRB(20, 22, 20, 0),
+      margin: EdgeInsets.fromLTRB(20, 4, 20, 0),
       padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -242,22 +241,22 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                           child: new Text(
                             Fmt.accountName(acc.currentAccount),
                             style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
                             ),
                           ),
                         ),
                         Container(
-                          height: 20,
+                            height: 20,
                             child: Center(
                               child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
-                                style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),),
+                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
                             ),
                             margin: EdgeInsets.only(left: 5),
                             padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: isDelegated ? Color(0x33FFFFFF) : ColorsUtil.hexColor(0xB1B3BD),
+                              color: isDelegated ? Color(0x33FFFFFF) : Color(0x33FFFFFF),
                               borderRadius: BorderRadius.circular(29),
                             )
                         )
@@ -272,7 +271,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                               iconColor: const Color(0x80FFFFFF),
                               child: Container(
                                 child: Text(
-                                  Fmt.address(store.wallet!.currentAddress),
+                                  Fmt.address(store.wallet!.currentAddress, pad: 10),
                                   textAlign: TextAlign.left,
                                   style: TextStyle(color: const Color(0x80FFFFFF), fontSize: 12, fontWeight: FontWeight.w400),
                                 ),
@@ -384,6 +383,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   List<Widget> _buildTxList() {
     var i18n = I18n.of(context).main;
     List<Widget> res = [];
+    bool isTxsLoading = store.assets!.isTxsLoading;
     List<TransferData> txs = [...store.assets!.pendingTxs, ...store.assets!.txs];
     if (store.settings!.isSupportedNode) {
       res.addAll(txs.map((i) {
@@ -407,8 +407,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       }
     }
     res.add(HomeListTip(
-        isEmpty: txs.length == 0,
-        isLoading: store.assets!.isTxsLoading,
+        isLoading: isTxsLoading && txs.length == 0,
         isSupportedNode: store.settings!.isSupportedNode
     ));
     return res;
@@ -419,53 +418,63 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var theme = Theme.of(context).textTheme;
     return Observer(
       builder: (_) {
+        bool isTxsLoading = store.assets!.isTxsLoading;
+        bool isEmpty = store.assets!.txs.length ==0 && store.assets!.pendingTxs.length == 0;
         return RefreshIndicator(
           key: globalBalanceRefreshKey,
           onRefresh: _onRefresh,
-          child: Column(
-            children: <Widget>[
-              _buildTopBar(context),
-              _buildTopCard(context),
-              store.assets!.txs.length !=0 || store.assets!.pendingTxs.length != 0 ? Row(
-                children: [
-                  Flexible(
-                      flex: 1,
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                        margin: EdgeInsets.only(top: 30),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.black.withOpacity(0.1),
-                                  width: 0.5,
-                                )
-                            )
-                        ),
-                        child: Text(
-                          I18n.of(context).main['history']!,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            letterSpacing: -0.3,
-                            fontWeight: FontWeight.w600,
+          child: SafeArea(
+            child: Column(
+              children: <Widget>[
+                _buildTopBar(context),
+                _buildTopCard(context),
+                !isEmpty || isTxsLoading ? Row(
+                  children: [
+                    Flexible(
+                        flex: 1,
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                          margin: EdgeInsets.only(top: 30),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.black.withOpacity(0.1),
+                                    width: 0.5,
+                                  )
+                              )
                           ),
-                          textAlign: TextAlign.left,
-                        ),
-                      )
-                  )
-                ],): Container(),
-              Expanded(
-                child: Ink(
-                  color: Color(0xFFFFFFFF),
-                  child: ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    children: _buildTxList(),
+                          child: Text(
+                            I18n.of(context).main['history']!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              letterSpacing: -0.3,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        )
+                    )
+                  ],): Container(),
+                Expanded(
+                  child: isEmpty && !isTxsLoading ? Wrap(
+                    children: [EmptyTxListTip()],
+                  ) : Ink(
+                    color: Color(0xFFFFFFFF),
+                    child: isEmpty && isTxsLoading ? Container(
+                      child: Center(
+                        child: LoadingCircle(),
+                      ),
+                    ): ListView(
+                      padding: EdgeInsets.symmetric(horizontal: 0),
+                      children: _buildTxList(),
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         );
       },
@@ -494,7 +503,7 @@ class TransferListItem extends StatelessWidget {
     if (address == null) {
       title = data.type.toUpperCase();
     } else {
-      title = Fmt.address(address);
+      title = Fmt.address(address, pad: 8);
     }
     var theme = Theme.of(context).textTheme;
     final Map i18n = I18n.of(context).main;
@@ -534,83 +543,90 @@ class TransferListItem extends StatelessWidget {
         statusColor = ColorsUtil.hexColor(0xFFC633);
         break;
     }
+    Color bgColor = data.status != 'pending' ? Colors.transparent : Color(0xFFF9FAFC);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 17),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                color: Colors.black.withOpacity(0.1),
-                width: 0.5,
+        color: bgColor,
+      ),
+      child: Container(
+          padding: EdgeInsets.symmetric(vertical: 17),
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                    color: Colors.black.withOpacity(0.1),
+                    width: 0.5,
+                  )
+              )
+          ),
+          child: GestureDetector(
+              onTap: _viewRecordDetail,
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                children: [
+                  Container(
+                      width: 28,
+                      margin: EdgeInsets.only(right: 16),
+                      child: SvgPicture.asset(
+                        'assets/images/assets/$icon.svg',
+                        width: 28,
+                      )
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('$title',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black
+                                ),
+                              ),
+                              Text(
+                                '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500
+                                ),
+                              )
+                            ],
+                          ),
+                          Padding(padding: EdgeInsets.only(top:4)),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: TextStyle(
+                                    fontSize: 12,
+                                    color:  ColorsUtil.hexColor(0x96969A)
+                                ),),
+                                Container(
+                                  decoration: BoxDecoration(
+                                      color: statusColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(4)
+                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
+                                  child: Center(
+                                    child: Text(statusText, style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color:  statusColor
+                                    ),),
+                                  ),
+                                ),
+                              ]
+                          )
+                        ]
+                    ),
+                  )
+                ],
               )
           )
       ),
-      child: GestureDetector(
-          onTap: _viewRecordDetail,
-          behavior: HitTestBehavior.opaque,
-          child: Row(
-            children: [
-              Container(
-                  width: 28,
-                  margin: EdgeInsets.only(right: 16),
-                  child: SvgPicture.asset(
-                    'assets/images/assets/$icon.svg',
-                    width: 28,
-                  )
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('$title',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black
-                            ),
-                          ),
-                          Text(
-                            '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
-                            style: TextStyle(
-                                color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500
-                            ),
-                          )
-                        ],
-                      ),
-                      Padding(padding: EdgeInsets.only(top:4)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: TextStyle(
-                                fontSize: 12,
-                                color:  ColorsUtil.hexColor(0x96969A)
-                            ),),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4)
-                              ),
-                              padding: EdgeInsets.symmetric(vertical: 3, horizontal: 5),
-                              child: Center(
-                                child: Text(statusText, style: TextStyle(
-                                  fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                    color:  statusColor
-                                ),),
-                              ),
-                            ),
-                          ]
-                      )
-                    ]
-                ),
-              )
-            ],
-          )
-      )
     );
   }
 }

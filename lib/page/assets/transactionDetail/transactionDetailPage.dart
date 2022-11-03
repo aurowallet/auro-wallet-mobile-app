@@ -108,7 +108,9 @@ class TransactionDetailPage extends StatelessWidget {
           Text(
             statusText,
             style: Theme.of(context).textTheme.headline4!.copyWith(
-                color: statusColor
+                color: statusColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w600
             ),
           ),
           CustomDivider(
@@ -170,7 +172,7 @@ class TransactionDetailPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    padding: EdgeInsets.symmetric(horizontal: 30).copyWith(bottom: 30),
                     child: BrowserLink(
                       '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/transaction/${tx.hash}',
                       text: i18n['goToExplrer']!,

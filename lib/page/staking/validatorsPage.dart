@@ -114,6 +114,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
           centerTitle: true,
           elevation: 0.0,
         ),
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
             child: Column(
               children: [
@@ -172,8 +173,6 @@ class ManualAddValidatorButton extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       color: Theme.of(context).primaryColor,
                     )),
-                    Container(width: 8),
-                    Icon(Icons.open_in_new, size: 16, color: Theme.of(context).primaryColor),
                   ],
                 )
             )

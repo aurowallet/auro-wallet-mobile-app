@@ -84,12 +84,14 @@ class _HomePageState extends State<HomePage> {
           actions: null,
           systemOverlayStyle: SystemUiOverlayStyle.dark,
         ),
+        resizeToAvoidBottomInset: false,
         body: _getPage(0),
       );
     }
     // return staking page
     return Scaffold(
       backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: false,
       body: _getPage(i),
     );
   }

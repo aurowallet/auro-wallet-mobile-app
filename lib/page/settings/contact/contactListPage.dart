@@ -141,6 +141,7 @@ class _ContactListPageState extends State<ContactListPage> {
         title: Text(i18n['addressbook']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Observer(

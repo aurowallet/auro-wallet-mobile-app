@@ -23,7 +23,11 @@ class SettingItem extends StatelessWidget {
       minLeadingWidth: 0,
       minVerticalPadding: 0,
       contentPadding: EdgeInsets.zero,
-      title: Text(title),
+      title: Text(title, style: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 16,
+        color: Colors.black
+      ),),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,

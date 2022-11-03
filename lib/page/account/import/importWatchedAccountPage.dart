@@ -64,6 +64,7 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
         title: Text(dic['watchAccount']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(

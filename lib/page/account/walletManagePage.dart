@@ -196,6 +196,9 @@ class _WalletManagePageState extends State<WalletManagePage> {
         centerTitle: true,
         actions: <Widget>[
           TextButton(
+            style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent)
+            ),
             child: Text(dic['resetWallet']!, style: TextStyle(
               fontSize: 14,
               color: Color(0xFFD65A5A)
@@ -204,6 +207,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
           ),
         ],
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Observer(builder: (BuildContext context) {

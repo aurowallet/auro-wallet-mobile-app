@@ -10,7 +10,6 @@ import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 
 class ImportPrivateKeyPage extends StatefulWidget {
@@ -28,6 +27,8 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
 
   final AppStore store;
   final TextEditingController _privateKeyCtrl = new TextEditingController();
+
+  bool submitting = false;
 
   @override
   void initState() {
@@ -55,9 +56,13 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
     if (password == null) {
       return;
     }
-    EasyLoading.show();
+    setState(() {
+      submitting = true;
+    });
     var isSuccess = await webApi.account.createWalletByPrivateKey(accountName, privateKey, password, context: context, source: WalletSource.outside);
-    EasyLoading.dismiss();
+    setState(() {
+      submitting = false;
+    });
     if(isSuccess) {
       UI.toast(dic['backup_success_restore']!);
       Navigator.of(context).pop();
@@ -72,6 +77,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
         title: Text(dic['accountImport']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
@@ -88,6 +94,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
                   child: NormalButton(
+                    submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: I18n.of(context).main['confirm']!,
                     onPressed: _handleSubmit,

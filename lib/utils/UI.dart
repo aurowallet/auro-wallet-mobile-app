@@ -51,7 +51,7 @@ class UI {
     required BuildContext context,
     required String title,
     required List<TxItem> items,
-    Function()? onConfirm,
+    required Future<bool?> Function() onConfirm,
     String? buttonText,
     String? headLabel,
     Widget? headValue,
@@ -69,10 +69,10 @@ class UI {
             headerLabel: headLabel,
             headerValue: headValue,
             buttonText: buttonText,
-            onConfirm: (){
-              Navigator.pop(context);
-              if (onConfirm != null) {
-                onConfirm();
+            onConfirm: () async {
+              bool? success = await onConfirm();
+              if (success == false) {
+                Navigator.pop(context);
               }
             });
       },

@@ -2,14 +2,10 @@ import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
-
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:auro_wallet/common/components/willPopScopWrapper.dart';
-import 'package:auro_wallet/common/components/splashScreen.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
@@ -26,12 +22,9 @@ import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:auro_wallet/page/settings/nodes/remoteNodeListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/theme.dart';
 
 import 'utils/i18n/index.dart';
-import 'common/theme.dart';
 
 import 'package:auro_wallet/page/homePage.dart';
 import 'package:auro_wallet/page/account/setNewWalletPasswordPage.dart';
@@ -173,9 +166,11 @@ class _WalletAppState extends State<WalletApp> {
             future: _initStore(context),
             builder: (_, AsyncSnapshot<int> snapshot) {
               if (snapshot.hasData) {
+                FlutterNativeSplash.remove();
                 return snapshot.data! > 0 ? HomePage(_appStore!) : CreateAccountEntryPage(_appStore!.settings!, _changeLang);
               } else {
-                return SplashScreen();
+                return Container();
+                // return SplashScreen();
               }
             },
           ),

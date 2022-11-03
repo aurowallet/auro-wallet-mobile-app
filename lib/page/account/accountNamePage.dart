@@ -80,6 +80,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
         title: Text(dic['accountName']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(

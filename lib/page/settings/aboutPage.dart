@@ -58,7 +58,7 @@ class _AboutPage extends State<AboutPage> {
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.only(top: 55, bottom: 10),
-                  child: Image.asset('assets/images/setting/setting_logo.png', width: 65, height: 65,),
+                  child: Image.asset('assets/images/setting/setting_logo.png', width: 72, height: 72,),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -12,7 +12,6 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 
 class ImportMnemonicPage extends StatefulWidget {
@@ -32,6 +31,8 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
   final TextEditingController _mnemonicCtrl = new TextEditingController();
 
   List<String> tips = [];
+  bool submitting = false;
+
   @override
   void initState() {
     super.initState();
@@ -88,7 +89,9 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
       UI.toast(dic['seed_error']!);
       return;
     }
-    EasyLoading.show(status: '');
+    setState(() {
+      submitting = true;
+    });
     widget.store.wallet!.setNewWalletSeed(mnemonic, WalletStore.seedTypeMnemonic);
     var acc = await webApi.account.importWalletByWalletParams();
     final duplicated = await _checkAccountDuplicate(acc);
@@ -102,7 +105,6 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
         walletSource:  WalletSource.outside
     );
     widget.store.wallet!.resetNewWallet();
-    EasyLoading.dismiss();
     await Navigator.pushNamedAndRemoveUntil(context, ImportSuccessPage.route, (Route<dynamic> route) => false, arguments: {
       'type': 'restore'
     });
@@ -156,41 +158,62 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
         title: Text(dic['restoreWallet']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: InputItem(
-                  initialValue: '',
-                  labelStyle: TextStyle(
-                    fontSize: 14
-                  ),
-                  label: dic['inputSeed']!,
-                  controller: _mnemonicCtrl,
-                  backgroundColor: Colors.transparent,
-                  borderColor: ColorsUtil.hexColor(0xE5E5E5),
-                  focusColor: Theme.of(context).primaryColor,
-                  inputPadding: EdgeInsets.only(top: 20),
-                  maxLines: 6,
-                ),
-              ),
-              renderTips(context),
-              Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
-                  child: NormalButton(
-                    color: ColorsUtil.hexColor(0x6D5FFE),
-                    text: I18n.of(context).main['confirm']!,
-                    onPressed: _handleSubmit,
-                  )
-              )
-
-            ],
-          )
+      body:  SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+                padding: EdgeInsets.only(left: 20, right: 20),
+                child: Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: InputItem(
+                        initialValue: '',
+                        labelStyle: TextStyle(
+                            fontSize: 14
+                        ),
+                        label: dic['inputSeed']!,
+                        controller: _mnemonicCtrl,
+                        backgroundColor: Colors.transparent,
+                        borderColor: ColorsUtil.hexColor(0xE5E5E5),
+                        focusColor: Theme.of(context).primaryColor,
+                        inputPadding: EdgeInsets.only(top: 20),
+                        maxLines: 6,
+                      ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                        child: NormalButton(
+                          submitting: submitting,
+                          color: ColorsUtil.hexColor(0x6D5FFE),
+                          text: I18n.of(context).main['confirm']!,
+                          onPressed: _handleSubmit,
+                        )
+                    )
+                  ],
+                )
+            ),
+            Positioned(
+                bottom: max(MediaQuery.of(context).viewInsets.bottom + 10, 80),
+                left: 20,
+                right: 20,
+                child: renderTips(context),
+            )
+          ],
         ),
       ),
+
+      // Stack(
+      //   children: [
+      //     Positioned(
+      //         bottom: max(MediaQuery.of(context).viewInsets.bottom, 60),
+      //         left: 0,
+      //         right: 0,
+      //         child: renderTips(context),
+      //     )
+      //   ],
+      // ),
     );
   }
 }

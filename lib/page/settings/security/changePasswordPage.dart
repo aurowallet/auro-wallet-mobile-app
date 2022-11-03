@@ -169,6 +169,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
           title: Text(dic['changeSecPassword']!),
           centerTitle: true,
         ),
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: SafeArea(
           child: Column(

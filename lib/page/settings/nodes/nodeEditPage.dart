@@ -10,8 +10,6 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 class NodeEditPage extends StatefulWidget {
   final SettingsStore store;
@@ -30,6 +28,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
   bool addressError = false;
   bool submitDisabled = true;
   bool isEdit = false;
+  bool submitting = false;
   String? errorText;
   @override
   void initState() {
@@ -88,11 +87,15 @@ class _NodeEditPageState extends State<NodeEditPage> {
       return null;
     }
     CustomNode endpoint = CustomNode(name: name, url: address);
-    EasyLoading.show(status: '');
+    setState(() {
+      submitting = true;
+    });
     String? chainId = await webApi.setting.fetchChainId(endpoint.url);
     if(chainId == null) {
       UI.toast(i18n['urlError_1']!);
-      EasyLoading.dismiss();
+      setState(() {
+        submitting = false;
+      });
       return;
     }
     endpoint.chainId = chainId;
@@ -102,7 +105,9 @@ class _NodeEditPageState extends State<NodeEditPage> {
     // only support mainnet and testnet
     if (targetNetworks.isEmpty || (targetNetworks.first.type != '0' && targetNetworks.first.type != '1')) {
       UI.toast(i18n['urlError_1']!);
-      EasyLoading.dismiss();
+      setState(() {
+        submitting = false;
+      });
       return;
     }
     endpoint.networksType = targetNetworks.first.type;
@@ -130,7 +135,9 @@ class _NodeEditPageState extends State<NodeEditPage> {
       webApi.updateGqlClient(endpoint.url);
       webApi.refreshNetwork();
     }
-    EasyLoading.dismiss();
+    setState(() {
+      submitting = false;
+    });
     Navigator.of(context).pop();
   }
 
@@ -185,6 +192,9 @@ class _NodeEditPageState extends State<NodeEditPage> {
         centerTitle: true,
         actions: isEdit ? [
           TextButton(
+            style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent)
+            ),
             child: Text(i18n['delete']!, style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -194,6 +204,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
           )
         ] : [],
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
@@ -247,6 +258,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
             Container(
               padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
               child: NormalButton(
+                submitting: submitting,
                 disabled: addressError || _nameCtrl.text.isEmpty,
                 text: I18n.of(context).main['confirm']!,
                 onPressed: _confirm ,

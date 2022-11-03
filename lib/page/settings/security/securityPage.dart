@@ -2,15 +2,11 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
 import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -68,16 +64,16 @@ class _SecurityPageState extends State<SecurityPage> {
     if (password == null) {
       return;
     }
-    EasyLoading.show();
     String? mnemonic = await store.wallet!.getMnemonic(wallet, password);
-    EasyLoading.dismiss();
     if (mnemonic == null) {
       UI.toast(dic['passwordError']!);
       return;
     }
-    await Navigator.pushNamed(context, ExportMnemonicResultPage.route, arguments: {
-      "key": mnemonic
-    });
+    if (mounted) {
+      await Navigator.pushNamed(context, ExportMnemonicResultPage.route, arguments: {
+        "key": mnemonic
+      });
+    }
     // Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
     //   redirect: ImportPrivateKeyPage.route
     // ));
@@ -137,6 +133,7 @@ class _SecurityPageState extends State<SecurityPage> {
         title: Text(dic['security']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(

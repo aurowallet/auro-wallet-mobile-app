@@ -6,31 +6,14 @@ class LoadingCircle extends StatefulWidget {
   _LoadingCircleState createState() => new _LoadingCircleState();
 
   LoadingCircle({
-    this.padding = const EdgeInsets.only(top: 20, right: 30, left: 30)
+    this.padding = const EdgeInsets.only(top: 20, right: 30, left: 30, bottom: 20)
   });
 
   final EdgeInsetsGeometry padding;
 
 }
 
-class _LoadingCircleState extends State<LoadingCircle>
-    with SingleTickerProviderStateMixin {
-  AnimationController? animationController;
-  @override
-  void initState() {
-    animationController = new AnimationController(
-      duration: new Duration(milliseconds: 600),
-      vsync: this
-    );
-    animationController?.repeat();
-    super.initState();
-  }
-
-  @override
-  dispose() {
-    animationController?.dispose();
-    super.dispose();
-  }
+class _LoadingCircleState extends State<LoadingCircle>{
 
   @override
   Widget build(BuildContext context) {
@@ -39,16 +22,12 @@ class _LoadingCircleState extends State<LoadingCircle>
         padding: widget.padding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              child: RotationTransition(
-                turns: Tween(begin: 0.0, end: 1.0).animate(animationController!),
-                child: Image.asset('assets/images/public/loading_circle.png', width: 20, height: 20,),
-              ),
-            ),
+            RotatingCircle(size: 20,),
             Container(
               padding: EdgeInsets.only(top: 10),
-              child: Text(i18n["loading"]! + '...', style: TextStyle(
+              child: Text('  '+ i18n["loading"]! + '...', style: TextStyle(
                 fontSize: 12,
                 color: Colors.black.withOpacity(0.3)
               ),),
@@ -59,3 +38,44 @@ class _LoadingCircleState extends State<LoadingCircle>
   }
 }
 
+class RotatingCircle extends StatefulWidget{
+  final double size;
+  final Color? color;
+  RotatingCircle({
+    required this.size,
+    this.color
+  });
+  @override
+  _RotatingCircleState createState() => new _RotatingCircleState();
+}
+
+class _RotatingCircleState extends State<RotatingCircle>
+    with SingleTickerProviderStateMixin {
+  AnimationController? animationController;
+  @override
+  void initState() {
+    animationController = new AnimationController(
+        duration: new Duration(milliseconds: 600),
+        vsync: this
+    );
+    animationController?.repeat();
+    super.initState();
+  }
+  @override
+  dispose() {
+    animationController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: Tween(begin: 0.0, end: 1.0).animate(animationController!),
+      child: Image.asset('assets/images/public/loading_circle.png',
+        width: widget.size,
+        height: widget.size,
+        color: widget.color,
+      ),
+    );
+  }
+}

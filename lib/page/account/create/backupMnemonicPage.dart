@@ -1,3 +1,6 @@
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -26,6 +29,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
 
   late List<String> _wordsSelected;
   late List<String> _wordsLeft;
+  bool submitting = false;
 
   @override
   void initState() {
@@ -85,6 +89,20 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
     );
   }
 
+  void _save() async {
+    setState(() {
+      submitting = true;
+    });
+    var acc = await webApi.account.importWalletByWalletParams();
+    await webApi.account.saveWallet(acc,
+        context: context,
+        seedType: WalletStore.seedTypeMnemonic,
+        walletSource: WalletSource.inside);
+    await Navigator.pushNamedAndRemoveUntil(
+        context, ImportSuccessPage.route, (Route<dynamic> route) => false,
+        arguments: {'type': 'create'});
+  }
+
   Widget _buildStep1(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -129,13 +147,14 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
             Container(
               padding: EdgeInsets.all(16),
               child: NormalButton(
+                submitting: submitting,
                 text: I18n.of(context).main['next']!,
                 onPressed: _wordsSelected.length ==
                         store.wallet!.newWalletParams.seed.split(' ').length
                     ? () async {
                         if (_wordsSelected.join(' ') !=
                             store.wallet!.newWalletParams.seed) {
-                          UI.toast(I18n.of(context).main['seed_error']!);
+                          UI.toast(I18n.of(context).main['seed_incorrect']!);
                           setState(() {
                             _wordsLeft.clear();
                             _wordsLeft.addAll(
@@ -144,14 +163,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                           });
                           return;
                         }
-                        final Map args =
-                            ModalRoute.of(context)!.settings.arguments as Map;
-                        Future<void> Function(bool) callback = args['callback'];
-                        if (callback != null) {
-                          await callback(true);
-                        } else {
-                          Navigator.of(context).pop(true);
-                        }
+                         _save();
                       }
                     : null,
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 class CopyContainer extends StatelessWidget {
   CopyContainer({this.text, required this.child, this.showIcon = false, this.iconColor});
   final String? text;
@@ -28,7 +29,7 @@ class CopyContainer extends StatelessWidget {
                 padding: !showIcon ? EdgeInsets.zero :  EdgeInsets.only(right: 4),
                 child: child,
               ),),
-            showIcon ? Icon(Icons.copy_outlined, size: 16, color: iconColor ?? Theme.of(context).primaryColor) : Container()
+            showIcon ? SvgPicture.asset('assets/images/public/icon_copy.svg', width: 17, height: 17, color: iconColor ?? Theme.of(context).primaryColor,) : Container()
           ],
         ) ,
         onTap: () {

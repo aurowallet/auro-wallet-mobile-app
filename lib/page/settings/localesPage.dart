@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/page/settings/nodes/remoteNodeListPage.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class LocalesPage extends StatefulWidget {
   LocalesPage(this.store, this.changeLang);
@@ -23,16 +19,11 @@ class _Settings extends State<LocalesPage> {
   final SettingsStore store;
   final Function changeLang;
 
-  final _langOptions = [null, 'en', 'zh'];
-
-  int _selected = 0;
-
   void _onChangeLocale(bool isChecked, String code) {
     if (isChecked && code != store.localeCode) {
-      EasyLoading.show(status: '');
       store.setLocalCode(code);
       changeLang(context, code);
-      EasyLoading.dismiss();
+      Navigator.of(context).pop();
     }
   }
 

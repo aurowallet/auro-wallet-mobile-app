@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/service/api/api.dart';
 
 class CurrenciesPage extends StatefulWidget {
@@ -25,7 +22,8 @@ class _Currencies extends State<CurrenciesPage> {
     if (isChecked && code != store.currencyCode) {
        await store.setCurrencyCode(code);
        print(store.currencyCode);
-       await webApi.assets.fetchAccountInfo();
+       webApi.assets.fetchAccountInfo();
+       Navigator.of(context).pop();
     }
   }
 

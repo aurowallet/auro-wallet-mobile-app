@@ -16,7 +16,6 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:mobx/mobx.dart';
@@ -50,6 +49,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   final TextEditingController _validatorCtrl = new TextEditingController();
   late ReactionDisposer _monitorFeeDisposer;
   bool _submitDisabled = false;
+  bool submitting = false;
   var _loading = Observable(true);
   double? currentFee;
   @override
@@ -174,9 +174,13 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     _unFocus();
     if (_nonceCtrl.text.isEmpty && currentFee == null) {
       if (_loading.value) { // waiting nonce data from server
-        EasyLoading.show();
+        setState(() {
+          submitting = true;
+        });
         await asyncWhen((r) => _loading.value == false);
-        EasyLoading.dismiss();
+        setState(() {
+          submitting = false;
+        });
       }
     }
     if (await _validate()) {
@@ -226,17 +230,15 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
           onConfirm: () async {
             String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet);
             if (password == null) {
-              return;
+              return false;
             }
-            EasyLoading.show(status: '');
             String? privateKey = await webApi.account.getPrivateKey(
                 store.wallet!.currentWallet,
                 store.wallet!.currentWallet.currentAccountIndex,
                 password);
             if (privateKey == null) {
-              EasyLoading.dismiss();
               UI.toast(i18n['passwordError']!);
-              return;
+              return false;
             }
             Map txInfo = {
               "privateKey": privateKey,
@@ -248,13 +250,16 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
             };
 
             TransferData? data = await webApi.account.signAndSendDelegationTx(txInfo, context: context);
-            EasyLoading.dismiss();
-            if (data != null) {
-              await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
-            } else {
-              Navigator.popUntil(context, ModalRoute.withName('/'));
+            if (mounted) {
+              if (data != null) {
+                await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
+              } else {
+                Navigator.popUntil(context, ModalRoute.withName('/'));
+              }
+              globalBalanceRefreshKey.currentState?.show();
+              return true;
             }
-            globalBalanceRefreshKey.currentState?.show();
+            return false;
           }
       );
       return;
@@ -278,6 +283,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
             shadowColor: Colors.transparent,
             centerTitle: true,
           ),
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: SafeArea(
             child: Builder(

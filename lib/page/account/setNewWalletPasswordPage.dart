@@ -179,6 +179,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
         //   color: Colors.white, //change your color here
         // ),
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: GestureDetector(
           onTap: _unFocus,

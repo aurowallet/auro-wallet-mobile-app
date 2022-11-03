@@ -72,6 +72,7 @@ class _StakingState extends State<Staking> {
         toolbarHeight: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: RefreshIndicator(
           key: globalStakingRefreshKey,

@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/components/feeSelector.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
@@ -18,15 +17,12 @@ import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
-import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -55,9 +51,10 @@ class _TransferPageState extends State<TransferPage> {
   final TextEditingController _feeCtrl = new TextEditingController();
   late ReactionDisposer _monitorFeeDisposer;
   final addressFocusNode = FocusNode();
-  bool _submitDisabled = true;
+  bool submitDisabled = true;
+  bool submitting = false;
   double? currentFee;
-  String? _contactName;
+  String? contactName;
   ContactData? _contactData;
 
   var _loading = Observable(true);
@@ -101,25 +98,25 @@ class _TransferPageState extends State<TransferPage> {
     if (_contactData!=null) {
       if (_toAddressCtrl.text == _contactData!.address) {
         setState(() {
-          _contactName = _contactData!.name;
+          contactName = _contactData!.name;
         });
-      } else if (_contactName != null) {
+      } else if (contactName != null) {
         setState(() {
-          _contactName = null;
+          contactName = null;
         });
       }
     }
   }
   void _monitorSummitStatus() {
     if (_toAddressCtrl.text.isEmpty || _amountCtrl.text.isEmpty) {
-      if (!_submitDisabled) {
+      if (!submitDisabled) {
         setState((){
-          _submitDisabled = true;
+          submitDisabled = true;
         });
       }
-    } else if(_submitDisabled) {
+    } else if(submitDisabled) {
       setState((){
-        _submitDisabled = false;
+        submitDisabled = false;
       });
     }
   }
@@ -170,9 +167,13 @@ class _TransferPageState extends State<TransferPage> {
     if (_nonceCtrl.text.isEmpty) {
       if (_loading.value && currentFee == null) {
         // waiting nonce data from server and user does not choose fee
-        EasyLoading.show(status: '');
+        setState(() {
+          submitting = true;
+        });
         await asyncWhen((r) => _loading.value == false);
-        EasyLoading.dismiss();
+        setState(() {
+          submitting = false;
+        });
       }
     }
     if (await _validate()) {
@@ -234,38 +235,36 @@ class _TransferPageState extends State<TransferPage> {
                 wallet: store.wallet!.currentWallet,
             );
             if (password == null) {
-              return;
+              return false;
             }
-             EasyLoading.show();
              String? privateKey = await webApi.account.getPrivateKey(
                  store.wallet!.currentWallet,
                  store.wallet!.currentWallet.currentAccountIndex,
                  password);
              if (privateKey == null) {
-               EasyLoading.dismiss();
                UI.toast(i18n['passwordError']!);
-               return;
+               return false;
              }
-            Map txInfo = {
-              "privateKey": privateKey,
-              "fromAddress": store.wallet!.currentAddress,
-              "toAddress": toAddress,
-              "amount": amountToTransfer,
-              "fee": fee,
-              "nonce": inferredNonce,
-              "memo": memo,
-            };
-
-            TransferData? data = await webApi.account.signAndSendTx(txInfo, context: context);
-            EasyLoading.dismiss();
+             Map txInfo = {
+               "privateKey": privateKey,
+               "fromAddress": store.wallet!.currentAddress,
+               "toAddress": toAddress,
+               "amount": amountToTransfer,
+               "fee": fee,
+               "nonce": inferredNonce,
+               "memo": memo,
+             };
+             TransferData? data = await webApi.account.signAndSendTx(txInfo, context: context);
              if (mounted) {
                if(data != null) {
                  await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
                } else {
                  Navigator.popUntil(context, ModalRoute.withName('/'));
                }
+               globalBalanceRefreshKey.currentState!.show();
+               return true;
              }
-             globalBalanceRefreshKey.currentState!.show();
+             return false;
           }
       );
       return;
@@ -338,7 +337,7 @@ class _TransferPageState extends State<TransferPage> {
       _toAddressCtrl.text = contactData.address;
       setState(() {
         _contactData = contactData;
-        _contactName = contactData.name;
+        contactName = contactData.name;
       });
     }
   }
@@ -369,6 +368,7 @@ class _TransferPageState extends State<TransferPage> {
             centerTitle: true,
             actions: <Widget>[],
           ),
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: SafeArea(
             child: Builder(
@@ -385,7 +385,7 @@ class _TransferPageState extends State<TransferPage> {
                                 InputItem(
                                     padding: const EdgeInsets.only(top: 0),
                                     label: dic['toAddress']! +
-                                        (_contactName != null ? '($_contactName)' : ''),
+                                        (contactName != null ? '($contactName)' : ''),
                                     initialValue: '',
                                     controller: _toAddressCtrl,
                                     focusNode: addressFocusNode,
@@ -481,7 +481,8 @@ class _TransferPageState extends State<TransferPage> {
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: dic['next']!,
-                        disabled: _submitDisabled,
+                        submitting: submitting,
+                        disabled: submitDisabled,
                         onPressed: _handleSubmit,
                       ),
                     )

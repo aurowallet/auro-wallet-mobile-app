@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:auro_wallet/utils/i18n/index.dart';
@@ -8,9 +9,8 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeListTip extends StatelessWidget {
-  HomeListTip({required this.isEmpty,required this.isLoading, required this.isSupportedNode});
+  HomeListTip({required this.isLoading, required this.isSupportedNode});
   final bool isLoading;
-  final bool isEmpty;
   final bool isSupportedNode;
   @override
   Widget build(BuildContext context) {
@@ -43,56 +43,62 @@ class HomeListTip extends StatelessWidget {
         ),
       );
     }
-    if (isLoading && isEmpty) {
-      return LoadingPanel(
-        padding: EdgeInsets.only(top: 20),
-      );
-    }
-    if (isEmpty) {
-      return Container(
-        margin: EdgeInsets.only(top: 20),
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-          color: Colors.white
-        ),
-        child:  Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                      Icons.error_outline_outlined,
-                      size: 20,
-                      color: Colors.black
-                  ),
-                  Padding(
-                      padding: EdgeInsets.only(top: 4 ,left: 5),
-                      child: Text(
-                        i18n['prompt']!,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600
-                        )
-                      )
-                  ),
-                ]
-            ),
-            Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 0),
-                child: Text(
-                  i18n['walletHomeTip']!,
-                  style: theme.headline5!.copyWith(
-                      fontSize: 12,
-                      color: ColorsUtil.hexColor(0x666666)
-                  ),
-                )
-            )
-          ],
-        ),
+    if (isLoading) {
+      return Center(
+        child: LoadingCircle(),
       );
     }
     return Container();
+  }
+}
+
+class EmptyTxListTip extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, String> i18n = I18n.of(context).main;
+    var theme = Theme.of(context).textTheme;
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20, left: 20),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          color: Colors.white
+      ),
+      child:  Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                    Icons.error_outline_outlined,
+                    size: 20,
+                    color: Colors.black
+                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 0 ,left: 5),
+                    child: Text(
+                        i18n['prompt']!,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600
+                        )
+                    )
+                ),
+              ]
+          ),
+          Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 0),
+              child: Text(
+                i18n['walletHomeTip']!,
+                style: theme.headline5!.copyWith(
+                    fontSize: 12,
+                    color: ColorsUtil.hexColor(0x666666)
+                ),
+              )
+          )
+        ],
+      ),
+    );
   }
 }

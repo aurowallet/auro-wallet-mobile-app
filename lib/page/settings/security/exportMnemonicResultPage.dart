@@ -66,6 +66,7 @@ class ExportMnemonicResultPage extends StatelessWidget {
         title: Text(dic['restoreSeed']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(

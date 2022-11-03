@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -33,24 +34,28 @@ class NormalButton extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> row = <Widget>[];
     if (submitting) {
-      row.add(CupertinoActivityIndicator());
-    }
-    if (icon != null) {
-      row.add(Padding(
-        padding: EdgeInsets.only(right: 10),
-        child: icon,
+      row.add(RotatingCircle(
+        color: Colors.white,
+        size: 24,
+      ));
+    } else {
+      if (icon != null) {
+        row.add(Padding(
+          padding: EdgeInsets.only(right: 10),
+          child: icon,
+        ));
+      }
+      row.add(Text(
+        text,
+        style: textStyle ?? Theme.of(context).textTheme.button,
       ));
     }
-    row.add(Text(
-      text,
-      style: textStyle ?? Theme.of(context).textTheme.button,
-    ));
     Color normalColor = color ?? Theme.of(context).primaryColor;
     return ElevatedButton(
       // padding: padding,
       // highlightColor: ColorsUtil.darken(normalColor, 0.05),
       style: ElevatedButton.styleFrom(
-          backgroundColor: normalColor,
+          backgroundColor: submitting ? normalColor.withOpacity(0.8) : normalColor,
           // onSurface: normalColor.withOpacity(0.5),
           minimumSize: Size(!shrink ? double.infinity : 0, height),
           shape: RoundedRectangleBorder(
@@ -61,7 +66,7 @@ class NormalButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: row,
       ),
-      onPressed: submitting || disabled ? null : onPressed,
+      onPressed: disabled ? null : submitting ? (){} : onPressed,
     );
   }
 }

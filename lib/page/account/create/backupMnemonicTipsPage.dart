@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicPage.dart';
-import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 class BackupMnemonicTipsPage extends StatefulWidget {
@@ -27,25 +19,9 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
   bool value1Checked = false;
   bool value2Checked = false;
 
-  Future<void> _onFinishedBackup(bool finished) async {
-    if (finished) {
-      EasyLoading.show(status: '');
-      var acc = await webApi.account.importWalletByWalletParams();
-      await webApi.account.saveWallet(acc,
-          context: context,
-          seedType: WalletStore.seedTypeMnemonic,
-          walletSource: WalletSource.inside);
-      EasyLoading.dismiss();
-      await Navigator.pushNamedAndRemoveUntil(
-          context, ImportSuccessPage.route, (Route<dynamic> route) => false,
-          arguments: {'type': 'create'});
-      // Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
-    }
-  }
 
   Future<void> _onNext() async {
-    await Navigator.pushNamed(context, BackupMnemonicPage.route,
-        arguments: {"callback": _onFinishedBackup});
+    await Navigator.pushNamed(context, BackupMnemonicPage.route);
     // Navigator.of(context).pop(finishedBackup);
   }
 
@@ -69,6 +45,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
     return Scaffold(
       appBar: AppBar(title: Text(I18n.of(context).main['backTips_title']!)),
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

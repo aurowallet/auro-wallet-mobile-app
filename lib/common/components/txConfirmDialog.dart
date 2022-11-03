@@ -16,7 +16,8 @@ class TxItem {
   final String value;
   final TxItemTypes? type;
 }
-class TxConfirmDialog extends StatelessWidget {
+
+class TxConfirmDialog extends StatefulWidget {
   TxConfirmDialog({
     required this.items,
     required this.title,
@@ -33,6 +34,12 @@ class TxConfirmDialog extends StatelessWidget {
   final String? buttonText;
   final bool disabled;
   final Function()? onConfirm;
+  @override
+  _TxConfirmDialogState createState() => new _TxConfirmDialogState();
+}
+class _TxConfirmDialogState extends State<TxConfirmDialog> {
+
+  bool submitting = false;
   Widget renderHead(String headerLabel, Widget headerValue) {
     return Padding(
       padding:const EdgeInsets.only(top: 40),
@@ -65,7 +72,7 @@ class TxConfirmDialog extends StatelessWidget {
                 children: [
                   Padding(
                       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                      child: Text(title, style: TextStyle(
+                      child: Text(widget.title, style: TextStyle(
                           color: Color(0xFF222222),
                           fontSize: 16,
                           fontWeight: FontWeight.w600
@@ -75,20 +82,28 @@ class TxConfirmDialog extends StatelessWidget {
                     height: 0.5,
                     color: Color(0xFF000000).withOpacity(0.1),
                   ),
-                  headerLabel != null && headerValue != null ? this.renderHead(headerLabel!, headerValue!) : Container(),
+                  widget.headerLabel != null && widget.headerValue != null ? this.renderHead(widget.headerLabel!, widget.headerValue!) : Container(),
                   Padding(padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Wrap(
                       children: [
-                        ...items.map((e) {
+                        ...widget.items.map((e) {
                           return TxConfirmItem(data: e,);
                         }).toList(),
                         Padding(
                           padding: EdgeInsets.only(top: 40, left: 18, right: 18),
                           child:
                           NormalButton(
-                            disabled: disabled,
-                            text: buttonText ?? dic['confirm']!,
-                            onPressed: onConfirm,
+                            disabled: widget.disabled,
+                            submitting: submitting,
+                            text: widget.buttonText ?? dic['confirm']!,
+                            onPressed: () {
+                              setState(() {
+                                submitting = true;
+                              });
+                              if (widget.onConfirm != null) {
+                                widget.onConfirm!();
+                              }
+                            },
                           ),
                         ),
                       ],

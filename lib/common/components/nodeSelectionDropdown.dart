@@ -8,13 +8,14 @@ import 'package:auro_wallet/utils/UI.dart';
 
 class NodeSelectionDropdown extends StatefulWidget {
   NodeSelectionDropdown({required this.store});
+
   final SettingsStore store;
+
   @override
   _NodeSelectionDropdownState createState() => _NodeSelectionDropdownState();
 }
 
 class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
-
   @override
   void initState() {
     super.initState();
@@ -36,15 +37,16 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomDropdownButton(items: [
-      DropdownItem(text: 'Mainnet', value: GRAPH_QL_MAINNET_NODE_URL),
-      DropdownItem(text: 'Devnet', value: GRAPH_QL_TESTNET_NODE_URL),
-      ...widget.store.customNodeListV2.map((e) {
-        return DropdownItem(text: e.name, value: e.url);
-      }).toList()
-    ], onChoose: onChoose,
+    return CustomDropdownButton(
+        items: [
+          DropdownItem(text: 'Mainnet', value: GRAPH_QL_MAINNET_NODE_URL),
+          DropdownItem(text: 'Devnet', value: GRAPH_QL_TESTNET_NODE_URL),
+          ...widget.store.customNodeListV2.map((e) {
+            return DropdownItem(text: e.name, value: e.url);
+          }).toList()
+        ],
+        onChoose: onChoose,
         // value: GRAPH_QL_TESTNET_NODE_URL
-        value: widget.store.endpoint
-    );
+        value: widget.store.endpoint);
   }
 }

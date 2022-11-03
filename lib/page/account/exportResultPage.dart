@@ -31,6 +31,7 @@ class ExportResultPage extends StatelessWidget {
     var textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: Text(dic['exportPrivateKey']!)),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(

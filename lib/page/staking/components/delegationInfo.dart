@@ -209,7 +209,7 @@ class DelegateInfoItem extends StatelessWidget {
               child: Text(
                 value,
                 textAlign: TextAlign.left,
-                style: TextStyle(fontSize: 18, color: Colors.black, height: 1.16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, color: Colors.black, height: 1.16, fontWeight: FontWeight.w500),
               ),
               text: copyValue,
               showIcon: true,
@@ -250,7 +250,8 @@ class EmptyInfo extends StatelessWidget {
                 i18n['emptyDelegateDesc1']!,
                 style: theme.headline5!.copyWith(
                     color: Colors.black.withOpacity(0.5),
-                  fontSize: 12
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400
                 ),
               )
           ),
@@ -265,12 +266,17 @@ class EmptyInfo extends StatelessWidget {
                             text: i18n['emptyDelegateDesc2']!,
                             style: theme.headline5!.copyWith(
                                 color: Colors.black.withOpacity(0.5),
-                                fontSize: 12
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400
                             ),
                           ),
                           new TextSpan(
                             text: i18n['emptyDelegateDesc3']!,
-                            style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor, fontSize: 12),
+                            style: theme.headline5!.copyWith(
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400
+                            ),
                             recognizer: new TapGestureRecognizer()
                               ..onTap = () {
                                 var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
