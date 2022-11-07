@@ -347,7 +347,7 @@ const Map<String, String> enMain = {
   "customNetwork": "Custom",
 
   "delete": "Delete",
-  "urlError_1": "Please enter a valid node address",
+  "urlError_1": "Invalid node URL",
   "urlError_2": "Address already exists",
   "urlError_3": "Node address already exists",
   "prompt": "Reminder",

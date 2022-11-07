@@ -17,6 +17,7 @@ class InputItem extends StatefulWidget {
         this.padding = const EdgeInsets.only(top: 22),
         this.maxLength,
         this.focusNode,
+        this.labelAffix,
         this.placeholder = '',
         this.backgroundColor =  Colors.white,
         this.borderColor =  const Color(0x1A000000),
@@ -31,6 +32,7 @@ class InputItem extends StatefulWidget {
   final bool autoFocus;
   final bool? isError;
   final String? label;
+  final Widget? labelAffix;
   final TextStyle? labelStyle;
   final Widget? rightWidget;
   final String? placeholder;
@@ -102,12 +104,21 @@ class _InputItemState extends State<InputItem> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              widget.label == null ? Container() : Flexible(
-                  child: Text(
-                    widget.label!,
-                    textAlign: TextAlign.left,
-                    style: labelStyle,
-                  )),
+              Flexible(child: Column(
+                children: [
+                  Row(
+                    children: [
+                      widget.label == null ? Container() : Text(
+                        widget.label!,
+                        textAlign: TextAlign.left,
+                        style: labelStyle,
+                      ),
+                      widget.labelAffix != null ? Flexible(
+                          child: widget.labelAffix!) : Container(),
+                    ],
+                  )
+                ],
+              )),
               widget.rightWidget == null ? Container() : widget.rightWidget!,
             ],
           ),

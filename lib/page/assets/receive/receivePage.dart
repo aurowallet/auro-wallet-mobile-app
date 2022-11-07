@@ -47,6 +47,7 @@ class ReceivePage extends StatelessWidget {
           backgroundColor: Color(0xFF594AF1),
           appBar: null,
           body: SafeArea(
+            maintainBottomViewPadding: true,
             child: Stack(
               children: [
                 Positioned(child: Image.asset(

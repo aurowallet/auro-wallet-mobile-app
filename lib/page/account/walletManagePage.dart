@@ -210,6 +210,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Observer(builder: (BuildContext context) {
           return Column(
             children: <Widget>[

@@ -256,11 +256,12 @@ class _TransferPageState extends State<TransferPage> {
              };
              TransferData? data = await webApi.account.signAndSendTx(txInfo, context: context);
              if (mounted) {
-               if(data != null) {
-                 await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
-               } else {
-                 Navigator.popUntil(context, ModalRoute.withName('/'));
-               }
+               // if(data != null) {
+               //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
+               // } else {
+               //   Navigator.popUntil(context, ModalRoute.withName('/'));
+               // }
+               Navigator.popUntil(context, ModalRoute.withName('/'));
                globalBalanceRefreshKey.currentState!.show();
                return true;
              }
@@ -371,6 +372,7 @@ class _TransferPageState extends State<TransferPage> {
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: SafeArea(
+            maintainBottomViewPadding: true,
             child: Builder(
               builder: (BuildContext context) {
                 return Column(
@@ -384,9 +386,21 @@ class _TransferPageState extends State<TransferPage> {
                               children: [
                                 InputItem(
                                     padding: const EdgeInsets.only(top: 0),
-                                    label: dic['toAddress']! +
-                                        (contactName != null ? '($contactName)' : ''),
+                                    label: dic['toAddress']!,
                                     initialValue: '',
+                                    labelAffix: contactName != null ? Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.1),
+                                      ),
+                                      child: Text(
+                                          contactName! + 'dhufygwigyfisydgfystfguysfduystduytsudtuysdtytusydft',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black.withOpacity(0.5)
+                                        ),
+                                      ),
+                                    ) : null,
                                     controller: _toAddressCtrl,
                                     focusNode: addressFocusNode,
                                     suffixIcon: IconButton(

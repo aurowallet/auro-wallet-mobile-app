@@ -136,6 +136,7 @@ class _SecurityPageState extends State<SecurityPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
             padding: EdgeInsets.only(left: 20, right: 20, top: 20),
             child: Column(

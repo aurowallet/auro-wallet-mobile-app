@@ -37,6 +37,7 @@ class _ScanPageState extends State<ScanPage> {
   @override
   void dispose() {
     super.dispose();
+    controller.pause();
   }
 
   void _getQrByGallery() {

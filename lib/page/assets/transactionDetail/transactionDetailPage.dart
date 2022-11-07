@@ -160,6 +160,7 @@ class TransactionDetailPage extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Column(
           children: [
             Expanded(

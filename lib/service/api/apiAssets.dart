@@ -30,7 +30,7 @@ class ApiAssets {
 
   Future<void> fetchPendingTransactions(pubKey) async {
     const String query = r'''
-      query fetchPendingListQuery($pubKey: String!) {
+      query fetchPendingListQuery($pubKey: PublicKey) {
         pooledUserCommands(publicKey: $pubKey) {
           id
           nonce
@@ -89,7 +89,7 @@ class ApiAssets {
     }
   }
   Future<void> fetchBatchAccountsInfo(List<String> pubkeys) async {
-    var variablesStr = List<String>.generate(pubkeys.length, (int index) => '\$account$index:String!').join(',');
+    var variablesStr = List<String>.generate(pubkeys.length, (int index) => '\$account$index:PublicKey!').join(',');
 
     String fetchBalanceQuery = '''query fetchBalanceQuery($variablesStr) {
 ${List<String>.generate(pubkeys.length, (int index){

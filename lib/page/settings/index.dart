@@ -45,6 +45,7 @@ class Profile extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: SafeArea(
+          maintainBottomViewPadding: true,
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

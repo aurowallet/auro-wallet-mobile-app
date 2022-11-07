@@ -47,6 +47,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[

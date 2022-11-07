@@ -38,6 +38,7 @@ class _Currencies extends State<CurrenciesPage> {
       body: Observer(
         builder: (_) {
           return SafeArea(
+            maintainBottomViewPadding: true,
             child: ListView(
               padding: EdgeInsets.only(top: 20),
               children: <Widget>[

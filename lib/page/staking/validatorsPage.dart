@@ -116,6 +116,7 @@ class _ValidatorsPageState extends State<ValidatorsPage> with SingleTickerProvid
         ),
         resizeToAvoidBottomInset: false,
         body: SafeArea(
+            maintainBottomViewPadding: true,
             child: Column(
               children: [
                 Padding(padding: EdgeInsets.only(bottom: 8), child: SearchInput(editingController: editingController,),),

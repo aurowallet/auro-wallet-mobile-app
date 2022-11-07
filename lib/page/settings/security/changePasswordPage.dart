@@ -172,6 +172,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: SafeArea(
+          maintainBottomViewPadding: true,
           child: Column(
             children: <Widget>[
               Expanded(

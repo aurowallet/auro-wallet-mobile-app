@@ -74,6 +74,7 @@ class _StakingState extends State<Staking> {
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: RefreshIndicator(
           key: globalStakingRefreshKey,
             onRefresh: _fetchData,

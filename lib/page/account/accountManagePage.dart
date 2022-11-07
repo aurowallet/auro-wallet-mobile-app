@@ -127,6 +127,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Column(

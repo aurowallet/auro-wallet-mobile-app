@@ -207,6 +207,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Column(
           children: [
             Expanded(

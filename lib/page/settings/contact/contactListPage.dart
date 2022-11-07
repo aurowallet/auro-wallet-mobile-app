@@ -144,6 +144,7 @@ class _ContactListPageState extends State<ContactListPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Observer(
           builder: (_){
             return Column(

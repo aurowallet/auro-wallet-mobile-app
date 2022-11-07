@@ -46,7 +46,9 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: Text(dic['renameAccountName']!, style: TextStyle(fontSize: 20)),
+                  child: Text(
+                      dic['renameAccountName']!,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),

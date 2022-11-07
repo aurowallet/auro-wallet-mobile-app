@@ -103,8 +103,12 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         Padding(
           padding: EdgeInsets.only(left: 16, right: 16, top: 20),
           child: Text(i18n['customNetwork']!,
-              style: theme.headline5!
-                  .copyWith(color: ColorsUtil.hexColor(0x666666))),
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black
+              )
+          ),
         ),
         ...list
       ],
@@ -145,6 +149,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Observer(builder: (_) {
           final networks = widget.store.networks;
           final NetworkType? mainnet = networks
@@ -163,8 +168,12 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                   Padding(
                     padding: EdgeInsets.only(left: 16, right: 16),
                     child: Text(i18n['defaultNetwork']!,
-                        style: theme.headline5!
-                            .copyWith(color: ColorsUtil.hexColor(0x666666))),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black
+                        ),
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),

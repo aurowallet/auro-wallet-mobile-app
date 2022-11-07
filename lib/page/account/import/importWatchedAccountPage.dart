@@ -67,6 +67,7 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
             padding: EdgeInsets.only(left: 30, right: 30),
           child: Column(

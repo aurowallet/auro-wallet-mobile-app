@@ -251,11 +251,12 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
 
             TransferData? data = await webApi.account.signAndSendDelegationTx(txInfo, context: context);
             if (mounted) {
-              if (data != null) {
-                await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
-              } else {
-                Navigator.popUntil(context, ModalRoute.withName('/'));
-              }
+              // if (data != null) {
+              //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
+              // } else {
+              //   Navigator.popUntil(context, ModalRoute.withName('/'));
+              // }
+              Navigator.popUntil(context, ModalRoute.withName('/'));
               globalBalanceRefreshKey.currentState?.show();
               return true;
             }
@@ -286,6 +287,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: SafeArea(
+            maintainBottomViewPadding: true,
             child: Builder(
               builder: (BuildContext context) {
                 return Column(

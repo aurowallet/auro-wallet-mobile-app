@@ -40,6 +40,7 @@ class _Settings extends State<LocalesPage> {
         builder: (_) {
           var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
           return SafeArea(
+            maintainBottomViewPadding: true,
             child: ListView(
               padding: EdgeInsets.only(top: 20),
               children: <Widget>[

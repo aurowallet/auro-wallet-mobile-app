@@ -58,6 +58,7 @@ class _TermPageState extends State<TermPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
           padding: EdgeInsets.only(left: 30, right: 30, top: 20),
           child: Column(

@@ -32,7 +32,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
 
   List<String> tips = [];
   bool submitting = false;
-
+  String? errorMsg;
   @override
   void initState() {
     super.initState();
@@ -48,6 +48,11 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     final after = selection.textAfter(text);
     print('after'+  after);
     print('before' + before);
+    if (errorMsg != null) {
+      setState(() {
+        errorMsg = null;
+      });
+    }
     RegExp blank = new RegExp(r'\s$');
     if (after.isEmpty && !blank.hasMatch(before)) {
       String? lastChars = new RegExp(r'[\w]+$').stringMatch(before);
@@ -76,7 +81,9 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     final Map<String, String> dic = I18n.of(context).main;
     int index = store.wallet!.walletList.indexWhere((i) => i.id == acc['pubKey']);
     if (index > -1) {
-      UI.toast(dic['improtRepeat']!);
+      setState(() {
+        errorMsg = dic['improtRepeat'];
+      });
       return true;
     }
     return false;
@@ -86,7 +93,9 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     String mnemonic = _mnemonicCtrl.text.trim();
     bool isMnemonicValid = webApi.account.isMnemonicValid(mnemonic);
     if (!isMnemonicValid) {
-      UI.toast(dic['seed_error']!);
+      setState(() {
+        errorMsg = dic['seed_error'];
+      });
       return;
     }
     setState(() {
@@ -110,7 +119,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     });
   }
   void selectWord(String word) {
-    final text = _mnemonicCtrl.text.replaceAll(new RegExp(r'[\w]+$'), word);
+    final text = _mnemonicCtrl.text.replaceAll(new RegExp(r'[\w]+$'), word + ' ');
 
     _mnemonicCtrl.value = TextEditingValue(
         text: text,
@@ -161,6 +170,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body:  SafeArea(
+        maintainBottomViewPadding: true,
         child: Stack(
           children: [
             Padding(
@@ -168,18 +178,30 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                 child: Column(
                   children: <Widget>[
                     Expanded(
-                      child: InputItem(
-                        initialValue: '',
-                        labelStyle: TextStyle(
-                            fontSize: 14
-                        ),
-                        label: dic['inputSeed']!,
-                        controller: _mnemonicCtrl,
-                        backgroundColor: Colors.transparent,
-                        borderColor: ColorsUtil.hexColor(0xE5E5E5),
-                        focusColor: Theme.of(context).primaryColor,
-                        inputPadding: EdgeInsets.only(top: 20),
-                        maxLines: 6,
+                      child: Wrap(
+                        children: [
+                          InputItem(
+                            initialValue: '',
+                            labelStyle: TextStyle(
+                                fontSize: 14
+                            ),
+                            label: dic['inputSeed']!,
+                            controller: _mnemonicCtrl,
+                            backgroundColor: Colors.transparent,
+                            borderColor: ColorsUtil.hexColor(0xE5E5E5),
+                            focusColor: Theme.of(context).primaryColor,
+                            inputPadding: EdgeInsets.only(top: 20),
+                            maxLines: 6,
+                            isError: errorMsg != null,
+                          ),
+                          errorMsg != null ?  Padding(
+                            padding: EdgeInsets.only(top: 4),
+                            child: Text(errorMsg!, style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFFD65A5A)
+                          ),),) : Container()
+                        ],
                       ),
                     ),
                     Padding(

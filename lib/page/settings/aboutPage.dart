@@ -50,6 +50,7 @@ class _AboutPage extends State<AboutPage> {
         centerTitle: true,
       ),
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Observer(
           builder: (_) {
             AboutUsData? aboutus = widget.store.settings!.aboutus;

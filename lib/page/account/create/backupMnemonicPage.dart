@@ -46,6 +46,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
         ),
         backgroundColor: Colors.white,
         body: SafeArea(
+          maintainBottomViewPadding: true,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -118,6 +119,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[

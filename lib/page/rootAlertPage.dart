@@ -49,6 +49,7 @@ class _RootAlertPageState extends State<RootAlertPage> {
       appBar: null,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
           padding: EdgeInsets.only(left: 30, right: 30),
           child: Column(

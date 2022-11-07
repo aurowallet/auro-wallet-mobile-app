@@ -40,6 +40,7 @@ class CreateAccountEntryPage extends StatelessWidget {
       appBar: null,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
+          maintainBottomViewPadding: true,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,11 +129,11 @@ class CreateAccountEntryPage extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(0, 31, 0, 0),
+                padding: EdgeInsets.fromLTRB(20, 50, 20, 0),
                 child: Text(i18n.main['restoreTip']!, style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xCCCCCC)), textAlign: TextAlign.center,),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(0, 16, 0, 21),
+                padding: EdgeInsets.fromLTRB(0, 31, 0, 24),
                 child: Text('aurowallet.com', style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xB9B9B9))),
               ),
             ],

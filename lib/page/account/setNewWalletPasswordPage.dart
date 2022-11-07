@@ -184,6 +184,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
       body: GestureDetector(
           onTap: _unFocus,
           child: SafeArea(
+            maintainBottomViewPadding: true,
             child: Column(
               children: <Widget>[
                 Expanded(

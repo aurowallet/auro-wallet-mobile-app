@@ -132,6 +132,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Column(
           children: [
             Expanded(

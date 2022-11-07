@@ -424,6 +424,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           key: globalBalanceRefreshKey,
           onRefresh: _onRefresh,
           child: SafeArea(
+            maintainBottomViewPadding: true,
             child: Column(
               children: <Widget>[
                 _buildTopBar(context),

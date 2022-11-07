@@ -82,6 +82,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
             padding: EdgeInsets.only(left: 30, right: 30),
           child: Column(
