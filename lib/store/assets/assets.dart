@@ -120,7 +120,7 @@ abstract class _AssetsStore with Store {
     if (ls == null) return;
 
     ls.forEach((i) {
-      TransferData tx = TransferData.fromJson(i);
+      TransferData tx = TransferData.fromGraphQLJson(i);
       tx.success = tx.status != 'failed';
       i['success'] = tx.success;
       txs.add(tx);

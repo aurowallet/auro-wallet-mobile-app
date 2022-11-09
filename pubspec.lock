@@ -674,13 +674,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.1+3"
-  mockito:
-    dependency: "direct dev"
-    description:
-      name: mockito
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "4.1.1+1"
   normalize:
     dependency: transitive
     description:

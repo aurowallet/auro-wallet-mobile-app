@@ -1,8 +1,13 @@
 buildscript {
     ext.kotlin_version = '1.4.31'
     repositories {
-        google()
-        jcenter()
+//        google()
+//        jcenter()
+//        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
+        maven{ url 'https://maven.aliyun.com/repository/central' }
+        maven{ url 'https://maven.aliyun.com/repository/public' }
+        maven{ url 'https://maven.aliyun.com/repository/google' }
+        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin' }
     }
 
     dependencies {
@@ -13,9 +18,14 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
-        mavenCentral()
-        jcenter()
+//        google()
+//        mavenCentral()
+//        jcenter()
+//        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
+        maven{ url 'https://maven.aliyun.com/repository/central' }
+        maven{ url 'https://maven.aliyun.com/repository/public' }
+        maven{ url 'https://maven.aliyun.com/repository/google' }
+        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin' }
     }
 }
 
