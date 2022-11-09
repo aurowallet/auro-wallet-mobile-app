@@ -14,23 +14,54 @@ class ApiAssets {
 
 
   Future<void> fetchTransactions(pubKey, {page = 0}) async {
-    String txUrl =  "${apiRoot.getTransactionsApiUrl()}/transactions?account=$pubKey&limit=20";
-    var response = await  http.get(Uri.parse(txUrl));
-    if (response.statusCode == 200) {
-      var list = convert.jsonDecode(response.body);
-      if (page == 0) {
-        store.assets!.clearTxs();
-      }
-      // cache first page of txs
-      await store.assets!.addTxs(list, pubKey, shouldCache: page == 0);
-    } else {
-      print('交易记录 Request failed with status: ${response.statusCode}.');
+    final client = GraphQLClient(
+      link: HttpLink(apiRoot.getTxRecordsApiUrl()),
+      // The default store is the InMemoryStore, which does NOT persist to disk
+      cache: GraphQLCache(),
+    );
+    const String query = r'''
+      query fetchTxListQuery($pubKey: String!) {
+  transactions(limit: 25, sortBy: DATETIME_DESC, query: {canonical: true, OR: [{to: $pubKey}, {from: $pubKey}]}) {
+    id
+    nonce
+    memo
+    isDelegation
+    kind
+    hash
+    from
+    feeToken
+    fee
+    amount
+    to
+    dateTime
+    failureReason
+  }
+}
+    ''';
+    final QueryOptions _options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {
+        'pubKey': pubKey,
+      },
+    );
+    final QueryResult result =  await client.query(_options);
+    if (result.hasException) {
+      print('请求tx list 交易出错了');
+      print(result.exception.toString());
+      return;
     }
+    List<dynamic> list = result.data!['transactions'];
+    if (page == 0) {
+      store.assets!.clearTxs();
+    }
+    // cache first page of txs
+    await store.assets!.addTxs(list, pubKey, shouldCache: page == 0);
   }
 
   Future<void> fetchPendingTransactions(pubKey) async {
     const String query = r'''
-      query fetchPendingListQuery($pubKey: String!) {
+      query fetchPendingListQuery($pubKey: PublicKey!) {
         pooledUserCommands(publicKey: $pubKey) {
           id
           nonce
@@ -89,7 +120,7 @@ class ApiAssets {
     }
   }
   Future<void> fetchBatchAccountsInfo(List<String> pubkeys) async {
-    var variablesStr = List<String>.generate(pubkeys.length, (int index) => '\$account$index:String!').join(',');
+    var variablesStr = List<String>.generate(pubkeys.length, (int index) => '\$account$index:PublicKey!').join(',');
 
     String fetchBalanceQuery = '''query fetchBalanceQuery($variablesStr) {
 ${List<String>.generate(pubkeys.length, (int index){

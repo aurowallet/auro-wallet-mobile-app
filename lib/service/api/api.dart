@@ -61,29 +61,44 @@ class Api {
     staking.fetchStakingOverview();
   }
 
-  String getTransactionsApiUrl () {
+  bool  getIsMainApi () {
     String currentUrl = store.settings!.endpoint;
     // List<NetworkType> networks = store.settings!.networks;
     List<CustomNode> customNodes = store.settings!.customNodeListV2;
     if (store.settings!.endpoint == GRAPH_QL_TESTNET_NODE_URL) {
-      return TESTNET_TRANSACTION_URL;
+      return false;
     } else if(store.settings!.endpoint == GRAPH_QL_MAINNET_NODE_URL){
-      return MAINNET_TRANSACTION_URL;
+      return true;
     } else { // custom node
       final targetNets = customNodes.where((customNode) => customNode.url == currentUrl);
       if (targetNets.isNotEmpty) {
         CustomNode targetNet = targetNets.first;
         if (targetNet.networksType == '0') { // mainnet
-          return MAINNET_TRANSACTION_URL;
+          return true;
         } else if (targetNet.networksType == '1') { // testnet
-          return TESTNET_TRANSACTION_URL;
+          return false;
         } else {
-          return MAINNET_TRANSACTION_URL;
+          return true;
         }
       } else {
-        return MAINNET_TRANSACTION_URL;
+        return true;
       }
     }
+  }
+  String getTransactionsApiUrl () {
+    bool isMain = this.getIsMainApi();
+    if (isMain) {
+      return MAINNET_TRANSACTION_URL;
+    }
+    return TESTNET_TRANSACTION_URL;
+  }
+
+  String getTxRecordsApiUrl () {
+    bool isMain = this.getIsMainApi();
+    if (isMain) {
+      return MAIN_TX_RECORDS_GQL_URL;
+    }
+    return TEST_TX_RECORDS_GQL_URL;
   }
 
   Future<void> refreshNetwork () async {

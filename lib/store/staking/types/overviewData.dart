@@ -13,7 +13,7 @@ class OverviewData extends _OverviewData {
 }
 
 abstract class _OverviewData {
-   int blockchainLength = 0;
+   int? blockchainLength = 0;
    String stateHash = "";
    int epochDuration = 0;
    int slotDuration = 0;

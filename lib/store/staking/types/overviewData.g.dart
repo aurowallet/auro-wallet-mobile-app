@@ -8,7 +8,7 @@ part of 'overviewData.dart';
 
 OverviewData _$OverviewDataFromJson(Map<String, dynamic> json) {
   return OverviewData()
-    ..blockchainLength = json['blockchainLength'] as int
+    ..blockchainLength = json['blockchainLength'] as int?
     ..stateHash = json['stateHash'] as String
     ..epochDuration = json['epochDuration'] as int
     ..slotDuration = json['slotDuration'] as int
