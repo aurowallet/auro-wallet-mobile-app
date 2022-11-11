@@ -38,8 +38,6 @@ PODS:
   - trust_fall (0.0.1):
     - DTTJailbreakDetection
     - Flutter
-  - update_app (0.0.1):
-    - Flutter
   - url_launcher (0.0.1):
     - Flutter
   - webcrypto (0.1.1):
@@ -65,7 +63,6 @@ DEPENDENCIES:
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - trust_fall (from `.symlinks/plugins/trust_fall/ios`)
-  - update_app (from `.symlinks/plugins/update_app/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
   - webcrypto (from `.symlinks/plugins/webcrypto/ios`)
   - webview_flutter (from `.symlinks/plugins/webview_flutter/ios`)
@@ -111,8 +108,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences/ios"
   trust_fall:
     :path: ".symlinks/plugins/trust_fall/ios"
-  update_app:
-    :path: ".symlinks/plugins/update_app/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
   webcrypto:
@@ -141,7 +136,6 @@ SPEC CHECKSUMS:
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   trust_fall: 89fc4fbfe2ca9994ffa64185c6cc48225ca0204c
-  update_app: 03c24a56ba197e2a036d5230b02e85825b76e045
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   webcrypto: ac37b97f415c7114abb8af22d58048b5cbcb23d3
   webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b

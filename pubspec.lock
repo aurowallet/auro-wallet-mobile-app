@@ -1036,13 +1036,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.4"
-  update_app:
-    dependency: "direct main"
-    description:
-      name: update_app
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.7"
   url_launcher:
     dependency: "direct main"
     description:
