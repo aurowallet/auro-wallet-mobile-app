@@ -59,9 +59,9 @@ class ApiAccount {
 
   Future<TransferData?> sendTx(Map input, Map signature, {required BuildContext context}) async {
     String mutation = r'''
-    mutation broadcastTx($fee:String!, $amount:String!, 
-$to: String!, $from: String!, $nonce:String!, $memo: String!,
-$validUntil: String!,$scalar: String!, $field: String!) {
+    mutation broadcastTx($fee:UInt64!, $amount:UInt64!, 
+$to: PublicKey!, $from: PublicKey!, $nonce:UInt32, $memo: String!,
+$validUntil: UInt32, $scalar: String!, $field: String!) {
       sendPayment(
         input: {
           fee: $fee,
@@ -127,9 +127,9 @@ $validUntil: String!,$scalar: String!, $field: String!) {
 
   Future<TransferData?> sendDelegationTx(Map input, Map signature, {required BuildContext context}) async {
     String mutation = r'''
-    mutation broadcastTx($fee:String!,
-$to: String!, $from: String!, $nonce:String!, $memo: String!,
-$validUntil: String!,$scalar: String!, $field: String!) {
+    mutation broadcastTx($fee:UInt64!,
+$to: PublicKey!, $from: PublicKey!, $nonce:UInt32!, $memo: String!,
+$validUntil: UInt32,$scalar: String!, $field: String!) {
       sendDelegation(
         input: {
           fee: $fee,
