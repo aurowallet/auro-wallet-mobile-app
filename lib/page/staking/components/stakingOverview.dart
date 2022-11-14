@@ -109,13 +109,10 @@ class TimeInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     return Container(
-        constraints: BoxConstraints(
-          minWidth: 40,
-        ),
-        padding: EdgeInsets.symmetric(vertical: 1),
+        padding: EdgeInsets.zero,
         child: Text(
             time,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.left,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500

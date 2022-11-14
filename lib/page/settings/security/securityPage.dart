@@ -138,11 +138,11 @@ class _SecurityPageState extends State<SecurityPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 20, right: 20, top: 20),
+            padding: EdgeInsets.only(top: 20),
             child: Column(
               children: <Widget>[
-                ImportItem(text: dic['restoreSeed']!, onClick: _onBackup,),
-                ImportItem(text: dic['changePassword']!, onClick: _onChangePassword,),
+                MenuItem(text: dic['restoreSeed']!, onClick: _onBackup,),
+                MenuItem(text: dic['changePassword']!, onClick: _onChangePassword,),
                 _supportBiometric ?
                 SwitchItem(text: dic['unlock.bio.enable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
                     : Container()
@@ -154,8 +154,8 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 }
 
-class ImportItem extends StatelessWidget {
-  ImportItem({
+class MenuItem extends StatelessWidget {
+  MenuItem({
     required this.text,
     required this.onClick
   });
@@ -165,11 +165,11 @@ class ImportItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
         onTap: onClick,
-        behavior: HitTestBehavior.opaque,
         child: Container(
             height: 54,
+            padding: EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -205,6 +205,7 @@ class SwitchItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         height: 54,
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

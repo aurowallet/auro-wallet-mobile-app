@@ -69,7 +69,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
               children: [
                 Padding(
                   padding: EdgeInsets.only(top: 0),
-                  child: Text(widget.title, style: TextStyle(fontSize: 20)),
+                  child: Text(widget.title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
                 ),
                 InputItem(
                   initialValue: '',

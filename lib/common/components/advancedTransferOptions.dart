@@ -41,8 +41,6 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-
-
     return Padding(
       padding: EdgeInsets.zero,
       child: Column(
@@ -56,13 +54,15 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   foregroundColor: Theme.of(context).primaryColor,
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Stack(
                   children: [
-                    Text(dic['advanceMode']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),
-                    Icon(!visibility ? Icons.arrow_drop_down : Icons.arrow_drop_up, size: 20,)
+                    Padding(padding: EdgeInsets.only(right: 20), child: Text(dic['advanceMode']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),),
+                    Positioned(
+                      right: 0,
+                      top: -3,
+                      child: Icon(!visibility ? Icons.arrow_drop_down : Icons.arrow_drop_up, size: 20,))
                   ],
-                ),
+                )
             ),
             visibility ? Container(
               margin: EdgeInsets.only(top: 20),

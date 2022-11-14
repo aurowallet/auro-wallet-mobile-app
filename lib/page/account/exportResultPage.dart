@@ -12,7 +12,9 @@ class ExportResultPage extends StatelessWidget {
   void _showExportDialog(BuildContext context, Map args) async {
     var dic = I18n.of(context).main;
     bool? rejected = await UI.showConfirmDialog(context: context, contents: [
-      dic['copyTipContent']!
+      dic['copyTipContent']!,
+      '\n',
+      dic['copyTipContent2']!,
     ], okText: dic['copyCancel']!, cancelText: dic['copyConfirm']!);
     if (rejected != null && !rejected) {
       Clipboard.setData(ClipboardData(
@@ -47,37 +49,43 @@ class ExportResultPage extends StatelessWidget {
                   Text(args['address'], style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x333333))),
                   Container(
                     decoration: BoxDecoration(
-                        color: ColorsUtil.hexColor(0xD8D8D8),
+                        color: Color(0xFFF9FAFC),
                         borderRadius: BorderRadius.all(Radius.circular(10))
                     ),
-                    padding: EdgeInsets.all(23),
+                    padding: EdgeInsets.all(20),
                     margin: EdgeInsets.only(top: 20),
-                    child: Text(
-                      args['key'],
-                      style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x333333)),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SvgPicture.asset(
-                          'assets/images/assets/copy.svg',
-                          width: 15,
-                          height: 16,
-                          color: Theme.of(context).primaryColor
-                      ),
-                      GestureDetector(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 40, horizontal: 5),
-                          child: Text(
-                            I18n.of(context).main['copyToClipboard']!,
-                            style: textTheme.headline5!.copyWith(
-                                color: Theme.of(context).primaryColor),
-                          ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          args['key'],
+                          style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x333333)),
                         ),
-                        onTap: () => _showExportDialog(context, args),
-                      )
-                    ],
+                        SizedBox(height: 20,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            SvgPicture.asset(
+                                'assets/images/assets/copy.svg',
+                                width: 15,
+                                height: 16,
+                                color: Theme.of(context).primaryColor
+                            ),
+                            GestureDetector(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+                                child: Text(
+                                  I18n.of(context).main['copyToClipboard']!,
+                                  style: textTheme.headline5!.copyWith(
+                                      color: Theme.of(context).primaryColor),
+                                ),
+                              ),
+                              onTap: () => _showExportDialog(context, args),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

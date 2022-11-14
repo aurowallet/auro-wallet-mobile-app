@@ -8,10 +8,8 @@ import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 
 class Staking extends StatefulWidget {

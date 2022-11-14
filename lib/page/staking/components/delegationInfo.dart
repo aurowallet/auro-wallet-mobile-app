@@ -140,15 +140,6 @@ class DelegateInfo extends StatelessWidget {
                     )
                   ]
               ),
-              Row(
-                  children: [
-                    DelegateInfoItem(
-                        labelText: i18n['blocksProduced']!,
-                        value: validatorInfo.blocksCreated.toString(),
-                      noBottom: true,
-                    )
-                  ]
-              ),
             ],
           )
       );

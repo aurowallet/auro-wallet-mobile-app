@@ -39,7 +39,7 @@ class _FeeSelectorState extends State<FeeSelector> {
     final Map<String, String> i18n = I18n.of(context).main;
     double? value = widget.value;
     return Container(
-      margin: EdgeInsets.only(top: 20),
+      margin: EdgeInsets.only(top: 20, bottom: 10),
       child: Column(
         children: [
           Row(

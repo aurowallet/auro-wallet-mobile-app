@@ -321,7 +321,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                           ),
                           Container(
                             height: 0.5,
-                            margin: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                            margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
                             decoration: BoxDecoration(
                                 color: Color(0x1A000000)
                             ),

@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:math';
-
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:flutter/material.dart';
@@ -389,15 +387,17 @@ class _TransferPageState extends State<TransferPage> {
                                     label: dic['toAddress']!,
                                     initialValue: '',
                                     labelAffix: contactName != null ? Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 4),
+                                      margin: EdgeInsets.only(left: 8, right: 8),
+                                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                       decoration: BoxDecoration(
                                         color: Colors.black.withOpacity(0.1),
                                       ),
                                       child: Text(
-                                          contactName! + 'dhufygwigyfisydgfystfguysfduystduytsudtuysdtytusydft',
+                                        contactName!,
                                         style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black.withOpacity(0.5)
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black.withOpacity(0.5)
                                         ),
                                       ),
                                     ) : null,

@@ -2,8 +2,6 @@ import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator, CupertinoTheme;
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
@@ -28,6 +26,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   bool _submitting = false;
 
   bool _isBiometricAuthorized = false; // if user authorized biometric usage
+  bool _isCheckingBiometric = true;
 
   Future<void> _onOk(String password) async {
     if (password.isEmpty) {
@@ -73,6 +72,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     final isBiometricAuthorized = webApi.account.getBiometricEnabled();
     setState(() {
       _isBiometricAuthorized = isBiometricAuthorized;
+      _isCheckingBiometric = false;
     });
     if (supportBiometric) {
       // we prompt biometric auth here if device supported
@@ -110,7 +110,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-    if (_isBiometricAuthorized) {
+    if (_isBiometricAuthorized || _isCheckingBiometric) {
       return Container();
     }
     return Dialog(

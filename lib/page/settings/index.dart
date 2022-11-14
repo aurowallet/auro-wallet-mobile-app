@@ -8,17 +8,10 @@ import 'package:auro_wallet/page/settings/aboutPage.dart';
 import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/page/settings/currenciesPage.dart';
 import 'package:auro_wallet/page/settings/nodes/RemoteNodeListPage.dart';
-import 'package:auro_wallet/page/account/termPage.dart';
-import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/settings/security/securityPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Profile extends StatelessWidget {
   Profile(this.store);
@@ -83,6 +76,7 @@ class Profile extends StatelessWidget {
                           SettingItem(
                             icon:  'assets/images/setting/contact.svg',
                             title: i18n['addressbook']!,
+                            value: store.settings?.contactList.length.toString(),
                             onTap: () => Navigator.of(context).pushNamed(ContactListPage.route),
                           ),
                         ],

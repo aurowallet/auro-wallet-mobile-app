@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
@@ -44,11 +46,6 @@ import 'package:auro_wallet/page/account/termPage.dart';
 import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
-
-
-
-
-
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
@@ -147,6 +144,8 @@ class _WalletAppState extends State<WalletApp> {
       initialRoute: HomePage.route,
       theme: _theme,
       builder: EasyLoading.init(builder: (BuildContext context, Widget? child) {
+        final size =MediaQuery.of(context).size;
+        final factor = max(min(size.width / 375, 2.0), 1.0);
         return GestureDetector(
           onTap: () {
             FocusScopeNode currentFocus = FocusScope.of(context);
@@ -155,7 +154,7 @@ class _WalletAppState extends State<WalletApp> {
             }
           },
           child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+            data: MediaQuery.of(context).copyWith(textScaleFactor: factor),
             child: _isDangerous ? RootAlertPage() : child ?? Container(),
           ),
         );

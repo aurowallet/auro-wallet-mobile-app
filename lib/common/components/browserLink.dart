@@ -39,7 +39,7 @@ class _BrowserLinkState extends State<BrowserLink> {
             padding: EdgeInsets.only(right: widget.showIcon ? 4: 0),
             child: Text(
               widget.text ?? widget.url,
-              style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
+              style: TextStyle(fontSize: 12, color: Theme.of(context).primaryColor, fontWeight: FontWeight.w500),
             ),
           ),
           widget.showIcon ? Icon(Icons.open_in_new, size: 16, color: Theme.of(context).primaryColor) : Container()

@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/theme.dart';
 import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -96,7 +97,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                     height: 48,
                     child: TextButton(
                       style: TextButton.styleFrom(
-                          foregroundColor: Color(0xFFD65A5A)
+                          foregroundColor: Theme.of(context).primaryColor
                       ),
                       child: Text(widget.okText ?? dic['confirm']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                       onPressed: () {

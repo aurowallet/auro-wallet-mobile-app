@@ -42,11 +42,13 @@ class WalletItem extends StatelessWidget {
 
   void _onTapWallet() {
     print('tab wallet');
-    if(wallet.walletType == WalletStore.seedTypeNone) {
-      _viewAccountInfo();
-      return;
-    }
-    _changeCurrentAccount(account.address != store.wallet!.currentAddress);
+    new Future.delayed(const Duration(milliseconds: 500), () {
+      if(wallet.walletType == WalletStore.seedTypeNone) {
+        _viewAccountInfo();
+        return;
+      }
+      _changeCurrentAccount(account.address != store.wallet!.currentAddress);
+    });
   }
 
   @override
@@ -65,21 +67,23 @@ class WalletItem extends StatelessWidget {
     final bool isChecked = account.address == store.wallet!.currentAddress;
     final Color textColor = isChecked ? Colors.white : Colors.black;
     final Color addressColor = isChecked ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.3);
-    return Padding(
-      padding: EdgeInsets.only(top: 20, right: 20, left: 20),
-      child: GestureDetector(
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20, left: 20),
+      // padding: EdgeInsets.fromLTRB(16, 16, 14, 16),
+      decoration: BoxDecoration(
+          border: Border.all(
+              color: isChecked ? Theme.of(context).primaryColor :Color(0x1A000000),
+              width: 1
+          ),
+          borderRadius: BorderRadius.circular(12)
+      ),
+      child: Material(
+        color: isChecked ? Theme.of(context).primaryColor : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
           onTap: _onTapWallet,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
+          child: Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 14, 16),
-            decoration: BoxDecoration(
-              color: isChecked ? Theme.of(context).primaryColor : Colors.white,
-              border: Border.all(
-                color: isChecked ? Theme.of(context).primaryColor :Color(0x1A000000),
-                width: 1
-              ),
-              borderRadius: BorderRadius.circular(12)
-            ),
             child: IntrinsicHeight(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -157,8 +161,9 @@ class WalletItem extends StatelessWidget {
                 ],
               ),
             ),
-          )
-      )
+          ),
+        ),
+      ),
     );
   }
 }

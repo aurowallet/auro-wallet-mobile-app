@@ -96,6 +96,11 @@ class _InputItemState extends State<InputItem> {
           color: widget.isError == true ? Color(0xFFD65A5A) : widget.borderColor
       ),
     );
+    final labelWidget  = widget.label == null ? null : Text(
+      widget.label!,
+      textAlign: TextAlign.left,
+      style: labelStyle,
+    );
     return Padding(
       padding: widget.padding,
       child: Column(
@@ -104,21 +109,16 @@ class _InputItemState extends State<InputItem> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(child: Column(
+              Flexible(child: widget.labelAffix != null ? Column(
                 children: [
                   Row(
                     children: [
-                      widget.label == null ? Container() : Text(
-                        widget.label!,
-                        textAlign: TextAlign.left,
-                        style: labelStyle,
-                      ),
-                      widget.labelAffix != null ? Flexible(
-                          child: widget.labelAffix!) : Container(),
+                      labelWidget == null ? Container() : labelWidget,
+                      Flexible(child: widget.labelAffix!),
                     ],
                   )
                 ],
-              )),
+              ): (labelWidget == null ? Container() : labelWidget)),
               widget.rightWidget == null ? Container() : widget.rightWidget!,
             ],
           ),

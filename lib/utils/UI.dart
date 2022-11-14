@@ -141,6 +141,8 @@ class UI {
   }) {
     return showDialog(
       context: context,
+      barrierDismissible:false,
+      useRootNavigator: false,
       builder: (_) {
         return PasswordInputDialog(
           wallet: wallet,
