@@ -243,7 +243,7 @@ const Map<String, String> zhMain = {
 const Map<String, String> enMain = {
   "lockTitle": "Lock",
   "lockButton": "Unlock",
-  "passwordError": "Wrong Password",
+  "passwordError": "Incorrect security password",
   "createWallet": "Create Wallet",
   "restoreWallet": "Restore Wallet",
   "inputPassword": "Enter security password",
