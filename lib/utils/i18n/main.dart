@@ -255,7 +255,7 @@ const Map<String, String> enMain = {
   "atLeastOneUppercaseLetter": "An uppercase letter",
   "atLeastOneNumber": "A number",
   "passwordRequires": "At least 8 characters",
-  "passwordDifferent": "Passwords do not match, please retype!",
+  "passwordDifferent": "Passwords do not match!",
   "backTips_title": "Backup Mnemonic Phrase",
   "backTips_1": "Backup your mnemonic phrase now!",
   "backTips_2": "The Mnemonic phrase consists of 12 English words, which cannot be retrieved if they are lost. Make sure the mnemonic phrase is kept in a secure location.",

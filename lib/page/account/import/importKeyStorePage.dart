@@ -96,13 +96,13 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
                       isPassword: true,
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 20),
+                      padding: EdgeInsets.only(top: 10),
                     ),
                     Flexible(
-                      child: Text(dic['importAccount_2']!, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x666666), height: 1.25),)
+                      child: Text(dic['importAccount_2']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
                     ),
                     Flexible(
-                        child: Text(dic['importAccount_3']!, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x666666), height: 1.25),)
+                        child: Text(dic['importAccount_3']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
                     ),
                   ]
                 ),

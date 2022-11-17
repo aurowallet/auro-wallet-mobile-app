@@ -47,7 +47,7 @@ class _InputErrorTipState extends State<InputErrorTip> {
     super.initState();
     if (widget.focusNode != null) {
       widget.focusNode?.addListener((){
-        if (widget.focusNode != null && widget.focusNode!.hasFocus) {
+        if (widget.focusNode != null && !widget.focusNode!.hasFocus) {
           _onChange();
         }
       });

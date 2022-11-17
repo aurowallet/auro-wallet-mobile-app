@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/common/components/backgroundContainer.dart';
-import 'package:auro_wallet/common/components/customDropdownButton.dart';
 import 'package:auro_wallet/common/components/termsDialog.dart';
-import 'package:auro_wallet/page/account/termPage.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/page/account/setNewWalletPasswordPage.dart';
 
 class CreateAccountEntryPage extends StatelessWidget {
@@ -104,7 +98,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                     children: [
                       SvgPicture.asset("assets/images/entry/icon_add.svg"),
                       SizedBox(width: 8,),
-                      Text(I18n.of(context).main['createWallet']!, style: TextStyle(color: Colors.white, fontSize: 20))
+                      Text(I18n.of(context).main['createWallet']!, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))
                     ],
                   ),
                 ),
@@ -123,7 +117,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                     children: [
                       SvgPicture.asset("assets/images/entry/icon_restore.svg"),
                       SizedBox(width: 8,),
-                      Text(I18n.of(context).main['restoreWallet']!, style: TextStyle(color: ColorsUtil.hexColor(0x594AF1), fontSize: 20))
+                      Text(I18n.of(context).main['restoreWallet']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16, fontWeight: FontWeight.w600))
                     ],
                   ),
                 ),

@@ -15,7 +15,7 @@ const Map<String, String> enSettings = {
   'addaddress': 'Add Address',
   'deleteaddress': 'Delete Address?',
   "addNetWork": "Add Network",
-  "editNetWork": "Edit Node",
+  "editNetWork": "Edit Network",
   "nodeAddress": "Node URL",
   "nodeAlert": "Only add custom nodes you trust. Using unknown nodes can be risky.",
 };

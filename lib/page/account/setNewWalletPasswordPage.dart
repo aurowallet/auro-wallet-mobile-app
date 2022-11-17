@@ -272,6 +272,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           message: dic['passwordDifferent']!,
                           validate: _validateSame,
                           keepShow: false,
+                          hideIcon: true,
                           focusNode: _pass2Focus,
                         ),
                         _supportBiometric
