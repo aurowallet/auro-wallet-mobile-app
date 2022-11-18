@@ -23,10 +23,7 @@ import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:auro_wallet/page/settings/remoteNodeListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/service/notification.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/theme.dart';
 
 import 'utils/i18n/index.dart';
@@ -130,8 +127,6 @@ class _WalletAppState extends State<WalletApp> {
 
   @override
   void dispose() {
-    didReceiveLocalNotificationSubject.close();
-    selectNotificationSubject.close();
     webApi.dispose();
     super.dispose();
   }

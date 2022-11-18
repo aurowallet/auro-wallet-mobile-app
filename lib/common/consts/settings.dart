@@ -18,4 +18,4 @@ const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 /// app versions
-const String app_version = 'v1.0.9(1072)';
+const String app_version = 'v1.0.9(1073)';
