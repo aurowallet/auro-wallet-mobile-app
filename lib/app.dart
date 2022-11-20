@@ -42,7 +42,6 @@ import 'package:auro_wallet/page/settings/security/securityPage.dart';
 import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/page/staking/delegatePage.dart';
-import 'package:auro_wallet/page/account/termPage.dart';
 import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
@@ -188,7 +187,6 @@ class _WalletAppState extends State<WalletApp> {
         ImportMnemonicPage.route: (_) => ImportMnemonicPage(_appStore!),
         ImportSuccessPage.route: (_) => ImportSuccessPage(_appStore!),
         ScanPage.route: (_) => ScanPage(),
-        TermPage.route: (_) => TermPage(_appStore!),
         ImportWatchedAccountPage.route: (_) => ImportWatchedAccountPage(_appStore!),
 
         // assets

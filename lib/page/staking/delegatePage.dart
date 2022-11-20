@@ -52,6 +52,8 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   bool submitting = false;
   var _loading = Observable(true);
   double? currentFee;
+  double? selectedFee;
+
   @override
   void initState() {
     super.initState();
@@ -107,6 +109,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   void _onFeeLoaded(Fees fees) {
     if (currentFee == null) {
       currentFee = fees.medium;
+      selectedFee = fees.medium;
     }
   }
 
@@ -124,6 +127,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     _feeCtrl.text = '';
     setState(() {
       currentFee = fee;
+      selectedFee = fee;
     });
   }
 
@@ -329,6 +333,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
+                            placeHolder: selectedFee,
                             noncePlaceHolder: store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce,
                             cap: fees.cap,
                           )

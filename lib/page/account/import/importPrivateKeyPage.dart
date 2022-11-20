@@ -82,18 +82,33 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
+            padding: EdgeInsets.symmetric(horizontal: 20).copyWith(top: 20),
           child: Column(
             children: <Widget>[
               Expanded(
-                child: InputItem(
-                  label: dic['pleaseInputPriKey']!,
-                  controller: _privateKeyCtrl,
-                  maxLines: 3,
+                child: Column(
+                  children: [
+                    InputItem(
+                      padding: EdgeInsets.zero,
+                      inputPadding: EdgeInsets.only(top: 20),
+                      label: dic['pleaseInputPriKey']!,
+                      controller: _privateKeyCtrl,
+                      maxLines: 3,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                    ),
+                    Flexible(
+                        child: Text(dic['importAccount_2']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
+                    ),
+                    Flexible(
+                        child: Text(dic['importAccount_3']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
+                    ),
+                  ],
                 ),
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child: NormalButton(
                     submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),

@@ -36,7 +36,6 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   bool numberError = false;
   bool unRepeatError = false;
   bool _submitDisabled = true;
-  String? passwordErrorText = null;
 
 
   @override
@@ -208,7 +207,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           initialValue: '',
                           controller: _passCtrl,
                           isPassword: true,
-                          placeholder: dic['inputPassword']!,
+                          placeholder: '',
                         ),
                         Container(
                           padding: EdgeInsets.only(top: 4),
@@ -264,7 +263,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           controller: _pass2Ctrl,
                           isPassword: true,
                           focusNode: _pass2Focus,
-                          placeholder: dic['confirmPassword']!,
+                          placeholder: '',
                         ),
                         InputErrorTip(
                           padding: EdgeInsets.only(top: 8),
@@ -305,7 +304,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                   child: NormalButton(
                     disabled: _isFormError() || _submitDisabled,
                     text: I18n.of(context).main['next']!,

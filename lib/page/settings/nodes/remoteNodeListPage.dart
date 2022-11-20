@@ -1,4 +1,3 @@
-import 'package:auro_wallet/common/components/customNodeDialog.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
@@ -8,7 +7,6 @@ import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -101,7 +99,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 16, right: 16, top: 20),
+          padding: EdgeInsets.only(left: 20, right: 20, top: 20),
           child: Text(i18n['customNetwork']!,
               style: TextStyle(
                   fontSize: 14,
@@ -164,9 +162,9 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
           return Column(
             children: [
               Expanded(
-                child: ListView(padding: EdgeInsets.only(top: 8), children: [
+                child: ListView(padding: EdgeInsets.only(top: 20), children: [
                   Padding(
-                    padding: EdgeInsets.only(left: 16, right: 16),
+                    padding: EdgeInsets.only(left: 20, right: 20),
                     child: Text(i18n['defaultNetwork']!,
                         style: TextStyle(
                             fontSize: 14,

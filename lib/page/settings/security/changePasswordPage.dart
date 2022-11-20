@@ -1,13 +1,11 @@
 import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
-import 'package:auro_wallet/common/components/passwordInputDialog.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/InputErrorTip.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/UI.dart';
 
@@ -32,6 +30,11 @@ class _ChangePassword extends State<ChangePasswordPage> {
   final TextEditingController _newPass2Ctrl = new TextEditingController();
   bool _submitting = false;
   bool _submitDisabled = false;
+  bool lengthError = false;
+  bool upCaseError = false;
+  bool lowerCaseError = false;
+  bool numberError = false;
+  bool unRepeatError = false;
 
 
   Future<void> _doChangePass() async {
@@ -109,30 +112,49 @@ class _ChangePassword extends State<ChangePasswordPage> {
     } else {
       res = true;
     }
+    setState(() {
+      lengthError = !res;
+    });
     return res;
   }
 
   bool _validateUpCase(String text) {
     RegExp up = new RegExp(r"[A-Z]");
     bool res = up.hasMatch(text);
+    setState(() {
+      upCaseError = !res;
+    });
     return res;
   }
 
   bool _validateLowerCase(String text) {
     RegExp lower = new RegExp(r"[a-z]");
     bool res = lower.hasMatch(text);
+    setState(() {
+      lowerCaseError = !res;
+    });
     return res;
   }
 
   bool _validateNumber(String text) {
     RegExp num = new RegExp(r"\d");
     bool res = num.hasMatch(text);
+    setState(() {
+      numberError = !res;
+    });
     return res;
   }
 
   bool _validateSame(String text) {
     bool res = _newPassCtrl.text.trim() == text.trim();
+    setState(() {
+      unRepeatError = !res;
+    });
     return res;
+  }
+
+  bool _isFormError() {
+    return lengthError || upCaseError || lowerCaseError || numberError || unRepeatError;
   }
 
   void _unFocus() {
@@ -162,6 +184,19 @@ class _ChangePassword extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     var dic = I18n.of(context).main;
+    final List<String> errors = [];
+    if (lengthError) {
+      errors.add(dic['passwordRequires']!);
+    }
+    if (upCaseError) {
+      errors.add(dic['atLeastOneUppercaseLetter']!);
+    }
+    if (lowerCaseError) {
+      errors.add(dic['atLeastOneLowercaseLetter']!);
+    }
+    if (numberError) {
+      errors.add(dic['atLeastOneNumber']!);
+    }
     return GestureDetector(
       onTap: _unFocus,
       child: Scaffold(
@@ -177,9 +212,10 @@ class _ChangePassword extends State<ChangePasswordPage> {
             children: <Widget>[
               Expanded(
                 child: ListView(
-                  padding: EdgeInsets.fromLTRB(20, 23, 20, 23),
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                   children: <Widget>[
                     InputItem(
+                      padding: EdgeInsets.zero,
                       label: dic['inputOldPwd']!,
                       controller: _oldPassCtrl,
                       isPassword: true,
@@ -189,24 +225,39 @@ class _ChangePassword extends State<ChangePasswordPage> {
                       controller: _newPassCtrl,
                       isPassword: true,
                     ),
+                    Container(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text(
+                        errors.join("/"),
+                        style: TextStyle(
+                            color: Color(0xFFD65A5A),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600
+                        ),
+                      ),
+                    ),
                     InputErrorTip(
                       padding: EdgeInsets.only(top: 8),
                       ctrl: _newPassCtrl,
+                      showMessage: false,
                       message: dic['passwordRequires']!,
                       validate: _validateLength,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
+                      showMessage: false,
                       message: dic['atLeastOneUppercaseLetter']!,
                       validate: _validateUpCase,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
+                      showMessage: false,
                       message: dic['atLeastOneLowercaseLetter']!,
                       validate: _validateLowerCase,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
+                      showMessage: false,
                       message: dic['atLeastOneNumber']!,
                       validate: _validateNumber,
                     ),
@@ -219,6 +270,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
                       padding: EdgeInsets.only(top: 8),
                       ctrl: _newPass2Ctrl,
                       message: dic['passwordDifferent']!,
+                      hideIcon: true,
                       validate: _validateSame,
                       keepShow: false,
                       // focusNode: _pass2Focus,
@@ -230,8 +282,8 @@ class _ChangePassword extends State<ChangePasswordPage> {
                 margin: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                 child: NormalButton(
                   text: dic['confirm']!,
-                  disabled: _submitDisabled,
-                  icon: _submitting ? CupertinoActivityIndicator() : null,
+                  disabled: _submitDisabled || _isFormError(),
+                  submitting: _submitting,
                   onPressed: _submitting ? null : _doChangePass,
                 ),
               ),

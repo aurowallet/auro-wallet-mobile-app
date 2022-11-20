@@ -144,7 +144,7 @@ class PercentageCircle extends StatelessWidget {
           ],
         ),
         backgroundColor: Colors.grey,
-        maskFilter: MaskFilter.blur(BlurStyle.solid, 3),
+        // maskFilter: MaskFilter.blur(BlurStyle.solid, 3),
         linearGradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

@@ -106,8 +106,8 @@ class _ContactListPageState extends State<ContactListPage> {
       return this._renderEmpty();
     }
     return ListView.separated(
-      itemCount: contacts.length,
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        itemCount: contacts.length,
+        padding: EdgeInsets.symmetric(horizontal: 20).copyWith(top: 20),
         separatorBuilder: (BuildContext context, int index) =>  Container(
           color: Colors.black.withOpacity(0.1),
           height: 0.5,

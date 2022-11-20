@@ -98,8 +98,9 @@ class ApiAssets {
   }
 
   Future<void> queryTxFees() async {
-    var feeUrl = "${BASE_INFO_URL}minter_fee.json";
+    var feeUrl = "$BASE_INFO_URL/minter_fee.json";
     var response = await http.get(Uri.parse(feeUrl));
+    print('fee response' + response.statusCode.toString());
     if (response.statusCode == 200) {
       var feeList = convert.jsonDecode(response.body);
       if (feeList.length >= 4) {

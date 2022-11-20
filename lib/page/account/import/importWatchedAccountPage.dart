@@ -69,7 +69,7 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
+            padding: EdgeInsets.only(left: 20, right: 20),
           child: Column(
             children: <Widget>[
               Expanded(
@@ -80,7 +80,7 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
                 ),
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child: NormalButton(
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: I18n.of(context).main['confirm']!,

@@ -91,6 +91,10 @@ class _AboutPage extends State<AboutPage> {
                   child: BrowserLink(privacyUrl, text: i18nSettings['github']!, showIcon: false,),
                 ),
                 Container(
+                  margin: EdgeInsets.only(top: 10),
+                  child: BrowserLink(aboutUsData?.graphqlApi ?? '', text: i18nSettings['graphApi']!, showIcon: false,),
+                ),
+                Container(
                   padding: EdgeInsets.only(top: 40, bottom: 23),
                   child: Text(
                       i18n['followUs']!,

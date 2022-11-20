@@ -55,14 +55,14 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                   padding: EdgeInsets.only(top: 16),
                   children: <Widget>[
                     Padding(
-                      padding: EdgeInsets.only(left: 30, right: 30),
+                      padding: EdgeInsets.only(left: 20, right: 20),
                       child: Text(
                         I18n.of(context).main['show_seed_content']!,
                         style: Theme.of(context).textTheme.headline5,
                       ),
                     ),
                     Container(
-                        margin: EdgeInsets.only(left: 16, right: 16, top: 20),
+                        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
                         child: _buildWords(
                             store.wallet!.newWalletParams.seed.split(' '),
                             false))
@@ -70,7 +70,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                 child: NormalButton(
                   text: I18n.of(context).main['show_seed_button']!,
                   onPressed: () {
@@ -128,26 +128,26 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                 padding: EdgeInsets.all(0),
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.only(top: 16, left: 30, right: 30),
+                    padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                     child: Text(
                       I18n.of(context).main['backupInOrder']!,
                       style: Theme.of(context).textTheme.headline6!,
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+                    padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                     child: _buildWords(_wordsSelected, true),
                   ),
                   Padding(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20), child:  Divider(),),
                   Padding(
-                    padding: EdgeInsets.only(left: 16, right: 16),
+                    padding: EdgeInsets.only(left: 20, right: 20),
                     child: _buildWordsButtons(),
                   ),
                 ],
               ),
             ),
             Container(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
               child: NormalButton(
                 submitting: submitting,
                 text: I18n.of(context).main['next']!,

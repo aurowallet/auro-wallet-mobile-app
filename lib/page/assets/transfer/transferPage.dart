@@ -11,7 +11,6 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
-import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -52,6 +51,7 @@ class _TransferPageState extends State<TransferPage> {
   bool submitDisabled = true;
   bool submitting = false;
   double? currentFee;
+  double? selectedFee;
   String? contactName;
   ContactData? _contactData;
 
@@ -285,6 +285,7 @@ class _TransferPageState extends State<TransferPage> {
     if (currentFee == null) {
       setState(() {
         currentFee = fees.medium;
+        selectedFee = fees.medium;
       });
     }
   }
@@ -326,6 +327,7 @@ class _TransferPageState extends State<TransferPage> {
     _feeCtrl.text = '';
     setState(() {
       currentFee = fee;
+      selectedFee = fee;
     });
   }
   void _onChooseContact() async {
@@ -385,12 +387,14 @@ class _TransferPageState extends State<TransferPage> {
                                 InputItem(
                                     padding: const EdgeInsets.only(top: 0),
                                     label: dic['toAddress']!,
+                                    placeholder: dic['address'],
                                     initialValue: '',
                                     labelAffix: contactName != null ? Container(
                                       margin: EdgeInsets.only(left: 8, right: 8),
                                       padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                       decoration: BoxDecoration(
                                         color: Colors.black.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(2)
                                       ),
                                       child: Text(
                                         contactName!,
@@ -428,6 +432,7 @@ class _TransferPageState extends State<TransferPage> {
                                 InputItem(
                                   label: dic['amount']!,
                                   initialValue: '',
+                                  placeholder: '0',
                                   controller: _amountCtrl,
                                   inputFormatters: [
                                     UI.decimalInputFormatter(decimals)
@@ -483,6 +488,7 @@ class _TransferPageState extends State<TransferPage> {
                           ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
+                            placeHolder: selectedFee,
                             nonceCtrl: _nonceCtrl,
                             noncePlaceHolder: store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce,
                             cap: fees.cap,
@@ -491,7 +497,7 @@ class _TransferPageState extends State<TransferPage> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 38, vertical: 20),
+                      padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: dic['next']!,

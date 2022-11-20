@@ -109,10 +109,8 @@ abstract class _SettingsStore with Store {
   @observable
   Map networkConst = Map();
 
-
   @observable
   ObservableList<ContactData> contactList = ObservableList<ContactData>();
-
 
   @action
   Future<void> init() async {
@@ -199,8 +197,6 @@ abstract class _SettingsStore with Store {
   void setNetworkLoading(bool isLoading) {
     loading = isLoading;
   }
-
-
 
   @action
   Future<void> setEndpoint(String value) async {
@@ -289,6 +285,9 @@ class AboutUsData {
 
   @JsonKey(name: 'staking_guide')
   String stakingGuide = '';
+
+  @JsonKey(name: 'graphql_api')
+  String graphqlApi = '';
 
   List<FollowUsData?> followus = [];
   FollowUsData? get wechat {

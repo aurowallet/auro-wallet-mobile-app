@@ -248,13 +248,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                           ),
                         ),
                         Container(
-                            height: 20,
                             child: Center(
                               child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
-                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),),
+                                style: TextStyle(color: Colors.white, height: 1, fontSize: 12, fontWeight: FontWeight.w500),),
                             ),
                             margin: EdgeInsets.only(left: 5),
-                            padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                            padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
                             decoration: BoxDecoration(
                               color: isDelegated ? Color(0x33FFFFFF) : Color(0x33FFFFFF),
                               borderRadius: BorderRadius.circular(29),
@@ -397,7 +396,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: BrowserLink(
                   '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/wallet/${store.wallet!.currentAddress}/transactions',
                   text: i18n['goToExplorer']!,

@@ -79,13 +79,15 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
+            padding: EdgeInsets.symmetric(horizontal: 20).copyWith(top: 20),
           child: Column(
             children: <Widget>[
               Expanded(
                 child: Column(
                   children: [
                     InputItem(
+                      padding: EdgeInsets.zero,
+                      inputPadding: EdgeInsets.only(top: 20),
                       label: dic['pleaseInputKeyPair']!,
                       controller: _keyStoreCtrl,
                       maxLines: 8,
@@ -108,7 +110,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
                 ),
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child: NormalButton(
                     submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),

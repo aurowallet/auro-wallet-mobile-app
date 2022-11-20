@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -96,8 +97,8 @@ class _InputItemState extends State<InputItem> {
           color: widget.isError == true ? Color(0xFFD65A5A) : widget.borderColor
       ),
     );
-    final labelWidget  = widget.label == null ? null : Text(
-      widget.label!,
+    final labelWidget  = widget.label == null ? null : CustomStyledText(
+      text: widget.label!,
       textAlign: TextAlign.left,
       style: labelStyle,
     );

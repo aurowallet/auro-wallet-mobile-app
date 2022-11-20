@@ -137,7 +137,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
           children: [
             Expanded(
               child: ListView(
-                  padding: EdgeInsets.fromLTRB(20, 22, 20, 0),
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                   children: <Widget>[
                     InputItem(
                       padding: const EdgeInsets.only(top: 0),

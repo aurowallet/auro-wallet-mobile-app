@@ -6,7 +6,7 @@ part of 'wallet.dart';
 // StoreGenerator
 // **************************************************************************
 
-// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$WalletStore on _WalletStore, Store {
   Computed<WalletData>? _$currentWalletComputed;
@@ -67,7 +67,8 @@ mixin _$WalletStore on _WalletStore, Store {
               name: '_WalletStore.currentAccountPubKey'))
       .value;
 
-  final _$loadingAtom = Atom(name: '_WalletStore.loading');
+  late final _$loadingAtom =
+      Atom(name: '_WalletStore.loading', context: context);
 
   @override
   bool get loading {
@@ -82,7 +83,8 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  final _$txStatusAtom = Atom(name: '_WalletStore.txStatus');
+  late final _$txStatusAtom =
+      Atom(name: '_WalletStore.txStatus', context: context);
 
   @override
   String get txStatus {
@@ -97,7 +99,8 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  final _$newWalletParamsAtom = Atom(name: '_WalletStore.newWalletParams');
+  late final _$newWalletParamsAtom =
+      Atom(name: '_WalletStore.newWalletParams', context: context);
 
   @override
   NewWalletParams get newWalletParams {
@@ -112,7 +115,8 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  final _$currentWalletIdAtom = Atom(name: '_WalletStore.currentWalletId');
+  late final _$currentWalletIdAtom =
+      Atom(name: '_WalletStore.currentWalletId', context: context);
 
   @override
   String get currentWalletId {
@@ -127,7 +131,8 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  final _$walletListAtom = Atom(name: '_WalletStore.walletList');
+  late final _$walletListAtom =
+      Atom(name: '_WalletStore.walletList', context: context);
 
   @override
   ObservableList<WalletData> get walletList {
@@ -142,8 +147,8 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  final _$setCurrentAccountAsyncAction =
-      AsyncAction('_WalletStore.setCurrentAccount');
+  late final _$setCurrentAccountAsyncAction =
+      AsyncAction('_WalletStore.setCurrentAccount', context: context);
 
   @override
   Future<void> setCurrentAccount(String pubKey) {
@@ -151,8 +156,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.setCurrentAccount(pubKey));
   }
 
-  final _$updateAccountNameAsyncAction =
-      AsyncAction('_WalletStore.updateAccountName');
+  late final _$updateAccountNameAsyncAction =
+      AsyncAction('_WalletStore.updateAccountName', context: context);
 
   @override
   Future<void> updateAccountName(AccountData account, String name) {
@@ -160,21 +165,24 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.updateAccountName(account, name));
   }
 
-  final _$updateAccountAsyncAction = AsyncAction('_WalletStore.updateAccount');
+  late final _$updateAccountAsyncAction =
+      AsyncAction('_WalletStore.updateAccount', context: context);
 
   @override
   Future<void> updateAccount(Map<String, dynamic> acc) {
     return _$updateAccountAsyncAction.run(() => super.updateAccount(acc));
   }
 
-  final _$clearWalletsAsyncAction = AsyncAction('_WalletStore.clearWallets');
+  late final _$clearWalletsAsyncAction =
+      AsyncAction('_WalletStore.clearWallets', context: context);
 
   @override
   Future<void> clearWallets() {
     return _$clearWalletsAsyncAction.run(() => super.clearWallets());
   }
 
-  final _$addAccountAsyncAction = AsyncAction('_WalletStore.addAccount');
+  late final _$addAccountAsyncAction =
+      AsyncAction('_WalletStore.addAccount', context: context);
 
   @override
   Future<void> addAccount(
@@ -183,7 +191,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.addAccount(acc, accountName, wallet));
   }
 
-  final _$addWalletAsyncAction = AsyncAction('_WalletStore.addWallet');
+  late final _$addWalletAsyncAction =
+      AsyncAction('_WalletStore.addWallet', context: context);
 
   @override
   Future<WalletResult> addWallet(
@@ -196,21 +205,24 @@ mixin _$WalletStore on _WalletStore, Store {
         context: context, seedType: seedType, walletSource: walletSource));
   }
 
-  final _$removeAccountAsyncAction = AsyncAction('_WalletStore.removeAccount');
+  late final _$removeAccountAsyncAction =
+      AsyncAction('_WalletStore.removeAccount', context: context);
 
   @override
   Future<void> removeAccount(AccountData acc) {
     return _$removeAccountAsyncAction.run(() => super.removeAccount(acc));
   }
 
-  final _$loadWalletAsyncAction = AsyncAction('_WalletStore.loadWallet');
+  late final _$loadWalletAsyncAction =
+      AsyncAction('_WalletStore.loadWallet', context: context);
 
   @override
   Future<void> loadWallet() {
     return _$loadWalletAsyncAction.run(() => super.loadWallet());
   }
 
-  final _$encryptSeedAsyncAction = AsyncAction('_WalletStore.encryptSeed');
+  late final _$encryptSeedAsyncAction =
+      AsyncAction('_WalletStore.encryptSeed', context: context);
 
   @override
   Future<void> encryptSeed(
@@ -219,7 +231,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.encryptSeed(pubKey, seed, seedType, password));
   }
 
-  final _$decryptSeedAsyncAction = AsyncAction('_WalletStore.decryptSeed');
+  late final _$decryptSeedAsyncAction =
+      AsyncAction('_WalletStore.decryptSeed', context: context);
 
   @override
   Future<String?> decryptSeed(String pubKey, String seedType, String password) {
@@ -227,8 +240,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.decryptSeed(pubKey, seedType, password));
   }
 
-  final _$checkSeedExistAsyncAction =
-      AsyncAction('_WalletStore.checkSeedExist');
+  late final _$checkSeedExistAsyncAction =
+      AsyncAction('_WalletStore.checkSeedExist', context: context);
 
   @override
   Future<bool> checkSeedExist(String seedType, String pubKey) {
@@ -236,7 +249,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.checkSeedExist(seedType, pubKey));
   }
 
-  final _$checkPasswordAsyncAction = AsyncAction('_WalletStore.checkPassword');
+  late final _$checkPasswordAsyncAction =
+      AsyncAction('_WalletStore.checkPassword', context: context);
 
   @override
   Future<bool> checkPassword(String pubKey, String seedType, String password) {
@@ -244,7 +258,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.checkPassword(pubKey, seedType, password));
   }
 
-  final _$deleteSeedAsyncAction = AsyncAction('_WalletStore.deleteSeed');
+  late final _$deleteSeedAsyncAction =
+      AsyncAction('_WalletStore.deleteSeed', context: context);
 
   @override
   Future<void> deleteSeed(String seedType, String pubKey) {
@@ -252,8 +267,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.deleteSeed(seedType, pubKey));
   }
 
-  final _$deleteWatchModeWalletsAsyncAction =
-      AsyncAction('_WalletStore.deleteWatchModeWallets');
+  late final _$deleteWatchModeWalletsAsyncAction =
+      AsyncAction('_WalletStore.deleteWatchModeWallets', context: context);
 
   @override
   Future<void> deleteWatchModeWallets() {
@@ -261,7 +276,8 @@ mixin _$WalletStore on _WalletStore, Store {
         .run(() => super.deleteWatchModeWallets());
   }
 
-  final _$_WalletStoreActionController = ActionController(name: '_WalletStore');
+  late final _$_WalletStoreActionController =
+      ActionController(name: '_WalletStore', context: context);
 
   @override
   void setNewAccount(String password) {

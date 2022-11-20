@@ -42,7 +42,7 @@ class ExportResultPage extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: ListView(
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 children: <Widget>[
                   Text(dic['walletAddress']!, style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666))),
                   Padding(padding: EdgeInsets.only(top: 10),),
