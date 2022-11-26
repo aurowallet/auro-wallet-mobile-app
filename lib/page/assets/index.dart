@@ -12,6 +12,7 @@ import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
 import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/common/components/roundedCard.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';

@@ -3,7 +3,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:auro_wallet/app.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
