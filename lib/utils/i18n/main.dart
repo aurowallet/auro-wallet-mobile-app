@@ -199,7 +199,7 @@ const Map<String, String> zhMain = {
   "neterror": "网络异常",
   "rootTip": "检测到系统已经Root或者使用模拟器\n继续使用将存在风险！",
   "exit.confirm": "确定要退出 App 吗？",
-  'unlock.bio.enable': '指纹/面部识别',
+  'unlock.bio.enable': '生物识别',
   'unlock.bio': '验证以解锁',
   'feeTooLarge': '交易费用远高于平均值',
   'add': '添加',
@@ -453,7 +453,7 @@ const Map<String, String> enMain = {
   "rootTip":
       "Detected that the system has been Root or using the simulator\nContinue to use there will be risks!",
   'exit.confirm': 'Do you want to exit the App?',
-  'unlock.bio.enable': 'Fingerprint/Face ID',
+  'unlock.bio.enable': 'Biometric Authentication',
   'unlock.bio': 'Authenticate to unlock',
   'feeTooLarge': 'Fees are much higher than average',
   'add': 'Add',

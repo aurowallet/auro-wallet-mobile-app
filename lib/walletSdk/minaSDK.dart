@@ -1,6 +1,7 @@
 import 'dart:ffi'; // For FFI
 import 'dart:io'; // For Platform.isX
 import 'dart:math';
+import 'dart:convert';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:flutter/foundation.dart';
@@ -78,6 +79,13 @@ bool ifAddressValid(String address) {
   } catch (ex) {
     return false;
   }
+}
+String bs58Decode(String str) {
+  Uint8List bytes = bs58check.decode(str);
+  if (bytes[2] == 0) {
+    return '';
+  }
+  return utf8.decode(bytes.sublist(3, 3 + bytes[2]));
 }
 
 bool ifPrivateKeyValid(String private) {

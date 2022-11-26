@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -120,6 +121,7 @@ abstract class _AssetsStore with Store {
     if (ls == null) return;
 
     ls.forEach((i) {
+      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']): '';
       TransferData tx = TransferData.fromGraphQLJson(i);
       tx.success = tx.status != 'failed';
       i['success'] = tx.success;

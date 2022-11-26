@@ -353,7 +353,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     if(words.length < 12) {
       return false;
     }
-    return bip39.validateMnemonic(mnemonic);
+    return bip39.validateMnemonic(words.join(' '));
   }
 
   Future<bool> isAddressValid(String publicKey) async {

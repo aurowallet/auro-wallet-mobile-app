@@ -152,9 +152,12 @@ class _WalletAppState extends State<WalletApp> {
               FocusManager.instance.primaryFocus?.unfocus();
             }
           },
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaleFactor: factor),
-            child: _isDangerous ? RootAlertPage() : child ?? Container(),
+          child: TooltipVisibility(
+            visible: false,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaleFactor: factor),
+              child: _isDangerous ? RootAlertPage() : child ?? Container(),
+            ),
           ),
         );
       }),

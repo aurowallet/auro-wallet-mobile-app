@@ -32,6 +32,16 @@ class Fmt {
     return dateTime(dateValue);
   }
 
+  static String dateTimeWithTimeZone(String? utcTime) {
+    if (utcTime == null || utcTime.isEmpty) {
+      return "";
+    }
+    var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
+    var str =  dateTime(dateValue);
+    var timeZone = dateValue.timeZoneOffset.toString().split(':');
+    return str + ' ' + (dateValue.timeZoneOffset.isNegative ? '-' : '+') +  timeZone[0].padLeft(2, '0') + timeZone[1].padLeft(2, '0');
+  }
+
   /// number transform 1:
   /// from raw <String> of Api data to <BigInt>
   static BigInt balanceInt(String? raw) {

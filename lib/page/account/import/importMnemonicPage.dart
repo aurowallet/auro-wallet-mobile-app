@@ -41,7 +41,11 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
 
   void onTextChange() {
     final selection = _mnemonicCtrl.value.selection;
-    final text = _mnemonicCtrl.value.text;
+    RegExp blank = new RegExp(r'\s$');
+    final text = _mnemonicCtrl.value.text.replaceAll(blank, ' ');
+    if (!selection.isValid) {
+      return;
+    }
     final before = selection.textBefore(text);
     final after = selection.textAfter(text);
     print('after'+  after);
@@ -51,7 +55,6 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
         errorMsg = null;
       });
     }
-    RegExp blank = new RegExp(r'\s$');
     if (after.isEmpty && !blank.hasMatch(before)) {
       String? lastChars = new RegExp(r'[\w]+$').stringMatch(before);
       if (lastChars != null) {
@@ -88,7 +91,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
   }
   void _handleSubmit() async {
     final Map<String, String> dic = I18n.of(context).main;
-    String mnemonic = _mnemonicCtrl.text.trim();
+    String mnemonic = _mnemonicCtrl.text.trim().split(RegExp(r"(\s)")).join(' ');
     bool isMnemonicValid = webApi.account.isMnemonicValid(mnemonic);
     if (!isMnemonicValid) {
       setState(() {
@@ -179,7 +182,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                       child: Wrap(
                         children: [
                           InputItem(
-                            initialValue: '',
+                            initialValue: 'east clump glimpse unit boring wood sugar broom august reform control display',
                             labelStyle: TextStyle(
                                 fontSize: 14
                             ),

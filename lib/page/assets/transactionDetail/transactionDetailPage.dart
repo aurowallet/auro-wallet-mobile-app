@@ -54,6 +54,7 @@ class TransactionDetailPage extends StatelessWidget {
       statusText = dic['FAILED']!;
     }
 
+    print((tx?.memo != null ? tx?.memo! : ''));
     final items = [
       TxInfoItem(
         label: dic['amount']!,
@@ -70,12 +71,13 @@ class TransactionDetailPage extends StatelessWidget {
         copyText: tx.receiver,
       ),
       TxInfoItem(
-        label: dic['memo2']!,
-        title: tx.memo,
+          label: dic['memo2']!,
+          title: tx.memo,
+          copyText: tx.memo
       ),
       TxInfoItem(
         label: dic['time']!,
-        title: Fmt.dateTimeFromUTC(tx.time),
+        title: Fmt.dateTimeWithTimeZone(tx.time),
       ),
       TxInfoItem(
         label: 'Nonce',
