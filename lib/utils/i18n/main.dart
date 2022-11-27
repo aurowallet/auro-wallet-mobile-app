@@ -206,7 +206,7 @@ const Map<String, String> zhMain = {
   'addressbook': '地址簿',
   'name': '昵称',
   'address': '地址',
-  'repeatContact': '请勿输入重复地址',
+  'repeatContact': '地址已存在',
   'backupInOrder': '为了确保你已经成功备份助记词，请按顺序选择12个单词',
   "delegations": "用户",
   "refuse": "拒绝",
