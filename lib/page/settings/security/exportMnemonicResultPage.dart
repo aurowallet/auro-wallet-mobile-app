@@ -25,6 +25,7 @@ class ExportMnemonicResultPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(17),
             ),
             child: new RichText(
+                textScaleFactor: MediaQuery.of(context).textScaleFactor,
                 text: TextSpan(
                     children: [
                       TextSpan(

@@ -182,7 +182,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                       child: Wrap(
                         children: [
                           InputItem(
-                            initialValue: 'east clump glimpse unit boring wood sugar broom august reform control display',
+                            initialValue: '',
                             labelStyle: TextStyle(
                                 fontSize: 14
                             ),

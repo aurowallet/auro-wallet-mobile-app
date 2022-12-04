@@ -232,7 +232,11 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
           disabled: isWatchMode,
           buttonText: isWatchMode ? i18n['watchMode']: i18n['confirm'],
           onConfirm: () async {
-            String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet);
+            String? password = await UI.showPasswordDialog(
+                context: context,
+                wallet: store.wallet!.currentWallet,
+                inputPasswordRequired: false
+            );
             if (password == null) {
               return false;
             }

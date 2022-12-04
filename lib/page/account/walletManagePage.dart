@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
 import 'package:auro_wallet/common/components/customPromptDialog.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
@@ -50,7 +49,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
   Future<bool> _onSubmitAccountName(String accountName) async {
     String? password = await UI.showPasswordDialog(
         context: context,
-        wallet: store.wallet!.currentWallet
+        wallet: store.wallet!.currentWallet,
+        inputPasswordRequired: true
     );
     if (password == null) {
       return false;

@@ -134,7 +134,8 @@ class UI {
   static Future<String?> showPasswordDialog({
     required BuildContext context,
     required WalletData wallet,
-    bool validate = false
+    bool validate = false,
+    bool inputPasswordRequired = false
   }) {
     return showDialog(
       context: context,
@@ -142,8 +143,9 @@ class UI {
       useRootNavigator: false,
       builder: (_) {
         return PasswordInputDialog(
-          wallet: wallet,
-          validate: validate
+            wallet: wallet,
+            validate: validate,
+            inputPasswordRequired: inputPasswordRequired
         );
       },
     );

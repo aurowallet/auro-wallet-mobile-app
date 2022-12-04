@@ -32,6 +32,10 @@ class Fmt {
     return dateTime(dateValue);
   }
 
+  static DateTime toDatetime(String dateTimeStr) {
+    return new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTimeStr);
+  }
+
   static String dateTimeWithTimeZone(String? utcTime) {
     if (utcTime == null || utcTime.isEmpty) {
       return "";

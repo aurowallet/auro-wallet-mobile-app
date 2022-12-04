@@ -59,7 +59,11 @@ class _AccountManagePageState extends State<AccountManagePage> {
         dic['privateKeyTip_2']!,
       ],
     );
-    String? password = await UI.showPasswordDialog(context: context, wallet: wallet);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: wallet,
+        inputPasswordRequired: true
+    );
     if (password == null) {
       return;
     }
@@ -104,7 +108,12 @@ class _AccountManagePageState extends State<AccountManagePage> {
           dic['deleteAccountTip']!
         ],
       );
-      String? password = await UI.showPasswordDialog(context: context, wallet: wallet, validate: true);
+      String? password = await UI.showPasswordDialog(
+          context: context,
+          wallet: wallet,
+          validate: true,
+          inputPasswordRequired: true
+      );
       if (password == null) {
         return;
       }

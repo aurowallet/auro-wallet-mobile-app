@@ -119,8 +119,8 @@ abstract class _SettingsStore with Store {
     await loadEndpoint();
     await loadAboutUs();
     await loadCustomNodeList();
-    await loadContacts();
     await loadNetworkTypes();
+    await loadContacts();
   }
 
   @action
@@ -147,7 +147,12 @@ abstract class _SettingsStore with Store {
   Future<void> loadNetworkTypes() async {
     List<dynamic>? netList = await rootStore.localStorage.getObject(localStorageNetworksKey) as List<dynamic>?;
     if (netList != null) {
-      networks = ObservableList.of(netList.map((i) => NetworkType.fromJson(i as Map<String, dynamic>)));
+      try {
+        networks = ObservableList.of(netList.map((i) => NetworkType.fromJson(i as Map<String, dynamic>)));
+      } catch (e) {
+        print('loadNetworkTypes failed');
+        print(e);
+      }
     }
   }
 
@@ -189,6 +194,7 @@ abstract class _SettingsStore with Store {
         customNodeListV2 = stored.map((s) => CustomNode.fromJson(s)).toList();
       }
     } catch(e){
+      print('loadCustomNodeList faield');
       print(e);
     }
   }
@@ -225,14 +231,22 @@ abstract class _SettingsStore with Store {
   Future<void> loadAboutUs() async {
     Map<String, dynamic>? value = await rootStore.localStorage.getObject(localStorageAboutUsKey) as Map<String, dynamic>?;
     if (value != null) {
-      aboutus = AboutUsData.fromJson(value);
+      try {
+        aboutus = AboutUsData.fromJson(value);
+      } catch (e) {
+        print('load about us data failed');
+      }
     }
   }
   @action
   Future<void> loadContacts() async {
-    List<Map<String, dynamic>> ls =
-    await rootStore.localStorage.getContactList();
-    contactList = ObservableList.of(ls.map((i) => ContactData.fromJson(i)));
+    List<Map<String, dynamic>> ls = await rootStore.localStorage.getContactList();
+    try {
+      contactList = ObservableList.of(ls.map((i) => ContactData.fromJson(i)));
+    } catch (e) {
+      print('loadContacts failed');
+      print(e);
+    }
   }
 
   @action
@@ -287,7 +301,7 @@ class AboutUsData {
   String stakingGuide = '';
 
   @JsonKey(name: 'graphql_api')
-  String graphqlApi = '';
+  String? graphqlApi = '';
 
   List<FollowUsData?> followus = [];
   FollowUsData? get wechat {

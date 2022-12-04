@@ -21,7 +21,7 @@ AboutUsData _$AboutUsDataFromJson(Map<String, dynamic> json) => AboutUsData(
       ..termsAndContionsZH = json['terms_and_contions_cn'] as String
       ..privacyPolicyZH = json['privacy_policy_cn'] as String
       ..stakingGuide = json['staking_guide'] as String
-      ..graphqlApi = json['graphql_api'] as String;
+      ..graphqlApi = json['graphql_api'] as String?;
 
 Map<String, dynamic> _$AboutUsDataToJson(AboutUsData instance) =>
     <String, dynamic>{

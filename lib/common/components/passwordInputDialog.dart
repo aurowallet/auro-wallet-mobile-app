@@ -10,11 +10,13 @@ import 'package:auro_wallet/common/components/inputItem.dart';
 class PasswordInputDialog extends StatefulWidget {
   PasswordInputDialog({
     required this.wallet,
-    this.validate = false
+    this.validate = false,
+    this.inputPasswordRequired = false,
   });
 
   final WalletData wallet;
   final bool validate;
+  final bool inputPasswordRequired;
 
   @override
   _PasswordInputDialog createState() => _PasswordInputDialog();
@@ -27,6 +29,16 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
 
   bool _isBiometricAuthorized = false; // if user authorized biometric usage
   bool _isCheckingBiometric = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!widget.inputPasswordRequired) {
+        _checkBiometricAuthenticate();
+      }
+    });
+  }
 
   Future<void> _onOk(String password) async {
     if (password.isEmpty) {
@@ -93,13 +105,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     return response;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkBiometricAuthenticate();
-    });
-  }
+
 
   @override
   void dispose() {
@@ -110,7 +116,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-    if (_isBiometricAuthorized || _isCheckingBiometric) {
+    if ((_isBiometricAuthorized || _isCheckingBiometric) && !widget.inputPasswordRequired) {
       return Container();
     }
     return Dialog(

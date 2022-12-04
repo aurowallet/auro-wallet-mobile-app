@@ -1,3 +1,4 @@
+import 'package:auro_wallet/store/assets/types/feeTransferData.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'transferData.g.dart';
@@ -10,6 +11,19 @@ class TransferData extends _TransferData {
       td.success = td.status != 'failed';
     }
     return td;
+  }
+  static TransferData fromFeeTransfer(FeeTransferData data) {
+    Map<String, dynamic> feeTx = {
+      "success": true,
+      "from": "",
+      "hash": "",
+      "time": data.dateTime,
+      "receiver": data.recipient,
+      "type": data.type,
+      "amount": data.fee.toString(),
+      "status": "applied"
+    };
+    return fromJson(feeTx);
   }
   static Map<String, dynamic> toJson(TransferData data) =>
       _$TransferDataToJson(data);

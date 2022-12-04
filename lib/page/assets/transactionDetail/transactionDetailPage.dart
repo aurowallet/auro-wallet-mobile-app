@@ -54,7 +54,6 @@ class TransactionDetailPage extends StatelessWidget {
       statusText = dic['FAILED']!;
     }
 
-    print((tx?.memo != null ? tx?.memo! : ''));
     final items = [
       TxInfoItem(
         label: dic['amount']!,
@@ -81,7 +80,7 @@ class TransactionDetailPage extends StatelessWidget {
       ),
       TxInfoItem(
         label: 'Nonce',
-        title: tx.nonce.toString(),
+        title: tx.nonce != null ? tx.nonce.toString(): null,
       ),
       tx.fee != null ? TxInfoItem(
         label: dic['fee']!,
@@ -174,13 +173,14 @@ class TransactionDetailPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                tx.hash.isNotEmpty ?
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30).copyWith(bottom: 30),
                     child: BrowserLink(
                       '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/transaction/${tx.hash}',
                       text: i18n['goToExplrer']!,
                     )
-                )
+                ): Container()
               ],
             )
           ],

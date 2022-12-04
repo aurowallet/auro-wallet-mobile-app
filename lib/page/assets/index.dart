@@ -249,12 +249,11 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                           ),
                         ),
                         Container(
-                            child: Center(
-                              child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
-                                style: TextStyle(color: Colors.white, height: 1, fontSize: 12, fontWeight: FontWeight.w500),),
+                            child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
+                              style: TextStyle(color: Colors.white, height: 1, fontSize: 12, fontWeight: FontWeight.w500),
                             ),
                             margin: EdgeInsets.only(left: 5),
-                            padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+                            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
                             decoration: BoxDecoration(
                               color: isDelegated ? Color(0x33FFFFFF) : Color(0x33FFFFFF),
                               borderRadius: BorderRadius.circular(29),
@@ -332,6 +331,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       padding: EdgeInsets.zero,
                     ),
                   )),
+                  SizedBox(width: 15,),
                   Flexible(child: Container(
                       height: 40,
                       constraints: BoxConstraints(
@@ -384,7 +384,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var i18n = I18n.of(context).main;
     List<Widget> res = [];
     bool isTxsLoading = store.assets!.isTxsLoading;
-    List<TransferData> txs = [...store.assets!.pendingTxs, ...store.assets!.txs];
+    List<TransferData> txs = [...store.assets!.pendingTxs, ...store.assets!.totalTxs];
     if (store.settings!.isSupportedNode) {
       res.addAll(txs.map((i) {
         return TransferListItem(

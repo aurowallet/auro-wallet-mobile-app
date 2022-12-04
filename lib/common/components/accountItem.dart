@@ -126,7 +126,7 @@ class WalletItem extends StatelessWidget {
                             ],
                           ),
                           Padding(padding: EdgeInsets.only(top: 0),),
-                          Text(Fmt.address(account.address), style: TextStyle(color: addressColor, fontSize: 12, fontWeight: FontWeight.w400)),
+                          Text(Fmt.address(account.address, pad: 10), style: TextStyle(color: addressColor, fontSize: 12, fontWeight: FontWeight.w400)),
                           Padding(padding: EdgeInsets.only(top: 14),),
                           Text(
                             Fmt.balance(balance.toString(), COIN.decimals) + ' ' + COIN.coinSymbol,

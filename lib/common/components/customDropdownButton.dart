@@ -46,21 +46,28 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                     offset: const Offset(-10, -18),
                     itemHeight: 44,
                     dropdownPadding: EdgeInsets.symmetric(vertical: 11),
+                    alignment: Alignment.center,
                     selectedItemBuilder: (context) {
-                      return widget.items.map((item) => Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(right: 4),
-                            child: Text(
-                              item.text,
-                              style: theme.headline6!.copyWith(
-                                  color: Colors.black
+                      return widget.items.map((item) {
+                        String text = item.text;
+                        if (text.length > 8) {
+                          text = text.substring(0,8) + '...';
+                        }
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(right: 4),
+                              child: Text(
+                                text,
+                                style: theme.headline6!.copyWith(
+                                    color: Colors.black
+                                ),
                               ),
-                            ),
-                          )
-                        ],
-                      )).toList();
+                            )
+                          ],
+                        );
+                      }).toList();
                     },
                     items: widget.items
                         .map((item) =>

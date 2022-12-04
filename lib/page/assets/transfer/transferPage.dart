@@ -228,9 +228,10 @@ class _TransferPageState extends State<TransferPage> {
             ],
           ),
           onConfirm: () async {
-             String? password = await UI.showPasswordDialog(
+            String? password = await UI.showPasswordDialog(
                 context: context,
                 wallet: store.wallet!.currentWallet,
+                inputPasswordRequired: false
             );
             if (password == null) {
               return false;

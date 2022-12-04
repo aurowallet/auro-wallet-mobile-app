@@ -84,6 +84,7 @@ class ValidatorItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       new RichText(
+                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
                           text: TextSpan(
                               children: [
                                 new TextSpan(
@@ -111,6 +112,7 @@ class ValidatorItem extends StatelessWidget {
                         width: 12,
                       ),
                       new RichText(
+                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
                           text: TextSpan(
                               children: [
                                 new TextSpan(

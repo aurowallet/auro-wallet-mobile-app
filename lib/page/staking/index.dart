@@ -91,7 +91,12 @@ class _StakingState extends State<Staking> {
                           children: [
                             NormalButton(
                               text: i18n['goStake']!,
+                              textStyle: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600
+                              ),
                               disabled: false,
+                              padding: EdgeInsets.symmetric(horizontal: 16),
                               onPressed: _onPress,
                               shrink: true,
                               height: 32,

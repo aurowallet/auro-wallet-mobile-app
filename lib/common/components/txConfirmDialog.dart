@@ -159,7 +159,7 @@ class TxConfirmItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 85,
+              // width: 85,
               child: Text(data.label, style: TextStyle(fontSize: 14, color: Color(0x80000000), height: 1.33, fontWeight: FontWeight.w500),),
             ),
             Container(

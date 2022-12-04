@@ -14,6 +14,7 @@ const Map<String, String> enSettings = {
   "github": "Check it out on Github",
   "noAddress": "No Address",
   'addaddress': 'Add Address',
+  'editaddress': 'Edit Address',
   'deleteaddress': 'Delete Address?',
   "addNetWork": "Add Network",
   "editNetWork": "Edit Network",

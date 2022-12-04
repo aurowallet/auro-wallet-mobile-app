@@ -43,36 +43,45 @@ class CreateAccountEntryPage extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: 50,),
-                    Stack(
+                    Row(
                       children: [
-                        Positioned(
-                          bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 20),
-                              height: 6,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  stops: [
-                                    0,
-                                    1.0,
-                                  ],
-                                  colors: [
-                                    Color(0xFF594AF1),
-                                    Color(0xFFFF6B6B),
-                                  ],
-                                ),
+                        Expanded(child: Stack(
+                          children: [
+                            Positioned(
+                                bottom: 0,
+                                left: 20,
+                                right: 20,
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 0),
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [
+                                        0,
+                                        1.0,
+                                      ],
+                                      colors: [
+                                        Color(0xFF594AF1),
+                                        Color(0xFFFF6B6B),
+                                      ],
+                                    ),
+                                  ),
+                                )),
+                            Container(
+                              width: MediaQuery.of(context).size.width - 40,
+                              margin: EdgeInsets.only(left: 20),
+                              child: FittedBox(
+                                child: SvgPicture.asset("assets/images/entry/desc.svg",fit: BoxFit.contain),
+                                fit: BoxFit.fill,
                               ),
-                            )),
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 0, left: 20, right: 20),
-                          child: SvgPicture.asset("assets/images/entry/desc.svg",),
-                        ),
+                            ),
+                          ],
+                        ),)
                       ],
                     ),
+
                     Container(
                       alignment: Alignment.center,
                       child: Padding(

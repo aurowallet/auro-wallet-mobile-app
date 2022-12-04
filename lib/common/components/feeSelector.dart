@@ -46,7 +46,7 @@ class _FeeSelectorState extends State<FeeSelector> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(i18n['fee']!, style: TextStyle(fontSize: 12, color: Color(0xD9000000), fontWeight: FontWeight.w600),),
-              value == null ? Text('') :Text(value.toString(), style: TextStyle(fontSize: 12, color: Color(0x80000000), fontWeight: FontWeight.w400),)
+              Text(value == null ? '' : value.toString(), style: TextStyle(fontSize: 12, color: Color(0x80000000), fontWeight: FontWeight.w400),)
             ]
           ),
           Padding(padding: EdgeInsets.only(top: 8)),
@@ -111,7 +111,7 @@ class FeeItem extends StatelessWidget {
               maxWidth: 104
             ),
             decoration: BoxDecoration(
-                color: ColorsUtil.hexColor(0xF6F6F6),
+                color: Color(0xFFF9FAFC),
                 borderRadius: BorderRadius.all(Radius.circular(6)),
                 border: Border.all(
                     color: isActive ? Theme.of(context).primaryColor : Color(0x1A000000)

@@ -1,7 +1,5 @@
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
-import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class NormalButton extends StatelessWidget {
   NormalButton({
@@ -47,14 +45,16 @@ class NormalButton extends StatelessWidget {
       }
       row.add(Text(
         text,
-        style: textStyle ?? Theme.of(context).textTheme.button,
+        style: Theme.of(context).textTheme.button?.merge(textStyle),
       ));
     }
     Color normalColor = color ?? Theme.of(context).primaryColor;
     return ElevatedButton(
-      // padding: padding,
       // highlightColor: ColorsUtil.darken(normalColor, 0.05),
+
       style: ElevatedButton.styleFrom(
+          padding: padding,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           backgroundColor: submitting ? normalColor.withOpacity(0.8) : normalColor,
           // onSurface: normalColor.withOpacity(0.5),
           minimumSize: Size(!shrink ? double.infinity : 0, height),

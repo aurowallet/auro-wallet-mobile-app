@@ -72,6 +72,6 @@
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>ITSAppUsesNonExemptEncryption</key>
-        <false/>
+		<false/>
 	</dict>
 </plist>

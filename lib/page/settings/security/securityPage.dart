@@ -60,7 +60,11 @@ class _SecurityPageState extends State<SecurityPage> {
     if (wallet == null) {
       return;
     }
-    String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: store.wallet!.currentWallet,
+        inputPasswordRequired: true
+    );
     if (password == null) {
       return;
     }
@@ -95,7 +99,12 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 
   Future<void> _authBiometric() async {
-    String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet, validate: true);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: store.wallet!.currentWallet,
+        validate: true,
+        inputPasswordRequired: true
+    );
 
     try {
       if (password != null) {

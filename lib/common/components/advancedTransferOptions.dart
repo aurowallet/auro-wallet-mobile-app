@@ -60,7 +60,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                     Padding(padding: EdgeInsets.only(right: 20), child: Text(dic['advanceMode']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),),
                     Positioned(
                       right: 0,
-                      top: -3,
+                      top: -1,
                       child: Icon(!visibility ? Icons.arrow_drop_down : Icons.arrow_drop_up, size: 20,))
                   ],
                 )

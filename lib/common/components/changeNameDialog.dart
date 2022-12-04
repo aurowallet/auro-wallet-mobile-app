@@ -22,11 +22,37 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
 
   final TextEditingController _nameCtrl = new TextEditingController();
 
+  int maxLength = 16;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _nameCtrl.addListener(_onNameChange);
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
   }
 
+  void _onNameChange() {
+    _changeMaxLimit(_nameCtrl.text);
+  }
+
+  void _changeMaxLimit(String value) {
+    var newMaxLength = 16;
+    for (int i = 0; i < value.length; i++) {
+      if (value.codeUnitAt(i) > 122) {
+        newMaxLength--;
+      }
+    }
+    if (newMaxLength != maxLength) {
+      setState(() {
+        maxLength = newMaxLength;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final Map<String, String> mainI18n = I18n.of(context).main;
@@ -53,7 +79,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),
                   child: InputItem(
-                    maxLength: 16,
+                    maxLength: maxLength,
                     initialValue: '',
                     placeholder: dic['accountNameLimit']!,
                     padding: EdgeInsets.only(top: 20),

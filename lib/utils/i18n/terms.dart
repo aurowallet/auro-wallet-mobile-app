@@ -14,6 +14,7 @@ class TermsZH extends StatelessWidget {
         color: ColorsUtil.hexColor(0x666666)
     );
     return new RichText(
+      textScaleFactor: MediaQuery.of(context).textScaleFactor,
       text: TextSpan(
           children: [
             new TextSpan(
@@ -62,6 +63,7 @@ class TermsEN extends StatelessWidget {
         color: ColorsUtil.hexColor(0x666666)
     );
     return new RichText(
+      textScaleFactor: MediaQuery.of(context).textScaleFactor,
       text: TextSpan(
           children: [
             new TextSpan(

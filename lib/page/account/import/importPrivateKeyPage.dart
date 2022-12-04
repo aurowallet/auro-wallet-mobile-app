@@ -52,7 +52,12 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
     }
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
     String accountName = params["accountName"];
-    String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet, validate: true);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: store.wallet!.currentWallet,
+        validate: true,
+        inputPasswordRequired: true
+    );
     if (password == null) {
       return;
     }

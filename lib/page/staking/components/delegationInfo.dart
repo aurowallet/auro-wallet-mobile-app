@@ -1,5 +1,4 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -158,11 +157,12 @@ class DelegateInfo extends StatelessWidget {
           bottom: 0,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-                primary: Color(0xFF594AF1),
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                backgroundColor: Color(0xFF594AF1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                minimumSize: Size(60, 32),
+                minimumSize: Size(0, 32),
                 elevation: 0,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap
             ),
@@ -251,6 +251,7 @@ class EmptyInfo extends StatelessWidget {
               child: Wrap(
                 children: [
                   new RichText(
+                    textScaleFactor: MediaQuery.of(context).textScaleFactor,
                     text: TextSpan(
                         children: [
                           new TextSpan(

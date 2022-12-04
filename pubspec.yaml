@@ -11,7 +11,7 @@ description: MinaWallet made with Flutter.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.1.0+1076
+version: 1.1.0+1080
 
 environment:
   sdk: ">=2.16.0 <3.0.0"
@@ -38,7 +38,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  update_app: ^0.1.5
 #  device_info: ^0.4.2
   biometric_storage: ^4.0.1
   fluttertoast: ^8.1.1
@@ -79,7 +78,7 @@ dependencies:
     git:
       url: https://github.com/PabloPessotto/qr_code_tools.git
       ref: 8f95dc999833961343c96cfe2e104ee4b650ebd9
-  image_picker: ^0.8.3+1
+  image_picker: ^0.8.6
   flutter_switch: ^0.3.2
   webcrypto: ^0.5.2
   styled_text: ^4.0.0+1
@@ -107,9 +106,12 @@ flutter_icons:
 
 flutter_native_splash:
   color: "#ffffff"
-  image: assets/images/public/splash_screen.png
+  image: "assets/images/public/splash_screen.png"
+#  branding: "assets/images/public/splash_screen.png"
   android_12:
+    color: "#ffffff"
     image: "assets/images/public/app.png"
+#    branding: "assets/images/public/splash_screen.png"
   android_gravity: center
   ios_content_mode: center
 

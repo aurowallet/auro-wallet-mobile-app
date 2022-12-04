@@ -9,21 +9,13 @@ part of 'assets.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AssetsStore on _AssetsStore, Store {
-  late final _$cacheTxsTimestampAtom =
-      Atom(name: '_AssetsStore.cacheTxsTimestamp', context: context);
+  Computed<List<TransferData>>? _$totalTxsComputed;
 
   @override
-  int get cacheTxsTimestamp {
-    _$cacheTxsTimestampAtom.reportRead();
-    return super.cacheTxsTimestamp;
-  }
-
-  @override
-  set cacheTxsTimestamp(int value) {
-    _$cacheTxsTimestampAtom.reportWrite(value, super.cacheTxsTimestamp, () {
-      super.cacheTxsTimestamp = value;
-    });
-  }
+  List<TransferData> get totalTxs =>
+      (_$totalTxsComputed ??= Computed<List<TransferData>>(() => super.totalTxs,
+              name: '_AssetsStore.totalTxs'))
+          .value;
 
   late final _$isTxsLoadingAtom =
       Atom(name: '_AssetsStore.isTxsLoading', context: context);
@@ -152,6 +144,21 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  late final _$feeTxsAtom = Atom(name: '_AssetsStore.feeTxs', context: context);
+
+  @override
+  ObservableList<FeeTransferData> get feeTxs {
+    _$feeTxsAtom.reportRead();
+    return super.feeTxs;
+  }
+
+  @override
+  set feeTxs(ObservableList<FeeTransferData> value) {
+    _$feeTxsAtom.reportWrite(value, super.feeTxs, () {
+      super.feeTxs = value;
+    });
+  }
+
   late final _$txsFilterAtom =
       Atom(name: '_AssetsStore.txsFilter', context: context);
 
@@ -202,6 +209,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$clearTxsAsyncAction.run(() => super.clearTxs());
   }
 
+  late final _$clearFeeTxsAsyncAction =
+      AsyncAction('_AssetsStore.clearFeeTxs', context: context);
+
+  @override
+  Future<void> clearFeeTxs() {
+    return _$clearFeeTxsAsyncAction.run(() => super.clearFeeTxs());
+  }
+
   late final _$clearPendingTxsAsyncAction =
       AsyncAction('_AssetsStore.clearPendingTxs', context: context);
 
@@ -217,6 +232,16 @@ mixin _$AssetsStore on _AssetsStore, Store {
   Future<void> addPendingTxs(List<dynamic>? ls, String address) {
     return _$addPendingTxsAsyncAction
         .run(() => super.addPendingTxs(ls, address));
+  }
+
+  late final _$addFeeTxsAsyncAction =
+      AsyncAction('_AssetsStore.addFeeTxs', context: context);
+
+  @override
+  Future<void> addFeeTxs(List<dynamic> ls, String address,
+      {bool shouldCache = false}) {
+    return _$addFeeTxsAsyncAction
+        .run(() => super.addFeeTxs(ls, address, shouldCache: shouldCache));
   }
 
   late final _$addTxsAsyncAction =
@@ -317,7 +342,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
   @override
   String toString() {
     return '''
-cacheTxsTimestamp: ${cacheTxsTimestamp},
 isTxsLoading: ${isTxsLoading},
 isBalanceLoading: ${isBalanceLoading},
 accountsInfo: ${accountsInfo},
@@ -326,8 +350,10 @@ transferFees: ${transferFees},
 txsCount: ${txsCount},
 pendingTxs: ${pendingTxs},
 txs: ${txs},
+feeTxs: ${feeTxs},
 txsFilter: ${txsFilter},
-marketPrices: ${marketPrices}
+marketPrices: ${marketPrices},
+totalTxs: ${totalTxs}
     ''';
   }
 }
