@@ -69,7 +69,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
       submitting = false;
     });
     if(isSuccess) {
-      UI.toast(dic['backup_success_restore']!);
+      // UI.toast(dic['backup_success_restore']!);
       Navigator.of(context).pop();
     }
   }

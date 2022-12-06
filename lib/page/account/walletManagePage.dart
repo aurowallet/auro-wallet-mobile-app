@@ -151,6 +151,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
         contents: [
           dic['resetWarnContent']!
         ],
+        okColor: Color(0xFFD65A5A),
         okText: dic['confirmReset']!,
         cancelText: dic['cancelReset']!
     );

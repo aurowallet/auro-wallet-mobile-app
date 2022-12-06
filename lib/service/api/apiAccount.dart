@@ -449,7 +449,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     final dic = I18n.of(context).main;
     return BiometricStorage().getStorage(
       '$_biometricPasswordKey',
-      options:  StorageFileInitOptions(authenticationValidityDurationSeconds: 30),
+      options:  StorageFileInitOptions(authenticationValidityDurationSeconds: -1),
       promptInfo: PromptInfo(
         androidPromptInfo: AndroidPromptInfo(
           title: dic['unlock.bio']!,

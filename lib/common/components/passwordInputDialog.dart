@@ -57,6 +57,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       if (!isCorrect) {
           final Map<String, String> dic = I18n.of(context).main;
           UI.toast(dic['passwordError']!);
+          Navigator.of(context).pop();
           return;
       }
     }

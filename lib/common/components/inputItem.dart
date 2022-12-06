@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +61,7 @@ class InputItem extends StatefulWidget {
 class _InputItemState extends State<InputItem> {
 
   bool _passwordVisibility = false;
+  int specialCharsCount = 0;
   TextEditingController? _controller;
   @override
   void initState() {
@@ -68,9 +71,21 @@ class _InputItemState extends State<InputItem> {
       if (widget.initialValue != null) {
         _controller!.text =  widget.initialValue!;
       }
+      _controller?.addListener(_onTextChange);
     });
   }
-
+  _onTextChange() {
+    final value = _controller!.text;
+    int counter = 0;
+    for (int i = 0; i < value.length; i++) {
+      if (value.codeUnitAt(i) > 122) {
+        counter++;
+      }
+    }
+    setState(() {
+      specialCharsCount = counter;
+    });
+  }
   Widget _buildSuffixIcon() {
     return IconButton(
       icon: Icon(!_passwordVisibility ? Icons.visibility : Icons.visibility_off, color: ColorsUtil.hexColor(0xB0B3BF)),
@@ -102,6 +117,7 @@ class _InputItemState extends State<InputItem> {
       textAlign: TextAlign.left,
       style: labelStyle,
     );
+    print('widget.maxLength! - specialCharsCount'+ (widget.maxLength ?? 0 - specialCharsCount).toString());
     return Padding(
       padding: widget.padding,
       child: Column(
@@ -126,7 +142,7 @@ class _InputItemState extends State<InputItem> {
           Padding(
             padding: widget.label != null || widget.rightWidget != null ? widget.inputPadding : EdgeInsets.all(0),
             child:  TextField(
-              maxLength: widget.maxLength,
+              maxLength: widget.maxLength != null ? max(widget.maxLength! - specialCharsCount, 0) : null,
               maxLines: widget.maxLines,
               cursorColor: Theme.of(context).primaryColor,
               inputFormatters: widget.inputFormatters,

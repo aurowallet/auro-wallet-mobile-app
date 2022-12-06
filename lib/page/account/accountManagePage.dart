@@ -15,6 +15,7 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_storage/get_storage.dart';
 
 class AccountManagePage extends StatefulWidget {
   const AccountManagePage(this.store);
@@ -138,21 +139,36 @@ class _AccountManagePageState extends State<AccountManagePage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               CopyContainer(
-                  child:  AccountInfoItem(label: dic['accountAddress']!, value: account.pubKey),
+                  child:  AccountInfoItem(label: dic['accountAddress']!, value: account.pubKey, padding: EdgeInsets.only(top: 10, bottom: 10),),
                   text: account.pubKey
               ),
-              AccountInfoItem(label: dic['accountName']!, value: Fmt.accountName(account), onClick: _changeAccountName,),
-              !isWatchedAccount ? AccountInfoItem(label: dic['exportPrivateKey']!, onClick: _onExportPrivateKey) : Container(),
+              Container(
+                margin: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+                height: 1,
+                decoration: BoxDecoration(
+                  color: Color(0x1A000000),
+                ),
+              ),
+              AccountInfoItem(label: dic['accountName']!, value: Fmt.accountName(account), onClick: _changeAccountName, padding: EdgeInsets.only(top: 16, bottom: 8)),
+              !isWatchedAccount ? AccountInfoItem(label: dic['exportPrivateKey']!, onClick: _onExportPrivateKey, padding: EdgeInsets.only(top: 18, bottom: 18)) : Container(),
+              !isMnemonicWallet ? Container(
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                height: 1,
+                decoration: BoxDecoration(
+                  color: Color(0x1A000000),
+                ),
+              ) : Container(),
               !isMnemonicWallet ? TextButton(
                 child: Text(dic['accountDelete']!),
                 onPressed: _deleteAccount,
                 style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   foregroundColor: Color(0xFFD65A5A),
                   minimumSize: Size(double.infinity, 54),
                   alignment: Alignment.centerLeft,
@@ -168,26 +184,24 @@ class _AccountManagePageState extends State<AccountManagePage> {
 }
 
 class AccountInfoItem extends StatelessWidget {
-  AccountInfoItem({required this.label, this.value, this.onClick});
+  AccountInfoItem({required this.label, this.value, this.onClick, this.padding});
 
   final String label;
   final String? value;
+  final EdgeInsets? padding;
   final void Function()? onClick;
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    return GestureDetector(
+    return InkWell(
         onTap: onClick,
         child: Container(
             // height: 55,
           constraints: BoxConstraints(
             minHeight: 55
           ),
-            padding: EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-            ),
+            padding:  padding?.copyWith(left: 20, right: 20) ?? EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

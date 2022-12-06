@@ -113,6 +113,7 @@ class UI {
     required List<String> contents,
     String? okText,
     String? title,
+    Color? okColor,
     String? cancelText,
     Widget? icon
   }) {
@@ -123,6 +124,7 @@ class UI {
         return CustomConfirmDialog(
           title: title ?? dic['prompt']!,
           okText: okText,
+          okColor: okColor,
           cancelText: cancelText,
           contents: contents,
           icon: icon,

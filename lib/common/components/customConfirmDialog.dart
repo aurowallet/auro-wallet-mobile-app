@@ -1,21 +1,15 @@
-import 'package:auro_wallet/common/theme.dart';
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class CustomConfirmDialog extends StatefulWidget {
-  CustomConfirmDialog({required this.title,required this.contents, this.onOk, this.onCancel, this.cancelText, this.okText, this.icon});
+  CustomConfirmDialog({required this.title,required this.contents, this.okColor, this.onOk, this.onCancel, this.cancelText, this.okText, this.icon});
 
   final String title;
   final String? okText;
   final String? cancelText;
   final List<String> contents;
   final Function? onOk;
+  final Color? okColor;
   final Function? onCancel;
   final Widget? icon;
 
@@ -97,7 +91,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                     height: 48,
                     child: TextButton(
                       style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).primaryColor
+                          foregroundColor: widget.okColor ?? Theme.of(context).primaryColor
                       ),
                       child: Text(widget.okText ?? dic['confirm']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                       onPressed: () {

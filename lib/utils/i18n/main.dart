@@ -128,7 +128,6 @@ const Map<String, String> zhMain = {
   "notificationTitle": "交易已确认",
   "notificationContent": "转账已确认，点击在浏览器查看交易",
   "welcomeBack": "欢迎回来!",
-  "accountNameLimit": "不超过16个字符",
   "scantopay": "扫码支付",
   "addressQrTip": "扫描二维码，转入MINA",
   "goToExplorer": "去浏览器查看交易记录",
@@ -204,7 +203,7 @@ const Map<String, String> zhMain = {
   'feeTooLarge': '交易费用远高于平均值',
   'add': '添加',
   'addressbook': '地址簿',
-  'name': '昵称',
+  'name': '名称',
   'address': '地址',
   'repeatContact': '地址已存在',
   'backupInOrder': '为了确保你已经成功备份助记词，请按顺序选择12个单词',
@@ -376,7 +375,6 @@ const Map<String, String> enMain = {
   "notificationContent":
       "The transfer has been confirmed, click to view the transaction.",
   "welcomeBack": "Welcome Back!",
-  "accountNameLimit": "No more than 16 characters",
   "scantopay": "Scan to pay me",
   "addressQrTip": "Scan the QR code and transfer MINA to it",
   "goToExplorer": "Check more transaction history",
@@ -472,7 +470,7 @@ const Map<String, String> enMain = {
   "resetWarnContentTitle": "Are you sure erase your wallet?",
   "resetWarnContent":
       "After reset the wallet, all data will be lost and can only be restored using the mnemonic words. Please make sure that you have backed up the mnemonic before reset the wallet.",
-  "confirmReset": "Confirm",
+  "confirmReset": "Reset",
   "cancelReset": "Cancel",
   "deleteConfirm": "Type 'delete' to erase current  wallet permanently",
   "edit": "Edit",

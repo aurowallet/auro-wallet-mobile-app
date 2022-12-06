@@ -17,6 +17,7 @@ class CopyContainer extends StatelessWidget {
       return child;
     }
     return  GestureDetector(
+        behavior: HitTestBehavior.opaque,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment:  MainAxisAlignment.center,

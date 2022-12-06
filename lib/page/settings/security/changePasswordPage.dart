@@ -266,7 +266,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
                       isPassword: true,
                     ),
                     InputErrorTip(
-                      padding: EdgeInsets.only(top: 8),
+                      padding: EdgeInsets.only(top: 4),
                       ctrl: _newPass2Ctrl,
                       message: dic['passwordDifferent']!,
                       hideIcon: true,

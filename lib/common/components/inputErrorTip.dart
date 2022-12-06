@@ -17,7 +17,7 @@ class InputErrorTip extends StatefulWidget {
     this.showSuccess = false,
     this.focusNode,
     this.hideIcon = false,
-    this.padding = const EdgeInsets.only(top: 5),
+    this.padding = const EdgeInsets.only(top: 4),
     this.tipType = TipType.error,
     this.validate,
     this.asyncValidate,
@@ -101,7 +101,7 @@ class _InputErrorTipState extends State<InputErrorTip> {
     }
     Color? textColor;
     if (widget.tipType == TipType.error) {
-      textColor = isCorrect? ColorsUtil.hexColor(0xB9B9B9): ColorsUtil.hexColor(0xF95051);
+      textColor = isCorrect? ColorsUtil.hexColor(0xB9B9B9): Color(0xFFD65A5A);
     } else {
       textColor = ColorsUtil.hexColor(0xFFC633);
     }
@@ -112,7 +112,7 @@ class _InputErrorTipState extends State<InputErrorTip> {
             this.renderTip(widget.tipType, widget.hideIcon),
             Padding(
                 padding: EdgeInsets.only(left: widget.hideIcon ? 0 :6),
-                child: Text(widget.message, style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.w500))
+                child: Text(widget.message, style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.w600))
             )
           ]
       ),

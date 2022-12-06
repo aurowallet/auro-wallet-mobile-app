@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/components/customDropdownButton.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:mobx/mobx.dart';
@@ -42,7 +43,7 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
           DropdownItem(text: 'Mainnet', value: GRAPH_QL_MAINNET_NODE_URL),
           DropdownItem(text: 'Devnet', value: GRAPH_QL_TESTNET_NODE_URL),
           ...widget.store.customNodeListV2.map((e) {
-            return DropdownItem(text: e.name, value: e.url);
+            return DropdownItem(text: Fmt.stringSlice(e.name, 8, withEllipsis: true), value: e.url);
           }).toList()
         ],
         onChoose: onChoose,

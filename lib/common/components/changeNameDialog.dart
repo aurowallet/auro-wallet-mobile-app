@@ -1,10 +1,4 @@
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
@@ -22,13 +16,9 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
 
   final TextEditingController _nameCtrl = new TextEditingController();
 
-  int maxLength = 16;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _nameCtrl.addListener(_onNameChange);
-    });
   }
 
   @override
@@ -36,23 +26,6 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
     super.dispose();
   }
 
-  void _onNameChange() {
-    _changeMaxLimit(_nameCtrl.text);
-  }
-
-  void _changeMaxLimit(String value) {
-    var newMaxLength = 16;
-    for (int i = 0; i < value.length; i++) {
-      if (value.codeUnitAt(i) > 122) {
-        newMaxLength--;
-      }
-    }
-    if (newMaxLength != maxLength) {
-      setState(() {
-        maxLength = newMaxLength;
-      });
-    }
-  }
   @override
   Widget build(BuildContext context) {
     final Map<String, String> mainI18n = I18n.of(context).main;
@@ -79,7 +52,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),
                   child: InputItem(
-                    maxLength: maxLength,
+                    maxLength: 16,
                     initialValue: '',
                     placeholder: dic['accountNameLimit']!,
                     padding: EdgeInsets.only(top: 20),

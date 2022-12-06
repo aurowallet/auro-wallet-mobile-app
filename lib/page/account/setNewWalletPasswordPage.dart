@@ -4,12 +4,8 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
-import 'package:auro_wallet/common/components/backgroundContainer.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicTipsPage.dart';
 import 'package:auro_wallet/page/account/import/importMnemonicPage.dart';
 
@@ -266,7 +262,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           placeholder: '',
                         ),
                         InputErrorTip(
-                          padding: EdgeInsets.only(top: 8),
+                          padding: EdgeInsets.only(top: 4),
                           ctrl: _pass2Ctrl,
                           message: dic['passwordDifferent']!,
                           validate: _validateSame,

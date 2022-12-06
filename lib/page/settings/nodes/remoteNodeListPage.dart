@@ -316,7 +316,7 @@ class NodeItem extends StatelessWidget {
                               ? Container(
                                   margin: EdgeInsets.only(left: 5),
                                   alignment: Alignment.center,
-                                  child: Text(Fmt.address(chainId, pad: 6),
+                                  child: Text(Fmt.address(chainId, pad: 6, padSame: true),
                                       style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.black.withOpacity(0.1),

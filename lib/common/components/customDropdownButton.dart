@@ -31,41 +31,42 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
         child: Container(
           height: 30,
           constraints: BoxConstraints(
-              minWidth: 100
+            minWidth: 100,
           ),
           child: Center(
               child: DropdownButtonHideUnderline(
                   child: DropdownButton2(
-                    dropdownWidth: 120,
+                    // dropdownWidth: 180,
+                    // isExpanded: false,
                     buttonDecoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15.0),
                       border: Border.all(color: Color(0x1A000000), width: 1),
                       // color: Colors.white,
                     ),
                     buttonPadding: const EdgeInsets.only(left: 14.0, right: 8),
-                    offset: const Offset(-10, -18),
+                    offset: const Offset(0, -18),
                     itemHeight: 44,
+                    itemPadding: EdgeInsets.symmetric(horizontal: 8),
                     dropdownPadding: EdgeInsets.symmetric(vertical: 11),
                     alignment: Alignment.center,
                     selectedItemBuilder: (context) {
                       return widget.items.map((item) {
-                        String text = item.text;
-                        if (text.length > 8) {
-                          text = text.substring(0,8) + '...';
-                        }
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(right: 4),
-                              child: Text(
-                                text,
-                                style: theme.headline6!.copyWith(
+                        return Container(
+                          padding: EdgeInsets.only(right: 4),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                item.value == widget.value ? item.text : '',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1,
+                                    fontWeight: FontWeight.w600,
                                     color: Colors.black
                                 ),
-                              ),
-                            )
-                          ],
+                              )
+                            ],
+                          ),
                         );
                       }).toList();
                     },
@@ -76,8 +77,9 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                             child: Center(
                               child: Text(
                                 item.text,
-                                style: theme.headline5!.copyWith(
+                                style: TextStyle(
                                     fontWeight: FontWeight.w500,
+                                    fontSize: 16,
                                     color: item.value == widget.value ? Theme.of(context).primaryColor : Colors.black
                                 ),),
                             )
@@ -100,7 +102,9 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                       print(value);
                       widget.onChoose(value);
                     },
-                  ))),
+                  )
+
+              )),
         ));
   }
 }

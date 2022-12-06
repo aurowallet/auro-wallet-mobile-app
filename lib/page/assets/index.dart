@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:auro_wallet/common/components/loadingCircle.dart';
@@ -149,7 +148,10 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Flexible(child: NodeSelectionDropdown(store: store.settings!),),
+            // Flexible(child: Container(),),
+            Container(
+              child: NodeSelectionDropdown(store: store.settings!),
+            ),
             Container(
               width: 15,
             ),
@@ -249,11 +251,20 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                           ),
                         ),
                         Container(
-                            child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
-                              style: TextStyle(color: Colors.white, height: 1, fontSize: 12, fontWeight: FontWeight.w500),
+                            alignment: Alignment.center,
+                            child: Center(
+                              child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
+                                strutStyle: StrutStyle(
+                                  fontSize: 12,
+                                  leading: 0,
+                                  height: 1.1,
+                                  forceStrutHeight: true,
+                                ),
+                                style: TextStyle(color: Colors.white, backgroundColor: Colors.transparent, height: 1.1, fontSize: 12, fontWeight: FontWeight.w500),
+                              ),
                             ),
                             margin: EdgeInsets.only(left: 5),
-                            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                             decoration: BoxDecoration(
                               color: isDelegated ? Color(0x33FFFFFF) : Color(0x33FFFFFF),
                               borderRadius: BorderRadius.circular(29),

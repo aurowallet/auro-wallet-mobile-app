@@ -1,14 +1,7 @@
 import 'package:auro_wallet/utils/i18n/terms.dart';
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 
 
