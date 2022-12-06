@@ -59,7 +59,7 @@ class WalletItem extends StatelessWidget {
     bool isObserve = false;
     _context = context;
     if (wallet.source == WalletSource.outside && wallet.walletType == WalletStore.seedTypePrivateKey) {
-      labelText = i18n['accountImport'];
+      labelText = i18n['imported'];
     } else if(wallet.walletType == WalletStore.seedTypeNone) {
       labelText = i18n['watchLabel'];
       isObserve = true;

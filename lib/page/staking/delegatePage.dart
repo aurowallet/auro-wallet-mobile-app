@@ -218,7 +218,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
       bool isWatchMode = store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
       UI.showTxConfirm(
           context: context,
-          title: i18n['delegationInfo']!,
+          title: i18n['sendDetail']!,
           items: txItems,
           headLabel: !params.manualAddValidator ? i18n['producerName']! : null,
           headValue: !params.manualAddValidator ? Text(

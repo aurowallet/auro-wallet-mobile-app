@@ -1,5 +1,6 @@
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:auro_wallet/page/settings/components/settingItem.dart';
+import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/network.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,7 +59,7 @@ class Profile extends StatelessWidget {
                           SettingItem(
                             icon: 'assets/images/setting/network.svg',
                             title:i18n['network']!,
-                            value: networkName,
+                            value: Fmt.stringSlice(networkName, 8, withEllipsis: true),
                             onTap: () => Navigator.of(context).pushNamed(RemoteNodeListPage.route),
                           ),
                           SettingItem(

@@ -232,7 +232,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
                             padding: const EdgeInsets.only(top: 0),
                             label: i18n['networkName']!,
                             controller: _nameCtrl,
-                            maxLength: 8,
+                            maxLength: 50,
                           ),
                           InputItem(
                             label: i18nSettings['nodeAddress'],
