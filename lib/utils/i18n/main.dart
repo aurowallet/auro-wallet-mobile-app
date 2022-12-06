@@ -219,9 +219,9 @@ const Map<String, String> zhMain = {
   "resetWarnContentTitle":
       "确定要重置钱包吗？",
   "resetWarnContent":
-      "重置后现有钱包的数据将会全部丢失，只能使用助记词恢复，请确保你已经备份好助记词后再重置钱包。",
-  "confirmReset": "确定重置",
-  "cancelReset": "取消重置",
+      "重置后，现有钱包的数据将会全部丢失，只能使用助记词恢复。请确保你已经备份好助记词后再重置钱包。",
+  "confirmReset": "重置",
+  "cancelReset": "取消",
   "deleteConfirm": "请在输入“删除”确定重置钱包",
   "edit": "编辑",
   "save": "保存",
@@ -467,9 +467,9 @@ const Map<String, String> enMain = {
   "restoreTip":
       "If you would like to import a private key/keystore, you will first need to [Create Wallet] or [Restore Wallet]",
   "resetWallet": "Reset",
-  "resetWarnContentTitle": "Are you sure erase your wallet?",
+  "resetWarnContentTitle": "Are you sure you want to reset your wallet?",
   "resetWarnContent":
-      "After reset the wallet, all data will be lost and can only be restored using the mnemonic words. Please make sure that you have backed up the mnemonic before reset the wallet.",
+  "After resetting you existing wallet all the data will be lost. You can only use the mnemonic phrase to restore. Please ensure you have backed-up the mnemonic phrase before you reset the wallet.",
   "confirmReset": "Reset",
   "cancelReset": "Cancel",
   "deleteConfirm": "Type 'delete' to erase current  wallet permanently",
