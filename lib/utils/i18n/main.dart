@@ -313,7 +313,7 @@ const Map<String, String> enMain = {
   "importPrivateKey": "Import Private Key",
   "importAccount_1": "This page only supports Private Key importing.",
   "importAccount_2": "The imported accounts will not be associated with your originally created Auro wallet.",
-  "importAccount_3": "The imported accounts will be marked with [Import] in the account list.",
+  "importAccount_3": "The imported accounts will be marked with [Imported] in the account list.",
   "accountInfo": "Account Details",
   "accountAddress": "Account Address",
   "exportPrivateKey": "Export Private Key",
