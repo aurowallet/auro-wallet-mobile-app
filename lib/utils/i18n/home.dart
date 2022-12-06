@@ -11,5 +11,5 @@ const Map<String, String> enHome = {
   "send": "Send",
   "receive": "Receive",
   "renameAccountName": "Change Account Name",
-  "accountNameLimit": "No more than 16 character"
+  "accountNameLimit": "No more than 16 characters"
 };
