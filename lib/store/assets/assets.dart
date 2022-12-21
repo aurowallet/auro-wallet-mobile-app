@@ -45,7 +45,7 @@ abstract class _AssetsStore with Store {
   @observable
   Fees transferFees = new Fees()
     ..slow=0.001
-    ..medium=0.01
+    ..medium=0.0101
     ..fast=0.1
     ..cap=10;
 
@@ -144,6 +144,7 @@ abstract class _AssetsStore with Store {
       TransferData tx = TransferData.fromPendingJson(i);
       pendingTxs.add(tx);
     });
+    pendingTxs.sort((tx1,tx2)=>tx2.nonce! - tx1.nonce!);
   }
   @action
   Future<void> addFeeTxs(List<dynamic> ls, String address,

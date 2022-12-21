@@ -106,21 +106,28 @@ class _SecurityPageState extends State<SecurityPage> {
         inputPasswordRequired: true
     );
 
+    bool success = false;
     try {
       if (password != null) {
-        webApi.account.saveBiometricPass(context, password);
-        webApi.account.setBiometricEnabled();
-        setState(() {
-          _isBiometricAuthorized = true;
-        });
+        await webApi.account.saveBiometricPass(context, password);
+        success = true;
+        print('save bio success');
       }
     } catch (err) {
+      print('save bio failed');
+      print(err);
       // ignore
+    }
+    if (success) {
+      webApi.account.setBiometricEnabled();
+      setState(() {
+        _isBiometricAuthorized = true;
+      });
     }
   }
 
   void _onChangePassword() {
-    Navigator.pushReplacementNamed(context, ChangePasswordPage.route);
+    Navigator.pushNamed(context, ChangePasswordPage.route);
   }
 
   void _onToggleBiometric(bool isOn) {

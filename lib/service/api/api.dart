@@ -94,6 +94,8 @@ class Api {
     return TESTNET_TRANSACTION_URL;
   }
 
+
+
   String getTxRecordsApiUrl () {
     bool isMain = this.getIsMainApi();
     if (isMain) {

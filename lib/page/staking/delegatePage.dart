@@ -51,12 +51,14 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   bool _submitDisabled = false;
   bool submitting = false;
   var _loading = Observable(true);
+  bool inputDirty = false;
   double? currentFee;
   double? selectedFee;
 
   @override
   void initState() {
     super.initState();
+    _onFeeLoaded(store.assets!.transferFees);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
       _monitorFeeDisposer = reaction((_) =>  store.assets!.transferFees, _onFeeLoaded);
@@ -86,6 +88,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     setState((){
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        inputDirty = true;
       } else {
         currentFee = store.assets!.transferFees.medium;
       }
@@ -107,6 +110,9 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     }
   }
   void _onFeeLoaded(Fees fees) {
+    if (inputDirty) {
+      return;
+    }
     if (currentFee == null) {
       currentFee = fees.medium;
       selectedFee = fees.medium;
@@ -264,7 +270,8 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
               // } else {
               //   Navigator.popUntil(context, ModalRoute.withName('/'));
               // }
-              Navigator.popUntil(context, ModalRoute.withName('/'));
+              // Navigator.popAndPushNamed(context, ModalRoute.withName('/'));
+              await Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
               globalBalanceRefreshKey.currentState?.show();
               return true;
             }

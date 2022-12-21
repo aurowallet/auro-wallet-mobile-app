@@ -14,13 +14,13 @@ class InputErrorTip extends StatefulWidget {
     // required this.validate,
     required this.message,
     this.keepShow = true,
-    this.showSuccess = false,
     this.focusNode,
     this.hideIcon = false,
     this.padding = const EdgeInsets.only(top: 4),
     this.tipType = TipType.error,
     this.validate,
     this.asyncValidate,
+    this.isError,
     this.showMessage = true
   });
 
@@ -30,7 +30,7 @@ class InputErrorTip extends StatefulWidget {
   final bool keepShow;
   final bool showMessage;
   final bool hideIcon;
-  final bool showSuccess;
+  final bool? isError;
   final String message;
   final FocusNode? focusNode;
   final EdgeInsetsGeometry padding;
@@ -66,8 +66,9 @@ class _InputErrorTipState extends State<InputErrorTip> {
         success = widget.validate!(text);
       } else if (widget.asyncValidate != null) {
         success = await widget.asyncValidate!(text);
+        print('validate:' + success.toString());
       }
-      if (mounted) {
+      if (mounted && widget.isError == null) {
         setState(() {
           isCorrect = success;
         });
@@ -96,12 +97,16 @@ class _InputErrorTipState extends State<InputErrorTip> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.keepShow && (!isDirty && widget.showSuccess) || (isCorrect && !widget.showSuccess) || !widget.showMessage) {
+    if (!widget.keepShow && (!isDirty || isCorrect || !widget.showMessage)) {
+      print('come here');
+      print('isDirty:' + isDirty.toString());
+      print('isCorrect:' + isCorrect.toString());
+      print('widget.showMessage:' + widget.showMessage.toString());
       return Container();
     }
     Color? textColor;
     if (widget.tipType == TipType.error) {
-      textColor = isCorrect? ColorsUtil.hexColor(0xB9B9B9): Color(0xFFD65A5A);
+      textColor = (widget.isError ?? !isCorrect ) ? ColorsUtil.hexColor(0xFFD65A5A): Color(0xB9B9B9);
     } else {
       textColor = ColorsUtil.hexColor(0xFFC633);
     }

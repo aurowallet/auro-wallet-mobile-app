@@ -51,6 +51,7 @@ class _TransferPageState extends State<TransferPage> {
   bool submitDisabled = true;
   bool submitting = false;
   double? currentFee;
+  bool inputDirty = false;
   double? selectedFee;
   String? contactName;
   ContactData? _contactData;
@@ -60,6 +61,7 @@ class _TransferPageState extends State<TransferPage> {
   @override
   void initState() {
     super.initState();
+    _onFeeLoaded(store.assets!.transferFees);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _monitorFeeDisposer = reaction((_) =>  store.assets!.transferFees, _onFeeLoaded);
       _amountCtrl.addListener(_monitorSummitStatus);
@@ -86,7 +88,9 @@ class _TransferPageState extends State<TransferPage> {
     setState((){
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        inputDirty = true;
       } else {
+        inputDirty = false;
         currentFee = store.assets!.transferFees.medium;
       }
     });
@@ -283,12 +287,14 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   void _onFeeLoaded(Fees fees) {
-    if (currentFee == null) {
-      setState(() {
-        currentFee = fees.medium;
-        selectedFee = fees.medium;
-      });
+    if (inputDirty) {
+      return;
     }
+    print('_onFeeLoaded');
+    setState(() {
+      currentFee = fees.medium;
+      selectedFee = fees.medium;
+    });
   }
 
   Future<String?> _validateAddress () async {

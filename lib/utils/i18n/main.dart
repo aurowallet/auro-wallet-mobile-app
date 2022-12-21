@@ -189,7 +189,7 @@ const Map<String, String> zhMain = {
   "term": "Auro Wallet 是一款去中心化钱包。钱包中使用的助记词、私钥以及 Keystore 等加密数据全部由用户自己保管，您应自行承担妥善保管钱包设备、钱包密码、私钥、助记词 Keystore 等信息的责任。 \n\nAuro Wallet 不负责为用户保管以上信息。因您遗失设备或硬件钱包、主动或被动泄露、遗忘钱包密码、私钥、助记词、Keystore 或遭受他人攻击、诈骗等所引起的一切风险、责任、损失、费用应由您自行承担。\n\n请不要向任何人透漏您的助记词、私钥、Keystore、安全密码以及其他敏感信息，也不要将它们存放在任何云工具（如IM，邮件，社交网站等）。强烈建议使用硬件钱包与 Auro Wallet 链接，最大限度确保使用的安全性。\n\nAuro Wallet 的代码还没有开源，正在接受审计机构的核查。用户需自行承担使用风险。\n\nAuro Wallet 是社区开发的项目，不隶属于Mina Foundation 或者 O(1) Labs。",
   "agree": "同意",
   "userAgree":"使用条款",
-  "imported": "导入账户",
+  "imported": "导入",
   "watchAccount": "观察账户",
   "watchMode": "观察模式",
   "textWatchModeAddress": "输入或粘贴钱包地址",
@@ -236,8 +236,8 @@ const Map<String, String> zhMain = {
   "copy": "复制",
   "seed_incorrect": "助记词错误",
   // backup tip pages
-  "mnemonicLost": "If mnemonic phrase lost, my funds will be lost forever.",
-  "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
+  "mnemonicLost": "如果助记词丢失，我的资产将永久丢失。",
+  "protectMnemonic": "我对助记词的安全保存负全部责任。",
 };
 
 const Map<String, String> enMain = {

@@ -82,14 +82,14 @@ class CreateAccountEntryPage extends StatelessWidget {
                       ],
                     ),
 
-                    Container(
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 108),
-                        child: Image.asset("assets/images/entry/auro_logo.png", width: 245, height: 221,),
-                      ),
-                    )
                   ],
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 60),
+                  child: Image.asset("assets/images/entry/auro_logo.png", width: MediaQuery.of(context).size.width * (245/ 375), height: MediaQuery.of(context).size.width * (245/ 375) * (221/245),),
                 ),
               ),
               Padding(padding: EdgeInsets.only(left: 38, right: 38),

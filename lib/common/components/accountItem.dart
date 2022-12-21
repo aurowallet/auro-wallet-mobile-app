@@ -75,13 +75,13 @@ class WalletItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12)
       ),
       child: Material(
-        color: isChecked ? Theme.of(context).primaryColor : Colors.white,
+        color: isChecked ? Theme.of(context).primaryColor : Color(0xFFF9FAFC),
         child: InkWell(
           onTap: _onTapWallet,
           child: Container(
             decoration: BoxDecoration(
                 border: Border.all(
-                    color: isChecked ? Theme.of(context).primaryColor :Color(0x1A000000),
+                    color: isChecked ? Theme.of(context).primaryColor : Colors.black.withOpacity(0.05),
                     width: 1
                 ),
                 borderRadius: BorderRadius.circular(12)
@@ -133,7 +133,7 @@ class WalletItem extends StatelessWidget {
                           Text(Fmt.address(account.address, pad: 10), style: TextStyle(color: addressColor, fontSize: 12, fontWeight: FontWeight.w400)),
                           Padding(padding: EdgeInsets.only(top: 14),),
                           Text(
-                            Fmt.balance(balance.toString(), COIN.decimals) + ' ' + COIN.coinSymbol,
+                            Fmt.balance(balance.toString(), COIN.decimals, maxLength: COIN.decimals) + ' ' + COIN.coinSymbol,
                             style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ],

@@ -96,10 +96,14 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
           final result = await authStorage.read();
           if (result != null) {
             await _onOk(result);
+          } else {
+            print('biometric read null');
+            Navigator.of(context).pop();
           }
         } catch (err) {
+          print('biometric error');
           print(err);
-          // Navigator.of(context).pop();
+          Navigator.of(context).pop();
         }
       }
     }

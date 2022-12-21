@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:dio/dio.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -108,8 +109,51 @@ class ApiStaking {
       'stateHash': stateHash,
       'blockchainLength': daemonStatus['daemonStatus'],
     };
+    fetchDelegationInfo(consensusState['epoch']);
     store.staking!.setOverviewInfo(overviewData);
     print('overview cached');
   }
 
+  Future<void> fetchDelegationInfo(int epoch) async {
+    String pubKey = store.wallet!.currentWallet.pubKey;
+    AccountInfo? acc = store.assets!.accountsInfo[pubKey];
+    String? delegate = acc?.delegate;
+    if (delegate == null) {
+      return;
+    }
+    const String query = r'''
+query delegationTotals($publicKey: String,$epoch:Int) {
+    stake(query: {epoch: $epoch, public_key: $publicKey}) {
+      delegationTotals {
+        countDelegates
+        totalDelegated
+      }
+    }
+}
+    ''';
+    final QueryOptions _options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {
+        'publicKey': delegate,
+        'epoch': epoch
+      },
+    );
+    final client = GraphQLClient(
+      link: HttpLink(apiRoot.getTxRecordsApiUrl()),
+      cache: GraphQLCache(),
+    );
+    final QueryResult result =  await client.query(_options);
+    if (!result.hasException) {
+      Map<String, dynamic> res = {
+        ...result.data!['stake']['delegationTotals'],
+        'publicKey': delegate
+      };
+      store.staking!.setDelegatedInfo(res);
+      print('delegationTotals result');
+      print(delegate);
+      print(epoch);
+      print(result.data);
+    }
+  }
 }

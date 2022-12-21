@@ -81,7 +81,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
           await webApi.account.saveBiometricPass(context, passNew);
         } catch(e) {
           biometricFail = true;
-          print('biometric fail');
+          print('biometric fail' + e.toString());
         }
       }
     }
@@ -224,7 +224,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
                       controller: _newPassCtrl,
                       isPassword: true,
                     ),
-                    Container(
+                    errors.join("/").length > 0 ? Container(
                       padding: EdgeInsets.only(top: 4),
                       child: Text(
                         errors.join("/"),
@@ -234,29 +234,33 @@ class _ChangePassword extends State<ChangePasswordPage> {
                             fontWeight: FontWeight.w600
                         ),
                       ),
-                    ),
+                    ): Container(),
                     InputErrorTip(
                       padding: EdgeInsets.only(top: 8),
                       ctrl: _newPassCtrl,
                       showMessage: false,
+                      keepShow: false,
                       message: dic['passwordRequires']!,
                       validate: _validateLength,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
                       showMessage: false,
+                      keepShow: false,
                       message: dic['atLeastOneUppercaseLetter']!,
                       validate: _validateUpCase,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
                       showMessage: false,
+                      keepShow: false,
                       message: dic['atLeastOneLowercaseLetter']!,
                       validate: _validateLowerCase,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
                       showMessage: false,
+                      keepShow: false,
                       message: dic['atLeastOneNumber']!,
                       validate: _validateNumber,
                     ),

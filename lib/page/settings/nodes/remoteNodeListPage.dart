@@ -29,10 +29,13 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   bool isEditing = false;
 
   void _addCustomNode(CustomNode? originEndpoint) async {
-    Navigator.of(context).pushNamed(NodeEditPage.route, arguments: {
+    await Navigator.of(context).pushNamed(NodeEditPage.route, arguments: {
       "name": originEndpoint?.name,
       "address": originEndpoint?.url,
       "removeNode": originEndpoint != null ? _removeNode : null
+    });
+    setState(() {
+      isEditing = false;
     });
   }
 
@@ -123,27 +126,28 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   Widget build(BuildContext context) {
     var i18n = I18n.of(context).main;
     final theme = Theme.of(context).textTheme;
-    List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.store.customNodeListV2);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n['networkConfig']!),
         centerTitle: true,
-        actions: endpoints.length > 0
-            ? [
-                TextButton(
-                  child: Text(
-                    isEditing ? i18n['save']! : i18n['edit']!,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryColor),
-                  ),
-                  onPressed: _onEdit,
-                )
-              ]
-            : [],
+        actions: [
+          Observer(builder: (_) {
+            List<CustomNode> endpoints =
+            List<CustomNode>.of(widget.store.customNodeListV2);
+            return endpoints.length > 0 ?
+            TextButton(
+              child: Text(
+                isEditing ? i18n['save']! : i18n['edit']!,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).primaryColor),
+              ),
+              onPressed: _onEdit,
+            ) : Container();
+          })
+        ],
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -264,74 +268,82 @@ class NodeItem extends StatelessWidget {
     var theme = Theme.of(context).textTheme;
     return Padding(
       padding: margin,
-      child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onPressed,
-          child: Container(
-              padding: EdgeInsets.all(16).copyWith(bottom: 12),
-              decoration: BoxDecoration(
-                  color: Color(0xFFF9FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: Colors.black.withOpacity(0.05), width: 0.5)),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      child: Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+        ),
+        child: Material(
+          color: Color(0xFFF9FAFC),
+          child: InkWell(
+              onTap: onPressed,
+              child: Container(
+                  padding: EdgeInsets.all(16).copyWith(bottom: 12),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                          color: Colors.black.withOpacity(0.05), width: 1
+                      )
+                  ),
+                  child: Row(
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                              child: Row(
-                            mainAxisSize: MainAxisSize.max,
+                      Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Flexible(
-                                  child: Text(Fmt.breakWord(Fmt.stringSlice(text, 8, withEllipsis: true))!,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: ColorsUtil.hexColor(0x01000D),
-                                          fontWeight: FontWeight.w500))),
-                              tag != null
-                                  ? Container(
-                                      margin: EdgeInsets.only(left: 5),
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 10),
-                                      decoration: BoxDecoration(
-                                        color: ColorsUtil.hexColor(0xDDDDDD),
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                      child: Text(tag!,
-                                          style: theme.headline6!.copyWith(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500)),
-                                    )
-                                  : Container()
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Flexible(
+                                              child: Text(Fmt.breakWord(Fmt.stringSlice(text, 8, withEllipsis: true))!,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: ColorsUtil.hexColor(0x01000D),
+                                                      fontWeight: FontWeight.w500))),
+                                          tag != null
+                                              ? Container(
+                                            margin: EdgeInsets.only(left: 5),
+                                            padding:
+                                            EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: ColorsUtil.hexColor(0xDDDDDD),
+                                              borderRadius:
+                                              BorderRadius.circular(4.0),
+                                            ),
+                                            child: Text(tag!,
+                                                style: theme.headline6!.copyWith(
+                                                    color: Color(0x4D000000),
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500)),
+                                          )
+                                              : Container()
+                                        ],
+                                      )),
+                                  chainId != null
+                                      ? Container(
+                                    margin: EdgeInsets.only(left: 5),
+                                    alignment: Alignment.center,
+                                    child: Text(Fmt.address(chainId, pad: 6, padSame: true),
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.black.withOpacity(0.1),
+                                            fontWeight: FontWeight.w400)),
+                                  )
+                                      : Container()
+                                ],
+                              ),
+                              Text(Fmt.breakWord(value)!,
+                                  style: theme.headline5!
+                                      .copyWith(color: ColorsUtil.hexColor(0x999999))),
                             ],
                           )),
-                          chainId != null
-                              ? Container(
-                                  margin: EdgeInsets.only(left: 5),
-                                  alignment: Alignment.center,
-                                  child: Text(Fmt.address(chainId, pad: 6, padSame: true),
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black.withOpacity(0.1),
-                                          fontWeight: FontWeight.w400)),
-                                )
-                              : Container()
-                        ],
-                      ),
-                      Text(Fmt.breakWord(value)!,
-                          style: theme.headline5!
-                              .copyWith(color: ColorsUtil.hexColor(0x999999))),
-                    ],
-                  )),
-                  isEditing
-                      ? Container(
+                      isEditing
+                          ? Container(
                           width: 32,
                           alignment: Alignment.centerRight,
                           child: Container(
@@ -341,40 +353,42 @@ class NodeItem extends StatelessWidget {
                             ),
                             child: editable
                                 ? SvgPicture.asset(
-                                    'assets/images/assets/right_arrow.svg',
-                                    width: 6,
-                                    height: 12)
+                                'assets/images/assets/right_arrow.svg',
+                                width: 6,
+                                height: 12)
                                 : Container(),
                           ))
-                      : Container(
-                          width: 32,
-                          child: Center(
-                            child: checked
-                                ? Padding(
-                                    padding: EdgeInsets.only(left: 14),
-                                    child: RoundCheckBox(
-                                      size: 18,
-                                      borderColor: Colors.transparent,
-                                      isChecked: checked,
-                                      uncheckedColor: Colors.white,
-                                      checkedColor:
-                                          Theme.of(context).primaryColor,
-                                      checkedWidget: Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 12,
-                                      ),
-                                      // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                                      onTap: (bool? checkedFlag) {
-                                        onChecked(checkedFlag!, value);
-                                      },
-                                    ),
-                                  )
-                                : Container(),
-                          ),
+                          : Container(
+                        width: 32,
+                        child: Center(
+                          child: checked
+                              ? Padding(
+                            padding: EdgeInsets.only(left: 14),
+                            child: RoundCheckBox(
+                              size: 18,
+                              borderColor: Colors.transparent,
+                              isChecked: checked,
+                              uncheckedColor: Colors.white,
+                              checkedColor:
+                              Theme.of(context).primaryColor,
+                              checkedWidget: Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 12,
+                              ),
+                              // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+                              onTap: (bool? checkedFlag) {
+                                onChecked(checkedFlag!, value);
+                              },
+                            ),
+                          )
+                              : Container(),
                         ),
-                ],
-              ))),
+                      ),
+                    ],
+                  ))),
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -13,6 +14,7 @@ import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:collection/collection.dart';
@@ -76,7 +78,14 @@ class DelegateInfo extends StatelessWidget {
   }
   Widget _buildDelegateInfo(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
-    final ValidatorData? validatorInfo = store.staking!.validatorsInfo.firstWhereOrNull((e)=>e.address == delegate);
+
+    final DelegatedValidator? delegatedValidator = store.staking!.delegatedValidator;
+    DelegatedValidator? validatorInfo;
+    if (delegatedValidator != null && delegatedValidator.publicKey == delegate) {
+      validatorInfo = delegatedValidator;
+    }
+    final ValidatorData? validatorItem = store.staking!.validatorsInfo.firstWhereOrNull((e)=>e.address == delegate);
+    String? validatorName = validatorItem?.name;
     if (validatorInfo == null) {
       return Container(
           constraints: BoxConstraints(
@@ -108,7 +117,7 @@ class DelegateInfo extends StatelessWidget {
                           margin: EdgeInsets.only(right: 100),
                           child: DelegateInfoItem(
                               labelText: i18n['blockProducerName']!,
-                              value: validatorInfo.name  ?? Fmt.address(validatorInfo.address, pad: 8)
+                              value: validatorName  ?? Fmt.address(delegate, pad: 8)
                           ),
                         )
                     )
@@ -118,8 +127,8 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                       labelText: i18n['blockProducerAddress']!,
-                      value: Fmt.address(validatorInfo.address, pad: 10),
-                      copyValue: validatorInfo.address,
+                      value: Fmt.address(delegate, pad: 10),
+                      copyValue: delegate,
                     )
                   ]
               ),
@@ -127,7 +136,7 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                         labelText: i18n['producerTotalStake']!,
-                        value: Fmt.balance(validatorInfo.totalStake.toString(), COIN.decimals) + ' ' + COIN.coinSymbol
+                        value: Fmt.priceFloor(validatorInfo.totalDelegated, lengthFixed: 0) + ' ' + COIN.coinSymbol
                     )
                   ]
               ),
@@ -135,7 +144,7 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                         labelText: i18n['producerTotalDelegations']!,
-                        value: validatorInfo.delegations.toString()
+                        value: validatorInfo.countDelegates.toString()
                     )
                   ]
               ),
@@ -151,7 +160,9 @@ class DelegateInfo extends StatelessWidget {
 
     return Stack(
       children: [
-        _buildDelegateInfo(context),
+        Observer(builder: (_) {
+          return _buildDelegateInfo(context);
+        }),
         Positioned(
           right: 0,
           bottom: 0,

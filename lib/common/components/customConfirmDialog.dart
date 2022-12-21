@@ -49,7 +49,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                 ),): Container(),
                 Padding(
                   padding: EdgeInsets.only(top: 0),
-                  child: Text(widget.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  child: Text(widget.title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 ),
                 widget.contents.length > 0 ? Padding(
                   padding: EdgeInsets.only(top: 20),

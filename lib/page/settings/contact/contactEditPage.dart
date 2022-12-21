@@ -84,7 +84,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
     bool isValid = await webApi.account.isAddressValid(address);
     String? error;
     if (!isValid) {
-      error = i18n['sendAddressError']!;
+      error = I18n.of(context).settings['invalidContact']!;
     }
     if (!isEdit && isValid && widget.store.contactList.any((element) => element.address == address)) {
       error = i18n['repeatContact']!;
@@ -93,6 +93,8 @@ class _ContactEditPageState extends State<ContactEditPage> {
       errorText = error;
       addressError = error != null;
     });
+    print('errorText');
+    print(errorText);
     return error == null;
   }
 

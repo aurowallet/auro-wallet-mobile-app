@@ -218,7 +218,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                 )
             ),
             Positioned(
-                bottom: max(MediaQuery.of(context).viewInsets.bottom + 10, 80),
+                bottom: max(MediaQuery.of(context).viewInsets.bottom - MediaQuery.of(context).viewPadding.bottom + 10, 90),
                 left: 20,
                 right: 20,
                 child: renderTips(context),

@@ -77,7 +77,7 @@ class CurrencyItem extends StatelessWidget {
           minVerticalPadding: 0,
           contentPadding: EdgeInsets.only(left: 20, right: 20),
           title: Text(text, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
-          trailing: RoundCheckBox(
+          trailing: checked ? RoundCheckBox(
             size: 18,
             borderColor: Colors.transparent,
             isChecked: checked,
@@ -87,7 +87,7 @@ class CurrencyItem extends StatelessWidget {
             onTap: (bool? checkedFlag) {
               onChecked(checkedFlag ?? false, localeKey);
             },
-          ),
+          ) : null,
           onTap: () => onChecked(!checked, localeKey),
         )
     );

@@ -1,5 +1,6 @@
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoadingCircle extends StatefulWidget {
   @override
@@ -71,7 +72,7 @@ class _RotatingCircleState extends State<RotatingCircle>
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: Tween(begin: 0.0, end: 1.0).animate(animationController!),
-      child: Image.asset('assets/images/public/loading_circle.png',
+      child: SvgPicture.asset('assets/images/public/loading_circle.svg',
         width: widget.size,
         height: widget.size,
         color: widget.color,

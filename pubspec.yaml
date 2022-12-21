@@ -11,7 +11,7 @@ description: MinaWallet made with Flutter.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.1.0+1088
+version: 1.1.0+1090
 
 environment:
   sdk: ">=2.16.0 <3.0.0"
@@ -33,13 +33,17 @@ dependencies:
   http: ^0.13.1
   webview_flutter: ^2.0.3
   rxdart: ^0.26.0
+  dio: ^4.0.6
 #  flutter_local_notifications: ^12.0.3
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
 #  device_info: ^0.4.2
-  biometric_storage: ^4.1.3
+  biometric_storage:
+    git:
+      url: https://github.com/authpass/biometric_storage.git
+      ref: f5146678a4b23e0475bde17421e3fbffa7db2649
   fluttertoast: ^8.1.1
   bip39: 1.0.6
   roundcheckbox: ^2.0.4+1
@@ -156,9 +160,7 @@ flutter:
     - assets/images/public/2.0x/wallet_success.png
     - assets/images/public/scan_bg.png
     - assets/images/public/red_alert.svg
-    - assets/images/public/loading_circle.png
-    - assets/images/public/2.0x/loading_circle.png
-    - assets/images/public/3.0x/loading_circle.png
+    - assets/images/public/loading_circle.svg
     - assets/images/public/pending_tip.svg
     - assets/images/public/icon_copy.svg
 
@@ -199,6 +201,7 @@ flutter:
     - assets/images/receive/2.0x/seperator.png
     - assets/images/receive/icon_copy.svg
     - assets/images/receive/icon_share.svg
+    - assets/images/receive/receive_bg.svg
 
 
     ## images - public

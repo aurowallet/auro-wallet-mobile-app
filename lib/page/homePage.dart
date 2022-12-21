@@ -112,12 +112,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
 
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-
-    print(width.toString() + 'width');
-    print(height.toString() + 'height');
-    var theme = Theme.of(context).textTheme;
     final textStyle = TextStyle(
       fontSize: 12,
     );

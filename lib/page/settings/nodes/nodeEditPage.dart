@@ -50,6 +50,11 @@ class _NodeEditPageState extends State<NodeEditPage> {
       _monitorSummitStatus();
       _addressCtrl.addListener(_monitorSummitStatus);
       _nameCtrl.addListener(_monitorSummitStatus);
+      _addressFocus.addListener(() {
+        if (_addressFocus.hasFocus) {
+          _onAddressFocus();
+        }
+      });
     });
   }
   @override
@@ -59,8 +64,15 @@ class _NodeEditPageState extends State<NodeEditPage> {
     _nameCtrl.dispose();
   }
 
+  void _onAddressFocus() {
+    setState(() {
+      errorText = '';
+      addressError = false;
+    });
+  }
+
   void _monitorSummitStatus() {
-    if (_addressCtrl.text.isEmpty || _nameCtrl.text.isEmpty) {
+    if (_addressCtrl.text.isEmpty || _nameCtrl.text.isEmpty || addressError) {
       if (!submitDisabled) {
         setState((){
           submitDisabled = true;
@@ -91,9 +103,12 @@ class _NodeEditPageState extends State<NodeEditPage> {
       submitting = true;
     });
     String? chainId = await webApi.setting.fetchChainId(endpoint.url);
+
     if(chainId == null) {
-      UI.toast(i18n['urlError_1']!);
+      // UI.toast(i18n['urlError_1']!);
       setState(() {
+        errorText = i18n['urlError_1']!;
+        addressError = true;
         submitting = false;
       });
       return;
@@ -104,8 +119,10 @@ class _NodeEditPageState extends State<NodeEditPage> {
 
     // only support mainnet and testnet
     if (targetNetworks.isEmpty || (targetNetworks.first.type != '0' && targetNetworks.first.type != '1')) {
-      UI.toast(i18n['urlError_1']!);
+      // UI.toast(i18n['urlError_1']!);
       setState(() {
+        errorText = i18n['urlError_1']!;
+        addressError = true;
         submitting = false;
       });
       return;
@@ -248,7 +265,8 @@ class _NodeEditPageState extends State<NodeEditPage> {
                             ctrl: _addressCtrl,
                             message: errorText ?? '',
                             asyncValidate: _validateAddress,
-                            keepShow: false,
+                            keepShow: addressError,
+                            isError: addressError,
                             hideIcon: true,
                             focusNode: _addressFocus,
                           ),

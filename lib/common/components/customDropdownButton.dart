@@ -53,6 +53,9 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                       return widget.items.map((item) {
                         return Container(
                           padding: EdgeInsets.only(right: 4),
+                          constraints: BoxConstraints(
+                            minWidth: 60
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

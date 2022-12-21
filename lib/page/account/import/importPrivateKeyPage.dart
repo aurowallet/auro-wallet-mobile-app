@@ -92,6 +92,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
             children: <Widget>[
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputItem(
                       padding: EdgeInsets.zero,

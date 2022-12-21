@@ -88,7 +88,7 @@ class _AboutPage extends State<AboutPage> {
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 10),
-                  child: BrowserLink(privacyUrl, text: i18nSettings['github']!, showIcon: false,),
+                  child: BrowserLink(aboutus?.changelog ?? '', text: i18nSettings['github']!, showIcon: false,),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 10),

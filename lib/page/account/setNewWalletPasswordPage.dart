@@ -220,7 +220,6 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           padding: EdgeInsets.only(top: 8),
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: false,
                           hideIcon: true,
                           showMessage: false,
                           message: dic['passwordRequires']!,
@@ -229,7 +228,6 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                         InputErrorTip(
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: false,
                           showMessage: false,
                           hideIcon: true,
                           message: dic['atLeastOneUppercaseLetter']!,
@@ -238,7 +236,6 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                         InputErrorTip(
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: false,
                           showMessage: false,
                           hideIcon: true,
                           message: dic['atLeastOneLowercaseLetter']!,
@@ -247,7 +244,6 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                         InputErrorTip(
                           ctrl: _passCtrl,
                           keepShow: false,
-                          showSuccess: false,
                           showMessage: false,
                           hideIcon: true,
                           message: dic['atLeastOneNumber']!,

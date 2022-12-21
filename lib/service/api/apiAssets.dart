@@ -14,7 +14,6 @@ class ApiAssets {
   Future<void> fetchTransactions(pubKey) async {
     final client = GraphQLClient(
       link: HttpLink(apiRoot.getTxRecordsApiUrl()),
-      // The default store is the InMemoryStore, which does NOT persist to disk
       cache: GraphQLCache(),
     );
     const String query = r'''

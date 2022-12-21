@@ -122,7 +122,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
       await store.assets!.loadAccountCache();
       globalBalanceRefreshKey.currentState!.show();
       print('account removed');
-      UI.toast(dic['deleteAccountSuccess']!);
+      // UI.toast(dic['deleteAccountSuccess']!);
       Navigator.of(context).pop();
     }
   }

@@ -117,7 +117,6 @@ class _InputItemState extends State<InputItem> {
       textAlign: TextAlign.left,
       style: labelStyle,
     );
-    print('widget.maxLength! - specialCharsCount'+ (widget.maxLength ?? 0 - specialCharsCount).toString());
     return Padding(
       padding: widget.padding,
       child: Column(

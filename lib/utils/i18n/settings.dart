@@ -8,7 +8,8 @@ const Map<String, String> zhSettings = {
   "editNetWork": "编辑节点",
   "nodeAddress": "节点地址",
   "nodeAlert": "请务必只添加受您信任的节点。使用未知节点会有一定风险。",
-  "graphApi":"Mina Explorer 提供 GraphQL服务"
+  "graphApi":"Mina Explorer 提供 GraphQL服务",
+  "invalidContact": "地址格式错误"
 };
 const Map<String, String> enSettings = {
   "github": "Check it out on Github",
@@ -20,5 +21,6 @@ const Map<String, String> enSettings = {
   "editNetWork": "Edit Network",
   "nodeAddress": "Node URL",
   "nodeAlert": "Only add custom nodes you trust. Using unknown nodes can be risky.",
-  "graphApi": "GraphQL API by Mina Explorer"
+  "graphApi": "GraphQL API by Mina Explorer",
+  "invalidContact": "Invalid address"
 };

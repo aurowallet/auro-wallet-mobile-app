@@ -84,8 +84,6 @@ class Fmt {
     return f.format(value);
   }
 
-  /// combined number transform 1-3:
-  /// from raw <String> to <String> in token format of ",##0.000"
   static String balance(
       String? raw,
       int decimals, {
@@ -98,6 +96,19 @@ class Fmt {
     }
     var balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
     NumberFormat f = NumberFormat(",##0.${'0' * minLength}${'#'* (maxLength - minLength)}", "en_US");
+    return f.format(balanceBigInt);
+  }
+
+  static String balanceToInteger(
+      String? raw,
+      int decimals
+      )
+  {
+    if (raw == null || raw.length == 0) {
+      return '~';
+    }
+    var balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
+    NumberFormat f = NumberFormat(",##0", "en_US");
     return f.format(balanceBigInt);
   }
 

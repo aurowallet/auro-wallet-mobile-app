@@ -162,10 +162,11 @@ class CheckItem extends StatelessWidget {
           ),
           Expanded(
               child: Text(text,
-                  style: Theme.of(context).textTheme.headline6!.copyWith(
-                      height: 1.4,
-                      color: Color(0x80000000),
-                      fontStyle: FontStyle.normal
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.4,
+                    color: Color(0x80000000),
+                    fontWeight: FontWeight.w400,
                   )))
         ],
       ),

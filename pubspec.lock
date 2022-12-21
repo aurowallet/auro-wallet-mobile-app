@@ -46,9 +46,11 @@ packages:
   biometric_storage:
     dependency: "direct main"
     description:
-      name: biometric_storage
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: f5146678a4b23e0475bde17421e3fbffa7db2649
+      resolved-ref: f5146678a4b23e0475bde17421e3fbffa7db2649
+      url: "https://github.com/authpass/biometric_storage.git"
+    source: git
     version: "4.1.3"
   bip32:
     dependency: "direct main"
@@ -295,6 +297,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.4"
+  dio:
+    dependency: "direct main"
+    description:
+      name: dio
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.0.6"
   dotted_line:
     dependency: "direct main"
     description:
