@@ -89,7 +89,8 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
             children: <Widget>[
               Expanded(
                 child: Column(
-                  children: [
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     InputItem(
                       padding: EdgeInsets.zero,
                       inputPadding: EdgeInsets.only(top: 20),
