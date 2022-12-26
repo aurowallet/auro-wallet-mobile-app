@@ -12,7 +12,7 @@ import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/encryption.dart';
 import 'package:auro_wallet/store/wallet/types/seedData.dart';
-
+import 'package:collection/collection.dart';
 part 'wallet.g.dart';
 
 class WalletStore extends _WalletStore with _$WalletStore {
@@ -91,7 +91,7 @@ abstract class _WalletStore with Store {
   @computed
   WalletData? get mnemonicWallet {
     // there is only one mnemonic wallet in the app
-    return (walletList as List<WalletData?>).firstWhere((element) => element!.walletType == WalletStore.seedTypeMnemonic, orElse: ()=> null);
+    return walletList.firstWhereOrNull((element) => element.walletType == WalletStore.seedTypeMnemonic);
   }
 
   @computed

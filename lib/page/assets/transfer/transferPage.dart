@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:math';
-
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:flutter/material.dart';
@@ -8,25 +6,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/components/feeSelector.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
-import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
-import 'package:auro_wallet/page/settings/contactListPage.dart';
+import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
-import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -55,9 +48,12 @@ class _TransferPageState extends State<TransferPage> {
   final TextEditingController _feeCtrl = new TextEditingController();
   late ReactionDisposer _monitorFeeDisposer;
   final addressFocusNode = FocusNode();
-  bool _submitDisabled = true;
+  bool submitDisabled = true;
+  bool submitting = false;
   double? currentFee;
-  String? _contactName;
+  bool inputDirty = false;
+  double? selectedFee;
+  String? contactName;
   ContactData? _contactData;
 
   var _loading = Observable(true);
@@ -65,7 +61,8 @@ class _TransferPageState extends State<TransferPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    _onFeeLoaded(store.assets!.transferFees);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _monitorFeeDisposer = reaction((_) =>  store.assets!.transferFees, _onFeeLoaded);
       _amountCtrl.addListener(_monitorSummitStatus);
       _toAddressCtrl.addListener(_monitorSummitStatus);
@@ -91,7 +88,9 @@ class _TransferPageState extends State<TransferPage> {
     setState((){
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        inputDirty = true;
       } else {
+        inputDirty = false;
         currentFee = store.assets!.transferFees.medium;
       }
     });
@@ -101,25 +100,25 @@ class _TransferPageState extends State<TransferPage> {
     if (_contactData!=null) {
       if (_toAddressCtrl.text == _contactData!.address) {
         setState(() {
-          _contactName = _contactData!.name;
+          contactName = _contactData!.name;
         });
-      } else if (_contactName != null) {
+      } else if (contactName != null) {
         setState(() {
-          _contactName = null;
+          contactName = null;
         });
       }
     }
   }
   void _monitorSummitStatus() {
     if (_toAddressCtrl.text.isEmpty || _amountCtrl.text.isEmpty) {
-      if (!_submitDisabled) {
+      if (!submitDisabled) {
         setState((){
-          _submitDisabled = true;
+          submitDisabled = true;
         });
       }
-    } else if(_submitDisabled) {
+    } else if(submitDisabled) {
       setState((){
-        _submitDisabled = false;
+        submitDisabled = false;
       });
     }
   }
@@ -170,9 +169,13 @@ class _TransferPageState extends State<TransferPage> {
     if (_nonceCtrl.text.isEmpty) {
       if (_loading.value && currentFee == null) {
         // waiting nonce data from server and user does not choose fee
-        EasyLoading.show(status: '');
+        setState(() {
+          submitting = true;
+        });
         await asyncWhen((r) => _loading.value == false);
-        EasyLoading.dismiss();
+        setState(() {
+          submitting = false;
+        });
       }
     }
     if (await _validate()) {
@@ -194,11 +197,6 @@ class _TransferPageState extends State<TransferPage> {
       }
       final Map<String, String> i18n = I18n.of(context).main;
       var txItems = [
-        TxItem(
-            label: i18n['amount']!,
-            value:
-                '${Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals)} ${COIN.coinSymbol}',
-            type: TxItemTypes.amount),
         TxItem(
             label: i18n['toAddress']!,
             value: toAddress,
@@ -223,44 +221,54 @@ class _TransferPageState extends State<TransferPage> {
           items: txItems,
           disabled: isWatchMode,
           buttonText: isWatchMode ? i18n['watchMode']: i18n['confirm'],
+          headLabel: i18n['amount']!,
+          headValue: Row(
+            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(Fmt.priceFloor(amountToTransfer, lengthFixed: 2, lengthMax: COIN.decimals), style: TextStyle(color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),),
+              Text(COIN.coinSymbol, style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),),
+            ],
+          ),
           onConfirm: () async {
-             String? password = await UI.showPasswordDialog(
+            String? password = await UI.showPasswordDialog(
                 context: context,
                 wallet: store.wallet!.currentWallet,
+                inputPasswordRequired: false
             );
             if (password == null) {
-              return;
+              return false;
             }
-             EasyLoading.show();
              String? privateKey = await webApi.account.getPrivateKey(
                  store.wallet!.currentWallet,
                  store.wallet!.currentWallet.currentAccountIndex,
                  password);
              if (privateKey == null) {
-               EasyLoading.dismiss();
                UI.toast(i18n['passwordError']!);
-               return;
+               return false;
              }
-            Map txInfo = {
-              "privateKey": privateKey,
-              "fromAddress": store.wallet!.currentAddress,
-              "toAddress": toAddress,
-              "amount": amountToTransfer,
-              "fee": fee,
-              "nonce": inferredNonce,
-              "memo": memo,
-            };
-
-            TransferData? data = await webApi.account.signAndSendTx(txInfo, context: context);
-            EasyLoading.dismiss();
+             Map txInfo = {
+               "privateKey": privateKey,
+               "fromAddress": store.wallet!.currentAddress,
+               "toAddress": toAddress,
+               "amount": amountToTransfer,
+               "fee": fee,
+               "nonce": inferredNonce,
+               "memo": memo,
+             };
+             TransferData? data = await webApi.account.signAndSendTx(txInfo, context: context);
              if (mounted) {
-               if(data != null) {
-                 await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
-               } else {
-                 Navigator.popUntil(context, ModalRoute.withName('/'));
-               }
+               // if(data != null) {
+               //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
+               // } else {
+               //   Navigator.popUntil(context, ModalRoute.withName('/'));
+               // }
+               Navigator.popUntil(context, ModalRoute.withName('/'));
+               globalBalanceRefreshKey.currentState!.show();
+               return true;
              }
-             globalBalanceRefreshKey.currentState!.show();
+             return false;
           }
       );
       return;
@@ -279,11 +287,14 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   void _onFeeLoaded(Fees fees) {
-    if (currentFee == null) {
-      setState(() {
-        currentFee = fees.medium;
-      });
+    if (inputDirty) {
+      return;
     }
+    print('_onFeeLoaded');
+    setState(() {
+      currentFee = fees.medium;
+      selectedFee = fees.medium;
+    });
   }
 
   Future<String?> _validateAddress () async {
@@ -323,6 +334,7 @@ class _TransferPageState extends State<TransferPage> {
     _feeCtrl.text = '';
     setState(() {
       currentFee = fee;
+      selectedFee = fee;
     });
   }
   void _onChooseContact() async {
@@ -333,7 +345,7 @@ class _TransferPageState extends State<TransferPage> {
       _toAddressCtrl.text = contactData.address;
       setState(() {
         _contactData = contactData;
-        _contactName = contactData.name;
+        contactName = contactData.name;
       });
     }
   }
@@ -364,39 +376,62 @@ class _TransferPageState extends State<TransferPage> {
             centerTitle: true,
             actions: <Widget>[],
           ),
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: SafeArea(
+            maintainBottomViewPadding: true,
             child: Builder(
               builder: (BuildContext context) {
                 return Column(
                   children: <Widget>[
                     Expanded(
                       child: ListView(
-                        padding: EdgeInsets.fromLTRB(28, 10, 28, 30),
+                        padding: EdgeInsets.fromLTRB(20, 22, 20, 0),
                         children: <Widget>[
-                          FormPanel(
+                          Container(
                             child: Column(
                               children: [
                                 InputItem(
                                     padding: const EdgeInsets.only(top: 0),
-                                    label: dic['toAddress']! +
-                                        (_contactName != null ? '($_contactName)' : ''),
+                                    label: dic['toAddress']!,
+                                    placeholder: dic['address'],
                                     initialValue: '',
+                                    labelAffix: contactName != null ? Container(
+                                      margin: EdgeInsets.only(left: 8, right: 8),
+                                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(2)
+                                      ),
+                                      child: Text(
+                                        contactName!,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black.withOpacity(0.5)
+                                        ),
+                                      ),
+                                    ) : null,
                                     controller: _toAddressCtrl,
                                     focusNode: addressFocusNode,
                                     suffixIcon: IconButton(
                                       icon: SvgPicture.asset(
                                           'assets/images/assets/scanner.svg',
                                           width: 20,
-                                          height: 20
+                                          height: 20,
+                                        color: Colors.black,
                                       ),
                                       onPressed: _onScan,
                                     ),
                                     rightWidget: GestureDetector(
-                                      child: SvgPicture.asset(
-                                          'assets/images/assets/contacts.svg',
-                                          width: 20,
-                                          height: 20
+                                      child: Text(
+                                        dic['addressbook']!,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context)
+                                              .primaryColor
+                                        ),
                                       ),
                                       onTap: _onChooseContact,
                                     )
@@ -404,6 +439,7 @@ class _TransferPageState extends State<TransferPage> {
                                 InputItem(
                                   label: dic['amount']!,
                                   initialValue: '',
+                                  placeholder: '0',
                                   controller: _amountCtrl,
                                   inputFormatters: [
                                     UI.decimalInputFormatter(decimals)
@@ -414,8 +450,10 @@ class _TransferPageState extends State<TransferPage> {
                                     rightWidget: Text(
                                       '${dic['balance']!}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
                                       textAlign: TextAlign.right,
-                                      style: theme.headline6!.copyWith(
-                                          color: ColorsUtil.hexColor(0xB1B3BD)),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          color: Color(0x80000000)),
                                     ),
                                     suffixIcon: GestureDetector(
                                       onTap: _onAllClick,
@@ -426,7 +464,9 @@ class _TransferPageState extends State<TransferPage> {
                                         children: [
                                           Text(
                                             dic['allTransfer']!,
-                                            style: theme.headline6!.copyWith(
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                                fontWeight: FontWeight.w600,
                                                 color: Theme.of(context)
                                                     .primaryColor),
                                           )
@@ -446,8 +486,16 @@ class _TransferPageState extends State<TransferPage> {
                             onChoose: _onChooseFee,
                             value: currentFee,
                           ),
+                          Container(
+                            height: 0.5,
+                            margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                            decoration: BoxDecoration(
+                                color: Color(0x1A000000)
+                            ),
+                          ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
+                            placeHolder: selectedFee,
                             nonceCtrl: _nonceCtrl,
                             noncePlaceHolder: store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce,
                             cap: fees.cap,
@@ -456,11 +504,12 @@ class _TransferPageState extends State<TransferPage> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+                      padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: dic['next']!,
-                        disabled: _submitDisabled,
+                        submitting: submitting,
+                        disabled: submitDisabled,
                         onPressed: _handleSubmit,
                       ),
                     )

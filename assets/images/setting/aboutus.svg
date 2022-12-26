@@ -1,18 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
-    <title>关于</title>
-    <desc>Created with Sketch.</desc>
-    <g id="app-中文" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="设置" transform="translate(-50.000000, -331.000000)">
-            <g id="Group-4" transform="translate(50.000000, 331.000000)">
-                <g fill="#6B5DFB" id="Rectangle">
-                    <rect x="0" y="0" width="28" height="28" rx="10"></rect>
-                </g>
-                <g id="关于我们" transform="translate(8.000000, 8.000000)" fill="#FFFFFF">
-                    <path d="M6.0020931,8.45 C12.0550706,8.45 11.9944397,12.3578 11.9944397,12.3578 C12.0405444,12.7127 11.7948633,13 11.4456045,13 L0.557318595,13 C0.208691344,13 -0.0508843805,12.70815 0.00848329361,12.3578 L0.00848329361,12.3396 C0.0135358575,12.05165 0.190375772,8.45 6.0020931,8.45 Z M9.78962502,0 L9.78962502,3.9 C9.78962502,6.05391052 8.09304092,7.79999999 6.00019838,7.79999999 C3.90735584,7.79999999 2.21077175,6.05391052 2.21077175,3.9 C2.21077175,1.74608947 3.90735584,0 6.00019838,0 L9.78962502,0 Z" id="形状" fill-rule="nonzero"></path>
-                </g>
-            </g>
-        </g>
-    </g>
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="15" cy="15" r="8" stroke="black" stroke-width="1.5"/>
+<circle cx="15" cy="12" r="1" fill="black"/>
+<rect x="14.25" y="14" width="1.5" height="5" fill="black"/>
 </svg>

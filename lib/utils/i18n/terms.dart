@@ -14,6 +14,7 @@ class TermsZH extends StatelessWidget {
         color: ColorsUtil.hexColor(0x666666)
     );
     return new RichText(
+      textScaleFactor: MediaQuery.of(context).textScaleFactor,
       text: TextSpan(
           children: [
             new TextSpan(
@@ -62,14 +63,15 @@ class TermsEN extends StatelessWidget {
         color: ColorsUtil.hexColor(0x666666)
     );
     return new RichText(
+      textScaleFactor: MediaQuery.of(context).textScaleFactor,
       text: TextSpan(
           children: [
             new TextSpan(
-              text: 'To use the services provided by Auro Wallet, you need to carefully read and fully understand the Terms of Conditions and Privacy Policy. \n\nYou can read',
+              text: 'To use the services provided by Auro Wallet, you need to carefully read and fully understand the Terms of Conditions and Privacy Policy. \n\nYou can read ',
               style: normalStyle,
             ),
             new TextSpan(
-              text: '"Terms and Conditions"',
+              text: 'Terms and Conditions',
               style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
               recognizer: new TapGestureRecognizer()
                 ..onTap = () {
@@ -81,7 +83,7 @@ class TermsEN extends StatelessWidget {
               style: normalStyle,
             ),
             new TextSpan(
-              text: '"Privacy Policy"',
+              text: 'Privacy Policy',
               style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
               recognizer: new TapGestureRecognizer()
                 ..onTap = () {

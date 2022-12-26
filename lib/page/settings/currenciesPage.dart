@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:circular_check_box/circular_check_box.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/service/api/api.dart';
 
 class CurrenciesPage extends StatefulWidget {
@@ -25,7 +22,8 @@ class _Currencies extends State<CurrenciesPage> {
     if (isChecked && code != store.currencyCode) {
        await store.setCurrencyCode(code);
        print(store.currencyCode);
-       await webApi.assets.fetchAccountInfo();
+       webApi.assets.fetchAccountInfo();
+       Navigator.of(context).pop();
     }
   }
 
@@ -40,14 +38,15 @@ class _Currencies extends State<CurrenciesPage> {
       body: Observer(
         builder: (_) {
           return SafeArea(
+            maintainBottomViewPadding: true,
             child: ListView(
-              padding: EdgeInsets.only(left: 30, right: 30),
+              padding: EdgeInsets.only(top: 20),
               children: <Widget>[
-                LocaleItem(text: 'USD', localeKey: 'usd', checked: store.currencyCode == 'usd', onChecked: onChange,),
-                LocaleItem(text: 'CNY', localeKey: 'cny', checked: store.currencyCode == 'cny', onChecked: onChange,),
-                LocaleItem(text: 'RUB', localeKey: 'rub', checked: store.currencyCode == 'rub', onChecked: onChange,),
-                LocaleItem(text: 'EUR', localeKey: 'eur', checked: store.currencyCode == 'eur', onChecked: onChange,),
-                LocaleItem(text: 'GBP', localeKey: 'gbp', checked: store.currencyCode == 'gbp', onChecked: onChange,),
+                CurrencyItem(text: 'USD', localeKey: 'usd', checked: store.currencyCode == 'usd', onChecked: onChange,),
+                CurrencyItem(text: 'CNY', localeKey: 'cny', checked: store.currencyCode == 'cny', onChecked: onChange,),
+                CurrencyItem(text: 'RUB', localeKey: 'rub', checked: store.currencyCode == 'rub', onChecked: onChange,),
+                CurrencyItem(text: 'EUR', localeKey: 'eur', checked: store.currencyCode == 'eur', onChecked: onChange,),
+                CurrencyItem(text: 'GBP', localeKey: 'gbp', checked: store.currencyCode == 'gbp', onChecked: onChange,),
               ],
             ),
           );
@@ -56,8 +55,8 @@ class _Currencies extends State<CurrenciesPage> {
     );
   }
 }
-class LocaleItem extends StatelessWidget {
-  LocaleItem(
+class CurrencyItem extends StatelessWidget {
+  CurrencyItem(
       {
         this.checked = false,
         required this.text,
@@ -70,22 +69,27 @@ class LocaleItem extends StatelessWidget {
   final void Function(bool, String) onChecked;
   @override
   Widget build(BuildContext context) {
-    return FormPanel(
-      margin: EdgeInsets.only(top: 10),
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: ListTile(
-        leading: null,
-        title: Text(text, style: TextStyle(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-        trailing: CircularCheckBox(
-          value: checked,
-          checkColor: Colors.white,
-          activeColor: ColorsUtil.hexColor(0x59c49c),
-          onChanged: (bool? checkedFlag) {
-            onChecked(checkedFlag ?? false, localeKey);
-          },
-        ),
-        onTap: () => onChecked(!checked, localeKey),
-      )
+    return Container(
+        height: 54,
+        child: ListTile(
+          leading: null,
+          minLeadingWidth: 0,
+          minVerticalPadding: 0,
+          contentPadding: EdgeInsets.only(left: 20, right: 20),
+          title: Text(text, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
+          trailing: checked ? RoundCheckBox(
+            size: 18,
+            borderColor: Colors.transparent,
+            isChecked: checked,
+            uncheckedColor: Colors.white,
+            checkedColor: Theme.of(context).primaryColor,
+            checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
+            onTap: (bool? checkedFlag) {
+              onChecked(checkedFlag ?? false, localeKey);
+            },
+          ) : null,
+          onTap: () => onChecked(!checked, localeKey),
+        )
     );
   }
 }

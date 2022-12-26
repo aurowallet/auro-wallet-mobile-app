@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
@@ -14,11 +13,9 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
-import 'package:auro_wallet/page/account/import/importWaysPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get_storage/get_storage.dart';
 
 class AccountManagePage extends StatefulWidget {
   const AccountManagePage(this.store);
@@ -63,7 +60,11 @@ class _AccountManagePageState extends State<AccountManagePage> {
         dic['privateKeyTip_2']!,
       ],
     );
-    String? password = await UI.showPasswordDialog(context: context, wallet: wallet);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: wallet,
+        inputPasswordRequired: true
+    );
     if (password == null) {
       return;
     }
@@ -108,7 +109,12 @@ class _AccountManagePageState extends State<AccountManagePage> {
           dic['deleteAccountTip']!
         ],
       );
-      String? password = await UI.showPasswordDialog(context: context, wallet: wallet, validate: true);
+      String? password = await UI.showPasswordDialog(
+          context: context,
+          wallet: wallet,
+          validate: true,
+          inputPasswordRequired: true
+      );
       if (password == null) {
         return;
       }
@@ -116,7 +122,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
       await store.assets!.loadAccountCache();
       globalBalanceRefreshKey.currentState!.show();
       print('account removed');
-      UI.toast(dic['deleteAccountSuccess']!);
+      // UI.toast(dic['deleteAccountSuccess']!);
       Navigator.of(context).pop();
     }
   }
@@ -126,22 +132,49 @@ class _AccountManagePageState extends State<AccountManagePage> {
     final bool isMnemonicWallet = wallet.walletType == WalletStore.seedTypeMnemonic;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountInfo']!),
-        centerTitle: true,
+          title: Text(dic['accountInfo']!),
+          centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30),
+          padding: EdgeInsets.symmetric(horizontal: 0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               CopyContainer(
-                  child:  AccountInfoItem(label: dic['accountAddress']!, value: account.pubKey),
+                  child:  AccountInfoItem(label: dic['accountAddress']!, value: account.pubKey, padding: EdgeInsets.only(top: 10, bottom: 10),),
                   text: account.pubKey
               ),
-              AccountInfoItem(label: dic['accountName']!, value: Fmt.accountName(account), onClick: _changeAccountName,),
-              !isWatchedAccount ? AccountInfoItem(label: dic['exportPrivateKey']!, onClick: _onExportPrivateKey) : Container(),
-              !isMnemonicWallet ? AccountInfoItem(label: dic['accountDelete']!, onClick: _deleteAccount) : Container(),
+              Container(
+                margin: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+                height: 1,
+                decoration: BoxDecoration(
+                  color: Color(0x1A000000),
+                ),
+              ),
+              AccountInfoItem(label: dic['accountName']!, value: Fmt.accountName(account), onClick: _changeAccountName, padding: EdgeInsets.only(top: 16, bottom: 8)),
+              !isWatchedAccount ? AccountInfoItem(label: dic['exportPrivateKey']!, onClick: _onExportPrivateKey, padding: EdgeInsets.only(top: 18, bottom: 18)) : Container(),
+              !isMnemonicWallet ? Container(
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                height: 1,
+                decoration: BoxDecoration(
+                  color: Color(0x1A000000),
+                ),
+              ) : Container(),
+              !isMnemonicWallet ? TextButton(
+                child: Text(dic['accountDelete']!),
+                onPressed: _deleteAccount,
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  foregroundColor: Color(0xFFD65A5A),
+                  minimumSize: Size(double.infinity, 54),
+                  alignment: Alignment.centerLeft,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ) : Container(),
             ],
           )
         ),
@@ -151,26 +184,24 @@ class _AccountManagePageState extends State<AccountManagePage> {
 }
 
 class AccountInfoItem extends StatelessWidget {
-  AccountInfoItem({required this.label, this.value, this.onClick});
+  AccountInfoItem({required this.label, this.value, this.onClick, this.padding});
 
   final String label;
   final String? value;
+  final EdgeInsets? padding;
   final void Function()? onClick;
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    return GestureDetector(
+    return InkWell(
         onTap: onClick,
         child: Container(
             // height: 55,
           constraints: BoxConstraints(
             minHeight: 55
           ),
-            padding: EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-            ),
+            padding:  padding?.copyWith(left: 20, right: 20) ?? EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -181,16 +212,17 @@ class AccountInfoItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(label,
-                          style: theme.headline4!.copyWith(
-                              color: ColorsUtil.hexColor(0x01000d),
-                              fontWeight: FontWeight.w500)),
+                          style: TextStyle(
+                            fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600)),
                       value == null || value!.isEmpty
                           ? Container()
                           : Padding(
-                              padding: EdgeInsets.only(top: 9),
+                              padding: EdgeInsets.only(top: 4),
                               child: Text(
                                 value!,
-                                style: theme.headline5!.copyWith( color: Theme.of(context).primaryColor),)
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black.withOpacity(0.3), height: 1.2))
                       )
                     ],
                   ),
@@ -201,7 +233,8 @@ class AccountInfoItem extends StatelessWidget {
                     child: SvgPicture.asset(
                         'assets/images/assets/right_arrow.svg',
                         width: 6,
-                        height: 12
+                        height: 12,
+                      color: Colors.black.withOpacity(0.3),
                     )
                 ): Container(),
               ],

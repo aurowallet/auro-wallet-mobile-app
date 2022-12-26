@@ -9,8 +9,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:circular_check_box/circular_check_box.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/common/components/roundedCard.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
@@ -43,11 +42,13 @@ class WalletItem extends StatelessWidget {
 
   void _onTapWallet() {
     print('tab wallet');
-    if(wallet.walletType == WalletStore.seedTypeNone) {
-      _viewAccountInfo();
-      return;
-    }
-    _changeCurrentAccount(account.address != store.wallet!.currentAddress);
+    new Future.delayed(const Duration(milliseconds: 500), () {
+      if(wallet.walletType == WalletStore.seedTypeNone) {
+        _viewAccountInfo();
+        return;
+      }
+      _changeCurrentAccount(account.address != store.wallet!.currentAddress);
+    });
   }
 
   @override
@@ -58,89 +59,120 @@ class WalletItem extends StatelessWidget {
     bool isObserve = false;
     _context = context;
     if (wallet.source == WalletSource.outside && wallet.walletType == WalletStore.seedTypePrivateKey) {
-      labelText = i18n['accountImport'];
+      labelText = i18n['imported'];
     } else if(wallet.walletType == WalletStore.seedTypeNone) {
       labelText = i18n['watchLabel'];
       isObserve = true;
     }
     final bool isChecked = account.address == store.wallet!.currentAddress;
-    return Padding(
-      padding: EdgeInsets.only(top: 20, right: 30, left: 30),
-      child: GestureDetector(
+    final Color textColor = isChecked ? Colors.white : Colors.black;
+    final Color addressColor = isChecked ? Colors.white.withOpacity(0.5) : Colors.black.withOpacity(0.3);
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20, left: 20),
+      // padding: EdgeInsets.fromLTRB(16, 16, 14, 16),
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12)
+      ),
+      child: Material(
+        color: isChecked ? Theme.of(context).primaryColor : Color(0xFFF9FAFC),
+        child: InkWell(
           onTap: _onTapWallet,
-          behavior: HitTestBehavior.opaque,
-          child: RoundedCard(
-            padding: EdgeInsets.fromLTRB(20, 10, 10, 15),
-            type: RoundedCardType.small,
-            child: IntrinsicHeight(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child:  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(padding: EdgeInsets.only(top: 5),),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                                flex: 1,
-                                child: Text(
-                                    Fmt.accountName(account),
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.headline4!.copyWith(
-                                        color: ColorsUtil.hexColor(0x333333),
-                                        fontWeight: FontWeight.w500,
-                                        height: 1
-                                    ))
-                            ),
-                            labelText != null ? Container(
-                                child: Text(labelText, style: theme.headline6!.copyWith(color: Colors.white),),
-                                margin: EdgeInsets.only(left: 5),
-                                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                                decoration: BoxDecoration(
-                                  color: ColorsUtil.hexColor(isObserve ? 0xFF8502: 0x02a8ff),
-                                  borderRadius: BorderRadius.circular(10),
-                                )
-                            ): Container()
-                          ],
-                        ),
-                        Padding(padding: EdgeInsets.only(top: 8),),
-                        Text(Fmt.address(account.address), style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0xB1B3BD))),
-                        Padding(padding: EdgeInsets.only(top: 8),),
-                        Text(
-                          Fmt.balance(balance.toString(), COIN.decimals) + ' ' + COIN.coinSymbol,
-                          style: theme.headline6!.copyWith(color: ColorsUtil.hexColor(0x8F92A1), fontWeight: FontWeight.bold),
-                        ),
-                      ],
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(
+                    color: isChecked ? Theme.of(context).primaryColor : Colors.black.withOpacity(0.05),
+                    width: 1
+                ),
+                borderRadius: BorderRadius.circular(12)
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 14, 16),
+              child: IntrinsicHeight(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child:  Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(padding: EdgeInsets.only(top: 5),),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                  flex: 1,
+                                  child: Text(
+                                      Fmt.accountName(account),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: textColor,
+                                          fontWeight: FontWeight.w600,
+                                          height: 1.2
+                                      ))
+                              ),
+                              labelText != null ? Container(
+                                  child: Text(labelText, style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: isObserve ? FontWeight.w500 : FontWeight.w600,
+                                      color: isChecked ? Color(0xFFFFFFFF) : (isObserve ? Colors.black: Colors.black.withOpacity(0.3))),
+                                  ),
+                                  margin: EdgeInsets.only(left: 4),
+                                  padding: EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+                                  decoration: BoxDecoration(
+                                    color: isChecked ? Color(0x1AFFFFFF) : Color(0x1A000000),
+                                    borderRadius: BorderRadius.circular(4),
+                                  )
+                              ): Container()
+                            ],
+                          ),
+                          Padding(padding: EdgeInsets.only(top: 0),),
+                          Text(Fmt.address(account.address, pad: 10), style: TextStyle(color: addressColor, fontSize: 12, fontWeight: FontWeight.w400)),
+                          Padding(padding: EdgeInsets.only(top: 14),),
+                          Text(
+                            Fmt.balance(balance.toString(), COIN.decimals, maxLength: COIN.decimals) + ' ' + COIN.coinSymbol,
+                            style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        isObserve && !isChecked ? IconButton(icon: Icon(Icons.info, color: Colors.red, size: 30,), onPressed: _viewAccountInfo) : CircularCheckBox(
-                          value: isChecked,
-                          checkColor: Colors.white,
-                          activeColor: ColorsUtil.hexColor(0x59c49c),
-                          // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                          onChanged: _changeCurrentAccount,
-                        ),
-                        Padding(padding: EdgeInsets.only(top: 10),),
-                        GestureDetector(
-                          child: Icon(Icons.more_horiz, size: 20,),
-                          onTap: _viewAccountInfo,
-                        )
-                      ]
-                  )
-                ],
+                    Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          isObserve && !isChecked ? IconButton(icon: Icon(Icons.info, color: Colors.red, size: 30,), onPressed: _viewAccountInfo)
+                              : isChecked ? RoundCheckBox(
+                            size: 18,
+                            borderColor: Colors.transparent,
+                            isChecked: isChecked,
+                            uncheckedColor: Colors.white,
+                            uncheckedWidget: Container(),
+                            checkedColor: Color(0xFFF9FAFC),
+                            checkedWidget: Icon(Icons.check, color: Theme.of(context).primaryColor, size: 14,),
+                            // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+                            onTap: (selected) {
+                              if (selected == true) {
+                                _onTapWallet();
+                              }
+                            },
+                          ): Container(),
+                          Padding(padding: EdgeInsets.only(top: 10),),
+                          GestureDetector(
+                            child: Icon(Icons.more_horiz, size: 20, color: textColor,),
+                            onTap: _viewAccountInfo,
+                          )
+                        ]
+                    )
+                  ],
+                ),
               ),
             ),
-          )
-      )
+          ),
+        ),
+      ),
     );
   }
 }

@@ -10,7 +10,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:circular_check_box/circular_check_box.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 
 
 class ValidatorItem extends StatelessWidget {
@@ -30,9 +30,16 @@ class ValidatorItem extends StatelessWidget {
     final Map<String, String> i18n = I18n.of(context).main;
     return GestureDetector(
       onTap: onItemClick,
-      child: FormPanel(
-          padding:const EdgeInsets.only(left: 20, top: 20, bottom: 20, right: 10),
-          margin:const EdgeInsets.only(top: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFFF9FAFC),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: checked ? Theme.of(context).primaryColor : Colors.black.withOpacity(0.05)
+          )
+        ),
+          padding: const EdgeInsets.all(12),
+          margin: const EdgeInsets.only(top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,9 +53,10 @@ class ValidatorItem extends StatelessWidget {
                     Expanded(
                         child: Text(
                             data.name == null ? Fmt.address(data.address, pad: 8) : data.name!,
-                            style: theme.headline5!.copyWith(
-                                color: ColorsUtil.hexColor(0x010000D),
-                                fontWeight: FontWeight.w600
+                            style: TextStyle(
+                              fontSize: 14,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500
                             )
                         ),
                     ),
@@ -61,57 +69,67 @@ class ValidatorItem extends StatelessWidget {
                     //     )
                     // ),
                   ],),
-                  Padding(padding: EdgeInsets.only(top:8),),
+                  Padding(padding: EdgeInsets.only(top:5),),
                   Text(
                       Fmt.address(data.address, pad: 10),
-                      style: theme.headline6!.copyWith(
-                          color: ColorsUtil.hexColor(0x999999),
-                          fontWeight: FontWeight.normal,
+                      style: TextStyle(
+                          color: Colors.black.withOpacity(0.5),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
                           height: 1.2
                       )
                   ),
                   Padding(padding: EdgeInsets.only(top:4),),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       new RichText(
+                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
                           text: TextSpan(
                               children: [
                                 new TextSpan(
                                   text: '${i18n['validatorTotalStake']!}: ',
-                                  style: theme.headline6!.copyWith(
-                                      color: ColorsUtil.hexColor(0x666666),
-                                      fontWeight: FontWeight.normal,
+                                  style: TextStyle(
+                                      color: Colors.black.withOpacity(0.5),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                       height: 1.2
                                   ),
                                 ),
                                 new TextSpan(
                                   text: '${Fmt.balance(data.totalStake.toString(), COIN.decimals)}',
-                                  style: theme.headline6!.copyWith(
-                                      color: ColorsUtil.hexColor(0x333333),
-                                      fontWeight: FontWeight.normal,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                       height: 1.2
                                   ),
                                 ),
                               ]
                           )
                       ),
+                      Container(
+                        width: 12,
+                      ),
                       new RichText(
+                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
                           text: TextSpan(
                               children: [
                                 new TextSpan(
                                   text: '${i18n['delegations']!}: ',
-                                  style: theme.headline6!.copyWith(
-                                      color: ColorsUtil.hexColor(0x666666),
-                                      fontWeight: FontWeight.normal,
+                                  style: TextStyle(
+                                      color: Colors.black.withOpacity(0.5),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                       height: 1.2
                                   ),
                                 ),
                                 new TextSpan(
                                   text: '${data.delegations}',
-                                  style: theme.headline6!.copyWith(
-                                      color: ColorsUtil.hexColor(0x333333),
-                                      fontWeight: FontWeight.normal,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
                                       height: 1.2
                                   ),
                                 ),
@@ -122,13 +140,16 @@ class ValidatorItem extends StatelessWidget {
                   )
                 ],
               )),
-              CircularCheckBox(
-                value: checked,
-                checkColor: Colors.white,
-                activeColor: ColorsUtil.hexColor(0x59c49c),
+              checked ? RoundCheckBox(
+                size: 18,
+                borderColor: ColorsUtil.hexColor(0xcccccc),
+                isChecked: checked,
+                uncheckedColor: Colors.white,
+                checkedColor: Theme.of(context).primaryColor,
+                checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
                 // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                onChanged: _onClick,
-              ),
+                onTap: _onClick,
+              ): Container(),
             ],
           )
       )

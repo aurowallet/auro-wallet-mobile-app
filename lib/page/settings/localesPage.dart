@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/page/settings/remoteNodeListPage.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:circular_check_box/circular_check_box.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:roundcheckbox/roundcheckbox.dart';
 
 class LocalesPage extends StatefulWidget {
   LocalesPage(this.store, this.changeLang);
@@ -23,16 +19,11 @@ class _Settings extends State<LocalesPage> {
   final SettingsStore store;
   final Function changeLang;
 
-  final _langOptions = [null, 'en', 'zh'];
-
-  int _selected = 0;
-
   void _onChangeLocale(bool isChecked, String code) {
     if (isChecked && code != store.localeCode) {
-      EasyLoading.show(status: '');
       store.setLocalCode(code);
       changeLang(context, code);
-      EasyLoading.dismiss();
+      Navigator.of(context).pop();
     }
   }
 
@@ -41,7 +32,7 @@ class _Settings extends State<LocalesPage> {
     var i18n = I18n.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(I18n.of(context).main['setting']!),
+        title: Text(I18n.of(context).main['language']!),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
@@ -49,11 +40,12 @@ class _Settings extends State<LocalesPage> {
         builder: (_) {
           var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
           return SafeArea(
+            maintainBottomViewPadding: true,
             child: ListView(
-              padding: EdgeInsets.only(left: 30, right: 30),
+              padding: EdgeInsets.only(top: 20),
               children: <Widget>[
-                LocaleItem(text: 'English', localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
-                LocaleItem(text: '中文（简体）', localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
+                LocaleItem(text: I18n.getLanguageDisplay('en'), localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
+                LocaleItem(text: I18n.getLanguageDisplay('zh'), localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
               ],
             ),
           );
@@ -76,21 +68,28 @@ class LocaleItem extends StatelessWidget {
   final void Function(bool, String) onChecked;
   @override
   Widget build(BuildContext context) {
-    return FormPanel(
-      margin: EdgeInsets.only(top: 10),
-      padding: EdgeInsets.symmetric(vertical: 10),
+    return Container(
+      height: 54,
       child: ListTile(
         leading: null,
-        title: Text(text, style: TextStyle(color: ColorsUtil.hexColor(0x01000D), fontWeight: FontWeight.w500)),
-        trailing: CircularCheckBox(
-          value: checked,
-          checkColor: Colors.white,
-          activeColor: ColorsUtil.hexColor(0x59c49c),
+        minLeadingWidth: 0,
+        minVerticalPadding: 0,
+        contentPadding: EdgeInsets.only(left: 20, right: 20),
+        selectedColor: Colors.red,
+        focusColor: Colors.amber,
+        title: Text(text, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
+        trailing: checked ? RoundCheckBox(
+          size: 18,
+          borderColor: Colors.transparent,
+          isChecked: checked,
+          uncheckedColor: Colors.white,
+          checkedColor: Theme.of(context).primaryColor,
+          checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
           // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-          onChanged: (bool? checkedFlag) {
+          onTap: (bool? checkedFlag) {
             onChecked(checkedFlag!, localeKey);
           },
-        ),
+        ) : null,
         onTap: () => onChecked(!checked, localeKey),
       )
     );

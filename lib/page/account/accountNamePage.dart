@@ -1,14 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/common/components/accountItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
-import 'package:auro_wallet/common/components/inputErrorTip.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
@@ -42,7 +35,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _nameCtrl.addListener(_onTextChange);
     });
   }
@@ -80,10 +73,12 @@ class _AccountNamePageState extends State<AccountNamePage> {
         title: Text(dic['accountName']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
-          padding: EdgeInsets.only(left: 30, right: 30),
+          padding: EdgeInsets.only(left: 20, right: 20),
           child: Column(
             children: [
               Expanded(
@@ -100,7 +95,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
                 )
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child:
                   NormalButton(
                     color: ColorsUtil.hexColor(0x6D5FFE),

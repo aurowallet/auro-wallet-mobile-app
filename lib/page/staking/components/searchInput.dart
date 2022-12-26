@@ -15,21 +15,36 @@ class SearchInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
     return Container(
-      margin:const EdgeInsets.only(top: 10, left: 28, right: 28),
+      margin:const EdgeInsets.only(top: 20, left: 20, right: 20),
       child: TextField(
         controller: editingController,
         autocorrect: false,
-        style:const TextStyle(
-            fontSize: 16.0,
-            color: Colors.black
+        style: const TextStyle(
+            fontSize: 14.0,
+            color: Colors.black,
         ),
         decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.black.withOpacity(0.05),
             hintText: i18n['searchPlaceholder']!,
-            prefixIcon: const Icon(Icons.search, size: 36,),
-            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black.withOpacity(0.3)),
+            prefixIcon: Icon(Icons.search, size: 26, color: Colors.black.withOpacity(0.5),),
+            prefixIconConstraints: BoxConstraints(
+              minWidth: 40,
+              minHeight: 40
+            ),
+            contentPadding:  EdgeInsets.symmetric(vertical: 0),
             isDense: true,
-            border:const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(6.0)))),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.all(Radius.circular(6))
+            ),
+            focusColor: Colors.black,
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.all(Radius.circular(6))
+            )
+        ),
       ),
     );
   }

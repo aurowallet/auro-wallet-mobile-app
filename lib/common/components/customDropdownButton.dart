@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/UI.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+
 class DropdownItem {
-  DropdownItem({required this.text,required this.key});
+  DropdownItem({required this.text,required this.value});
   final String text;
-  final String key;
+  final String value;
 }
 class CustomDropdownButton extends StatefulWidget {
   CustomDropdownButton({
@@ -26,41 +27,87 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    return Container(
-        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-        height: 30,
-        width: 100,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
-            color: Colors.white,
-        ),
-        child: Center(
-          child: DropdownButton<String>(
-            focusColor: Colors.white,
-            value: widget.value,
-            isDense: true,
-            isExpanded: true,
-            style: TextStyle(color: Colors.white),
-            underline: Container(height: 0),
-            iconEnabledColor: Colors.black,
-            items: widget.items.map<DropdownMenuItem<String>>((DropdownItem item) {
-              return DropdownMenuItem<String>(
-                value: item.key,
-                child: Text(item.text,style:TextStyle(color:Colors.black),),
-              );
-            }).toList(),
-            hint: widget.placeholder != null ? Text(
-              widget.placeholder!,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500),
-            ): null,
-            onChanged: (String? value) {
-              widget.onChoose(value);
-            },
+    return FittedBox(
+        child: Container(
+          height: 30,
+          constraints: BoxConstraints(
+            minWidth: 100,
           ),
-        )
-    );
+          child: Center(
+              child: DropdownButtonHideUnderline(
+                  child: DropdownButton2(
+                    // dropdownWidth: 180,
+                    // isExpanded: false,
+                    buttonDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15.0),
+                      border: Border.all(color: Color(0x1A000000), width: 1),
+                      // color: Colors.white,
+                    ),
+                    buttonPadding: const EdgeInsets.only(left: 14.0, right: 8),
+                    offset: const Offset(0, -18),
+                    itemHeight: 44,
+                    itemPadding: EdgeInsets.symmetric(horizontal: 8),
+                    dropdownPadding: EdgeInsets.symmetric(vertical: 11),
+                    alignment: Alignment.center,
+                    selectedItemBuilder: (context) {
+                      return widget.items.map((item) {
+                        return Container(
+                          padding: EdgeInsets.only(right: 4),
+                          constraints: BoxConstraints(
+                            minWidth: 60
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                item.value == widget.value ? item.text : '',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      }).toList();
+                    },
+                    items: widget.items
+                        .map((item) =>
+                        DropdownMenuItem<String>(
+                            value: item.value,
+                            child: Center(
+                              child: Text(
+                                item.text,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                    color: item.value == widget.value ? Theme.of(context).primaryColor : Colors.black
+                                ),),
+                            )
+                        ),
+                    ).toList(),
+                    dropdownDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      // color: Colors.red,
+                    ),
+                    dropdownElevation: 8,
+                    icon: const Icon(
+                      Icons.expand_more,
+                    ),
+                    iconSize: 16,
+                    iconOnClick: const Icon(
+                      Icons.expand_less,
+                    ),
+                    value: widget.value,
+                    onChanged: (String? value) {
+                      print(value);
+                      widget.onChoose(value);
+                    },
+                  )
+
+              )),
+        ));
   }
 }

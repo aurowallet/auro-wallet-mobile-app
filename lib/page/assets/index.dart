@@ -1,14 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui' as ui;
 
-import 'package:auro_wallet/common/components/nodeSelectionDialog.dart';
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
-import 'package:auro_wallet/common/components/outlinedButtonSmall.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
-import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
@@ -48,17 +44,17 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchTransactions();
       _checkWatchMode();
-      WidgetsBinding.instance?.addObserver(this);
+      WidgetsBinding.instance.addObserver(this);
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -80,7 +76,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   Future<void> _fetchTransactions() async {
     print('start fetch tx list');
-    if(!store.settings!.isSupportedNode) {
+    if (!store.settings!.isSupportedNode) {
       return;
     }
     store.assets!.setTxsLoading(true);
@@ -128,199 +124,336 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       });
     }
   }
+
   Widget _buildTopBar(BuildContext context) {
-    var i18n = I18n.of(context).main;
+    var theme = Theme.of(context).textTheme;
+    var i18nHome = I18n.of(context).home;
     return Padding(
-      padding: EdgeInsets.fromLTRB(13, ui.window.viewPadding.top > 0 ? 16 : 36, 15, 0),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Image.asset('assets/images/public/2x/m_logo@2x.png', width: 121, height: 30,),
-        Expanded(child:  Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              width: 30,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Container(
+          //   width: 10,
+          // ),
+          Text(
+            i18nHome['myWallet']!,
+            style: theme.headline1!.copyWith(
+              color: ColorsUtil.hexColor(0x020028),
+              fontWeight: FontWeight.bold,
             ),
-            Flexible(child: NodeSelectionDropdown(store: store.settings!),),
-            Container(
-              width: 10,
+            textAlign: TextAlign.left,
+          ),
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Flexible(child: Container(),),
+                Container(
+                  child: NodeSelectionDropdown(store: store.settings!),
+                ),
+                Container(
+                  width: 15,
+                ),
+                IconButton(
+                    iconSize: 30,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                    icon: SvgPicture.asset(
+                        'assets/images/assets/wallet_manage.svg',
+                        width: 30,
+                        height: 30),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(WalletManagePage.route);
+                    }
+                    // ,
+                    ),
+              ],
             ),
-            IconButton(
-                iconSize: 30,
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(),
-                icon: Image.asset('assets/images/assets/2x/wallet_manage@2x.png', width: 30, height: 30,),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(WalletManagePage.route);
-                }
-              // ,
-            ),
-          ],
-        ),)
-      ],
-    ),);
+          )
+        ],
+      ),
+    );
   }
+
   void _viewAccountDetail() {
     Navigator.pushNamed(context, AccountManagePage.route, arguments: {
       "account": store.wallet!.currentWallet.currentAccount,
       "wallet": store.wallet!.currentWallet
     });
   }
+
   Widget _buildTopCard(BuildContext context) {
     var i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
-
     WalletData acc = store.wallet!.currentWallet;
     AccountInfo? balancesInfo = store.assets!.accountsInfo[acc.pubKey];
-    BigInt total = balancesInfo != null ? balancesInfo.total :  BigInt.from(0);
+    BigInt total = balancesInfo != null ? balancesInfo.total : BigInt.from(0);
     bool isDelegated = balancesInfo != null ? balancesInfo.isDelegated : false;
     String? coinPrice;
     var symbol = COIN.coinSymbol.toLowerCase();
     if (store.assets!.marketPrices[symbol] != null && balancesInfo != null) {
-      coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! * Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
+      coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! *
+          Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
     }
     var currencySymbol = Currency(code: store.settings!.currencyCode).symbol;
-    final amountColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x1E1F20;
-    final priceColor = store.assets!.isBalanceLoading ? 0xDDDDDD : 0x666666;
-    return RoundedCard(
-      margin: EdgeInsets.fromLTRB(15, 30, 15, 0),
+    final amountColor = (store.assets!.isBalanceLoading) ? 0xDDDDDD : 0xFFFFFF;
+    final priceColor = (store.assets!.isBalanceLoading) ? Color(0xFFDDDDDD) : Color(0x99FFFFFF);
+    final currencyStyle = TextStyle(
+        fontSize: 16,
+        color: priceColor,
+        fontStyle: FontStyle.normal,
+        fontWeight: FontWeight.w600);
+    final buttonTextStyle = TextStyle(
+        fontSize: 16,
+        color: Color(0xFF594AF1),
+        fontStyle: FontStyle.normal,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.3);
+    return Container(
+      margin: EdgeInsets.fromLTRB(20, 4, 20, 0),
       padding: EdgeInsets.all(0),
-      child: Stack(
-        children:[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 20, right: 20, left: 20),
-                child: Column(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          stops: [
+            0.1,
+            0.46,
+            1.0,
+          ],
+          colors: [
+            Color(0xFFCA5C89),
+            Color(0xFF4F55EC),
+            Color(0xFF3531FF),
+          ],
+        ),
+      ),
+      child: Stack(children: [
+        Positioned.fill(
+            child: FittedBox(
+          fit: BoxFit.fill,
+          child: Image.asset('assets/images/assets/card_mask.png'),
+        )),
+        Positioned(
+          right: 20,
+          top: 60,
+          child: Image.asset(
+            'assets/images/assets/card_logo.png',
+            width: 99,
+            height: 90,
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 16, right: 20, left: 20),
+              child: Column(children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 2),
-                          child: new Text(Fmt.accountName(acc.currentAccount), style: theme.headline5!.copyWith(height: 1),),
+                    Padding(
+                      padding: EdgeInsets.only(right: 3),
+                      child: new Text(
+                        Fmt.accountName(acc.currentAccount),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
                         ),
-                        Container(
-                            child: Text(isDelegated ? i18n['stakingStatus_1']! : i18n['stakingStatus_2']!,
-                              style: theme.headline6!.copyWith(color: Colors.white),),
-                            margin: EdgeInsets.only(left: 5),
-                            padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: ColorsUtil.hexColor(isDelegated ? 0xFFC633: 0xB1B3BD),
-                              borderRadius: BorderRadius.circular(10),
-                            )
-                        )
-                      ],
+                      ),
                     ),
-                    Row(
-                      children: [
-                        CopyContainer(
-                            child: Container(
-                              child: Text(
-                                Fmt.address(store.wallet!.currentAddress),
-                                textAlign: TextAlign.left,
-                                style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0xB1B3BD)),
-                              ),
-                              margin: EdgeInsets.only(top:10),
+                    Container(
+                        alignment: Alignment.center,
+                        child: Center(
+                          child: Text(
+                            isDelegated
+                                ? i18n['stakingStatus_1']!
+                                : i18n['stakingStatus_2']!,
+                            strutStyle: StrutStyle(
+                              fontSize: 12,
+                              leading: 0,
+                              height: 1.1,
+                              forceStrutHeight: true,
                             ),
-                            text: store.wallet!.currentAddress
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 18,),
-                      child: Row(
-                        textBaseline: TextBaseline.alphabetic,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        children: [
-                          Text(
-                            Fmt.balance(total.toString(), COIN.decimals),
-                            style: TextStyle(fontSize: 30, color: ColorsUtil.hexColor(amountColor)),
+                            style: TextStyle(
+                                color: Colors.white,
+                                backgroundColor: Colors.transparent,
+                                height: 1.1,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500),
                           ),
-                          Container(width:8),
-                          Text(COIN.coinSymbol.toUpperCase(), style: theme.headline3!.copyWith(color: ColorsUtil.hexColor(amountColor)),)
-                        ],
-                      ),
-                    ),
-                    store.settings!.isMainnet ?
-                    Padding(
-                      padding: EdgeInsets.only(top: 4, bottom: 23,),
-                      child: Row(
-                        textBaseline: TextBaseline.alphabetic,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        children: [
-                          Text(currencySymbol, style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),),
-                          Text(coinPrice ?? '0', style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(priceColor)),)
-                        ],
-                      ),
-                    ) : Container(height: 23,),
-                  ]
+                        ),
+                        margin: EdgeInsets.only(left: 5),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: isDelegated
+                              ? Color(0x33FFFFFF)
+                              : Color(0x33FFFFFF),
+                          borderRadius: BorderRadius.circular(29),
+                        ))
+                  ],
                 ),
-              ),
-              Row(
+                Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 7),
+                      child: CopyContainer(
+                          showIcon: true,
+                          iconColor: const Color(0x80FFFFFF),
+                          child: Container(
+                            child: Text(
+                              Fmt.address(store.wallet!.currentAddress,
+                                  pad: 10),
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  color: const Color(0x80FFFFFF),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ),
+                          text: store.wallet!.currentAddress),
+                    )
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 27,
+                  ),
+                  child: Row(
+                    textBaseline: TextBaseline.alphabetic,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    children: [
+                      Text(
+                        Fmt.balance(total.toString(), COIN.decimals),
+                        style: TextStyle(
+                            fontSize: 32,
+                            color: ColorsUtil.hexColor(amountColor),
+                            fontStyle: FontStyle.normal,
+                            fontWeight: FontWeight.w700),
+                      ),
+                      Container(width: 4),
+                      Text(
+                        COIN.coinSymbol.toUpperCase(),
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: ColorsUtil.hexColor(amountColor),
+                            fontStyle: FontStyle.normal,
+                            fontWeight: FontWeight.w600),
+                      )
+                    ],
+                  ),
+                ),
+                store.settings!.isMainnet
+                    ? Padding(
+                        padding: EdgeInsets.only(
+                          top: 8,
+                          bottom: 24,
+                        ),
+                        child: Row(
+                          textBaseline: TextBaseline.alphabetic,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          children: [
+                            Text(
+                              currencySymbol,
+                              style: currencyStyle,
+                            ),
+                            Text(
+                              coinPrice ?? '0',
+                              style: currencyStyle,
+                            )
+                          ],
+                        ),
+                      )
+                    : Container(
+                        height: 23,
+                      ),
+              ]),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 150.0,
+                  Flexible(
+                      child: Container(
                     height: 40.0,
-                    margin: EdgeInsets.only(left: 20, bottom: 20),
+                    constraints: BoxConstraints(maxWidth: 140),
                     child: NormalButton(
-                      color: ColorsUtil.hexColor(0x6B5DFB),
+                      color: Colors.white,
                       text: i18n['send']!,
+                      textStyle: buttonTextStyle,
                       onPressed: _onTransfer,
-                      radius: 20,
+                      icon: SvgPicture.asset('assets/images/assets/send.svg',
+                          width: 10),
                       padding: EdgeInsets.zero,
                     ),
+                  )),
+                  SizedBox(
+                    width: 15,
                   ),
-                  Container(
-                      width: 150,
-                      height: 40,
-                      margin: EdgeInsets.only(right: 20, bottom: 20),
-                      child: NormalButton(
-                        color: ColorsUtil.hexColor(0x00C89C),
-                        text: i18n['receive']!,
-                        onPressed: _onReceive,
-                        radius: 20,
-                        padding: EdgeInsets.zero,
-                      )
-                  ),
+                  Flexible(
+                      child: Container(
+                          height: 40,
+                          constraints: BoxConstraints(maxWidth: 140),
+                          child: NormalButton(
+                            color: Colors.white,
+                            text: i18n['receive']!,
+                            textStyle: buttonTextStyle,
+                            onPressed: _onReceive,
+                            icon: SvgPicture.asset(
+                              'assets/images/assets/receive.svg',
+                              width: 10,
+                            ),
+                            padding: EdgeInsets.zero,
+                          ))),
                 ],
               ),
-            ],
-          ),
-          Positioned(
+            ),
+          ],
+        ),
+        Positioned(
             right: 8,
             top: 8,
-            child: IconButton(
-                iconSize: 23,
-                padding: EdgeInsets.all(8),
-                constraints: BoxConstraints(minHeight: 0, minWidth: 0),
-                icon: SvgPicture.asset(
-                    'assets/images/assets/more.svg',
-                    width: 23,
-                    height: 23
-                ),
-                onPressed: _viewAccountDetail
-            )
-          ),
-        ]
-      ),
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                  color: Color(0x1A000000),
+                  borderRadius: BorderRadius.circular(10)),
+              child: IconButton(
+                  iconSize: 28,
+                  color: Colors.red,
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                  icon: Icon(
+                    Icons.more_horiz,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  onPressed: _viewAccountDetail),
+            )),
+      ]),
     );
   }
 
   List<Widget> _buildTxList() {
     var i18n = I18n.of(context).main;
     List<Widget> res = [];
-    List<TransferData> txs = [...store.assets!.pendingTxs, ...store.assets!.txs];
+    bool isTxsLoading = store.assets!.isTxsLoading;
+    List<TransferData> txs = [
+      ...store.assets!.pendingTxs,
+      ...store.assets!.totalTxs
+    ];
     if (store.settings!.isSupportedNode) {
       res.addAll(txs.map((i) {
         return TransferListItem(
           data: i,
           isOut: i.sender == store.wallet!.currentAddress,
-          hasDetail: true,
         );
       }));
       if (store.assets!.txs.length >= 20) {
@@ -328,7 +461,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: BrowserLink(
                   '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/wallet/${store.wallet!.currentAddress}/transactions',
                   text: i18n['goToExplorer']!,
@@ -338,10 +471,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       }
     }
     res.add(HomeListTip(
-        isEmpty: txs.length == 0,
-        isLoading: store.assets!.isTxsLoading,
-        isSupportedNode: store.settings!.isSupportedNode
-    ));
+        isLoading: isTxsLoading && txs.length == 0,
+        isSupportedNode: store.settings!.isSupportedNode));
     return res;
   }
 
@@ -350,36 +481,70 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var theme = Theme.of(context).textTheme;
     return Observer(
       builder: (_) {
+        bool isTxsLoading = store.assets!.isTxsLoading;
+        bool isEmpty = store.assets!.txs.length == 0 &&
+            store.assets!.pendingTxs.length == 0;
         return RefreshIndicator(
           key: globalBalanceRefreshKey,
           onRefresh: _onRefresh,
-          child: Column(
-            children: <Widget>[
-              _buildTopBar(context),
-              _buildTopCard(context),
-              store.assets!.txs.length !=0 || store.assets!.pendingTxs.length != 0 ? Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 30,left: 15, right: 15, bottom: 0),
-                  child: Text(
-                      I18n.of(context).main['history']!,
-                      style: theme.headline4!.copyWith(
-                          color: ColorsUtil.hexColor(0x020028),
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.bold,
-                      ),
-                      textAlign:TextAlign.left,
-                  ),
-                ),
-              ],): Container(),
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.only(left: 15, right: 15, top: 0),
-                  children: _buildTxList(),
-                ),
-              )
-            ],
+          child: SafeArea(
+            maintainBottomViewPadding: true,
+            child: Column(
+              children: <Widget>[
+                _buildTopBar(context),
+                _buildTopCard(context),
+                !isEmpty || isTxsLoading
+                    ? Row(
+                        children: [
+                          Flexible(
+                              flex: 1,
+                              child: Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 20),
+                                margin: EdgeInsets.only(top: 30),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border(
+                                        bottom: BorderSide(
+                                      color: Colors.black.withOpacity(0.1),
+                                      width: 0.5,
+                                    ))),
+                                child: Text(
+                                  I18n.of(context).main['history']!,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    letterSpacing: -0.3,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ))
+                        ],
+                      )
+                    : Container(),
+                Expanded(
+                  child: isEmpty && !isTxsLoading
+                      ? Wrap(
+                          children: [EmptyTxListTip()],
+                        )
+                      : Ink(
+                          color: Color(0xFFFFFFFF),
+                          child: isEmpty && isTxsLoading
+                              ? Container(
+                                  child: Center(
+                                    child: LoadingCircle(),
+                                  ),
+                                )
+                              : ListView(
+                                  padding: EdgeInsets.symmetric(horizontal: 0),
+                                  children: _buildTxList(),
+                                ),
+                        ),
+                )
+              ],
+            ),
           ),
         );
       },
@@ -391,17 +556,16 @@ class TransferListItem extends StatelessWidget {
   TransferListItem({
     required this.data,
     required this.isOut,
-    required this.hasDetail,
   });
 
   final TransferData data;
   final bool isOut;
-  final bool hasDetail;
   BuildContext? _ctx;
 
   void _viewRecordDetail() {
     Navigator.pushNamed(_ctx!, TransactionDetailPage.route, arguments: data);
   }
+
   @override
   Widget build(BuildContext context) {
     _ctx = context;
@@ -410,13 +574,13 @@ class TransferListItem extends StatelessWidget {
     if (address == null) {
       title = data.type.toUpperCase();
     } else {
-      title = Fmt.address(address);
+      title = Fmt.address(address, pad: 8);
     }
     var theme = Theme.of(context).textTheme;
     final Map i18n = I18n.of(context).main;
     String icon = '';
     Color statusColor;
-    switch(data.type) {
+    switch (data.type) {
       case 'delegation':
         {
           icon = 'tx_stake';
@@ -429,7 +593,7 @@ class TransferListItem extends StatelessWidget {
         break;
     }
     String statusText;
-    switch(data.status) {
+    switch (data.status) {
       case 'applied':
       case 'failed':
       case 'pending':
@@ -439,7 +603,7 @@ class TransferListItem extends StatelessWidget {
         statusText = data.status.toUpperCase();
         break;
     }
-    switch(data.status) {
+    switch (data.status) {
       case 'applied':
         statusColor = ColorsUtil.hexColor(0x00C89C);
         break;
@@ -450,66 +614,87 @@ class TransferListItem extends StatelessWidget {
         statusColor = ColorsUtil.hexColor(0xFFC633);
         break;
     }
-    return Padding(
-      padding: EdgeInsets.only(top: 20),
-      child: GestureDetector(
-          onTap: hasDetail ? _viewRecordDetail : null,
-          behavior: HitTestBehavior.opaque,
-          child: Row(
-            children: [
-              Container(
-                  width: 20,
-                  margin: EdgeInsets.only(right: 11),
-                  child: SvgPicture.asset(
-                    'assets/images/assets/$icon.svg',
-                    width: 20,
-                  )
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('$title', style: theme.headline5!.copyWith(
-                              color: Colors.black
-                          ),),
-                          Text(
-                            '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
-                            style: theme.headline5!.copyWith(
-                                color: Colors.black
-                            ),
-                          )
-                        ],
-                      ),
-                      Padding(padding: EdgeInsets.only(top:7)),
-                      Row(
+    Color bgColor =
+        data.status != 'pending' ? Colors.transparent : Color(0xFFF9FAFC);
+    return new Material(
+      color: bgColor,
+      child: InkWell(
+          onTap: _viewRecordDetail,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+                padding: EdgeInsets.symmetric(vertical: 17),
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                  color: Colors.black.withOpacity(0.1),
+                  width: 0.5,
+                ))),
+                child: Row(
+                  children: [
+                    Container(
+                        width: 28,
+                        margin: EdgeInsets.only(right: 16),
+                        child: SvgPicture.asset(
+                          'assets/images/assets/$icon.svg',
+                          width: 28,
+                        )),
+                    Expanded(
+                      flex: 1,
+                      child: Column(children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(data.isPending ? 'Nonce ' + data.nonce.toString() : Fmt.dateTimeFromUTC(data.time), style: theme.headline6!.copyWith(
-                                color:  ColorsUtil.hexColor(0x96969A)
-                            ),),
-                            Text(statusText, style: theme.headline6!.copyWith(
-                                color:  statusColor
-                            ),),
-                          ]
-                      )
-                    ]
-                ),
-              ),
-              Container(
-                  width: 6,
-                  margin: EdgeInsets.only(left: 14,),
-                  child: SvgPicture.asset(
-                      'assets/images/assets/right_arrow.svg',
-                      width: 6,
-                      height: 12
-                  )
-              ),
-            ],
-          )
-      )
+                            Text(
+                              '$title',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black),
+                            ),
+                            Text(
+                              '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500),
+                            )
+                          ],
+                        ),
+                        Padding(padding: EdgeInsets.only(top: 4)),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data.isPending
+                                    ? 'Nonce ' + data.nonce.toString()
+                                    : Fmt.dateTimeFromUTC(data.time),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: ColorsUtil.hexColor(0x96969A)),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: statusColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(4)),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 3, horizontal: 5),
+                                child: Center(
+                                  child: Text(
+                                    statusText,
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: statusColor),
+                                  ),
+                                ),
+                              ),
+                            ])
+                      ]),
+                    )
+                  ],
+                )),
+          )),
     );
   }
 }

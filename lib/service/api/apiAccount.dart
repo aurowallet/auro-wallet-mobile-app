@@ -344,10 +344,11 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   bool isMnemonicValid(String mnemonic) {
-    if(mnemonic.trim().split(' ').length < 12) {
+    final words = mnemonic.trim().split(RegExp(r"(\s)"));
+    if(words.length < 12) {
       return false;
     }
-    return bip39.validateMnemonic(mnemonic);
+    return bip39.validateMnemonic(words.join(' '));
   }
 
   Future<bool> isAddressValid(String publicKey) async {
@@ -448,10 +449,16 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     final dic = I18n.of(context).main;
     return BiometricStorage().getStorage(
       '$_biometricPasswordKey',
-      options:  StorageFileInitOptions(authenticationValidityDurationSeconds: 30),
-      androidPromptInfo: AndroidPromptInfo(
-        title: dic['unlock.bio']!,
-        negativeButton: dic['cancel']!,
+      options:  StorageFileInitOptions(authenticationValidityDurationSeconds: -1),
+      promptInfo: PromptInfo(
+        androidPromptInfo: AndroidPromptInfo(
+          title: dic['unlock.bio']!,
+          negativeButton: dic['cancel']!,
+        ),
+        iosPromptInfo: IosPromptInfo(
+          saveTitle: dic['unlock.bio']!,
+          accessTitle: dic['unlock.bio']!,
+        )
       ),
     );
   }

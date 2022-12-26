@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -9,12 +10,14 @@ import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:cupertino_icons/cupertino_icons.dart';
 import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:collection/collection.dart';
 
 class DelegationInfo extends StatelessWidget {
   DelegationInfo({required this.store, required this.loading});
@@ -27,19 +30,38 @@ class DelegationInfo extends StatelessWidget {
     bool isDelegated = acc != null ? acc.isDelegated : false;
     String? delegate = isDelegated ? acc.delegate : null;
     var theme = Theme.of(context).textTheme;
+    var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
+    var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
+
     return Container(
-      margin: EdgeInsets.only(top: 10, left: 28, right: 28),
+      margin: EdgeInsets.only(top: 30, left: 20, right: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            i18n['delegationInfo']!,
-            textAlign: TextAlign.left,
-            style: theme.headline4!.copyWith(color: ColorsUtil.hexColor(0x020028), fontWeight: FontWeight.w600),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  SvgPicture.asset( 'assets/images/stake/icon_delegation.svg', width: 16, color: Colors.black,),
+                  Container(
+                    width: 8,
+                  ),
+                  Text(i18n['delegationInfo']!, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600), )
+                ],
+              ),
+              BrowserLink(url, text: i18n['emptyDelegateDesc3']!, showIcon: false,)
+            ],
           ),
-          FormPanel(
-            margin: EdgeInsets.only(top: 14),
-            child: loading ? LoadingBox() : (!isDelegated ? EmptyInfo(store: store) : DelegateInfo(delegate: delegate!, store: store))
+          Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                  color: Color(0xFFF9FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)
+              ),
+              margin: EdgeInsets.only(top: 10),
+              child: loading ? LoadingBox() : (!isDelegated ? EmptyInfo(store: store) : DelegateInfo(delegate: delegate!, store: store))
           ),
         ],
       )
@@ -56,7 +78,14 @@ class DelegateInfo extends StatelessWidget {
   }
   Widget _buildDelegateInfo(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
-    ValidatorData? validatorInfo = (store.staking!.validatorsInfo as List<ValidatorData?>).firstWhere((e)=>e!.address == delegate, orElse: ()=> null);
+
+    final DelegatedValidator? delegatedValidator = store.staking!.delegatedValidator;
+    DelegatedValidator? validatorInfo;
+    if (delegatedValidator != null && delegatedValidator.publicKey == delegate) {
+      validatorInfo = delegatedValidator;
+    }
+    final ValidatorData? validatorItem = store.staking!.validatorsInfo.firstWhereOrNull((e)=>e.address == delegate);
+    String? validatorName = validatorItem?.name;
     if (validatorInfo == null) {
       return Container(
           constraints: BoxConstraints(
@@ -69,6 +98,7 @@ class DelegateInfo extends StatelessWidget {
                     DelegateInfoItem(
                       labelText: i18n['blockProducerAddress']!,
                       value: Fmt.address(delegate, pad: 8),
+                      noBottom: false,
                     )
                   ]
               ),
@@ -87,7 +117,7 @@ class DelegateInfo extends StatelessWidget {
                           margin: EdgeInsets.only(right: 100),
                           child: DelegateInfoItem(
                               labelText: i18n['blockProducerName']!,
-                              value: validatorInfo.name  ?? Fmt.address(validatorInfo.address, pad: 8)
+                              value: validatorName  ?? Fmt.address(delegate, pad: 8)
                           ),
                         )
                     )
@@ -97,8 +127,8 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                       labelText: i18n['blockProducerAddress']!,
-                      value: Fmt.address(validatorInfo.address, pad: 10),
-                      copyValue: validatorInfo.address,
+                      value: Fmt.address(delegate, pad: 10),
+                      copyValue: delegate,
                     )
                   ]
               ),
@@ -106,7 +136,7 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                         labelText: i18n['producerTotalStake']!,
-                        value: Fmt.balance(validatorInfo.totalStake.toString(), COIN.decimals) + ' ' + COIN.coinSymbol
+                        value: Fmt.priceFloor(validatorInfo.totalDelegated, lengthFixed: 0) + ' ' + COIN.coinSymbol
                     )
                   ]
               ),
@@ -114,18 +144,10 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                         labelText: i18n['producerTotalDelegations']!,
-                        value: validatorInfo.delegations.toString()
+                        value: validatorInfo.countDelegates.toString()
                     )
                   ]
               ),
-              // Row(
-              //     children: [
-              //       DelegateInfoItem(
-              //           labelText: i18n['blocksProduced']!,
-              //           value: validatorInfo.blocksCreated.toString()
-              //       )
-              //     ]
-              // ),
             ],
           )
       );
@@ -135,41 +157,43 @@ class DelegateInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
-    var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
-    var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
 
     return Stack(
       children: [
-        _buildDelegateInfo(context),
+        Observer(builder: (_) {
+          return _buildDelegateInfo(context);
+        }),
         Positioned(
           right: 0,
-          top: 0,
-          child: FlatButton(
-            height: 30,
-            minWidth: 70,
-            color: Theme.of(context).primaryColor,
-            shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Text(i18n['changeNode']!, style: theme.headline5!.copyWith(color: Colors.white)),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          bottom: 0,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                backgroundColor: Color(0xFF594AF1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                minimumSize: Size(0, 32),
+                elevation: 0,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap
+            ),
+            child: Text(i18n['changeNode']!, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),),
             onPressed: (){
               _onChangeNode(context);
             },
           )
         ),
-        Positioned(
-          right: 0,
-            bottom: 0,
-            child: BrowserLink(url, text: i18n['emptyDelegateDesc3']!,)
-        )
       ],
     );
   }
 }
 class DelegateInfoItem extends StatelessWidget {
-  DelegateInfoItem({required this.labelText,required this.value, this.copyValue});
+  DelegateInfoItem({required this.labelText,required this.value, this.copyValue, this.noBottom = false});
   final String labelText;
   final String value;
   final String? copyValue;
+  final bool noBottom;
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
@@ -179,15 +203,15 @@ class DelegateInfoItem extends StatelessWidget {
           Text(
             labelText,
             textAlign: TextAlign.left,
-            style: theme.headline6!.copyWith(color: ColorsUtil.hexColor(0x96969a), height: 1.5, fontWeight: FontWeight.w400),
+            style: TextStyle(fontSize: 12, color: Colors.black.withOpacity(0.5), height: 1.42, fontWeight: FontWeight.w500),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 2, bottom: 8),
+            padding: EdgeInsets.only(top: 0, bottom: noBottom ? 0 : 10),
             child: CopyContainer(
               child: Text(
                 value,
                 textAlign: TextAlign.left,
-                style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x000000), height: 1.2, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, color: Colors.black, height: 1.16, fontWeight: FontWeight.w500),
               ),
               text: copyValue,
               showIcon: true,
@@ -205,58 +229,72 @@ class EmptyInfo extends StatelessWidget {
     final Map<String, String> i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
     var languageCode = store.settings!.localeCode.isNotEmpty ? store.settings!.localeCode : I18n.of(context).locale.languageCode.toLowerCase();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                  padding: EdgeInsets.only(top: 3),
-                  child:
-                      Text(i18n['emptyDelegateTitle']!, style: theme.headline4))
-            ]),
-        Padding(
-          padding: EdgeInsets.only(top: 14),
-          child: Text(
-            i18n['emptyDelegateDesc1']!,
-            style: theme.headline5!.copyWith(
-                color: ColorsUtil.hexColor(0x666666)
-            ),
+    return Container(
+      margin: EdgeInsets.only(top: 109, left: 20, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                    padding: EdgeInsets.only(top: 3),
+                    child:
+                    Text(i18n['emptyDelegateTitle']!, style: theme.headline4?.copyWith(
+                      color: Colors.black,
+                      fontSize: 16
+                    )))
+              ]),
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                i18n['emptyDelegateDesc1']!,
+                style: theme.headline5!.copyWith(
+                    color: Colors.black.withOpacity(0.5),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400
+                ),
+              )
+          ),
+          Padding(
+              padding: EdgeInsets.only(top: 14, bottom: 20),
+              child: Wrap(
+                children: [
+                  new RichText(
+                    textScaleFactor: MediaQuery.of(context).textScaleFactor,
+                    text: TextSpan(
+                        children: [
+                          new TextSpan(
+                            text: i18n['emptyDelegateDesc2']!,
+                            style: theme.headline5!.copyWith(
+                                color: Colors.black.withOpacity(0.5),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400
+                            ),
+                          ),
+                          new TextSpan(
+                            text: i18n['emptyDelegateDesc3']!,
+                            style: theme.headline5!.copyWith(
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400
+                            ),
+                            recognizer: new TapGestureRecognizer()
+                              ..onTap = () {
+                                var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
+                                print('url' + url);
+                                launch(url);
+                              },
+                          ),
+                        ]
+                    ),
+                  ),
+                ],
+              )
           )
-        ),
-        Padding(
-            padding: EdgeInsets.only(top: 14, bottom: 20),
-            child: Wrap(
-    children: [
-      new RichText(
-        text: TextSpan(
-          children: [
-            new TextSpan(
-              text: i18n['emptyDelegateDesc2']!,
-              style: theme.headline5!.copyWith(
-                  color: ColorsUtil.hexColor(0x666666)
-              ),
-            ),
-            new TextSpan(
-              text: i18n['emptyDelegateDesc3']!,
-              style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor),
-              recognizer: new TapGestureRecognizer()
-                ..onTap = () {
-                  var url = languageCode == 'zh' ? store.settings!.aboutus!.stakingGuideCN : store.settings!.aboutus!.stakingGuide;
-                  print('url' + url);
-                  launch(url);
-                },
-            ),
-          ]
-        ),
+        ],
       ),
-    ],
-    )
-        )
-      ],
     );
   }
 }

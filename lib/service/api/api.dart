@@ -53,6 +53,7 @@ class Api {
 
   Future<void> fetchInitialInfo() async {
     setting.fetchAboutUs();
+    setting.fetchNetworkTypes();
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
         assets.fetchAccountInfo(showIndicator: true),
@@ -92,6 +93,8 @@ class Api {
     }
     return TESTNET_TRANSACTION_URL;
   }
+
+
 
   String getTxRecordsApiUrl () {
     bool isMain = this.getIsMainApi();

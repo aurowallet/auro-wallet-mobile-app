@@ -48,8 +48,10 @@ class UI {
     required BuildContext context,
     required String title,
     required List<TxItem> items,
-    Function()? onConfirm,
+    required Future<bool?> Function() onConfirm,
     String? buttonText,
+    String? headLabel,
+    Widget? headValue,
     bool disabled = false,
   }) {
     showModalBottomSheet<void>(
@@ -59,12 +61,15 @@ class UI {
       builder: (BuildContext context) {
         return TxConfirmDialog(
             title: title,
-            items: items, disabled: disabled,
+            items: items,
+            disabled: disabled,
+            headerLabel: headLabel,
+            headerValue: headValue,
             buttonText: buttonText,
-            onConfirm: (){
-              Navigator.pop(context);
-              if (onConfirm != null) {
-                onConfirm();
+            onConfirm: () async {
+              bool? success = await onConfirm();
+              if (success == false) {
+                Navigator.pop(context);
               }
             });
       },
@@ -107,6 +112,8 @@ class UI {
     required BuildContext context,
     required List<String> contents,
     String? okText,
+    String? title,
+    Color? okColor,
     String? cancelText,
     Widget? icon
   }) {
@@ -115,8 +122,9 @@ class UI {
       builder: (_) {
         final Map<String, String> dic = I18n.of(context).main;
         return CustomConfirmDialog(
-          title: dic['prompt']!,
+          title: title ?? dic['prompt']!,
           okText: okText,
+          okColor: okColor,
           cancelText: cancelText,
           contents: contents,
           icon: icon,
@@ -128,14 +136,18 @@ class UI {
   static Future<String?> showPasswordDialog({
     required BuildContext context,
     required WalletData wallet,
-    bool validate = false
+    bool validate = false,
+    bool inputPasswordRequired = false
   }) {
     return showDialog(
       context: context,
+      barrierDismissible:false,
+      useRootNavigator: false,
       builder: (_) {
         return PasswordInputDialog(
-          wallet: wallet,
-          validate: validate
+            wallet: wallet,
+            validate: validate,
+            inputPasswordRequired: inputPasswordRequired
         );
       },
     );

@@ -37,6 +37,7 @@ class _ScanPageState extends State<ScanPage> {
   @override
   void dispose() {
     super.dispose();
+    controller.pause();
   }
 
   void _getQrByGallery() {
@@ -45,8 +46,16 @@ class _ScanPageState extends State<ScanPage> {
         _picker.pickImage(source: ImageSource.gallery))
         .flatMap((XFile? file) {
           if (file != null) {
+            final decode =  () async {
+              String? decodeData =  await QrCodeToolsPlugin.decodeFrom(file.path);
+              if (decodeData == null) {
+                return '';
+              } else {
+                return decodeData;
+              }
+            };
             return Stream<String>.fromFuture(
-              QrCodeToolsPlugin.decodeFrom(file.path),
+              decode(),
             );
           }
           return Stream<String>.value('');

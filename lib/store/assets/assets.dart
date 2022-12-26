@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:auro_wallet/store/assets/types/feeTransferData.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -24,10 +27,7 @@ abstract class _AssetsStore with Store {
   final String cacheBalanceKey = 'balance';
   final String cachePriceKey = 'coin_price';
   final String cacheTxsKey = 'txs';
-  final String cacheTimeKey = 'assets_cache_time';
-
-  @observable
-  int cacheTxsTimestamp = 0;
+  final String cacheFeeTxsKey = 'fee_txs';
 
   @observable
   bool isTxsLoading = true;
@@ -45,7 +45,7 @@ abstract class _AssetsStore with Store {
   @observable
   Fees transferFees = new Fees()
     ..slow=0.001
-    ..medium=0.01
+    ..medium=0.0101
     ..fast=0.1
     ..cap=10;
 
@@ -59,6 +59,34 @@ abstract class _AssetsStore with Store {
   ObservableList<TransferData> txs = ObservableList<TransferData>();
 
   @observable
+  ObservableList<FeeTransferData> feeTxs = ObservableList<FeeTransferData>();
+
+  @computed
+  List<TransferData> get totalTxs  {
+    var gettime = (TransferData tx) {
+      String dateTimeStr = '';
+      dateTimeStr = tx.time ?? '';
+      if (dateTimeStr.isEmpty) {
+        return DateTime.now();
+      }
+      return Fmt.toDatetime(dateTimeStr);
+    };
+    List<TransferData> totals = [];
+    print('Txs length' + feeTxs.length.toString());
+    print('feetxs length' + feeTxs.length.toString());
+    totals.addAll(txs);
+    totals.addAll(feeTxs.map((element) {
+      return TransferData.fromFeeTransfer(element);
+    }));
+    totals.sort((tx1, tx2) {
+      var dateTime1 = gettime(tx1);
+      var dateTime2 = gettime(tx2);
+      return dateTime2.compareTo(dateTime1);
+    });
+    return totals;
+  }
+
+  @observable
   int txsFilter = 0;
 
 
@@ -68,7 +96,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> setAccountInfo(String pubKey, Map amt, {bool needCache = true}) async {
-    // if (rootStore.wallet!.currentWallet.pubKey != pubKey) return;
+    if (rootStore.wallet!.currentWallet.pubKey != pubKey) return;
 
     accountsInfo[pubKey] = AccountInfo.fromJson(amt as Map<String, dynamic>);
 
@@ -98,6 +126,11 @@ abstract class _AssetsStore with Store {
   }
 
   @action
+  Future<void> clearFeeTxs() async {
+    feeTxs.clear();
+  }
+
+  @action
   Future<void> clearPendingTxs() async {
     pendingTxs.clear();
   }
@@ -107,9 +140,30 @@ abstract class _AssetsStore with Store {
     if (rootStore.wallet!.currentAddress != address) return;
     if (ls == null) return;
     ls.forEach((i) {
+      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']): '';
       TransferData tx = TransferData.fromPendingJson(i);
       pendingTxs.add(tx);
     });
+    pendingTxs.sort((tx1,tx2)=>tx2.nonce! - tx1.nonce!);
+  }
+  @action
+  Future<void> addFeeTxs(List<dynamic> ls, String address,
+      {bool shouldCache = false}) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+
+    if (ls == null) return;
+
+    ls.forEach((i) {
+      FeeTransferData tx = FeeTransferData.fromJson(i);
+      feeTxs.add(tx);
+    });
+
+    if (shouldCache) {
+      rootStore.localStorage.setAccountCache(
+          rootStore.wallet!.currentWallet.pubKey,
+          cacheFeeTxsKey,
+          ls);
+    }
   }
 
   @action
@@ -120,6 +174,7 @@ abstract class _AssetsStore with Store {
     if (ls == null) return;
 
     ls.forEach((i) {
+      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']): '';
       TransferData tx = TransferData.fromGraphQLJson(i);
       tx.success = tx.status != 'failed';
       i['success'] = tx.success;
@@ -131,12 +186,6 @@ abstract class _AssetsStore with Store {
           rootStore.wallet!.currentWallet.pubKey,
           cacheTxsKey,
           ls);
-
-      cacheTxsTimestamp = DateTime.now().millisecondsSinceEpoch;
-      rootStore.localStorage.setAccountCache(
-          rootStore.wallet!.currentWallet.pubKey,
-          cacheTimeKey,
-          cacheTxsTimestamp);
     }
   }
 
@@ -169,7 +218,7 @@ abstract class _AssetsStore with Store {
     List cache = await Future.wait([
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsKey),
-      rootStore.localStorage.getAccountCache(pubKey, cacheTimeKey),
+      rootStore.localStorage.getAccountCache(pubKey, cacheFeeTxsKey),
     ]);
     if (cache[0] != null) {
       setAccountInfo(pubKey, cache[0], needCache: false);
@@ -180,7 +229,9 @@ abstract class _AssetsStore with Store {
       txs = ObservableList();
     }
     if (cache[2] != null) {
-      cacheTxsTimestamp = cache[2];
+      feeTxs = ObservableList.of(List.of(cache[2]).map((i) => FeeTransferData.fromJson(i)).toList());
+    } else {
+      feeTxs = ObservableList();
     }
   }
 
@@ -205,10 +256,10 @@ abstract class _AssetsStore with Store {
   @action
   Future<void> clearAccountCache() async {
     rootStore.localStorage.clearAccountsCache(cacheTxsKey);
+    rootStore.localStorage.clearAccountsCache(cacheFeeTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
-    rootStore.localStorage.clearAccountsCache(cacheTimeKey);
-    cacheTxsTimestamp = 0;
     txs = ObservableList();
+    feeTxs = ObservableList();
     accountsInfo = ObservableMap<String, AccountInfo>();
   }
   @action

@@ -11,17 +11,26 @@ class ApiAssets {
 
   final Api apiRoot;
   final store = globalAppStore;
-
-
-  Future<void> fetchTransactions(pubKey, {page = 0}) async {
+  Future<void> fetchTransactions(pubKey) async {
     final client = GraphQLClient(
       link: HttpLink(apiRoot.getTxRecordsApiUrl()),
-      // The default store is the InMemoryStore, which does NOT persist to disk
       cache: GraphQLCache(),
     );
     const String query = r'''
-      query fetchTxListQuery($pubKey: String!) {
-  transactions(limit: 25, sortBy: DATETIME_DESC, query: {canonical: true, OR: [{to: $pubKey}, {from: $pubKey}]}) {
+      query fetchTxListQuery($pubKey: String) {
+  feetransfers(limit: 15, sortBy: DATETIME_DESC, query: {
+  canonical: true, 
+  OR: [{recipient: $pubKey}]}) {
+    recipient
+    type
+    fee
+    dateTime
+  }
+  transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true, 
+  OR: [
+  {to: $pubKey}, 
+  {from: $pubKey}
+   ]}) {
     id
     nonce
     memo
@@ -52,11 +61,17 @@ class ApiAssets {
       return;
     }
     List<dynamic> list = result.data!['transactions'];
-    if (page == 0) {
-      store.assets!.clearTxs();
-    }
+    print('transactions');
+    print(list.length);
+    store.assets!.clearTxs();
+    await store.assets!.addTxs(list, pubKey, shouldCache: true);
+
+    List<dynamic> feeTransferList = result.data!['feetransfers'];
+    print('feetransfers');
+    print(feeTransferList.length);
+    store.assets!.clearFeeTxs();
+    await store.assets!.addFeeTxs(feeTransferList, pubKey, shouldCache: true);
     // cache first page of txs
-    await store.assets!.addTxs(list, pubKey, shouldCache: page == 0);
   }
 
   Future<void> fetchPendingTransactions(pubKey) async {
@@ -98,8 +113,9 @@ class ApiAssets {
   }
 
   Future<void> queryTxFees() async {
-    var feeUrl = "${BASE_INFO_URL}minter_fee.json";
+    var feeUrl = "$BASE_INFO_URL/minter_fee.json";
     var response = await http.get(Uri.parse(feeUrl));
+    print('fee response' + response.statusCode.toString());
     if (response.statusCode == 200) {
       var feeList = convert.jsonDecode(response.body);
       if (feeList.length >= 4) {
@@ -152,19 +168,21 @@ return '''account$index: account (publicKey: \$account$index) {
        return;
      }
      pubkeys.asMap().forEach((index, pubKey) {
-       var accountData = result.data!['account$index'];
-       final String delegate = accountData['delegate'] as String;
-       final String balance = accountData['balance']['total'] as String;
-       final String inferredNonce = accountData['inferredNonce'] as String;
-       final String publicKey = accountData['publicKey'] as String;
-       final Map<String, dynamic> accountInfo = {
-         "total": balance,
-         "delegate": delegate,
-         "inferredNonce": inferredNonce,
-         "publicKey": publicKey,
-       };
-       print('balance:' + balance);
-       store.assets!.setAccountInfo(pubKey, accountInfo);
+       var accountData = result.data?['account$index'];
+       if (accountData != null) {
+         final String delegate = accountData['delegate'] as String;
+         final String balance = accountData['balance']['total'] as String;
+         final String inferredNonce = accountData['inferredNonce'] as String;
+         final String publicKey = accountData['publicKey'] as String;
+         final Map<String, dynamic> accountInfo = {
+           "total": balance,
+           "delegate": delegate,
+           "inferredNonce": inferredNonce,
+           "publicKey": publicKey,
+         };
+         print('balance:' + balance);
+         store.assets!.setAccountInfo(pubKey, accountInfo);
+       }
      });
   }
 

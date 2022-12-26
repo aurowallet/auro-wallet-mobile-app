@@ -4,9 +4,11 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:auro_wallet/app.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await initHiveForFlutter(); // fluter graphql init
 
   // get_storage dependency

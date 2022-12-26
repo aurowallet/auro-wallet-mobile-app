@@ -2,8 +2,6 @@ import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator, CupertinoTheme;
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
@@ -12,11 +10,13 @@ import 'package:auro_wallet/common/components/inputItem.dart';
 class PasswordInputDialog extends StatefulWidget {
   PasswordInputDialog({
     required this.wallet,
-    this.validate = false
+    this.validate = false,
+    this.inputPasswordRequired = false,
   });
 
   final WalletData wallet;
   final bool validate;
+  final bool inputPasswordRequired;
 
   @override
   _PasswordInputDialog createState() => _PasswordInputDialog();
@@ -28,6 +28,17 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   bool _submitting = false;
 
   bool _isBiometricAuthorized = false; // if user authorized biometric usage
+  bool _isCheckingBiometric = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!widget.inputPasswordRequired) {
+        _checkBiometricAuthenticate();
+      }
+    });
+  }
 
   Future<void> _onOk(String password) async {
     if (password.isEmpty) {
@@ -46,6 +57,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       if (!isCorrect) {
           final Map<String, String> dic = I18n.of(context).main;
           UI.toast(dic['passwordError']!);
+          Navigator.of(context).pop();
           return;
       }
     }
@@ -73,6 +85,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     final isBiometricAuthorized = webApi.account.getBiometricEnabled();
     setState(() {
       _isBiometricAuthorized = isBiometricAuthorized;
+      _isCheckingBiometric = false;
     });
     if (supportBiometric) {
       // we prompt biometric auth here if device supported
@@ -83,23 +96,21 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
           final result = await authStorage.read();
           if (result != null) {
             await _onOk(result);
+          } else {
+            print('biometric read null');
+            Navigator.of(context).pop();
           }
         } catch (err) {
+          print('biometric error');
           print(err);
-          // Navigator.of(context).pop();
+          Navigator.of(context).pop();
         }
       }
     }
     return response;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _checkBiometricAuthenticate();
-    });
-  }
+
 
   @override
   void dispose() {
@@ -110,7 +121,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-    if (_isBiometricAuthorized) {
+    if ((_isBiometricAuthorized || _isCheckingBiometric) && !widget.inputPasswordRequired) {
       return Container();
     }
     return Dialog(
@@ -120,62 +131,72 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       ),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.only(top: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
               padding: EdgeInsets.only(top: 0),
-              child: Text(dic['securityPassword']!, style: TextStyle(fontSize: 20)),
+              child: Text(dic['securityPassword']!, style: TextStyle(fontSize: 18)),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 12),
+              padding: EdgeInsets.only(top: 20, left: 30, right: 30),
               child: InputItem(
                 autoFocus: true,
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                 controller: _passCtrl,
                 isPassword: true,
                 // clearButtonMode: OverlayVisibilityMode.editing,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 27),
-            ),
+      Container(
+        margin: EdgeInsets.only(top: 30),
+        height: 1,
+        color: Colors.black.withOpacity(0.05),
+      ),
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(
-                    width: 130,
-                    height: 40,
-                    child: OutlineButton(
-                      borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: Text(dic['cancel']!, style: TextStyle(color: Theme.of(context).primaryColor)),
+                  Expanded(child: SizedBox(
+                    height: 48,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).primaryColor,
+                          textStyle: TextStyle(
+                              color: Colors.black
+                          )
+                      ),
+                      child: Text(dic['cancel']!, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                     ),
+                  )),
+                  Container(
+                    width: 0.5,
+                    height: 48,
+                    color: Colors.black.withOpacity(0.1),
                   ),
-                  SizedBox(
-                      width: 130,
-                      height: 40,
-                      child: FlatButton(
-                        color: Theme.of(context).primaryColor,
-                        shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _submitting ? Padding(
+                  Expanded(child: SizedBox(
+                    height: 48,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).primaryColor
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _submitting ? Padding(
                               padding: EdgeInsets.only(right: 5),
                               child: CupertinoTheme( data: CupertinoTheme.of(context).copyWith(brightness: Brightness.dark), child: CupertinoActivityIndicator(),)
-                            ): Container(),
-                            Text(dic['confirm']!, style: TextStyle(color: Colors.white))
-                          ],
-                        ),
-                        onPressed: _submitting ? (){} : () => _onOk(_passCtrl.text.trim()),
+                          ): Container(),
+                          Text(dic['confirm']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16, fontWeight: FontWeight.w600))
+                        ],
                       ),
+                      onPressed: _submitting ? (){} : () => _onOk(_passCtrl.text.trim()),
+                    ),
 
-                  ),
+                  ),)
                 ]
             ),
           ],

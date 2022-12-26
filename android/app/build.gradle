@@ -31,7 +31,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 33
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -73,9 +73,6 @@ android {
         }
     }
     externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
     }
 }
 

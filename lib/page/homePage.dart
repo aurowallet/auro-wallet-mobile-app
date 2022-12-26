@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/common/components/backgroundContainer.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/assets/index.dart';
 import 'package:auro_wallet/page/settings/index.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class HomePage extends StatefulWidget {
   HomePage(this.store);
@@ -24,9 +22,6 @@ class _HomePageState extends State<HomePage> {
 
   final AppStore store;
 
-
-  // NotificationPlugin? _notificationPlugin;
-
   List<String> _tabList = [
     'wallet',
     'staking',
@@ -41,24 +36,21 @@ class _HomePageState extends State<HomePage> {
 
   List<BottomNavigationBarItem> _navBarItems(int activeItem) {
     Map<String, String> tabs = I18n.of(context).main;
-    var theme = Theme.of(context).textTheme;
     return _tabList.asMap().keys.map((index) {
       String icon = 'assets/images/public/${_tabIcons[index]}.svg';
       String label = _tabList[index];
       Color tabColor = _tabList[activeItem] == label
-          ? Theme.of(context).primaryColor
-          : ColorsUtil.hexColor(0x898DA2);
+          ? Colors.black
+          : Colors.black.withOpacity(0.5);
       return BottomNavigationBarItem(
-        icon: SvgPicture.asset(
-          icon,
-          color: tabColor,
-          height: 20,
-        ),
-        title: Text(
-          tabs[label]!,
-          style: theme.headline6!.copyWith(
+          icon: Container(
+            padding: EdgeInsets.only(bottom: 6, top: 10),
+            child: SvgPicture.asset(
+              icon,
               color: tabColor,
-        )),
+            ),
+          ),
+          label: tabs[label]!
       );
     }).toList();
   }
@@ -78,43 +70,34 @@ class _HomePageState extends State<HomePage> {
     if (i == 0) {
       double statusBarHeight = MediaQuery.of(context).padding.top;
       // return assets page
-      return BackgroundContainer(
-        AssetImage("assets/images/assets/2x/top_header_bg@2x.png"),
-        Scaffold(
+      return Scaffold(
+        backgroundColor: Color(0xFFEDEFF2),
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          leading: null,
+          title: null,
+          toolbarHeight: 0,
+          titleSpacing: 0,
+          centerTitle: false,
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            automaticallyImplyLeading: true,
-            leading: null,
-            title: null,
-            toolbarHeight: 0,
-            titleSpacing: 0,
-            centerTitle: false,
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            actions: null,
-          ),
-          body: _getPage(0),
+          elevation: 0.0,
+          actions: null,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
         ),
-        maxHeight: 240 + statusBarHeight,
-        fit: BoxFit.fill,
+        resizeToAvoidBottomInset: false,
+        body: _getPage(0),
       );
     }
     // return staking page
     return Scaffold(
       backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: false,
       body: _getPage(i),
     );
   }
 
   @override
   void initState() {
-    // if (_notificationPlugin == null) {
-    //   Future.delayed(const Duration(milliseconds: 1000), () {
-    //     _notificationPlugin = NotificationPlugin();
-    //     _notificationPlugin!.init(context);
-    //
-    //   });
-    // }
     super.initState();
   }
 
@@ -122,24 +105,47 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     });
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final textStyle = TextStyle(
+      fontSize: 12,
+    );
     return Scaffold(
       body: _buildPage(_tabIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _tabIndex,
-        iconSize: 22.0,
-        onTap: (index) {
-          setState(() {
-            _tabIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        items: _navBarItems(_tabIndex),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+                color: Colors.black.withOpacity(0.1),
+                width: 0.5
+            )
+          )
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _tabIndex,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconSize: 24,
+          onTap: (index) {
+            setState(() {
+              _tabIndex = index;
+            });
+          },
+          unselectedLabelStyle: textStyle,
+          selectedLabelStyle: textStyle.copyWith(
+              color: Colors.black
+          ),
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.black.withOpacity(0.5),
+          type: BottomNavigationBarType.fixed,
+          items: _navBarItems(_tabIndex),
+        ),
       ),
     );
   }

@@ -16,7 +16,6 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:mobx/mobx.dart';
@@ -50,12 +49,17 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   final TextEditingController _validatorCtrl = new TextEditingController();
   late ReactionDisposer _monitorFeeDisposer;
   bool _submitDisabled = false;
+  bool submitting = false;
   var _loading = Observable(true);
+  bool inputDirty = false;
   double? currentFee;
+  double? selectedFee;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    _onFeeLoaded(store.assets!.transferFees);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
       _monitorFeeDisposer = reaction((_) =>  store.assets!.transferFees, _onFeeLoaded);
       _feeCtrl.addListener(_onFeeInputChange);
@@ -84,6 +88,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     setState((){
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        inputDirty = true;
       } else {
         currentFee = store.assets!.transferFees.medium;
       }
@@ -105,8 +110,12 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     }
   }
   void _onFeeLoaded(Fees fees) {
+    if (inputDirty) {
+      return;
+    }
     if (currentFee == null) {
       currentFee = fees.medium;
+      selectedFee = fees.medium;
     }
   }
 
@@ -124,6 +133,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     _feeCtrl.text = '';
     setState(() {
       currentFee = fee;
+      selectedFee = fee;
     });
   }
 
@@ -174,9 +184,13 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     _unFocus();
     if (_nonceCtrl.text.isEmpty && currentFee == null) {
       if (_loading.value) { // waiting nonce data from server
-        EasyLoading.show();
+        setState(() {
+          submitting = true;
+        });
         await asyncWhen((r) => _loading.value == false);
-        EasyLoading.dismiss();
+        setState(() {
+          submitting = false;
+        });
       }
     }
     if (await _validate()) {
@@ -196,9 +210,9 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
       ValidatorData? validatorData = params.validatorData;
       String validatorAddress = params.manualAddValidator ? _validatorCtrl.text.trim() : validatorData!.address;
       List<TxItem> txItems = [];
-      if (!params.manualAddValidator) {
-        txItems.add(TxItem(label: i18n['producerName']!, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
-      }
+      // if (!params.manualAddValidator) {
+      //   txItems.add(TxItem(label: i18n['producerName']!, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
+      // }
       txItems.addAll([
         TxItem(label: i18n['providerAddress']!, value: validatorAddress, type: TxItemTypes.address),
         TxItem(label: i18n['fromAddress']!, value: store.wallet!.currentAddress, type: TxItemTypes.address),
@@ -210,24 +224,35 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
       bool isWatchMode = store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
       UI.showTxConfirm(
           context: context,
-          title: i18n['delegationInfo']!,
+          title: i18n['sendDetail']!,
           items: txItems,
+          headLabel: !params.manualAddValidator ? i18n['producerName']! : null,
+          headValue: !params.manualAddValidator ? Text(
+            validatorData!.name ?? Fmt.address(validatorAddress, pad: 8),
+            style: TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+                fontWeight: FontWeight.w600
+            ),
+          ) : null,
           disabled: isWatchMode,
           buttonText: isWatchMode ? i18n['watchMode']: i18n['confirm'],
           onConfirm: () async {
-            String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet);
+            String? password = await UI.showPasswordDialog(
+                context: context,
+                wallet: store.wallet!.currentWallet,
+                inputPasswordRequired: false
+            );
             if (password == null) {
-              return;
+              return false;
             }
-            EasyLoading.show(status: '');
             String? privateKey = await webApi.account.getPrivateKey(
                 store.wallet!.currentWallet,
                 store.wallet!.currentWallet.currentAccountIndex,
                 password);
             if (privateKey == null) {
-              EasyLoading.dismiss();
               UI.toast(i18n['passwordError']!);
-              return;
+              return false;
             }
             Map txInfo = {
               "privateKey": privateKey,
@@ -239,13 +264,18 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
             };
 
             TransferData? data = await webApi.account.signAndSendDelegationTx(txInfo, context: context);
-            EasyLoading.dismiss();
-            if (data != null) {
-              await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
-            } else {
-              Navigator.popUntil(context, ModalRoute.withName('/'));
+            if (mounted) {
+              // if (data != null) {
+              //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
+              // } else {
+              //   Navigator.popUntil(context, ModalRoute.withName('/'));
+              // }
+              // Navigator.popAndPushNamed(context, ModalRoute.withName('/'));
+              await Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+              globalBalanceRefreshKey.currentState?.show();
+              return true;
             }
-            globalBalanceRefreshKey.currentState?.show();
+            return false;
           }
       );
       return;
@@ -269,17 +299,19 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
             shadowColor: Colors.transparent,
             centerTitle: true,
           ),
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: SafeArea(
+            maintainBottomViewPadding: true,
             child: Builder(
               builder: (BuildContext context) {
                 return Column(
                   children: <Widget>[
                     Expanded(
                       child: ListView(
-                        padding: EdgeInsets.fromLTRB(28, 10, 28, 0),
+                        padding: EdgeInsets.fromLTRB(20, 28, 20, 0),
                         children: <Widget>[
-                          FormPanel(
+                          Container(
                             child: Column(
                               children: [
                                 !params.manualAddValidator ?
@@ -302,9 +334,17 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                             value: currentFee,
                             onChoose: _onChooseFee,
                           ),
+                          Container(
+                            height: 0.5,
+                            margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                            decoration: BoxDecoration(
+                                color: Color(0x1A000000)
+                            ),
+                          ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
+                            placeHolder: selectedFee,
                             noncePlaceHolder: store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce,
                             cap: fees.cap,
                           )
@@ -312,7 +352,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+                      padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: i18n['next']!,
@@ -347,8 +387,9 @@ class ValidatorSelector extends StatelessWidget {
           i18n['stakingProviderName']!,
           textAlign: TextAlign.left,
           style: TextStyle(
-              fontSize: 16,
-              color: ColorsUtil.hexColor(0x333333)
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xD9000000)
           ),
         ),
         GestureDetector(
@@ -358,11 +399,12 @@ class ValidatorSelector extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           child: Container(
               height: 50,
-              margin: EdgeInsets.only(top: 10),
+              margin: EdgeInsets.only(top: 6),
               padding: EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color:  ColorsUtil.hexColor(0xF6F7F8),
-                borderRadius: BorderRadius.circular(10),
+                // color:  ColorsUtil.hexColor(0xF6F7F8),
+                border: Border.all(color: Color(0x1A000000), width: 0.5),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -372,10 +414,11 @@ class ValidatorSelector extends StatelessWidget {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                           fontSize: 16,
-                          color: ColorsUtil.hexColor(0x333333)
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xD9000000)
                       ),
                     ),
-                    Icon(Icons.arrow_forward_ios, size: 15, color: ColorsUtil.hexColor(0xcdcdd7),)
+                    Icon(Icons.arrow_forward_ios, size: 15, color: Colors.black,)
                   ]
               )
           ),

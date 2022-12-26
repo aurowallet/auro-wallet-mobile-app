@@ -1,15 +1,12 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
 import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -59,24 +56,28 @@ class _SecurityPageState extends State<SecurityPage> {
         dic['backTips_3']!,
       ],
     );
-    WalletData? wallet = (store.wallet!.walletList as List<WalletData?>).firstWhere((wallet) => wallet!.walletType == WalletStore.seedTypeMnemonic, orElse: ()=> null);
+    WalletData? wallet = store.wallet!.walletList.firstWhereOrNull((wallet) => wallet.walletType == WalletStore.seedTypeMnemonic);
     if (wallet == null) {
       return;
     }
-    String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: store.wallet!.currentWallet,
+        inputPasswordRequired: true
+    );
     if (password == null) {
       return;
     }
-    EasyLoading.show();
     String? mnemonic = await store.wallet!.getMnemonic(wallet, password);
-    EasyLoading.dismiss();
     if (mnemonic == null) {
       UI.toast(dic['passwordError']!);
       return;
     }
-    await Navigator.pushNamed(context, ExportMnemonicResultPage.route, arguments: {
-      "key": mnemonic
-    });
+    if (mounted) {
+      await Navigator.pushNamed(context, ExportMnemonicResultPage.route, arguments: {
+        "key": mnemonic
+      });
+    }
     // Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
     //   redirect: ImportPrivateKeyPage.route
     // ));
@@ -98,23 +99,35 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 
   Future<void> _authBiometric() async {
-    String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet, validate: true);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: store.wallet!.currentWallet,
+        validate: true,
+        inputPasswordRequired: true
+    );
 
+    bool success = false;
     try {
       if (password != null) {
-        webApi.account.saveBiometricPass(context, password);
-        webApi.account.setBiometricEnabled();
-        setState(() {
-          _isBiometricAuthorized = true;
-        });
+        await webApi.account.saveBiometricPass(context, password);
+        success = true;
+        print('save bio success');
       }
     } catch (err) {
+      print('save bio failed');
+      print(err);
       // ignore
+    }
+    if (success) {
+      webApi.account.setBiometricEnabled();
+      setState(() {
+        _isBiometricAuthorized = true;
+      });
     }
   }
 
   void _onChangePassword() {
-    Navigator.pushReplacementNamed(context, ChangePasswordPage.route);
+    Navigator.pushNamed(context, ChangePasswordPage.route);
   }
 
   void _onToggleBiometric(bool isOn) {
@@ -136,27 +149,29 @@ class _SecurityPageState extends State<SecurityPage> {
         title: Text(dic['security']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
-          child: Column(
-            children: <Widget>[
-              ImportItem(text: dic['restoreSeed']!, onClick: _onBackup,),
-              ImportItem(text: dic['changePassword']!, onClick: _onChangePassword,),
-              _supportBiometric ?
-              SwitchItem(text: dic['unlock.bio.enable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
-                  : Container()
-            ],
-          )
+            padding: EdgeInsets.only(top: 20),
+            child: Column(
+              children: <Widget>[
+                MenuItem(text: dic['restoreSeed']!, onClick: _onBackup,),
+                MenuItem(text: dic['changePassword']!, onClick: _onChangePassword,),
+                _supportBiometric ?
+                SwitchItem(text: dic['unlock.bio.enable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
+                    : Container()
+              ],
+            )
         ),
       ),
     );
   }
 }
 
-class ImportItem extends StatelessWidget {
-  ImportItem({
+class MenuItem extends StatelessWidget {
+  MenuItem({
     required this.text,
     required this.onClick
   });
@@ -166,29 +181,27 @@ class ImportItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onClick,
-      child: Container(
-          padding: EdgeInsets.symmetric(vertical: 15),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-          ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x010000)),),
-            Container(
-                width: 6,
-                margin: EdgeInsets.only(left: 14,),
-                child: SvgPicture.asset(
-                    'assets/images/assets/right_arrow.svg',
+    return InkWell(
+        onTap: onClick,
+        child: Container(
+            height: 54,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(text, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+                Container(
                     width: 6,
-                    height: 12
-                )
-            ),
-          ],
+                    margin: EdgeInsets.only(left: 14,),
+                    child: SvgPicture.asset(
+                        'assets/images/assets/right_arrow.svg',
+                        width: 6,
+                        height: 12
+                    )
+                ),
+              ],
+            )
         )
-      )
     );
   }
 }
@@ -207,14 +220,12 @@ class SwitchItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-        ),
+        height: 54,
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x010000)),),
+            Text(text, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
             FlutterSwitch(
               value: isOn,
               width: 54,
@@ -222,7 +233,7 @@ class SwitchItem extends StatelessWidget {
               onToggle: (value) {
                 onClick(value);
               },
-              activeColor: ColorsUtil.hexColor(0x6B5DFB),
+              activeColor: Theme.of(context).primaryColor,
             ),
           ],
         )

@@ -22,8 +22,9 @@ class TransactionDetailPage extends StatelessWidget {
         padding: EdgeInsets.only(left: 0),
         child: Text(name,
             style: TextStyle(
+              fontSize: 12,
               fontWeight: FontWeight.normal,
-              color: ColorsUtil.hexColor(0x999999),
+              color: Colors.black.withOpacity(0.5),
             )));
   }
 
@@ -69,16 +70,17 @@ class TransactionDetailPage extends StatelessWidget {
         copyText: tx.receiver,
       ),
       TxInfoItem(
-        label: dic['memo2']!,
-        title: tx.memo,
+          label: dic['memo2']!,
+          title: tx.memo,
+          copyText: tx.memo
       ),
       TxInfoItem(
         label: dic['time']!,
-        title: Fmt.dateTimeFromUTC(tx.time),
+        title: Fmt.dateTimeWithTimeZone(tx.time),
       ),
       TxInfoItem(
         label: 'Nonce',
-        title: tx.nonce.toString(),
+        title: tx.nonce != null ? tx.nonce.toString(): null,
       ),
       tx.fee != null ? TxInfoItem(
         label: dic['fee']!,
@@ -96,7 +98,7 @@ class TransactionDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.only(top: 30, bottom: 14),
             child: SvgPicture.asset(
                 statusIcon,
                 width: 71,
@@ -107,11 +109,13 @@ class TransactionDetailPage extends StatelessWidget {
           Text(
             statusText,
             style: Theme.of(context).textTheme.headline4!.copyWith(
-                color: statusColor
+                color: statusColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w600
             ),
           ),
           CustomDivider(
-              margin: const EdgeInsets.only(top: 9)
+              margin: const EdgeInsets.only(top: 23)
           ),
         ],
       ),
@@ -126,13 +130,14 @@ class TransactionDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children:[
                 _buildLabel(i.label),
-                Container(height: 4),
+                // Container(height: 4),
                 CopyContainer(
                   child: Text(
                       i.title!,
                       style: Theme.of(context).textTheme.headline5!.copyWith(
                           color: ColorsUtil.hexColor(0x333333),
-                          height: 1.2
+                          height: 1.2,
+                          fontSize: 14
                       )
                   ),
                   text: i.copyText,
@@ -156,27 +161,26 @@ class TransactionDetailPage extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Column(
           children: [
             Expanded(
               child: ListView(
-                padding: EdgeInsets.only(bottom: 32, right: 30, left: 30),
+                padding: EdgeInsets.only(bottom: 30, right: 20, left: 20),
                 children: _buildListView(context),
               ),
             ),
-            CustomDivider(
-                margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 30)
-            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                tx.hash.isNotEmpty ?
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    padding: EdgeInsets.symmetric(horizontal: 30).copyWith(bottom: 30),
                     child: BrowserLink(
                       '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/transaction/${tx.hash}',
                       text: i18n['goToExplrer']!,
                     )
-                )
+                ): Container()
               ],
             )
           ],

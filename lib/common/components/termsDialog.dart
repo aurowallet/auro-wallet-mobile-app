@@ -1,14 +1,7 @@
 import 'package:auro_wallet/utils/i18n/terms.dart';
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 
 
@@ -60,7 +53,7 @@ class _TermsDialogState extends State<TermsDialog> {
           children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(20).copyWith(bottom: 0),
             child: Column(
               children: [
                 Padding(
@@ -77,42 +70,37 @@ class _TermsDialogState extends State<TermsDialog> {
                       privacyUrl: privacyUrl
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 27),
+                Container(
+                  margin: EdgeInsets.only(top: 30),
+                  height: 1,
+                  color: Colors.black.withOpacity(0.05),
                 ),
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                            minWidth: 130,
-                            minHeight: 40
+                      Expanded(child: TextButton(
+                        style: TextButton.styleFrom(
+                            primary: Colors.black
                         ),
-                        child: OutlineButton(
-                          borderSide: BorderSide(color: Theme.of(context).primaryColor),
-                          highlightedBorderColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: Text(dic['refuse']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16)),
-                          onPressed: () {
-                            Navigator.of(context).pop(false);
-                          },
-                        ),
+                        child: Text(dic['refuse']!, style: theme.headline5!),
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                      ),),
+                      Container(
+                        width: 0.5,
+                        height: 48,
+                        color: Colors.black.withOpacity(0.1),
                       ),
-                      FlatButton(
-                        height: 40,
-                        minWidth: 130,
-                        color: Theme.of(context).primaryColor,
-                        shape: new RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(dic['agree']!, style: TextStyle(color: Colors.white, fontSize: 16))
-                          ],
+                      Expanded(child: TextButton(
+                        style: TextButton.styleFrom(
+                            primary: Theme.of(context).primaryColor
                         ),
+                        child: Text(dic['agree']!, style: theme.headline5!.copyWith(color: Theme.of(context).primaryColor)),
                         onPressed: () {
                           Navigator.of(context).pop(true);
                         },
-                      ),
+                      )),
                     ]
                 ),
               ],

@@ -1,0 +1,28 @@
+<svg fill="none" viewBox="0 0 214 183" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="70.479" cy="70.479" r="69.979" stroke="#D8D8F2"/>
+    <path d="M103.48 35.989c-2.998-1.4112-6.5728-.1246-7.984 2.8736l-39.513 83.95c-1.4112 2.998-.1246 6.572 2.8736 7.984l106.26 50.014c2.999 1.411 6.573.124 7.984-2.874l39.513-83.949c1.411-2.9982.125-6.5727-2.874-7.9839l-106.26-50.014zM190.003 108c4.97 0 9-4.029 9-9 0-4.9706-4.03-9-9-9-4.971 0-9 4.0294-9 9 0 4.971 4.029 9 9 9z" clip-rule="evenodd" fill="url(#a)" fill-rule="evenodd"/>
+    <rect x="51.74" y="80.989" width="119.19" height="101.13" rx="4" fill="#4B3276"/>
+    <g filter="url(#b)">
+        <path d="M120.37 131.56c0-6.982 5.66-12.642 12.642-12.642h41.239c1.162 0 2.104.942 2.104 2.104v21.075c0 1.162-.942 2.104-2.104 2.104h-41.239c-6.982 0-12.642-5.66-12.642-12.641z" fill="#D65A5A"/>
+    </g>
+    <circle cx="133.01" cy="131.56" r="5.4179" fill="#594AF1"/>
+    <path d="M4 120h58v27.341c0 9.784-4.933 18.908-13.1192 24.266L33 182l-15.8808-10.393C8.93299 166.249 4 157.125 4 147.341V120Z" fill="#594AF1"/>
+    <path d="m25.665 145.36 7.1862 7.186 17.252-17.252" stroke="#fff"/>
+    <path d="M48.135 145c.1383.837.2102 1.697.2102 2.573 0 8.656-7.0169 15.673-15.673 15.673-8.6559 0-15.673-7.017-15.673-15.673 0-8.655 7.0169-15.672 15.673-15.672 3.5729 0 6.8667 1.195 9.5029 3.208" stroke="#fff"/>
+    <path fill="#D65A5A" d="M84 176h15v6H84zm37 0h15v6h-15zm-37-7h15v6H84zm37 0h15v6h-15zm-37-7h15v6H84zm0-7h15v6H84zm15 21h20v6H99zm37 0h20v6h-20zm-37-7h20v6H99zm37 0h20v6h-20zm-37-7h20v6H99zm0-7h20v6H99z"/>
+    <defs>
+        <linearGradient id="a" x1="104.32" x2="104.32" y1="61.572" y2="181.38" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#BBDEFF" offset="0"/>
+            <stop stop-color="#A39BF5" offset="1"/>
+        </linearGradient>
+        <filter id="b" x="119.37" y="118.92" width="56.985" height="27.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+            <feOffset dx="-1" dy="2"/>
+            <feComposite in2="hardAlpha" operator="out"/>
+            <feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+            <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_529_23900"/>
+            <feBlend in="SourceGraphic" in2="effect1_dropShadow_529_23900" result="shape"/>
+        </filter>
+    </defs>
+</svg>

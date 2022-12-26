@@ -38,15 +38,15 @@ class _FeeSelectorState extends State<FeeSelector> {
     final fees = widget.fees;
     final Map<String, String> i18n = I18n.of(context).main;
     double? value = widget.value;
-    return FormPanel(
-      margin: EdgeInsets.only(top: 20),
+    return Container(
+      margin: EdgeInsets.only(top: 20, bottom: 10),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(i18n['fee']!),
-              value == null ? Text('') :Text(value.toString())
+              Text(i18n['fee']!, style: TextStyle(fontSize: 12, color: Color(0xD9000000), fontWeight: FontWeight.w600),),
+              Text(value == null ? '' : value.toString(), style: TextStyle(fontSize: 12, color: Color(0x80000000), fontWeight: FontWeight.w400),)
             ]
           ),
           Padding(padding: EdgeInsets.only(top: 8)),
@@ -59,12 +59,14 @@ class _FeeSelectorState extends State<FeeSelector> {
                 isActive: fees.slow == value,
                 onClick: _onClick,
               ),
+              SizedBox(width: 11),
               FeeItem(
                 text: i18n['fee_default']!,
                 value: fees.medium,
                 isActive: fees.medium == value,
                 onClick: _onClick,
               ),
+              SizedBox(width: 11),
               FeeItem(
                 text: i18n['fee_fast']!,
                 value: fees.fast,
@@ -100,27 +102,30 @@ class FeeItem extends StatelessWidget {
     return GestureDetector(
       onTap: _onClick,
       child:  Stack(
-        overflow:Overflow.visible,
+        clipBehavior: Clip.none,
         children: [
           Container(
-            width: 86,
-            height: 44,
+            // width: 86,
+            height: 37,
+            constraints: BoxConstraints(
+              maxWidth: 104
+            ),
             decoration: BoxDecoration(
-                color: ColorsUtil.hexColor(0xF6F6F6),
+                color: Color(0xFFF9FAFC),
                 borderRadius: BorderRadius.all(Radius.circular(6)),
                 border: Border.all(
-                    color: isActive ? ColorsUtil.hexColor(0x00C89C) : Colors.transparent
+                    color: isActive ? Theme.of(context).primaryColor : Color(0x1A000000)
                 )
             ),
             child:  Center(
-              child: Text(this.text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x666666))),
+              child: Text(this.text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: isActive ? Theme.of(context).primaryColor : Colors.black)),
             ),
           ),
-          isActive ? Positioned(
-              right: -5,
-              top: -5,
-              child: Image.asset('assets/images/assets/2x/round_checked@2x.png', width: 15, height: 15,)
-          ): Container()
+          // isActive ? Positioned(
+          //     right: -5,
+          //     top: -5,
+          //     child: Image.asset('assets/images/assets/2x/round_checked@2x.png', width: 15, height: 15, color: Theme.of(context).primaryColor,),
+          // ): Container()
         ],
       ),
     );

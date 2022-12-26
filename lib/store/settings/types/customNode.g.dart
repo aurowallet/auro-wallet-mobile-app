@@ -6,14 +6,12 @@ part of 'customNode.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CustomNode _$CustomNodeFromJson(Map<String, dynamic> json) {
-  return CustomNode(
-    name: json['name'] as String,
-    url: json['url'] as String,
-  )
-    ..networksType = json['networksType'] as String?
-    ..chainId = json['chainId'] as String?;
-}
+CustomNode _$CustomNodeFromJson(Map<String, dynamic> json) => CustomNode(
+      name: json['name'] as String,
+      url: json['url'] as String,
+    )
+      ..networksType = json['networksType'] as String?
+      ..chainId = json['chainId'] as String?;
 
 Map<String, dynamic> _$CustomNodeToJson(CustomNode instance) =>
     <String, dynamic>{

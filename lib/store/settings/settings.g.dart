@@ -6,22 +6,22 @@ part of 'settings.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AboutUsData _$AboutUsDataFromJson(Map<String, dynamic> json) {
-  return AboutUsData(
-    changelog: json['changelog_app'] as String,
-    gitReponame: json['gitReponame_app'] as String,
-    followus: (json['followus'] as List<dynamic>)
-        .map((e) =>
-            e == null ? null : FollowUsData.fromJson(e as Map<String, dynamic>))
-        .toList(),
-  )
-    ..stakingGuideCN = json['staking_guide_cn'] as String
-    ..termsAndContionsEN = json['terms_and_contions'] as String
-    ..privacyPolicyEN = json['privacy_policy'] as String
-    ..termsAndContionsZH = json['terms_and_contions_cn'] as String
-    ..privacyPolicyZH = json['privacy_policy_cn'] as String
-    ..stakingGuide = json['staking_guide'] as String;
-}
+AboutUsData _$AboutUsDataFromJson(Map<String, dynamic> json) => AboutUsData(
+      changelog: json['changelog_app'] as String,
+      gitReponame: json['gitReponame_app'] as String,
+      followus: (json['followus'] as List<dynamic>)
+          .map((e) => e == null
+              ? null
+              : FollowUsData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    )
+      ..stakingGuideCN = json['staking_guide_cn'] as String
+      ..termsAndContionsEN = json['terms_and_contions'] as String
+      ..privacyPolicyEN = json['privacy_policy'] as String
+      ..termsAndContionsZH = json['terms_and_contions_cn'] as String
+      ..privacyPolicyZH = json['privacy_policy_cn'] as String
+      ..stakingGuide = json['staking_guide'] as String
+      ..graphqlApi = json['graphql_api'] as String?;
 
 Map<String, dynamic> _$AboutUsDataToJson(AboutUsData instance) =>
     <String, dynamic>{
@@ -33,15 +33,14 @@ Map<String, dynamic> _$AboutUsDataToJson(AboutUsData instance) =>
       'terms_and_contions_cn': instance.termsAndContionsZH,
       'privacy_policy_cn': instance.privacyPolicyZH,
       'staking_guide': instance.stakingGuide,
+      'graphql_api': instance.graphqlApi,
       'followus': instance.followus,
     };
 
-FollowUsData _$FollowUsDataFromJson(Map<String, dynamic> json) {
-  return FollowUsData(
-    website: json['website'] as String,
-    name: json['name'] as String,
-  );
-}
+FollowUsData _$FollowUsDataFromJson(Map<String, dynamic> json) => FollowUsData(
+      website: json['website'] as String,
+      name: json['name'] as String,
+    );
 
 Map<String, dynamic> _$FollowUsDataToJson(FollowUsData instance) =>
     <String, dynamic>{
@@ -53,10 +52,11 @@ Map<String, dynamic> _$FollowUsDataToJson(FollowUsData instance) =>
 // StoreGenerator
 // **************************************************************************
 
-// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$SettingsStore on _SettingsStore, Store {
-  final _$loadingAtom = Atom(name: '_SettingsStore.loading');
+  late final _$loadingAtom =
+      Atom(name: '_SettingsStore.loading', context: context);
 
   @override
   bool get loading {
@@ -71,7 +71,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$localeCodeAtom = Atom(name: '_SettingsStore.localeCode');
+  late final _$localeCodeAtom =
+      Atom(name: '_SettingsStore.localeCode', context: context);
 
   @override
   String get localeCode {
@@ -86,7 +87,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$currencyCodeAtom = Atom(name: '_SettingsStore.currencyCode');
+  late final _$currencyCodeAtom =
+      Atom(name: '_SettingsStore.currencyCode', context: context);
 
   @override
   String get currencyCode {
@@ -101,7 +103,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$endpointAtom = Atom(name: '_SettingsStore.endpoint');
+  late final _$endpointAtom =
+      Atom(name: '_SettingsStore.endpoint', context: context);
 
   @override
   String get endpoint {
@@ -116,7 +119,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$aboutusAtom = Atom(name: '_SettingsStore.aboutus');
+  late final _$aboutusAtom =
+      Atom(name: '_SettingsStore.aboutus', context: context);
 
   @override
   AboutUsData? get aboutus {
@@ -131,7 +135,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$customNodeListAtom = Atom(name: '_SettingsStore.customNodeList');
+  late final _$customNodeListAtom =
+      Atom(name: '_SettingsStore.customNodeList', context: context);
 
   @override
   List<String> get customNodeList {
@@ -146,7 +151,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$customNodeListV2Atom = Atom(name: '_SettingsStore.customNodeListV2');
+  late final _$customNodeListV2Atom =
+      Atom(name: '_SettingsStore.customNodeListV2', context: context);
 
   @override
   List<CustomNode> get customNodeListV2 {
@@ -161,7 +167,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$networksAtom = Atom(name: '_SettingsStore.networks');
+  late final _$networksAtom =
+      Atom(name: '_SettingsStore.networks', context: context);
 
   @override
   List<NetworkType> get networks {
@@ -176,7 +183,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$networkNameAtom = Atom(name: '_SettingsStore.networkName');
+  late final _$networkNameAtom =
+      Atom(name: '_SettingsStore.networkName', context: context);
 
   @override
   String get networkName {
@@ -191,7 +199,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$networkConstAtom = Atom(name: '_SettingsStore.networkConst');
+  late final _$networkConstAtom =
+      Atom(name: '_SettingsStore.networkConst', context: context);
 
   @override
   Map<dynamic, dynamic> get networkConst {
@@ -206,7 +215,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$contactListAtom = Atom(name: '_SettingsStore.contactList');
+  late final _$contactListAtom =
+      Atom(name: '_SettingsStore.contactList', context: context);
 
   @override
   ObservableList<ContactData> get contactList {
@@ -221,30 +231,32 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  final _$initAsyncAction = AsyncAction('_SettingsStore.init');
+  late final _$initAsyncAction =
+      AsyncAction('_SettingsStore.init', context: context);
 
   @override
   Future<void> init() {
     return _$initAsyncAction.run(() => super.init());
   }
 
-  final _$setLocalCodeAsyncAction = AsyncAction('_SettingsStore.setLocalCode');
+  late final _$setLocalCodeAsyncAction =
+      AsyncAction('_SettingsStore.setLocalCode', context: context);
 
   @override
   Future<void> setLocalCode(String code) {
     return _$setLocalCodeAsyncAction.run(() => super.setLocalCode(code));
   }
 
-  final _$setCurrencyCodeAsyncAction =
-      AsyncAction('_SettingsStore.setCurrencyCode');
+  late final _$setCurrencyCodeAsyncAction =
+      AsyncAction('_SettingsStore.setCurrencyCode', context: context);
 
   @override
   Future<void> setCurrencyCode(String code) {
     return _$setCurrencyCodeAsyncAction.run(() => super.setCurrencyCode(code));
   }
 
-  final _$setNetworkTypesAsyncAction =
-      AsyncAction('_SettingsStore.setNetworkTypes');
+  late final _$setNetworkTypesAsyncAction =
+      AsyncAction('_SettingsStore.setNetworkTypes', context: context);
 
   @override
   Future<void> setNetworkTypes(List<NetworkType> networkTypes,
@@ -253,32 +265,32 @@ mixin _$SettingsStore on _SettingsStore, Store {
         () => super.setNetworkTypes(networkTypes, shouldCache: shouldCache));
   }
 
-  final _$loadNetworkTypesAsyncAction =
-      AsyncAction('_SettingsStore.loadNetworkTypes');
+  late final _$loadNetworkTypesAsyncAction =
+      AsyncAction('_SettingsStore.loadNetworkTypes', context: context);
 
   @override
   Future<void> loadNetworkTypes() {
     return _$loadNetworkTypesAsyncAction.run(() => super.loadNetworkTypes());
   }
 
-  final _$loadLocalCodeAsyncAction =
-      AsyncAction('_SettingsStore.loadLocalCode');
+  late final _$loadLocalCodeAsyncAction =
+      AsyncAction('_SettingsStore.loadLocalCode', context: context);
 
   @override
   Future<void> loadLocalCode() {
     return _$loadLocalCodeAsyncAction.run(() => super.loadLocalCode());
   }
 
-  final _$loadCurrencyCodeAsyncAction =
-      AsyncAction('_SettingsStore.loadCurrencyCode');
+  late final _$loadCurrencyCodeAsyncAction =
+      AsyncAction('_SettingsStore.loadCurrencyCode', context: context);
 
   @override
   Future<void> loadCurrencyCode() {
     return _$loadCurrencyCodeAsyncAction.run(() => super.loadCurrencyCode());
   }
 
-  final _$updateCustomNodeAsyncAction =
-      AsyncAction('_SettingsStore.updateCustomNode');
+  late final _$updateCustomNodeAsyncAction =
+      AsyncAction('_SettingsStore.updateCustomNode', context: context);
 
   @override
   Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) {
@@ -286,8 +298,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.updateCustomNode(newNode, oldNode));
   }
 
-  final _$setCustomNodeListAsyncAction =
-      AsyncAction('_SettingsStore.setCustomNodeList');
+  late final _$setCustomNodeListAsyncAction =
+      AsyncAction('_SettingsStore.setCustomNodeList', context: context);
 
   @override
   Future<void> setCustomNodeList(List<CustomNode> nodeList) {
@@ -295,8 +307,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.setCustomNodeList(nodeList));
   }
 
-  final _$loadCustomNodeListAsyncAction =
-      AsyncAction('_SettingsStore.loadCustomNodeList');
+  late final _$loadCustomNodeListAsyncAction =
+      AsyncAction('_SettingsStore.loadCustomNodeList', context: context);
 
   @override
   Future<void> loadCustomNodeList() {
@@ -304,44 +316,48 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.loadCustomNodeList());
   }
 
-  final _$setEndpointAsyncAction = AsyncAction('_SettingsStore.setEndpoint');
+  late final _$setEndpointAsyncAction =
+      AsyncAction('_SettingsStore.setEndpoint', context: context);
 
   @override
   Future<void> setEndpoint(String value) {
     return _$setEndpointAsyncAction.run(() => super.setEndpoint(value));
   }
 
-  final _$loadEndpointAsyncAction = AsyncAction('_SettingsStore.loadEndpoint');
+  late final _$loadEndpointAsyncAction =
+      AsyncAction('_SettingsStore.loadEndpoint', context: context);
 
   @override
   Future<void> loadEndpoint() {
     return _$loadEndpointAsyncAction.run(() => super.loadEndpoint());
   }
 
-  final _$loadContactsAsyncAction = AsyncAction('_SettingsStore.loadContacts');
+  late final _$loadContactsAsyncAction =
+      AsyncAction('_SettingsStore.loadContacts', context: context);
 
   @override
   Future<void> loadContacts() {
     return _$loadContactsAsyncAction.run(() => super.loadContacts());
   }
 
-  final _$addContactAsyncAction = AsyncAction('_SettingsStore.addContact');
+  late final _$addContactAsyncAction =
+      AsyncAction('_SettingsStore.addContact', context: context);
 
   @override
   Future<void> addContact(Map<String, dynamic> con) {
     return _$addContactAsyncAction.run(() => super.addContact(con));
   }
 
-  final _$removeContactAsyncAction =
-      AsyncAction('_SettingsStore.removeContact');
+  late final _$removeContactAsyncAction =
+      AsyncAction('_SettingsStore.removeContact', context: context);
 
   @override
   Future<void> removeContact(ContactData con) {
     return _$removeContactAsyncAction.run(() => super.removeContact(con));
   }
 
-  final _$updateContactAsyncAction =
-      AsyncAction('_SettingsStore.updateContact');
+  late final _$updateContactAsyncAction =
+      AsyncAction('_SettingsStore.updateContact', context: context);
 
   @override
   Future<void> updateContact(ContactData contact, String address) {
@@ -349,8 +365,8 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.updateContact(contact, address));
   }
 
-  final _$_SettingsStoreActionController =
-      ActionController(name: '_SettingsStore');
+  late final _$_SettingsStoreActionController =
+      ActionController(name: '_SettingsStore', context: context);
 
   @override
   void setNetworkLoading(bool isLoading) {

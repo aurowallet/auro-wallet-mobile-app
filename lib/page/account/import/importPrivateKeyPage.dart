@@ -10,7 +10,6 @@ import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 
 class ImportPrivateKeyPage extends StatefulWidget {
@@ -28,6 +27,8 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
 
   final AppStore store;
   final TextEditingController _privateKeyCtrl = new TextEditingController();
+
+  bool submitting = false;
 
   @override
   void initState() {
@@ -51,15 +52,24 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
     }
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
     String accountName = params["accountName"];
-    String? password = await UI.showPasswordDialog(context: context, wallet: store.wallet!.currentWallet, validate: true);
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: store.wallet!.currentWallet,
+        validate: true,
+        inputPasswordRequired: true
+    );
     if (password == null) {
       return;
     }
-    EasyLoading.show();
+    setState(() {
+      submitting = true;
+    });
     var isSuccess = await webApi.account.createWalletByPrivateKey(accountName, privateKey, password, context: context, source: WalletSource.outside);
-    EasyLoading.dismiss();
+    setState(() {
+      submitting = false;
+    });
     if(isSuccess) {
-      UI.toast(dic['backup_success_restore']!);
+      // UI.toast(dic['backup_success_restore']!);
       Navigator.of(context).pop();
     }
   }
@@ -72,22 +82,41 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
         title: Text(dic['accountImport']!),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
+            padding: EdgeInsets.symmetric(horizontal: 20).copyWith(top: 20),
           child: Column(
             children: <Widget>[
               Expanded(
-                child: InputItem(
-                  label: dic['pleaseInputPriKey']!,
-                  controller: _privateKeyCtrl,
-                  maxLines: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InputItem(
+                      padding: EdgeInsets.zero,
+                      inputPadding: EdgeInsets.only(top: 20),
+                      label: dic['pleaseInputPriKey']!,
+                      controller: _privateKeyCtrl,
+                      maxLines: 3,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                    ),
+                    Flexible(
+                        child: Text(dic['importAccount_2']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
+                    ),
+                    Flexible(
+                        child: Text(dic['importAccount_3']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
+                    ),
+                  ],
                 ),
               ),
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child: NormalButton(
+                    submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: I18n.of(context).main['confirm']!,
                     onPressed: _handleSubmit,

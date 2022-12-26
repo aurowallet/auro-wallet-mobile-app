@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/common/components/backgroundContainer.dart';
-import 'package:auro_wallet/common/components/customDropdownButton.dart';
 import 'package:auro_wallet/common/components/termsDialog.dart';
-import 'package:auro_wallet/page/account/termPage.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg_provider/flutter_svg_provider.dart' as sp;
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/page/account/setNewWalletPasswordPage.dart';
 
 class CreateAccountEntryPage extends StatelessWidget {
@@ -39,123 +32,117 @@ class CreateAccountEntryPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: null,
-      body: BackgroundContainer(
-        sp.Svg(
-          'assets/images/public/top_cornor.svg',
-        ),
-        SafeArea(
-          child:  Column(
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+          maintainBottomViewPadding: true,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 30, left: 30, right: 30),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        child: Image.asset("assets/images/public/2x/m_logo@2x.png", width: 121, height: 30,) ,
-                      ),
-                      Observer(builder: (_) {
-                        var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
-                        return CustomDropdownButton(
-                          items: [
-                            DropdownItem(text: '中文', key: 'zh'),
-                            DropdownItem(text: 'English', key: 'en'),
+                child: Column(
+                  children: [
+                    SizedBox(height: 50,),
+                    Row(
+                      children: [
+                        Expanded(child: Stack(
+                          children: [
+                            Positioned(
+                                bottom: 0,
+                                left: 20,
+                                right: 20,
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 0),
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [
+                                        0,
+                                        1.0,
+                                      ],
+                                      colors: [
+                                        Color(0xFF594AF1),
+                                        Color(0xFFFF6B6B),
+                                      ],
+                                    ),
+                                  ),
+                                )),
+                            Container(
+                              width: MediaQuery.of(context).size.width - 40,
+                              margin: EdgeInsets.only(left: 20),
+                              child: FittedBox(
+                                child: SvgPicture.asset("assets/images/entry/desc.svg",fit: BoxFit.contain),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
                           ],
-                          value: languageCode,
-                          onChoose: (String? value) async {
-                            if (value != null) {
-                              await store.setLocalCode(value);
-                              changeLang(context, value);
-                            }
-                          },
-                          placeholder: '',
-                        );
-                      })
-                    ],
-                  )
-                ],
-              ),
+                        ),)
+                      ],
+                    ),
+
+                  ],
                 ),
-          ),
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: EntryButton(text: I18n.of(context).main['createAccount']!, onPressed: () {
-                  _onClick('create');
-                  // Navigator.pushNamed(context, TermPage.route, arguments: TermParams(arguments: {"type": "create"}));
-                },),
+              ),
+              Container(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 60),
+                  child: Image.asset("assets/images/entry/auro_logo.png", width: MediaQuery.of(context).size.width * (245/ 375), height: MediaQuery.of(context).size.width * (245/ 375) * (221/245),),
+                ),
+              ),
+              Padding(padding: EdgeInsets.only(left: 38, right: 38),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 48),
+                    primary: ColorsUtil.hexColor(0x594AF1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    _onClick('create');
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset("assets/images/entry/icon_add.svg"),
+                      SizedBox(width: 8,),
+                      Text(I18n.of(context).main['createWallet']!, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))
+                    ],
+                  ),
+                ),
               ),
               Padding(
-                padding: EdgeInsets.all(16),
-                child: EntryButton(
-                  text: i18n.main['importAccount']!,
-                  isOutlined: true,
+                padding: EdgeInsets.only(top: 20, left: 38, right: 38),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                   onPressed: () {
                     _onClick('import');
-                    // Navigator.pushNamed(context, TermPage.route, arguments: TermParams(arguments: {"type": "import"}));
-                },),
+                  },
+                  child: Row(
+                    children: [
+                      SvgPicture.asset("assets/images/entry/icon_restore.svg"),
+                      SizedBox(width: 8,),
+                      Text(I18n.of(context).main['restoreWallet']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16, fontWeight: FontWeight.w600))
+                    ],
+                  ),
+                ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(21, 31, 21, 0),
-                child: Text(i18n.main['restoreTip']!, style: theme.headline6!.copyWith(color: ColorsUtil.hexColor(0xCCCCCC))),
+                padding: EdgeInsets.fromLTRB(20, 50, 20, 0),
+                child: Text(i18n.main['restoreTip']!, style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xCCCCCC)), textAlign: TextAlign.center,),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(16, 60, 16, 30),
-                child: Text('Powered by Bit Cat', style: TextStyle(fontSize: 14, color: ColorsUtil.hexColor(0xB9B9B9))),
+                padding: EdgeInsets.fromLTRB(0, 31, 0, 24),
+                child: Text('aurowallet.com', style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xB9B9B9))),
               ),
             ],
-          ),
-        )
-      )
+          )
+      ),
     );
   }
 }
 
-class EntryButton extends StatelessWidget {
-  EntryButton({required this.text, this.onPressed, this.isOutlined = false});
-
-  final String text;
-  final bool isOutlined;
-  final Function()? onPressed;
-  @override
-  Widget build(BuildContext context) {
-    Color color = isOutlined ? Theme.of(context).primaryColor : Colors.white;
-    return GestureDetector(
-        child: Container(
-            width: 315,
-            height: 55,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              image: isOutlined ? null : DecorationImage(
-                  image: AssetImage("assets/images/public/2x/create_btn_bg@2x.png"),
-                  fit: BoxFit.cover
-              ),
-              border: isOutlined ? Border.all(
-                  color: color,
-                  width: 1
-              ): null,
-              borderRadius: BorderRadius.circular(55),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(text, style: TextStyle(color: color, fontSize: 20)),
-                  SvgPicture.asset(
-                    'assets/images/public/button_arrow.svg',
-                    width: 18,
-                    height: 12,
-                    color: color,
-                  ),
-                ],
-              )
-            ) // button text
-        ),
-        onTap: onPressed
-    );
-  }
-}

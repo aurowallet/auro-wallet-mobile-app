@@ -10,11 +10,11 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class Fmt {
-  static String address(String? addr, {int pad = 10}) {
+  static String address(String? addr, {int pad = 4,bool padSame = false}) {
     if (addr == null || addr.length == 0) {
       return '';
     }
-    return addr.substring(0, pad) + '...' + addr.substring(addr.length - pad);
+    return addr.substring(0, pad + (padSame ? 0 :2)) + '...' + addr.substring(addr.length - pad);
   }
 
   static String dateTime(DateTime? time) {
@@ -30,6 +30,20 @@ class Fmt {
     }
     var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
     return dateTime(dateValue);
+  }
+
+  static DateTime toDatetime(String dateTimeStr) {
+    return new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(dateTimeStr);
+  }
+
+  static String dateTimeWithTimeZone(String? utcTime) {
+    if (utcTime == null || utcTime.isEmpty) {
+      return "";
+    }
+    var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
+    var str =  dateTime(dateValue);
+    var timeZone = dateValue.timeZoneOffset.toString().split(':');
+    return str + ' ' + (dateValue.timeZoneOffset.isNegative ? '-' : '+') +  timeZone[0].padLeft(2, '0') + timeZone[1].padLeft(2, '0');
   }
 
   /// number transform 1:
@@ -70,8 +84,6 @@ class Fmt {
     return f.format(value);
   }
 
-  /// combined number transform 1-3:
-  /// from raw <String> to <String> in token format of ",##0.000"
   static String balance(
       String? raw,
       int decimals, {
@@ -84,6 +96,19 @@ class Fmt {
     }
     var balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
     NumberFormat f = NumberFormat(",##0.${'0' * minLength}${'#'* (maxLength - minLength)}", "en_US");
+    return f.format(balanceBigInt);
+  }
+
+  static String balanceToInteger(
+      String? raw,
+      int decimals
+      )
+  {
+    if (raw == null || raw.length == 0) {
+      return '~';
+    }
+    var balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
+    NumberFormat f = NumberFormat(",##0", "en_US");
     return f.format(balanceBigInt);
   }
 
@@ -207,6 +232,25 @@ class Fmt {
   
   static String parseNumber(String number) {
     return number.trim().replaceAll(',', '.');
+  }
+
+  static String stringSlice(String str,int len, {withEllipsis = false}) {
+    var counter = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str.codeUnitAt(i) > 122) {
+        counter+=2;
+      } else {
+        counter+=1;
+      }
+      if (counter >= len) {
+        if (withEllipsis && i < str.length - 1) {
+          return str.substring(0, i + 1) + '...';
+        }
+        return str.substring(0, i + 1);
+      }
+    }
+    print('herer');
+    return str.substring(0, str.length);
   }
 
 }

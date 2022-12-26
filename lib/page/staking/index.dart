@@ -1,14 +1,15 @@
+import 'package:auro_wallet/common/components/loadingCircle.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
+import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/staking/components/delegationInfo.dart';
 import 'package:auro_wallet/page/staking/components/stakingOverview.dart';
-import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 
 class Staking extends StatefulWidget {
@@ -27,7 +28,7 @@ class _StakingState extends State<Staking> {
   bool loading = true;
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchData();
     });
     loading = !_haveCacheData();
@@ -64,43 +65,53 @@ class _StakingState extends State<Staking> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(i18n['staking']!, style: TextStyle(color: Colors.white, fontSize: 20),),
-        centerTitle: true,
-        elevation: 0.0,
-        backgroundColor: primaryColor,
+        leading: null,
+        title: null,
+        toolbarHeight: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
+        maintainBottomViewPadding: true,
         child: RefreshIndicator(
-        key: globalStakingRefreshKey,
-        onRefresh: _fetchData,
-            child:ListView(
+          key: globalStakingRefreshKey,
+            onRefresh: _fetchData,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StakingOverview(store: store,),
-                DelegationInfo(store: store, loading: loading),
-                !loading && !isDelegated ? Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: GestureDetector(
-                        onTap: _onPress,
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(i18n['goStake']!, style: theme.headline5!.copyWith(
-                                  color: ColorsUtil.hexColor(0x7055FF),
-                                )),
-                                Container(width: 8),
-                                SvgPicture.asset(
-                                    'assets/images/public/next.svg',
-                                    width: 16,
-                                    color: ColorsUtil.hexColor(0x7055FF)
-                                ),
-                              ],
-                            )
-                        )
+                TabPageTitle(title: i18n['staking']!),
+                Expanded(child:  ListView(
+                  children: [
+                    StakingOverview(store: store,),
+                    !loading ? Wrap(
+                      children: [
+                        !isDelegated ? EmptyInfo(store: store) : DelegationInfo(store: store, loading: loading),
+                        !isDelegated ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            NormalButton(
+                              text: i18n['goStake']!,
+                              textStyle: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600
+                              ),
+                              disabled: false,
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              onPressed: _onPress,
+                              shrink: true,
+                              height: 32,
+                            ),
+                          ],
+                        ) : Container()
+                      ],
+                    ): Container(
+                      padding: EdgeInsets.only(top: 167),
+                      child: LoadingCircle(),
                     )
-                ) : Container()
+                  ],
+                )
+                )
+
               ],
             )
         ),

@@ -9,11 +9,12 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:flutter/services.dart';
 class AdvancedTransferOptions extends StatefulWidget {
-  AdvancedTransferOptions({required this.nonceCtrl,required this.feeCtrl, this.noncePlaceHolder, required this.cap});
+  AdvancedTransferOptions({required this.nonceCtrl,required this.feeCtrl, this.noncePlaceHolder, required this.placeHolder, required this.cap});
   final TextEditingController nonceCtrl;
   final TextEditingController feeCtrl;
   final int? noncePlaceHolder;
   final double cap;
+  final double? placeHolder;
 
   @override
   _AdvancedTransferOptionsState createState() => _AdvancedTransferOptionsState();
@@ -41,27 +42,37 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-
-
     return Padding(
-      padding: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.zero,
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            OutlinedButtonSmall(
+            TextButton(
                 onPressed: onToggle,
-                radius: 30,
-                content: dic['advanceMode']!,
-                shadowColor: Colors.transparent,
-                suffixIcon: Icon(!visibility ? Icons.keyboard_arrow_down_sharp : Icons.keyboard_arrow_up_sharp)
+                style: TextButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: Theme.of(context).primaryColor,
+                ),
+                child: Stack(
+                  children: [
+                    Padding(padding: EdgeInsets.only(right: 20), child: Text(dic['advanceMode']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),),
+                    Positioned(
+                      right: 0,
+                      top: -1,
+                      child: Icon(!visibility ? Icons.arrow_drop_down : Icons.arrow_drop_up, size: 20,))
+                  ],
+                )
             ),
-            visibility ? FormPanel(
-              margin: EdgeInsets.only(top: 10),
+            visibility ? Container(
+              margin: EdgeInsets.only(top: 20),
               child: Column(
                   children: [
                     InputItem(
+                      label: dic['fee']!,
                       padding: EdgeInsets.zero,
-                      placeholder: dic['feePlaceHolder']!,
+                      placeholder: widget.placeHolder != null ? widget.placeHolder.toString() : '0',
                       controller: widget.feeCtrl,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
@@ -75,8 +86,10 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                       keepShow: false,
                       validate: _validateFee,
                       tipType: TipType.warn,
+                      hideIcon: true,
                     ),
                     InputItem(
+                      label: 'Nonce',
                       placeholder: 'Nonce ' +  (widget.noncePlaceHolder ?? '').toString(),
                       keyboardType: TextInputType.number,
                       controller: widget.nonceCtrl,

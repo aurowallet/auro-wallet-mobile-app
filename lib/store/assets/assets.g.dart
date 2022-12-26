@@ -6,25 +6,19 @@ part of 'assets.dart';
 // StoreGenerator
 // **************************************************************************
 
-// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AssetsStore on _AssetsStore, Store {
-  final _$cacheTxsTimestampAtom = Atom(name: '_AssetsStore.cacheTxsTimestamp');
+  Computed<List<TransferData>>? _$totalTxsComputed;
 
   @override
-  int get cacheTxsTimestamp {
-    _$cacheTxsTimestampAtom.reportRead();
-    return super.cacheTxsTimestamp;
-  }
+  List<TransferData> get totalTxs =>
+      (_$totalTxsComputed ??= Computed<List<TransferData>>(() => super.totalTxs,
+              name: '_AssetsStore.totalTxs'))
+          .value;
 
-  @override
-  set cacheTxsTimestamp(int value) {
-    _$cacheTxsTimestampAtom.reportWrite(value, super.cacheTxsTimestamp, () {
-      super.cacheTxsTimestamp = value;
-    });
-  }
-
-  final _$isTxsLoadingAtom = Atom(name: '_AssetsStore.isTxsLoading');
+  late final _$isTxsLoadingAtom =
+      Atom(name: '_AssetsStore.isTxsLoading', context: context);
 
   @override
   bool get isTxsLoading {
@@ -39,7 +33,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$isBalanceLoadingAtom = Atom(name: '_AssetsStore.isBalanceLoading');
+  late final _$isBalanceLoadingAtom =
+      Atom(name: '_AssetsStore.isBalanceLoading', context: context);
 
   @override
   bool get isBalanceLoading {
@@ -54,7 +49,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$accountsInfoAtom = Atom(name: '_AssetsStore.accountsInfo');
+  late final _$accountsInfoAtom =
+      Atom(name: '_AssetsStore.accountsInfo', context: context);
 
   @override
   ObservableMap<String, AccountInfo> get accountsInfo {
@@ -69,7 +65,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$tokenBalancesAtom = Atom(name: '_AssetsStore.tokenBalances');
+  late final _$tokenBalancesAtom =
+      Atom(name: '_AssetsStore.tokenBalances', context: context);
 
   @override
   Map<String, String> get tokenBalances {
@@ -84,7 +81,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$transferFeesAtom = Atom(name: '_AssetsStore.transferFees');
+  late final _$transferFeesAtom =
+      Atom(name: '_AssetsStore.transferFees', context: context);
 
   @override
   Fees get transferFees {
@@ -99,7 +97,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$txsCountAtom = Atom(name: '_AssetsStore.txsCount');
+  late final _$txsCountAtom =
+      Atom(name: '_AssetsStore.txsCount', context: context);
 
   @override
   int get txsCount {
@@ -114,7 +113,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$pendingTxsAtom = Atom(name: '_AssetsStore.pendingTxs');
+  late final _$pendingTxsAtom =
+      Atom(name: '_AssetsStore.pendingTxs', context: context);
 
   @override
   ObservableList<TransferData> get pendingTxs {
@@ -129,7 +129,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$txsAtom = Atom(name: '_AssetsStore.txs');
+  late final _$txsAtom = Atom(name: '_AssetsStore.txs', context: context);
 
   @override
   ObservableList<TransferData> get txs {
@@ -144,7 +144,23 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$txsFilterAtom = Atom(name: '_AssetsStore.txsFilter');
+  late final _$feeTxsAtom = Atom(name: '_AssetsStore.feeTxs', context: context);
+
+  @override
+  ObservableList<FeeTransferData> get feeTxs {
+    _$feeTxsAtom.reportRead();
+    return super.feeTxs;
+  }
+
+  @override
+  set feeTxs(ObservableList<FeeTransferData> value) {
+    _$feeTxsAtom.reportWrite(value, super.feeTxs, () {
+      super.feeTxs = value;
+    });
+  }
+
+  late final _$txsFilterAtom =
+      Atom(name: '_AssetsStore.txsFilter', context: context);
 
   @override
   int get txsFilter {
@@ -159,7 +175,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$marketPricesAtom = Atom(name: '_AssetsStore.marketPrices');
+  late final _$marketPricesAtom =
+      Atom(name: '_AssetsStore.marketPrices', context: context);
 
   @override
   ObservableMap<String, double> get marketPrices {
@@ -174,8 +191,8 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  final _$setAccountInfoAsyncAction =
-      AsyncAction('_AssetsStore.setAccountInfo');
+  late final _$setAccountInfoAsyncAction =
+      AsyncAction('_AssetsStore.setAccountInfo', context: context);
 
   @override
   Future<void> setAccountInfo(String pubKey, Map<dynamic, dynamic> amt,
@@ -184,22 +201,32 @@ mixin _$AssetsStore on _AssetsStore, Store {
         .run(() => super.setAccountInfo(pubKey, amt, needCache: needCache));
   }
 
-  final _$clearTxsAsyncAction = AsyncAction('_AssetsStore.clearTxs');
+  late final _$clearTxsAsyncAction =
+      AsyncAction('_AssetsStore.clearTxs', context: context);
 
   @override
   Future<void> clearTxs() {
     return _$clearTxsAsyncAction.run(() => super.clearTxs());
   }
 
-  final _$clearPendingTxsAsyncAction =
-      AsyncAction('_AssetsStore.clearPendingTxs');
+  late final _$clearFeeTxsAsyncAction =
+      AsyncAction('_AssetsStore.clearFeeTxs', context: context);
+
+  @override
+  Future<void> clearFeeTxs() {
+    return _$clearFeeTxsAsyncAction.run(() => super.clearFeeTxs());
+  }
+
+  late final _$clearPendingTxsAsyncAction =
+      AsyncAction('_AssetsStore.clearPendingTxs', context: context);
 
   @override
   Future<void> clearPendingTxs() {
     return _$clearPendingTxsAsyncAction.run(() => super.clearPendingTxs());
   }
 
-  final _$addPendingTxsAsyncAction = AsyncAction('_AssetsStore.addPendingTxs');
+  late final _$addPendingTxsAsyncAction =
+      AsyncAction('_AssetsStore.addPendingTxs', context: context);
 
   @override
   Future<void> addPendingTxs(List<dynamic>? ls, String address) {
@@ -207,7 +234,18 @@ mixin _$AssetsStore on _AssetsStore, Store {
         .run(() => super.addPendingTxs(ls, address));
   }
 
-  final _$addTxsAsyncAction = AsyncAction('_AssetsStore.addTxs');
+  late final _$addFeeTxsAsyncAction =
+      AsyncAction('_AssetsStore.addFeeTxs', context: context);
+
+  @override
+  Future<void> addFeeTxs(List<dynamic> ls, String address,
+      {bool shouldCache = false}) {
+    return _$addFeeTxsAsyncAction
+        .run(() => super.addFeeTxs(ls, address, shouldCache: shouldCache));
+  }
+
+  late final _$addTxsAsyncAction =
+      AsyncAction('_AssetsStore.addTxs', context: context);
 
   @override
   Future<void> addTxs(List<dynamic> ls, String address,
@@ -216,23 +254,24 @@ mixin _$AssetsStore on _AssetsStore, Store {
         .run(() => super.addTxs(ls, address, shouldCache: shouldCache));
   }
 
-  final _$setFeesMapAsyncAction = AsyncAction('_AssetsStore.setFeesMap');
+  late final _$setFeesMapAsyncAction =
+      AsyncAction('_AssetsStore.setFeesMap', context: context);
 
   @override
   Future<void> setFeesMap(Map<String, double> fees) {
     return _$setFeesMapAsyncAction.run(() => super.setFeesMap(fees));
   }
 
-  final _$loadAccountCacheAsyncAction =
-      AsyncAction('_AssetsStore.loadAccountCache');
+  late final _$loadAccountCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadAccountCache', context: context);
 
   @override
   Future<void> loadAccountCache() {
     return _$loadAccountCacheAsyncAction.run(() => super.loadAccountCache());
   }
 
-  final _$loadMarketPricesCacheAsyncAction =
-      AsyncAction('_AssetsStore.loadMarketPricesCache');
+  late final _$loadMarketPricesCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadMarketPricesCache', context: context);
 
   @override
   Future<void> loadMarketPricesCache() {
@@ -240,29 +279,32 @@ mixin _$AssetsStore on _AssetsStore, Store {
         .run(() => super.loadMarketPricesCache());
   }
 
-  final _$loadFeesCacheAsyncAction = AsyncAction('_AssetsStore.loadFeesCache');
+  late final _$loadFeesCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadFeesCache', context: context);
 
   @override
   Future<void> loadFeesCache() {
     return _$loadFeesCacheAsyncAction.run(() => super.loadFeesCache());
   }
 
-  final _$clearAccountCacheAsyncAction =
-      AsyncAction('_AssetsStore.clearAccountCache');
+  late final _$clearAccountCacheAsyncAction =
+      AsyncAction('_AssetsStore.clearAccountCache', context: context);
 
   @override
   Future<void> clearAccountCache() {
     return _$clearAccountCacheAsyncAction.run(() => super.clearAccountCache());
   }
 
-  final _$loadCacheAsyncAction = AsyncAction('_AssetsStore.loadCache');
+  late final _$loadCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadCache', context: context);
 
   @override
   Future<void> loadCache() {
     return _$loadCacheAsyncAction.run(() => super.loadCache());
   }
 
-  final _$_AssetsStoreActionController = ActionController(name: '_AssetsStore');
+  late final _$_AssetsStoreActionController =
+      ActionController(name: '_AssetsStore', context: context);
 
   @override
   void setTxsLoading(bool isLoading) {
@@ -300,7 +342,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
   @override
   String toString() {
     return '''
-cacheTxsTimestamp: ${cacheTxsTimestamp},
 isTxsLoading: ${isTxsLoading},
 isBalanceLoading: ${isBalanceLoading},
 accountsInfo: ${accountsInfo},
@@ -309,8 +350,10 @@ transferFees: ${transferFees},
 txsCount: ${txsCount},
 pendingTxs: ${pendingTxs},
 txs: ${txs},
+feeTxs: ${feeTxs},
 txsFilter: ${txsFilter},
-marketPrices: ${marketPrices}
+marketPrices: ${marketPrices},
+totalTxs: ${totalTxs}
     ''';
   }
 }
