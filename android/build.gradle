@@ -1,13 +1,13 @@
 buildscript {
     ext.kotlin_version = '1.6.0'
     repositories {
-//        google()
-//        jcenter()
-//        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
-        maven{ url 'https://maven.aliyun.com/repository/central' }
-        maven{ url 'https://maven.aliyun.com/repository/public' }
-        maven{ url 'https://maven.aliyun.com/repository/google' }
-        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        google()
+        jcenter()
+        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
+//        maven{ url 'https://maven.aliyun.com/repository/central' }
+//        maven{ url 'https://maven.aliyun.com/repository/public' }
+//        maven{ url 'https://maven.aliyun.com/repository/google' }
+//        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin' }
     }
 
     dependencies {
@@ -18,14 +18,14 @@ buildscript {
 
 allprojects {
     repositories {
-//        google()
-//        mavenCentral()
-//        jcenter()
-//        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
-        maven{ url 'https://maven.aliyun.com/repository/central' }
-        maven{ url 'https://maven.aliyun.com/repository/public' }
-        maven{ url 'https://maven.aliyun.com/repository/google' }
-        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        google()
+        mavenCentral()
+        jcenter()
+        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
+//        maven{ url 'https://maven.aliyun.com/repository/central' }
+//        maven{ url 'https://maven.aliyun.com/repository/public' }
+//        maven{ url 'https://maven.aliyun.com/repository/google' }
+//        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin' }
     }
 }
 

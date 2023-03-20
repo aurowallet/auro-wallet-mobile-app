@@ -299,8 +299,8 @@ class NodeItem extends StatelessWidget {
                                         mainAxisSize: MainAxisSize.max,
                                         children: [
                                           Flexible(
-                                              child: Text(Fmt.breakWord(Fmt.stringSlice(text, 8, withEllipsis: true))!,
-                                                  overflow: TextOverflow.ellipsis,
+                                              child: Text(Fmt.breakWord(text)!,
+                                                  // overflow: TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       color: ColorsUtil.hexColor(0x01000D),

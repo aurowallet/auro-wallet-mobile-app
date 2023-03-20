@@ -52,7 +52,6 @@ class _TransferPageState extends State<TransferPage> {
   bool submitting = false;
   double? currentFee;
   bool inputDirty = false;
-  double? selectedFee;
   String? contactName;
   ContactData? _contactData;
 
@@ -86,12 +85,11 @@ class _TransferPageState extends State<TransferPage> {
 
   void _onFeeInputChange() {
     setState((){
+      inputDirty = true;
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
-        inputDirty = true;
       } else {
-        inputDirty = false;
-        currentFee = store.assets!.transferFees.medium;
+        currentFee = null;
       }
     });
   }
@@ -166,8 +164,8 @@ class _TransferPageState extends State<TransferPage> {
 
   void _handleSubmit() async {
     _unFocus();
-    if (_nonceCtrl.text.isEmpty) {
-      if (_loading.value && currentFee == null) {
+    if (_nonceCtrl.text.isEmpty && currentFee == null) {
+      if (_loading.value) {
         // waiting nonce data from server and user does not choose fee
         setState(() {
           submitting = true;
@@ -190,7 +188,7 @@ class _TransferPageState extends State<TransferPage> {
         inferredNonce = store
             .assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
       }
-      fee = currentFee!;
+      fee = _feeCtrl.text.isNotEmpty ? double.parse(Fmt.parseNumber(_feeCtrl.text)) : currentFee!;
       double amountToTransfer = amount;
       if (_isAllTransfer()) {
         amountToTransfer = amount - fee;
@@ -293,7 +291,8 @@ class _TransferPageState extends State<TransferPage> {
     print('_onFeeLoaded');
     setState(() {
       currentFee = fees.medium;
-      selectedFee = fees.medium;
+      _feeCtrl.text = currentFee.toString();
+      print('set fee ctr');
     });
   }
 
@@ -316,7 +315,7 @@ class _TransferPageState extends State<TransferPage> {
         store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
             BigInt.from(0);
     final int decimals = COIN.decimals;
-    double fee = currentFee!;
+    double fee = _feeCtrl.text.isNotEmpty ? double.parse(Fmt.parseNumber(_feeCtrl.text)) : currentFee!;
     if (_amountCtrl.text.isEmpty) {
       return dic['amountError']!;
     }
@@ -331,10 +330,9 @@ class _TransferPageState extends State<TransferPage> {
     return null;
   }
   void _onChooseFee (double fee) {
-    _feeCtrl.text = '';
+    _feeCtrl.text = fee.toString();
     setState(() {
       currentFee = fee;
-      selectedFee = fee;
     });
   }
   void _onChooseContact() async {
@@ -495,7 +493,6 @@ class _TransferPageState extends State<TransferPage> {
                           ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
-                            placeHolder: selectedFee,
                             nonceCtrl: _nonceCtrl,
                             noncePlaceHolder: store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce,
                             cap: fees.cap,

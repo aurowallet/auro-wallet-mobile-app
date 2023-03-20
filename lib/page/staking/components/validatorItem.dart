@@ -52,7 +52,7 @@ class ValidatorItem extends StatelessWidget {
                     children: [
                     Expanded(
                         child: Text(
-                            data.name == null ? Fmt.address(data.address, pad: 8) : data.name!,
+                            data.name == null ? Fmt.address(data.address, pad: 10) : data.name!,
                             style: TextStyle(
                               fontSize: 14,
                                 color: Colors.black,

@@ -51,24 +51,23 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 28),
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12.0))
+          borderRadius: BorderRadius.all(Radius.circular(20.0))
       ),
       child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(20).copyWith(bottom: 0),
             child: Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: 0),
+                  padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                   child: Text(widget.title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black)),
                 ),
                 InputItem(
                   initialValue: '',
                   placeholder: widget.placeholder,
-                  padding: EdgeInsets.only(top: 20, left: 10, right: 10),
+                  padding: EdgeInsets.only(top: 20, left: 30, right: 30),
                   controller: _textCtrl,
                 ),
                 Container(
@@ -83,7 +82,13 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                         height: 48,
                         child: TextButton(
                           style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).primaryColor,
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                ),
+                                // side: BorderSide(color: Colors.red)
+                              ),
                               textStyle: TextStyle(
                                   color: Colors.black
                               )
@@ -106,7 +111,13 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                         height: 48,
                         child: TextButton(
                           style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).primaryColor
+                              foregroundColor: Theme.of(context).primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                // side: BorderSide(color: Colors.red)
+                              )
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

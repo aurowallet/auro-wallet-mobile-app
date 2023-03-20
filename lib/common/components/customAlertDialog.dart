@@ -77,9 +77,16 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                   ),
                   TextButton(
                     style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).primaryColor,
-                      minimumSize: Size(double.infinity, 50),
-                      textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)
+                        foregroundColor: Theme.of(context).primaryColor,
+                        minimumSize: Size(double.infinity, 50),
+                        textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
+                          ),
+                          // side: BorderSide(color: Colors.red)
+                        )
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

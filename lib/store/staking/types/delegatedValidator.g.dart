@@ -9,8 +9,8 @@ part of 'delegatedValidator.dart';
 DelegatedValidator _$DelegatedValidatorFromJson(Map<String, dynamic> json) =>
     DelegatedValidator(
       json['publicKey'] as String,
-      (json['countDelegates'] as num).toDouble(),
-      (json['totalDelegated'] as num).toDouble(),
+      (json['countDelegates'] as num?)?.toDouble(),
+      (json['totalDelegated'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$DelegatedValidatorToJson(DelegatedValidator instance) =>

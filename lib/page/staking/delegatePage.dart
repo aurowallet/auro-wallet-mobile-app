@@ -53,7 +53,6 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   var _loading = Observable(true);
   bool inputDirty = false;
   double? currentFee;
-  double? selectedFee;
 
   @override
   void initState() {
@@ -86,11 +85,11 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
 
   void _onFeeInputChange() {
     setState((){
+      inputDirty = true;
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
-        inputDirty = true;
       } else {
-        currentFee = store.assets!.transferFees.medium;
+        currentFee = null;
       }
     });
   }
@@ -113,9 +112,11 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     if (inputDirty) {
       return;
     }
+    print('_onFeeLoaded');
     if (currentFee == null) {
       currentFee = fees.medium;
-      selectedFee = fees.medium;
+      _feeCtrl.text = currentFee.toString();
+      print('set fee ctr');
     }
   }
 
@@ -130,10 +131,9 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   }
 
   void _onChooseFee (double fee) {
-    _feeCtrl.text = '';
+    _feeCtrl.text = fee.toString();
     setState(() {
       currentFee = fee;
-      selectedFee = fee;
     });
   }
 
@@ -141,7 +141,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     final Map<String, String> dic = I18n.of(context).main;
     BigInt available = store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ?? BigInt.from(0);
     final int decimals = COIN.decimals;
-    double fee = currentFee!;
+    double fee = _feeCtrl.text.isNotEmpty ? double.parse(Fmt.parseNumber(_feeCtrl.text)) : currentFee!;
     if (available / BigInt.from(pow(10, decimals)) - fee <= 0) {
       return dic['balanceNotEnough']!;
     }
@@ -205,7 +205,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
       } else {
         inferredNonce = store.assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
       }
-      fee = currentFee!;
+      fee = _feeCtrl.text.isNotEmpty ? double.parse(Fmt.parseNumber(_feeCtrl.text)) : currentFee!;
       DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
       ValidatorData? validatorData = params.validatorData;
       String validatorAddress = params.manualAddValidator ? _validatorCtrl.text.trim() : validatorData!.address;
@@ -222,19 +222,25 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
         txItems.insert(3, TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
       }
       bool isWatchMode = store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
+      String validateName;
+      if (params.manualAddValidator) {
+        validateName = Fmt.address(validatorAddress, pad: 10);
+      } else {
+        validateName = validatorData!.name ?? Fmt.address(validatorAddress, pad: 10);
+      }
       UI.showTxConfirm(
           context: context,
           title: i18n['sendDetail']!,
           items: txItems,
-          headLabel: !params.manualAddValidator ? i18n['producerName']! : null,
-          headValue: !params.manualAddValidator ? Text(
-            validatorData!.name ?? Fmt.address(validatorAddress, pad: 8),
+          headLabel: i18n['producerName']!,
+          headValue: Text(
+            validateName,
             style: TextStyle(
                 fontSize: 20,
                 color: Colors.black,
                 fontWeight: FontWeight.w600
             ),
-          ) : null,
+          ),
           disabled: isWatchMode,
           buttonText: isWatchMode ? i18n['watchMode']: i18n['confirm'],
           onConfirm: () async {
@@ -344,7 +350,6 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
-                            placeHolder: selectedFee,
                             noncePlaceHolder: store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce,
                             cap: fees.cap,
                           )

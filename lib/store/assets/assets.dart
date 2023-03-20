@@ -72,12 +72,12 @@ abstract class _AssetsStore with Store {
       return Fmt.toDatetime(dateTimeStr);
     };
     List<TransferData> totals = [];
-    print('Txs length' + feeTxs.length.toString());
-    print('feetxs length' + feeTxs.length.toString());
+    // print('Txs length' + feeTxs.length.toString());
+    // print('feetxs length' + feeTxs.length.toString());
     totals.addAll(txs);
-    totals.addAll(feeTxs.map((element) {
-      return TransferData.fromFeeTransfer(element);
-    }));
+    // totals.addAll(feeTxs.map((element) {
+    //   return TransferData.fromFeeTransfer(element);
+    // }));
     totals.sort((tx1, tx2) {
       var dateTime1 = gettime(tx1);
       var dateTime2 = gettime(tx2);

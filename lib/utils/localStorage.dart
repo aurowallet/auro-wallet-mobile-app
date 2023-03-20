@@ -64,6 +64,10 @@ class LocalStorage {
     return storage.setKV('${customKVKey}_$key', str);
   }
 
+  Future<bool> removeKey(String key) async {
+    return storage.removeKey('${customKVKey}_$key');
+  }
+
   Future<Object?> getObject(String key) async {
     String? value = await storage.getKV('${customKVKey}_$key');
     if (value != null) {
@@ -116,6 +120,11 @@ class _LocalStorage {
   Future<bool> setKV(String key, String value) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.setString(key, value);
+  }
+
+  Future<bool> removeKey(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.remove(key);
   }
 
   Future<void> addItemToList(String storeKey, Map<String, dynamic> acc) async {

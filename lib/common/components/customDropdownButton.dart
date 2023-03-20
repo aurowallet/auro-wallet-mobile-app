@@ -31,7 +31,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
         child: Container(
           height: 30,
           constraints: BoxConstraints(
-            minWidth: 100,
+            // minWidth: 100,
           ),
           child: Center(
               child: DropdownButtonHideUnderline(
@@ -54,7 +54,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                         return Container(
                           padding: EdgeInsets.only(right: 4),
                           constraints: BoxConstraints(
-                            minWidth: 60
+                            minWidth: 82 * MediaQuery.of(context).textScaleFactor
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

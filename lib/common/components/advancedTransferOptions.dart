@@ -9,12 +9,11 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:flutter/services.dart';
 class AdvancedTransferOptions extends StatefulWidget {
-  AdvancedTransferOptions({required this.nonceCtrl,required this.feeCtrl, this.noncePlaceHolder, required this.placeHolder, required this.cap});
+  AdvancedTransferOptions({required this.nonceCtrl,required this.feeCtrl, this.noncePlaceHolder, required this.cap});
   final TextEditingController nonceCtrl;
   final TextEditingController feeCtrl;
   final int? noncePlaceHolder;
   final double cap;
-  final double? placeHolder;
 
   @override
   _AdvancedTransferOptionsState createState() => _AdvancedTransferOptionsState();
@@ -26,8 +25,8 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
   void onToggle() {
     setState(() {
       visibility = !visibility;
-      widget.nonceCtrl.clear();
-      widget.feeCtrl.clear();
+      // widget.nonceCtrl.clear();
+      // widget.feeCtrl.clear();
     });
   }
   bool _validateFee(String fee) {
@@ -72,7 +71,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                     InputItem(
                       label: dic['fee']!,
                       padding: EdgeInsets.zero,
-                      placeholder: widget.placeHolder != null ? widget.placeHolder.toString() : '0',
+                      // placeholder: widget.placeHolder != null ? widget.placeHolder.toString() : '0',
                       controller: widget.feeCtrl,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [

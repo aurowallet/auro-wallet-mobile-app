@@ -18,14 +18,6 @@ class ApiAssets {
     );
     const String query = r'''
       query fetchTxListQuery($pubKey: String) {
-  feetransfers(limit: 15, sortBy: DATETIME_DESC, query: {
-  canonical: true, 
-  OR: [{recipient: $pubKey}]}) {
-    recipient
-    type
-    fee
-    dateTime
-  }
   transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true, 
   OR: [
   {to: $pubKey}, 
@@ -66,11 +58,11 @@ class ApiAssets {
     store.assets!.clearTxs();
     await store.assets!.addTxs(list, pubKey, shouldCache: true);
 
-    List<dynamic> feeTransferList = result.data!['feetransfers'];
-    print('feetransfers');
-    print(feeTransferList.length);
-    store.assets!.clearFeeTxs();
-    await store.assets!.addFeeTxs(feeTransferList, pubKey, shouldCache: true);
+    // List<dynamic> feeTransferList = result.data!['feetransfers'];
+    // print('feetransfers');
+    // print(feeTransferList.length);
+    // store.assets!.clearFeeTxs();
+    // await store.assets!.addFeeTxs(feeTransferList, pubKey, shouldCache: true);
     // cache first page of txs
   }
 

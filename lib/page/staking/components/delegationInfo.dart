@@ -97,7 +97,7 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                       labelText: i18n['blockProducerAddress']!,
-                      value: Fmt.address(delegate, pad: 8),
+                      value: Fmt.address(delegate, pad: 10),
                       noBottom: false,
                     )
                   ]
@@ -117,7 +117,7 @@ class DelegateInfo extends StatelessWidget {
                           margin: EdgeInsets.only(right: 100),
                           child: DelegateInfoItem(
                               labelText: i18n['blockProducerName']!,
-                              value: validatorName  ?? Fmt.address(delegate, pad: 8)
+                              value: validatorName  ?? Fmt.address(delegate, pad: 10)
                           ),
                         )
                     )
@@ -144,7 +144,7 @@ class DelegateInfo extends StatelessWidget {
                   children: [
                     DelegateInfoItem(
                         labelText: i18n['producerTotalDelegations']!,
-                        value: validatorInfo.countDelegates.toString()
+                        value: Fmt.priceFloor(validatorInfo.countDelegates ?? 0, lengthFixed: 0)
                     )
                   ]
               ),

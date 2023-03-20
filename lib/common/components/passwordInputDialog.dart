@@ -29,6 +29,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
 
   bool _isBiometricAuthorized = false; // if user authorized biometric usage
   bool _isCheckingBiometric = true;
+  bool _isConfirmButtonEnabled = false;
 
   @override
   void initState() {
@@ -146,6 +147,11 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                 padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                 controller: _passCtrl,
                 isPassword: true,
+                onChanged: (value) {
+                  setState(() {
+                    _isConfirmButtonEnabled = value.isNotEmpty;
+                  });
+                },
                 // clearButtonMode: OverlayVisibilityMode.editing,
               ),
             ),
@@ -162,6 +168,12 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                     child: TextButton(
                       style: TextButton.styleFrom(
                           foregroundColor: Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(20)
+                            ),
+                            // side: BorderSide(color: Colors.red)
+                          ),
                           textStyle: TextStyle(
                               color: Colors.black
                           )
@@ -181,7 +193,13 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                     height: 48,
                     child: TextButton(
                       style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).primaryColor
+                          foregroundColor: Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(20)
+                            ),
+                            // side: BorderSide(color: Colors.red)
+                          )
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -190,10 +208,10 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                               padding: EdgeInsets.only(right: 5),
                               child: CupertinoTheme( data: CupertinoTheme.of(context).copyWith(brightness: Brightness.dark), child: CupertinoActivityIndicator(),)
                           ): Container(),
-                          Text(dic['confirm']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16, fontWeight: FontWeight.w600))
+                          Text(dic['confirm']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))
                         ],
                       ),
-                      onPressed: _submitting ? (){} : () => _onOk(_passCtrl.text.trim()),
+                      onPressed: !_isConfirmButtonEnabled ? null : _submitting ? (){} : () => _onOk(_passCtrl.text.trim()),
                     ),
 
                   ),)

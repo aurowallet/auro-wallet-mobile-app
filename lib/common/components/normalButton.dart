@@ -13,7 +13,7 @@ class NormalButton extends StatelessWidget {
     this.radius = 12,
     this.height = 48,
     this.shrink = false,
-    this.padding = const EdgeInsets.only(top: 12, bottom: 12)
+    this.padding =  EdgeInsets.zero
   }) : assert(text != null);
 
   final String text;
@@ -64,6 +64,7 @@ class NormalButton extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: row,
       ),
       onPressed: disabled ? null : submitting ? (){} : onPressed,

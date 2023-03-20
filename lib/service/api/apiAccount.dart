@@ -45,8 +45,9 @@ class ApiAccount {
     store.wallet!.setCurrentAccount(current!);
 
     // refresh balance
-    store.assets!.clearTxs();
-    store.assets!.loadAccountCache();
+    await store.assets!.clearTxs();
+    await store.staking!.clearDelegatedValidator();
+    await store.assets!.loadAccountCache();
     if (fetchData) {
       globalBalanceRefreshKey.currentState!.show();
     }
