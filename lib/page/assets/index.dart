@@ -574,7 +574,7 @@ class TransferListItem extends StatelessWidget {
     if (address == null) {
       title = data.type.toUpperCase();
     } else {
-      title = Fmt.address(address, pad: 8);
+      title = Fmt.address(address, pad: 10);
     }
     var theme = Theme.of(context).textTheme;
     final Map i18n = I18n.of(context).main;

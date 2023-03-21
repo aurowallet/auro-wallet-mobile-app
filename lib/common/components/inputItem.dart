@@ -10,7 +10,7 @@ class InputItem extends StatefulWidget {
       {
         this.label,
         this.initialValue,
-        this.onChange,
+        this.onChanged,
         this.rightWidget,
         this.inputFormatters,
         this.keyboardType = TextInputType.text,
@@ -41,7 +41,7 @@ class InputItem extends StatefulWidget {
   final String? placeholder;
   final bool isPassword;
   final String? initialValue;
-  final Function? onChange;
+  final void Function(String)? onChanged;
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final TextEditingController? controller;
@@ -151,6 +151,7 @@ class _InputItemState extends State<InputItem> {
               focusNode: widget.focusNode,
               autocorrect: false,
               autofocus: widget.autoFocus,
+              onChanged: widget.onChanged,
               decoration: InputDecoration(
                 hintText: widget.placeholder,
                 filled: true,

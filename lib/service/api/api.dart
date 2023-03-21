@@ -133,7 +133,7 @@ class Api {
       if (result.exception!.graphqlErrors.length > 0) {
         message = result.exception!.graphqlErrors[0].message;
       } else {
-        message = i18n['neterror']!;
+        message = result.exception.toString();
       }
       return GqlResult(result: null, error: true, errorMessage: message);
     }

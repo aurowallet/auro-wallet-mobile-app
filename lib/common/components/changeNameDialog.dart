@@ -72,6 +72,12 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                         child: TextButton(
                           style: TextButton.styleFrom(
                               foregroundColor: Theme.of(context).primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(20)
+                                ),
+                                // side: BorderSide(color: Colors.red)
+                              ),
                               textStyle: TextStyle(
                                   color: Colors.black
                               )
@@ -94,7 +100,13 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                         height: 48,
                         child: TextButton(
                           style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).primaryColor
+                              foregroundColor: Theme.of(context).primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                    bottomRight: Radius.circular(20)
+                                ),
+                                // side: BorderSide(color: Colors.red)
+                              )
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

@@ -73,7 +73,19 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                   Expanded(child: SizedBox(
                     height: 48,
                     child: TextButton(
-                      child: Text(widget.cancelText ?? dic['cancel']!, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
+                      style: TextButton.styleFrom(
+                          textStyle: TextStyle(
+                              color: Colors.black
+                          ),
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(20)
+                            ),
+                            // side: BorderSide(color: Colors.red)
+                          )
+                      ),
+                      child: Text(widget.cancelText ?? dic['cancel']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                       onPressed: () {
                         if (widget.onCancel != null) {
                           widget.onCancel!();
@@ -91,7 +103,13 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                     height: 48,
                     child: TextButton(
                       style: TextButton.styleFrom(
-                          foregroundColor: widget.okColor ?? Theme.of(context).primaryColor
+                          foregroundColor: widget.okColor ?? Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(20)
+                            ),
+                            // side: BorderSide(color: Colors.red)
+                          )
                       ),
                       child: Text(widget.okText ?? dic['confirm']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                       onPressed: () {

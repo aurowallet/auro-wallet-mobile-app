@@ -48,6 +48,8 @@ abstract class _StakingStore with Store {
 
   @action
   void setDelegatedInfo(Map<String, dynamic> data, {bool shouldCache = true}) {
+    print('Delegated data');
+    print(data);
     delegatedValidator = DelegatedValidator.fromJson(data);
     // cache data
     if (shouldCache) {
@@ -70,6 +72,12 @@ abstract class _StakingStore with Store {
   }
 
   @action
+  Future<void> clearDelegatedValidator() async {
+    delegatedValidator = null;
+    rootStore.localStorage.removeKey(localStorageDelegatedValidatorKey);
+  }
+
+  @action
   Future<void> loadCache() async {
     List cacheOverview = await Future.wait([
       rootStore.localStorage.getObject(localStorageValidatorsKey),
@@ -83,8 +91,8 @@ abstract class _StakingStore with Store {
     if (cacheOverview[1] != null) {
       setOverviewInfo(cacheOverview[1], shouldCache: false);
     }
-    if (cacheOverview[3] != null) {
-      setOverviewInfo(cacheOverview[1], shouldCache: false);
+    if (cacheOverview[2] != null) {
+      setDelegatedInfo(cacheOverview[2], shouldCache: false);
     }
   }
 }

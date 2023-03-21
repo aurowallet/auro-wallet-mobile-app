@@ -84,7 +84,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 30, right: 30),
+            padding: EdgeInsets.only(left: 0, right: 0, top: 20),
           child: Column(
             children: <Widget>[
                 ImportItem(
@@ -115,12 +115,12 @@ class ImportItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onClick,
       child: Container(
-          padding: EdgeInsets.symmetric(vertical: 15),
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
+            // border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
           ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

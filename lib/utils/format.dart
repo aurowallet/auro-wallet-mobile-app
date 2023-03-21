@@ -14,7 +14,7 @@ class Fmt {
     if (addr == null || addr.length == 0) {
       return '';
     }
-    return addr.substring(0, pad + (padSame ? 0 :2)) + '...' + addr.substring(addr.length - pad);
+    return addr.substring(0, pad) + '...' + addr.substring(addr.length - pad);
   }
 
   static String dateTime(DateTime? time) {
@@ -43,7 +43,7 @@ class Fmt {
     var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
     var str =  dateTime(dateValue);
     var timeZone = dateValue.timeZoneOffset.toString().split(':');
-    return str + ' ' + (dateValue.timeZoneOffset.isNegative ? '-' : '+') +  timeZone[0].padLeft(2, '0') + timeZone[1].padLeft(2, '0');
+    return str + ' GMT' + (dateValue.timeZoneOffset.isNegative ? '-' : '+') +  timeZone[0].padLeft(2, '0') + timeZone[1].padLeft(2, '0');
   }
 
   /// number transform 1:
