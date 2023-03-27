@@ -96,19 +96,19 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> setAccountInfo(String pubKey, Map amt, {bool needCache = true}) async {
-    if (rootStore.wallet!.currentWallet.pubKey != pubKey) return;
+    // if (rootStore.wallet!.currentWallet.pubKey != pubKey) return;
 
     accountsInfo[pubKey] = AccountInfo.fromJson(amt as Map<String, dynamic>);
 
 
     if (!needCache) return;
     Map? cache = await rootStore.localStorage.getAccountCache(
-      rootStore.wallet!.currentWallet.pubKey,
+      pubKey,
       cacheBalanceKey,
     ) as Map?;
     cache = amt;
     rootStore.localStorage.setAccountCache(
-      rootStore.wallet!.currentWallet.pubKey,
+      pubKey,
       cacheBalanceKey,
       cache,
     );
