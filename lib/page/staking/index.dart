@@ -41,7 +41,7 @@ class _StakingState extends State<Staking> {
     print(store.staking!.delegatedValidator?.publicKey);
     print('store.wallet!.currentAccountPubKey');
     print(store.wallet!.currentAccountPubKey);
-    return acc != null && store.staking!.delegatedValidator != null && store.staking!.delegatedValidator?.countDelegates != null;
+    return acc != null && store.staking!.delegatedValidator != null && store.staking!.delegatedValidator?.countDelegates != null && acc.delegate == store.staking!.delegatedValidator?.publicKey;
   }
 
   Future<void> _fetchData() async {

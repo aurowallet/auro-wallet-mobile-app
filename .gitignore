@@ -39,3 +39,5 @@ apiConfig.dart
 
 # android c compile file
 .cxx
+/rust/target/
+/rust/build/

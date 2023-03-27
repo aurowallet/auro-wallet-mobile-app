@@ -145,15 +145,26 @@ query delegationTotals($publicKey: String,$epoch:Int) {
     );
     final QueryResult result =  await client.query(_options);
     if (!result.hasException) {
-      Map<String, dynamic> res = {
-        ...result.data!['stake']['delegationTotals'],
-        'publicKey': delegate
-      };
-      store.staking!.setDelegatedInfo(res);
-      print('delegationTotals result');
-      print(delegate);
-      print(epoch);
-      print(result.data);
+      if(result.data!['stake'] != null){
+        print('res stake');
+        Map<String, dynamic> res = {
+          ...result.data!['stake']['delegationTotals'],
+          'publicKey': delegate
+        };
+        store.staking!.setDelegatedInfo(res);
+        print('delegationTotals result');
+        print(delegate);
+        print(epoch);
+        print(result.data);
+      } else {
+        print('stake info is null');
+        Map<String, dynamic> res = {
+          'countDelegates': 0,
+          'totalDelegated': 0,
+          'publicKey': delegate
+        };
+        store.staking!.setDelegatedInfo(res);
+      }
     }
   }
 }
