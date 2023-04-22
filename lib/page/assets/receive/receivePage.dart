@@ -42,6 +42,10 @@ class ReceivePage extends StatelessWidget {
     Color themeColor = Theme.of(context).primaryColor;
     var i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
+    var textButtonStyle = TextButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        foregroundColor: Theme.of(context).primaryColor,
+        textStyle: TextStyle(color: Colors.black));
     return RepaintBoundary(
         key: _globalKey,
         child: Scaffold(
@@ -87,18 +91,10 @@ class ReceivePage extends StatelessWidget {
                               children: [
                                 Positioned.fill(
                                   child: Container(
-                                    child: new ClipPath(
-                                        clipper: new InvertedCircleClipper(),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.vertical(
-                                                      bottom:
-                                                          Radius.circular(12),
-                                                      top:
-                                                          Radius.circular(12))),
-                                        )),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
                                   ),
                                   top: 0,
                                   bottom: 0,
@@ -182,12 +178,7 @@ class ReceivePage extends StatelessWidget {
                                                 child: SizedBox(
                                               height: 48,
                                               child: TextButton(
-                                                style: TextButton.styleFrom(
-                                                    foregroundColor:
-                                                        Theme.of(context)
-                                                            .primaryColor,
-                                                    textStyle: TextStyle(
-                                                        color: Colors.black)),
+                                                style: textButtonStyle,
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
@@ -220,6 +211,7 @@ class ReceivePage extends StatelessWidget {
                                               child: SizedBox(
                                                 height: 48,
                                                 child: TextButton(
+                                                  style: textButtonStyle,
                                                   child: Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show SynchronousFuture;
 import 'main.dart';
+import 'staking.dart';
 import 'home.dart';
 import 'settings.dart';
 
@@ -45,11 +46,13 @@ class I18n {
       'main': enMain,
       'home': enHome,
       'settings': enSettings,
+      'staking': enStaking,
     },
     'zh': {
       'main': zhMain,
       'home': zhHome,
       'settings': zhSettings,
+      'staking': zhStaking,
     },
   };
 
@@ -61,9 +64,11 @@ class I18n {
     return _localizedValues[locale.languageCode]!['home']!;
   }
 
-
   Map<String, String> get settings {
     return _localizedValues[locale.languageCode]!['settings']!;
   }
 
+  Map<String, String> get staking {
+    return _localizedValues[locale.languageCode]!['staking']!;
+  }
 }
