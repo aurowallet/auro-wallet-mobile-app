@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class CustomConfirmDialog extends StatefulWidget {
-  CustomConfirmDialog({required this.title,required this.contents, this.okColor, this.onOk, this.onCancel, this.cancelText, this.okText, this.icon});
+  CustomConfirmDialog(
+      {required this.title,
+      required this.contents,
+      this.okColor,
+      this.onOk,
+      this.onCancel,
+      this.cancelText,
+      this.okText,
+      this.icon});
 
   final String title;
   final String? okText;
@@ -14,11 +22,11 @@ class CustomConfirmDialog extends StatefulWidget {
   final Widget? icon;
 
   @override
-  _CustomConfirmDialogDialogState createState() => _CustomConfirmDialogDialogState();
+  _CustomConfirmDialogDialogState createState() =>
+      _CustomConfirmDialogDialogState();
 }
 
 class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
-
   @override
   void dispose() {
     super.dispose();
@@ -29,101 +37,105 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
     final Map<String, String> dic = I18n.of(context).main;
 
     return Dialog(
+      clipBehavior: Clip.hardEdge,
       insetPadding: EdgeInsets.symmetric(horizontal: 28),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20.0))
-      ),
-      child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(20).copyWith(bottom: 0),
-            child: Column(
-              children: [
-                widget.icon != null ? Padding(padding: EdgeInsets.only(bottom: 10),child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    widget.icon!
-                  ],
-                ),): Container(),
-                Padding(
-                  padding: EdgeInsets.only(top: 0),
-                  child: Text(widget.title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                ),
-                widget.contents.length > 0 ? Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Column(
-                    children: widget.contents.map((content) => Text(content, style: TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w400
-                    ),)).toList(),
-                  ),
-                ): Container(),
-              ],
-            ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(20).copyWith(bottom: 0),
+          child: Column(
+            children: [
+              widget.icon != null
+                  ? Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [widget.icon!],
+                      ),
+                    )
+                  : Container(),
+              Padding(
+                padding: EdgeInsets.only(top: 0),
+                child: Text(widget.title,
+                    textAlign: TextAlign.center,
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              ),
+              widget.contents.length > 0
+                  ? Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Column(
+                        children: widget.contents
+                            .map((content) => Text(
+                                  content,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xCC000000),
+                                      fontWeight: FontWeight.w400),
+                                ))
+                            .toList(),
+                      ),
+                    )
+                  : Container(),
+            ],
           ),
-            Container(
-              margin: EdgeInsets.only(top: 30),
-              height: 1,
-              color: Colors.black.withOpacity(0.05),
-            ),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: SizedBox(
-                    height: 48,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                          textStyle: TextStyle(
-                              color: Colors.black
-                          ),
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(20)
-                            ),
-                            // side: BorderSide(color: Colors.red)
-                          )
-                      ),
-                      child: Text(widget.cancelText ?? dic['cancel']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      onPressed: () {
-                        if (widget.onCancel != null) {
-                          widget.onCancel!();
-                        }
-                        Navigator.of(context).pop(false);
-                      },
-                    ),
+        ),
+        Container(
+          margin: EdgeInsets.only(top: 30),
+          height: 1,
+          color: Colors.black.withOpacity(0.05),
+        ),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Expanded(
+              child: SizedBox(
+            height: 48,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                  textStyle: TextStyle(color: Colors.black),
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                    // side: BorderSide(color: Colors.red)
                   )),
-                  Container(
-                    width: 0.5,
-                    height: 48,
-                    color: Colors.black.withOpacity(0.1),
-                  ),
-                  Expanded(child: SizedBox(
-                    height: 48,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                          foregroundColor: widget.okColor ?? Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                bottomRight: Radius.circular(20)
-                            ),
-                            // side: BorderSide(color: Colors.red)
-                          )
-                      ),
-                      child: Text(widget.okText ?? dic['confirm']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      onPressed: () {
-                        if (widget.onOk != null) {
-                          widget.onOk!();
-                        }
-                        Navigator.of(context).pop(true);
-                      },
-                    ),
-                  )),
-                ]
+              child: Text(widget.cancelText ?? dic['cancel']!,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              onPressed: () {
+                if (widget.onCancel != null) {
+                  widget.onCancel!();
+                }
+                Navigator.of(context).pop(false);
+              },
             ),
-        ]
-      ),
+          )),
+          Container(
+            width: 0.5,
+            height: 48,
+            color: Colors.black.withOpacity(0.1),
+          ),
+          Expanded(
+              child: SizedBox(
+            height: 48,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                  foregroundColor:
+                      widget.okColor ?? Theme.of(context).primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                    // side: BorderSide(color: Colors.red)
+                  )),
+              child: Text(widget.okText ?? dic['confirm']!,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              onPressed: () {
+                if (widget.onOk != null) {
+                  widget.onOk!();
+                }
+                Navigator.of(context).pop(true);
+              },
+            ),
+          )),
+        ]),
+      ]),
     );
   }
 }

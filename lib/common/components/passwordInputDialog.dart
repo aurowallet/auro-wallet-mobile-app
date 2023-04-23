@@ -2,7 +2,8 @@ import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator, CupertinoTheme;
+import 'package:flutter/cupertino.dart'
+    show CupertinoActivityIndicator, CupertinoTheme;
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
@@ -51,15 +52,16 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       setState(() {
         _submitting = true;
       });
-      bool isCorrect = await webApi.account.checkAccountPassword(widget.wallet, password);
+      bool isCorrect =
+          await webApi.account.checkAccountPassword(widget.wallet, password);
       setState(() {
         _submitting = false;
       });
       if (!isCorrect) {
-          final Map<String, String> dic = I18n.of(context).main;
-          UI.toast(dic['passwordError']!);
-          Navigator.of(context).pop();
-          return;
+        final Map<String, String> dic = I18n.of(context).main;
+        UI.toast(dic['passwordError']!);
+        Navigator.of(context).pop();
+        return;
       }
     }
     // bool isCorrect = await webApi.account.checkAccountPassword(widget.wallet, password);
@@ -93,7 +95,8 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       // and user authorized to use biometric.
       if (isBiometricAuthorized) {
         try {
-          final authStorage = await webApi.account.getBiometricPassStoreFile(context);
+          final authStorage =
+              await webApi.account.getBiometricPassStoreFile(context);
           final result = await authStorage.read();
           if (result != null) {
             await _onOk(result);
@@ -111,8 +114,6 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     return response;
   }
 
-
-
   @override
   void dispose() {
     _passCtrl.dispose();
@@ -122,14 +123,15 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-    if ((_isBiometricAuthorized || _isCheckingBiometric) && !widget.inputPasswordRequired) {
+    if ((_isBiometricAuthorized || _isCheckingBiometric) &&
+        !widget.inputPasswordRequired) {
       return Container();
     }
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 28),
+      clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20.0))
-      ),
+          borderRadius: BorderRadius.all(Radius.circular(12.0))),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.only(top: 20),
@@ -138,7 +140,11 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 0),
-              child: Text(dic['securityPassword']!, style: TextStyle(fontSize: 18)),
+              child: Text(dic['securityPassword']!,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 20, left: 30, right: 30),
@@ -155,68 +161,72 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                 // clearButtonMode: OverlayVisibilityMode.editing,
               ),
             ),
-      Container(
-        margin: EdgeInsets.only(top: 30),
-        height: 1,
-        color: Colors.black.withOpacity(0.05),
-      ),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: SizedBox(
-                    height: 48,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(20)
-                            ),
-                            // side: BorderSide(color: Colors.red)
-                          ),
-                          textStyle: TextStyle(
-                              color: Colors.black
-                          )
-                      ),
-                      child: Text(dic['cancel']!, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  )),
-                  Container(
-                    width: 0.5,
-                    height: 48,
-                    color: Colors.black.withOpacity(0.1),
-                  ),
-                  Expanded(child: SizedBox(
-                    height: 48,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                          foregroundColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                bottomRight: Radius.circular(20)
-                            ),
-                            // side: BorderSide(color: Colors.red)
-                          )
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _submitting ? Padding(
-                              padding: EdgeInsets.only(right: 5),
-                              child: CupertinoTheme( data: CupertinoTheme.of(context).copyWith(brightness: Brightness.dark), child: CupertinoActivityIndicator(),)
-                          ): Container(),
-                          Text(dic['confirm']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))
-                        ],
-                      ),
-                      onPressed: !_isConfirmButtonEnabled ? null : _submitting ? (){} : () => _onOk(_passCtrl.text.trim()),
-                    ),
-
-                  ),)
-                ]
+            Container(
+              margin: EdgeInsets.only(top: 30),
+              height: 1,
+              color: Colors.black.withOpacity(0.05),
             ),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Expanded(
+                  child: SizedBox(
+                height: 48,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      textStyle: TextStyle(color: Colors.black)),
+                  child: Text(dic['cancel']!,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              )),
+              Container(
+                width: 0.5,
+                height: 48,
+                color: Colors.black.withOpacity(0.1),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        )),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _submitting
+                            ? Padding(
+                                padding: EdgeInsets.only(right: 5),
+                                child: CupertinoTheme(
+                                  data: CupertinoTheme.of(context)
+                                      .copyWith(brightness: Brightness.dark),
+                                  child: CupertinoActivityIndicator(),
+                                ))
+                            : Container(),
+                        Text(dic['confirm']!,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600))
+                      ],
+                    ),
+                    onPressed: !_isConfirmButtonEnabled
+                        ? null
+                        : _submitting
+                            ? () {}
+                            : () => _onOk(_passCtrl.text.trim()),
+                  ),
+                ),
+              )
+            ]),
           ],
         ),
       ),

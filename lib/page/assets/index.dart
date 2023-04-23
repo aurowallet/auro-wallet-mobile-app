@@ -384,7 +384,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                   Flexible(
                       child: Container(
                     height: 40.0,
-                    constraints: BoxConstraints(maxWidth: 140),
+                    // constraints: BoxConstraints(maxWidth: 140),
                     child: NormalButton(
                       color: Colors.white,
                       text: i18n['send']!,
@@ -401,7 +401,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                   Flexible(
                       child: Container(
                           height: 40,
-                          constraints: BoxConstraints(maxWidth: 140),
+                          // constraints: BoxConstraints(maxWidth: 140),
                           child: NormalButton(
                             color: Colors.white,
                             text: i18n['receive']!,

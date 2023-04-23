@@ -33,14 +33,15 @@ class _WalletManagePageState extends State<WalletManagePage> {
 
   final AppStore store;
 
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      webApi.assets.fetchBatchAccountsInfo(store.wallet!.accountListAll.map((acc)=>acc.pubKey).toList());
+      webApi.assets.fetchBatchAccountsInfo(
+          store.wallet!.accountListAll.map((acc) => acc.pubKey).toList());
     });
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -50,8 +51,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
     String? password = await UI.showPasswordDialog(
         context: context,
         wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: true
-    );
+        inputPasswordRequired: true);
     if (password == null) {
       return false;
     }
@@ -73,10 +73,11 @@ class _WalletManagePageState extends State<WalletManagePage> {
           UI.showAlertDialog(
               context: context,
               contents: [
-                dic['accountRepeatAlert']!.replaceAll('{address}', matchedAccount.address).replaceAll('{accountName}', matchedAccount.name)
+                dic['accountRepeatAlert']!
+                    .replaceAll('{address}', matchedAccount.address)
+                    .replaceAll('{accountName}', matchedAccount.name)
               ],
-              confirm: dic['isee']!
-          );
+              confirm: dic['isee']!);
           return false;
         } else {
           await store.wallet!.addAccount(accountData, accountName, wallet);
@@ -87,17 +88,20 @@ class _WalletManagePageState extends State<WalletManagePage> {
     }
     return true;
   }
+
   void _onCreate() {
-    Navigator.pushNamed(context, AccountNamePage.route, arguments: AccountNameParams(
-      callback: _onSubmitAccountName,
-      placeholder: 'Account ${store.wallet!.getNextWalletAccountIndex(store.wallet!.mnemonicWallet) + 1}'
-    ));
+    Navigator.pushNamed(context, AccountNamePage.route,
+        arguments: AccountNameParams(
+            callback: _onSubmitAccountName,
+            placeholder:
+                'Account ${store.wallet!.getNextWalletAccountIndex(store.wallet!.mnemonicWallet) + 1}'));
   }
+
   void _showActions() {
     Navigator.pushNamed(context, ImportWaysPage.route);
   }
-  List<Widget> _renderAccountList() {
 
+  List<Widget> _renderAccountList() {
     Map<String, WalletData> walletMap = store.wallet!.walletsMap;
     List<Widget> items = [];
     final watchModeAccounts = store.wallet!.watchModeAccountListAll;
@@ -112,29 +116,23 @@ class _WalletManagePageState extends State<WalletManagePage> {
         wallet: walletMap[account.walletId]!,
       );
     };
-    items.addAll(store.wallet!.accountListAll.map((account){
+    items.addAll(store.wallet!.accountListAll.map((account) {
       return renderItem(account);
     }));
     if (watchModeAccounts.length > 0) {
-      items.add(
-        Padding(
-          padding: EdgeInsets.only(
-              left: 28,
-              top: 20
-          ),
-          child: Text(
-            dic['noMoreSupported']!,
-            style: theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),
-          ),
-        )
-      );
-      items.addAll(
-          watchModeAccounts.map((account){
-            return renderItem(account);
-          })
-      );
+      items.add(Padding(
+        padding: EdgeInsets.only(left: 28, top: 20),
+        child: Text(
+          dic['noMoreSupported']!,
+          style:
+              theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),
+        ),
+      ));
+      items.addAll(watchModeAccounts.map((account) {
+        return renderItem(account);
+      }));
     }
-    
+
     return items;
   }
 
@@ -148,13 +146,10 @@ class _WalletManagePageState extends State<WalletManagePage> {
           height: 58,
         ),
         title: dic['resetWarnContentTitle']!,
-        contents: [
-          dic['resetWarnContent']!
-        ],
+        contents: [dic['resetWarnContent']!],
         okColor: Color(0xFFD65A5A),
         okText: dic['confirmReset']!,
-        cancelText: dic['cancelReset']!
-    );
+        cancelText: dic['cancelReset']!);
     if (confirmed != true) {
       return;
     }
@@ -162,27 +157,29 @@ class _WalletManagePageState extends State<WalletManagePage> {
       context: context,
       builder: (_) {
         return CustomPromptDialog(
-            title: dic['deleteConfirm']!,
-            placeholder: '',
-            onOk:(String? text) {
-              if (text == null || text.isEmpty) {
-                return false;
-              }
-              return true;
-            },
-          validate: (text){
+          title: dic['deleteConfirm']!,
+          placeholder: '',
+          onOk: (String? text) {
+            if (text == null || text.isEmpty) {
+              return false;
+            }
+            return true;
+          },
+          validate: (text) {
             return text.toLowerCase() == dic['delete']!.toLowerCase();
           },
         );
       },
     );
-    if (confirmInput != null && confirmInput.toLowerCase() == dic['delete']!.toLowerCase()) {
+    if (confirmInput != null &&
+        confirmInput.toLowerCase() == dic['delete']!.toLowerCase()) {
       store.wallet!.clearWallets();
       store.assets!.clearAccountCache();
       webApi.account.setBiometricDisabled();
       Phoenix.rebirth(context);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
@@ -190,20 +187,19 @@ class _WalletManagePageState extends State<WalletManagePage> {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.black,
-        title: Text(dic['accountManage']!, style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600
-        ),),
+        title: Text(
+          dic['accountManage']!,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
         actions: <Widget>[
           TextButton(
             style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(Colors.transparent)
+                overlayColor: MaterialStateProperty.all(Colors.transparent)),
+            child: Text(
+              dic['resetWallet']!,
+              style: TextStyle(fontSize: 14, color: Color(0xFFD65A5A)),
             ),
-            child: Text(dic['resetWallet']!, style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFFD65A5A)
-            ),),
             onPressed: _onResetApp,
           ),
         ],
@@ -226,52 +222,68 @@ class _WalletManagePageState extends State<WalletManagePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Expanded(
-                      child: ElevatedButton.icon(
-                      onPressed: _onCreate,
-                      icon: SvgPicture.asset(
-                        'assets/images/assets/add_wallet.svg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      label: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Text(dic['createAccount']!)],
-                      ),
-                      style: ElevatedButton.styleFrom(
-                          alignment: Alignment.centerLeft,
-                        backgroundColor: Theme.of(context).primaryColor,
-                        textStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12))
+                      child: ElevatedButton(
+                        onPressed: _onCreate,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SvgPicture.asset(
+                              'assets/images/assets/add_wallet.svg',
+                              width: 20,
+                              height: 20,
+                            ),
+                            Container(
+                              width: 8,
+                            ),
+                            Text(dic['createAccount']!)
+                          ],
                         ),
-                        minimumSize: Size(0, 48)
+                        style: ElevatedButton.styleFrom(
+                            alignment: Alignment.centerLeft,
+                            shadowColor: Colors.transparent,
+                            backgroundColor: Theme.of(context).primaryColor,
+                            textStyle: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(12))),
+                            minimumSize: Size(0, 48)),
                       ),
-                    ),),
+                    ),
                     Container(
                       width: 15,
                     ),
-                    Expanded(child: OutlinedButton.icon(
-                      onPressed: _showActions,
-                      icon: SvgPicture.asset(
-                        'assets/images/assets/import_wallet.svg',
-                        width: 16,
-                        height: 15,
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _showActions,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SvgPicture.asset(
+                              'assets/images/assets/import_wallet.svg',
+                              width: 16,
+                              height: 15,
+                            ),
+                            Container(
+                              width: 8,
+                            ),
+                            Text(dic['importAccount']!)
+                          ],
+                        ),
+                        style: OutlinedButton.styleFrom(
+                            alignment: Alignment.centerLeft,
+                            foregroundColor: Theme.of(context).primaryColor,
+                            // backgroundColor: Theme.of(context).primaryColor,
+                            textStyle: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w600),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(12))),
+                            minimumSize: Size(0, 48)),
                       ),
-                      label:Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Text(dic['importAccount']!)],
-                      ),
-                      style: OutlinedButton.styleFrom(
-                          alignment: Alignment.centerLeft,
-                          foregroundColor: Theme.of(context).primaryColor,
-                        // backgroundColor: Theme.of(context).primaryColor,
-                          textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(12))
-                          ),
-                          minimumSize: Size(0, 48)
-                      ),
-                    ),),
+                    ),
                   ],
                 ),
               )
