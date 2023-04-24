@@ -170,6 +170,10 @@ class _InputItemState extends State<InputItem> {
               onChanged: widget.onChanged,
               decoration: InputDecoration(
                 hintText: widget.placeholder,
+                hintStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0x4D000000)),
                 filled: true,
                 isDense: true,
                 counterText: "",

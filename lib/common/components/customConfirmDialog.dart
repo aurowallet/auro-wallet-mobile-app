@@ -38,7 +38,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
 
     return Dialog(
       clipBehavior: Clip.hardEdge,
-      insetPadding: EdgeInsets.symmetric(horizontal: 28),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(

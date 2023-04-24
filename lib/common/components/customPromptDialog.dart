@@ -53,7 +53,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
     final Map<String, String> dic = I18n.of(context).main;
 
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 28),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20),
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [

@@ -29,6 +29,7 @@ class ValidatorItem extends StatelessWidget {
         margin: const EdgeInsets.only(top: 10),
         child: Material(
           color: Color(0xFFF9FAFC),
+          borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
               Navigator.pushNamed(context, DelegatePage.route,
