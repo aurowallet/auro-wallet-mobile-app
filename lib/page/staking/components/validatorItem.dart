@@ -67,7 +67,8 @@ class ValidatorItem extends StatelessWidget {
                                   data.name == null
                                       ? Fmt.address(data.address, pad: 10)
                                       : Fmt.stringSlice(data.name!, 16,
-                                          withEllipsis: true),
+                                          withEllipsis: true,
+                                          ellipsisCounted: true),
                                   style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.black,
@@ -94,7 +95,7 @@ class ValidatorItem extends StatelessWidget {
                                     fontSize: 12,
                                     height: 1.2)),
                             Text(
-                                '${stakingI18n['delegators']!.replaceAll('{count}', data.delegations.toString())}',
+                                '${stakingI18n['delegators']!.replaceAll('{count}', Fmt.balanceToInteger(data.delegations.toString(), 0))}',
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.black.withOpacity(0.5),
@@ -133,8 +134,7 @@ class ItemLogoState extends State<ItemLogo> {
 
   @override
   Widget build(BuildContext context) {
-    // final showText = !widget.logo.isNotEmpty || loadError;
-    final showText = true;
+    final showText = widget.logo.isEmpty || loadError;
     return CircleAvatar(
       radius: widget.radius,
       backgroundColor: Color(0x4D000000),
@@ -142,11 +142,12 @@ class ItemLogoState extends State<ItemLogo> {
       backgroundImage: !showText
           ? NetworkImage(
               widget.logo,
+              // 'https://picsum.photos/250?image=10',
             )
           : null,
       child: showText
           ? Text(
-              widget.name?.substring(0, 1) ?? 'U',
+              widget.name?.substring(0, 1).toUpperCase() ?? 'U',
               style: TextStyle(fontSize: 16, color: Colors.white),
             )
           : null,
