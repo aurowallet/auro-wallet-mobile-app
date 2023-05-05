@@ -33,7 +33,7 @@ installed on your computer to compile the project. check [Flutter Documentation]
 we use flutter ffi and mina c file to derive public key and sign transactions.
 
 ### api config 
-```lib/consts/apiConfig.example.drat``` is a api config for Auro Wallet, you can remove the ```.example ```
+```lib/common/consts/apiConfig.example.dart``` is a api config for Auro Wallet, you can remove the ```.example ```
 and fill your custom api
 
 #### run auro App

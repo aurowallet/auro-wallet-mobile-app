@@ -200,7 +200,9 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
     var currencySymbol = Currency(code: store.settings!.currencyCode).symbol;
     final amountColor = (store.assets!.isBalanceLoading) ? 0xDDDDDD : 0xFFFFFF;
-    final priceColor = (store.assets!.isBalanceLoading) ? Color(0xFFDDDDDD) : Color(0x99FFFFFF);
+    final priceColor = (store.assets!.isBalanceLoading)
+        ? Color(0xFFDDDDDD)
+        : Color(0x99FFFFFF);
     final currencyStyle = TextStyle(
         fontSize: 16,
         color: priceColor,
@@ -251,7 +253,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(top: 16, right: 20, left: 20),
+              padding: EdgeInsets.only(top: 15, right: 20, left: 20),
               child: Column(children: [
                 Row(
                   children: [
@@ -382,7 +384,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                   Flexible(
                       child: Container(
                     height: 40.0,
-                    constraints: BoxConstraints(maxWidth: 140),
+                    // constraints: BoxConstraints(maxWidth: 140),
                     child: NormalButton(
                       color: Colors.white,
                       text: i18n['send']!,
@@ -399,7 +401,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                   Flexible(
                       child: Container(
                           height: 40,
-                          constraints: BoxConstraints(maxWidth: 140),
+                          // constraints: BoxConstraints(maxWidth: 140),
                           child: NormalButton(
                             color: Colors.white,
                             text: i18n['receive']!,
@@ -417,8 +419,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           ],
         ),
         Positioned(
-            right: 8,
-            top: 8,
+            right: 10,
+            top: 10,
             child: Container(
               width: 28,
               height: 28,

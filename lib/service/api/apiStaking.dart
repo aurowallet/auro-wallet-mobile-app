@@ -23,11 +23,11 @@ class ApiStaking {
   }
 
   Future<void> fetchValidators() async {
-    if (!store.settings!.isSupportedNode) {
+    if (!store.settings!.isMainnet) {
       store.staking!.setValidatorsInfo([]);
       return;
     }
-    String txUrl =  "${apiRoot.getTransactionsApiUrl()}/validators";
+    String txUrl =  "$MAINNET_TRANSACTION_URL/validators";
     var response = await http.get(Uri.parse(txUrl), headers: {'Content-Type': 'application/json; charset=utf-8'});
     if (response.statusCode == 200) {
       List list = convert.jsonDecode(utf8.decode(response.bodyBytes));

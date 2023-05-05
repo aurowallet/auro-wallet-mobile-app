@@ -6,6 +6,7 @@ import 'package:auro_wallet/store/settings/settings.dart';
 
 class TermsDialog extends StatefulWidget {
   TermsDialog({required this.store});
+
   final SettingsStore store;
 
   @override
@@ -44,9 +45,9 @@ class _TermsDialogState extends State<TermsDialog> {
     }
 
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 28),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20.0))),
+      clipBehavior: Clip.hardEdge,
+      insetPadding: EdgeInsets.symmetric(horizontal: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(
           width: double.infinity,
@@ -79,14 +80,11 @@ class _TermsDialogState extends State<TermsDialog> {
                       height: 48,
                       child: TextButton(
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(20)
-                              ),
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
                               // side: BorderSide(color: Colors.red)
-                          )
-                        ),
+                            )),
                         child: Text(dic['refuse']!, style: theme.headline5!),
                         onPressed: () {
                           Navigator.of(context).pop(false);
@@ -103,14 +101,12 @@ class _TermsDialogState extends State<TermsDialog> {
                             height: 48,
                             child: TextButton(
                               style: TextButton.styleFrom(
-                                  foregroundColor: Theme.of(context).primaryColor,
+                                  foregroundColor:
+                                      Theme.of(context).primaryColor,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        bottomRight: Radius.circular(20)
-                                    ),
+                                    borderRadius: BorderRadius.zero,
                                     // side: BorderSide(color: Colors.red)
-                                  )
-                              ),
+                                  )),
                               child: Text(dic['agree']!,
                                   style: theme.headline5!.copyWith(
                                       color: Theme.of(context).primaryColor)),

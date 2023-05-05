@@ -10,7 +10,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 
 class Fmt {
-  static String address(String? addr, {int pad = 4,bool padSame = false}) {
+  static String address(String? addr, {int pad = 4, bool padSame = false}) {
     if (addr == null || addr.length == 0) {
       return '';
     }
@@ -28,7 +28,8 @@ class Fmt {
     if (utcTime == null || utcTime.isEmpty) {
       return "";
     }
-    var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
+    var dateValue =
+        new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
     return dateTime(dateValue);
   }
 
@@ -40,10 +41,15 @@ class Fmt {
     if (utcTime == null || utcTime.isEmpty) {
       return "";
     }
-    var dateValue = new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
-    var str =  dateTime(dateValue);
+    var dateValue =
+        new DateFormat("yyyy-MM-ddTHH:mm:ssZ").parseUTC(utcTime).toLocal();
+    var str = dateTime(dateValue);
     var timeZone = dateValue.timeZoneOffset.toString().split(':');
-    return str + ' GMT' + (dateValue.timeZoneOffset.isNegative ? '-' : '+') +  timeZone[0].padLeft(2, '0') + timeZone[1].padLeft(2, '0');
+    return str +
+        ' GMT' +
+        (dateValue.timeZoneOffset.isNegative ? '-' : '+') +
+        timeZone[0].padLeft(2, '0') +
+        timeZone[1].padLeft(2, '0');
   }
 
   /// number transform 1:
@@ -84,26 +90,18 @@ class Fmt {
     return f.format(value);
   }
 
-  static String balance(
-      String? raw,
-      int decimals, {
-        minLength = 2,
-        maxLength = 4
-      })
-  {
+  static String balance(String? raw, int decimals,
+      {minLength = 2, maxLength = 4}) {
     if (raw == null || raw.length == 0) {
       return '~';
     }
     var balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
-    NumberFormat f = NumberFormat(",##0.${'0' * minLength}${'#'* (maxLength - minLength)}", "en_US");
+    NumberFormat f = NumberFormat(
+        ",##0.${'0' * minLength}${'#' * (maxLength - minLength)}", "en_US");
     return f.format(balanceBigInt);
   }
 
-  static String balanceToInteger(
-      String? raw,
-      int decimals
-      )
-  {
+  static String balanceToInteger(String? raw, int decimals) {
     if (raw == null || raw.length == 0) {
       return '~';
     }
@@ -117,8 +115,6 @@ class Fmt {
   static double balanceDouble(String raw, int decimals) {
     return bigIntToDouble(balanceInt(raw), decimals);
   }
-
-
 
   /// number transform 5:
   /// from <BigInt> to <String> in price format of ",##0.00"
@@ -211,40 +207,41 @@ class Fmt {
   }
 
   static String accountName(AccountData acc) {
-    return '${acc.name.isNotEmpty ? acc.name :  'Account ${acc.accountIndex + 1}'}';
+    return '${acc.name.isNotEmpty ? acc.name : 'Account ${acc.accountIndex + 1}'}';
   }
 
   static String validatorName(BuildContext ctx, String? name) {
     return '${name != null && name.isNotEmpty ? name : 'Block Producer'}';
   }
 
-  static String? breakWord(String? word){
-    if(word == null || word.isEmpty){
+  static String? breakWord(String? word) {
+    if (word == null || word.isEmpty) {
       return word;
     }
     String breakWord = '';
-    word.runes.forEach((element){
+    word.runes.forEach((element) {
       breakWord += String.fromCharCode(element);
-      breakWord +='\u200B';
+      breakWord += '\u200B';
     });
     return breakWord;
   }
-  
+
   static String parseNumber(String number) {
     return number.trim().replaceAll(',', '.');
   }
 
-  static String stringSlice(String str,int len, {withEllipsis = false}) {
+  static String stringSlice(String str, int len,
+      {withEllipsis = false, ellipsisCounted = false}) {
     var counter = 0;
     for (int i = 0; i < str.length; i++) {
       if (str.codeUnitAt(i) > 122) {
-        counter+=2;
+        counter += 2;
       } else {
-        counter+=1;
+        counter += 1;
       }
       if (counter >= len) {
         if (withEllipsis && i < str.length - 1) {
-          return str.substring(0, i + 1) + '...';
+          return str.substring(0, i + 1 - (ellipsisCounted ? 3 : 0)) + '...';
         }
         return str.substring(0, i + 1);
       }
@@ -252,5 +249,4 @@ class Fmt {
     print('herer');
     return str.substring(0, str.length);
   }
-
 }

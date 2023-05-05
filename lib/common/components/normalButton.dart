@@ -2,19 +2,19 @@ import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:flutter/material.dart';
 
 class NormalButton extends StatelessWidget {
-  NormalButton({
-    required this.text,
-    this.textStyle,
-    this.onPressed,
-    this.icon,
-    this.color,
-    this.submitting = false,
-    this.disabled = false,
-    this.radius = 12,
-    this.height = 48,
-    this.shrink = false,
-    this.padding =  EdgeInsets.zero
-  }) : assert(text != null);
+  NormalButton(
+      {required this.text,
+      this.textStyle,
+      this.onPressed,
+      this.icon,
+      this.color,
+      this.submitting = false,
+      this.disabled = false,
+      this.radius = 12,
+      this.height = 48,
+      this.shrink = false,
+      this.padding = EdgeInsets.zero})
+      : assert(text != null);
 
   final String text;
   final Function()? onPressed;
@@ -53,21 +53,26 @@ class NormalButton extends StatelessWidget {
       // highlightColor: ColorsUtil.darken(normalColor, 0.05),
 
       style: ElevatedButton.styleFrom(
-          padding: padding,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          backgroundColor: submitting ? normalColor.withOpacity(0.8) : normalColor,
-          // onSurface: normalColor.withOpacity(0.5),
-          minimumSize: Size(!shrink ? double.infinity : 0, height),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(radius))
-          )
+        padding: padding,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        backgroundColor:
+            submitting ? normalColor.withOpacity(0.8) : normalColor,
+        // onSurface: normalColor.withOpacity(0.5),
+        minimumSize: Size(!shrink ? double.infinity : 0, height),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+        shadowColor: Colors.transparent,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: row,
       ),
-      onPressed: disabled ? null : submitting ? (){} : onPressed,
+      onPressed: disabled
+          ? null
+          : submitting
+              ? () {}
+              : onPressed,
     );
   }
 }

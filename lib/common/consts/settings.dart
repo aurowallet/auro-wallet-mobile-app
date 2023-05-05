@@ -2,8 +2,8 @@ export 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
 
 class COIN {
-   static const String coinSymbol = 'MINA';
-   static const int decimals = 9;
+  static const String coinSymbol = 'MINA';
+  static const int decimals = 9;
 }
 
 /// graphql for mina
@@ -18,4 +18,4 @@ const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 /// app versions
-const String app_version = 'v1.1.2(1096)';
+const String app_version = 'v1.1.3(1098)';

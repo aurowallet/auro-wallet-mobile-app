@@ -6,153 +6,151 @@ import 'package:auro_wallet/store/staking/staking.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
+import '../delegatePage.dart';
 
 class ValidatorItem extends StatelessWidget {
-  ValidatorItem({required this.data,required this.checked,required this.toggle});
+  ValidatorItem({required this.data});
+
   final ValidatorData data;
-  final bool checked;
-  final void Function(String, bool) toggle;
-  void _onClick(bool? isChecked) {
-    toggle(data.address, isChecked!);
-  }
-  void onItemClick() {
-    toggle(data.address, !checked);
-  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     final Map<String, String> i18n = I18n.of(context).main;
-    return GestureDetector(
-      onTap: onItemClick,
-      child: Container(
-        decoration: BoxDecoration(
+    final Map<String, String> stakingI18n = I18n.of(context).staking;
+    return Container(
+        margin: const EdgeInsets.only(top: 10),
+        child: Material(
           color: Color(0xFFF9FAFC),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: checked ? Theme.of(context).primaryColor : Colors.black.withOpacity(0.05)
-          )
-        ),
-          padding: const EdgeInsets.all(12),
-          margin: const EdgeInsets.only(top: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                    Expanded(
-                        child: Text(
-                            data.name == null ? Fmt.address(data.address, pad: 10) : data.name!,
-                            style: TextStyle(
-                              fontSize: 14,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500
-                            )
-                        ),
+          child: InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, DelegatePage.route,
+                  arguments: DelegateParams(
+                      validatorData: data, manualAddValidator: false));
+            },
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: Colors.black.withOpacity(0.05), width: 0.5)),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ItemLogo(
+                      name: data.name,
+                      logo: data.logo,
                     ),
-                    // Text(
-                    //     '${i18n['validatorStakeFee']!}:${data.fee.toStringAsFixed(2)}%',
-                    //     style: theme.headline6!.copyWith(
-                    //         color: ColorsUtil.hexColor(0x333333),
-                    //         fontWeight: FontWeight.normal,
-                    //         height: 1.2
-                    //     )
-                    // ),
-                  ],),
-                  Padding(padding: EdgeInsets.only(top:5),),
-                  Text(
-                      Fmt.address(data.address, pad: 10),
-                      style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 12,
-                          height: 1.2
-                      )
-                  ),
-                  Padding(padding: EdgeInsets.only(top:4),),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      new RichText(
-                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
-                          text: TextSpan(
-                              children: [
-                                new TextSpan(
-                                  text: '${i18n['validatorTotalStake']!}: ',
+                    Container(
+                      width: 4,
+                    ),
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                  data.name == null
+                                      ? Fmt.address(data.address, pad: 10)
+                                      : Fmt.stringSlice(data.name!, 16,
+                                          withEllipsis: true,
+                                          ellipsisCounted: true),
                                   style: TextStyle(
-                                      color: Colors.black.withOpacity(0.5),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.2
-                                  ),
-                                ),
-                                new TextSpan(
-                                  text: '${Fmt.balance(data.totalStake.toString(), COIN.decimals)}',
-                                  style: TextStyle(
+                                      fontSize: 14,
                                       color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.2
-                                  ),
-                                ),
-                              ]
-                          )
-                      ),
-                      Container(
-                        width: 12,
-                      ),
-                      new RichText(
-                          textScaleFactor: MediaQuery.of(context).textScaleFactor,
-                          text: TextSpan(
-                              children: [
-                                new TextSpan(
-                                  text: '${i18n['delegations']!}: ',
-                                  style: TextStyle(
-                                      color: Colors.black.withOpacity(0.5),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.2
-                                  ),
-                                ),
-                                new TextSpan(
-                                  text: '${data.delegations}',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.2
-                                  ),
-                                ),
-                              ]
-                          )
-                      ),
-                    ],
-                  )
-                ],
-              )),
-              checked ? RoundCheckBox(
-                size: 18,
-                borderColor: ColorsUtil.hexColor(0xcccccc),
-                isChecked: checked,
-                uncheckedColor: Colors.white,
-                checkedColor: Theme.of(context).primaryColor,
-                checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
-                // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                onTap: _onClick,
-              ): Container(),
-            ],
-          )
-      )
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                            Text(
+                                '${Fmt.balanceToInteger(data.totalStake.toString(), COIN.decimals)} ${COIN.coinSymbol}',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 5),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(Fmt.address(data.address, pad: 6),
+                                style: TextStyle(
+                                    color: Colors.black.withOpacity(0.5),
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 12,
+                                    height: 1.2)),
+                            Text(
+                                '${stakingI18n['delegators']!.replaceAll('{count}', Fmt.balanceToInteger(data.delegations.toString(), 0))}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black.withOpacity(0.5),
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.2)),
+                          ],
+                        ),
+                      ],
+                    )),
+                  ],
+                )),
+          ),
+        ));
+  }
+}
+
+class ItemLogo extends StatefulWidget {
+  ItemLogo({this.name, required this.logo, this.radius = 15});
+
+  final String? name;
+  final String logo;
+  final double? radius;
+
+  @override
+  ItemLogoState createState() => ItemLogoState();
+}
+
+class ItemLogoState extends State<ItemLogo> {
+  bool loadError = false;
+
+  onLoadError(exception, stackTrace) {
+    setState(() {
+      loadError = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final showText = widget.logo.isEmpty || loadError;
+    return CircleAvatar(
+      radius: widget.radius,
+      backgroundColor: Color(0x4D000000),
+      onBackgroundImageError: !showText ? onLoadError : null,
+      backgroundImage: !showText
+          ? NetworkImage(
+              widget.logo,
+              // 'https://picsum.photos/250?image=10',
+            )
+          : null,
+      child: showText
+          ? Text(
+              widget.name?.substring(0, 1).toUpperCase() ?? 'U',
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            )
+          : null,
     );
   }
 }

@@ -195,7 +195,7 @@ return '''account$index: account (publicKey: \$account$index) {
     if (!store.settings!.isMainnet) {
       return;
     }
-    String txUrl =  "${apiRoot.getTransactionsApiUrl()}/prices?currency=" + store.settings!.currencyCode;
+    String txUrl =  "$MAINNET_TRANSACTION_URL/prices?currency=" + store.settings!.currencyCode;
     var response = await  http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {
       Map priceRes = convert.jsonDecode(convert.utf8.decode(response.bodyBytes));

@@ -4,6 +4,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:dotted_line/dotted_line.dart';
@@ -42,11 +43,29 @@ class ReceivePage extends StatelessWidget {
     Color themeColor = Theme.of(context).primaryColor;
     var i18n = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
+    var textButtonStyle = TextButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        foregroundColor: Theme.of(context).primaryColor,
+        textStyle: TextStyle(color: Colors.black));
     return RepaintBoundary(
         key: _globalKey,
         child: Scaffold(
           backgroundColor: Color(0xFF594AF1),
-          appBar: null,
+          appBar: AppBar(
+            leading: null,
+            title: null,
+            toolbarHeight: 0,
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: null,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              // <-- SEE HERE
+              statusBarIconBrightness: Brightness.dark,
+              //<-- For Android SEE HERE (dark icons)
+              statusBarBrightness:
+                  Brightness.dark, //<-- For iOS SEE HERE (dark icons)
+            ),
+          ),
           body: SafeArea(
             maintainBottomViewPadding: true,
             child: Stack(
@@ -66,17 +85,23 @@ class ReceivePage extends StatelessWidget {
                 Column(
                   children: [
                     AppBar(
-                      iconTheme: IconThemeData(
-                        color: Colors.white, //change your color here
-                      ),
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      title: Text(
-                        i18n['receiveTitle']!,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      centerTitle: true,
-                    ),
+                        iconTheme: IconThemeData(
+                          color: Colors.white, //change your color here
+                        ),
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        title: Text(
+                          i18n['receiveTitle']!,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        centerTitle: true,
+                        systemOverlayStyle: SystemUiOverlayStyle(
+                          // <-- SEE HERE
+                          statusBarIconBrightness: Brightness.dark,
+                          //<-- For Android SEE HERE (dark icons)
+                          statusBarBrightness: Brightness
+                              .dark, //<-- For iOS SEE HERE (dark icons)
+                        )),
                     Expanded(
                       child: ListView(
                         children: <Widget>[
@@ -87,24 +112,16 @@ class ReceivePage extends StatelessWidget {
                               children: [
                                 Positioned.fill(
                                   child: Container(
-                                    child: new ClipPath(
-                                        clipper: new InvertedCircleClipper(),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.vertical(
-                                                      bottom:
-                                                          Radius.circular(12),
-                                                      top:
-                                                          Radius.circular(12))),
-                                        )),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
                                   ),
                                   top: 0,
                                   bottom: 0,
                                 ),
                                 Positioned(
-                                  top: 60,
+                                  top: 51,
                                   left: 9,
                                   right: 9,
                                   child: Container(
@@ -130,6 +147,8 @@ class ReceivePage extends StatelessWidget {
                                           i18n['scantopay']!,
                                           style: theme.headline6!.copyWith(
                                               fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                              height: 1,
                                               color: Colors.black),
                                         ),
                                       ),
@@ -182,12 +201,7 @@ class ReceivePage extends StatelessWidget {
                                                 child: SizedBox(
                                               height: 48,
                                               child: TextButton(
-                                                style: TextButton.styleFrom(
-                                                    foregroundColor:
-                                                        Theme.of(context)
-                                                            .primaryColor,
-                                                    textStyle: TextStyle(
-                                                        color: Colors.black)),
+                                                style: textButtonStyle,
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
@@ -220,6 +234,7 @@ class ReceivePage extends StatelessWidget {
                                               child: SizedBox(
                                                 height: 48,
                                                 child: TextButton(
+                                                  style: textButtonStyle,
                                                   child: Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
