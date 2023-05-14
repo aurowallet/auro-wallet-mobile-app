@@ -23,9 +23,14 @@ PODS:
     - Flutter
   - permission_handler_apple (9.0.4):
     - Flutter
+  - Protobuf (3.23.0)
   - qr_code_tools (0.0.7):
     - Flutter
   - Reachability (3.2)
+  - reactive_ble_mobile (0.0.1):
+    - Flutter
+    - Protobuf (~> 3.5)
+    - SwiftProtobuf (~> 1.0)
   - safe_device (1.0.0):
     - DTTJailbreakDetection
     - Flutter
@@ -35,6 +40,7 @@ PODS:
     - Flutter
   - shared_preferences_ios (0.0.1):
     - Flutter
+  - SwiftProtobuf (1.21.0)
   - Toast (4.0.0)
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -56,6 +62,7 @@ DEPENDENCIES:
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - qr_code_tools (from `.symlinks/plugins/qr_code_tools/ios`)
+  - reactive_ble_mobile (from `.symlinks/plugins/reactive_ble_mobile/ios`)
   - safe_device (from `.symlinks/plugins/safe_device/ios`)
   - scan (from `.symlinks/plugins/scan/ios`)
   - share (from `.symlinks/plugins/share/ios`)
@@ -67,7 +74,9 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - DTTJailbreakDetection
+    - Protobuf
     - Reachability
+    - SwiftProtobuf
     - Toast
 
 EXTERNAL SOURCES:
@@ -95,6 +104,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   qr_code_tools:
     :path: ".symlinks/plugins/qr_code_tools/ios"
+  reactive_ble_mobile:
+    :path: ".symlinks/plugins/reactive_ble_mobile/ios"
   safe_device:
     :path: ".symlinks/plugins/safe_device/ios"
   scan:
@@ -123,17 +134,20 @@ SPEC CHECKSUMS:
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
+  Protobuf: 43e3764cdf3609fdd00417649561565703437fdc
   qr_code_tools: 5b5dd44ccdfa4b81f645c251e421f61003254b81
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
   safe_device: 4539eb6bdbeb4b61a763a51c4e73e6b37dea4e3d
   scan: aea35bb4aa59ccc8839c576a18cd57c7d492cc86
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
+  SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
   webcrypto: ac37b97f415c7114abb8af22d58048b5cbcb23d3
   webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
 
-PODFILE CHECKSUM: 1b3facc9b2f1e949cce56dbde40ba1ef8499a85a
+PODFILE CHECKSUM: 282576f2addca226c1e6b6dbd4363251a8d752bb
 
 COCOAPODS: 1.11.3

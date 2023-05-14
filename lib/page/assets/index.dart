@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -27,6 +28,8 @@ import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Assets extends StatefulWidget {
   Assets(this.store);
@@ -41,6 +44,57 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   _AssetsState(this.store);
 
   final AppStore store;
+
+  @override
+  void ledgerSetup() async {
+    final options = LedgerOptions(
+      maxScanDuration: const Duration(milliseconds: 5000),
+    );
+
+    final ledger = Ledger(
+      options: options,
+      // onPermissionRequest: (status) async {
+      //   // Location was granted, now request BLE
+      //   Map<Permission, PermissionStatus> statuses = await [
+      //     Permission.bluetoothScan,
+      //     Permission.bluetoothConnect,
+      //     Permission.bluetoothAdvertise,
+      //   ].request();
+      //
+      //   if (status != BleStatus.ready) {
+      //     return false;
+      //   }
+      //
+      //   return statuses.values.where((status) => status.isDenied).isEmpty;
+      // },
+    );
+    await ledger.close(ConnectionType.ble);
+    await ledger.dispose();
+    final subscription = ledger.scan().listen((device) async {
+      print('found device');
+      print(device.name);
+      ledger.stopScanning();
+      print('start connect');
+      await ledger.disconnect(device);
+      await ledger.connect(device);
+      print('connected');
+      try {
+        final minaApp = MinaLedgerApp(ledger);
+        print(minaApp);
+        // final ledgerApp = await minaApp.getAppName(device);
+        // print(ledgerApp.name);
+        // print(ledgerApp.version);
+        final version = await minaApp.getVersion(device);
+        print(version.versionName);
+        // final version = await minaApp.getAccounts(device);
+        // print(version);
+      } on LedgerException catch (e) {
+        print('出错了');
+        print(e.message);
+        await ledger.disconnect(device);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -93,6 +147,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   void _onTransfer() {
+    // ledgerSetup();
+    // return;
     Navigator.pushNamed(
       context,
       TransferPage.route,
