@@ -11,7 +11,6 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 
-
 class ImportWatchedAccountPage extends StatefulWidget {
   const ImportWatchedAccountPage(this.store);
 
@@ -19,7 +18,8 @@ class ImportWatchedAccountPage extends StatefulWidget {
   final AppStore store;
 
   @override
-  _ImportWatchedAccountPageState createState() => _ImportWatchedAccountPageState(store);
+  _ImportWatchedAccountPageState createState() =>
+      _ImportWatchedAccountPageState(store);
 }
 
 class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
@@ -31,8 +31,8 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
   @override
   void initState() {
     super.initState();
-
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -49,12 +49,15 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
     }
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
     String accountName = params["accountName"];
-    var isSuccess = await webApi.account.createWatchedWallet(accountName, watchedAccount, context: context, source: WalletSource.outside);
-    if(isSuccess) {
+    var isSuccess = await webApi.account.createExternalWallet(
+        accountName, watchedAccount,
+        context: context, source: WalletSource.outside);
+    if (isSuccess) {
       UI.toast(dic['backup_success_restore']!);
       Navigator.of(context).pop();
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
@@ -70,26 +73,24 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
         maintainBottomViewPadding: true,
         child: Padding(
             padding: EdgeInsets.only(left: 20, right: 20),
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                child: InputItem(
-                  label: dic['textWatchModeAddress']!,
-                  controller: _watchedAccountCtrl,
-                  maxLines: 3,
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: InputItem(
+                    label: dic['textWatchModeAddress']!,
+                    controller: _watchedAccountCtrl,
+                    maxLines: 3,
+                  ),
                 ),
-              ),
-              Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
-                  child: NormalButton(
-                    color: ColorsUtil.hexColor(0x6D5FFE),
-                    text: I18n.of(context).main['confirm']!,
-                    onPressed: _handleSubmit,
-                  )
-              ),
-            ],
-          )
-        ),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
+                    child: NormalButton(
+                      color: ColorsUtil.hexColor(0x6D5FFE),
+                      text: I18n.of(context).main['confirm']!,
+                      onPressed: _handleSubmit,
+                    )),
+              ],
+            )),
       ),
     );
   }

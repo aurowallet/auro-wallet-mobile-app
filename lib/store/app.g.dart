@@ -70,6 +70,21 @@ mixin _$AppStore on _AppStore, Store {
     });
   }
 
+  late final _$ledgerAtom = Atom(name: '_AppStore.ledger', context: context);
+
+  @override
+  LedgerStore? get ledger {
+    _$ledgerAtom.reportRead();
+    return super.ledger;
+  }
+
+  @override
+  set ledger(LedgerStore? value) {
+    _$ledgerAtom.reportWrite(value, super.ledger, () {
+      super.ledger = value;
+    });
+  }
+
   late final _$isReadyAtom = Atom(name: '_AppStore.isReady', context: context);
 
   @override
@@ -100,6 +115,7 @@ settings: ${settings},
 wallet: ${wallet},
 assets: ${assets},
 staking: ${staking},
+ledger: ${ledger},
 isReady: ${isReady}
     ''';
   }

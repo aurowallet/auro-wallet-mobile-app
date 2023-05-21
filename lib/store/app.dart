@@ -6,6 +6,8 @@ import 'package:auro_wallet/store/staking/staking.dart';
 import 'package:auro_wallet/utils/localStorage.dart';
 import 'package:auro_wallet/utils/secureStorage.dart';
 
+import 'ledger/ledger.dart';
+
 part 'app.g.dart';
 
 final AppStore globalAppStore = AppStore();
@@ -24,6 +26,9 @@ abstract class _AppStore with Store {
 
   @observable
   StakingStore? staking;
+
+  @observable
+  LedgerStore? ledger;
 
   @observable
   bool isReady = false;
@@ -50,6 +55,8 @@ abstract class _AppStore with Store {
 
     wallet = WalletStore(this as AppStore);
     await wallet!.loadWallet();
+
+    ledger = LedgerStore();
 
     assets = AssetsStore(this as AppStore);
 

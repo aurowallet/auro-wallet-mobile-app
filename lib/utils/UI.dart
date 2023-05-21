@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
@@ -13,6 +14,7 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+
 class UI {
   static void copyAndNotify(BuildContext context, String? text) {
     Clipboard.setData(ClipboardData(text: text ?? ''));
@@ -28,8 +30,7 @@ class UI {
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.black,
         textColor: Colors.white,
-        fontSize: 14.0
-    );
+        fontSize: 14.0);
   }
 
   static Future<void> launchURL(String url) async {
@@ -57,7 +58,7 @@ class UI {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
-      isScrollControlled:true,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return TxConfirmDialog(
             title: title,
@@ -108,15 +109,25 @@ class UI {
     );
   }
 
-  static Future<bool?> showConfirmDialog({
-    required BuildContext context,
-    required List<String> contents,
-    String? okText,
-    String? title,
-    Color? okColor,
-    String? cancelText,
-    Widget? icon
-  }) {
+  static Future<bool?> showImportLedgerDialog({required BuildContext context}) {
+    return showModalBottomSheet<bool?>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return ImportLedger();
+      },
+    );
+  }
+
+  static Future<bool?> showConfirmDialog(
+      {required BuildContext context,
+      required List<String> contents,
+      String? okText,
+      String? title,
+      Color? okColor,
+      String? cancelText,
+      Widget? icon}) {
     return showDialog<bool>(
       context: context,
       builder: (_) {
@@ -133,22 +144,20 @@ class UI {
     );
   }
 
-  static Future<String?> showPasswordDialog({
-    required BuildContext context,
-    required WalletData wallet,
-    bool validate = false,
-    bool inputPasswordRequired = false
-  }) {
+  static Future<String?> showPasswordDialog(
+      {required BuildContext context,
+      required WalletData wallet,
+      bool validate = false,
+      bool inputPasswordRequired = false}) {
     return showDialog(
       context: context,
-      barrierDismissible:false,
+      barrierDismissible: false,
       useRootNavigator: false,
       builder: (_) {
         return PasswordInputDialog(
             wallet: wallet,
             validate: validate,
-            inputPasswordRequired: inputPasswordRequired
-        );
+            inputPasswordRequired: inputPasswordRequired);
       },
     );
   }

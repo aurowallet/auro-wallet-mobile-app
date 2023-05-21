@@ -6,30 +6,32 @@ import 'package:flutter/services.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class InputItem extends StatefulWidget {
-  InputItem({
-    this.label,
-    this.initialValue,
-    this.onChanged,
-    this.rightWidget,
-    this.inputFormatters,
-    this.keyboardType = TextInputType.text,
-    this.controller,
-    this.maxLines = 1,
-    this.isPassword = false,
-    this.padding = const EdgeInsets.only(top: 22),
-    this.maxLength,
-    this.focusNode,
-    this.labelAffix,
-    this.placeholder = '',
-    this.backgroundColor = Colors.white,
-    this.borderColor = const Color(0x1A000000),
-    this.focusColor = Colors.transparent,
-    this.inputPadding = const EdgeInsets.only(top: 6),
-    this.suffixIcon,
-    this.labelStyle,
-    this.autoFocus = false,
-    this.isError,
-  });
+  InputItem(
+      {this.label,
+      this.initialValue,
+      this.onChanged,
+      this.rightWidget,
+      this.inputFormatters,
+      this.keyboardType = TextInputType.text,
+      this.controller,
+      this.maxLines = 1,
+      this.isPassword = false,
+      this.padding = const EdgeInsets.only(top: 22),
+      this.maxLength,
+      this.focusNode,
+      this.labelAffix,
+      this.placeholder = '',
+      this.backgroundColor = Colors.white,
+      this.borderColor = const Color(0x1A000000),
+      this.focusColor = Colors.transparent,
+      this.inputPadding = const EdgeInsets.only(top: 6),
+      this.borderRadius = 8,
+      this.suffixIcon,
+      this.labelStyle,
+      this.autoFocus = false,
+      this.textAlign = TextAlign.left,
+      this.isError,
+      this.contentPadding});
 
   final int? maxLength;
   final bool autoFocus;
@@ -46,12 +48,15 @@ class InputItem extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextEditingController? controller;
   final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? contentPadding;
   final FocusNode? focusNode;
   final int? maxLines;
   final Color backgroundColor;
   final Color borderColor;
   final Color focusColor;
   final EdgeInsetsGeometry inputPadding;
+  final double borderRadius;
+  final TextAlign textAlign;
   final Widget? suffixIcon;
 
   @override
@@ -112,7 +117,7 @@ class _InputItemState extends State<InputItem> {
     }
     OutlineInputBorder border = OutlineInputBorder(
       gapPadding: 0,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(widget.borderRadius),
       borderSide: BorderSide(
           width: widget.borderColor == Colors.transparent ? 0 : 0.5,
           style: BorderStyle.solid,
@@ -168,6 +173,7 @@ class _InputItemState extends State<InputItem> {
               autocorrect: false,
               autofocus: widget.autoFocus,
               onChanged: widget.onChanged,
+              textAlign: widget.textAlign,
               decoration: InputDecoration(
                 hintText: widget.placeholder,
                 hintStyle: TextStyle(
@@ -177,11 +183,12 @@ class _InputItemState extends State<InputItem> {
                 filled: true,
                 isDense: true,
                 counterText: "",
-                contentPadding: EdgeInsets.only(
-                    top: 12,
-                    bottom: 12,
-                    left: 12,
-                    right: widget.suffixIcon != null ? 0 : 12),
+                contentPadding: widget.contentPadding ??
+                    EdgeInsets.only(
+                        top: 12,
+                        bottom: 12,
+                        left: 12,
+                        right: widget.suffixIcon != null ? 0 : 12),
                 fillColor: widget.backgroundColor,
                 enabledBorder: border,
                 suffixIcon: widget.isPassword

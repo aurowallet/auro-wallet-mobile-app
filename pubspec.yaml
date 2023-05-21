@@ -154,6 +154,7 @@ flutter:
     - assets/images/assets/more.svg
     - assets/images/assets/add_wallet.svg
     - assets/images/assets/import_wallet.svg
+    - assets/images/assets/import_ledger.svg
     - assets/images/public/2x/m_logo@2x.png
     - assets/images/public/error_tip.svg
     - assets/images/public/success_tip.svg

@@ -26,8 +26,10 @@ class MinaPublicKeyOperation extends LedgerOperation<List<String>> {
 
   @override
   Future<List<String>> read(ByteDataReader reader) async {
+    final bytes = reader.read(reader.remainingLength - 1);
+    print(hex.encode(bytes));
     return [
-      String.fromCharCodes(reader.read(reader.remainingLength)),
+      String.fromCharCodes(bytes),
     ];
   }
 }

@@ -53,7 +53,8 @@ class ApiAccount {
     }
   }
 
-  Future<TransferData?> sendTx(Map input, Map signature, {required BuildContext context}) async {
+  Future<TransferData?> sendTx(Map input, Map signature,
+      {required BuildContext context}) async {
     String mutation = r'''
     mutation broadcastTx($fee:UInt64!, $amount:UInt64!, 
 $to: PublicKey!, $from: PublicKey!, $nonce:UInt32, $memo: String!,
@@ -88,17 +89,14 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
     }
 ''';
 
-    Map<String, dynamic>  variables = {
-      ...input,
-      ...signature
-    };
+    Map<String, dynamic> variables = {...input, ...signature};
 
     final MutationOptions _options = MutationOptions(
       document: gql(mutation),
       fetchPolicy: FetchPolicy.noCache,
       variables: variables,
     );
-    GqlResult gqlResult =  await apiRoot.gqlRequest(_options, context: context);
+    GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
     if (gqlResult.error) {
       print('转账广播出错了：');
       UI.toast(gqlResult.errorMessage);
@@ -120,8 +118,8 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
     return data;
   }
 
-
-  Future<TransferData?> sendDelegationTx(Map input, Map signature, {required BuildContext context}) async {
+  Future<TransferData?> sendDelegationTx(Map input, Map signature,
+      {required BuildContext context}) async {
     String mutation = r'''
     mutation broadcastTx($fee:UInt64!,
 $to: PublicKey!, $from: PublicKey!, $nonce:UInt32!, $memo: String!,
@@ -154,16 +152,13 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       }
     }
 ''';
-    Map<String, dynamic>  variables = {
-      ...input,
-      ...signature
-    };
+    Map<String, dynamic> variables = {...input, ...signature};
     final MutationOptions _options = MutationOptions(
       document: gql(mutation),
       fetchPolicy: FetchPolicy.noCache,
       variables: variables,
     );
-    GqlResult gqlResult =  await apiRoot.gqlRequest(_options, context: context);
+    GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
     if (gqlResult.error) {
       print('质押广播出错了');
       UI.toast(gqlResult.errorMessage);
@@ -184,32 +179,36 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return data;
   }
 
-  Future<TransferData?> signAndSendTx(Map txInfo, {required BuildContext context}) async {
+  Future<TransferData?> signAndSendTx(Map txInfo,
+      {required BuildContext context}) async {
     final signedTx = await signPayment(
-      privateKey: txInfo['privateKey'],
-      amount: txInfo['amount'],
-      to: txInfo['toAddress'],
-      from: txInfo['fromAddress'],
-      fee: txInfo['fee'],
-      nonce: txInfo['nonce'],
-      memo: txInfo['memo'],
-      networkId: store.settings!.isMainnet ? 1 : 0
-    );
-    TransferData? transferData = await sendTx(signedTx['payload'], signedTx['signature'], context: context);
+        privateKey: txInfo['privateKey'],
+        amount: txInfo['amount'],
+        to: txInfo['toAddress'],
+        from: txInfo['fromAddress'],
+        fee: txInfo['fee'],
+        nonce: txInfo['nonce'],
+        memo: txInfo['memo'],
+        networkId: store.settings!.isMainnet ? 1 : 0);
+    TransferData? transferData = await sendTx(
+        signedTx['payload'], signedTx['signature'],
+        context: context);
     return transferData;
   }
 
-  Future<TransferData?> signAndSendDelegationTx(Map txInfo, {required BuildContext context}) async {
+  Future<TransferData?> signAndSendDelegationTx(Map txInfo,
+      {required BuildContext context}) async {
     final signedTx = await signDelegation(
-      privateKey: txInfo['privateKey'],
-      to: txInfo['toAddress'],
-      from: txInfo['fromAddress'],
-      fee: txInfo['fee'],
-      nonce: txInfo['nonce'],
-      memo: txInfo['memo'],
-        networkId: store.settings!.isMainnet ? 1 : 0
-    );
-    TransferData? transferData = await sendDelegationTx(signedTx['payload'], signedTx['signature'], context: context);
+        privateKey: txInfo['privateKey'],
+        to: txInfo['toAddress'],
+        from: txInfo['fromAddress'],
+        fee: txInfo['fee'],
+        nonce: txInfo['nonce'],
+        memo: txInfo['memo'],
+        networkId: store.settings!.isMainnet ? 1 : 0);
+    TransferData? transferData = await sendDelegationTx(
+        signedTx['payload'], signedTx['signature'],
+        context: context);
     return transferData;
   }
 
@@ -218,12 +217,16 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     Uint8List bytes = Uint8List.fromList(list);
     return bytes;
   }
-  Future<String?> getPrivateKeyFromKeyStore(String keyStore, String keyStorePassword, {required BuildContext context}) async {
+
+  Future<String?> getPrivateKeyFromKeyStore(
+      String keyStore, String keyStorePassword,
+      {required BuildContext context}) async {
     try {
       Sodium.init();
       Map keystoreMap = jsonDecode(keyStore);
       var salt = bs58check.decode(keystoreMap['pwsalt']).sublist(1);
-      Uint8List key = Sodium.cryptoPwhash(32,
+      Uint8List key = Sodium.cryptoPwhash(
+          32,
           _getUint8ListFromString(keyStorePassword),
           salt,
           keystoreMap['pwdiff'][1],
@@ -233,7 +236,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           bs58check.decode(keystoreMap['ciphertext']).sublist(1),
           bs58check.decode(keystoreMap['nonce']).sublist(1),
           key);
-      var privateKeStr = bs58check.encode(hex.decode('5a' + hex.encode(privateKey)) as Uint8List);
+      var privateKeStr = bs58check
+          .encode(hex.decode('5a' + hex.encode(privateKey)) as Uint8List);
       return privateKeStr;
     } catch (e) {
       final dic = I18n.of(context).main;
@@ -242,19 +246,15 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     }
   }
 
-  Future<bool> createWatchedWallet(String accountName, String address,
-      {required BuildContext context, String source = WalletSource.outside}) async  {
-    Map<String, dynamic> acc = {
-      "name": accountName,
-      "pubKey": address
-    };
-    WalletResult res = await store.wallet!.addWallet(
-        acc,
-        null,
-        seedType: WalletStore.seedTypeNone,
+  Future<bool> createExternalWallet(String accountName, String address,
+      {required BuildContext context,
+      String source = WalletSource.outside,
+      String seedType = WalletStore.seedTypeNone}) async {
+    Map<String, dynamic> acc = {"name": accountName, "pubKey": address};
+    WalletResult res = await store.wallet!.addWallet(acc, null,
+        seedType: seedType,
         context: context,
-        walletSource: WalletSource.outside
-    );
+        walletSource: WalletSource.outside);
     if (res != WalletResult.success) {
       if (res == WalletResult.addressExisted) {
         final dic = I18n.of(context).main;
@@ -278,20 +278,21 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     }
   }
 
-  Future<bool> createWalletByPrivateKey(String accountName, String privateKey, String password, {required BuildContext context, String source = WalletSource.outside}) async {
+  Future<bool> createWalletByPrivateKey(
+      String accountName, String privateKey, String password,
+      {required BuildContext context,
+      String source = WalletSource.outside}) async {
     Map<String, dynamic> acc = await createAccountByPrivateKey(privateKey);
     acc['name'] = accountName;
     return await _addWalletBgPrivateKey(acc, password, context, source);
   }
 
-  Future<bool> _addWalletBgPrivateKey(Map<String, dynamic> acc, String password, context, String walletSource) async {
-    WalletResult res = await store.wallet!.addWallet(
-        acc,
-        password,
+  Future<bool> _addWalletBgPrivateKey(Map<String, dynamic> acc, String password,
+      context, String walletSource) async {
+    WalletResult res = await store.wallet!.addWallet(acc, password,
         seedType: WalletStore.seedTypePrivateKey,
         context: context,
-        walletSource: WalletSource.outside
-    );
+        walletSource: WalletSource.outside);
     if (res != WalletResult.success) {
       if (res == WalletResult.addressExisted) {
         final dic = I18n.of(context).main;
@@ -327,16 +328,18 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return acc;
   }
 
-  Future<String?> getPrivateKey(WalletData wallet, int accountIndex, String password) async {
-    if (wallet.walletType == WalletStore.seedTypeMnemonic){
+  Future<String?> getPrivateKey(
+      WalletData wallet, int accountIndex, String password) async {
+    if (wallet.walletType == WalletStore.seedTypeMnemonic) {
       String? mnemonic = await store.wallet!.getMnemonic(wallet, password);
       if (mnemonic == null) {
         return null;
       }
-      Map<String, dynamic> acc = await createWalletByMnemonic(mnemonic, accountIndex, true);
+      Map<String, dynamic> acc =
+          await createWalletByMnemonic(mnemonic, accountIndex, true);
       return acc["priKey"] as String;
     } else {
-      String? privateKey =  await store.wallet!.getPrivateKey(wallet, password);
+      String? privateKey = await store.wallet!.getPrivateKey(wallet, password);
       if (privateKey == null) {
         return null;
       }
@@ -346,7 +349,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
   bool isMnemonicValid(String mnemonic) {
     final words = mnemonic.trim().split(RegExp(r"(\s)"));
-    if(words.length < 12) {
+    if (words.length < 12) {
       return false;
     }
     return bip39.validateMnemonic(words.join(' '));
@@ -362,10 +365,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return isValid;
   }
 
-
   Future<void> generateMnemonic() async {
     String randomMnemonic = generateRandMnemonic();
-    store.wallet!.setNewWalletSeed(randomMnemonic, WalletStore.seedTypeMnemonic);
+    store.wallet!
+        .setNewWalletSeed(randomMnemonic, WalletStore.seedTypeMnemonic);
   }
 
   Future<Map<String, dynamic>> importWalletByWalletParams() async {
@@ -375,11 +378,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return acc;
   }
 
-  Future<void> saveWallet(Map<String, dynamic> acc, {
-    required BuildContext context,
-    required String seedType,
-    required String walletSource
-  }) async {
+  Future<void> saveWallet(Map<String, dynamic> acc,
+      {required BuildContext context,
+      required String seedType,
+      required String walletSource}) async {
     await store.wallet!.addWallet(
       acc,
       store.wallet!.newWalletParams.password,
@@ -400,13 +402,14 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
   Future<bool> checkAccountPassword(WalletData wallet, String pass) async {
     String pubKey = wallet.id;
-    bool isCorrect = await store.wallet!.checkPassword(pubKey, wallet.walletType, pass);
+    bool isCorrect =
+        await store.wallet!.checkPassword(pubKey, wallet.walletType, pass);
     return isCorrect;
   }
 
   void setBiometricEnabled() {
-    apiRoot.configStorage.write('$_biometricEnabledKey',
-        DateTime.now().millisecondsSinceEpoch);
+    apiRoot.configStorage
+        .write('$_biometricEnabledKey', DateTime.now().millisecondsSinceEpoch);
   }
 
   void setBiometricDisabled() {
@@ -415,11 +418,11 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   bool getBiometricEnabled() {
-    final timestamp =
-        apiRoot.configStorage.read('$_biometricEnabledKey');
+    final timestamp = apiRoot.configStorage.read('$_biometricEnabledKey');
     // we cache user's password with biometric for 7 days.
     if (timestamp != null &&
-        timestamp + SECONDS_OF_DAY * 7000 > DateTime.now().millisecondsSinceEpoch) {
+        timestamp + SECONDS_OF_DAY * 7000 >
+            DateTime.now().millisecondsSinceEpoch) {
       return true;
     }
     return false;
@@ -437,7 +440,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return false;
   }
 
-  Future saveBiometricPass( BuildContext context, String password) async{
+  Future saveBiometricPass(BuildContext context, String password) async {
     final storeFile = await webApi.account.getBiometricPassStoreFile(
       context,
     );
@@ -450,19 +453,17 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     final dic = I18n.of(context).main;
     return BiometricStorage().getStorage(
       '$_biometricPasswordKey',
-      options:  StorageFileInitOptions(authenticationValidityDurationSeconds: -1),
+      options:
+          StorageFileInitOptions(authenticationValidityDurationSeconds: -1),
       promptInfo: PromptInfo(
-        androidPromptInfo: AndroidPromptInfo(
-          title: dic['unlock.bio']!,
-          negativeButton: dic['cancel']!,
-        ),
-        iosPromptInfo: IosPromptInfo(
-          saveTitle: dic['unlock.bio']!,
-          accessTitle: dic['unlock.bio']!,
-        )
-      ),
+          androidPromptInfo: AndroidPromptInfo(
+            title: dic['unlock.bio']!,
+            negativeButton: dic['cancel']!,
+          ),
+          iosPromptInfo: IosPromptInfo(
+            saveTitle: dic['unlock.bio']!,
+            accessTitle: dic['unlock.bio']!,
+          )),
     );
   }
-
-
 }
