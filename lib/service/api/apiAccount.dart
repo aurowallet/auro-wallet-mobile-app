@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
+import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/walletSdk/types.dart';
 import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ import 'package:flutter_sodium/flutter_sodium.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:convert/convert.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 
 class ApiAccount {
   ApiAccount(this.apiRoot);
@@ -54,8 +57,44 @@ class ApiAccount {
   }
 
   Future<TransferData?> sendTx(Map input, Map signature,
-      {required BuildContext context}) async {
-    String mutation = r'''
+      {required BuildContext context, isRawSignature = false}) async {
+    String? mutation;
+    if (isRawSignature) {
+      mutation = r'''
+    mutation broadcastTx($fee:UInt64!, $amount:UInt64!, 
+$to: PublicKey!, $from: PublicKey!, $nonce:UInt32, $memo: String!,
+$validUntil: UInt32, $rawSignature: String!) {
+      sendPayment(
+        input: {
+          fee: $fee,
+          amount: $amount,
+          to: $to,
+          from: $from,
+          memo: $memo,
+          nonce: $nonce,
+          validUntil: $validUntil
+        }, 
+        signature: {
+           rawSignature: $rawSignature
+        }) {
+        payment {
+          amount
+          fee
+          feeToken
+          from
+          hash
+          id
+          isDelegation
+          memo
+          nonce
+          kind
+          to
+        }
+      }
+    }
+''';
+    } else {
+      mutation = r'''
     mutation broadcastTx($fee:UInt64!, $amount:UInt64!, 
 $to: PublicKey!, $from: PublicKey!, $nonce:UInt32, $memo: String!,
 $validUntil: UInt32, $scalar: String!, $field: String!) {
@@ -88,6 +127,7 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
       }
     }
 ''';
+    }
 
     Map<String, dynamic> variables = {...input, ...signature};
 
@@ -119,8 +159,43 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
   }
 
   Future<TransferData?> sendDelegationTx(Map input, Map signature,
-      {required BuildContext context}) async {
-    String mutation = r'''
+      {required BuildContext context, isRawSignature = false}) async {
+    String? mutation;
+    if (isRawSignature) {
+      mutation = r'''
+    mutation broadcastTx($fee:UInt64!,
+$to: PublicKey!, $from: PublicKey!, $nonce:UInt32!, $memo: String!,
+$validUntil: UInt32, $rawSignature: String!) {
+      sendDelegation(
+        input: {
+          fee: $fee,
+          to: $to,
+          from: $from,
+          memo: $memo,
+          nonce: $nonce,
+          validUntil: $validUntil
+        }, 
+        signature: {
+          rawSignature: $rawSignature
+        }) {
+        delegation {
+          amount
+          fee
+          feeToken
+          from
+          hash
+          id
+          isDelegation
+          memo
+          nonce
+          kind
+          to
+        }
+      }
+    }
+''';
+    } else {
+      mutation = r'''
     mutation broadcastTx($fee:UInt64!,
 $to: PublicKey!, $from: PublicKey!, $nonce:UInt32!, $memo: String!,
 $validUntil: UInt32,$scalar: String!, $field: String!) {
@@ -152,6 +227,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       }
     }
 ''';
+    }
     Map<String, dynamic> variables = {...input, ...signature};
     final MutationOptions _options = MutationOptions(
       document: gql(mutation),
@@ -177,6 +253,60 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       ..success = false
       ..receiver = paymentData["to"];
     return data;
+  }
+
+  Future<TransferData?> ledgerSignAndSendTx(Map txInfo,
+      {required BuildContext context, isDelegation = false}) async {
+    final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
+        accountIndex: txInfo["accountIndex"]);
+    final feeLarge =
+        BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
+    final amountLarge = isDelegation
+        ? 0
+        : BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
+    final validUntil = 4294967295;
+    try {
+      // final rawSignature = "8c6e8717bb6b60405446b722031c99a052a3f377ef4fbc83faf6f46fcbc36610e2f8455a3b64ce66b4dd9bc91541a126caae34140a941b5a7e1b24d3d3223420";
+      final rawSignature = await minaApp.signTransfer(
+          store.ledger!.ledgerDevice!,
+          txType: isDelegation ? TxType.DELEGATION.value : TxType.PAYMENT.value,
+          senderAccount: txInfo["accountIndex"],
+          senderAddress: txInfo['fromAddress'],
+          receiverAddress: txInfo['toAddress'],
+          amount: amountLarge,
+          fee: feeLarge,
+          nonce: txInfo['nonce'],
+          memo: txInfo['memo'],
+          validUntil: validUntil,
+          networkId: store.settings!.isMainnet
+              ? Networks.MAINNET.value
+              : Networks.DEVNET.value);
+      final prepareBody = prepareBroadcastBody(
+          from: txInfo['fromAddress'],
+          to: txInfo['toAddress'],
+          fee: feeLarge,
+          amount: amountLarge,
+          nonce: txInfo['nonce'],
+          memo: txInfo['memo'],
+          validUntil: validUntil,
+          rawSignature: rawSignature);
+      TransferData? transferData;
+      if (isDelegation) {
+        transferData = await sendDelegationTx(
+            prepareBody['payload'], prepareBody['signature'],
+            context: context, isRawSignature: true);
+      } else {
+        transferData = await sendTx(
+            prepareBody['payload'], prepareBody['signature'],
+            context: context, isRawSignature: true);
+      }
+      print('ledger sign success');
+      return transferData;
+    } on LedgerException catch (e) {
+      print('ledger fail');
+      print(e);
+      return null;
+    }
   }
 
   Future<TransferData?> signAndSendTx(Map txInfo,
@@ -249,8 +379,13 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<bool> createExternalWallet(String accountName, String address,
       {required BuildContext context,
       String source = WalletSource.outside,
-      String seedType = WalletStore.seedTypeNone}) async {
-    Map<String, dynamic> acc = {"name": accountName, "pubKey": address};
+      String seedType = WalletStore.seedTypeNone,
+      int hdIndex = 0}) async {
+    Map<String, dynamic> acc = {
+      "name": accountName,
+      "pubKey": address,
+      "hdIndex": hdIndex
+    };
     WalletResult res = await store.wallet!.addWallet(acc, null,
         seedType: seedType,
         context: context,

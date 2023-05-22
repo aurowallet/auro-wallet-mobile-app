@@ -15,14 +15,10 @@ import 'package:ledger_flutter/ledger_flutter.dart';
 
 class LedgerAccountNameParams {
   LedgerAccountNameParams({
-    this.redirect,
-    this.callback,
-    this.placeholder,
+    required this.placeholder,
   });
 
-  final String? redirect;
-  final String? placeholder;
-  final Future<bool> Function(String accountName)? callback;
+  final String placeholder;
 }
 
 class LedgerAccountNamePage extends StatefulWidget {
@@ -71,15 +67,16 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
     LedgerAccountNameParams params =
         ModalRoute.of(context)!.settings.arguments as LedgerAccountNameParams;
     String accountName = _nameCtrl.text.trim();
-    if (accountName.isEmpty && params.placeholder != null) {
-      accountName = params.placeholder!;
+    if (accountName.isEmpty) {
+      accountName = params.placeholder;
     }
     setState(() {
       importing = true;
     });
     try {
+      final accountIndex = int.tryParse(_accountIndexCtrl.text) ?? 0;
       final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
-          accountIndex: int.tryParse(_accountIndexCtrl.text) ?? 0);
+          accountIndex: accountIndex);
       print(minaApp);
       // final ledgerApp = await minaApp.getAppName(device);
       // print(ledgerApp.name);
@@ -93,7 +90,8 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
           accountName, accounts[0],
           context: context,
           source: WalletSource.outside,
-          seedType: WalletStore.seedTypeLedger);
+          seedType: WalletStore.seedTypeLedger,
+          hdIndex: accountIndex);
       setState(() {
         importing = false;
       });
@@ -104,6 +102,9 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
       }
       // print(version);
     } on LedgerException catch (e) {
+      setState(() {
+        importing = false;
+      });
       print('出错了');
       print(e.message);
       // await ledgerInstance!.disconnect(ledgerDevice!);

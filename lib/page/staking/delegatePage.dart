@@ -23,6 +23,7 @@ import 'package:auro_wallet/store/assets/types/fees.dart';
 
 class DelegateParams {
   DelegateParams({this.manualAddValidator = false, this.validatorData});
+
   bool manualAddValidator;
   ValidatorData? validatorData;
 }
@@ -38,7 +39,8 @@ class DelegatePage extends StatefulWidget {
   _DelegatePageState createState() => _DelegatePageState(store);
 }
 
-class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderStateMixin {
+class _DelegatePageState extends State<DelegatePage>
+    with SingleTickerProviderStateMixin {
   _DelegatePageState(this.store);
 
   final AppStore store;
@@ -59,12 +61,14 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     super.initState();
     _onFeeLoaded(store.assets!.transferFees);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
-      _monitorFeeDisposer = reaction((_) =>  store.assets!.transferFees, _onFeeLoaded);
+      DelegateParams params =
+          ModalRoute.of(context)!.settings.arguments as DelegateParams;
+      _monitorFeeDisposer =
+          reaction((_) => store.assets!.transferFees, _onFeeLoaded);
       _feeCtrl.addListener(_onFeeInputChange);
       if (params.manualAddValidator) {
         _validatorCtrl.addListener(_monitorSummitStatus);
-        setState((){
+        setState(() {
           _submitDisabled = true;
         });
       }
@@ -82,9 +86,8 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     _monitorFeeDisposer();
   }
 
-
   void _onFeeInputChange() {
-    setState((){
+    setState(() {
       inputDirty = true;
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
@@ -94,20 +97,20 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     });
   }
 
-
   void _monitorSummitStatus() {
     if (_validatorCtrl.text.isEmpty) {
       if (!_submitDisabled) {
-        setState((){
+        setState(() {
           _submitDisabled = true;
         });
       }
-    } else if(_submitDisabled) {
-      setState((){
+    } else if (_submitDisabled) {
+      setState(() {
         _submitDisabled = false;
       });
     }
   }
+
   void _onFeeLoaded(Fees fees) {
     if (inputDirty) {
       return;
@@ -125,36 +128,43 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
       webApi.assets.fetchAccountInfo(),
       webApi.assets.queryTxFees(),
     ]);
-    runInAction((){
+    runInAction(() {
       _loading.value = false;
     });
   }
 
-  void _onChooseFee (double fee) {
+  void _onChooseFee(double fee) {
     _feeCtrl.text = fee.toString();
     setState(() {
       currentFee = fee;
     });
   }
 
-  String? _validateBalance () {
+  String? _validateBalance() {
     final Map<String, String> dic = I18n.of(context).main;
-    BigInt available = store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ?? BigInt.from(0);
+    BigInt available =
+        store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
+            BigInt.from(0);
     final int decimals = COIN.decimals;
-    double fee = _feeCtrl.text.isNotEmpty ? double.parse(Fmt.parseNumber(_feeCtrl.text)) : currentFee!;
+    double fee = _feeCtrl.text.isNotEmpty
+        ? double.parse(Fmt.parseNumber(_feeCtrl.text))
+        : currentFee!;
     if (available / BigInt.from(pow(10, decimals)) - fee <= 0) {
       return dic['balanceNotEnough']!;
     }
     return null;
   }
-  Future<String?> _validateValidator () async {
+
+  Future<String?> _validateValidator() async {
     final Map<String, String> dic = I18n.of(context).main;
-    DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
+    DelegateParams params =
+        ModalRoute.of(context)!.settings.arguments as DelegateParams;
     if (params.manualAddValidator) {
       if (_validatorCtrl.text.isEmpty) {
         return dic['inputNodeAddress']!;
       }
-      bool isValid = await webApi.account.isAddressValid(_validatorCtrl.text.trim());
+      bool isValid =
+          await webApi.account.isAddressValid(_validatorCtrl.text.trim());
       if (!isValid) {
         return dic['sendAddressError']!;
       }
@@ -162,6 +172,7 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
     }
     return null;
   }
+
   Future<bool> _validate() async {
     String? amountError = _validateBalance();
     if (amountError != null) {
@@ -183,7 +194,8 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   void _handleSubmit() async {
     _unFocus();
     if (_nonceCtrl.text.isEmpty && currentFee == null) {
-      if (_loading.value) { // waiting nonce data from server
+      if (_loading.value) {
+        // waiting nonce data from server
         setState(() {
           submitting = true;
         });
@@ -203,73 +215,100 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
       if (_nonceCtrl.text.isNotEmpty) {
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        inferredNonce = store.assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
+        inferredNonce = store
+            .assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
       }
-      fee = _feeCtrl.text.isNotEmpty ? double.parse(Fmt.parseNumber(_feeCtrl.text)) : currentFee!;
-      DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
+      fee = _feeCtrl.text.isNotEmpty
+          ? double.parse(Fmt.parseNumber(_feeCtrl.text))
+          : currentFee!;
+      DelegateParams params =
+          ModalRoute.of(context)!.settings.arguments as DelegateParams;
       ValidatorData? validatorData = params.validatorData;
-      String validatorAddress = params.manualAddValidator ? _validatorCtrl.text.trim() : validatorData!.address;
+      String validatorAddress = params.manualAddValidator
+          ? _validatorCtrl.text.trim()
+          : validatorData!.address;
       List<TxItem> txItems = [];
       // if (!params.manualAddValidator) {
       //   txItems.add(TxItem(label: i18n['producerName']!, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
       // }
       txItems.addAll([
-        TxItem(label: i18n['providerAddress']!, value: validatorAddress, type: TxItemTypes.address),
-        TxItem(label: i18n['fromAddress']!, value: store.wallet!.currentAddress, type: TxItemTypes.address),
-        TxItem(label: i18n['fee']!, value: '${fee.toString()} ${COIN.coinSymbol}', type: TxItemTypes.amount),
+        TxItem(
+            label: i18n['providerAddress']!,
+            value: validatorAddress,
+            type: TxItemTypes.address),
+        TxItem(
+            label: i18n['fromAddress']!,
+            value: store.wallet!.currentAddress,
+            type: TxItemTypes.address),
+        TxItem(
+            label: i18n['fee']!,
+            value: '${fee.toString()} ${COIN.coinSymbol}',
+            type: TxItemTypes.amount),
       ]);
       if (memo.isNotEmpty) {
-        txItems.insert(3, TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
+        txItems.insert(3,
+            TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
       }
-      bool isWatchMode = store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
+      bool isWatchMode =
+          store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
       String validateName;
+      bool isLedger =
+          store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
       if (params.manualAddValidator) {
         validateName = Fmt.address(validatorAddress, pad: 10);
       } else {
-        validateName = validatorData!.name ?? Fmt.address(validatorAddress, pad: 10);
+        validateName =
+            validatorData!.name ?? Fmt.address(validatorAddress, pad: 10);
       }
       UI.showTxConfirm(
           context: context,
           title: i18n['sendDetail']!,
           items: txItems,
+          isLedger: isLedger,
           headLabel: i18n['producerName']!,
           headValue: Text(
             validateName,
             style: TextStyle(
-                fontSize: 20,
-                color: Colors.black,
-                fontWeight: FontWeight.w600
-            ),
+                fontSize: 20, color: Colors.black, fontWeight: FontWeight.w600),
           ),
           disabled: isWatchMode,
-          buttonText: isWatchMode ? i18n['watchMode']: i18n['confirm'],
+          buttonText: isWatchMode ? i18n['watchMode'] : i18n['confirm'],
           onConfirm: () async {
-            String? password = await UI.showPasswordDialog(
-                context: context,
-                wallet: store.wallet!.currentWallet,
-                inputPasswordRequired: false
-            );
-            if (password == null) {
-              return false;
-            }
-            String? privateKey = await webApi.account.getPrivateKey(
-                store.wallet!.currentWallet,
-                store.wallet!.currentWallet.currentAccountIndex,
-                password);
-            if (privateKey == null) {
-              UI.toast(i18n['passwordError']!);
-              return false;
+            String? privateKey;
+            if (!isLedger) {
+              String? password = await UI.showPasswordDialog(
+                  context: context,
+                  wallet: store.wallet!.currentWallet,
+                  inputPasswordRequired: false);
+              if (password == null) {
+                return false;
+              }
+              privateKey = await webApi.account.getPrivateKey(
+                  store.wallet!.currentWallet,
+                  store.wallet!.currentWallet.currentAccountIndex,
+                  password);
+              if (privateKey == null) {
+                UI.toast(i18n['passwordError']!);
+                return false;
+              }
             }
             Map txInfo = {
               "privateKey": privateKey,
+              "accountIndex": store.wallet!.currentWallet.currentAccountIndex,
               "fromAddress": store.wallet!.currentAddress,
               "toAddress": validatorAddress,
               "fee": fee,
               "nonce": inferredNonce,
               "memo": memo,
             };
-
-            TransferData? data = await webApi.account.signAndSendDelegationTx(txInfo, context: context);
+            TransferData? data;
+            if (isLedger) {
+              data = await webApi.account.ledgerSignAndSendTx(txInfo,
+                  context: context, isDelegation: true);
+            } else {
+              data = await webApi.account
+                  .signAndSendDelegationTx(txInfo, context: context);
+            }
             if (mounted) {
               // if (data != null) {
               //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
@@ -277,27 +316,25 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
               //   Navigator.popUntil(context, ModalRoute.withName('/'));
               // }
               // Navigator.popAndPushNamed(context, ModalRoute.withName('/'));
-              await Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+              await Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/', (Route<dynamic> route) => false);
               globalBalanceRefreshKey.currentState?.show();
               return true;
             }
             return false;
-          }
-      );
+          });
       return;
-
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Observer(
       builder: (_) {
         final Map<String, String> i18n = I18n.of(context).main;
         final fees = store.assets!.transferFees;
-        DelegateParams params = ModalRoute.of(context)!.settings.arguments as DelegateParams;
+        DelegateParams params =
+            ModalRoute.of(context)!.settings.arguments as DelegateParams;
         ValidatorData? validatorData = params.validatorData;
         return Scaffold(
           appBar: AppBar(
@@ -320,13 +357,14 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                           Container(
                             child: Column(
                               children: [
-                                !params.manualAddValidator ?
-                                ValidatorSelector(validatorData: validatorData!)
-                                : InputItem(
-                                  padding: const EdgeInsets.only(top: 0),
-                                  label: i18n['stakingProviderName']!,
-                                  controller: _validatorCtrl,
-                                ),
+                                !params.manualAddValidator
+                                    ? ValidatorSelector(
+                                        validatorData: validatorData!)
+                                    : InputItem(
+                                        padding: const EdgeInsets.only(top: 0),
+                                        label: i18n['stakingProviderName']!,
+                                        controller: _validatorCtrl,
+                                      ),
                                 InputItem(
                                   label: i18n['memo']!,
                                   initialValue: '',
@@ -342,22 +380,25 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
                           ),
                           Container(
                             height: 0.5,
-                            margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                            decoration: BoxDecoration(
-                                color: Color(0x1A000000)
-                            ),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 10),
+                            decoration: BoxDecoration(color: Color(0x1A000000)),
                           ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
-                            noncePlaceHolder: store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce,
+                            noncePlaceHolder: store
+                                .assets!
+                                .accountsInfo[store.wallet!.currentAddress]
+                                ?.inferredNonce,
                             cap: fees.cap,
                           )
                         ],
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
+                      padding: EdgeInsets.only(
+                          left: 38, right: 38, top: 12, bottom: 30),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: i18n['next']!,
@@ -376,9 +417,9 @@ class _DelegatePageState extends State<DelegatePage> with SingleTickerProviderSt
   }
 }
 
-
 class ValidatorSelector extends StatelessWidget {
   ValidatorSelector({required this.validatorData});
+
   final ValidatorData validatorData;
 
   @override
@@ -394,8 +435,7 @@ class ValidatorSelector extends StatelessWidget {
           style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xD9000000)
-          ),
+              color: Color(0xD9000000)),
         ),
         GestureDetector(
           onTap: () async {
@@ -420,13 +460,14 @@ class ValidatorSelector extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xD9000000)
-                      ),
+                          color: Color(0xD9000000)),
                     ),
-                    Icon(Icons.arrow_forward_ios, size: 15, color: Colors.black,)
-                  ]
-              )
-          ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 15,
+                      color: Colors.black,
+                    )
+                  ])),
         )
       ],
     );

@@ -2,6 +2,7 @@ import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/utils/ledgerInit.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -38,49 +39,23 @@ class _ImportLedgerState extends State<ImportLedger> {
       connecting = false;
     });
     store.ledger!.setDevice(ledgerDevice);
-    store.ledger!.setLedger(ledgerInstance);
     Navigator.of(context).pop(true);
   }
 
   void _scanDevice() async {
     ledgerInstance = await _initLedger();
-    ledgerInstance!.stopScanning();
-    if (ledgerInstance!.devices.length > 0) {
-      ledgerDevice = ledgerInstance!.devices[0];
-      searching = false;
-    } else {
-      ledgerInstance!.scan().listen((device) async {
-        setState(() {
-          ledgerDevice = device;
-          searching = false;
-        });
+    await ledgerInstance!.stopScanning();
+    ledgerInstance!.scan().listen((device) async {
+      await ledgerInstance!.stopScanning();
+      setState(() {
+        ledgerDevice = device;
+        searching = false;
       });
-    }
+    });
   }
 
   Future<Ledger> _initLedger() async {
-    final options = LedgerOptions(
-      maxScanDuration: const Duration(milliseconds: 5000),
-    );
-
-    final ledger = Ledger(
-      options: options,
-      // onPermissionRequest: (status) async {
-      //   // Location was granted, now request BLE
-      //   Map<Permission, PermissionStatus> statuses = await [
-      //     Permission.bluetoothScan,
-      //     Permission.bluetoothConnect,
-      //     Permission.bluetoothAdvertise,
-      //   ].request();
-      //
-      //   if (status != BleStatus.ready) {
-      //     return false;
-      //   }
-      //
-      //   return statuses.values.where((status) => status.isDenied).isEmpty;
-      // },
-    );
-    await ledger.close(ConnectionType.ble);
+    final ledger = await LedgerInit.init();
     return ledger;
   }
 

@@ -54,6 +54,7 @@ class UI {
     String? headLabel,
     Widget? headValue,
     bool disabled = false,
+    bool isLedger = false,
   }) {
     showModalBottomSheet<void>(
       context: context,
@@ -63,6 +64,7 @@ class UI {
         return TxConfirmDialog(
             title: title,
             items: items,
+            isLedger: isLedger,
             disabled: disabled,
             headerLabel: headLabel,
             headerValue: headValue,

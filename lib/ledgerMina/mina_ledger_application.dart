@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:auro_wallet/ledgerMina/operations/mina_name_operation.dart';
+import 'package:auro_wallet/ledgerMina/operations/mina_sign_transfer_operation.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
 import 'mina_transformer.dart';
@@ -85,5 +87,101 @@ class MinaLedgerApp extends LedgerApp {
     }
 
     return signatures;
+  }
+
+  Future<String> signTransfer(LedgerDevice device,
+      {required int txType,
+      required int senderAccount,
+      required String senderAddress,
+      required String receiverAddress,
+      required int amount,
+      required int fee,
+      required int nonce,
+      validUntil = 4294967295,
+      memo = "",
+      required int networkId}) async {
+    final transaction = createTXApdu(
+        txType: txType,
+        senderAccount: senderAccount,
+        senderAddress: senderAddress,
+        receiverAddress: receiverAddress,
+        amount: amount,
+        memo: memo,
+        fee: fee,
+        nonce: nonce,
+        networkId: networkId);
+    return ledger.sendOperation<String>(
+      device,
+      MinaSignTransferOperation(
+        transaction: transaction,
+      ),
+      transformer: transformer,
+    );
+  }
+
+  Uint8List createTXApdu(
+      {required int txType,
+      required int senderAccount,
+      required String senderAddress,
+      required String receiverAddress,
+      required int amount,
+      required int fee,
+      required int nonce,
+      validUntil = 4294967295,
+      memo = "",
+      required int networkId}) {
+    ByteDataWriter writer = new ByteDataWriter();
+    writer.writeUint32(senderAccount);
+    writer.write(utf8.encode(senderAddress));
+    writer.write(utf8.encode(receiverAddress));
+    writer.writeUint64(amount);
+    writer.writeUint64(fee);
+    writer.writeUint32(nonce);
+    writer.writeUint32(validUntil);
+    writer.write(convertMemo(memo));
+    writer.writeUint8(txType);
+    writer.writeUint8(networkId);
+    return writer.toBytes();
+  }
+
+  List<int> convertMemo(String memo) {
+    const length = 32;
+    var charToAdd = length - utf8.encode(memo).length;
+    var stringToReturn = memo;
+    while (charToAdd > 0) {
+      stringToReturn += "\x00";
+      charToAdd--;
+    }
+    return utf8.encode(stringToReturn);
+  }
+}
+
+enum TxType { PAYMENT, DELEGATION }
+
+extension TxTypeExtension on TxType {
+  int get value {
+    switch (this) {
+      case TxType.PAYMENT:
+        return 0x00;
+      case TxType.DELEGATION:
+        return 0x04;
+      default:
+        return -1;
+    }
+  }
+}
+
+enum Networks { MAINNET, DEVNET }
+
+extension NetworksExtension on Networks {
+  int get value {
+    switch (this) {
+      case Networks.MAINNET:
+        return 0x01;
+      case Networks.DEVNET:
+        return 0x00;
+      default:
+        return -1;
+    }
   }
 }

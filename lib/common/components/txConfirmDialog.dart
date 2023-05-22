@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/ledgerStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -21,6 +22,7 @@ class TxConfirmDialog extends StatefulWidget {
     required this.title,
     this.onConfirm,
     this.disabled = false,
+    this.isLedger = false,
     this.buttonText,
     this.headerLabel,
     this.headerValue,
@@ -32,6 +34,7 @@ class TxConfirmDialog extends StatefulWidget {
   final Widget? headerValue;
   final String? buttonText;
   final bool disabled;
+  final bool isLedger;
   final Function()? onConfirm;
 
   @override
@@ -79,11 +82,18 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                    child: Text(widget.title,
-                        style: TextStyle(
-                            color: Color(0xFF222222),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(widget.title,
+                            style: TextStyle(
+                                color: Color(0xFF222222),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600)),
+                        widget.isLedger ? LedgerStatus() : Container()
+                      ],
+                    ),
                   ),
                   Container(
                     height: 0.5,
