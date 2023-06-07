@@ -13,12 +13,14 @@ import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/encryption.dart';
 import 'package:auro_wallet/store/wallet/types/seedData.dart';
 import 'package:collection/collection.dart';
+
 part 'wallet.g.dart';
 
 class WalletStore extends _WalletStore with _$WalletStore {
   WalletStore(AppStore appStore) : super(appStore);
   static const String seedTypeMnemonic = 'mnemonic';
   static const String seedTypePrivateKey = 'priKey';
+  static const String seedTypeLedger = 'ledger';
   static const String seedTypeNone = 'none';
 }
 
@@ -26,7 +28,6 @@ abstract class _WalletStore with Store {
   _WalletStore(this.rootStore);
 
   final AppStore rootStore;
-
 
   @observable
   bool loading = true;
@@ -43,7 +44,6 @@ abstract class _WalletStore with Store {
   @observable
   ObservableList<WalletData> walletList = ObservableList<WalletData>();
 
-
   @computed
   WalletData get currentWallet {
     int i = walletList.indexWhere((i) => i.id == currentWalletId);
@@ -53,10 +53,9 @@ abstract class _WalletStore with Store {
     return walletListAll[i];
   }
 
-
   @computed
   Map<String, WalletData> get walletsMap {
-    Map<String, WalletData> wallets =  Map<String, WalletData>();
+    Map<String, WalletData> wallets = Map<String, WalletData>();
     walletList.forEach((wallet) {
       wallets[wallet.id] = wallet;
     });
@@ -66,7 +65,9 @@ abstract class _WalletStore with Store {
   @computed
   List<AccountData> get accountListAll {
     List<AccountData> accountList = [];
-    walletList.where((wallet) => wallet.walletType != WalletStore.seedTypeNone).forEach((wallet) {
+    walletList
+        .where((wallet) => wallet.walletType != WalletStore.seedTypeNone)
+        .forEach((wallet) {
       accountList.addAll(wallet.accounts);
     });
     return accountList;
@@ -75,12 +76,13 @@ abstract class _WalletStore with Store {
   @computed
   List<AccountData> get watchModeAccountListAll {
     List<AccountData> accountList = [];
-    walletList.where((wallet) => wallet.walletType == WalletStore.seedTypeNone).forEach((wallet) {
+    walletList
+        .where((wallet) => wallet.walletType == WalletStore.seedTypeNone)
+        .forEach((wallet) {
       accountList.addAll(wallet.accounts);
     });
     return accountList;
   }
-
 
   @computed
   List<WalletData> get walletListAll {
@@ -91,7 +93,8 @@ abstract class _WalletStore with Store {
   @computed
   WalletData? get mnemonicWallet {
     // there is only one mnemonic wallet in the app
-    return walletList.firstWhereOrNull((element) => element.walletType == WalletStore.seedTypeMnemonic);
+    return walletList.firstWhereOrNull(
+        (element) => element.walletType == WalletStore.seedTypeMnemonic);
   }
 
   @computed
@@ -122,8 +125,9 @@ abstract class _WalletStore with Store {
 
   @action
   Future<void> setCurrentAccount(String pubKey) async {
-    WalletData wallet = walletList.firstWhere((w) => w.accounts.indexWhere((account) => account.pubKey == pubKey) >= 0);
-    var account = wallet.accounts.firstWhere((acc)=>acc.pubKey == pubKey);
+    WalletData wallet = walletList.firstWhere((w) =>
+        w.accounts.indexWhere((account) => account.pubKey == pubKey) >= 0);
+    var account = wallet.accounts.firstWhere((acc) => acc.pubKey == pubKey);
     wallet.currentAccountIndex = account.accountIndex;
     await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
     await rootStore.localStorage.setCurrentWallet(wallet.id);
@@ -140,13 +144,16 @@ abstract class _WalletStore with Store {
   @action
   Future<void> updateAccount(Map<String, dynamic> acc) async {
     AccountData newAccount = AccountData.fromJson(acc);
-    WalletData wallet = walletList.firstWhere((wallet) => wallet.id == newAccount.walletId);
-    int index = wallet.accounts.indexWhere((account)=>account.pubKey == newAccount.pubKey);
+    WalletData wallet =
+        walletList.firstWhere((wallet) => wallet.id == newAccount.walletId);
+    int index = wallet.accounts
+        .indexWhere((account) => account.pubKey == newAccount.pubKey);
     wallet.accounts.removeAt(index);
     wallet.accounts.insert(index, newAccount);
     await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
     await loadWallet();
   }
+
   @action
   Future<void> clearWallets() async {
     await rootStore.localStorage.clearWallets();
@@ -154,8 +161,10 @@ abstract class _WalletStore with Store {
     await rootStore.secureStorage.clearSeeds();
     await loadWallet();
   }
+
   @action
-  Future<void> addAccount(Map<String, dynamic> acc, String accountName, WalletData wallet) async {
+  Future<void> addAccount(
+      Map<String, dynamic> acc, String accountName, WalletData wallet) async {
     String pubKey = acc['pubKey'];
     int hdIndex = acc['hdIndex'];
     AccountData accountData = new AccountData()
@@ -185,22 +194,25 @@ abstract class _WalletStore with Store {
     nextAccountIndex++;
     return nextAccountIndex;
   }
+
   Future<String?> getMnemonic(WalletData wallet, String password) async {
-    if (wallet.walletType == WalletStore.seedTypeMnemonic){
-      return decryptSeed(wallet.id,  WalletStore.seedTypeMnemonic, password);
+    if (wallet.walletType == WalletStore.seedTypeMnemonic) {
+      return decryptSeed(wallet.id, WalletStore.seedTypeMnemonic, password);
     } else {
       return null;
     }
   }
 
   Future<String?> getPrivateKey(WalletData wallet, String password) async {
-    var pri =  await decryptSeed(wallet.id,  WalletStore.seedTypePrivateKey, password);
+    var pri =
+        await decryptSeed(wallet.id, WalletStore.seedTypePrivateKey, password);
     return pri;
   }
 
   int getNextWalletIndexOfType(String walletType) {
     int index = 0;
-    var typeWallets = walletList.where((w) => w.walletType == walletType).toList();
+    var typeWallets =
+        walletList.where((w) => w.walletType == walletType).toList();
     typeWallets.forEach((w) {
       if (w.walletTypeIndex >= index) {
         index = w.walletTypeIndex + 1;
@@ -210,15 +222,19 @@ abstract class _WalletStore with Store {
   }
 
   @action
-  Future<WalletResult> addWallet(Map<String, dynamic> walletInfo, String? password, {
+  Future<WalletResult> addWallet(
+    Map<String, dynamic> walletInfo,
+    String? password, {
     required BuildContext context,
     required String seedType,
     required String? walletSource,
   }) async {
     String pubKey = walletInfo['pubKey'];
     int hdIndex = walletInfo.containsKey('hdIndex') ? walletInfo['hdIndex'] : 0;
-    String? name =  walletInfo['name'];
-    String source = walletSource != null && walletSource.isNotEmpty ? walletSource : WalletSource.inside;
+    String? name = walletInfo['name'];
+    String source = walletSource != null && walletSource.isNotEmpty
+        ? walletSource
+        : WalletSource.inside;
     int index = walletList.indexWhere((i) => i.pubKey == pubKey);
     if (index >= 0) {
       return WalletResult.addressExisted;
@@ -233,29 +249,28 @@ abstract class _WalletStore with Store {
 
     if (seedType == WalletStore.seedTypeMnemonic) {
       await saveSeed(WalletStore.seedTypeMnemonic);
-    } else if(seedType == WalletStore.seedTypePrivateKey){
+    } else if (seedType == WalletStore.seedTypePrivateKey) {
       await saveSeed(WalletStore.seedTypePrivateKey);
     }
     walletInfo.remove(WalletStore.seedTypeMnemonic);
     walletInfo.remove(WalletStore.seedTypePrivateKey);
-    
+
     var accountData = new AccountData()
       ..pubKey = pubKey
       ..name = name ?? ""
       ..walletId = pubKey
       ..createTime = DateTime.now().millisecondsSinceEpoch
       ..accountIndex = hdIndex;
-    
+
     var walletData = new WalletData()
       ..walletType = seedType
-      ..walletTypeIndex = walletList.where((w) => w.walletType == seedType).toList().length
+      ..walletTypeIndex =
+          walletList.where((w) => w.walletType == seedType).toList().length
       ..id = pubKey
       ..source = source
       ..createTime = DateTime.now().millisecondsSinceEpoch
-      ..accounts = [
-        accountData
-      ]
-      ..currentAccountIndex = 0;
+      ..accounts = [accountData]
+      ..currentAccountIndex = hdIndex;
 
     await rootStore.localStorage.addWallet(WalletData.toJson(walletData));
     await rootStore.localStorage.setCurrentWallet(pubKey);
@@ -266,7 +281,8 @@ abstract class _WalletStore with Store {
 
   @action
   Future<void> removeAccount(AccountData acc) async {
-    WalletData wallet = walletList.firstWhere((wallet) => wallet.id == acc.walletId);
+    WalletData wallet =
+        walletList.firstWhere((wallet) => wallet.id == acc.walletId);
     wallet.accounts.removeWhere((account) => account.pubKey == acc.pubKey);
 
     // delete wallet if no account left
@@ -287,23 +303,24 @@ abstract class _WalletStore with Store {
 
   @action
   Future<void> loadWallet() async {
-    List<Map<String, dynamic>> accList = await rootStore.localStorage.getWalletList();
+    List<Map<String, dynamic>> accList =
+        await rootStore.localStorage.getWalletList();
     walletList = ObservableList.of(accList.map((i) => WalletData.fromJson(i)));
     var _currentWalletId = await rootStore.localStorage.getCurrentWallet();
     if (_currentWalletId != null) {
       currentWalletId = _currentWalletId;
-    } else if(walletList.length > 0){
+    } else if (walletList.length > 0) {
       currentWalletId = walletList[0].id;
     }
     loading = false;
   }
 
-
   @action
   Future<void> encryptSeed(
       String pubKey, String seed, String seedType, String password) async {
     var encryption = Encryption();
-    Map<String, dynamic> encryptedSeed = await encryption.encrypt(content: seed, password: password);
+    Map<String, dynamic> encryptedSeed =
+        await encryption.encrypt(content: seed, password: password);
     Map stored = await rootStore.secureStorage.getSeeds(seedType);
     stored[pubKey] = encryptedSeed;
     rootStore.secureStorage.setSeeds(seedType, stored);
@@ -318,7 +335,8 @@ abstract class _WalletStore with Store {
       return null;
     }
     var encryption = Encryption();
-    String? decryptedStr = await encryption.decrypt(data: encrypted, password:password);
+    String? decryptedStr =
+        await encryption.decrypt(data: encrypted, password: password);
     var seedData = SeedData.fromJson(encrypted);
     if (decryptedStr != null && seedData.version != 3) {
       await encryptSeed(pubKey, decryptedStr, seedType, password);
@@ -333,10 +351,9 @@ abstract class _WalletStore with Store {
     return encrypted != null;
   }
 
-
-
   @action
-  Future<bool> checkPassword(String pubKey, String seedType, String password) async {
+  Future<bool> checkPassword(
+      String pubKey, String seedType, String password) async {
     try {
       String? res = await decryptSeed(pubKey, seedType, password);
       if (res == null) {
@@ -348,13 +365,14 @@ abstract class _WalletStore with Store {
     }
   }
 
-  Future<void> updateAllWalletSeed(String passwordOld, String passwordNew) async {
+  Future<void> updateAllWalletSeed(
+      String passwordOld, String passwordNew) async {
     try {
       for (var i = 0; i < walletList.length; i++) {
         var wallet = walletList[i];
         await updateSeed(wallet.id, passwordOld, passwordNew);
       }
-    } catch(x) {
+    } catch (x) {
       print('111');
       print(x);
     }
@@ -378,7 +396,8 @@ abstract class _WalletStore with Store {
       return;
     }
     var encryption = Encryption();
-    String? seed = await encryption.decrypt(data: encryptedSeed!, password: passwordOld);
+    String? seed =
+        await encryption.decrypt(data: encryptedSeed!, password: passwordOld);
     if (seed != null) {
       encryptSeed(pubKey, seed, seedType, passwordNew);
     }

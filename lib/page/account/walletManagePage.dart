@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
@@ -101,6 +102,15 @@ class _WalletManagePageState extends State<WalletManagePage> {
     Navigator.pushNamed(context, ImportWaysPage.route);
   }
 
+  void _showLedgerImport() async {
+    int count =
+        store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) + 1;
+    final ledgerWalletName = 'Ledger $count';
+    Navigator.pushNamed(context, LedgerAccountNamePage.route,
+        arguments: LedgerAccountNameParams(placeholder: ledgerWalletName));
+    return;
+  }
+
   List<Widget> _renderAccountList() {
     Map<String, WalletData> walletMap = store.wallet!.walletsMap;
     List<Widget> items = [];
@@ -109,6 +119,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
     final Map<String, String> dic = I18n.of(context).main;
     final renderItem = (account) {
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
+      print('balancesInfo');
+      print(balancesInfo?.total);
       return WalletItem(
         account: account,
         balance: balancesInfo?.total ?? BigInt.from(0),
@@ -184,6 +196,15 @@ class _WalletManagePageState extends State<WalletManagePage> {
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
     var theme = Theme.of(context).textTheme;
+    var outlineBtnStyle = OutlinedButton.styleFrom(
+        padding: EdgeInsets.zero,
+        alignment: Alignment.centerLeft,
+        foregroundColor: Theme.of(context).primaryColor,
+        // backgroundColor: Theme.of(context).primaryColor,
+        textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12))),
+        minimumSize: Size(0, 48));
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.black,
@@ -249,6 +270,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(12))),
+                            padding: EdgeInsets.zero,
                             minimumSize: Size(0, 48)),
                       ),
                     ),
@@ -272,16 +294,30 @@ class _WalletManagePageState extends State<WalletManagePage> {
                             Text(dic['importAccount']!)
                           ],
                         ),
-                        style: OutlinedButton.styleFrom(
-                            alignment: Alignment.centerLeft,
-                            foregroundColor: Theme.of(context).primaryColor,
-                            // backgroundColor: Theme.of(context).primaryColor,
-                            textStyle: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12))),
-                            minimumSize: Size(0, 48)),
+                        style: outlineBtnStyle,
+                      ),
+                    ),
+                    Container(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _showLedgerImport,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SvgPicture.asset(
+                              'assets/images/assets/import_ledger.svg',
+                              width: 18,
+                              height: 15,
+                            ),
+                            Container(
+                              width: 8,
+                            ),
+                            Text(dic['importLedger']!)
+                          ],
+                        ),
+                        style: outlineBtnStyle,
                       ),
                     ),
                   ],

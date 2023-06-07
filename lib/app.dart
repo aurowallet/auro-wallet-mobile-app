@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
@@ -48,12 +49,14 @@ import 'package:safe_device/safe_device.dart';
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
+
   @override
   _WalletAppState createState() => _WalletAppState();
 }
 
 class _WalletAppState extends State<WalletApp> {
   _WalletAppState();
+
   AppStore? _appStore;
   Locale _locale = const Locale('en', '');
 
@@ -77,11 +80,11 @@ class _WalletAppState extends State<WalletApp> {
     try {
       isJailBroken = await SafeDevice.isJailBroken;
       isRealDevice = await SafeDevice.isRealDevice;
-    } catch(e) {
+    } catch (e) {
       isJailBroken = true;
     }
-    if(isJailBroken || !isRealDevice) {
-      setState((){
+    if (isJailBroken || !isRealDevice) {
+      setState(() {
         _isDangerous = true;
       });
     }
@@ -103,7 +106,6 @@ class _WalletAppState extends State<WalletApp> {
       _locale = res;
     });
   }
-
 
   Future<int> _initStore(BuildContext context) async {
     if (_appStore == null) {
@@ -143,12 +145,13 @@ class _WalletAppState extends State<WalletApp> {
       initialRoute: HomePage.route,
       theme: _theme,
       builder: EasyLoading.init(builder: (BuildContext context, Widget? child) {
-        final size =MediaQuery.of(context).size;
+        final size = MediaQuery.of(context).size;
         final factor = max(min(size.width / 375, 2.0), 1.0);
         return GestureDetector(
           onTap: () {
             FocusScopeNode currentFocus = FocusScope.of(context);
-            if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+            if (!currentFocus.hasPrimaryFocus &&
+                currentFocus.focusedChild != null) {
               FocusManager.instance.primaryFocus?.unfocus();
             }
           },
@@ -163,23 +166,28 @@ class _WalletAppState extends State<WalletApp> {
       }),
       routes: {
         HomePage.route: (context) => WillPopScopWrapper(
-          child: FutureBuilder<int>(
-            future: _initStore(context),
-            builder: (_, AsyncSnapshot<int> snapshot) {
-              if (snapshot.hasData) {
-                FlutterNativeSplash.remove();
-                return snapshot.data! > 0 ? HomePage(_appStore!) : CreateAccountEntryPage(_appStore!.settings!, _changeLang);
-              } else {
-                return Container();
-                // return SplashScreen();
-              }
-            },
-          ),
-        ),
+              child: FutureBuilder<int>(
+                future: _initStore(context),
+                builder: (_, AsyncSnapshot<int> snapshot) {
+                  if (snapshot.hasData) {
+                    FlutterNativeSplash.remove();
+                    return snapshot.data! > 0
+                        ? HomePage(_appStore!)
+                        : CreateAccountEntryPage(
+                            _appStore!.settings!, _changeLang);
+                  } else {
+                    return Container();
+                    // return SplashScreen();
+                  }
+                },
+              ),
+            ),
 
         // wallet
-        CreateAccountEntryPage.route: (_) => CreateAccountEntryPage(_appStore!.settings!, _changeLang),
-        SetNewWalletPasswordPage.route: (_) => SetNewWalletPasswordPage(_appStore!),
+        CreateAccountEntryPage.route: (_) =>
+            CreateAccountEntryPage(_appStore!.settings!, _changeLang),
+        SetNewWalletPasswordPage.route: (_) =>
+            SetNewWalletPasswordPage(_appStore!),
         BackupMnemonicTipsPage.route: (_) => BackupMnemonicTipsPage(_appStore!),
         WalletManagePage.route: (_) => WalletManagePage(_appStore!),
         ImportPrivateKeyPage.route: (_) => ImportPrivateKeyPage(_appStore!),
@@ -190,7 +198,9 @@ class _WalletAppState extends State<WalletApp> {
         ImportMnemonicPage.route: (_) => ImportMnemonicPage(_appStore!),
         ImportSuccessPage.route: (_) => ImportSuccessPage(_appStore!),
         ScanPage.route: (_) => ScanPage(),
-        ImportWatchedAccountPage.route: (_) => ImportWatchedAccountPage(_appStore!),
+        ImportWatchedAccountPage.route: (_) =>
+            ImportWatchedAccountPage(_appStore!),
+        LedgerAccountNamePage.route: (_) => LedgerAccountNamePage(_appStore!),
 
         // assets
         TransferPage.route: (_) => TransferPage(_appStore!),
@@ -201,10 +211,12 @@ class _WalletAppState extends State<WalletApp> {
         AccountManagePage.route: (_) => AccountManagePage(_appStore!),
         ChangePasswordPage.route: (_) => ChangePasswordPage(_appStore!.wallet!),
         ExportResultPage.route: (_) => ExportResultPage(),
-        RemoteNodeListPage.route: (_) => RemoteNodeListPage(_appStore!.settings!),
+        RemoteNodeListPage.route: (_) =>
+            RemoteNodeListPage(_appStore!.settings!),
         NodeEditPage.route: (_) => NodeEditPage(_appStore!.settings!),
         AboutPage.route: (_) => AboutPage(_appStore!),
-        LocalesPage.route: (_) => LocalesPage(_appStore!.settings!, _changeLang),
+        LocalesPage.route: (_) =>
+            LocalesPage(_appStore!.settings!, _changeLang),
         CurrenciesPage.route: (_) => CurrenciesPage(_appStore!.settings!),
         ContactListPage.route: (_) => ContactListPage(_appStore!.settings!),
         ContactEditPage.route: (_) => ContactEditPage(_appStore!.settings!),

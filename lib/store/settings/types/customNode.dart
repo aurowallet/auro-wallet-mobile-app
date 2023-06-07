@@ -5,11 +5,13 @@ part 'customNode.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class CustomNode {
-  CustomNode({required this.name, required this.url});
+  CustomNode(
+      {required this.name, required this.url, this.networksType, this.chainId});
+
   factory CustomNode.fromJson(Map<String, dynamic> json) =>
       _$CustomNodeFromJson(json);
-  Map<String, dynamic> toJson() =>
-      _$CustomNodeToJson(this);
+
+  Map<String, dynamic> toJson() => _$CustomNodeToJson(this);
 
   String name;
   String url;

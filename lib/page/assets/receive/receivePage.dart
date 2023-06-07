@@ -178,7 +178,7 @@ class ReceivePage extends StatelessWidget {
                                       ),
                                       Container(
                                         padding: EdgeInsets.only(
-                                            left: 48, right: 48, top: 22),
+                                            left: 40, right: 40, top: 22),
                                         child: Text(
                                           store.wallet!.currentAddress,
                                           textAlign: TextAlign.center,
@@ -241,7 +241,7 @@ class ReceivePage extends StatelessWidget {
                                                             .center,
                                                     children: [
                                                       SvgPicture.asset(
-                                                        'assets/images/receive/icon_share.svg',
+                                                        'assets/images/receive/icon_copy.svg',
                                                       ),
                                                       SizedBox(
                                                         width: 13,

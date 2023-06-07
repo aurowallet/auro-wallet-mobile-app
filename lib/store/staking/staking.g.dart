@@ -65,6 +65,15 @@ mixin _$StakingStore on _StakingStore, Store {
     return _$initAsyncAction.run(() => super.init());
   }
 
+  late final _$clearDelegatedValidatorAsyncAction =
+      AsyncAction('_StakingStore.clearDelegatedValidator', context: context);
+
+  @override
+  Future<void> clearDelegatedValidator() {
+    return _$clearDelegatedValidatorAsyncAction
+        .run(() => super.clearDelegatedValidator());
+  }
+
   late final _$loadCacheAsyncAction =
       AsyncAction('_StakingStore.loadCache', context: context);
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:auro_wallet/utils/i18n/ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show SynchronousFuture;
 import 'main.dart';
@@ -47,12 +48,14 @@ class I18n {
       'home': enHome,
       'settings': enSettings,
       'staking': enStaking,
+      'ledger': enLedger
     },
     'zh': {
       'main': zhMain,
       'home': zhHome,
       'settings': zhSettings,
       'staking': zhStaking,
+      'ledger': zhLedger,
     },
   };
 
@@ -70,5 +73,9 @@ class I18n {
 
   Map<String, String> get staking {
     return _localizedValues[locale.languageCode]!['staking']!;
+  }
+
+  Map<String, String> get ledger {
+    return _localizedValues[locale.languageCode]!['ledger']!;
   }
 }

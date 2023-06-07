@@ -39,13 +39,13 @@ class Api {
     assets = ApiAssets(this);
     staking = ApiStaking(this);
     setting = ApiSetting(this);
-    graphQLClient = clientFor(uri: store.settings!.endpoint, subscriptionUri: null).value;
+    graphQLClient =
+        clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
+            .value;
     fetchInitialInfo();
   }
 
-  void dispose() {
-
-  }
+  void dispose() {}
 
   void updateGqlClient(String endpoint) {
     graphQLClient = clientFor(uri: endpoint, subscriptionUri: null).value;
@@ -62,31 +62,32 @@ class Api {
     staking.fetchStakingOverview();
   }
 
-  bool  getIsMainApi () {
-    String currentUrl = store.settings!.endpoint;
+  bool getIsMainApi() {
+    return store.settings!.isMainnet;
     // List<NetworkType> networks = store.settings!.networks;
-    List<CustomNode> customNodes = store.settings!.customNodeListV2;
-    if (store.settings!.endpoint == GRAPH_QL_TESTNET_NODE_URL) {
-      return false;
-    } else if(store.settings!.endpoint == GRAPH_QL_MAINNET_NODE_URL){
-      return true;
-    } else { // custom node
-      final targetNets = customNodes.where((customNode) => customNode.url == currentUrl);
-      if (targetNets.isNotEmpty) {
-        CustomNode targetNet = targetNets.first;
-        if (targetNet.networksType == '0') { // mainnet
-          return true;
-        } else if (targetNet.networksType == '1') { // testnet
-          return false;
-        } else {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    }
+    // List<CustomNode> customNodes = store.settings!.customNodeListV2;
+    // if (store.settings!.endpoint == GRAPH_QL_TESTNET_NODE_URL) {
+    //   return false;
+    // } else if(store.settings!.endpoint == GRAPH_QL_MAINNET_NODE_URL){
+    //   return true;
+    // } else { // custom node
+    //   final targetNets = customNodes.where((customNode) => customNode.url == currentUrl);
+    //   if (targetNets.isNotEmpty) {
+    //     CustomNode targetNet = targetNets.first;
+    //     if (targetNet.networksType == '0') { // mainnet
+    //       return true;
+    //     } else if (targetNet.networksType == '1') { // testnet
+    //       return false;
+    //     } else {
+    //       return true;
+    //     }
+    //   } else {
+    //     return true;
+    //   }
+    // }
   }
-  String getTransactionsApiUrl () {
+
+  String getTransactionsApiUrl() {
     bool isMain = this.getIsMainApi();
     if (isMain) {
       return MAINNET_TRANSACTION_URL;
@@ -94,9 +95,7 @@ class Api {
     return TESTNET_TRANSACTION_URL;
   }
 
-
-
-  String getTxRecordsApiUrl () {
+  String getTxRecordsApiUrl() {
     bool isMain = this.getIsMainApi();
     if (isMain) {
       return MAIN_TX_RECORDS_GQL_URL;
@@ -104,14 +103,15 @@ class Api {
     return TEST_TX_RECORDS_GQL_URL;
   }
 
-  Future<void> refreshNetwork () async {
+  Future<void> refreshNetwork() async {
     assets.fetchAccountInfo();
     staking.refreshStaking();
     assets.fetchPendingTransactions(store.wallet!.currentAddress);
     assets.fetchTransactions(store.wallet!.currentAddress);
   }
 
-  Future<GqlResult> gqlRequest(dynamic options, {required BuildContext context, int timeout = 20}) async {
+  Future<GqlResult> gqlRequest(dynamic options,
+      {required BuildContext context, int timeout = 20}) async {
     QueryResult? result;
     Future<QueryResult> req;
     if (options is MutationOptions) {
@@ -121,14 +121,13 @@ class Api {
     }
     final Map<String, String> i18n = I18n.of(context).main;
     try {
-      result = await req.timeout(
-          Duration(seconds: timeout)
-      );
+      result = await req.timeout(Duration(seconds: timeout));
     } on TimeoutException catch (_) {
-      return GqlResult(result: null, error: true, errorMessage: i18n['timeout']!);
+      return GqlResult(
+          result: null, error: true, errorMessage: i18n['timeout']!);
     }
     if (result.hasException) {
-      print('gql出错了：'+result.exception.toString());
+      print('gql出错了：' + result.exception.toString());
       String message = '';
       if (result.exception!.graphqlErrors.length > 0) {
         message = result.exception!.graphqlErrors[0].message;
@@ -139,11 +138,11 @@ class Api {
     }
     return GqlResult(result: result);
   }
-
 }
 
 class GqlResult {
   GqlResult({this.result, this.error = false, this.errorMessage = ''});
+
   QueryResult? result;
   final bool error;
   final String errorMessage;

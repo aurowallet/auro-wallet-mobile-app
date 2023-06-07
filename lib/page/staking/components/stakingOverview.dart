@@ -105,10 +105,13 @@ class StakingOverview extends StatelessWidget {
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(data.slot.toString(), style: valueStyle),
                           Text(' / ${data.slotsPerEpoch.toString()}',
                               style: valueStyle.copyWith(
+                                  fontSize: 12,
                                   color: ColorsUtil.hexColor(0xb1b3be))),
                         ],
                       ),

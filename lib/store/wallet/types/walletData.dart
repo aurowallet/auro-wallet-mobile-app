@@ -7,19 +7,18 @@ part 'walletData.g.dart';
 class WalletData extends _WalletData {
   static WalletData fromJson(Map<String, dynamic> json) =>
       _$WalletDataFromJson(json);
-  static Map<String, dynamic> toJson(WalletData acc) =>
-      _$WalletDataToJson(acc);
+
+  static Map<String, dynamic> toJson(WalletData acc) => _$WalletDataToJson(acc);
 }
 
 abstract class _WalletData {
   // 首个地址的名称
-  String get name  {
+  String get name {
     return currentAccount.name;
   }
 
   // 首个地址的pubey
   String get pubKey {
-    // return 'B62qoQSggXskw3YQjTCmi24Yh9HuuiXBSBKDKzgyxg1G7oe3ng2r4jo';
     return currentAccount.pubKey;
   }
 
@@ -32,15 +31,21 @@ abstract class _WalletData {
     if (accounts.length == 0) {
       return new AccountData();
     }
-    return accounts.firstWhere((account)=>account.accountIndex == currentAccountIndex, orElse: ()=> new AccountData());
+    return accounts.firstWhere(
+        (account) => account.accountIndex == currentAccountIndex,
+        orElse: () => new AccountData());
   }
+
   int createTime = 0;
+
   // account index in hd path
   int currentAccountIndex = 0;
   int walletTypeIndex = 0;
   String walletType = '';
+
   // use the first account public key as wallet id
   String id = '';
+
   // inside or outside
   String source = '';
   Map<String, dynamic> meta = Map<String, dynamic>();

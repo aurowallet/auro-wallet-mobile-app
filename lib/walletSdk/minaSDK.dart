@@ -11,10 +11,10 @@ import 'package:auro_wallet/walletSdk/types.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 
 import 'package:auro_wallet/walletSdk/rust_api_generated.dart';
+
 final path = 'librust_signer.so';
-late final dylib = Platform.isIOS
-    ? DynamicLibrary.process()
-    : DynamicLibrary.open(path);
+late final dylib =
+    Platform.isIOS ? DynamicLibrary.process() : DynamicLibrary.open(path);
 late final api = RustSignerImpl(dylib);
 
 String generateRandMnemonic() {
@@ -32,17 +32,16 @@ Future<Map<String, dynamic>> createWallet(String seed, String seedType) async {
   }
 }
 
-Future<Map<String, dynamic>> createAccountByPrivateKey(String privateKey) async {
+Future<Map<String, dynamic>> createAccountByPrivateKey(
+    String privateKey) async {
   final String privateHex = getRawPrivateKey(privateKey);
   final addressStr = await compute(getAddressFromPrivateKey, privateHex);
-  final res =  {
-    "pubKey": addressStr,
-    "priKey": privateKey
-  };
+  final res = {"pubKey": addressStr, "priKey": privateKey};
   return res;
 }
 
-Future<Map<String, dynamic>> createWalletByMnemonic(String mnemonic, int accountIndex, bool needPrivateKey) async {
+Future<Map<String, dynamic>> createWalletByMnemonic(
+    String mnemonic, int accountIndex, bool needPrivateKey) async {
   Uint8List seed = await compute(bip39.mnemonicToSeed, mnemonic);
   bip32.BIP32 masterNode = bip32.BIP32.fromSeed(seed);
   String hdPath = "m/44'/12586'/$accountIndex'/0/0";
@@ -52,13 +51,13 @@ Future<Map<String, dynamic>> createWalletByMnemonic(String mnemonic, int account
   rawPrivateKey[0] &= 0x3f;
   final privateKeyHex = HEX.encode(rawPrivateKey);
 
-
   final addressStr = await compute(getAddressFromPrivateKey, privateKeyHex);
 
-  final prefixedPri = HEX.decode('5a01${HEX.encode(reverse(child0.privateKey!))}');
+  final prefixedPri =
+      HEX.decode('5a01${HEX.encode(reverse(child0.privateKey!))}');
   String decodedPrivateKey = bs58check.encode(Uint8List.fromList(prefixedPri));
 
-  final res =  {
+  final res = {
     "pubKey": addressStr,
     "hdIndex": accountIndex,
     "mnemonic": mnemonic,
@@ -71,7 +70,7 @@ Future<Map<String, dynamic>> createWalletByMnemonic(String mnemonic, int account
 
 bool ifAddressValid(String address) {
   try {
-    if(!address.toLowerCase().startsWith('b62')) {
+    if (!address.toLowerCase().startsWith('b62')) {
       return false;
     }
     final decodedAddress = HEX.encode(bs58check.decode(address));
@@ -80,6 +79,7 @@ bool ifAddressValid(String address) {
     return false;
   }
 }
+
 String bs58Decode(String str) {
   Uint8List bytes = bs58check.decode(str);
   if (bytes[2] == 0) {
@@ -90,7 +90,7 @@ String bs58Decode(String str) {
 
 bool ifPrivateKeyValid(String private) {
   try {
-    if(!private.toLowerCase().startsWith('ek')) {
+    if (!private.toLowerCase().startsWith('ek')) {
       return false;
     }
     final decodedPrivateKey = getRawPrivateKey(private);
@@ -107,19 +107,16 @@ String getRawPrivateKey(String privateKey) {
   return rawPrivateHex;
 }
 
-
 Future<Map> signPayment(
-    {
-      required String privateKey,
-      required String from,
-      required String to,
-      required double amount,
-      required double fee,
-      required int nonce,
-      required String memo,
-      int networkId = 1
-    }) async {
-  final  privateHex = getRawPrivateKey(privateKey);
+    {required String privateKey,
+    required String from,
+    required String to,
+    required double amount,
+    required double fee,
+    required int nonce,
+    required String memo,
+    int networkId = 1}) async {
+  final privateHex = getRawPrivateKey(privateKey);
   final feeLarge = BigInt.from(pow(10, COIN.decimals) * fee).toInt();
   final amountLarge = BigInt.from(pow(10, COIN.decimals) * amount).toInt();
   final sigData = await api.signPayment(
@@ -130,8 +127,7 @@ Future<Map> signPayment(
       nonce: nonce,
       validUntil: 4294967295,
       memo: memo,
-      networkId: networkId
-  );
+      networkId: networkId);
   return prepareBroadcastBody(
       field: sigData.field,
       scalar: sigData.scalar,
@@ -141,22 +137,19 @@ Future<Map> signPayment(
       amount: amountLarge,
       nonce: nonce,
       memo: memo,
-      validUntil: 4294967295
-  );
+      validUntil: 4294967295);
 }
 
 Future<Map> signDelegation(
-    {
-      required String privateKey,
-      required String from,
-      required String to,
-      required double fee,
-      required int nonce,
-      required String memo,
-      int networkId = 1
-    }) async {
-  final  privateHex = getRawPrivateKey(privateKey);
-  final feeLarge = BigInt.from(pow(10, COIN.decimals)* fee).toInt();
+    {required String privateKey,
+    required String from,
+    required String to,
+    required double fee,
+    required int nonce,
+    required String memo,
+    int networkId = 1}) async {
+  final privateHex = getRawPrivateKey(privateKey);
+  final feeLarge = BigInt.from(pow(10, COIN.decimals) * fee).toInt();
 
   final sigData = await api.signDelegation(
       secretHex: privateHex,
@@ -165,8 +158,7 @@ Future<Map> signDelegation(
       nonce: nonce,
       validUntil: 4294967295,
       memo: memo,
-      networkId: networkId
-  );
+      networkId: networkId);
 
   return prepareBroadcastBody(
       field: sigData.field,
@@ -177,22 +169,21 @@ Future<Map> signDelegation(
       amount: 0,
       nonce: nonce,
       memo: memo,
-      validUntil: 4294967295
-  );
+      validUntil: 4294967295);
 }
 
-Map prepareBroadcastBody ({
-  required String field,
-  required String scalar,
-  required int fee,
-  required String from,
-  required String to,
-  required int nonce,
-  required int amount,
-  required String memo,
-  required int validUntil,
-}) {
-  return {
+Map prepareBroadcastBody(
+    {String? field,
+    String? scalar,
+    String? rawSignature,
+    required int fee,
+    required String from,
+    required String to,
+    required int nonce,
+    required int amount,
+    required String memo,
+    required int validUntil}) {
+  Map res = {
     "payload": {
       "fee": fee,
       "from": from,
@@ -201,12 +192,17 @@ Map prepareBroadcastBody ({
       "amount": amount,
       "memo": memo,
       "validUntil": validUntil,
-    },
-    "signature": {
-      "field": field,
-      "scalar": scalar,
     }
   };
+  if (rawSignature != null) {
+    res['signature'] = {"rawSignature": rawSignature};
+  } else {
+    res['signature'] = {
+      "field": field,
+      "scalar": scalar,
+    };
+  }
+  return res;
 }
 
 Uint8List reverse(Uint8List bytes) {
@@ -217,7 +213,6 @@ Uint8List reverse(Uint8List bytes) {
   return reversed;
 }
 
-
-Future<String> getAddressFromPrivateKey(String privateKeyHex) async{
+Future<String> getAddressFromPrivateKey(String privateKeyHex) async {
   return api.getAddressFromSecretHex(secretHex: privateKeyHex);
 }
