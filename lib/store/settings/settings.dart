@@ -17,16 +17,17 @@ class SettingsStore extends _SettingsStore with _$SettingsStore {
   SettingsStore(AppStore store) : super(store);
 
   static final String localStorageEndpointKeyForGlobal = 'endpoint';
+
   static Future<String> loadEndpointGlobally() async {
     LocalStorage localStorage = LocalStorage();
-    String? value = await localStorage.getObject(localStorageEndpointKeyForGlobal) as String?;
+    String? value = await localStorage
+        .getObject(localStorageEndpointKeyForGlobal) as String?;
     if (value == null) {
       return GRAPH_QL_MAINNET_NODE_URL;
     } else {
       return value;
     }
   }
-
 }
 
 abstract class _SettingsStore with Store {
@@ -38,13 +39,13 @@ abstract class _SettingsStore with Store {
   final String localStorageCurrencyKey = 'currency';
   final String localStorageNetworksKey = 'network_types';
   final String localStorageEndpointKey = 'endpoint';
+  final String localStorageCurrentNodeKey = 'currentNode';
   final String localStorageAboutUsKey = 'about_us';
   final String localStorageCustomNodes = 'custom_node_list';
   final String localStorageCustomNodesV2 = 'custom_node_list_v2';
 
   final String cacheNetworkStateKey = 'network';
   final String cacheNetworkConstKey = 'network_const';
-
 
   @observable
   bool loading = true;
@@ -56,46 +57,53 @@ abstract class _SettingsStore with Store {
   String currencyCode = 'usd';
 
   @observable
-  String endpoint = '';
-
-  bool get isDefaultNode {
-    return GRAPH_QL_MAINNET_NODE_URL == endpoint || GRAPH_QL_TESTNET_NODE_URL == endpoint;
-  }
+  CustomNode? currentNode;
 
   bool get isSupportedNode {
-    if( GRAPH_QL_MAINNET_NODE_URL == endpoint || GRAPH_QL_TESTNET_NODE_URL == endpoint) {
+    if (currentNode?.networksType == '0' || currentNode?.networksType == '1') {
       return true;
     }
-    final targetNets = customNodeListV2.where((element) => element.url == endpoint);
-    if (targetNets.isNotEmpty) {
-      final targetNet = customNodeListV2.first;
-      if (targetNet.networksType == '0'  || targetNet.networksType == '1') {
-        return true;
-      }
-    }
     return false;
+    // if (GRAPH_QL_MAINNET_NODE_URL == endpoint ||
+    //     GRAPH_QL_TESTNET_NODE_URL == endpoint) {
+    //   return true;
+    // }
+    // final targetNets =
+    //     customNodeListV2.where((element) => element.url == endpoint);
+    // if (targetNets.isNotEmpty) {
+    //   final targetNet = targetNets.first;
+    //   if (targetNet.networksType == '0' || targetNet.networksType == '1') {
+    //     return true;
+    //   }
+    // }
+    // return false;
   }
 
   bool get isMainnet {
-    if(GRAPH_QL_MAINNET_NODE_URL == endpoint) {
-      return true;
-    }
-    final targetNets = customNodeListV2.where((element) => element.url == endpoint);
-    if (targetNets.isNotEmpty) {
-      final targetNet = customNodeListV2.first;
-      if (targetNet.networksType == '0') {
-        return true;
-      }
-    }
-    return false;
+    return currentNode?.networksType != '1';
+    // if (GRAPH_QL_MAINNET_NODE_URL == endpoint) {
+    //   return true;
+    // }
+    // final targetNets =
+    //     customNodeListV2.where((element) => element.url == endpoint);
+    // if (targetNets.isNotEmpty) {
+    //   final targetNet = targetNets.first;
+    //   if (targetNet.networksType == '0') {
+    //     return true;
+    //   }
+    // }
+    // return false;
   }
 
   @observable
   AboutUsData? aboutus;
 
-
   @observable
   List<String> customNodeList = [];
+
+  List<CustomNode> get allNodes {
+    return [mainNetNode, devNetNode, ...customNodeListV2];
+  }
 
   @observable
   List<CustomNode> customNodeListV2 = [];
@@ -116,9 +124,9 @@ abstract class _SettingsStore with Store {
   Future<void> init() async {
     await loadLocalCode();
     await loadCurrencyCode();
-    await loadEndpoint();
-    await loadAboutUs();
     await loadCustomNodeList();
+    await loadCurrentNode();
+    await loadAboutUs();
     await loadNetworkTypes();
     await loadContacts();
   }
@@ -136,19 +144,24 @@ abstract class _SettingsStore with Store {
   }
 
   @action
-  Future<void> setNetworkTypes(List<NetworkType> networkTypes, {shouldCache = false}) async {
+  Future<void> setNetworkTypes(List<NetworkType> networkTypes,
+      {shouldCache = false}) async {
     networks = networkTypes;
-    if (shouldCache) { // cache data
-      await rootStore.localStorage.setObject(localStorageNetworksKey, networks.map((i)=>i.toJson()).toList());
+    if (shouldCache) {
+      // cache data
+      await rootStore.localStorage.setObject(
+          localStorageNetworksKey, networks.map((i) => i.toJson()).toList());
     }
   }
 
   @action
   Future<void> loadNetworkTypes() async {
-    List<dynamic>? netList = await rootStore.localStorage.getObject(localStorageNetworksKey) as List<dynamic>?;
+    List<dynamic>? netList = await rootStore.localStorage
+        .getObject(localStorageNetworksKey) as List<dynamic>?;
     if (netList != null) {
       try {
-        networks = ObservableList.of(netList.map((i) => NetworkType.fromJson(i as Map<String, dynamic>)));
+        networks = ObservableList.of(netList
+            .map((i) => NetworkType.fromJson(i as Map<String, dynamic>)));
       } catch (e) {
         print('loadNetworkTypes failed');
         print(e);
@@ -158,7 +171,8 @@ abstract class _SettingsStore with Store {
 
   @action
   Future<void> loadLocalCode() async {
-    String? stored = await rootStore.localStorage.getObject(localStorageLocaleKey) as String?;
+    String? stored = await rootStore.localStorage
+        .getObject(localStorageLocaleKey) as String?;
     if (stored != null) {
       localeCode = stored;
     }
@@ -166,20 +180,25 @@ abstract class _SettingsStore with Store {
 
   @action
   Future<void> loadCurrencyCode() async {
-    String? stored = await rootStore.localStorage.getObject(localStorageCurrencyKey) as String?;
+    String? stored = await rootStore.localStorage
+        .getObject(localStorageCurrencyKey) as String?;
     if (stored != null) {
       currencyCode = stored;
     }
   }
+
   @action
-  Future<void> updateCustomNode(CustomNode newNode,CustomNode oldNode) async {
-    var target = customNodeListV2.toList().firstWhere((element) => element.url == oldNode.url);
+  Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) async {
+    var target = customNodeListV2
+        .toList()
+        .firstWhere((element) => element.url == oldNode.url);
     target.name = newNode.name;
     target.url = newNode.url;
     target.chainId = newNode.chainId;
     target.networksType = newNode.networksType;
     setCustomNodeList(customNodeListV2);
   }
+
   @action
   Future<void> setCustomNodeList(List<CustomNode> nodeList) async {
     customNodeListV2 = nodeList;
@@ -188,12 +207,13 @@ abstract class _SettingsStore with Store {
 
   @action
   Future<void> loadCustomNodeList() async {
-    try{
-      List<dynamic>? stored = await rootStore.localStorage.getObject(localStorageCustomNodesV2) as List<dynamic>?;
+    try {
+      List<dynamic>? stored = await rootStore.localStorage
+          .getObject(localStorageCustomNodesV2) as List<dynamic>?;
       if (stored != null) {
         customNodeListV2 = stored.map((s) => CustomNode.fromJson(s)).toList();
       }
-    } catch(e){
+    } catch (e) {
       print('loadCustomNodeList faield');
       print(e);
     }
@@ -205,31 +225,50 @@ abstract class _SettingsStore with Store {
   }
 
   @action
-  Future<void> setEndpoint(String value) async {
-    endpoint = value;
-    await rootStore.localStorage.setObject(localStorageEndpointKey, value);
+  Future<void> setCurrentNode(CustomNode value) async {
+    currentNode = value;
+    await rootStore.localStorage.setObject(localStorageCurrentNodeKey, value);
   }
-
 
   @action
-  Future<void> loadEndpoint() async {
-    String? value = await rootStore.localStorage.getObject(localStorageEndpointKey) as String?;
+  Future<void> loadCurrentNode() async {
+    String? endpoint = await rootStore.localStorage
+        .getObject(localStorageEndpointKey) as String?;
+    Map<String, dynamic>? value = await rootStore.localStorage
+        .getObject(localStorageCurrentNodeKey) as Map<String, dynamic>?;
     if (value == null) {
-      endpoint = GRAPH_QL_MAINNET_NODE_URL;
+      if (endpoint != null) {
+        if (endpoint == GRAPH_QL_MAINNET_NODE_URL) {
+          currentNode = mainNetNode;
+        } else if (endpoint == GRAPH_QL_MAINNET_NODE_URL ||
+            endpoint == GRAPH_QL_TESTNET_NODE_URL_Legacy) {
+          currentNode = devNetNode;
+        } else {
+          final customNodes =
+              customNodeListV2.where((element) => element.url == endpoint);
+          if (customNodes.length > 0) {
+            currentNode = customNodes.first;
+          } else {
+            currentNode = mainNetNode;
+          }
+        }
+      } else {
+        currentNode = mainNetNode;
+      }
     } else {
-      endpoint = value;
+      currentNode = CustomNode.fromJson(value);
     }
   }
-  
+
   @action
   void setAboutUs(AboutUsData value) {
     aboutus = value;
-    rootStore.localStorage
-        .setObject(localStorageAboutUsKey, value.toJson());
+    rootStore.localStorage.setObject(localStorageAboutUsKey, value.toJson());
   }
-  
+
   Future<void> loadAboutUs() async {
-    Map<String, dynamic>? value = await rootStore.localStorage.getObject(localStorageAboutUsKey) as Map<String, dynamic>?;
+    Map<String, dynamic>? value = await rootStore.localStorage
+        .getObject(localStorageAboutUsKey) as Map<String, dynamic>?;
     if (value != null) {
       try {
         aboutus = AboutUsData.fromJson(value);
@@ -238,9 +277,11 @@ abstract class _SettingsStore with Store {
       }
     }
   }
+
   @action
   Future<void> loadContacts() async {
-    List<Map<String, dynamic>> ls = await rootStore.localStorage.getContactList();
+    List<Map<String, dynamic>> ls =
+        await rootStore.localStorage.getContactList();
     try {
       contactList = ObservableList.of(ls.map((i) => ContactData.fromJson(i)));
     } catch (e) {
@@ -270,12 +311,15 @@ abstract class _SettingsStore with Store {
 
 @JsonSerializable()
 class AboutUsData {
-  AboutUsData({required this.changelog, required this.gitReponame, required this.followus});
+  AboutUsData(
+      {required this.changelog,
+      required this.gitReponame,
+      required this.followus});
 
   factory AboutUsData.fromJson(Map<String, dynamic> json) =>
       _$AboutUsDataFromJson(json);
-   Map<String, dynamic> toJson() =>
-      _$AboutUsDataToJson(this);
+
+  Map<String, dynamic> toJson() => _$AboutUsDataToJson(this);
   @JsonKey(name: 'changelog_app')
   String changelog = '';
 
@@ -295,7 +339,7 @@ class AboutUsData {
   String termsAndContionsZH = '';
 
   @JsonKey(name: 'privacy_policy_cn')
-  String privacyPolicyZH= '';
+  String privacyPolicyZH = '';
 
   @JsonKey(name: 'staking_guide')
   String stakingGuide = '';
@@ -304,17 +348,25 @@ class AboutUsData {
   String? graphqlApi = '';
 
   List<FollowUsData?> followus = [];
+
   FollowUsData? get wechat {
-    return followus.firstWhere((element) => element!.name == 'wechat', orElse: () => null);
+    return followus.firstWhere((element) => element!.name == 'wechat',
+        orElse: () => null);
   }
+
   FollowUsData? get telegram {
-    return followus.firstWhere((element) => element!.name == 'telegram', orElse: () => null);
+    return followus.firstWhere((element) => element!.name == 'telegram',
+        orElse: () => null);
   }
+
   FollowUsData? get twitter {
-    return followus.firstWhere((element) => element!.name == 'twitter', orElse: () => null);
+    return followus.firstWhere((element) => element!.name == 'twitter',
+        orElse: () => null);
   }
+
   FollowUsData? get website {
-    return followus.firstWhere((element) => element!.name == 'website', orElse: () => null);
+    return followus.firstWhere((element) => element!.name == 'website',
+        orElse: () => null);
   }
 }
 
@@ -322,9 +374,11 @@ class AboutUsData {
 class FollowUsData {
   String website = '';
   String name = '';
-  FollowUsData({required this.website,required this.name});
+
+  FollowUsData({required this.website, required this.name});
+
   factory FollowUsData.fromJson(Map<String, dynamic> json) =>
       _$FollowUsDataFromJson(json);
-   Map<String, dynamic> toJson() =>
-      _$FollowUsDataToJson(this);
+
+  Map<String, dynamic> toJson() => _$FollowUsDataToJson(this);
 }

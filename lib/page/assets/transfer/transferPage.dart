@@ -219,7 +219,8 @@ class _TransferPageState extends State<TransferPage> {
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
       final isLedger =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
-      UI.showTxConfirm(
+      bool exited = false;
+      await UI.showTxConfirm(
           context: context,
           title: i18n['sendDetail']!,
           isLedger: isLedger,
@@ -280,20 +281,21 @@ class _TransferPageState extends State<TransferPage> {
             };
             TransferData? data;
             if (isLedger) {
-              if (store.ledger!.ledgerDevice == null) {
-                bool? connected =
-                    await UI.showImportLedgerDialog(context: context);
-                if (connected != true) {
-                  return false;
-                }
+              print('start sign ledger');
+              final tx = await webApi.account
+                  .ledgerSign(txInfo, context: context, isDelegation: false);
+              if (tx == null) {
+                return false;
               }
-              data = await webApi.account
-                  .ledgerSignAndSendTx(txInfo, context: context);
+              if (!exited) {
+                data = await webApi.account
+                    .sendTxBody(tx, context: context, isDelegation: false);
+              }
             } else {
               data =
                   await webApi.account.signAndSendTx(txInfo, context: context);
             }
-            if (mounted) {
+            if (mounted && !exited) {
               // if(data != null) {
               //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
               // } else {
@@ -305,6 +307,7 @@ class _TransferPageState extends State<TransferPage> {
             }
             return false;
           });
+      exited = true;
       return;
     }
   }

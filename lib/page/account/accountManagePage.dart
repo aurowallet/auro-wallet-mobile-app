@@ -106,7 +106,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
     if (isWatchedOrLedgerAccount) {
       await store.wallet!.removeAccount(account);
       print('account removed');
-      UI.toast(dic['deleteAccountSuccess']!);
+      // UI.toast(dic['deleteAccountSuccess']!);
       Navigator.of(context).pop();
     } else {
       await UI.showAlertDialog(

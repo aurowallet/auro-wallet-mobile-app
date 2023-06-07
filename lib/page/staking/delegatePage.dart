@@ -260,7 +260,8 @@ class _DelegatePageState extends State<DelegatePage>
         validateName =
             validatorData!.name ?? Fmt.address(validatorAddress, pad: 10);
       }
-      UI.showTxConfirm(
+      bool exited = false;
+      await UI.showTxConfirm(
           context: context,
           title: i18n['sendDetail']!,
           items: txItems,
@@ -303,8 +304,18 @@ class _DelegatePageState extends State<DelegatePage>
             };
             TransferData? data;
             if (isLedger) {
-              data = await webApi.account.ledgerSignAndSendTx(txInfo,
-                  context: context, isDelegation: true);
+              // data = await webApi.account
+              //     .ledgerSign(txInfo, context: context, isDelegation: true);
+              print('stake: start sign ledger');
+              final tx = await webApi.account
+                  .ledgerSign(txInfo, context: context, isDelegation: true);
+              if (tx == null) {
+                return false;
+              }
+              if (!exited) {
+                data = await webApi.account
+                    .sendTxBody(tx, context: context, isDelegation: true);
+              }
             } else {
               data = await webApi.account
                   .signAndSendDelegationTx(txInfo, context: context);
@@ -323,6 +334,7 @@ class _DelegatePageState extends State<DelegatePage>
             }
             return false;
           });
+      exited = true;
       return;
     }
   }

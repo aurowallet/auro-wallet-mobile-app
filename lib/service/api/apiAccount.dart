@@ -255,7 +255,22 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return data;
   }
 
-  Future<TransferData?> ledgerSignAndSendTx(Map txInfo,
+  Future<TransferData?> sendTxBody(Map prepareBody,
+      {required BuildContext context, isDelegation = false}) async {
+    TransferData? transferData;
+    if (isDelegation) {
+      transferData = await sendDelegationTx(
+          prepareBody['payload'], prepareBody['signature'],
+          context: context, isRawSignature: true);
+    } else {
+      transferData = await sendTx(
+          prepareBody['payload'], prepareBody['signature'],
+          context: context, isRawSignature: true);
+    }
+    return transferData;
+  }
+
+  Future<Map?> ledgerSign(Map txInfo,
       {required BuildContext context, isDelegation = false}) async {
     final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
         accountIndex: txInfo["accountIndex"]);
@@ -290,21 +305,12 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           memo: txInfo['memo'],
           validUntil: validUntil,
           rawSignature: rawSignature);
-      TransferData? transferData;
-      if (isDelegation) {
-        transferData = await sendDelegationTx(
-            prepareBody['payload'], prepareBody['signature'],
-            context: context, isRawSignature: true);
-      } else {
-        transferData = await sendTx(
-            prepareBody['payload'], prepareBody['signature'],
-            context: context, isRawSignature: true);
-      }
-      print('ledger sign success');
-      return transferData;
+      return prepareBody;
     } on LedgerException catch (e) {
       print('ledger fail');
+      final Map<String, String> dic = I18n.of(context).ledger;
       print(e);
+      UI.toast(dic['ledgerReject']!);
       return null;
     }
   }

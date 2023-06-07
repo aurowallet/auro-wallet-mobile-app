@@ -5,12 +5,17 @@ part 'ledger.g.dart';
 
 class LedgerStore = LedgerBase with _$LedgerStore;
 
+enum LedgerStatusTypes { unknown, available, unavailable }
+
 abstract class LedgerBase with Store {
   @observable
   LedgerDevice? ledgerDevice = null;
 
   @observable
   Ledger? ledgerInstance = null;
+
+  @observable
+  LedgerStatusTypes ledgerStatus = LedgerStatusTypes.unknown;
 
   @action
   void setDevice(LedgerDevice? device) {
@@ -20,5 +25,10 @@ abstract class LedgerBase with Store {
   @action
   void setLedger(Ledger? ledger) {
     ledgerInstance = ledger;
+  }
+
+  @action
+  void setLedgerStatus(LedgerStatusTypes status) {
+    ledgerStatus = status;
   }
 }

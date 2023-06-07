@@ -14,13 +14,14 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 class NodeEditPage extends StatefulWidget {
   final SettingsStore store;
   static final String route = '/profile/edit_nodes';
+
   NodeEditPage(this.store);
+
   @override
   _NodeEditPageState createState() => _NodeEditPageState();
 }
 
 class _NodeEditPageState extends State<NodeEditPage> {
-
   final Api api = webApi;
   final TextEditingController _nameCtrl = new TextEditingController();
   final TextEditingController _addressCtrl = new TextEditingController();
@@ -30,12 +31,12 @@ class _NodeEditPageState extends State<NodeEditPage> {
   bool isEdit = false;
   bool submitting = false;
   String? errorText;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final Map args =
-      ModalRoute.of(context)!.settings.arguments as Map;
+      final Map args = ModalRoute.of(context)!.settings.arguments as Map;
       final initName = args['name'] as String?;
       final initAddress = args['address'] as String?;
       if (initName != null) {
@@ -57,6 +58,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
       });
     });
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -74,12 +76,12 @@ class _NodeEditPageState extends State<NodeEditPage> {
   void _monitorSummitStatus() {
     if (_addressCtrl.text.isEmpty || _nameCtrl.text.isEmpty || addressError) {
       if (!submitDisabled) {
-        setState((){
+        setState(() {
           submitDisabled = true;
         });
       }
-    } else if(submitDisabled) {
-      setState((){
+    } else if (submitDisabled) {
+      setState(() {
         submitDisabled = false;
       });
     }
@@ -104,7 +106,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
     });
     String? chainId = await webApi.setting.fetchChainId(endpoint.url);
 
-    if(chainId == null) {
+    if (chainId == null) {
       // UI.toast(i18n['urlError_1']!);
       setState(() {
         errorText = i18n['urlError_1']!;
@@ -114,11 +116,15 @@ class _NodeEditPageState extends State<NodeEditPage> {
       return;
     }
     endpoint.chainId = chainId;
-    List<NetworkType> fetchNetworkTypes = await webApi.setting.fetchNetworkTypes();
-    final targetNetworks = fetchNetworkTypes.where((element) => element.chainId == endpoint.chainId);
+    List<NetworkType> fetchNetworkTypes =
+        await webApi.setting.fetchNetworkTypes();
+    final targetNetworks = fetchNetworkTypes
+        .where((element) => element.chainId == endpoint.chainId);
 
     // only support mainnet and testnet
-    if (targetNetworks.isEmpty || (targetNetworks.first.type != '0' && targetNetworks.first.type != '1')) {
+    if (targetNetworks.isEmpty ||
+        (targetNetworks.first.type != '0' &&
+            targetNetworks.first.type != '1')) {
       // UI.toast(i18n['urlError_1']!);
       setState(() {
         errorText = i18n['urlError_1']!;
@@ -128,26 +134,25 @@ class _NodeEditPageState extends State<NodeEditPage> {
       return;
     }
     endpoint.networksType = targetNetworks.first.type;
-    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
+    List<CustomNode> endpoints =
+        List<CustomNode>.of(widget.store.customNodeListV2);
     if (isEdit) {
-      final Map args =
-      ModalRoute.of(context)!.settings.arguments as Map;
+      final Map args = ModalRoute.of(context)!.settings.arguments as Map;
       final initName = args['name'] as String;
       final initAddress = args['address'] as String;
       var originEndpoint = new CustomNode(name: initName, url: initAddress);
       widget.store.updateCustomNode(endpoint, originEndpoint);
-      if (widget.store.endpoint == originEndpoint.url) {
-        if (originEndpoint.url != endpoint.url
-            || originEndpoint.chainId != endpoint.chainId
-        ) {
-          await widget.store.setEndpoint(endpoint.url);
+      if (widget.store.currentNode?.url == originEndpoint.url) {
+        if (originEndpoint.url != endpoint.url ||
+            originEndpoint.chainId != endpoint.chainId) {
+          await widget.store.setCurrentNode(endpoint);
           webApi.updateGqlClient(endpoint.url);
           webApi.refreshNetwork();
         }
       }
     } else {
       endpoints.add(endpoint);
-      await widget.store.setEndpoint(endpoint.url);
+      await widget.store.setCurrentNode(endpoint);
       await widget.store.setCustomNodeList(endpoints);
       webApi.updateGqlClient(endpoint.url);
       webApi.refreshNetwork();
@@ -162,17 +167,16 @@ class _NodeEditPageState extends State<NodeEditPage> {
     var i18n = I18n.of(context).main;
     var uri = Uri.tryParse(address);
     String? error;
-    final Map args =
-    ModalRoute.of(context)!.settings.arguments as Map;
+    final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     final originEndpoint = args['address'] as String?;
     if (uri == null || !uri.isAbsolute) {
       error = i18n['urlError_1']!;
     }
-    List<CustomNode> endpoints = List<CustomNode>.of(widget.store.customNodeListV2);
-    if (endpoints.any((element) => element.url == address)
-        || GRAPH_QL_MAINNET_NODE_URL == address
-        || GRAPH_QL_TESTNET_NODE_URL == address
-    ) {
+    List<CustomNode> endpoints =
+        List<CustomNode>.of(widget.store.customNodeListV2);
+    if (endpoints.any((element) => element.url == address) ||
+        GRAPH_QL_MAINNET_NODE_URL == address ||
+        GRAPH_QL_TESTNET_NODE_URL == address) {
       if (!(isEdit && address == originEndpoint)) {
         error = i18n['urlError_3']!;
       }
@@ -183,14 +187,16 @@ class _NodeEditPageState extends State<NodeEditPage> {
     });
     return error == null;
   }
+
   _onDelete() async {
-    final Map args =
-    ModalRoute.of(context)!.settings.arguments as Map;
+    final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     final removeNode = args['removeNode'] as void Function(String);
     var i18n = I18n.of(context).main;
-    bool? rejected = await UI.showConfirmDialog(context: context, contents: [
-      i18n['confirmDeleteNode']!
-    ], okText: i18n['confirm']!, cancelText: i18n['cancel']!);
+    bool? rejected = await UI.showConfirmDialog(
+        context: context,
+        contents: [i18n['confirmDeleteNode']!],
+        okText: i18n['confirm']!,
+        cancelText: i18n['cancel']!);
     if (rejected != true) {
       return;
     }
@@ -205,21 +211,27 @@ class _NodeEditPageState extends State<NodeEditPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? i18nSettings['editNetWork']! : i18nSettings['addNetWork']!),
+        title: Text(isEdit
+            ? i18nSettings['editNetWork']!
+            : i18nSettings['addNetWork']!),
         centerTitle: true,
-        actions: isEdit ? [
-          TextButton(
-            style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(Colors.transparent)
-            ),
-            child: Text(i18n['delete']!, style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFFD65A5A)
-            ),),
-            onPressed: _onDelete,
-          )
-        ] : [],
+        actions: isEdit
+            ? [
+                TextButton(
+                  style: ButtonStyle(
+                      overlayColor:
+                          MaterialStateProperty.all(Colors.transparent)),
+                  child: Text(
+                    i18n['delete']!,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFFD65A5A)),
+                  ),
+                  onPressed: _onDelete,
+                )
+              ]
+            : [],
       ),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -228,60 +240,58 @@ class _NodeEditPageState extends State<NodeEditPage> {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                  padding: EdgeInsets.only(top: 0),
-                  children: <Widget>[
-                    Container(
-                      child: Text(i18nSettings['nodeAlert']!,
-                          style: TextStyle(
-                              color: Color(0xFFD65A5A),
-                              fontWeight: FontWeight.w500
-                          )
+              child:
+                  ListView(padding: EdgeInsets.only(top: 0), children: <Widget>[
+                Container(
+                  child: Text(i18nSettings['nodeAlert']!,
+                      style: TextStyle(
+                          color: Color(0xFFD65A5A),
+                          fontWeight: FontWeight.w500)),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  color: Color(0x1AD65A5A),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                  child: Wrap(
+                    children: [
+                      InputItem(
+                        padding: const EdgeInsets.only(top: 0),
+                        label: i18n['networkName']!,
+                        controller: _nameCtrl,
+                        maxLength: 50,
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      color: Color(0x1AD65A5A),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-                      child: Wrap(
-                        children: [
-                          InputItem(
-                            padding: const EdgeInsets.only(top: 0),
-                            label: i18n['networkName']!,
-                            controller: _nameCtrl,
-                            maxLength: 50,
-                          ),
-                          InputItem(
-                            label: i18nSettings['nodeAddress'],
-                            placeholder: 'https://',
-                            focusNode: _addressFocus,
-                            padding: EdgeInsets.only(top: 22),
-                            controller: _addressCtrl,
-                            maxLines: 2,
-                            isError: addressError,
-                          ),
-                          InputErrorTip(
-                            padding: EdgeInsets.only(top: 8),
-                            ctrl: _addressCtrl,
-                            message: errorText ?? '',
-                            asyncValidate: _validateAddress,
-                            keepShow: addressError,
-                            isError: addressError,
-                            hideIcon: true,
-                            focusNode: _addressFocus,
-                          ),
-                        ],
-                      ),)
-                  ]
-              ),
+                      InputItem(
+                        label: i18nSettings['nodeAddress'],
+                        placeholder: 'https://',
+                        focusNode: _addressFocus,
+                        padding: EdgeInsets.only(top: 22),
+                        controller: _addressCtrl,
+                        maxLines: 2,
+                        isError: addressError,
+                      ),
+                      InputErrorTip(
+                        padding: EdgeInsets.only(top: 8),
+                        ctrl: _addressCtrl,
+                        message: errorText ?? '',
+                        asyncValidate: _validateAddress,
+                        keepShow: addressError,
+                        isError: addressError,
+                        hideIcon: true,
+                        focusNode: _addressFocus,
+                      ),
+                    ],
+                  ),
+                )
+              ]),
             ),
             Container(
-              padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
+              padding:
+                  EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
               child: NormalButton(
                 submitting: submitting,
                 disabled: addressError || _nameCtrl.text.isEmpty,
                 text: I18n.of(context).main['confirm']!,
-                onPressed: _confirm ,
+                onPressed: _confirm,
               ),
             ),
           ],
@@ -290,4 +300,3 @@ class _NodeEditPageState extends State<NodeEditPage> {
     );
   }
 }
-

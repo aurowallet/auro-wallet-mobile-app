@@ -262,6 +262,15 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$setFeesMapAsyncAction.run(() => super.setFeesMap(fees));
   }
 
+  late final _$loadMultiAccountCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadMultiAccountCache', context: context);
+
+  @override
+  Future<void> loadMultiAccountCache() {
+    return _$loadMultiAccountCacheAsyncAction
+        .run(() => super.loadMultiAccountCache());
+  }
+
   late final _$loadAccountCacheAsyncAction =
       AsyncAction('_AssetsStore.loadAccountCache', context: context);
 

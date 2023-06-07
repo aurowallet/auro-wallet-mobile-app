@@ -41,6 +41,22 @@ mixin _$LedgerStore on LedgerBase, Store {
     });
   }
 
+  late final _$ledgerStatusAtom =
+      Atom(name: 'LedgerBase.ledgerStatus', context: context);
+
+  @override
+  LedgerStatusTypes get ledgerStatus {
+    _$ledgerStatusAtom.reportRead();
+    return super.ledgerStatus;
+  }
+
+  @override
+  set ledgerStatus(LedgerStatusTypes value) {
+    _$ledgerStatusAtom.reportWrite(value, super.ledgerStatus, () {
+      super.ledgerStatus = value;
+    });
+  }
+
   late final _$LedgerBaseActionController =
       ActionController(name: 'LedgerBase', context: context);
 
@@ -67,10 +83,22 @@ mixin _$LedgerStore on LedgerBase, Store {
   }
 
   @override
+  void setLedgerStatus(LedgerStatusTypes status) {
+    final _$actionInfo = _$LedgerBaseActionController.startAction(
+        name: 'LedgerBase.setLedgerStatus');
+    try {
+      return super.setLedgerStatus(status);
+    } finally {
+      _$LedgerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 ledgerDevice: ${ledgerDevice},
-ledgerInstance: ${ledgerInstance}
+ledgerInstance: ${ledgerInstance},
+ledgerStatus: ${ledgerStatus}
     ''';
   }
 }

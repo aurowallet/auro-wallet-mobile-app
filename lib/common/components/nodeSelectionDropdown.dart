@@ -1,5 +1,6 @@
 import 'package:auro_wallet/common/components/customDropdownButton.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +30,15 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
 
   void onChoose(String? endpoint) async {
     if (endpoint != null) {
-      await widget.store.setEndpoint(endpoint);
-      webApi.updateGqlClient(endpoint);
-      webApi.staking.refreshStaking();
-      globalBalanceRefreshKey.currentState!.show();
+      final nodes =
+          widget.store.allNodes.where((element) => element.url == endpoint);
+      if (nodes.length > 0) {
+        final node = nodes.first;
+        await widget.store.setCurrentNode(node);
+        webApi.updateGqlClient(endpoint);
+        webApi.staking.refreshStaking();
+        globalBalanceRefreshKey.currentState!.show();
+      }
     }
   }
 
@@ -40,14 +46,16 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
   Widget build(BuildContext context) {
     return CustomDropdownButton(
         items: [
-          DropdownItem(text: 'Mainnet', value: GRAPH_QL_MAINNET_NODE_URL),
-          DropdownItem(text: 'Devnet', value: GRAPH_QL_TESTNET_NODE_URL),
+          DropdownItem(text: 'Mainnet', value: mainNetNode.url),
+          DropdownItem(text: 'Devnet', value: devNetNode.url),
           ...widget.store.customNodeListV2.map((e) {
-            return DropdownItem(text: Fmt.stringSlice(e.name, 8, withEllipsis: true), value: e.url);
+            return DropdownItem(
+                text: Fmt.stringSlice(e.name, 8, withEllipsis: true),
+                value: e.url);
           }).toList()
         ],
         onChoose: onChoose,
         // value: GRAPH_QL_TESTNET_NODE_URL
-        value: widget.store.endpoint);
+        value: widget.store.currentNode!.url);
   }
 }

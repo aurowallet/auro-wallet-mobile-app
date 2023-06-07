@@ -47,8 +47,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     List<CustomNode> endpoints =
         List<CustomNode>.of(widget.store.customNodeListV2);
     endpoints.removeWhere((endpointItem) => endpointItem.url == url);
-    if (widget.store.endpoint == url) {
-      await widget.store.setEndpoint(GRAPH_QL_MAINNET_NODE_URL);
+    if (widget.store.currentNode?.url == url) {
+      await widget.store.setCurrentNode(mainNetNode);
       webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
       webApi.refreshNetwork();
     }
@@ -57,10 +57,15 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   void onChangeEndpoint(bool checked, String key) async {
     if (checked) {
-      await widget.store.setEndpoint(key);
-      webApi.updateGqlClient(key);
-      webApi.refreshNetwork();
-      Navigator.of(context).pop();
+      final nodes =
+          widget.store.allNodes.where((element) => element.url == key);
+      if (nodes.length > 0) {
+        final node = nodes.first;
+        await widget.store.setCurrentNode(node);
+        webApi.updateGqlClient(key);
+        webApi.refreshNetwork();
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -88,7 +93,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
             text: endpoint.name,
             value: endpoint.url,
             chainId: endpoint.chainId,
-            checked: widget.store.endpoint == endpoint.url,
+            checked: widget.store.currentNode?.url == endpoint.url,
             onChecked: onChangeEndpoint,
             tag: tagStr,
             isEditing: isEditing,
@@ -107,9 +112,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black
-              )
-          ),
+                  color: Colors.black)),
         ),
         ...list
       ],
@@ -134,18 +137,19 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         actions: [
           Observer(builder: (_) {
             List<CustomNode> endpoints =
-            List<CustomNode>.of(widget.store.customNodeListV2);
-            return endpoints.length > 0 ?
-            TextButton(
-              child: Text(
-                isEditing ? i18n['save']! : i18n['edit']!,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).primaryColor),
-              ),
-              onPressed: _onEdit,
-            ) : Container();
+                List<CustomNode>.of(widget.store.customNodeListV2);
+            return endpoints.length > 0
+                ? TextButton(
+                    child: Text(
+                      isEditing ? i18n['save']! : i18n['edit']!,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).primaryColor),
+                    ),
+                    onPressed: _onEdit,
+                  )
+                : Container();
           })
         ],
       ),
@@ -169,12 +173,12 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                 child: ListView(padding: EdgeInsets.only(top: 20), children: [
                   Padding(
                     padding: EdgeInsets.only(left: 20, right: 20),
-                    child: Text(i18n['defaultNetwork']!,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black
-                        ),
+                    child: Text(
+                      i18n['defaultNetwork']!,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black),
                     ),
                   ),
                   Padding(
@@ -188,7 +192,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           value: GRAPH_QL_MAINNET_NODE_URL,
                           onChecked: onChangeEndpoint,
                           checked: GRAPH_QL_MAINNET_NODE_URL ==
-                              widget.store.endpoint,
+                              widget.store.currentNode?.url,
                           tag: null,
                           chainId: mainnet?.chainId,
                           isEditing: isEditing,
@@ -199,7 +203,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           value: GRAPH_QL_TESTNET_NODE_URL,
                           onChecked: onChangeEndpoint,
                           checked: GRAPH_QL_TESTNET_NODE_URL ==
-                              widget.store.endpoint,
+                              widget.store.currentNode?.url,
                           tag: null,
                           chainId: testnet?.chainId,
                           isEditing: isEditing,
@@ -271,7 +275,7 @@ class NodeItem extends StatelessWidget {
       child: Container(
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Material(
           color: Color(0xFFF9FAFC),
@@ -282,109 +286,113 @@ class NodeItem extends StatelessWidget {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                          color: Colors.black.withOpacity(0.05), width: 1
-                      )
-                  ),
+                          color: Colors.black.withOpacity(0.05), width: 1)),
                   child: Row(
                     children: [
                       Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              Expanded(
+                                  child: Row(
+                                mainAxisSize: MainAxisSize.max,
                                 children: [
-                                  Expanded(
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Flexible(
-                                              child: Text(Fmt.breakWord(text)!,
-                                                  // overflow: TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: ColorsUtil.hexColor(0x01000D),
-                                                      fontWeight: FontWeight.w500))),
-                                          tag != null
-                                              ? Container(
-                                            margin: EdgeInsets.only(left: 5),
-                                            padding:
-                                            EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: ColorsUtil.hexColor(0xDDDDDD),
-                                              borderRadius:
-                                              BorderRadius.circular(4.0),
-                                            ),
-                                            child: Text(tag!,
-                                                style: theme.headline6!.copyWith(
-                                                    color: Color(0x4D000000),
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500)),
-                                          )
-                                              : Container()
-                                        ],
-                                      )),
-                                  chainId != null
+                                  Flexible(
+                                      child: Text(Fmt.breakWord(text)!,
+                                          // overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color:
+                                                  ColorsUtil.hexColor(0x01000D),
+                                              fontWeight: FontWeight.w500))),
+                                  tag != null
                                       ? Container(
-                                    margin: EdgeInsets.only(left: 5),
-                                    alignment: Alignment.center,
-                                    child: Text(Fmt.address(chainId, pad: 6, padSame: true),
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black.withOpacity(0.1),
-                                            fontWeight: FontWeight.w400)),
-                                  )
+                                          margin: EdgeInsets.only(left: 5),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 4, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                ColorsUtil.hexColor(0xDDDDDD),
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: Text(tag!,
+                                              style: theme.headline6!.copyWith(
+                                                  color: Color(0x4D000000),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500)),
+                                        )
                                       : Container()
                                 ],
-                              ),
-                              Text(Fmt.breakWord(value)!,
-                                  style: theme.headline5!
-                                      .copyWith(color: ColorsUtil.hexColor(0x999999))),
+                              )),
+                              chainId != null
+                                  ? Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                          Fmt.address(chainId,
+                                              pad: 6, padSame: true),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color:
+                                                  Colors.black.withOpacity(0.1),
+                                              fontWeight: FontWeight.w400)),
+                                    )
+                                  : Container()
                             ],
-                          )),
+                          ),
+                          Text(Fmt.breakWord(value)!,
+                              style: theme.headline5!.copyWith(
+                                  color: ColorsUtil.hexColor(0x999999),
+                                  fontSize: 12)),
+                        ],
+                      )),
                       isEditing
                           ? Container(
-                          width: 32,
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            width: 6,
-                            margin: EdgeInsets.only(
-                              left: 14,
-                            ),
-                            child: editable
-                                ? SvgPicture.asset(
-                                'assets/images/assets/right_arrow.svg',
+                              width: 32,
+                              alignment: Alignment.centerRight,
+                              child: Container(
                                 width: 6,
-                                height: 12)
-                                : Container(),
-                          ))
+                                margin: EdgeInsets.only(
+                                  left: 14,
+                                ),
+                                child: editable
+                                    ? SvgPicture.asset(
+                                        'assets/images/assets/right_arrow.svg',
+                                        width: 6,
+                                        height: 12)
+                                    : Container(),
+                              ))
                           : Container(
-                        width: 32,
-                        child: Center(
-                          child: checked
-                              ? Padding(
-                            padding: EdgeInsets.only(left: 14),
-                            child: RoundCheckBox(
-                              size: 18,
-                              borderColor: Colors.transparent,
-                              isChecked: checked,
-                              uncheckedColor: Colors.white,
-                              checkedColor:
-                              Theme.of(context).primaryColor,
-                              checkedWidget: Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 12,
+                              width: 32,
+                              child: Center(
+                                child: checked
+                                    ? Padding(
+                                        padding: EdgeInsets.only(left: 14),
+                                        child: RoundCheckBox(
+                                          size: 18,
+                                          borderColor: Colors.transparent,
+                                          isChecked: checked,
+                                          uncheckedColor: Colors.white,
+                                          checkedColor:
+                                              Theme.of(context).primaryColor,
+                                          checkedWidget: Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 12,
+                                          ),
+                                          // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+                                          onTap: (bool? checkedFlag) {
+                                            onChecked(checkedFlag!, value);
+                                          },
+                                        ),
+                                      )
+                                    : Container(),
                               ),
-                              // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                              onTap: (bool? checkedFlag) {
-                                onChecked(checkedFlag!, value);
-                              },
                             ),
-                          )
-                              : Container(),
-                        ),
-                      ),
                     ],
                   ))),
         ),

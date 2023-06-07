@@ -103,19 +103,19 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
-  late final _$endpointAtom =
-      Atom(name: '_SettingsStore.endpoint', context: context);
+  late final _$currentNodeAtom =
+      Atom(name: '_SettingsStore.currentNode', context: context);
 
   @override
-  String get endpoint {
-    _$endpointAtom.reportRead();
-    return super.endpoint;
+  CustomNode? get currentNode {
+    _$currentNodeAtom.reportRead();
+    return super.currentNode;
   }
 
   @override
-  set endpoint(String value) {
-    _$endpointAtom.reportWrite(value, super.endpoint, () {
-      super.endpoint = value;
+  set currentNode(CustomNode? value) {
+    _$currentNodeAtom.reportWrite(value, super.currentNode, () {
+      super.currentNode = value;
     });
   }
 
@@ -316,20 +316,20 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.loadCustomNodeList());
   }
 
-  late final _$setEndpointAsyncAction =
-      AsyncAction('_SettingsStore.setEndpoint', context: context);
+  late final _$setCurrentNodeAsyncAction =
+      AsyncAction('_SettingsStore.setCurrentNode', context: context);
 
   @override
-  Future<void> setEndpoint(String value) {
-    return _$setEndpointAsyncAction.run(() => super.setEndpoint(value));
+  Future<void> setCurrentNode(CustomNode value) {
+    return _$setCurrentNodeAsyncAction.run(() => super.setCurrentNode(value));
   }
 
-  late final _$loadEndpointAsyncAction =
-      AsyncAction('_SettingsStore.loadEndpoint', context: context);
+  late final _$loadCurrentNodeAsyncAction =
+      AsyncAction('_SettingsStore.loadCurrentNode', context: context);
 
   @override
-  Future<void> loadEndpoint() {
-    return _$loadEndpointAsyncAction.run(() => super.loadEndpoint());
+  Future<void> loadCurrentNode() {
+    return _$loadCurrentNodeAsyncAction.run(() => super.loadCurrentNode());
   }
 
   late final _$loadContactsAsyncAction =
@@ -396,7 +396,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
 loading: ${loading},
 localeCode: ${localeCode},
 currencyCode: ${currencyCode},
-endpoint: ${endpoint},
+currentNode: ${currentNode},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
 customNodeListV2: ${customNodeListV2},

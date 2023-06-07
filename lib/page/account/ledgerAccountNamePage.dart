@@ -1,8 +1,3 @@
-import 'dart:async';
-import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -11,7 +6,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/services.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 
 class LedgerAccountNameParams {
   LedgerAccountNameParams({
@@ -70,56 +64,21 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
     if (accountName.isEmpty) {
       accountName = params.placeholder;
     }
+    final accountIndex = int.tryParse(_accountIndexCtrl.text) ?? 0;
     setState(() {
       importing = true;
     });
-    try {
-      final accountIndex = int.tryParse(_accountIndexCtrl.text) ?? 0;
-      final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
-          accountIndex: accountIndex);
-      print(minaApp);
-      // final ledgerApp = await minaApp.getAppName(device);
-      // print(ledgerApp.name);
-      // print(ledgerApp.version);
-      // final version = await minaApp.getVersion(device);
-      // print(version.versionName);
-      final accounts = await minaApp.getAccounts(store.ledger!.ledgerDevice!);
-      print('accounts');
-      print(accounts[0]);
-      var isSuccess = await webApi.account.createExternalWallet(
-          accountName, accounts[0],
-          context: context,
-          source: WalletSource.outside,
-          seedType: WalletStore.seedTypeLedger,
-          hdIndex: accountIndex);
-      setState(() {
-        importing = false;
-      });
-      if (isSuccess) {
-        final Map<String, String> dic = I18n.of(context).main;
-        UI.toast(dic['backup_success_restore']!);
-        Navigator.of(context).pop();
-      }
-      // print(version);
-    } on LedgerException catch (e) {
-      setState(() {
-        importing = false;
-      });
-      print('出错了');
-      print(e.message);
-      // await ledgerInstance!.disconnect(ledgerDevice!);
+    bool? generated = await UI.showImportLedgerDialog(
+        context: context,
+        accountIndex: accountIndex,
+        generateAddress: true,
+        accountName: accountName);
+    if (generated == true) {
+      Navigator.of(context).pop();
     }
-    // if (params.callback != null) {
-    //   bool res = await params.callback!(accountName);
-    //   if (res) {
-    //     Navigator.of(context).pop();
-    //   }
-    //   return;
-    // }
-    // if (params.redirect != null && params.redirect!.isNotEmpty) {
-    //   Navigator.pushReplacementNamed(context, params.redirect!,
-    //       arguments: {"accountName": accountName});
-    // }
+    setState(() {
+      importing = false;
+    });
   }
 
   @override

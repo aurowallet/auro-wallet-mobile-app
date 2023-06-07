@@ -103,17 +103,12 @@ class _WalletManagePageState extends State<WalletManagePage> {
   }
 
   void _showLedgerImport() async {
-    bool? connected = await UI.showImportLedgerDialog(context: context);
-    print('connected');
-    print(connected);
-    if (connected == true) {
-      int count =
-          store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) +
-              1;
-      final ledgerWalletName = 'Ledger $count';
-      Navigator.pushReplacementNamed(context, LedgerAccountNamePage.route,
-          arguments: LedgerAccountNameParams(placeholder: ledgerWalletName));
-    }
+    int count =
+        store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) + 1;
+    final ledgerWalletName = 'Ledger $count';
+    Navigator.pushNamed(context, LedgerAccountNamePage.route,
+        arguments: LedgerAccountNameParams(placeholder: ledgerWalletName));
+    return;
   }
 
   List<Widget> _renderAccountList() {
@@ -124,6 +119,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
     final Map<String, String> dic = I18n.of(context).main;
     final renderItem = (account) {
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
+      print('balancesInfo');
+      print(balancesInfo?.total);
       return WalletItem(
         account: account,
         balance: balancesInfo?.total ?? BigInt.from(0),
@@ -273,6 +270,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(12))),
+                            padding: EdgeInsets.zero,
                             minimumSize: Size(0, 48)),
                       ),
                     ),

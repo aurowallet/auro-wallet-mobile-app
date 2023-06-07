@@ -270,7 +270,7 @@ abstract class _WalletStore with Store {
       ..source = source
       ..createTime = DateTime.now().millisecondsSinceEpoch
       ..accounts = [accountData]
-      ..currentAccountIndex = 0;
+      ..currentAccountIndex = hdIndex;
 
     await rootStore.localStorage.addWallet(WalletData.toJson(walletData));
     await rootStore.localStorage.setCurrentWallet(pubKey);

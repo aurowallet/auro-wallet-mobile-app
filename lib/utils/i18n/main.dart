@@ -402,9 +402,9 @@ const Map<String, String> enMain = {
   "delegationInfo": "Delegation Info",
   "emptyDelegateTitle": "You have not yet delegated",
   "emptyDelegateDesc1":
-      "Delegating MINA to the block producer node can help you obtain rewards for producing blocks.",
+      "Delegating MINA to the Block Producer node can help you obtain rewards for producing blocks. The Block Producer will distribute the rewards according to your delegated proportion, and the percentage of rewards depends on the rate setting by the Block Producer.",
   "emptyDelegateDesc2":
-      "The Block Producer will distribute the rewards according to your delegated proportion,and the percentage of rewards depends on the rate setting by the Block Producer.About the effective time of delegating and rewards distributing rules: ",
+      "Effective time of delegating and rewards distributing rules: ",
   "emptyDelegateDesc3": "Staking Guide",
   "changeNode": "Change",
   "stakingProviderName": "Block Producer",
@@ -483,7 +483,7 @@ const Map<String, String> enMain = {
   "privacy": "Privacy Policy",
   "scan": "Scan",
   "restoreTip":
-      "If you would like to import a private key/keystore, you will first need to [Create Wallet] or [Restore Wallet]",
+      "If you want to import private key/keystore or connect Ledger, need to [Create Wallet] or [Restore Wallet] first.",
   "resetWallet": "Reset",
   "resetWarnContentTitle": "Are you sure you want to reset your wallet?",
   "resetWarnContent":

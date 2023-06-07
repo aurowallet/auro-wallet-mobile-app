@@ -45,7 +45,7 @@ class UI {
     }
   }
 
-  static void showTxConfirm({
+  static Future<void> showTxConfirm({
     required BuildContext context,
     required String title,
     required List<TxItem> items,
@@ -56,10 +56,12 @@ class UI {
     bool disabled = false,
     bool isLedger = false,
   }) {
-    showModalBottomSheet<void>(
+    return showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       builder: (BuildContext context) {
         return TxConfirmDialog(
             title: title,
@@ -72,7 +74,7 @@ class UI {
             onConfirm: () async {
               bool? success = await onConfirm();
               if (success == false) {
-                Navigator.pop(context);
+                Navigator.of(context).pop();
               }
             });
       },
@@ -111,13 +113,22 @@ class UI {
     );
   }
 
-  static Future<bool?> showImportLedgerDialog({required BuildContext context}) {
+  static Future<bool?> showImportLedgerDialog(
+      {required BuildContext context,
+      bool generateAddress = false,
+      int? accountIndex,
+      String? accountName}) {
     return showModalBottomSheet<bool?>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       builder: (_) {
-        return ImportLedger();
+        return ImportLedger(
+            generateAddress: generateAddress,
+            accountIndex: accountIndex,
+            accountName: accountName);
       },
     );
   }

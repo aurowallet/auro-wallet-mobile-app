@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
 
 class CustomStyledText extends StatelessWidget {
-  CustomStyledText({required this.text, this.style, this.textAlign = TextAlign.left});
+  CustomStyledText(
+      {required this.text, this.style, this.textAlign = TextAlign.left});
 
   final String text;
   final TextStyle? style;
@@ -20,10 +21,11 @@ class CustomStyledText extends StatelessWidget {
       textScaleFactor: MediaQuery.of(context).textScaleFactor,
       tags: {
         'bold': StyledTextTag(style: TextStyle(fontWeight: FontWeight.w900)),
-        'red': StyledTextTag(style: st.copyWith(color: Colors.red)),
+        'red': StyledTextTag(
+            style: st.copyWith(color: Colors.red, fontWeight: FontWeight.w900)),
         'theme': StyledTextTag(style: st.copyWith(color: primaryColor)),
         'link': StyledTextActionTag(
-              (String? text, Map<String?, String?> attrs)  {
+          (String? text, Map<String?, String?> attrs) {
             final String? link = attrs['href'];
             final String? route = attrs['route'];
             if (link == 'aurowallet://back') {
@@ -35,7 +37,8 @@ class CustomStyledText extends StatelessWidget {
             }
             print('The "$link" link is tapped.');
           },
-            style: TextStyle(decoration: TextDecoration.underline, color: primaryColor),
+          style: TextStyle(
+              decoration: TextDecoration.underline, color: primaryColor),
         ),
       },
     );
