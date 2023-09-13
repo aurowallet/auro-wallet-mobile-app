@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:auro_wallet/store/assets/types/feeTransferData.dart';
+import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:flutter/foundation.dart';
@@ -28,6 +29,8 @@ abstract class _AssetsStore with Store {
   final String cachePriceKey = 'coin_price';
   final String cacheTxsKey = 'txs';
   final String cacheFeeTxsKey = 'fee_txs';
+  final String cacheScamListKey = 'scam_list';
+  final scamKey = 'wallet_sacm_list';
 
   @observable
   bool isTxsLoading = true;
@@ -61,6 +64,12 @@ abstract class _AssetsStore with Store {
   @observable
   ObservableList<FeeTransferData> feeTxs = ObservableList<FeeTransferData>();
 
+  @observable
+  ObservableList<ScamItem> scamList = ObservableList<ScamItem>();
+
+  @observable
+  String scamAddressStr = "";
+
   @computed
   List<TransferData> get totalTxs {
     var gettime = (TransferData tx) {
@@ -72,12 +81,15 @@ abstract class _AssetsStore with Store {
       return Fmt.toDatetime(dateTimeStr);
     };
     List<TransferData> totals = [];
-    // print('Txs length' + feeTxs.length.toString());
-    // print('feetxs length' + feeTxs.length.toString());
+    txs.forEach((i) {
+      if (rootStore.settings?.isMainnet == true) {
+        var addlow = i.sender!.toLowerCase();
+        i.isFromAddressScam = scamAddressStr.indexOf(addlow) != -1;
+      } else {
+        i.isFromAddressScam = false;
+      }
+    });
     totals.addAll(txs);
-    // totals.addAll(feeTxs.map((element) {
-    //   return TransferData.fromFeeTransfer(element);
-    // }));
     totals.sort((tx1, tx2) {
       var dateTime1 = gettime(tx1);
       var dateTime2 = gettime(tx2);
@@ -130,6 +142,14 @@ abstract class _AssetsStore with Store {
   @action
   Future<void> clearPendingTxs() async {
     pendingTxs.clear();
+  }
+
+  @action
+  Future<void> clearAllTxs() async {
+    txs.clear();
+    pendingTxs.clear();
+    await rootStore.localStorage.setAccountCache(
+        rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, []);
   }
 
   @action
@@ -275,9 +295,47 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadCache() async {
+    await loadLocalScamList();
     await loadFeesCache();
     await loadMarketPricesCache();
     await loadAccountCache();
     await loadMultiAccountCache();
+  }
+
+  @action
+  void setLocalScamList(List<ScamItem> ls) {
+    scamList.addAll(ls);
+
+    var scamAddressStrCache = "";
+    ls.forEach((scam) {
+      scamAddressStrCache = scamAddressStrCache + "," + scam.address;
+    });
+    scamAddressStrCache = scamAddressStrCache.toLowerCase();
+
+    scamAddressStr = scamAddressStrCache;
+    rootStore.localStorage.setObject(scamKey, ls);
+  }
+
+  void clearScamList() {
+    scamList = ObservableList<ScamItem>();
+  }
+
+  @action
+  Future<void> loadLocalScamList() async {
+    List<dynamic>? scamCacheList =
+        await rootStore.localStorage.getObject(scamKey) as List<dynamic>?;
+    if (scamCacheList == null) {
+      scamCacheList = [];
+    }
+    List<ScamItem> scamList = scamCacheList.map((item) {
+      return ScamItem.fromJson(item);
+    }).toList();
+
+    var scamAddressStrCache = "";
+    scamList.forEach((scam) {
+      scamAddressStrCache = scamAddressStrCache + "," + scam.address;
+    });
+    scamAddressStrCache = scamAddressStrCache.toLowerCase();
+    scamAddressStr = scamAddressStrCache;
   }
 }

@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
+import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:flutter/material.dart';
@@ -208,7 +209,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
               children: [
                 // Flexible(child: Container(),),
                 Container(
-                  child: NodeSelectionDropdown(store: store.settings!),
+                  child: NodeSelectionDropdown(store: store),
                 ),
                 Container(
                   width: 15,
@@ -632,7 +633,7 @@ class TransferListItem extends StatelessWidget {
     if (address == null) {
       title = data.type.toUpperCase();
     } else {
-      title = Fmt.address(address, pad: 10);
+      title = Fmt.address(address, pad: 8);
     }
     var theme = Theme.of(context).textTheme;
     final Map i18n = I18n.of(context).main;
@@ -692,7 +693,7 @@ class TransferListItem extends StatelessWidget {
                   children: [
                     Container(
                         width: 28,
-                        margin: EdgeInsets.only(right: 16),
+                        margin: EdgeInsets.only(right: 8),
                         child: SvgPicture.asset(
                           'assets/images/assets/$icon.svg',
                           width: 28,
@@ -703,13 +704,18 @@ class TransferListItem extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              '$title',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.black),
-                            ),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$title',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black),
+                                  ),
+                                  data.isFromAddressScam == true ?ScamTag():Container(),
+                                ]),
                             Text(
                               '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
                               style: TextStyle(

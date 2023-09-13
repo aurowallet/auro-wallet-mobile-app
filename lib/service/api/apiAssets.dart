@@ -1,10 +1,10 @@
+import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
-
 
 class ApiAssets {
   ApiAssets(this.apiRoot);
@@ -46,7 +46,7 @@ class ApiAssets {
         'pubKey': pubKey,
       },
     );
-    final QueryResult result =  await client.query(_options);
+    final QueryResult result = await client.query(_options);
     if (result.hasException) {
       print('请求tx list 交易出错了');
       print(result.exception.toString());
@@ -92,7 +92,7 @@ class ApiAssets {
       },
     );
 
-    final QueryResult result =  await apiRoot.graphQLClient.query(_options);
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
       print('请求pending交易出错了');
       print(result.exception.toString());
@@ -114,25 +114,23 @@ class ApiAssets {
         store.assets!.setFeesMap({
           'slow': double.parse(feeList[0]['value']),
           'medium': double.parse(feeList[1]['value']),
-          'fast':  double.parse(feeList[2]['value']),
-          'cap':  double.parse(feeList[3]['value']),
+          'fast': double.parse(feeList[2]['value']),
+          'cap': double.parse(feeList[3]['value']),
         });
       }
     } else {
-      store.assets!.setFeesMap({
-        'slow': 0.001,
-        'medium': 0.01,
-        'fast': 0.1,
-        'cap': 10.0
-      });
+      store.assets!.setFeesMap(
+          {'slow': 0.001, 'medium': 0.01, 'fast': 0.1, 'cap': 10.0});
     }
   }
+
   Future<void> fetchBatchAccountsInfo(List<String> pubkeys) async {
-    var variablesStr = List<String>.generate(pubkeys.length, (int index) => '\$account$index:PublicKey!').join(',');
+    var variablesStr = List<String>.generate(
+        pubkeys.length, (int index) => '\$account$index:PublicKey!').join(',');
 
     String fetchBalanceQuery = '''query fetchBalanceQuery($variablesStr) {
-${List<String>.generate(pubkeys.length, (int index){
-return '''account$index: account (publicKey: \$account$index) {
+${List<String>.generate(pubkeys.length, (int index) {
+      return '''account$index: account (publicKey: \$account$index) {
     delegate
     balance {
        total
@@ -148,34 +146,34 @@ return '''account$index: account (publicKey: \$account$index) {
       variables['account$index'] = pubKey;
     });
 
-     final QueryOptions _options = QueryOptions(
-       document: gql(fetchBalanceQuery),
-       variables: variables,
-       fetchPolicy: FetchPolicy.noCache,
-     );
-     final QueryResult result =  await apiRoot.graphQLClient.query(_options);
-     if (result.hasException) {
-       print('获取余额出错了');
-       print(result.exception.toString());
-       return;
-     }
-     pubkeys.asMap().forEach((index, pubKey) {
-       var accountData = result.data?['account$index'];
-       if (accountData != null) {
-         final String delegate = accountData['delegate'] as String;
-         final String balance = accountData['balance']['total'] as String;
-         final String inferredNonce = accountData['inferredNonce'] as String;
-         final String publicKey = accountData['publicKey'] as String;
-         final Map<String, dynamic> accountInfo = {
-           "total": balance,
-           "delegate": delegate,
-           "inferredNonce": inferredNonce,
-           "publicKey": publicKey,
-         };
-         print('balance:' + balance);
-         store.assets!.setAccountInfo(pubKey, accountInfo);
-       }
-     });
+    final QueryOptions _options = QueryOptions(
+      document: gql(fetchBalanceQuery),
+      variables: variables,
+      fetchPolicy: FetchPolicy.noCache,
+    );
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (result.hasException) {
+      print('获取余额出错了');
+      print(result.exception.toString());
+      return;
+    }
+    pubkeys.asMap().forEach((index, pubKey) {
+      var accountData = result.data?['account$index'];
+      if (accountData != null) {
+        final String delegate = accountData['delegate'] as String;
+        final String balance = accountData['balance']['total'] as String;
+        final String inferredNonce = accountData['inferredNonce'] as String;
+        final String publicKey = accountData['publicKey'] as String;
+        final Map<String, dynamic> accountInfo = {
+          "total": balance,
+          "delegate": delegate,
+          "inferredNonce": inferredNonce,
+          "publicKey": publicKey,
+        };
+        print('balance:' + balance);
+        store.assets!.setAccountInfo(pubKey, accountInfo);
+      }
+    });
   }
 
   /// get balance and delegate info
@@ -195,12 +193,14 @@ return '''account$index: account (publicKey: \$account$index) {
     if (!store.settings!.isMainnet) {
       return;
     }
-    String txUrl =  "$MAINNET_TRANSACTION_URL/prices?currency=" + store.settings!.currencyCode;
-    var response = await  http.get(Uri.parse(txUrl));
+    String txUrl = "$MAINNET_TRANSACTION_URL/prices?currency=" +
+        store.settings!.currencyCode;
+    var response = await http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {
-      Map priceRes = convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
+      Map priceRes =
+          convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
       if (priceRes["data"] != null) {
-        double price  = 0 ;
+        double price = 0;
         if (priceRes["data"] is int) {
           price = (priceRes["data"] as int).toDouble();
         } else {
@@ -210,6 +210,28 @@ return '''account$index: account (publicKey: \$account$index) {
       }
     } else {
       print('Request price failed with status: ${response.statusCode}.');
+    }
+  }
+
+  Future<void> fetchScamInfo() async {
+    if (!store.settings!.isMainnet) {
+      return;
+    }
+    String txUrl = "$BASE_INFO_URL/scam_list";
+    var response = await http.get(Uri.parse(txUrl));
+    if (response.statusCode == 200) {
+      List<dynamic> scamList = convert.jsonDecode(response.body);
+
+      List<ScamItem> scamItemList = scamList.map((item) {
+        return ScamItem.fromJson(item);
+      }).toList();
+
+      if (scamItemList.length > 0) {
+        store.assets!.clearScamList();
+        store.assets!.setLocalScamList(scamItemList);
+      }
+    } else {
+      print('Request scam failed with status: ${response.statusCode}.');
     }
   }
 }

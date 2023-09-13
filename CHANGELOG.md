@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [1.1.5]
+- Add scam-address match
+
 ## [1.0.1]
 - fix epoch cache bug
 - fix transaction detail status bug

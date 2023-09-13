@@ -18,7 +18,8 @@ TransferData _$TransferDataFromJson(Map<String, dynamic> json) => TransferData()
   ..amount = json['amount'] as String
   ..fee = json['fee'] as String?
   ..memo = json['memo'] as String?
-  ..status = json['status'] as String;
+  ..status = json['status'] as String
+  ..isFromAddressScam = json['isFromAddressScam'] as bool?;
 
 Map<String, dynamic> _$TransferDataToJson(TransferData instance) =>
     <String, dynamic>{
@@ -34,4 +35,5 @@ Map<String, dynamic> _$TransferDataToJson(TransferData instance) =>
       'fee': instance.fee,
       'memo': instance.memo,
       'status': instance.status,
+      'isFromAddressScam': instance.isFromAddressScam,
     };

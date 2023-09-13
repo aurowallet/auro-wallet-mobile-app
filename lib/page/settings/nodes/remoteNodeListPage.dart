@@ -1,4 +1,5 @@
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -14,10 +15,11 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class RemoteNodeListPage extends StatefulWidget {
-  final SettingsStore store;
+  final AppStore store;
+  SettingsStore settingStore;
   static final String route = '/profile/endpoint';
 
-  RemoteNodeListPage(this.store);
+  RemoteNodeListPage(this.store):settingStore = store.settings!;
 
   @override
   _RemoteNodeListPageState createState() => _RemoteNodeListPageState();
@@ -45,23 +47,24 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   void _removeNode(String url) async {
     List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.store.customNodeListV2);
+        List<CustomNode>.of(widget.settingStore.customNodeListV2);
     endpoints.removeWhere((endpointItem) => endpointItem.url == url);
-    if (widget.store.currentNode?.url == url) {
-      await widget.store.setCurrentNode(mainNetNode);
+    if (widget.settingStore.currentNode?.url == url) {
+      await widget.settingStore.setCurrentNode(mainNetNode);
       webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
       webApi.refreshNetwork();
     }
-    widget.store.setCustomNodeList(endpoints);
+    widget.settingStore.setCustomNodeList(endpoints);
   }
 
   void onChangeEndpoint(bool checked, String key) async {
     if (checked) {
       final nodes =
-          widget.store.allNodes.where((element) => element.url == key);
+          widget.settingStore.allNodes.where((element) => element.url == key);
       if (nodes.length > 0) {
         final node = nodes.first;
-        await widget.store.setCurrentNode(node);
+        await widget.store.assets!.clearAllTxs();
+        await widget.settingStore.setCurrentNode(node);
         webApi.updateGqlClient(key);
         webApi.refreshNetwork();
         Navigator.of(context).pop();
@@ -73,11 +76,11 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     var i18n = I18n.of(context).main;
     final theme = Theme.of(context).textTheme;
     List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.store.customNodeListV2);
+        List<CustomNode>.of(widget.settingStore.customNodeListV2);
     if (endpoints.length == 0) {
       return Container();
     }
-    final networks = widget.store.networks;
+    final networks = widget.settingStore.networks;
     List<Widget> list = endpoints.map((endpoint) {
       final filterNetworks =
           networks.where((element) => element.chainId == endpoint.chainId);
@@ -93,7 +96,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
             text: endpoint.name,
             value: endpoint.url,
             chainId: endpoint.chainId,
-            checked: widget.store.currentNode?.url == endpoint.url,
+            checked: widget.settingStore.currentNode?.url == endpoint.url,
             onChecked: onChangeEndpoint,
             tag: tagStr,
             isEditing: isEditing,
@@ -137,7 +140,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         actions: [
           Observer(builder: (_) {
             List<CustomNode> endpoints =
-                List<CustomNode>.of(widget.store.customNodeListV2);
+                List<CustomNode>.of(widget.settingStore.customNodeListV2);
             return endpoints.length > 0
                 ? TextButton(
                     child: Text(
@@ -157,7 +160,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Observer(builder: (_) {
-          final networks = widget.store.networks;
+          final networks = widget.settingStore.networks;
           final NetworkType? mainnet = networks
               .map((e) => e as NetworkType?)
               .firstWhere((element) => element?.type == '0',
@@ -192,7 +195,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           value: GRAPH_QL_MAINNET_NODE_URL,
                           onChecked: onChangeEndpoint,
                           checked: GRAPH_QL_MAINNET_NODE_URL ==
-                              widget.store.currentNode?.url,
+                              widget.settingStore.currentNode?.url,
                           tag: null,
                           chainId: mainnet?.chainId,
                           isEditing: isEditing,
@@ -203,7 +206,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           value: GRAPH_QL_TESTNET_NODE_URL,
                           onChecked: onChangeEndpoint,
                           checked: GRAPH_QL_TESTNET_NODE_URL ==
-                              widget.store.currentNode?.url,
+                              widget.settingStore.currentNode?.url,
                           tag: null,
                           chainId: testnet?.chainId,
                           isEditing: isEditing,

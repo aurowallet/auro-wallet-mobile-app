@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
@@ -16,7 +17,7 @@ class TransactionDetailPage extends StatelessWidget {
 
   static final String route = '/assets/tx';
   final AppStore store;
-  
+
   Widget _buildLabel(String name) {
     return Container(
         padding: EdgeInsets.only(left: 0),
@@ -30,7 +31,8 @@ class TransactionDetailPage extends StatelessWidget {
 
   List<Widget> _buildListView(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).main;
-    final TransferData tx = ModalRoute.of(context)!.settings.arguments as TransferData;
+    final TransferData tx =
+        ModalRoute.of(context)!.settings.arguments as TransferData;
     final success = tx.success;
     final pending = tx.isPending;
 
@@ -57,35 +59,35 @@ class TransactionDetailPage extends StatelessWidget {
     final items = [
       TxInfoItem(
         label: dic['amount']!,
-        title: '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol',
+        title:
+            '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol',
       ),
       TxInfoItem(
-        label: dic['fromAddress']!,
-        title: tx.sender,
-        copyText: tx.sender,
-      ),
+          label: dic['fromAddress']!,
+          title: tx.sender,
+          copyText: tx.sender,
+          showScamTag: tx.isFromAddressScam == true),
       TxInfoItem(
         label: dic['toAddress']!,
         title: tx.receiver,
         copyText: tx.receiver,
       ),
-      TxInfoItem(
-          label: dic['memo2']!,
-          title: tx.memo,
-          copyText: tx.memo
-      ),
+      TxInfoItem(label: dic['memo2']!, title: tx.memo, copyText: tx.memo),
       TxInfoItem(
         label: dic['time']!,
         title: Fmt.dateTimeWithTimeZone(tx.time),
       ),
       TxInfoItem(
         label: 'Nonce',
-        title: tx.nonce != null ? tx.nonce.toString(): null,
+        title: tx.nonce != null ? tx.nonce.toString() : null,
       ),
-      tx.fee != null ? TxInfoItem(
-        label: dic['fee']!,
-        title: '${Fmt.balance(tx.fee!, decimals, maxLength: decimals)} $symbol',
-      ): null,
+      tx.fee != null
+          ? TxInfoItem(
+              label: dic['fee']!,
+              title:
+                  '${Fmt.balance(tx.fee!, decimals, maxLength: decimals)} $symbol',
+            )
+          : null,
       TxInfoItem(
         label: dic['txHash']!,
         title: tx.hash,
@@ -99,52 +101,48 @@ class TransactionDetailPage extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(top: 30, bottom: 14),
-            child: SvgPicture.asset(
-                statusIcon,
-                width: 71,
-                height: 71,
-                color: statusColor
-            ),
+            child: SvgPicture.asset(statusIcon,
+                width: 71, height: 71, color: statusColor),
           ),
           Text(
             statusText,
             style: Theme.of(context).textTheme.headline4!.copyWith(
-                color: statusColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w600
-            ),
+                color: statusColor, fontSize: 16, fontWeight: FontWeight.w600),
           ),
-          CustomDivider(
-              margin: const EdgeInsets.only(top: 23)
-          ),
+          CustomDivider(margin: const EdgeInsets.only(top: 23)),
         ],
       ),
     ];
     items.forEach((i) {
-      if(i == null || i.title == null || i.title!.isEmpty) {
+      if (i == null || i.title == null || i.title!.isEmpty) {
         return;
       }
-      list.add(Container(
+      var baseCon = Container(
           padding: EdgeInsets.only(top: 11),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children:[
-                _buildLabel(i.label),
-                // Container(height: 4),
-                CopyContainer(
-                  child: Text(
-                      i.title!,
-                      style: Theme.of(context).textTheme.headline5!.copyWith(
-                          color: ColorsUtil.hexColor(0x333333),
-                          height: 1.2,
-                          fontSize: 14
-                      )
-                  ),
-                  text: i.copyText,
-                )
-              ]
-          )
-      ));
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _buildLabel(i.label),
+            CopyContainer(
+              child: RichText(
+                  text: TextSpan(
+                text: i.title!,
+                style: Theme.of(context).textTheme.headline5!.copyWith(
+                    color: ColorsUtil.hexColor(0x333333),
+                    height: 1.2,
+                    fontSize: 14),
+                children: <WidgetSpan>[
+                  i.showScamTag == true
+                      ? WidgetSpan(
+                          child: ScamTag(),
+                        )
+                      : WidgetSpan(child: Container()),
+                ],
+              )),
+              text: i.copyText,
+            ),
+          ]));
+
+      list.add(baseCon);
     });
     return list;
   }
@@ -153,7 +151,8 @@ class TransactionDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
 
-    final TransferData tx = ModalRoute.of(context)!.settings.arguments as TransferData;
+    final TransferData tx =
+        ModalRoute.of(context)!.settings.arguments as TransferData;
     return Scaffold(
       appBar: AppBar(
         title: Text('${I18n.of(context).main['details']!}'),
@@ -173,14 +172,15 @@ class TransactionDetailPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                tx.hash.isNotEmpty ?
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30).copyWith(bottom: 30),
-                    child: BrowserLink(
-                      '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/transaction/${tx.hash}',
-                      text: i18n['goToExplrer']!,
-                    )
-                ): Container()
+                tx.hash.isNotEmpty
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 30)
+                            .copyWith(bottom: 30),
+                        child: BrowserLink(
+                          '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/transaction/${tx.hash}',
+                          text: i18n['goToExplrer']!,
+                        ))
+                    : Container()
               ],
             )
           ],
@@ -191,9 +191,11 @@ class TransactionDetailPage extends StatelessWidget {
 }
 
 class TxInfoItem {
-  TxInfoItem({required this.label, this.title, this.copyText});
+  TxInfoItem(
+      {required this.label, this.title, this.copyText, this.showScamTag});
   final String label;
   final String? title;
   final String? copyText;
+  final bool? showScamTag;
 }
 

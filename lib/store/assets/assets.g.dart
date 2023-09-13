@@ -159,6 +159,38 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  late final _$scamListAtom =
+      Atom(name: '_AssetsStore.scamList', context: context);
+
+  @override
+  ObservableList<ScamItem> get scamList {
+    _$scamListAtom.reportRead();
+    return super.scamList;
+  }
+
+  @override
+  set scamList(ObservableList<ScamItem> value) {
+    _$scamListAtom.reportWrite(value, super.scamList, () {
+      super.scamList = value;
+    });
+  }
+
+  late final _$scamAddressStrAtom =
+      Atom(name: '_AssetsStore.scamAddressStr', context: context);
+
+  @override
+  String get scamAddressStr {
+    _$scamAddressStrAtom.reportRead();
+    return super.scamAddressStr;
+  }
+
+  @override
+  set scamAddressStr(String value) {
+    _$scamAddressStrAtom.reportWrite(value, super.scamAddressStr, () {
+      super.scamAddressStr = value;
+    });
+  }
+
   late final _$txsFilterAtom =
       Atom(name: '_AssetsStore.txsFilter', context: context);
 
@@ -223,6 +255,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
   @override
   Future<void> clearPendingTxs() {
     return _$clearPendingTxsAsyncAction.run(() => super.clearPendingTxs());
+  }
+
+  late final _$clearAllTxsAsyncAction =
+      AsyncAction('_AssetsStore.clearAllTxs', context: context);
+
+  @override
+  Future<void> clearAllTxs() {
+    return _$clearAllTxsAsyncAction.run(() => super.clearAllTxs());
   }
 
   late final _$addPendingTxsAsyncAction =
@@ -312,6 +352,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$loadCacheAsyncAction.run(() => super.loadCache());
   }
 
+  late final _$loadLocalScamListAsyncAction =
+      AsyncAction('_AssetsStore.loadLocalScamList', context: context);
+
+  @override
+  Future<void> loadLocalScamList() {
+    return _$loadLocalScamListAsyncAction.run(() => super.loadLocalScamList());
+  }
+
   late final _$_AssetsStoreActionController =
       ActionController(name: '_AssetsStore', context: context);
 
@@ -349,6 +397,17 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
+  void setLocalScamList(List<ScamItem> ls) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction(
+        name: '_AssetsStore.setLocalScamList');
+    try {
+      return super.setLocalScamList(ls);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isTxsLoading: ${isTxsLoading},
@@ -360,6 +419,8 @@ txsCount: ${txsCount},
 pendingTxs: ${pendingTxs},
 txs: ${txs},
 feeTxs: ${feeTxs},
+scamList: ${scamList},
+scamAddressStr: ${scamAddressStr},
 txsFilter: ${txsFilter},
 marketPrices: ${marketPrices},
 totalTxs: ${totalTxs}
