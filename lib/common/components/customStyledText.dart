@@ -22,7 +22,9 @@ class CustomStyledText extends StatelessWidget {
       tags: {
         'bold': StyledTextTag(style: TextStyle(fontWeight: FontWeight.w900)),
         'red': StyledTextTag(
-            style: st.copyWith(color: Colors.red, fontWeight: FontWeight.w900)),
+            style: st.copyWith(color: Color(0xFFD65A5A), fontWeight: FontWeight.w900)),
+        'lightred' :StyledTextTag(
+            style: st.copyWith(color: Color(0xFFD65A5A), fontWeight: FontWeight.w400)),
         'theme': StyledTextTag(style: st.copyWith(color: primaryColor)),
         'link': StyledTextActionTag(
           (String? text, Map<String?, String?> attrs) {

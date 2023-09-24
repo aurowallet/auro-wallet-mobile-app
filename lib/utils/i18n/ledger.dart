@@ -10,7 +10,7 @@ const Map<String, String> enLedger = {
       "Please continue the follow-up operation according to the prompt of the Ledger hardware wallet.",
   "ledgerAddressTip2": "Get Address > Generate > Approve",
   "ledgerAddressTip3":
-      "<red>Do not close</red> this window. Once the import is complete, the page will redirects automatically.",
+      "<lightred>Do not close this window.</lightred> Once the Ledger is complete, the page will redirects automatically.",
   "waitingLedger": "Waiting for confirmation...",
   "waitingLedgerSign":
       "Please confirm in the Ledger hardware wallet, the signature may take 1-3 minutes.",
@@ -20,16 +20,17 @@ const Map<String, String> enLedger = {
   "unlockLedger":
       "Failed to connect. Please make sure your Ledger device is unlocked.",
   "ledgerReject": "Rejected by Ledger",
-  "ledgerSearching": "Searching..."
+  "ledgerSearching": "Searching...",
+  "ledgerSupport":"(<lightred>Only support Ledger Nano X</lightred>)"
 };
 
 const Map<String, String> zhLedger = {
-  "ledgerTip1": "将 Ledger 与手机连接。",
+  "ledgerTip1": "将 Ledger与手机连接。",
   "ledgerTip2": "在 Ledger 中打开 Mina 应用，直到看到 <bold>Mina is ready</bold>。",
   "ledgerTip3": "选择你想要使用的硬件钱包。",
   "ledgerAddressTip1": "请根据 Ledger 硬件钱包中的提示进行以下操作。",
   "ledgerAddressTip2": "Get Address > Generate > Approve",
-  "ledgerAddressTip3": "<red>不要关闭</red> 本窗口。完成导入后，页面将自动跳转。",
+  "ledgerAddressTip3": "<lightred>不要关闭本窗口。</lightred>Ledger 完成后，页面将自动跳转。",
   "connectLedger": "连接硬件钱包",
   "selectHdPath": "选择 HD 派生路径",
   "ledgerStatus": "Ledger 状态",
@@ -39,5 +40,6 @@ const Map<String, String> zhLedger = {
   "openMinaApp": "Ledger 已连接，但是 Mina 应用没有打开，请在Ledger中打开 Mina 应用。",
   "unlockLedger": "连接失败，请确保你的 Ledger 设备处于解锁状态。",
   "ledgerReject": "Ledger 已拒绝",
-  "ledgerSearching": "搜索..."
+  "ledgerSearching": "搜索...",
+  "ledgerSupport":"(<lightred>仅支持 Ledger Nano X</lightred>)"
 };

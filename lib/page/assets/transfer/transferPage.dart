@@ -183,7 +183,9 @@ class _TransferPageState extends State<TransferPage> {
       String memo = _memoCtrl.text.trim();
       double fee;
       int inferredNonce;
+      bool shouldShowNonce = false;
       if (_nonceCtrl.text.isNotEmpty) {
+        shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
         inferredNonce = store
@@ -211,8 +213,12 @@ class _TransferPageState extends State<TransferPage> {
             value: '${fee.toString()} ${COIN.coinSymbol}',
             type: TxItemTypes.amount),
       ];
+      if (shouldShowNonce) {
+        txItems.add(TxItem(
+            label: "Nonce ", value: '$inferredNonce', type: TxItemTypes.text));
+      }
       if (memo.isNotEmpty) {
-        txItems.insert(3,
+        txItems.add(
             TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
       }
       final isWatchMode =
@@ -411,6 +417,8 @@ class _TransferPageState extends State<TransferPage> {
             store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
                 BigInt.from(0);
         final fees = store.assets!.transferFees;
+        double realBottom = MediaQuery.of(context).viewInsets.bottom;
+        double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;
         return Scaffold(
           appBar: AppBar(
             title: Text(dic['send']!),
@@ -549,6 +557,9 @@ class _TransferPageState extends State<TransferPage> {
                         ],
                       ),
                     ),
+                    Padding(
+                        padding: EdgeInsets.only(
+                            top: 15, left: 15, right: 15, bottom: nextBottom)),
                     Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 38, vertical: 30),

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [1.1.6]
+- Ledger enhancements
+- Optimize Ledger UX
+- Bug fix
+
 ## [1.1.5]
 - Add scam-address match
 

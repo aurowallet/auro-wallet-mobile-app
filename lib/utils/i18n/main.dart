@@ -122,7 +122,7 @@ const Map<String, String> zhMain = {
   "confirmDeleteNode": "确认删除？",
   "deleteSuccess": "删除成功",
   "backupSuccess": "成功",
-  "walletAbout": "Auro 钱包是一款由社区开发的非托管钱包。它简单，易用，并且完全开源。支持 Mina 的所有的功能。",
+  "walletAbout": "Auro 钱包是一款由社区开发的非托管钱包。它简单，易用，并且完全开源。支持 Mina 的所有功能。",
   "copyTipContent": "复制私钥存在风险，剪切板容易被第三方应用监听并盗取。",
   "copyTipContent2": "请确保你所使用的系统及网络环境绝对安全再执行些操作。",
   "copyConfirm": "仍要复制",
@@ -241,6 +241,7 @@ const Map<String, String> zhMain = {
   "mnemonicLost": "如果助记词丢失，我的资产将永久丢失。",
   "protectMnemonic": "我对助记词的安全保存负全部责任。",
   "scam": "风险",
+  "hdDerivedPath": "HD 路径",
 };
 
 const Map<String, String> enMain = {
@@ -511,4 +512,5 @@ const Map<String, String> enMain = {
   "mnemonicLost": "If mnemonic phrase lost, my funds will be lost forever.",
   "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
   "scam": "scam",
+  "hdDerivedPath": "HD Path",
 };

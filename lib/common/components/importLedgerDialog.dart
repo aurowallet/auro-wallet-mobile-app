@@ -208,7 +208,7 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
         Text(
           dic['ledgerAddressTip1']!,
           style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: Colors.black,
               height: 1.2,
               fontWeight: FontWeight.w400),
@@ -218,7 +218,7 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
           child: Text(
             dic['ledgerAddressTip2']!,
             style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 color: Colors.black,
                 height: 1.2,
                 fontWeight: FontWeight.w700),
@@ -228,7 +228,7 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
             text: dic['ledgerAddressTip3']!,
             style: TextStyle(
                 color: Colors.black,
-                fontSize: 16,
+                fontSize: 14,
                 height: 1.2,
                 fontWeight: FontWeight.w400)),
         Padding(
@@ -407,9 +407,9 @@ class _ConnectLedgerState extends State<ConnectLedger> {
     return Wrap(
       children: [
         LedgerTipItem(
-          num: '1',
-          text: dic['ledgerTip1']!,
-        ),
+            num: '1',
+            text: dic['ledgerTip1']!,
+            descText: dic['ledgerSupport']!),
         LedgerTipItem(
           num: '2',
           text: dic['ledgerTip2']!,
@@ -455,10 +455,11 @@ class _ConnectLedgerState extends State<ConnectLedger> {
 }
 
 class LedgerTipItem extends StatelessWidget {
-  LedgerTipItem({required this.num, required this.text});
+  LedgerTipItem({required this.num, required this.text, this.descText = ""});
 
   final String num;
   final String text;
+  final String descText;
 
   @override
   Widget build(BuildContext context) {
@@ -487,13 +488,30 @@ class LedgerTipItem extends StatelessWidget {
             width: 8,
           ),
           Expanded(
-              child: CustomStyledText(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomStyledText(
                   text: text,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 14,
                       height: 1.4,
-                      fontWeight: FontWeight.w400))),
+                      fontWeight: FontWeight.w400)),
+              descText != ""
+                  ? (Container(
+                      child: CustomStyledText(
+                        text: descText,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFFD65A5A),
+                            height: 1.33,
+                            fontWeight: FontWeight.w400),
+                      ),
+                    ))
+                  : Container(),
+            ],
+          )),
         ]));
   }
 }

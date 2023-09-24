@@ -89,7 +89,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                     ),
                     InputItem(
                       label: 'Nonce',
-                      placeholder: 'Nonce ' +  (widget.noncePlaceHolder ?? '').toString(),
+                      placeholder: (widget.noncePlaceHolder ?? '').toString(),
                       keyboardType: TextInputType.number,
                       controller: widget.nonceCtrl,
                       inputFormatters:  <TextInputFormatter>[

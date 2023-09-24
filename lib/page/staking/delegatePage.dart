@@ -211,8 +211,10 @@ class _DelegatePageState extends State<DelegatePage>
       int decimals = COIN.decimals;
       String memo = _memoCtrl.text.trim();
       double fee;
+      bool shouldShowNonce = false;
       int inferredNonce;
       if (_nonceCtrl.text.isNotEmpty) {
+        shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
         inferredNonce = store
@@ -245,8 +247,12 @@ class _DelegatePageState extends State<DelegatePage>
             value: '${fee.toString()} ${COIN.coinSymbol}',
             type: TxItemTypes.amount),
       ]);
+      if (shouldShowNonce) {
+        txItems.add(TxItem(
+            label: "Nonce ", value: '$inferredNonce', type: TxItemTypes.text));
+      }
       if (memo.isNotEmpty) {
-        txItems.insert(3,
+        txItems.add(
             TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
       }
       bool isWatchMode =
@@ -348,6 +354,10 @@ class _DelegatePageState extends State<DelegatePage>
         DelegateParams params =
             ModalRoute.of(context)!.settings.arguments as DelegateParams;
         ValidatorData? validatorData = params.validatorData;
+
+        double realBottom = MediaQuery.of(context).viewInsets.bottom;
+        double nextBottom = realBottom > 0 ? realBottom - 102 : realBottom;
+
         return Scaffold(
           appBar: AppBar(
             title: Text(i18n['staking']!),
@@ -408,6 +418,9 @@ class _DelegatePageState extends State<DelegatePage>
                         ],
                       ),
                     ),
+                    Padding(
+                        padding: EdgeInsets.only(
+                            top: 15, left: 15, right: 15, bottom: nextBottom)),
                     Container(
                       padding: EdgeInsets.only(
                           left: 38, right: 38, top: 12, bottom: 30),

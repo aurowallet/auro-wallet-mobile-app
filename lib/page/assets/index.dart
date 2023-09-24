@@ -362,7 +362,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                     Padding(
                       padding: EdgeInsets.only(top: 7),
                       child: CopyContainer(
-                          showIcon: true,
                           iconColor: const Color(0x80FFFFFF),
                           child: Container(
                             child: Text(

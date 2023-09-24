@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/ledgerStatus.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -101,19 +102,19 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
           style: TextStyle(
               color: Colors.black.withOpacity(0.5),
               fontSize: 14,
-              fontWeight: FontWeight.w600),
+              fontWeight: FontWeight.w400),
         ),
       ),
       Container(
         padding: EdgeInsets.only(top: 14, bottom: 60),
         child: Center(
-          child: Text(
-            dic['waitingNotClose']!,
+          child: CustomStyledText(
+            text: dic['ledgerAddressTip3']!,
             style: TextStyle(
-                color: Color(0xFFE4B200).withOpacity(0.5),
+                color: Colors.black,
                 fontSize: 14,
-                fontWeight: FontWeight.w600),
-          ),
+                height: 1.2,
+                fontWeight: FontWeight.w400)),
         ),
       )
     ];

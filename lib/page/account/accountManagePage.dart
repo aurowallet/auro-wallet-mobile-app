@@ -34,6 +34,8 @@ class _AccountManagePageState extends State<AccountManagePage> {
   late AccountData account;
   late WalletData wallet;
   bool isWatchedOrLedgerAccount = false;
+  bool isLedgerAccount = false;
+  String ledgerAccountPath = "";
 
   @override
   void initState() {
@@ -54,6 +56,10 @@ class _AccountManagePageState extends State<AccountManagePage> {
     wallet = params['wallet'];
     isWatchedOrLedgerAccount = wallet.walletType == WalletStore.seedTypeNone ||
         wallet.walletType == WalletStore.seedTypeLedger;
+    isLedgerAccount = wallet.walletType == WalletStore.seedTypeLedger;
+    ledgerAccountPath = isLedgerAccount
+        ? "m / 44' / 12586'/ ${wallet.currentAccountIndex} ' / 0 / 0"
+        : "";
   }
 
   void _onExportPrivateKey() async {
@@ -172,6 +178,15 @@ class _AccountManagePageState extends State<AccountManagePage> {
                         label: dic['exportPrivateKey']!,
                         onClick: _onExportPrivateKey,
                         padding: EdgeInsets.only(top: 18, bottom: 18))
+                    : Container(),
+                isLedgerAccount
+                    ? CopyContainer(
+                        child: AccountInfoItem(
+                          label: dic['hdDerivedPath']!,
+                          value: ledgerAccountPath,
+                          padding: EdgeInsets.only(top: 10, bottom: 10),
+                        ),
+                        text: ledgerAccountPath)
                     : Container(),
                 !isMnemonicWallet
                     ? Container(
