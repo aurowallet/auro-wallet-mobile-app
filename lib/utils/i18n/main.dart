@@ -253,7 +253,7 @@ const Map<String, String> enMain = {
   "inputPassword": "Enter security password",
   "confirmPassword": "Re-enter security password",
   "createPasswordTip":
-      "Security Password will be used to send transactions and identity verification in Auro Wallet.Auro Wallet won't store the security password or retrieve it for you. Pleased keep it safe. ",
+      "The security password will be used for identity verification purposes to send transactions in Auro Wallet. Auro Wallet won't store the security password itself or retrieve it for you. Please keep your password safe. ",
   "next": "Next",
   "atLeastOneLowercaseLetter": "A lowercase letter",
   "atLeastOneUppercaseLetter": "An uppercase letter",
