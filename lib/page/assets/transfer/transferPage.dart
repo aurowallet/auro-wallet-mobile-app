@@ -419,6 +419,7 @@ class _TransferPageState extends State<TransferPage> {
         final fees = store.assets!.transferFees;
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;
+        nextBottom = nextBottom.isNegative ? 0 : nextBottom ;
         return Scaffold(
           appBar: AppBar(
             title: Text(dic['send']!),

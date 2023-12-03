@@ -357,7 +357,7 @@ class _DelegatePageState extends State<DelegatePage>
 
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 102 : realBottom;
-
+        nextBottom = nextBottom.isNegative ? 0 : nextBottom ;
         return Scaffold(
           appBar: AppBar(
             title: Text(i18n['staking']!),
