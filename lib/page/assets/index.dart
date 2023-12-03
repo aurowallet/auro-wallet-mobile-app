@@ -514,14 +514,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           isOut: i.sender == store.wallet!.currentAddress,
         );
       }));
-      if (store.assets!.txs.length >= 20) {
+      if (store.assets!.txs.length >= 15) {
         res.add(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: BrowserLink(
-                  '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/wallet/${store.wallet!.currentAddress}/transactions',
+                  '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/account/${store.wallet!.currentAddress}/tx',
                   text: i18n['goToExplorer']!,
                 ))
           ],

@@ -177,7 +177,7 @@ class TransactionDetailPage extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: 30)
                             .copyWith(bottom: 30),
                         child: BrowserLink(
-                          '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/transaction/${tx.hash}',
+                          '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/tx/${tx.hash}',
                           text: i18n['goToExplrer']!,
                         ))
                     : Container()
