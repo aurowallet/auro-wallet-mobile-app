@@ -137,7 +137,7 @@ flutter:
 
     # images
     ## images - settings
-    - assets/images/assets/Mina.png
+    # - assets/images/assets/Mina.png  unuse
     ## images - mina
     - assets/images/assets/2x/top_header_bg@2x.png
     - assets/images/assets/wallet_manage.svg
@@ -220,7 +220,7 @@ flutter:
     - assets/images/public/icon_nav_close.svg
     - assets/images/public/error.svg
 
-    - assets/images/assets/logo.png
+    # - assets/images/assets/logo.png unuse
     - assets/images/assets/assets_send.png
     - assets/images/assets/assets_receive.png
     - assets/images/assets/assets_up.png

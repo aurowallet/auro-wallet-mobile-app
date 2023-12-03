@@ -276,27 +276,9 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(20)),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: [
-            0.1,
-            0.46,
-            1.0,
-          ],
-          colors: [
-            Color(0xFFCA5C89),
-            Color(0xFF4F55EC),
-            Color(0xFF3531FF),
-          ],
-        ),
+        color: Color(0xFF594AF1)
       ),
       child: Stack(children: [
-        Positioned.fill(
-            child: FittedBox(
-          fit: BoxFit.fill,
-          child: Image.asset('assets/images/assets/card_mask.png'),
-        )),
         Positioned(
           right: 20,
           top: 60,
