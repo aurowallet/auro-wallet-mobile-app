@@ -3,12 +3,12 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/backgroundContainer.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_code_tools/qr_code_tools.dart';
 import 'dart:io'; // For Platform.isX
 import 'dart:async'; // For Platform.isX
 import 'package:rxdart/rxdart.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:scan/scan.dart';
 
 
 
@@ -20,24 +20,27 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> {
-  ScanController controller = ScanController();
   StateSetter? stateSetter;
   IconData lightIcon = Icons.flash_on;
+  
+  QRViewController? controller;
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   @override
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller.pause();
+      controller!.pauseCamera();
     } else if (Platform.isIOS) {
-      controller.resume();
+      controller!.resumeCamera();
     }
+    super.reassemble();
   }
 
   @override
   void dispose() {
+    controller?.dispose();
     super.dispose();
-    controller.pause();
   }
 
   void _getQrByGallery() {
@@ -96,6 +99,16 @@ class _ScanPageState extends State<ScanPage> {
       Navigator.of(context).pop(QRCodeAddressResult(address: address, chainType: chainType));
     }
   }
+   void _onQRViewCreated(QRViewController controller)async {
+    this.controller = controller;
+    controller.resumeCamera();
+    controller.scannedDataStream.listen((scanData) {
+      if (scanData.format == BarcodeFormat.qrcode && scanData.code != null) {
+        controller.pauseCamera();
+        _onScan(scanData.code);
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -108,12 +121,18 @@ class _ScanPageState extends State<ScanPage> {
         ),
         Stack(
           children: [
-            ScanView(
-              controller: controller,
-              scanAreaScale: .7,
-              scanLineColor: Theme.of(context).primaryColor,
-              onCapture: _onScan,
-            ),
+              QRView(
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+                overlay: QrScannerOverlayShape(
+                borderColor: Theme.of(context).primaryColor,
+                borderRadius: 0,
+                borderLength: 20,
+                borderWidth: 10,
+                cutOutSize: 260,
+                cutOutBottomOffset: 50
+                ),
+              ),
             AppBar(
               title: Text(I18n.of(context).main['scan']!, style: TextStyle(color: Colors.white),),
               centerTitle: true,
@@ -131,7 +150,7 @@ class _ScanPageState extends State<ScanPage> {
                   return MaterialButton(
                       child: Icon(lightIcon,size: 40,color: Theme.of(context).primaryColor,),
                       onPressed: (){
-                        controller.toggleTorchMode();
+                        controller?.toggleFlash();
                         if (lightIcon == Icons.flash_on){
                           lightIcon = Icons.flash_off;
                         }else {

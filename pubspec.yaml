@@ -77,7 +77,7 @@ dependencies:
   path_provider: ^2.0.2
   bip32: ^2.0.0
   hex: ^0.2.0
-  scan: ^1.4.3
+  qr_code_scanner: 1.0.1
   qr_code_tools:
     git:
       url: https://github.com/PabloPessotto/qr_code_tools.git

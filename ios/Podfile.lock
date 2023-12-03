@@ -17,6 +17,7 @@ PODS:
     - Toast
   - image_picker_ios (0.0.1):
     - Flutter
+  - MTBBarcodeScanner (5.0.11)
   - package_info (0.0.1):
     - Flutter
   - path_provider_ios (0.0.1):
@@ -24,6 +25,9 @@ PODS:
   - permission_handler_apple (9.0.4):
     - Flutter
   - Protobuf (3.23.0)
+  - qr_code_scanner (0.2.0):
+    - Flutter
+    - MTBBarcodeScanner
   - qr_code_tools (0.0.7):
     - Flutter
   - Reachability (3.2)
@@ -33,8 +37,6 @@ PODS:
     - SwiftProtobuf (~> 1.0)
   - safe_device (1.0.0):
     - DTTJailbreakDetection
-    - Flutter
-  - scan (0.0.1):
     - Flutter
   - share (0.0.1):
     - Flutter
@@ -61,10 +63,10 @@ DEPENDENCIES:
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - qr_code_tools (from `.symlinks/plugins/qr_code_tools/ios`)
   - reactive_ble_mobile (from `.symlinks/plugins/reactive_ble_mobile/ios`)
   - safe_device (from `.symlinks/plugins/safe_device/ios`)
-  - scan (from `.symlinks/plugins/scan/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -74,6 +76,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - DTTJailbreakDetection
+    - MTBBarcodeScanner
     - Protobuf
     - Reachability
     - SwiftProtobuf
@@ -102,14 +105,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_ios/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  qr_code_scanner:
+    :path: ".symlinks/plugins/qr_code_scanner/ios"
   qr_code_tools:
     :path: ".symlinks/plugins/qr_code_tools/ios"
   reactive_ble_mobile:
     :path: ".symlinks/plugins/reactive_ble_mobile/ios"
   safe_device:
     :path: ".symlinks/plugins/safe_device/ios"
-  scan:
-    :path: ".symlinks/plugins/scan/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences_ios:
@@ -129,17 +132,18 @@ SPEC CHECKSUMS:
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   flutter_sodium: c84426b4de738514b5b66cfdeb8a06634e72fe0b
-  fluttertoast: 74526702fea2c060ea55dde75895b7e1bde1c86b
+  fluttertoast: d410097af3a920745c7bb589f26967c6d35f92c0
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
+  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   Protobuf: 43e3764cdf3609fdd00417649561565703437fdc
+  qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   qr_code_tools: 5b5dd44ccdfa4b81f645c251e421f61003254b81
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
   safe_device: 4539eb6bdbeb4b61a763a51c4e73e6b37dea4e3d
-  scan: aea35bb4aa59ccc8839c576a18cd57c7d492cc86
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
@@ -150,4 +154,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 282576f2addca226c1e6b6dbd4363251a8d752bb
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.14.3
