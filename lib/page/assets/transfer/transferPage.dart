@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
+import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +56,7 @@ class _TransferPageState extends State<TransferPage> {
   bool inputDirty = false;
   String? contactName;
   ContactData? _contactData;
+  List<DropdownAddressItem>  addressList = [];
 
   var _loading = Observable(true);
 
@@ -69,6 +72,7 @@ class _TransferPageState extends State<TransferPage> {
       _toAddressCtrl.addListener(_onAddressChange);
       _feeCtrl.addListener(_onFeeInputChange);
       _loadData();
+      _loadAddressData();
     });
   }
 
@@ -328,6 +332,46 @@ class _TransferPageState extends State<TransferPage> {
     });
   }
 
+  Future<void> onSelect(ContactData addressInfo) async {
+    _toAddressCtrl.text = addressInfo.address;
+    setState(() {
+      _contactData = addressInfo;
+      contactName = addressInfo.name;
+    });
+  }
+  Future<void> _loadAddressData()async {
+    var currentAddress = store.wallet!.currentAddress;
+    var accountList= store.wallet!.accountListAll.map((accountItem) => {
+          "name": accountItem.name, 
+          "address": accountItem.pubKey, 
+          "type": AddressItemTypes.account
+    }).toList();
+    var contactsList = store.settings!.contactList.map((addressBookItem) => {
+          "name": addressBookItem.name, 
+          "address": addressBookItem.address, 
+          "type": AddressItemTypes.addressbook
+    }).toList();
+    List<Map<String, dynamic>> tempList = [...accountList,...contactsList];
+    List<DropdownAddressItem> convertedList = tempList.where((element) => element["address"] != currentAddress).map((data) {
+      return DropdownAddressItem(
+        name: data["name"],
+        address: data["address"],
+        type: data["type"],
+        addressKey: data["name"]+ data["address"] + data["type"].toString().split('.')[1]
+      );
+    }).toList();
+    if(convertedList.isEmpty){
+      addressList.add(DropdownAddressItem(
+        name: "",
+        address: "",
+        type: AddressItemTypes.empty,
+        addressKey: AddressItemTypes.empty.toString().split('.')[1]
+      ));
+    }else{
+      addressList.addAll(convertedList);
+    }
+  }
+
   void _onFeeLoaded(Fees fees) {
     if (inputDirty) {
       return;
@@ -425,7 +469,17 @@ class _TransferPageState extends State<TransferPage> {
             title: Text(dic['send']!),
             shadowColor: Colors.transparent,
             centerTitle: true,
-            actions: <Widget>[],
+            actions: <Widget>[
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/images/assets/scanner.svg',
+                  width: 20,
+                  height: 20,
+                  color: Colors.black,
+                ),
+                onPressed: _onScan,
+              )
+            ],
           ),
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
@@ -470,26 +524,8 @@ class _TransferPageState extends State<TransferPage> {
                                         : null,
                                     controller: _toAddressCtrl,
                                     focusNode: addressFocusNode,
-                                    suffixIcon: IconButton(
-                                      icon: SvgPicture.asset(
-                                        'assets/images/assets/scanner.svg',
-                                        width: 20,
-                                        height: 20,
-                                        color: Colors.black,
-                                      ),
-                                      onPressed: _onScan,
+                                    suffixIcon: AddressSelectionDropdown(addressList:addressList,onSelect:onSelect),
                                     ),
-                                    rightWidget: GestureDetector(
-                                      child: Text(
-                                        dic['addressbook']!,
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color:
-                                                Theme.of(context).primaryColor),
-                                      ),
-                                      onTap: _onChooseContact,
-                                    )),
                                 InputItem(
                                     label: dic['amount']!,
                                     initialValue: '',

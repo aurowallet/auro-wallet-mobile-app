@@ -242,6 +242,7 @@ const Map<String, String> zhMain = {
   "protectMnemonic": "我对助记词的安全保存负全部责任。",
   "scam": "风险",
   "hdDerivedPath": "HD 路径",
+  "emptyAddress":"没有保存的地址"
 };
 
 const Map<String, String> enMain = {
@@ -513,4 +514,5 @@ const Map<String, String> enMain = {
   "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
   "scam": "scam",
   "hdDerivedPath": "HD Path",
+  "emptyAddress":"No addresses saved"
 };
