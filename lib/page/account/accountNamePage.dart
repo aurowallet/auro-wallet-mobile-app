@@ -31,6 +31,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
 
   final AppStore store;
   final TextEditingController _nameCtrl = new TextEditingController();
+  bool submitting = false;
 
   @override
   void initState() {
@@ -54,7 +55,13 @@ class _AccountNamePageState extends State<AccountNamePage> {
       accountName = params.placeholder!;
     }
     if (params.callback != null) {
+      setState(() {
+        submitting = true;
+      });
       bool res = await params.callback!(accountName);
+      setState(() {
+        submitting = false;
+      });
       if (res) {
         Navigator.of(context).pop();
       }
@@ -101,6 +108,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: I18n.of(context).main['confirm']!,
                     onPressed: _handleSubmit,
+                    submitting:submitting
                   )
 
               )
