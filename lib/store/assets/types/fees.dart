@@ -5,6 +5,7 @@ class Fees extends _Fees {
     data.medium = json['medium'] as double;
     data.fast = json['fast'] as double;
     data.cap = (json['cap'] ?? 0).toDouble();
+    data.speedup = (json['speedup'] ?? 0).toDouble();
     return data;
   }
   Fees();
@@ -13,6 +14,7 @@ class Fees extends _Fees {
     medium = 0.01;
     fast = 0.1;
     cap = 10;
+    speedup = 0.5;
   }
 
   Map<String, dynamic> toJson() {
@@ -21,6 +23,7 @@ class Fees extends _Fees {
       'medium': this.medium,
       'fast': this.fast,
       'cap': this.cap,
+      'speedup': this.speedup,
     };
   }
 }
@@ -33,4 +36,6 @@ class _Fees {
   late double fast;
 
   late double cap;
+
+  late double speedup;
 }

@@ -77,6 +77,7 @@ abstract class _TransferData {
   String? memo = "";
   String status = "";
   bool? isFromAddressScam = false;
+  bool? showSpeedUp = false;
   bool get isPending {
     return status == 'pending';
   }
