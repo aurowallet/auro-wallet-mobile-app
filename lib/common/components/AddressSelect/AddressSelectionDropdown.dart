@@ -25,7 +25,7 @@ class _AddressSelectionDropdownState extends State<AddressSelectionDropdown> {
   }
 
   void onChoose(String? addressKey) async {
-    if (addressKey!.isNotEmpty) {
+    if (addressKey != AddressItemTypes.empty.toString().split('.')[1]) {
       DropdownAddressItem selectItem =
           widget.addressList.firstWhere((o) => o.addressKey == addressKey);
       widget.onSelect(
