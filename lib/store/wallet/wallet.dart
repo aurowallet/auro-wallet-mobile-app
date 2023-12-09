@@ -220,7 +220,13 @@ abstract class _WalletStore with Store {
     });
     return index;
   }
-
+  bool isPubKeyExist(String pubKey) {
+    int index = walletList.indexWhere((item) {
+      List<AccountData> accountList = item.accounts;
+      return accountList.indexWhere((account) => account.pubKey == pubKey) != -1;
+    });
+    return index != -1;
+  }
   @action
   Future<WalletResult> addWallet(
     Map<String, dynamic> walletInfo,
@@ -235,8 +241,7 @@ abstract class _WalletStore with Store {
     String source = walletSource != null && walletSource.isNotEmpty
         ? walletSource
         : WalletSource.inside;
-    int index = walletList.indexWhere((i) => i.pubKey == pubKey);
-    if (index >= 0) {
+    if (isPubKeyExist(pubKey)) {
       return WalletResult.addressExisted;
     }
     // save seed and remove it before add account
