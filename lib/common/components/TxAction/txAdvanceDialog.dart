@@ -75,7 +75,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
             padding: EdgeInsets.only(top: 20),
             controller: _feeCtrl,
             inputFormatters: [UI.decimalInputFormatter(COIN.decimals)],
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
             labelStyle: TextStyle(
               fontWeight: FontWeight.w700,
             ),
