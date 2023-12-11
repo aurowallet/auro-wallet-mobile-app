@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
-import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
+import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart'; 
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:flutter/material.dart';
@@ -342,7 +342,7 @@ class _TransferPageState extends State<TransferPage> {
   Future<void> _loadAddressData()async {
     var currentAddress = store.wallet!.currentAddress;
     var accountList= store.wallet!.accountListAll.map((accountItem) => {
-          "name": accountItem.name, 
+          "name": Fmt.accountName(accountItem), 
           "address": accountItem.pubKey, 
           "type": AddressItemTypes.account
     }).toList();
