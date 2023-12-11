@@ -162,6 +162,9 @@ abstract class _AssetsStore with Store {
       pendingTxs.add(tx);
     });
     pendingTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
+    if(pendingTxs.isNotEmpty){
+      pendingTxs[0].showSpeedUp = true;  
+    }
   }
 
   @action

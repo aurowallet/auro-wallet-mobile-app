@@ -242,7 +242,16 @@ const Map<String, String> zhMain = {
   "protectMnemonic": "我对助记词的安全保存负全部责任。",
   "scam": "风险",
   "hdDerivedPath": "HD 路径",
-  "emptyAddress":"没有保存的地址"
+  "emptyAddress":"没有保存的地址",
+  "speedUp":"加速",
+  "speedUpTitle":"加速交易",
+  "cancelTransaction":"取消",
+  "speedUpTip_1":"通常情况下，一笔交易需要",
+  "speedUpTip_2":"3分钟",
+  "speedUpTip_3":"才能确认。 但是，当网络拥堵时，您的交易可能需要花费大于3分钟或者更久的时间，您可以通过提高交易费用来加快交易过程。",
+  "transactionCancelTip":"通过给自己的地址发送一笔相同 Nonce 的交易来取消之前的交易。 该费用将高于当前的交易费用（+0.0001 MINA）。",
+  "currentFee":"当前交易费",
+  "newFee":"新交易费"
 };
 
 const Map<String, String> enMain = {
@@ -514,5 +523,14 @@ const Map<String, String> enMain = {
   "protectMnemonic": "I take full responsibility for protecting the mnemonic.",
   "scam": "scam",
   "hdDerivedPath": "HD Path",
-  "emptyAddress":"No addresses saved"
+  "emptyAddress":"No addresses saved",
+  "speedUp":"Speed Up",
+  "speedUpTitle":"Speed Up Transaction",
+  "cancelTransaction":"Cancel Transaction",
+  "speedUpTip_1":"Normally, a transaction takes ",
+  "speedUpTip_2":"3 minutes",
+  "speedUpTip_3":"to confirm. However, when the network is congested and your transaction may take longer than 3 minutes or more, you can speed up the transaction process by increasing the transaction fee.",
+  "transactionCancelTip":"Cancel the transaction by sending a transaction with the same Nonce to yourself address. The fee will be greater than the current transaction fee (+0.0001 MINA) .",
+  "currentFee":"Current Fee",
+  "newFee":"New Fee",
 };

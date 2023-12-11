@@ -110,17 +110,18 @@ class ApiAssets {
     print('fee response' + response.statusCode.toString());
     if (response.statusCode == 200) {
       var feeList = convert.jsonDecode(response.body);
-      if (feeList.length >= 4) {
+      if (feeList.length >= 5) {
         store.assets!.setFeesMap({
           'slow': double.parse(feeList[0]['value']),
           'medium': double.parse(feeList[1]['value']),
           'fast': double.parse(feeList[2]['value']),
           'cap': double.parse(feeList[3]['value']),
+          'speedup': double.parse(feeList[4]['value']),
         });
       }
     } else {
       store.assets!.setFeesMap(
-          {'slow': 0.001, 'medium': 0.01, 'fast': 0.1, 'cap': 10.0});
+          {'slow': 0.001, 'medium': 0.01, 'fast': 0.1, 'cap': 10.0, 'speedup':0.5});
     }
   }
 

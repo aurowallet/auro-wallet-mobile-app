@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
+import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
@@ -182,6 +184,36 @@ class UI {
 
   static unfocus(BuildContext context) {
     FocusScope.of(context).requestFocus(new FocusNode());
+  }
+
+  static Future<void> showTxAction({
+    required BuildContext context,
+    required String title,
+    required TransferData txData,
+    required Future<bool?> Function() onConfirm,
+    required TxActionType modalType,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return TxActionDialog(
+            title: title,
+            txData:txData,
+            modalType:modalType,
+            buttonText: buttonText,
+            onConfirm: () async {
+              bool? success = await onConfirm();
+              if (success == false) {
+                Navigator.of(context).pop();
+              }
+            });
+      },
+    );
   }
 }
 

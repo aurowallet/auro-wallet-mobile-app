@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+
+## [1.1.7]
+- Add internal transfer
+- Add transaction speed-up and cancel
+- Fix duplicate import
+- UI enhancements
+
 ## [1.1.6]
 - Ledger enhancements
 - Optimize Ledger UX

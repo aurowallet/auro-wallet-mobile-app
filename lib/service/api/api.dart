@@ -55,6 +55,7 @@ class Api {
     setting.fetchAboutUs();
     setting.fetchNetworkTypes();
     assets.fetchScamInfo();
+    assets.queryTxFees();
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
         assets.fetchAccountInfo(showIndicator: true),

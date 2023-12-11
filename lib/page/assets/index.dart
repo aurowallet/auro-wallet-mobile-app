@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:auro_wallet/common/components/TxAction/TxActionRow.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
@@ -492,6 +493,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     if (store.settings!.isSupportedNode) {
       res.addAll(txs.map((i) {
         return TransferListItem(
+          store: store,
           data: i,
           isOut: i.sender == store.wallet!.currentAddress,
         );
@@ -594,10 +596,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
 class TransferListItem extends StatelessWidget {
   TransferListItem({
+    required this.store,
     required this.data,
     required this.isOut,
   });
 
+  final AppStore store;
   final TransferData data;
   final bool isOut;
   BuildContext? _ctx;
@@ -620,8 +624,9 @@ class TransferListItem extends StatelessWidget {
     final Map i18n = I18n.of(context).main;
     String icon = '';
     Color statusColor;
-    switch (data.type) {
+    switch (data.type.toLowerCase()) {
       case 'delegation':
+      case 'stake_delegation':
         {
           icon = 'tx_stake';
         }
@@ -663,80 +668,95 @@ class TransferListItem extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
-                padding: EdgeInsets.symmetric(vertical: 17),
+                padding: EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                     border: Border(
                         bottom: BorderSide(
                   color: Colors.black.withOpacity(0.1),
                   width: 0.5,
                 ))),
-                child: Row(
+                child: Column(
                   children: [
-                    Container(
-                        width: 28,
-                        margin: EdgeInsets.only(right: 8),
-                        child: SvgPicture.asset(
-                          'assets/images/assets/$icon.svg',
-                          width: 28,
-                        )),
-                    Expanded(
-                      flex: 1,
-                      child: Column(children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                    Row(
+                      children: [
+                        Container(
+                            width: 28,
+                            margin: EdgeInsets.only(right: 8),
+                            child: SvgPicture.asset(
+                              'assets/images/assets/$icon.svg',
+                              width: 28,
+                            )),
+                        Expanded(
+                          flex: 1,
+                          child: Column(children: [
                             Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '$title',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.black),
+                                      ),
+                                      data.isFromAddressScam == true
+                                          ? ScamTag()
+                                          : Container(),
+                                    ]),
+                                Text(
+                                  '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                )
+                              ],
+                            ),
+                            Padding(padding: EdgeInsets.only(top: 4)),
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    '$title',
+                                    data.isPending
+                                        ? 'Nonce ' + data.nonce.toString()
+                                        : Fmt.dateTimeFromUTC(data.time),
                                     style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.black),
+                                        fontSize: 12,
+                                        color: ColorsUtil.hexColor(0x96969A)),
                                   ),
-                                  data.isFromAddressScam == true ?ScamTag():Container(),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: statusColor.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(4)),
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 3, horizontal: 5),
+                                    child: Center(
+                                      child: Text(
+                                        statusText,
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                            color: statusColor),
+                                      ),
+                                    ),
+                                  ),
                                 ]),
-                            Text(
-                              '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500),
-                            )
-                          ],
-                        ),
-                        Padding(padding: EdgeInsets.only(top: 4)),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                data.isPending
-                                    ? 'Nonce ' + data.nonce.toString()
-                                    : Fmt.dateTimeFromUTC(data.time),
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: ColorsUtil.hexColor(0x96969A)),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(4)),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 3, horizontal: 5),
-                                child: Center(
-                                  child: Text(
-                                    statusText,
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                        color: statusColor),
-                                  ),
-                                ),
-                              ),
-                            ])
-                      ]),
-                    )
+                          ]),
+                        )
+                      ],
+                    ),
+                    data.status == 'pending'
+                        ? Container(
+                            margin: EdgeInsets.only(left: 36),
+                            child: Column(children: [
+                              Padding(padding: EdgeInsets.only(top: 6)),
+                              TxActionRow(store: store, data:data)
+                            ]))
+                        : Container()
                   ],
                 )),
           )),

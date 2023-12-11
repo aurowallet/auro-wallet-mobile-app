@@ -297,6 +297,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.4"
+  decimal:
+    dependency: "direct main"
+    description:
+      name: decimal
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.0"
   dio:
     dependency: "direct main"
     description:
@@ -1047,6 +1054,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.2"
   reactive_ble_mobile:
     dependency: transitive
     description:
