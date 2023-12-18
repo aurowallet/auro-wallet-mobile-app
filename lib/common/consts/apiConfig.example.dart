@@ -12,9 +12,9 @@ const String MAIN_TX_RECORDS_GQL_URL = 'https://graphql.yyy.xyz';
 const String TEST_TX_RECORDS_GQL_URL = 'https://devnet.graphql.yyy.xyz';
 
 /// explorer url
-const String MAINNET_TRANSACTIONS_EXPLORER_URL = "https://minaexplorer.com";
+const String MAINNET_TRANSACTIONS_EXPLORER_URL = "";
 const String TESTNET_TRANSACTIONS_EXPLORER_URL =
-    "https://devnet.minaexplorer.com";
+    "";
 
 /// fee, networks and about us info
 const BASE_INFO_URL = "https://api.xxx.xyz";

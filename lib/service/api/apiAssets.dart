@@ -23,14 +23,11 @@ class ApiAssets {
   {to: $pubKey}, 
   {from: $pubKey}
    ]}) {
-    id
     nonce
     memo
-    isDelegation
     kind
     hash
     from
-    feeToken
     fee
     amount
     to

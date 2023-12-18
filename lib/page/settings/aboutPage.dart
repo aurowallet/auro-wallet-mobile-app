@@ -125,15 +125,6 @@ class _AboutPage extends State<AboutPage> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(top: 10),
-                  child: BrowserLink(
-                    aboutUsData?.graphqlApi ?? '',
-                    text: i18nSettings['graphApi']!,
-                    showIcon: false,
-                    textStyle: textBrowserStyle,
-                  ),
-                ),
-                Container(
                   padding: EdgeInsets.only(top: 40, bottom: 23),
                   child: Text(i18n['followUs']!,
                       style: TextStyle(fontSize: 12, color: Color(0x80000000))),
