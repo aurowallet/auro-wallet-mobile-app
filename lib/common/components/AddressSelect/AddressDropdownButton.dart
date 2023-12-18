@@ -9,7 +9,10 @@ enum AddressItemTypes { addressbook, account, empty }
 
 class DropdownAddressItem {
   DropdownAddressItem(
-      {required this.name, required this.address, required this.type,required this.addressKey});
+      {required this.name,
+      required this.address,
+      required this.type,
+      required this.addressKey});
   final String name;
   final String address;
   final AddressItemTypes type;
@@ -69,14 +72,15 @@ class _AddressDropdownButtonState extends State<AddressDropdownButton> {
                                             : 'assets/images/setting/contact.svg',
                                         width: 24,
                                         height: 24,
-                                        color: ColorsUtil.hexColor(0x808080)),
+                                        color:
+                                            Color(0xFF000000).withOpacity(0.8)),
                                     Padding(padding: EdgeInsets.only(left: 4)),
                                     Text(item.name,
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w400,
-                                            color:
-                                                ColorsUtil.hexColor(0x808080))),
+                                            color: Color(0xFF000000)
+                                                .withOpacity(0.8))),
                                   ]),
                               Text(
                                 '${Fmt.address(item.address, pad: 6)}',
