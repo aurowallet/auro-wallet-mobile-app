@@ -10,7 +10,7 @@ const Map<String, String> enLedger = {
       "Please continue the follow-up operation according to the prompt of the Ledger hardware wallet.",
   "ledgerAddressTip2": "Get Address > Generate > Approve",
   "ledgerAddressTip3":
-      "<lightred>Do not close this window.</lightred> Once the Ledger is complete, the page will redirects automatically.",
+      "<lightred>Do not close this window.</lightred> Once the Ledger is complete, the page will redirect automatically.",
   "waitingLedger": "Waiting for confirmation...",
   "waitingLedgerSign":
       "Please confirm in the Ledger hardware wallet, the signature may take 1-3 minutes.",
