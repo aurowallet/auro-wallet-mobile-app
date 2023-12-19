@@ -1,5 +1,6 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -133,6 +134,11 @@ class DelegateInfo extends StatelessWidget {
             ],
           ));
     } else {
+      
+      WalletData acc = store.wallet!.currentWallet;
+      AccountInfo? balancesInfo = store.assets!.accountsInfo[acc.pubKey];
+      BigInt total = balancesInfo != null ? balancesInfo.total : BigInt.from(0);
+
       return Container(
           child: Column(
         children: [
@@ -154,17 +160,11 @@ class DelegateInfo extends StatelessWidget {
           ]),
           Row(children: [
             DelegateInfoItem(
-                labelText: i18n['producerTotalStake']!,
-                value: Fmt.priceFloor(validatorInfo.totalDelegated,
-                        lengthFixed: 0) +
+                labelText: i18n['stakedBalance']!,
+                value: Fmt.balance(total.toString(), COIN.decimals,
+                        maxLength: COIN.decimals) +
                     ' ' +
                     COIN.coinSymbol)
-          ]),
-          Row(children: [
-            DelegateInfoItem(
-                labelText: i18n['producerTotalDelegations']!,
-                value: Fmt.priceFloor(validatorInfo.countDelegates ?? 0,
-                    lengthFixed: 0))
           ]),
         ],
       ));
@@ -183,7 +183,7 @@ class DelegateInfo extends StatelessWidget {
         }),
         Positioned(
             right: 0,
-            bottom: 0,
+            top: 0,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 10),

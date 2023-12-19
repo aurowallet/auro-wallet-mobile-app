@@ -109,7 +109,7 @@ class ApiStaking {
       'stateHash': stateHash,
       'blockchainLength': daemonStatus['daemonStatus'],
     };
-    await fetchDelegationInfo(consensusState['epoch']);
+    // await fetchDelegationInfo(consensusState['epoch']);
     store.staking!.setOverviewInfo(overviewData);
     print('overview cached');
   }
