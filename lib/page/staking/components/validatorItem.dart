@@ -16,9 +16,10 @@ import 'package:roundcheckbox/roundcheckbox.dart';
 import '../delegatePage.dart';
 
 class ValidatorItem extends StatelessWidget {
-  ValidatorItem({required this.data});
+  ValidatorItem({required this.data, this.showSelected});
 
   final ValidatorData data;
+  bool? showSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -53,58 +54,47 @@ class ValidatorItem extends StatelessWidget {
                       logo: data.logo,
                     ),
                     Container(
-                      width: 4,
+                      width: 10,
                     ),
                     Expanded(
                         child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                  data.name == null
-                                      ? Fmt.address(data.address, pad: 10)
-                                      : Fmt.stringSlice(data.name!, 16,
-                                          withEllipsis: true,
-                                          ellipsisCounted: true),
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500)),
-                            ),
-                            Text(
-                                '${Fmt.balanceToInteger(data.totalStake.toString(), COIN.decimals)} ${COIN.coinSymbol}',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500)),
-                          ],
-                        ),
+                        Text(
+                            data.name == null
+                                ? Fmt.address(data.address, pad: 10)
+                                : Fmt.stringSlice(data.name!, 16,
+                                    withEllipsis: true, ellipsisCounted: true),
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500)),
                         Padding(
                           padding: EdgeInsets.only(top: 5),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(Fmt.address(data.address, pad: 6),
-                                style: TextStyle(
-                                    color: Colors.black.withOpacity(0.5),
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 12,
-                                    height: 1.2)),
-                            Text(
-                                '${stakingI18n['delegators']!.replaceAll('{count}', Fmt.balanceToInteger(data.delegations.toString(), 0))}',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black.withOpacity(0.5),
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.2)),
-                          ],
-                        ),
+                        Text(Fmt.address(data.address, pad: 6),
+                            style: TextStyle(
+                                color: Colors.black.withOpacity(0.5),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 12,
+                                height: 1.2)),
                       ],
                     )),
+                    (showSelected == true
+                        ? RoundCheckBox(
+                            size: 18,
+                            borderColor: Colors.transparent,
+                            isChecked: showSelected == true,
+                            uncheckedColor: Colors.white,
+                            checkedColor: Theme.of(context).primaryColor,
+                            checkedWidget: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 12,
+                            ),
+                            onTap: (bool? checkedFlag) {},
+                          )
+                        : Container())
                   ],
                 )),
           ),

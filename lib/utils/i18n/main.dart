@@ -251,7 +251,8 @@ const Map<String, String> zhMain = {
   "speedUpTip_3":"才能确认。 但是，当网络拥堵时，您的交易可能需要花费大于3分钟或者更久的时间，您可以通过提高交易费用来加快交易过程。",
   "transactionCancelTip":"通过给自己的地址发送一笔相同 Nonce 的交易来取消之前的交易。 该费用将高于当前的交易费用（+0.0001 MINA）。",
   "currentFee":"当前交易费",
-  "newFee":"新交易费"
+  "newFee":"新交易费",
+  "stakedBalance":"已委托"
 };
 
 const Map<String, String> enMain = {
@@ -533,4 +534,5 @@ const Map<String, String> enMain = {
   "transactionCancelTip":"Cancel the transaction by sending a transaction with the same Nonce to yourself address. The fee will be greater than the current transaction fee (+0.0001 MINA) .",
   "currentFee":"Current Fee",
   "newFee":"New Fee",
+  "stakedBalance":"Staked"
 };

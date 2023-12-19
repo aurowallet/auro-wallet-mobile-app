@@ -1,3 +1,4 @@
+import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
@@ -97,6 +98,10 @@ class _ValidatorsPageState extends State<ValidatorsPage>
   @override
   Widget build(BuildContext context) {
     final Map<String, String> i18n = I18n.of(context).main;
+    AccountInfo? acc =
+        store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
+    bool isDelegated = acc != null ? acc.isDelegated : false;
+    String? delegate = isDelegated ? acc.delegate : null;
     return RefreshIndicator(
         onRefresh: onRefresh,
         child: Scaffold(
@@ -134,6 +139,7 @@ class _ValidatorsPageState extends State<ValidatorsPage>
                         }
                         return ValidatorItem(
                           data: uiList[index],
+                          showSelected:delegate == uiList[index].address
                         );
                       },
                     ))
