@@ -432,6 +432,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       icon: SvgPicture.asset('assets/images/assets/send.svg',
                           width: 10),
                       padding: EdgeInsets.zero,
+                      radius: 24,
                     ),
                   )),
                   SizedBox(
@@ -451,6 +452,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                               width: 10,
                             ),
                             padding: EdgeInsets.zero,
+                            radius: 24,
                           ))),
                 ],
               ),
