@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/Separator.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
@@ -19,7 +20,7 @@ class RemoteNodeListPage extends StatefulWidget {
   SettingsStore settingStore;
   static final String route = '/profile/endpoint';
 
-  RemoteNodeListPage(this.store):settingStore = store.settings!;
+  RemoteNodeListPage(this.store) : settingStore = store.settings!;
 
   @override
   _RemoteNodeListPageState createState() => _RemoteNodeListPageState();
@@ -108,17 +109,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     return Container(
         child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: 20, right: 20, top: 20),
-          child: Text(i18n['customNetwork']!,
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black)),
-        ),
-        ...list
-      ],
+      children: [...list],
     ));
   }
 
@@ -175,16 +166,6 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
               Expanded(
                 child: ListView(padding: EdgeInsets.only(top: 20), children: [
                   Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    child: Text(
-                      i18n['defaultNetwork']!,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black),
-                    ),
-                  ),
-                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,8 +181,41 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           chainId: mainnet?.chainId,
                           isEditing: isEditing,
                         ),
+                      ],
+                    ),
+                  ),
+                  _renderCustomNodeList(context, isEditing),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    height: 20,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child:
+                              Separator(color: ColorsUtil.hexColor(0x808080)),
+                        ),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(i18n['testnet']!,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: ColorsUtil.hexColor(0x808080),
+                                  fontWeight: FontWeight.w400)),
+                        ),
+                        Expanded(
+                          child:
+                              Separator(color: ColorsUtil.hexColor(0x808080)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         NodeItem(
-                          margin: EdgeInsets.only(top: 10),
+                          // margin: EdgeInsets.only(top: 0),
                           text: 'Devnet',
                           value: GRAPH_QL_TESTNET_NODE_URL,
                           onChecked: onChangeEndpoint,
@@ -214,7 +228,6 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                       ],
                     ),
                   ),
-                  _renderCustomNodeList(context, isEditing),
                 ]),
               ),
               Container(
@@ -305,11 +318,13 @@ class NodeItem extends StatelessWidget {
                                 children: [
                                   Flexible(
                                       child: Text(Fmt.breakWord(text)!,
-                                          // overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                               fontSize: 16,
-                                              color:
-                                                  ColorsUtil.hexColor(0x01000D),
+                                              color: isEditing && !editable
+                                                  ? Colors.black
+                                                      .withOpacity(0.05)
+                                                  : ColorsUtil.hexColor(
+                                                      0x01000D),
                                               fontWeight: FontWeight.w500))),
                                   tag != null
                                       ? Container(
@@ -317,40 +332,35 @@ class NodeItem extends StatelessWidget {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 4, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color:
-                                                ColorsUtil.hexColor(0xDDDDDD),
+                                            color: ColorsUtil.hexColor(0x000000)
+                                                .withOpacity(0.2),
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
                                           ),
                                           child: Text(tag!,
                                               style: theme.headline6!.copyWith(
-                                                  color: Color(0x4D000000),
+                                                  color: Colors.white,
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w500)),
                                         )
                                       : Container()
                                 ],
                               )),
-                              chainId != null
-                                  ? Container(
-                                      margin: EdgeInsets.only(left: 5),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                          Fmt.address(chainId,
-                                              pad: 6, padSame: true),
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color:
-                                                  Colors.black.withOpacity(0.1),
-                                              fontWeight: FontWeight.w400)),
-                                    )
-                                  : Container()
                             ],
                           ),
-                          Text(Fmt.breakWord(value)!,
-                              style: theme.headline5!.copyWith(
-                                  color: ColorsUtil.hexColor(0x999999),
-                                  fontSize: 12)),
+                          chainId != null
+                              ? Container(
+                                  margin: EdgeInsets.only(top: 4),
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                      Fmt.address(chainId,
+                                          pad: 6, padSame: true),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black.withOpacity(0.1),
+                                          fontWeight: FontWeight.w400)),
+                                )
+                              : Container()
                         ],
                       )),
                       isEditing
