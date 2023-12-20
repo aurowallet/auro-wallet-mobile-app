@@ -31,8 +31,8 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
 
   void onChoose(String? endpoint) async {
     if (endpoint != null) {
-      final nodes =
-          widget.store.settings!.allNodes.where((element) => element.url == endpoint);
+      final nodes = widget.store.settings!.allNodes
+          .where((element) => element.url == endpoint);
       if (nodes.length > 0) {
         final node = nodes.first;
         await widget.store.assets!.clearAllTxs();
@@ -50,12 +50,13 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
     return CustomDropdownButton(
         items: [
           DropdownItem(text: 'Mainnet', value: mainNetNode.url),
-          DropdownItem(text: 'Devnet', value: devNetNode.url),
           ...widget.store.settings!.customNodeListV2.map((e) {
             return DropdownItem(
                 text: Fmt.stringSlice(e.name, 8, withEllipsis: true),
                 value: e.url);
-          }).toList()
+          }).toList(),
+          DropdownItem(text: "", value: "networkDivider"),
+          DropdownItem(text: 'Devnet', value: devNetNode.url),
         ],
         onChoose: onChoose,
         // value: GRAPH_QL_TESTNET_NODE_URL

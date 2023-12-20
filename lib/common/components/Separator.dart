@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
 class Separator extends StatelessWidget {
-  const Separator({Key? key, this.height = 1, this.color = Colors.black})
+  const Separator({Key? key, this.height = 1, this.color = Colors.black,this.dashWidth = 3.0})
       : super(key: key);
   final double height;
   final Color color;
+  final double dashWidth;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final boxWidth = constraints.constrainWidth();
-        const dashWidth = 4.0;
         final dashHeight = height;
-        final dashCount = (boxWidth / (2 * dashWidth)).floor();
+        final dashCount = (boxWidth / (1.5 * dashWidth)).floor();
         return Flex(
           children: List.generate(dashCount, (_) {
             return SizedBox(
