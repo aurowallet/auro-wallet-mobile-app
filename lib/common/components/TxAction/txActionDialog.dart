@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:decimal/decimal.dart';
+import 'package:styled_text/styled_text.dart';
 
 enum TxActionType { speedup, cancel }
 
@@ -461,31 +462,20 @@ class TxActionTip extends StatelessWidget {
             color: Color(0xFF808080)),
       );
     } else {
-      return new RichText(
-        text: TextSpan(children: [
-          new TextSpan(
-            text: dic.speedUpTip_1,
-            style: TextStyle(
-                color: Color(0xFF808080),
-                fontSize: 14,
-                fontWeight: FontWeight.w400),
-          ),
-          new TextSpan(
-            text: dic.speedUpTip_2,
-            style: TextStyle(
-                color: Color(0xFF000000).withOpacity(0.8),
-                fontSize: 14,
-                fontWeight: FontWeight.w500),
-          ),
-          new TextSpan(
-            text: dic.speedUpTip_3,
-            style: TextStyle(
-                color: Color(0xFF808080),
-                fontSize: 14,
-                fontWeight: FontWeight.w400),
-          )
-        ]),
-      );
+      return new StyledText(
+          text: dic.speedUpTip,
+          style: TextStyle(
+              color: Color(0xFF808080),
+              fontSize: 14,
+              fontWeight: FontWeight.w400),
+          tags: {
+            'light': StyledTextTag(
+              style: TextStyle(
+                  color: Color(0xFF000000).withOpacity(0.8),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500),
+            )
+          });
     }
   }
 }

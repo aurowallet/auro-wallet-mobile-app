@@ -241,9 +241,7 @@
   "speedUp": "加速",
   "speedUpTitle": "加速交易",
   "cancelTransaction": "取消",
-  "speedUpTip_1": "通常情况下，一笔交易需要",
-  "speedUpTip_2": "3分钟",
-  "speedUpTip_3": "才能确认。 但是，当网络拥堵时，您的交易可能需要花费大于3分钟或者更久的时间，您可以通过提高交易费用来加快交易过程。",
+  "speedUpTip": "通常情况下，一笔交易需要<light>3分钟</light>才能确认。 但是，当网络拥堵时，您的交易可能需要花费大于3分钟或者更久的时间，您可以通过提高交易费用来加快交易过程。",
   "transactionCancelTip": "通过给自己的地址发送一笔相同 Nonce 的交易来取消之前的交易。 该费用将高于当前的交易费用（+0.0001 MINA）。",
   "currentFee": "当前交易费",
   "newFee": "新交易费",
@@ -280,5 +278,7 @@
   "unlockLedger": "连接失败，请确保你的 Ledger 设备处于解锁状态。",
   "ledgerReject": "Ledger 已拒绝",
   "ledgerSearching": "搜索...",
-  "ledgerSupport": "(<lightred>仅支持 Ledger Nano X</lightred>)"
+  "ledgerSupport": "(<lightred>仅支持 Ledger Nano X</lightred>)",
+  "termsAndPrivacy_line1": "使用 Auro 钱包提供的服务，你需要阅读并充分理解使用条款和隐私政策相关的内容。",
+  "termsAndPrivacy_line2": "你可以阅读<conditions>《使用条款》</conditions>和<policy>《隐私政策》</policy>了解详细信息，如果你同意，请点击【同意】开始使用钱包服务。"
 }

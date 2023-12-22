@@ -62,9 +62,7 @@ class _TermsDialogState extends State<TermsDialog> {
               ),
               Padding(
                 padding: EdgeInsets.only(top: 19, right: 20, left: 20),
-                child: languageCode == 'en'
-                    ? TermsEN(termsUrl: termsUrl, privacyUrl: privacyUrl)
-                    : TermsZH(termsUrl: termsUrl, privacyUrl: privacyUrl),
+                child: Terms(termsUrl: termsUrl, privacyUrl: privacyUrl)
               ),
               Container(
                 margin: EdgeInsets.only(top: 30),

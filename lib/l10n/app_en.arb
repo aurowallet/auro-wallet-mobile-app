@@ -241,9 +241,7 @@
     "speedUp": "Speed Up",
     "speedUpTitle": "Speed Up Transaction",
     "cancelTransaction": "Cancel Transaction",
-    "speedUpTip_1": "Normally, a transaction takes ",
-    "speedUpTip_2": "3 minutes",
-    "speedUpTip_3": "to confirm. However, when the network is congested and your transaction may take longer than 3 minutes or more, you can speed up the transaction process by increasing the transaction fee.",
+    "speedUpTip": "Normally, a transaction takes <light>3 minutes</light> to confirm. However, when the network is congested and your transaction may take longer than 3 minutes or more, you can speed up the transaction process by increasing the transaction fee.",
     "transactionCancelTip": "Cancel the transaction by sending a transaction with the same Nonce to yourself address. The fee will be greater than the current transaction fee (+0.0001 MINA) .",
     "currentFee": "Current Fee",
     "newFee": "New Fee",
@@ -280,5 +278,7 @@
     "unlockLedger": "Failed to connect. Please make sure your Ledger device is unlocked.",
     "ledgerReject": "Rejected by Ledger",
     "ledgerSearching": "Searching...",
-    "ledgerSupport": "(<lightred>Only support Ledger Nano X</lightred>)"
+    "ledgerSupport": "(<lightred>Only support Ledger Nano X</lightred>)",
+    "termsAndPrivacy_line1": "This service is provided by Auro Wallet, please take time to read carefully and understand the Terms and Conditions and Privacy Policy.",
+    "termsAndPrivacy_line2": "Please read the <conditions>Terms and Conditions</conditions> and <policy>Privacy Policy</policy> carefully. If you understand fully and agree, please click [Agree] to start using this wallet service."
 }
