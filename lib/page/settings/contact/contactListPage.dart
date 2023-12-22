@@ -1,8 +1,8 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -35,7 +35,7 @@ class _ContactListPageState extends State<ContactListPage> {
     //           if (name == null || name.isEmpty
     //               || address == null || address.isEmpty
     //           ) {
-    //             UI.toast(i18n['urlError_1']!);
+    //             UI.toast(dic.urlError_1);
     //             return false;
     //           }
     //           return true;
@@ -66,10 +66,10 @@ class _ContactListPageState extends State<ContactListPage> {
     });
   }
   void _removeContact (ContactData contact) async {
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     bool? rejected = await UI.showConfirmDialog(context: context, contents: [
-      i18n['confirmDeleteNode']!
-    ], okText: i18n['confirm']!, cancelText: i18n['cancel']!);
+      dic.confirmDeleteNode
+    ], okText: dic.confirm, cancelText: dic.cancel);
     if (rejected != true) {
       return;
     }
@@ -77,7 +77,7 @@ class _ContactListPageState extends State<ContactListPage> {
   }
 
   Widget _renderEmpty() {
-    var i18n = I18n.of(context).settings;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -88,7 +88,7 @@ class _ContactListPageState extends State<ContactListPage> {
           height: 100,
         ),
         Text(
-          i18n['noAddress']!,
+          dic.noAddress,
           style: TextStyle(
               color: Colors.black.withOpacity(0.3),
               fontSize: 12,
@@ -100,7 +100,6 @@ class _ContactListPageState extends State<ContactListPage> {
   }
 
   Widget _renderContactList(BuildContext context, bool isToSelect) {
-    var i18n = I18n.of(context).main;
     var contacts = widget.store.contactList;
     if (contacts.length == 0) {
       return this._renderEmpty();
@@ -130,7 +129,7 @@ class _ContactListPageState extends State<ContactListPage> {
   }
   @override
   Widget build(BuildContext context) {
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final Map? params = ModalRoute.of(context)!.settings.arguments as Map?;
     var isToSelect = false;
     if (params != null) {
@@ -138,7 +137,7 @@ class _ContactListPageState extends State<ContactListPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(i18n['addressbook']!),
+        title: Text(dic.addressbook),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -155,7 +154,7 @@ class _ContactListPageState extends State<ContactListPage> {
                 Container(
                   padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                   child: NormalButton(
-                    text: I18n.of(context).main['add']!,
+                    text: dic.add,
                     onPressed: _addContact ,
                   ),
                 ),

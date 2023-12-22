@@ -1,7 +1,7 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/backgroundContainer.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_code_tools/qr_code_tools.dart';
@@ -73,7 +73,7 @@ class _ScanPageState extends State<ScanPage> {
     if (txt == null) {
       return;
     }
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String address = '';
     String chainType = '';
     final String data = txt.trim();
@@ -81,14 +81,14 @@ class _ScanPageState extends State<ScanPage> {
     if (ls.length > 0) {
       if (ls.length > 1) {
         if (ls[0].toLowerCase() != 'mina' || !Fmt.isAddress(ls[1])) {
-          UI.toast(dic['notValidAddress']!);
+          UI.toast(dic.notValidAddress);
         } else {
           chainType = ls[0];
           address = ls[1];
         }
       } else {
         if (!Fmt.isAddress(ls[0])) {
-          UI.toast(dic['notValidAddress']!);
+          UI.toast(dic.notValidAddress);
         } else {
           address = ls[0];
         }
@@ -111,7 +111,7 @@ class _ScanPageState extends State<ScanPage> {
   }
   @override
   Widget build(BuildContext context) {
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: null,
@@ -134,7 +134,7 @@ class _ScanPageState extends State<ScanPage> {
                 ),
               ),
             AppBar(
-              title: Text(I18n.of(context).main['scan']!, style: TextStyle(color: Colors.white),),
+              title: Text(dic.scan, style: TextStyle(color: Colors.white),),
               centerTitle: true,
               backgroundColor: Colors.transparent,
               iconTheme: IconThemeData(

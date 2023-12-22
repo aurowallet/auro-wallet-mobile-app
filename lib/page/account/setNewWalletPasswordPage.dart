@@ -1,9 +1,9 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicTipsPage.dart';
@@ -73,9 +73,9 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
     _unFocus();
     String passStr = _passCtrl.text.trim();
     String pass2Str = _pass2Ctrl.text.trim();
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     if(_passCtrl.text.trim().isEmpty || _pass2Ctrl.text.trim().isEmpty) {
-      UI.toast(dic['inputPassword']!);
+      UI.toast(dic.inputPassword);
       return;
     }
     if (!_validateLength(passStr)
@@ -151,24 +151,24 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final List<String> errors = [];
     if (lengthError) {
-      errors.add(dic['passwordRequires']!);
+      errors.add(dic.passwordRequires);
     }
     if (upCaseError) {
-      errors.add(dic['atLeastOneUppercaseLetter']!);
+      errors.add(dic.atLeastOneUppercaseLetter);
     }
     if (lowerCaseError) {
-      errors.add(dic['atLeastOneLowercaseLetter']!);
+      errors.add(dic.atLeastOneLowercaseLetter);
     }
     if (numberError) {
-      errors.add(dic['atLeastOneNumber']!);
+      errors.add(dic.atLeastOneNumber);
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['createPassword']!),
+        title: Text(dic.createPassword),
         // backgroundColor: Colors.transparent,
         // iconTheme: IconThemeData(
         //   color: Colors.white, //change your color here
@@ -190,7 +190,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                   Container(
                     padding: EdgeInsets.all(16),
                     margin: EdgeInsets.only(bottom: 22),
-                    child:  Text(dic['createPasswordTip']!, style: Theme.of(context).textTheme.headline6!.copyWith(
+                    child:  Text(dic.createPasswordTip, style: Theme.of(context).textTheme.headline6!.copyWith(
                       color: Theme.of(context).primaryColor,
                     ),),
                     decoration: BoxDecoration(
@@ -199,7 +199,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                     ),
                   ),
                         InputItem(
-                          label: dic['password']!,
+                          label: dic.password,
                           initialValue: '',
                           controller: _passCtrl,
                           isPassword: true,
@@ -222,7 +222,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           keepShow: false,
                           hideIcon: true,
                           showMessage: false,
-                          message: dic['passwordRequires']!,
+                          message: dic.passwordRequires,
                           validate: _validateLength,
                         ),
                         InputErrorTip(
@@ -230,7 +230,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           keepShow: false,
                           showMessage: false,
                           hideIcon: true,
-                          message: dic['atLeastOneUppercaseLetter']!,
+                          message: dic.atLeastOneUppercaseLetter,
                           validate: _validateUpCase,
                         ),
                         InputErrorTip(
@@ -238,7 +238,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           keepShow: false,
                           showMessage: false,
                           hideIcon: true,
-                          message: dic['atLeastOneLowercaseLetter']!,
+                          message: dic.atLeastOneLowercaseLetter,
                           validate: _validateLowerCase,
                         ),
                         InputErrorTip(
@@ -246,11 +246,11 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           keepShow: false,
                           showMessage: false,
                           hideIcon: true,
-                          message: dic['atLeastOneNumber']!,
+                          message: dic.atLeastOneNumber,
                           validate: _validateNumber,
                         ),
                         InputItem(
-                          label: dic['confirmPasswordShort']!,
+                          label: dic.confirmPasswordShort,
                           initialValue: '',
                           controller: _pass2Ctrl,
                           isPassword: true,
@@ -260,7 +260,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                         InputErrorTip(
                           padding: EdgeInsets.only(top: 4),
                           ctrl: _pass2Ctrl,
-                          message: dic['passwordDifferent']!,
+                          message: dic.passwordDifferent,
                           validate: _validateSame,
                           keepShow: false,
                           hideIcon: true,
@@ -286,7 +286,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                               Padding(
                                 padding: EdgeInsets.only(left: 16),
                                 child: Text(
-                                    I18n.of(context).main['unlockBioEnable']!),
+                                    dic.unlockBioEnable),
                               )
                             ],
                           ),
@@ -299,7 +299,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                   padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                   child: NormalButton(
                     disabled: _isFormError() || _submitDisabled,
-                    text: I18n.of(context).main['next']!,
+                    text: dic.next,
                     onPressed: _onSubmit,
                   ),
                 ),

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:bip39/src/wordlists/english.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -79,23 +79,23 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     _mnemonicCtrl.dispose();
   }
   Future<bool> _checkAccountDuplicate(Map<String, dynamic> acc) async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     int index = store.wallet!.walletList.indexWhere((i) => i.id == acc['pubKey']);
     if (index > -1) {
       setState(() {
-        errorMsg = dic['improtRepeat'];
+        errorMsg = dic.improtRepeat;
       });
       return true;
     }
     return false;
   }
   void _handleSubmit() async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String mnemonic = _mnemonicCtrl.text.trim().split(RegExp(r"(\s)")).join(' ');
     bool isMnemonicValid = webApi.account.isMnemonicValid(mnemonic);
     if (!isMnemonicValid) {
       setState(() {
-        errorMsg = dic['seed_error'];
+        errorMsg = dic.seed_error;
       });
       return;
     }
@@ -161,11 +161,10 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['restoreWallet']!),
+        title: Text(dic.restoreWallet),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -186,7 +185,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                             labelStyle: TextStyle(
                                 fontSize: 14
                             ),
-                            label: dic['inputSeed']!,
+                            label: dic.inputSeed,
                             controller: _mnemonicCtrl,
                             backgroundColor: Colors.transparent,
                             borderColor: ColorsUtil.hexColor(0xE5E5E5),
@@ -210,7 +209,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                         child: NormalButton(
                           submitting: submitting,
                           color: ColorsUtil.hexColor(0x6D5FFE),
-                          text: I18n.of(context).main['confirm']!,
+                          text: dic.confirm,
                           onPressed: _handleSubmit,
                         )
                     )

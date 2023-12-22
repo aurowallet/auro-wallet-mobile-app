@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -13,7 +14,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/import/importWaysPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -60,9 +60,9 @@ class _WalletManagePageState extends State<WalletManagePage> {
     if (wallet != null) {
       final accountData = await webApi.account
           .createAccountByAccountIndex(wallet, accountName, password);
-      final Map<String, String> dic = I18n.of(context).main;
+      AppLocalizations dic = AppLocalizations.of(context)!;
       if (accountData == null) {
-        UI.toast(dic['passwordError']!);
+        UI.toast(dic.passwordError);
         return false;
       } else {
         AccountData? matchedAccount = store.wallet!.accountListAll
@@ -74,11 +74,11 @@ class _WalletManagePageState extends State<WalletManagePage> {
           UI.showAlertDialog(
               context: context,
               contents: [
-                dic['accountRepeatAlert']!
+                dic.accountRepeatAlert
                     .replaceAll('{address}', matchedAccount.address)
                     .replaceAll('{accountName}', matchedAccount.name)
               ],
-              confirm: dic['isee']!);
+              confirm: dic.isee);
           return false;
         } else {
           await store.wallet!.addAccount(accountData, accountName, wallet);
@@ -116,7 +116,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
     List<Widget> items = [];
     final watchModeAccounts = store.wallet!.watchModeAccountListAll;
     final theme = Theme.of(context).textTheme;
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final renderItem = (account) {
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
       print('balancesInfo');
@@ -135,7 +135,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
       items.add(Padding(
         padding: EdgeInsets.only(left: 28, top: 20),
         child: Text(
-          dic['noMoreSupported']!,
+          dic.noMoreSupported,
           style:
               theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),
         ),
@@ -149,7 +149,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
   }
 
   void _onResetApp() async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     bool? confirmed = await UI.showConfirmDialog(
         context: context,
         icon: SvgPicture.asset(
@@ -157,11 +157,11 @@ class _WalletManagePageState extends State<WalletManagePage> {
           width: 58,
           height: 58,
         ),
-        title: dic['resetWarnContentTitle']!,
-        contents: [dic['resetWarnContent']!],
+        title: dic.resetWarnContentTitle,
+        contents: [dic.resetWarnContent],
         okColor: Color(0xFFD65A5A),
-        okText: dic['confirmReset']!,
-        cancelText: dic['cancelReset']!);
+        okText: dic.confirmReset,
+        cancelText: dic.cancelReset);
     if (confirmed != true) {
       return;
     }
@@ -169,7 +169,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
       context: context,
       builder: (_) {
         return CustomPromptDialog(
-          title: dic['deleteConfirm']!,
+          title: dic.deleteConfirm,
           placeholder: '',
           onOk: (String? text) {
             if (text == null || text.isEmpty) {
@@ -178,13 +178,13 @@ class _WalletManagePageState extends State<WalletManagePage> {
             return true;
           },
           validate: (text) {
-            return text.toLowerCase() == dic['delete']!.toLowerCase();
+            return text.toLowerCase() == dic.delete.toLowerCase();
           },
         );
       },
     );
     if (confirmInput != null &&
-        confirmInput.toLowerCase() == dic['delete']!.toLowerCase()) {
+        confirmInput.toLowerCase() == dic.delete.toLowerCase()) {
       store.wallet!.clearWallets();
       store.assets!.clearAccountCache();
       webApi.account.setBiometricDisabled();
@@ -194,7 +194,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     var outlineBtnStyle = OutlinedButton.styleFrom(
         padding: EdgeInsets.zero,
@@ -209,7 +209,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
       appBar: AppBar(
         foregroundColor: Colors.black,
         title: Text(
-          dic['accountManage']!,
+          dic.accountManage,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
@@ -218,7 +218,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
             style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(Colors.transparent)),
             child: Text(
-              dic['resetWallet']!,
+              dic.resetWallet,
               style: TextStyle(fontSize: 14, color: Color(0xFFD65A5A)),
             ),
             onPressed: _onResetApp,
@@ -256,7 +256,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                             Container(
                               width: 8,
                             ),
-                            Text(dic['createAccount']!)
+                            Text(dic.createAccount)
                           ],
                         ),
                         style: ElevatedButton.styleFrom(
@@ -291,7 +291,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                             Container(
                               width: 8,
                             ),
-                            Text(dic['importAccount']!)
+                            Text(dic.importAccount)
                           ],
                         ),
                         style: outlineBtnStyle,
@@ -314,7 +314,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                             Container(
                               width: 8,
                             ),
-                            Text(dic['importLedger']!)
+                            Text(dic.importLedger)
                           ],
                         ),
                         style: outlineBtnStyle,

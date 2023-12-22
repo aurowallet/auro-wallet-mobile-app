@@ -1,8 +1,8 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicPage.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 class BackupMnemonicTipsPage extends StatefulWidget {
@@ -40,10 +40,9 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    final Map<String, String> i18n = I18n.of(context).main;
-
+      AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(I18n.of(context).main['backTips_title']!)),
+      appBar: AppBar(title: Text(dic.backTips_title)),
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -57,7 +56,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                 children: <Widget>[
                   Container(
                     padding: EdgeInsets.only(bottom: 20),
-                    child: Text(i18n['backTips_1']!,
+                    child: Text(dic.backTips_1,
                         style: theme.headline6!.copyWith(
                             height: 1.4,
                             fontWeight: FontWeight.w600,
@@ -65,7 +64,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                   ),
                   Container(
                     padding: EdgeInsets.only(bottom: 20),
-                    child: Text(i18n['backTips_2']!,
+                    child: Text(dic.backTips_2,
                         style: theme.headline6!.copyWith(
                             height: 1.4,
                             fontWeight: FontWeight.w400,
@@ -73,7 +72,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                   ),
                   Container(
                     padding: EdgeInsets.only(bottom: 0),
-                    child: Text(i18n['backTips_3']!,
+                    child: Text(dic.backTips_3,
                         style: theme.headline6!.copyWith(
                             height: 1.4,
                             fontWeight: FontWeight.w400,
@@ -89,20 +88,20 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                   CheckItem(
                     onChecked: _onValue1Checked,
                     checked: value1Checked,
-                    text: i18n['mnemonicLost']!,
+                    text: dic.mnemonicLost,
                   ),
                   Container(height: 20,),
                   CheckItem(
                     onChecked: _onValue2Checked,
                     checked: value2Checked,
-                    text: i18n['protectMnemonic']!,
+                    text: dic.protectMnemonic,
                   ),
                   Container(height: 20,),
                   Container(
                     padding: EdgeInsets.only(left: 18, right: 18, top: 12, bottom: 30),
                     child: NormalButton(
                       disabled: !value1Checked || !value2Checked,
-                      text: I18n.of(context).main['next']!,
+                      text: dic.next,
                       onPressed: () => _onNext(),
                     ),
                   ),

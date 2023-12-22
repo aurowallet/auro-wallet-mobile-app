@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
@@ -8,7 +9,6 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 
 class NodeEditPage extends StatefulWidget {
@@ -89,7 +89,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
 
   void _confirm() async {
     _addressFocus.unfocus();
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final name = _nameCtrl.text.trim();
     final address = _addressCtrl.text.trim();
     if (name.length > 50 || address.length > 500) {
@@ -107,9 +107,8 @@ class _NodeEditPageState extends State<NodeEditPage> {
     String? chainId = await webApi.setting.fetchChainId(endpoint.url);
 
     if (chainId == null) {
-      // UI.toast(i18n['urlError_1']!);
       setState(() {
-        errorText = i18n['urlError_1']!;
+        errorText = dic.urlError_1;
         addressError = true;
         submitting = false;
       });
@@ -125,9 +124,8 @@ class _NodeEditPageState extends State<NodeEditPage> {
     if (targetNetworks.isEmpty ||
         (targetNetworks.first.type != '0' &&
             targetNetworks.first.type != '1')) {
-      // UI.toast(i18n['urlError_1']!);
       setState(() {
-        errorText = i18n['urlError_1']!;
+        errorText = dic.urlError_1;
         addressError = true;
         submitting = false;
       });
@@ -164,13 +162,13 @@ class _NodeEditPageState extends State<NodeEditPage> {
   }
 
   Future<bool> _validateAddress(String address) async {
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var uri = Uri.tryParse(address);
     String? error;
     final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     final originEndpoint = args['address'] as String?;
     if (uri == null || !uri.isAbsolute) {
-      error = i18n['urlError_1']!;
+      error = dic.urlError_1;
     }
     List<CustomNode> endpoints =
         List<CustomNode>.of(widget.store.customNodeListV2);
@@ -178,7 +176,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
         GRAPH_QL_MAINNET_NODE_URL == address ||
         GRAPH_QL_TESTNET_NODE_URL == address) {
       if (!(isEdit && address == originEndpoint)) {
-        error = i18n['urlError_3']!;
+        error = dic.urlError_3;
       }
     }
     setState(() {
@@ -191,12 +189,12 @@ class _NodeEditPageState extends State<NodeEditPage> {
   _onDelete() async {
     final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     final removeNode = args['removeNode'] as void Function(String);
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     bool? rejected = await UI.showConfirmDialog(
         context: context,
-        contents: [i18n['confirmDeleteNode']!],
-        okText: i18n['confirm']!,
-        cancelText: i18n['cancel']!);
+        contents: [dic.confirmDeleteNode],
+        okText: dic.confirm,
+        cancelText: dic.cancel);
     if (rejected != true) {
       return;
     }
@@ -206,14 +204,12 @@ class _NodeEditPageState extends State<NodeEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    var i18n = I18n.of(context).main;
-    var i18nSettings = I18n.of(context).settings;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit
-            ? i18nSettings['editNetWork']!
-            : i18nSettings['addNetWork']!),
+            ? dic.editNetWork
+            : dic.addNetWork),
         centerTitle: true,
         actions: isEdit
             ? [
@@ -222,7 +218,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
                       overlayColor:
                           MaterialStateProperty.all(Colors.transparent)),
                   child: Text(
-                    i18n['delete']!,
+                    dic.delete,
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -243,7 +239,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
               child:
                   ListView(padding: EdgeInsets.only(top: 0), children: <Widget>[
                 Container(
-                  child: Text(i18nSettings['nodeAlert']!,
+                  child: Text(dic.nodeAlert,
                       style: TextStyle(
                           color: Color(0xFFD65A5A),
                           fontWeight: FontWeight.w500)),
@@ -256,12 +252,12 @@ class _NodeEditPageState extends State<NodeEditPage> {
                     children: [
                       InputItem(
                         padding: const EdgeInsets.only(top: 0),
-                        label: i18n['networkName']!,
+                        label: dic.networkName,
                         controller: _nameCtrl,
                         maxLength: 50,
                       ),
                       InputItem(
-                        label: i18nSettings['nodeAddress'],
+                        label: dic.nodeAddress,
                         placeholder: 'https://',
                         focusNode: _addressFocus,
                         padding: EdgeInsets.only(top: 22),
@@ -290,7 +286,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
               child: NormalButton(
                 submitting: submitting,
                 disabled: addressError || _nameCtrl.text.isEmpty,
-                text: I18n.of(context).main['confirm']!,
+                text: dic.confirm,
                 onPressed: _confirm,
               ),
             ),

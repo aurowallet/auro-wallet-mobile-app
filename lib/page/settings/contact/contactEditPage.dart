@@ -1,11 +1,11 @@
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -80,14 +80,14 @@ class _ContactEditPageState extends State<ContactEditPage> {
   }
 
   Future<bool> _validateAddress(String address) async {
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     bool isValid = await webApi.account.isAddressValid(address);
     String? error;
     if (!isValid) {
-      error = I18n.of(context).settings['invalidContact']!;
+      error = dic.invalidContact;
     }
     if (!isEdit && isValid && widget.store.contactList.any((element) => element.address == address)) {
-      error = i18n['repeatContact']!;
+      error = dic.repeatContact;
     }
     setState(() {
       errorText = error;
@@ -99,12 +99,11 @@ class _ContactEditPageState extends State<ContactEditPage> {
   }
 
   void _onDelete() async {
-    var i18n = I18n.of(context).main;
-    var i18nSettings = I18n.of(context).settings;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final args = ModalRoute.of(context)!.settings.arguments as Map;
     final name = args['name'] as String;
     final address = args['address'] as String;
-    bool? rejected = await UI.showConfirmDialog(context: context, title: i18nSettings['deleteaddress']!, contents: [], okText: i18n['confirm']!, cancelText: i18n['cancel']!);
+    bool? rejected = await UI.showConfirmDialog(context: context, title: dic.deleteaddress, contents: [], okText: dic.confirm, cancelText: dic.cancel);
     if (rejected != true) {
       return;
     }
@@ -113,16 +112,14 @@ class _ContactEditPageState extends State<ContactEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    var i18n = I18n.of(context).main;
-    var i18nSettings = I18n.of(context).settings;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? i18nSettings['editaddress']! : i18nSettings['addaddress']!),
+        title: Text(isEdit ? dic.editaddress : dic.addaddress),
         centerTitle: true,
         actions: isEdit ? [
           TextButton(
-            child: Text(i18n['delete']!, style: TextStyle(
+            child: Text(dic.delete, style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFFD65A5A)
@@ -143,11 +140,11 @@ class _ContactEditPageState extends State<ContactEditPage> {
                   children: <Widget>[
                     InputItem(
                       padding: const EdgeInsets.only(top: 0),
-                      label: i18n['name']!,
+                      label: dic.name,
                       controller: _nameCtrl,
                     ),
                     InputItem(
-                      label: i18n['address'],
+                      label: dic.address,
                       focusNode: _addressFocus,
                       padding: EdgeInsets.only(top: 22),
                       controller: _addressCtrl,
@@ -170,7 +167,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
               padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
               child: NormalButton(
                 disabled: addressError || _nameCtrl.text.isEmpty,
-                text: I18n.of(context).main['confirm']!,
+                text: dic.confirm,
                 onPressed: _confirm ,
               ),
             ),

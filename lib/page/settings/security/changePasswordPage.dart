@@ -1,3 +1,4 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -5,7 +6,6 @@ import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/InputErrorTip.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/UI.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -37,14 +37,14 @@ class _ChangePassword extends State<ChangePasswordPage> {
 
 
   Future<void> _doChangePass() async {
-    var dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     setState(() {
       _submitting = true;
     });
     _unFocus();
     String passOld =  _oldPassCtrl.text.trim();
     if (passOld.isEmpty) {
-      UI.toast(dic['inputOldPwd']!);
+      UI.toast(dic.inputOldPwd);
       setState(() {
         _submitting = false;
       });
@@ -52,7 +52,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
     }
     bool isPasswordCorrect = await webApi.account.checkAccountPassword(store.currentWallet, passOld);
     if (!isPasswordCorrect) {
-      UI.toast(dic['passwordError']!);
+      UI.toast(dic.passwordError);
       setState(() {
         _submitting = false;
       });
@@ -87,7 +87,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
     }
     if (!biometricFail) {
       await store.updateAllWalletSeed(passOld, passNew);
-      UI.toast(dic['pwdChangeSuccess']!);
+      UI.toast(dic.pwdChangeSuccess);
       Navigator.of(context).pop();
     }
     setState(() {
@@ -182,25 +182,25 @@ class _ChangePassword extends State<ChangePasswordPage> {
   }
   @override
   Widget build(BuildContext context) {
-    var dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final List<String> errors = [];
     if (lengthError) {
-      errors.add(dic['passwordRequires']!);
+      errors.add(dic.passwordRequires);
     }
     if (upCaseError) {
-      errors.add(dic['atLeastOneUppercaseLetter']!);
+      errors.add(dic.atLeastOneUppercaseLetter);
     }
     if (lowerCaseError) {
-      errors.add(dic['atLeastOneLowercaseLetter']!);
+      errors.add(dic.atLeastOneLowercaseLetter);
     }
     if (numberError) {
-      errors.add(dic['atLeastOneNumber']!);
+      errors.add(dic.atLeastOneNumber);
     }
     return GestureDetector(
       onTap: _unFocus,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(dic['changeSecPassword']!),
+          title: Text(dic.changeSecPassword),
           centerTitle: true,
         ),
         resizeToAvoidBottomInset: false,
@@ -215,12 +215,12 @@ class _ChangePassword extends State<ChangePasswordPage> {
                   children: <Widget>[
                     InputItem(
                       padding: EdgeInsets.zero,
-                      label: dic['inputOldPwd']!,
+                      label: dic.inputOldPwd,
                       controller: _oldPassCtrl,
                       isPassword: true,
                     ),
                     InputItem(
-                      label: dic['inputNewPwd']!,
+                      label: dic.inputNewPwd,
                       controller: _newPassCtrl,
                       isPassword: true,
                     ),
@@ -240,39 +240,39 @@ class _ChangePassword extends State<ChangePasswordPage> {
                       ctrl: _newPassCtrl,
                       showMessage: false,
                       keepShow: false,
-                      message: dic['passwordRequires']!,
+                      message: dic.passwordRequires,
                       validate: _validateLength,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
                       showMessage: false,
                       keepShow: false,
-                      message: dic['atLeastOneUppercaseLetter']!,
+                      message: dic.atLeastOneUppercaseLetter,
                       validate: _validateUpCase,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
                       showMessage: false,
                       keepShow: false,
-                      message: dic['atLeastOneLowercaseLetter']!,
+                      message: dic.atLeastOneLowercaseLetter,
                       validate: _validateLowerCase,
                     ),
                     InputErrorTip(
                       ctrl: _newPassCtrl,
                       showMessage: false,
                       keepShow: false,
-                      message: dic['atLeastOneNumber']!,
+                      message: dic.atLeastOneNumber,
                       validate: _validateNumber,
                     ),
                     InputItem(
-                      label: dic['inputNewPwdRepeat']!,
+                      label: dic.inputNewPwdRepeat,
                       controller: _newPass2Ctrl,
                       isPassword: true,
                     ),
                     InputErrorTip(
                       padding: EdgeInsets.only(top: 4),
                       ctrl: _newPass2Ctrl,
-                      message: dic['passwordDifferent']!,
+                      message: dic.passwordDifferent,
                       hideIcon: true,
                       validate: _validateSame,
                       keepShow: false,
@@ -284,7 +284,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
               Container(
                 margin: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                 child: NormalButton(
-                  text: dic['confirm']!,
+                  text: dic.confirm,
                   disabled: _submitDisabled || _isFormError(),
                   submitting: _submitting,
                   onPressed: _submitting ? null : _doChangePass,

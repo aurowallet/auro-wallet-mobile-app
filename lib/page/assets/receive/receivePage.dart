@@ -1,8 +1,8 @@
 import 'dart:typed_data';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -41,7 +41,7 @@ class ReceivePage extends StatelessWidget {
   Widget build(BuildContext context) {
     String codeAddress = store.wallet!.currentAddress;
     Color themeColor = Theme.of(context).primaryColor;
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     var textButtonStyle = TextButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -91,7 +91,7 @@ class ReceivePage extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                         elevation: 0,
                         title: Text(
-                          i18n['receiveTitle']!,
+                          dic.receiveTitle,
                           style: TextStyle(color: Colors.white),
                         ),
                         centerTitle: true,
@@ -144,7 +144,7 @@ class ReceivePage extends StatelessWidget {
                                         height: 60,
                                         alignment: Alignment.center,
                                         child: Text(
-                                          i18n['scantopay']!,
+                                          dic.scantopay,
                                           style: theme.headline6!.copyWith(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w600,
@@ -156,7 +156,7 @@ class ReceivePage extends StatelessWidget {
                                         padding: EdgeInsets.only(top: 50),
                                         alignment: Alignment.center,
                                         child: Text(
-                                          i18n['addressQrTip']!,
+                                          dic.addressQrTip,
                                           style: theme.headline6!.copyWith(
                                               fontSize: 14,
                                               color: Color(0x80000000)),
@@ -212,7 +212,7 @@ class ReceivePage extends StatelessWidget {
                                                     SizedBox(
                                                       width: 13,
                                                     ),
-                                                    Text(i18n['share']!,
+                                                    Text(dic.share,
                                                         style: TextStyle(
                                                             color: Colors.black,
                                                             fontSize: 16,
@@ -246,7 +246,7 @@ class ReceivePage extends StatelessWidget {
                                                       SizedBox(
                                                         width: 13,
                                                       ),
-                                                      Text(i18n['copy']!,
+                                                      Text(dic.copy,
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.black,
@@ -270,7 +270,7 @@ class ReceivePage extends StatelessWidget {
                                       //   width: MediaQuery.of(context).size.width / 2,
                                       //   padding: EdgeInsets.only(top: 40, bottom: 10),
                                       //   child: NormalButton(
-                                      //     text: i18n['copyAddress']!,
+                                      //     text:dic.copyAddress,
                                       //     onPressed: () => UI.copyAndNotify(
                                       //         context, store.wallet!.currentAddress),
                                       //   ),

@@ -1,4 +1,6 @@
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/components/settingItem.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/network.dart';
@@ -10,7 +12,6 @@ import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/page/settings/currenciesPage.dart';
 import 'package:auro_wallet/page/settings/nodes/RemoteNodeListPage.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/page/settings/security/securityPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 
@@ -22,12 +23,10 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      // WalletData acc = store.wallet!.currentWallet;
-      // Color primaryColor = Theme.of(context).primaryColor;
-      final Map<String, String> i18n = I18n.of(context).main;
+      AppLocalizations dic = AppLocalizations.of(context)!;
       var languageCode = store.settings!.localeCode.isNotEmpty
           ? store.settings!.localeCode
-          : I18n.of(context).locale.languageCode.toLowerCase();
+          : dic.localeName.toLowerCase();
       var aboutUsData = store.settings!.aboutus;
       var networkName = NetworkUtil.getNetworkName(store.settings!.currentNode);
       return Scaffold(
@@ -43,7 +42,7 @@ class Profile extends StatelessWidget {
           maintainBottomViewPadding: true,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            TabPageTitle(title: i18n['setting']!),
+            TabPageTitle(title: dic.setting),
             Expanded(
                 child: ListView(
               children: <Widget>[
@@ -54,13 +53,13 @@ class Profile extends StatelessWidget {
                     children: [
                       SettingItem(
                         icon: 'assets/images/setting/security.svg',
-                        title: i18n['security']!,
+                        title: dic.security,
                         onTap: () =>
                             Navigator.of(context).pushNamed(SecurityPage.route),
                       ),
                       SettingItem(
                         icon: 'assets/images/setting/network.svg',
-                        title: i18n['network']!,
+                        title: dic.network,
                         value:
                             Fmt.stringSlice(networkName, 8, withEllipsis: true),
                         onTap: () => Navigator.of(context)
@@ -68,21 +67,21 @@ class Profile extends StatelessWidget {
                       ),
                       SettingItem(
                         icon: 'assets/images/setting/locale.svg',
-                        title: i18n['language']!,
-                        value: I18n.getLanguageDisplay(languageCode),
+                        title: dic.language,
+                        value: languageConfig[languageCode],
                         onTap: () =>
                             Navigator.of(context).pushNamed(LocalesPage.route),
                       ),
                       SettingItem(
                         icon: 'assets/images/setting/usd.svg',
-                        title: i18n['currency']!,
+                        title: dic.currency,
                         value: store.settings?.currencyCode.toUpperCase(),
                         onTap: () => Navigator.of(context)
                             .pushNamed(CurrenciesPage.route),
                       ),
                       SettingItem(
                         icon: 'assets/images/setting/contact.svg',
-                        title: i18n['addressbook']!,
+                        title: dic.addressbook,
                         value: store.settings?.contactList.length.toString(),
                         onTap: () => Navigator.of(context)
                             .pushNamed(ContactListPage.route),
@@ -100,7 +99,7 @@ class Profile extends StatelessWidget {
                   child: Column(children: [
                     SettingItem(
                       icon: 'assets/images/setting/aboutus.svg',
-                      title: i18n['about']!,
+                      title: dic.about,
                       onTap: () =>
                           Navigator.of(context).pushNamed(AboutPage.route),
                     ),

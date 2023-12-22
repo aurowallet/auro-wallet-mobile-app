@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:flutter/gestures.dart';
@@ -8,7 +9,6 @@ import 'package:auro_wallet/store/staking/staking.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/common/components/loadingPanel.dart';
@@ -28,7 +28,7 @@ class DelegationInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     AccountInfo? acc =
         store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
     bool isDelegated = acc != null ? acc.isDelegated : false;
@@ -36,7 +36,7 @@ class DelegationInfo extends StatelessWidget {
     var theme = Theme.of(context).textTheme;
     var languageCode = store.settings!.localeCode.isNotEmpty
         ? store.settings!.localeCode
-        : I18n.of(context).locale.languageCode.toLowerCase();
+        : dic.localeName.toLowerCase();
     var url = languageCode == 'zh'
         ? store.settings!.aboutus!.stakingGuideCN
         : store.settings!.aboutus!.stakingGuide;
@@ -60,7 +60,7 @@ class DelegationInfo extends StatelessWidget {
                       width: 8,
                     ),
                     Text(
-                      i18n['delegationInfo']!,
+                      dic.delegationInfo,
                       style: TextStyle(
                           fontSize: 16,
                           color: Colors.black,
@@ -70,7 +70,7 @@ class DelegationInfo extends StatelessWidget {
                 ),
                 BrowserLink(
                   url,
-                  text: i18n['emptyDelegateDesc3']!,
+                  text: dic.emptyDelegateDesc3,
                   showIcon: false,
                 )
               ],
@@ -107,8 +107,7 @@ class DelegateInfo extends StatelessWidget {
   }
 
   Widget _buildDelegateInfo(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final DelegatedValidator? delegatedValidator =
         store.staking!.delegatedValidator;
     DelegatedValidator? validatorInfo;
@@ -126,7 +125,7 @@ class DelegateInfo extends StatelessWidget {
             children: [
               Row(children: [
                 DelegateInfoItem(
-                  labelText: i18n['blockProducerAddress']!,
+                  labelText: dic.blockProducerAddress,
                   value: Fmt.address(delegate, pad: 10),
                   noBottom: false,
                 )
@@ -147,20 +146,20 @@ class DelegateInfo extends StatelessWidget {
                 child: Container(
               margin: EdgeInsets.only(right: 100),
               child: DelegateInfoItem(
-                  labelText: i18n['blockProducerName']!,
+                  labelText: dic.blockProducerName,
                   value: validatorName ?? Fmt.address(delegate, pad: 10)),
             ))
           ]),
           Row(children: [
             DelegateInfoItem(
-              labelText: i18n['blockProducerAddress']!,
+              labelText: dic.blockProducerAddress,
               value: Fmt.address(delegate, pad: 10),
               copyValue: delegate,
             )
           ]),
           Row(children: [
             DelegateInfoItem(
-                labelText: i18n['stakedBalance']!,
+                labelText: dic.stakedBalance,
                 value: Fmt.balance(total.toString(), COIN.decimals,
                         maxLength: COIN.decimals) +
                     ' ' +
@@ -173,7 +172,7 @@ class DelegateInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
 
     return Stack(
@@ -195,7 +194,7 @@ class DelegateInfo extends StatelessWidget {
                   elevation: 0,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               child: Text(
-                i18n['changeNode']!,
+                dic.changeNode,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               onPressed: () {
@@ -259,11 +258,11 @@ class EmptyInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     var languageCode = store.settings!.localeCode.isNotEmpty
         ? store.settings!.localeCode
-        : I18n.of(context).locale.languageCode.toLowerCase();
+        : dic.localeName.toLowerCase();
     return Container(
       margin: EdgeInsets.only(top: 60, left: 20, right: 20),
       child: Column(
@@ -275,14 +274,14 @@ class EmptyInfo extends StatelessWidget {
               children: [
                 Padding(
                     padding: EdgeInsets.only(top: 3),
-                    child: Text(i18n['emptyDelegateTitle']!,
+                    child: Text(dic.emptyDelegateTitle,
                         style: theme.headline4
                             ?.copyWith(color: Colors.black, fontSize: 16)))
               ]),
           Padding(
               padding: EdgeInsets.only(top: 10),
               child: Text(
-                i18n['emptyDelegateDesc1']!,
+                dic.emptyDelegateDesc1,
                 style: theme.headline5!.copyWith(
                     color: Colors.black.withOpacity(0.5),
                     fontSize: 14,
@@ -297,7 +296,7 @@ class EmptyInfo extends StatelessWidget {
                     textScaleFactor: MediaQuery.of(context).textScaleFactor,
                     text: TextSpan(children: [
                       new TextSpan(
-                        text: i18n['emptyDelegateDesc2']!,
+                        text: dic.emptyDelegateDesc2,
                         style: theme.headline5!.copyWith(
                             color: Colors.black.withOpacity(0.5),
                             fontSize: 14,
@@ -305,7 +304,7 @@ class EmptyInfo extends StatelessWidget {
                             height: 1.3),
                       ),
                       new TextSpan(
-                        text: i18n['emptyDelegateDesc3']!,
+                        text: dic.emptyDelegateDesc3,
                         style: theme.headline5!.copyWith(
                             color: Theme.of(context).primaryColor,
                             fontSize: 14,

@@ -1,5 +1,5 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
 class CustomPromptDialog extends StatefulWidget {
@@ -50,7 +50,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
 
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -93,7 +93,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                           // side: BorderSide(color: Colors.red)
                         ),
                         textStyle: TextStyle(color: Colors.black)),
-                    child: Text(dic['cancel']!,
+                    child: Text(dic.cancel,
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -124,7 +124,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(dic['confirm']!,
+                          Text(dic.confirm,
                               style: TextStyle(
                                   color: _isCorrect
                                       ? Theme.of(context).primaryColor

@@ -1,3 +1,4 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -5,7 +6,6 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:flutter/cupertino.dart'
     show CupertinoActivityIndicator, CupertinoTheme;
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
 class PasswordInputDialog extends StatefulWidget {
@@ -43,9 +43,9 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   }
 
   Future<void> _onOk(String password) async {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     if (password.isEmpty) {
-      final Map<String, String> dic = I18n.of(context).main;
-      UI.toast(dic['inputPassword']!);
+      UI.toast(dic.inputPassword);
       return;
     }
     if (widget.validate) {
@@ -58,8 +58,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
         _submitting = false;
       });
       if (!isCorrect) {
-        final Map<String, String> dic = I18n.of(context).main;
-        UI.toast(dic['passwordError']!);
+        UI.toast(dic.passwordError);
         Navigator.of(context).pop();
         return;
       }
@@ -72,7 +71,6 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     //   });
     // }
     // if (!result.item1) {
-    //   final Map<String, String> dic = I18n.of(context).main;
     //   UI.toast(dic['passwordError']!);
     //   return;
     // } else {
@@ -122,7 +120,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     if ((_isBiometricAuthorized || _isCheckingBiometric) &&
         !widget.inputPasswordRequired) {
       return Container();
@@ -140,7 +138,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 0),
-              child: Text(dic['securityPassword']!,
+              child: Text(dic.securityPassword,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -177,7 +175,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                         borderRadius: BorderRadius.zero,
                       ),
                       textStyle: TextStyle(color: Colors.black)),
-                  child: Text(dic['cancel']!,
+                  child: Text(dic.cancel,
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -213,7 +211,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                                   child: CupertinoActivityIndicator(),
                                 ))
                             : Container(),
-                        Text(dic['confirm']!,
+                        Text(dic.confirm,
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600))
                       ],

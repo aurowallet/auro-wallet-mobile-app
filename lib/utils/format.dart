@@ -7,7 +7,6 @@ import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 
 class Fmt {
   static String address(String? addr, {int pad = 4, bool padSame = false}) {

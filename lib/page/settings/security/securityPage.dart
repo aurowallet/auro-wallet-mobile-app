@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
 import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
@@ -44,16 +44,16 @@ class _SecurityPageState extends State<SecurityPage> {
 
   void _onBackup() async {
     print('pri');
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     await UI.showAlertDialog(
       context: context,
       crossAxisAlignment: CrossAxisAlignment.start,
       contents:[
-        dic['backTips_1']!,
+        dic.backTips_1,
         '',
-        dic['backTips_2']!,
+        dic.backTips_2,
         '',
-        dic['backTips_3']!,
+        dic.backTips_3,
       ],
     );
     WalletData? wallet = store.wallet!.walletList.firstWhereOrNull((wallet) => wallet.walletType == WalletStore.seedTypeMnemonic);
@@ -70,7 +70,7 @@ class _SecurityPageState extends State<SecurityPage> {
     }
     String? mnemonic = await store.wallet!.getMnemonic(wallet, password);
     if (mnemonic == null) {
-      UI.toast(dic['passwordError']!);
+      UI.toast(dic.passwordError);
       return;
     }
     if (mounted) {
@@ -142,11 +142,10 @@ class _SecurityPageState extends State<SecurityPage> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['security']!),
+        title: Text(dic.security),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -157,10 +156,10 @@ class _SecurityPageState extends State<SecurityPage> {
             padding: EdgeInsets.only(top: 20),
             child: Column(
               children: <Widget>[
-                MenuItem(text: dic['restoreSeed']!, onClick: _onBackup,),
-                MenuItem(text: dic['changePassword']!, onClick: _onChangePassword,),
+                MenuItem(text: dic.restoreSeed, onClick: _onBackup,),
+                MenuItem(text: dic.changePassword, onClick: _onChangePassword,),
                 _supportBiometric ?
-                SwitchItem(text: dic['unlockBioEnable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
+                SwitchItem(text: dic.unlockBioEnable, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
                     : Container()
               ],
             )

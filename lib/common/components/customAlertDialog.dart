@@ -1,6 +1,6 @@
 import 'package:auro_wallet/common/components/customStyledText.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 
 class CustomAlertDialog extends StatefulWidget {
   CustomAlertDialog(
@@ -29,8 +29,7 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     return Dialog(
       clipBehavior: Clip.hardEdge,
@@ -82,7 +81,7 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                     )),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text(widget.confirm ?? dic['confirm']!)],
+                  children: [Text(widget.confirm ?? dic.confirm)],
                 ),
                 onPressed: widget.onOk,
               ),

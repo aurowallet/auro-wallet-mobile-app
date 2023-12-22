@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -12,7 +13,6 @@ import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/common/components/roundedCard.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 
 class WalletItem extends StatelessWidget {
   WalletItem({
@@ -54,16 +54,16 @@ class WalletItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final TextTheme theme = Theme.of(context).textTheme;
     String? labelText;
     bool isObserve = false;
     _context = context;
     if (wallet.source == WalletSource.outside &&
         wallet.walletType == WalletStore.seedTypePrivateKey) {
-      labelText = i18n['imported'];
+      labelText = dic.imported;
     } else if (wallet.walletType == WalletStore.seedTypeNone) {
-      labelText = i18n['watchLabel'];
+      labelText = dic.watchLabel;
       isObserve = true;
     } else if (wallet.walletType == WalletStore.seedTypeLedger) {
       labelText = "Ledger";

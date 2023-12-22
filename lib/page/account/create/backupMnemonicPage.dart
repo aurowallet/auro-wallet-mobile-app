@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 
 class BackupMnemonicPage extends StatefulWidget {
   const BackupMnemonicPage(this.store);
@@ -38,10 +38,11 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
   }
 
   Widget _buildStep0(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Observer(
       builder: (_) => Scaffold(
         appBar: AppBar(
-          title: Text(I18n.of(context).main['backTips_title']!),
+          title: Text(dic.backTips_title),
           centerTitle: true,
         ),
         backgroundColor: Colors.white,
@@ -57,7 +58,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                     Padding(
                       padding: EdgeInsets.only(left: 20, right: 20),
                       child: Text(
-                        I18n.of(context).main['show_seed_content']!,
+                        dic.show_seed_content,
                         style: Theme.of(context).textTheme.headline5,
                       ),
                     ),
@@ -72,7 +73,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                 child: NormalButton(
-                  text: I18n.of(context).main['show_seed_button']!,
+                  text: dic.show_seed_button,
                   onPressed: () {
                     setState(() {
                       _step = 1;
@@ -105,9 +106,10 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
   }
 
   Widget _buildStep1(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(I18n.of(context).main['backTips_title']!),
+        title: Text(dic.backTips_title),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {
@@ -130,7 +132,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                   Container(
                     padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                     child: Text(
-                      I18n.of(context).main['backupInOrder']!,
+                      dic.backupInOrder,
                       style: Theme.of(context).textTheme.headline6!,
                     ),
                   ),
@@ -150,13 +152,13 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
               padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
               child: NormalButton(
                 submitting: submitting,
-                text: I18n.of(context).main['next']!,
+                text: dic.next,
                 onPressed: _wordsSelected.length ==
                         store.wallet!.newWalletParams.seed.split(' ').length
                     ? () async {
                         if (_wordsSelected.join(' ') !=
                             store.wallet!.newWalletParams.seed) {
-                          UI.toast(I18n.of(context).main['seed_incorrect']!);
+                          UI.toast(dic.seed_incorrect);
                           setState(() {
                             _wordsLeft.clear();
                             _wordsLeft.addAll(

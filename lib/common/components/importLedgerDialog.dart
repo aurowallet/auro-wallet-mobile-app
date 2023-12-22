@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -11,7 +12,6 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/ledgerInit.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
@@ -103,8 +103,8 @@ class _ImportLedgerState extends State<ImportLedger> {
         print(e.errorCode);
         print(e.message);
         if (mounted) {
-          final Map<String, String> dic = I18n.of(context).ledger;
-          UI.toast(dic['ledgerReject']!);
+          AppLocalizations dic = AppLocalizations.of(context)!;
+          UI.toast(dic.ledgerReject);
           Navigator.of(context).pop(false);
         }
         return;
@@ -130,7 +130,7 @@ class _ImportLedgerState extends State<ImportLedger> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).ledger;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final showGenerateAddress = widget.generateAddress && connected;
     return Container(
         decoration: BoxDecoration(
@@ -152,7 +152,7 @@ class _ImportLedgerState extends State<ImportLedger> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(dic['connectLedger']!,
+                          Text(dic.connectLedger,
                               style: TextStyle(
                                   color: Color(0xFF222222),
                                   fontSize: 16,
@@ -202,11 +202,11 @@ class LedgerGetAddress extends StatefulWidget {
 class _LedgerGetAddressState extends State<LedgerGetAddress> {
   @override
   Widget build(context) {
-    final Map<String, String> dic = I18n.of(context).ledger;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Wrap(
       children: [
         Text(
-          dic['ledgerAddressTip1']!,
+          dic.ledgerAddressTip1,
           style: TextStyle(
               fontSize: 14,
               color: Colors.black,
@@ -216,7 +216,7 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
         Padding(
           padding: EdgeInsets.symmetric(vertical: 20),
           child: Text(
-            dic['ledgerAddressTip2']!,
+            dic.ledgerAddressTip2,
             style: TextStyle(
                 fontSize: 14,
                 color: Colors.black,
@@ -225,7 +225,7 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
           ),
         ),
         CustomStyledText(
-            text: dic['ledgerAddressTip3']!,
+            text: dic.ledgerAddressTip3,
             style: TextStyle(
                 color: Colors.black,
                 fontSize: 14,
@@ -375,12 +375,12 @@ class _ConnectLedgerState extends State<ConnectLedger> {
 
   Widget renderError() {
     late String errorStr;
-    final Map<String, String> dic = I18n.of(context).ledger;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     if (unactive || widget.locked) {
-      errorStr = dic['unlockLedger']!;
+      errorStr = dic.unlockLedger;
     }
     if (widget.minaNotOpened) {
-      errorStr = dic['openMinaApp']!;
+      errorStr = dic.openMinaApp;
     }
     return Container(
       margin: EdgeInsets.only(top: 35),
@@ -402,21 +402,21 @@ class _ConnectLedgerState extends State<ConnectLedger> {
 
   @override
   Widget build(context) {
-    final Map<String, String> dic = I18n.of(context).ledger;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     bool isError = widget.locked || widget.minaNotOpened;
     return Wrap(
       children: [
         LedgerTipItem(
             num: '1',
-            text: dic['ledgerTip1']!,
-            descText: dic['ledgerSupport']!),
+            text: dic.ledgerTip1,
+            descText: dic.ledgerSupport),
         LedgerTipItem(
           num: '2',
-          text: dic['ledgerTip2']!,
+          text: dic.ledgerTip2,
         ),
         LedgerTipItem(
           num: '3',
-          text: dic['ledgerTip3']!,
+          text: dic.ledgerTip3,
         ),
         isError ? this.renderError() : Container(),
         Padding(
@@ -434,7 +434,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
               children: [
                 Text(
                   (ledgerDevice == null
-                      ? dic["ledgerSearching"]!
+                      ? dic.ledgerSearching
                       : ledgerDevice!.name),
                   style: TextStyle(color: Colors.black, fontSize: 14),
                 ),

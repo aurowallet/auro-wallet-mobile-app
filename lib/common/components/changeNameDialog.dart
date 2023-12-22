@@ -1,5 +1,5 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
 class ChangeNameDialog extends StatefulWidget {
@@ -27,8 +27,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> mainI18n = I18n.of(context).main;
-    final Map<String, String> dic = I18n.of(context).home;
+    AppLocalizations dic = AppLocalizations.of(context)!;
 
     return Dialog(
       clipBehavior: Clip.hardEdge,
@@ -41,7 +40,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
             children: [
               Padding(
                 padding: EdgeInsets.only(top: 20),
-                child: Text(dic['renameAccountName']!,
+                child: Text(dic.renameAccountName,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -52,7 +51,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                 child: InputItem(
                   maxLength: 16,
                   initialValue: '',
-                  placeholder: dic['accountNameLimit']!,
+                  placeholder: dic.accountNameLimit,
                   padding: EdgeInsets.only(top: 20),
                   controller: _nameCtrl,
                 ),
@@ -74,7 +73,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                           // side: BorderSide(color: Colors.red)
                         ),
                         textStyle: TextStyle(color: Colors.black)),
-                    child: Text(mainI18n['cancel']!,
+                    child: Text(dic.cancel,
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -105,7 +104,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(mainI18n['confirm']!,
+                          Text(dic.confirm,
                               style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontSize: 16,

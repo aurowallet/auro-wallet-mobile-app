@@ -1,7 +1,8 @@
+import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 class LocalesPage extends StatefulWidget {
@@ -29,23 +30,23 @@ class _Settings extends State<LocalesPage> {
 
   @override
   Widget build(BuildContext context) {
-    var i18n = I18n.of(context);
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(I18n.of(context).main['language']!),
+        title: Text(dic.language),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: Observer(
         builder: (_) {
-          var languageCode = store.localeCode.isNotEmpty ? store.localeCode : i18n.locale.languageCode.toLowerCase();
+          var languageCode = store.localeCode.isNotEmpty ? store.localeCode : dic.localeName.toLowerCase();
           return SafeArea(
             maintainBottomViewPadding: true,
             child: ListView(
               padding: EdgeInsets.only(top: 20),
               children: <Widget>[
-                LocaleItem(text: I18n.getLanguageDisplay('en'), localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
-                LocaleItem(text: I18n.getLanguageDisplay('zh'), localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
+                LocaleItem(text: languageConfig['en'].toString(), localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
+                LocaleItem(text: languageConfig['zh'].toString(), localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
               ],
             ),
           );

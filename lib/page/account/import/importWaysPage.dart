@@ -1,3 +1,4 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
@@ -5,7 +6,6 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
@@ -72,11 +72,10 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountImport']!),
+        title: Text(dic.accountImport),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -88,7 +87,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
           child: Column(
             children: <Widget>[
                 ImportItem(
-                  text: dic['privateKey']!,
+                  text: dic.privateKey,
                   onClick: _onPrivateKey,
                 ),
                 ImportItem(

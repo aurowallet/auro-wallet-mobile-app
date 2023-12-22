@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
-import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart'; 
+import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart'; 
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -202,18 +202,18 @@ class _TransferPageState extends State<TransferPage> {
       if (_isAllTransfer()) {
         amountToTransfer = amount - fee;
       }
-      final Map<String, String> i18n = I18n.of(context).main;
+      AppLocalizations dic = AppLocalizations.of(context)!;
       var txItems = [
         TxItem(
-            label: i18n['toAddress']!,
+            label: dic.toAddress,
             value: toAddress,
             type: TxItemTypes.address),
         TxItem(
-            label: i18n['fromAddress']!,
+            label: dic.fromAddress,
             value: store.wallet!.currentAddress,
             type: TxItemTypes.address),
         TxItem(
-            label: i18n['fee']!,
+            label: dic.fee,
             value: '${fee.toString()} ${COIN.coinSymbol}',
             type: TxItemTypes.amount),
       ];
@@ -223,7 +223,7 @@ class _TransferPageState extends State<TransferPage> {
       }
       if (memo.isNotEmpty) {
         txItems.add(
-            TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
+            TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
       }
       final isWatchMode =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
@@ -232,12 +232,12 @@ class _TransferPageState extends State<TransferPage> {
       bool exited = false;
       await UI.showTxConfirm(
           context: context,
-          title: i18n['sendDetail']!,
+          title: dic.sendDetail,
           isLedger: isLedger,
           items: txItems,
           disabled: isWatchMode,
-          buttonText: isWatchMode ? i18n['watchMode'] : i18n['confirm'],
-          headLabel: i18n['amount']!,
+          buttonText: isWatchMode ? dic.watchMode : dic.confirm,
+          headLabel: dic.amount,
           headValue: Row(
             textBaseline: TextBaseline.alphabetic,
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -275,7 +275,7 @@ class _TransferPageState extends State<TransferPage> {
                   store.wallet!.currentWallet.currentAccountIndex,
                   password);
               if (privateKey == null) {
-                UI.toast(i18n['passwordError']!);
+                UI.toast(dic.passwordError);
                 return false;
               }
             }
@@ -385,11 +385,11 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<String?> _validateAddress() async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String toAddress = _toAddressCtrl.text.trim();
     bool isValid = await webApi.account.isAddressValid(toAddress);
     if (!isValid) {
-      return dic['sendAddressError']!;
+      return dic.sendAddressError;
     }
     return null;
   }
@@ -400,7 +400,7 @@ class _TransferPageState extends State<TransferPage> {
 
   String? _validateAmount() {
     bool isAllTransferFlag = _isAllTransfer();
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     BigInt available =
         store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
             BigInt.from(0);
@@ -409,15 +409,15 @@ class _TransferPageState extends State<TransferPage> {
         ? double.parse(Fmt.parseNumber(_feeCtrl.text))
         : currentFee!;
     if (_amountCtrl.text.isEmpty) {
-      return dic['amountError']!;
+      return dic.amountError;
     }
     if (isAllTransferFlag) {
       if (double.parse(Fmt.parseNumber(_amountCtrl.text)) - fee <= 0) {
-        return dic['balanceNotEnough']!;
+        return dic.balanceNotEnough;
       }
     } else if (double.parse(Fmt.parseNumber(_amountCtrl.text)) >=
         available / BigInt.from(pow(10, decimals)) - fee) {
-      return dic['balanceNotEnough']!;
+      return dic.balanceNotEnough;
     }
     return null;
   }
@@ -455,7 +455,7 @@ class _TransferPageState extends State<TransferPage> {
     return Observer(
       builder: (_) {
         var theme = Theme.of(context).textTheme;
-        final Map<String, String> dic = I18n.of(context).main;
+        AppLocalizations dic = AppLocalizations.of(context)!;
         final int decimals = COIN.decimals;
         BigInt available =
             store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
@@ -466,7 +466,7 @@ class _TransferPageState extends State<TransferPage> {
         nextBottom = nextBottom.isNegative ? 0 : nextBottom ;
         return Scaffold(
           appBar: AppBar(
-            title: Text(dic['send']!),
+            title: Text(dic.send),
             shadowColor: Colors.transparent,
             centerTitle: true,
             actions: <Widget>[
@@ -498,8 +498,8 @@ class _TransferPageState extends State<TransferPage> {
                               children: [
                                 InputItem(
                                     padding: const EdgeInsets.only(top: 0),
-                                    label: dic['toAddress']!,
-                                    placeholder: dic['address'],
+                                    label: dic.toAddress,
+                                    placeholder: dic.address,
                                     initialValue: '',
                                     labelAffix: contactName != null
                                         ? Container(
@@ -527,7 +527,7 @@ class _TransferPageState extends State<TransferPage> {
                                     suffixIcon: AddressSelectionDropdown(addressList:addressList,onSelect:onSelect),
                                     ),
                                 InputItem(
-                                    label: dic['amount']!,
+                                    label: dic.amount,
                                     initialValue: '',
                                     placeholder: '0',
                                     controller: _amountCtrl,
@@ -538,7 +538,7 @@ class _TransferPageState extends State<TransferPage> {
                                         TextInputType.numberWithOptions(
                                             decimal: true),
                                     rightWidget: Text(
-                                      '${dic['balance']!}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
+                                      '${dic.balance}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontSize: 12,
@@ -553,7 +553,7 @@ class _TransferPageState extends State<TransferPage> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            dic['allTransfer']!,
+                                            dic.allTransfer,
                                             style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
@@ -564,7 +564,7 @@ class _TransferPageState extends State<TransferPage> {
                                       ),
                                     )),
                                 InputItem(
-                                  label: dic['memo']!,
+                                  label: dic.memo,
                                   initialValue: '',
                                   controller: _memoCtrl,
                                 ),
@@ -602,7 +602,7 @@ class _TransferPageState extends State<TransferPage> {
                           EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
-                        text: dic['next']!,
+                        text: dic.next,
                         submitting: submitting,
                         disabled: submitDisabled,
                         onPressed: _handleSubmit,

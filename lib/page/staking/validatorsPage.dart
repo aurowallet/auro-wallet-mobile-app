@@ -1,8 +1,8 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:mobx/mobx.dart';
@@ -97,7 +97,7 @@ class _ValidatorsPageState extends State<ValidatorsPage>
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     AccountInfo? acc =
         store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
     bool isDelegated = acc != null ? acc.isDelegated : false;
@@ -108,7 +108,7 @@ class _ValidatorsPageState extends State<ValidatorsPage>
             backgroundColor: Colors.white,
             appBar: AppBar(
               title: Text(
-                i18n['nodeProviders']!,
+                dic.nodeProviders,
                 style: TextStyle(fontSize: 20),
               ),
               centerTitle: true,
@@ -151,7 +151,7 @@ class _ValidatorsPageState extends State<ValidatorsPage>
 class ManualAddValidatorButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     return Padding(
         padding: EdgeInsets.only(top: 20),
@@ -166,7 +166,7 @@ class ManualAddValidatorButton extends StatelessWidget {
                 child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(i18n['manualAdd']!,
+                Text(dic.manualAdd,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -180,7 +180,7 @@ class ManualAddValidatorButton extends StatelessWidget {
 class SubmitNodeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> stakingI18n = I18n.of(context).staking;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     return Padding(
         padding: EdgeInsets.only(top: 10, bottom: 0),
@@ -198,7 +198,7 @@ class SubmitNodeButton extends StatelessWidget {
                 BrowserLink(
                     'https://github.com/aurowallet/launch/tree/master/validators',
                     showIcon: false,
-                    text: stakingI18n['submitList']!,
+                    text: dic.submitList,
                     textStyle: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,

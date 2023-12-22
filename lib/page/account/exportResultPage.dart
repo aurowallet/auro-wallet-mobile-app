@@ -1,26 +1,26 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ExportResultPage extends StatelessWidget {
   static final String route = '/wallet/account_key';
 
   void _showExportDialog(BuildContext context, Map args) async {
-    var dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     bool? rejected = await UI.showConfirmDialog(context: context, contents: [
-      dic['copyTipContent']!,
+      dic.copyTipContent,
       '\n',
-      dic['copyTipContent2']!,
-    ], okText: dic['copyCancel']!, cancelText: dic['copyConfirm']!);
+      dic.copyTipContent2,
+    ], okText: dic.copyCancel, cancelText: dic.copyConfirm);
     if (rejected != null && !rejected) {
       Clipboard.setData(ClipboardData(
         text: args['key'],
       ));
-      UI.toast(dic['copySuccess']!);
+      UI.toast(dic.copySuccess);
       await new Future.delayed(const Duration(milliseconds: 1500));
       Navigator.of(context).pop();
     }
@@ -28,11 +28,11 @@ class ExportResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     var textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: Text(dic['exportPrivateKey']!)),
+      appBar: AppBar(title: Text(dic.exportPrivateKey)),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -44,7 +44,7 @@ class ExportResultPage extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 children: <Widget>[
-                  Text(dic['walletAddress']!, style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666))),
+                  Text(dic.walletAddress, style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666))),
                   Padding(padding: EdgeInsets.only(top: 10),),
                   Text(args['address'], style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x333333))),
                   Container(
@@ -75,7 +75,7 @@ class ExportResultPage extends StatelessWidget {
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
                                 child: Text(
-                                  I18n.of(context).main['copyToClipboard']!,
+                                  dic.copyToClipboard,
                                   style: textTheme.headline5!.copyWith(
                                       color: Theme.of(context).primaryColor),
                                 ),

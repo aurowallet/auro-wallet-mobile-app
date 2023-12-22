@@ -1,9 +1,9 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ExportMnemonicResultPage extends StatelessWidget {
@@ -59,13 +59,13 @@ class ExportMnemonicResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final Map<String, String> args =
         ModalRoute.of(context)!.settings.arguments as Map<String, String>;
     var textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['restoreSeed']!),
+        title: Text(dic.restoreSeed),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -79,7 +79,7 @@ class ExportMnemonicResultPage extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 children: <Widget>[
-                  Text(dic['show_seed_content']!,
+                  Text(dic.show_seed_content,
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 14,

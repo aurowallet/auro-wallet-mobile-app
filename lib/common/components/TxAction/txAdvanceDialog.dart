@@ -1,10 +1,10 @@
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
 class TxAdvanceDialog extends StatefulWidget {
@@ -50,8 +50,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Dialog(
       clipBehavior: Clip.hardEdge,
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -59,7 +58,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Padding(
           padding: EdgeInsets.only(top: 20),
-          child: Text(i18n['advanceMode']!,
+          child: Text(dic.advanceMode,
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -68,7 +67,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: InputItem(
-            label: i18n['feePlaceHolder'],
+            label: dic.feePlaceHolder,
             maxLength: 16,
             initialValue: '',
             placeholder: widget.nextStateFee.toString(),
@@ -84,7 +83,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
         InputErrorTip(
           padding: EdgeInsets.only(top: 8, left: 20, right: 20),
           ctrl: _feeCtrl,
-          message: i18n['feeTooLarge']!,
+          message: dic.feeTooLarge,
           keepShow: false,
           validate: _validateFee,
           tipType: TipType.warn,
@@ -136,7 +135,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
                     borderRadius: BorderRadius.zero,
                   ),
                   textStyle: TextStyle(color: Colors.black)),
-              child: Text(i18n['cancel']!,
+              child: Text(dic.cancel,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,
@@ -166,7 +165,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(i18n['confirm']!,
+                    Text(dic.confirm,
                         style: TextStyle(
                             color: Theme.of(context).primaryColor,
                             fontSize: 16,

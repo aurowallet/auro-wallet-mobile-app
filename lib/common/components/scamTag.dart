@@ -1,4 +1,4 @@
-import 'package:auro_wallet/utils/i18n/index.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ScamTag extends StatelessWidget {
@@ -15,7 +15,7 @@ class ScamTag extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 2, vertical: 0),
       child: Text(
         // text:
-        I18n.of(context).main['scam']!,
+        AppLocalizations.of(context)!.scam,
         style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w400,

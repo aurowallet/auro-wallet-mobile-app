@@ -6,6 +6,7 @@ import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -23,7 +24,6 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/homeListTip.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
@@ -165,15 +165,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   void _checkWatchMode() {
     if (store.wallet!.hasWatchModeWallet()) {
       Future.delayed(Duration(milliseconds: 600), () async {
-        var i18n = I18n.of(context).main;
+        AppLocalizations dic = AppLocalizations.of(context)!;
         await UI.showAlertDialog(
             context: context,
             barrierDismissible: false,
             disableBack: true,
             contents: [
-              i18n['watchModeWarn2']!,
+              dic.watchModeWarn2,
             ],
-            confirm: i18n['deleteWatch']!,
+            confirm: dic.deleteWatch,
             onConfirm: () {
               // await store.wallet!.deleteWatchModeWallets();
               // _onRefresh(showIndicator: true);
@@ -185,7 +185,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   Widget _buildTopBar(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    var i18nHome = I18n.of(context).home;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -196,7 +196,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           //   width: 10,
           // ),
           Text(
-            i18nHome['myWallet']!,
+            dic.myWallet,
             style: theme.headline1!.copyWith(
               color: ColorsUtil.hexColor(0x020028),
               fontWeight: FontWeight.bold,
@@ -244,7 +244,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   Widget _buildTopCard(BuildContext context) {
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     WalletData acc = store.wallet!.currentWallet;
     AccountInfo? balancesInfo = store.assets!.accountsInfo[acc.pubKey];
@@ -313,8 +313,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         child: Center(
                           child: Text(
                             isDelegated
-                                ? i18n['stakingStatus_1']!
-                                : i18n['stakingStatus_2']!,
+                                ? dic.stakingStatus_1
+                                : dic.stakingStatus_2,
                             strutStyle: StrutStyle(
                               fontSize: 12,
                               leading: 0,
@@ -426,7 +426,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                     // constraints: BoxConstraints(maxWidth: 140),
                     child: NormalButton(
                       color: Colors.white,
-                      text: i18n['send']!,
+                      text: dic.send,
                       textStyle: buttonTextStyle,
                       onPressed: _onTransfer,
                       icon: SvgPicture.asset('assets/images/assets/send.svg',
@@ -444,7 +444,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                           // constraints: BoxConstraints(maxWidth: 140),
                           child: NormalButton(
                             color: Colors.white,
-                            text: i18n['receive']!,
+                            text: dic.receive,
                             textStyle: buttonTextStyle,
                             onPressed: _onReceive,
                             icon: SvgPicture.asset(
@@ -485,7 +485,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   List<Widget> _buildTxList() {
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     List<Widget> res = [];
     bool isTxsLoading = store.assets!.isTxsLoading;
     List<TransferData> txs = [
@@ -508,7 +508,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: BrowserLink(
                   '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/account/${store.wallet!.currentAddress}/tx',
-                  text: i18n['goToExplorer']!,
+                  text: dic.goToExplorer,
                 ))
           ],
         ));
@@ -523,6 +523,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Observer(
       builder: (_) {
         bool isTxsLoading = store.assets!.isTxsLoading;
@@ -555,7 +556,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                                       width: 0.5,
                                     ))),
                                 child: Text(
-                                  I18n.of(context).main['history']!,
+                                  dic.history,
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.black,
@@ -623,7 +624,7 @@ class TransferListItem extends StatelessWidget {
       title = Fmt.address(address, pad: 8);
     }
     var theme = Theme.of(context).textTheme;
-    final Map i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String icon = '';
     Color statusColor;
     switch (data.type.toLowerCase()) {
@@ -642,9 +643,13 @@ class TransferListItem extends StatelessWidget {
     String statusText;
     switch (data.status) {
       case 'applied':
+        statusText = dic.applied;
+        break;
       case 'failed':
+        statusText = dic.failed;
+        break;
       case 'pending':
-        statusText = i18n[data.status.toUpperCase()];
+        statusText = dic.pending;
         break;
       default:
         statusText = data.status.toUpperCase();

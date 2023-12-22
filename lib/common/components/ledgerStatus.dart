@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/ledgerInit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -114,8 +114,7 @@ class _LedgerStatusState extends State<LedgerStatus> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).ledger;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Container(
       // height: 20,
       margin: EdgeInsets.only(right: 20),
@@ -146,7 +145,7 @@ class _LedgerStatusState extends State<LedgerStatus> {
             width: 4,
           ),
           Text(
-            dic['ledgerStatus']!,
+            dic.ledgerStatus,
             style: TextStyle(
                 fontWeight: FontWeight.w400, fontSize: 12, color: Colors.black),
           )

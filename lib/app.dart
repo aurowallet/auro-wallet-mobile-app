@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
@@ -27,7 +28,6 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/common/theme.dart';
 
-import 'utils/i18n/index.dart';
 
 import 'package:auro_wallet/page/homePage.dart';
 import 'package:auro_wallet/page/account/setNewWalletPasswordPage.dart';
@@ -46,7 +46,6 @@ import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
@@ -132,18 +131,15 @@ class _WalletAppState extends State<WalletApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Auro Wallet',
+      locale: _locale,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [
-        AppLocalizationsDelegate(_locale),
         AppLocalizations.delegate, // Add this line
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale('en', ''),
-        const Locale('zh', ''),
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       initialRoute: HomePage.route,
       theme: _theme,
       builder: EasyLoading.init(builder: (BuildContext context, Widget? child) {

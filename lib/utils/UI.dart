@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +13,6 @@ import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/components/customAlertDialog.dart';
 import 'package:auro_wallet/common/components/customConfirmDialog.dart';
 import 'package:auro_wallet/common/components/passwordInputDialog.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -20,8 +20,8 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 class UI {
   static void copyAndNotify(BuildContext context, String? text) {
     Clipboard.setData(ClipboardData(text: text ?? ''));
-    final Map<String, String> dic = I18n.of(context).main;
-    UI.toast('${dic['copySuccess']!}');
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    UI.toast('${dic.copySuccess}');
   }
 
   static void toast(String msg) {
@@ -95,11 +95,11 @@ class UI {
       context: context,
       barrierDismissible: barrierDismissible,
       builder: (_) {
-        final Map<String, String> dic = I18n.of(context).main;
+        AppLocalizations dic = AppLocalizations.of(context)!;
         return WillPopScope(
           onWillPop: () async => !disableBack,
           child: CustomAlertDialog(
-            title: dic['prompt']!,
+            title: dic.prompt,
             confirm: confirm,
             contents: contents,
             crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
@@ -146,9 +146,9 @@ class UI {
     return showDialog<bool>(
       context: context,
       builder: (_) {
-        final Map<String, String> dic = I18n.of(context).main;
+        AppLocalizations dic = AppLocalizations.of(context)!;
         return CustomConfirmDialog(
-          title: title ?? dic['prompt']!,
+          title: title ?? dic.prompt,
           okText: okText,
           okColor: okColor,
           cancelText: cancelText,

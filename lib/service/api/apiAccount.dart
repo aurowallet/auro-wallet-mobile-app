@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/walletSdk/types.dart';
 import 'package:biometric_storage/biometric_storage.dart';
@@ -13,7 +14,6 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -308,9 +308,9 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       return prepareBody;
     } on LedgerException catch (e) {
       print('ledger fail');
-      final Map<String, String> dic = I18n.of(context).ledger;
+      AppLocalizations dic = AppLocalizations.of(context)!;
       print(e);
-      UI.toast(dic['ledgerReject']!);
+      UI.toast(dic.ledgerReject);
       return null;
     }
   }
@@ -376,8 +376,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           .encode(hex.decode('5a' + hex.encode(privateKey)) as Uint8List);
       return privateKeStr;
     } catch (e) {
-      final dic = I18n.of(context).main;
-      UI.toast(dic['keystoreError']!);
+      AppLocalizations dic = AppLocalizations.of(context)!;
+      UI.toast(dic.keystoreError);
       return null;
     }
   }
@@ -398,8 +398,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         walletSource: WalletSource.outside);
     if (res != WalletResult.success) {
       if (res == WalletResult.addressExisted) {
-        final dic = I18n.of(context).main;
-        UI.toast(dic['urlError_2']!);
+        AppLocalizations dic = AppLocalizations.of(context)!;
+        UI.toast(dic.urlError_2);
         return false;
       }
     }
@@ -436,8 +436,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         walletSource: WalletSource.outside);
     if (res != WalletResult.success) {
       if (res == WalletResult.addressExisted) {
-        final dic = I18n.of(context).main;
-        UI.toast(dic['urlError_2']!);
+        AppLocalizations dic = AppLocalizations.of(context)!;
+        UI.toast(dic.urlError_2);
         return false;
       }
     }
@@ -591,19 +591,19 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<BiometricStorageFile> getBiometricPassStoreFile(
     BuildContext context,
   ) async {
-    final dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return BiometricStorage().getStorage(
       '$_biometricPasswordKey',
       options:
           StorageFileInitOptions(authenticationValidityDurationSeconds: -1),
       promptInfo: PromptInfo(
           androidPromptInfo: AndroidPromptInfo(
-            title: dic['unlockBio']!,
-            negativeButton: dic['cancel']!,
+            title: dic.unlockBio,
+            negativeButton: dic.cancel,
           ),
           iosPromptInfo: IosPromptInfo(
-            saveTitle: dic['unlockBio']!,
-            accessTitle: dic['unlockBio']!,
+            saveTitle: dic.unlockBio,
+            accessTitle: dic.unlockBio,
           )),
     );
   }

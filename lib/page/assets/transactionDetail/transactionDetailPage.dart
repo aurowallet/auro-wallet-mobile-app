@@ -1,11 +1,11 @@
 import 'package:auro_wallet/common/components/scamTag.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/customDivider.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,7 +30,7 @@ class TransactionDetailPage extends StatelessWidget {
   }
 
   List<Widget> _buildListView(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final TransferData tx =
         ModalRoute.of(context)!.settings.arguments as TransferData;
     final success = tx.success;
@@ -45,36 +45,36 @@ class TransactionDetailPage extends StatelessWidget {
     if (pending) {
       statusIcon = 'assets/images/public/pending_tip.svg';
       statusColor = ColorsUtil.hexColor(0xFFC633);
-      statusText = dic['pending']!;
+      statusText = dic.pending;
     } else if (success == true) {
       statusIcon = 'assets/images/public/success_tip.svg';
       statusColor = ColorsUtil.hexColor(0x38d79f);
-      statusText = dic['applied']!;
+      statusText = dic.applied;
     } else {
       statusIcon = 'assets/images/public/error_tip.svg';
       statusColor = ColorsUtil.hexColor(0xE84335);
-      statusText = dic['failed']!;
+      statusText = dic.failed;
     }
 
     final items = [
       TxInfoItem(
-        label: dic['amount']!,
+        label: dic.amount,
         title:
             '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol',
       ),
       TxInfoItem(
-          label: dic['fromAddress']!,
+          label: dic.fromAddress,
           title: tx.sender,
           copyText: tx.sender,
           showScamTag: tx.isFromAddressScam == true),
       TxInfoItem(
-        label: dic['toAddress']!,
+        label: dic.toAddress,
         title: tx.receiver,
         copyText: tx.receiver,
       ),
-      TxInfoItem(label: dic['memo2']!, title: tx.memo, copyText: tx.memo),
+      TxInfoItem(label: dic.memo2, title: tx.memo, copyText: tx.memo),
       TxInfoItem(
-        label: dic['time']!,
+        label: dic.time,
         title: Fmt.dateTimeWithTimeZone(tx.time),
       ),
       TxInfoItem(
@@ -83,13 +83,13 @@ class TransactionDetailPage extends StatelessWidget {
       ),
       tx.fee != null
           ? TxInfoItem(
-              label: dic['fee']!,
+              label: dic.fee,
               title:
                   '${Fmt.balance(tx.fee!, decimals, maxLength: decimals)} $symbol',
             )
           : null,
       TxInfoItem(
-        label: dic['txHash']!,
+        label: dic.txHash,
         title: tx.hash,
         copyText: tx.hash,
       ),
@@ -149,13 +149,13 @@ class TransactionDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
 
     final TransferData tx =
         ModalRoute.of(context)!.settings.arguments as TransferData;
     return Scaffold(
       appBar: AppBar(
-        title: Text('${I18n.of(context).main['details']!}'),
+        title: Text('${dic.details}'),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
@@ -178,7 +178,7 @@ class TransactionDetailPage extends StatelessWidget {
                             .copyWith(bottom: 30),
                         child: BrowserLink(
                           '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/tx/${tx.hash}',
-                          text: i18n['goToExplrer']!,
+                          text: dic.goToExplrer,
                         ))
                     : Container()
               ],

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 
@@ -43,7 +43,7 @@ class _RootAlertPageState extends State<RootAlertPage> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: null,
@@ -71,7 +71,7 @@ class _RootAlertPageState extends State<RootAlertPage> {
                     Padding(
                       padding: EdgeInsets.only(top: 47),
                       child: Text(
-                        dic['rootTip']!,
+                        dic.rootTip,
                         textAlign: TextAlign.center,
                         style: theme.headline4
                       ),
@@ -84,7 +84,7 @@ class _RootAlertPageState extends State<RootAlertPage> {
                   child:
                   NormalButton(
                     color: ColorsUtil.hexColor(0x6D5FFE),
-                    text: I18n.of(context).main['confirm']!,
+                    text: dic.confirm,
                     onPressed: _handleConfirm,
                   )
 

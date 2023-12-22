@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -15,7 +16,6 @@ import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:mobx/mobx.dart';
@@ -141,7 +141,7 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   String? _validateBalance() {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     BigInt available =
         store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
             BigInt.from(0);
@@ -150,23 +150,23 @@ class _DelegatePageState extends State<DelegatePage>
         ? double.parse(Fmt.parseNumber(_feeCtrl.text))
         : currentFee!;
     if (available / BigInt.from(pow(10, decimals)) - fee <= 0) {
-      return dic['balanceNotEnough']!;
+      return dic.balanceNotEnough;
     }
     return null;
   }
 
   Future<String?> _validateValidator() async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     DelegateParams params =
         ModalRoute.of(context)!.settings.arguments as DelegateParams;
     if (params.manualAddValidator) {
       if (_validatorCtrl.text.isEmpty) {
-        return dic['inputNodeAddress']!;
+        return dic.inputNodeAddress;
       }
       bool isValid =
           await webApi.account.isAddressValid(_validatorCtrl.text.trim());
       if (!isValid) {
-        return dic['sendAddressError']!;
+        return dic.sendAddressError;
       }
       return null;
     }
@@ -206,7 +206,7 @@ class _DelegatePageState extends State<DelegatePage>
       }
     }
     if (await _validate()) {
-      final Map<String, String> i18n = I18n.of(context).main;
+      AppLocalizations dic = AppLocalizations.of(context)!;
       String symbol = COIN.coinSymbol;
       int decimals = COIN.decimals;
       String memo = _memoCtrl.text.trim();
@@ -231,19 +231,19 @@ class _DelegatePageState extends State<DelegatePage>
           : validatorData!.address;
       List<TxItem> txItems = [];
       // if (!params.manualAddValidator) {
-      //   txItems.add(TxItem(label: i18n['producerName']!, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
+      //   txItems.add(TxItem(label: dic.producerName, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
       // }
       txItems.addAll([
         TxItem(
-            label: i18n['providerAddress']!,
+            label: dic.providerAddress,
             value: validatorAddress,
             type: TxItemTypes.address),
         TxItem(
-            label: i18n['fromAddress']!,
+            label: dic.fromAddress,
             value: store.wallet!.currentAddress,
             type: TxItemTypes.address),
         TxItem(
-            label: i18n['fee']!,
+            label: dic.fee,
             value: '${fee.toString()} ${COIN.coinSymbol}',
             type: TxItemTypes.amount),
       ]);
@@ -253,7 +253,7 @@ class _DelegatePageState extends State<DelegatePage>
       }
       if (memo.isNotEmpty) {
         txItems.add(
-            TxItem(label: i18n['memo2']!, value: memo, type: TxItemTypes.text));
+            TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
       }
       bool isWatchMode =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
@@ -269,17 +269,17 @@ class _DelegatePageState extends State<DelegatePage>
       bool exited = false;
       await UI.showTxConfirm(
           context: context,
-          title: i18n['sendDetail']!,
+          title: dic.sendDetail,
           items: txItems,
           isLedger: isLedger,
-          headLabel: i18n['producerName']!,
+          headLabel: dic.producerName,
           headValue: Text(
             validateName,
             style: TextStyle(
                 fontSize: 20, color: Colors.black, fontWeight: FontWeight.w600),
           ),
           disabled: isWatchMode,
-          buttonText: isWatchMode ? i18n['watchMode'] : i18n['confirm'],
+          buttonText: isWatchMode ? dic.watchMode : dic.confirm,
           onConfirm: () async {
             String? privateKey;
             if (!isLedger) {
@@ -295,7 +295,7 @@ class _DelegatePageState extends State<DelegatePage>
                   store.wallet!.currentWallet.currentAccountIndex,
                   password);
               if (privateKey == null) {
-                UI.toast(i18n['passwordError']!);
+                UI.toast(dic.passwordError);
                 return false;
               }
             }
@@ -349,7 +349,7 @@ class _DelegatePageState extends State<DelegatePage>
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        final Map<String, String> i18n = I18n.of(context).main;
+        AppLocalizations dic = AppLocalizations.of(context)!;
         final fees = store.assets!.transferFees;
         DelegateParams params =
             ModalRoute.of(context)!.settings.arguments as DelegateParams;
@@ -360,7 +360,7 @@ class _DelegatePageState extends State<DelegatePage>
         nextBottom = nextBottom.isNegative ? 0 : nextBottom ;
         return Scaffold(
           appBar: AppBar(
-            title: Text(i18n['staking']!),
+            title: Text(dic.staking),
             shadowColor: Colors.transparent,
             centerTitle: true,
           ),
@@ -384,11 +384,11 @@ class _DelegatePageState extends State<DelegatePage>
                                         validatorData: validatorData!)
                                     : InputItem(
                                         padding: const EdgeInsets.only(top: 0),
-                                        label: i18n['stakingProviderName']!,
+                                        label: dic.stakingProviderName,
                                         controller: _validatorCtrl,
                                       ),
                                 InputItem(
-                                  label: i18n['memo']!,
+                                  label: dic.memo,
                                   initialValue: '',
                                   controller: _memoCtrl,
                                 ),
@@ -426,7 +426,7 @@ class _DelegatePageState extends State<DelegatePage>
                           left: 38, right: 38, top: 12, bottom: 30),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
-                        text: i18n['next']!,
+                        text: dic.next,
                         disabled: _submitDisabled,
                         onPressed: _handleSubmit,
                       ),
@@ -449,13 +449,12 @@ class ValidatorSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
-
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          i18n['stakingProviderName']!,
+          dic.stakingProviderName,
           textAlign: TextAlign.left,
           style: TextStyle(
               fontSize: 12,

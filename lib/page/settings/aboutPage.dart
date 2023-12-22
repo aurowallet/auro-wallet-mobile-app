@@ -1,3 +1,4 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/iconBrowserLink.dart';
@@ -5,7 +6,6 @@ import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -23,12 +23,11 @@ class AboutPage extends StatefulWidget {
 class _AboutPage extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
-    final Map i18n = I18n.of(context).main;
-    final Map i18nSettings = I18n.of(context).settings;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     var languageCode = widget.store.settings!.localeCode.isNotEmpty
         ? widget.store.settings!.localeCode
-        : I18n.of(context).locale.languageCode.toLowerCase();
+        : dic.localeName.toLowerCase();
     var aboutUsData = widget.store.settings!.aboutus;
     var termsUrl = '';
     var privacyUrl = '';
@@ -51,7 +50,7 @@ class _AboutPage extends State<AboutPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       appBar: AppBar(
-        title: Text(i18n['about']!),
+        title: Text(dic.about),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -73,7 +72,7 @@ class _AboutPage extends State<AboutPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(i18n['walletName']!,
+                    Text(dic.walletName,
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -90,7 +89,7 @@ class _AboutPage extends State<AboutPage> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 10, right: 30, left: 30),
-                  child: Text(i18n['walletAbout']!,
+                  child: Text(dic.walletAbout,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -101,7 +100,7 @@ class _AboutPage extends State<AboutPage> {
                   margin: EdgeInsets.only(top: 52),
                   child: BrowserLink(
                     termsUrl,
-                    text: i18n['userAgree']!,
+                    text: dic.userAgree,
                     showIcon: false,
                     textStyle: textBrowserStyle,
                   ),
@@ -110,7 +109,7 @@ class _AboutPage extends State<AboutPage> {
                   margin: EdgeInsets.only(top: 10),
                   child: BrowserLink(
                     privacyUrl,
-                    text: i18n['privacy']!,
+                    text: dic.privacy,
                     showIcon: false,
                     textStyle: textBrowserStyle,
                   ),
@@ -119,14 +118,14 @@ class _AboutPage extends State<AboutPage> {
                   margin: EdgeInsets.only(top: 10),
                   child: BrowserLink(
                     aboutus?.changelog ?? '',
-                    text: i18nSettings['github']!,
+                    text: dic.github,
                     showIcon: false,
                     textStyle: textBrowserStyle,
                   ),
                 ),
                 Container(
                   padding: EdgeInsets.only(top: 40, bottom: 23),
-                  child: Text(i18n['followUs']!,
+                  child: Text(dic.followUs,
                       style: TextStyle(fontSize: 12, color: Color(0x80000000))),
                 ),
                 aboutus != null

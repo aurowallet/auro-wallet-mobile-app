@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -42,7 +42,7 @@ class _ImportSuccessPageState extends State<ImportSuccessPage> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     String type = args['type'];
     bool isRestore = type == 'restore';
@@ -65,11 +65,11 @@ class _ImportSuccessPageState extends State<ImportSuccessPage> {
                     ),
                     Padding(
                         padding: EdgeInsets.only(top: 25),
-                        child: Text(dic['backupSuccess']!, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 22))
+                        child: Text(dic.backupSuccess, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 22))
                     ),
                     Padding(
                         padding: EdgeInsets.only(top: 18, right: 0, left: 0),
-                        child: Text(isRestore ? dic['backup_success_restore']! : dic['backup_success']!, style: TextStyle(color: Color(0x80000000), fontWeight: FontWeight.w500, fontSize: 16), textAlign: TextAlign.center,)
+                        child: Text(isRestore ? dic.backup_success_restore : dic.backup_success, style: TextStyle(color: Color(0x80000000), fontWeight: FontWeight.w500, fontSize: 16), textAlign: TextAlign.center,)
                     ),
                   ],
                 ),
@@ -78,7 +78,7 @@ class _ImportSuccessPageState extends State<ImportSuccessPage> {
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 30),
                   child: NormalButton(
                     color: ColorsUtil.hexColor(0x6D5FFE),
-                    text: I18n.of(context).main['startHome']!,
+                    text: dic.startHome,
                     onPressed: _handleSubmit,
                   )
               ),

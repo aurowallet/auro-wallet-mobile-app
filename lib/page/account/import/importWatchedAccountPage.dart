@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -40,11 +40,11 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
   }
 
   void _handleSubmit() async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String watchedAccount = _watchedAccountCtrl.text.trim();
     bool isValid = await webApi.account.isAddressValid(watchedAccount);
     if (!isValid) {
-      UI.toast(dic['sendAddressError']!);
+      UI.toast(dic.sendAddressError);
       return;
     }
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
@@ -53,18 +53,18 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
         accountName, watchedAccount,
         context: context, source: WalletSource.outside);
     if (isSuccess) {
-      UI.toast(dic['backup_success_restore']!);
+      UI.toast(dic.backup_success_restore);
       Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['watchAccount']!),
+        title: Text(dic.watchAccount),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -77,7 +77,7 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
               children: <Widget>[
                 Expanded(
                   child: InputItem(
-                    label: dic['textWatchModeAddress']!,
+                    label: dic.textWatchModeAddress,
                     controller: _watchedAccountCtrl,
                     maxLines: 3,
                   ),
@@ -86,7 +86,7 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
                     padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                     child: NormalButton(
                       color: ColorsUtil.hexColor(0x6D5FFE),
-                      text: I18n.of(context).main['confirm']!,
+                      text: dic.confirm,
                       onPressed: _handleSubmit,
                     )),
               ],

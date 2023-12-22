@@ -1,6 +1,6 @@
 import 'package:auro_wallet/common/components/Separator.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
@@ -30,7 +30,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
     BuildContext context,
     DropdownItem item,
   ) {
-    var i18n = I18n.of(context).main;
+    AppLocalizations i18n = AppLocalizations.of(context)!;
     if (item.value == 'networkDivider') {
       return DropdownMenuItem<String>(
         enabled: false,
@@ -43,7 +43,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
               ),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 8),
-                child: Text(i18n['testnet']!,
+                child: Text(i18n.testnet,
                     style: TextStyle(
                         fontSize: 12,
                         color: ColorsUtil.hexColor(0x808080),

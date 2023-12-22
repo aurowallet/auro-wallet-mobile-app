@@ -1,3 +1,4 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
@@ -11,7 +12,6 @@ import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -63,12 +63,12 @@ class _AccountManagePageState extends State<AccountManagePage> {
   }
 
   void _onExportPrivateKey() async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     await UI.showAlertDialog(
       context: context,
       contents: [
-        dic['privateKeyTip_1']! + '\n',
-        dic['privateKeyTip_2']!,
+        dic.privateKeyTip_1 + '\n',
+        dic.privateKeyTip_2,
       ],
     );
     String? password = await UI.showPasswordDialog(
@@ -79,7 +79,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
     String? privateKey = await webApi.account
         .getPrivateKey(wallet, account.accountIndex, password);
     if (privateKey == null) {
-      UI.toast(dic['passwordError']!);
+      UI.toast(dic.passwordError);
       return;
     }
     await Navigator.pushNamed(context, ExportResultPage.route, arguments: {
@@ -107,7 +107,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
   }
 
   void _deleteAccount() async {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     print('do delete');
     if (isWatchedOrLedgerAccount) {
       await store.wallet!.removeAccount(account);
@@ -117,7 +117,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
     } else {
       await UI.showAlertDialog(
         context: context,
-        contents: [dic['deleteAccountTip']!],
+        contents: [dic.deleteAccountTip],
       );
       String? password = await UI.showPasswordDialog(
           context: context,
@@ -138,12 +138,12 @@ class _AccountManagePageState extends State<AccountManagePage> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final bool isMnemonicWallet =
         wallet.walletType == WalletStore.seedTypeMnemonic;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountInfo']!),
+        title: Text(dic.accountInfo),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
@@ -156,7 +156,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
               children: <Widget>[
                 CopyContainer(
                     child: AccountInfoItem(
-                      label: dic['accountAddress']!,
+                      label: dic.accountAddress,
                       value: account.pubKey,
                       padding: EdgeInsets.only(top: 10, bottom: 10),
                     ),
@@ -169,20 +169,20 @@ class _AccountManagePageState extends State<AccountManagePage> {
                   ),
                 ),
                 AccountInfoItem(
-                    label: dic['accountName']!,
+                    label: dic.accountName,
                     value: Fmt.accountName(account),
                     onClick: _changeAccountName,
                     padding: EdgeInsets.only(top: 16, bottom: 8)),
                 !isWatchedOrLedgerAccount
                     ? AccountInfoItem(
-                        label: dic['exportPrivateKey']!,
+                        label: dic.exportPrivateKey,
                         onClick: _onExportPrivateKey,
                         padding: EdgeInsets.only(top: 18, bottom: 18))
                     : Container(),
                 isLedgerAccount
                     ? CopyContainer(
                         child: AccountInfoItem(
-                          label: dic['hdDerivedPath']!,
+                          label: dic.hdDerivedPath,
                           value: ledgerAccountPath,
                           padding: EdgeInsets.only(top: 10, bottom: 10),
                         ),
@@ -200,7 +200,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
                     : Container(),
                 !isMnemonicWallet
                     ? TextButton(
-                        child: Text(dic['accountDelete']!),
+                        child: Text(dic.accountDelete),
                         onPressed: _deleteAccount,
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 20),

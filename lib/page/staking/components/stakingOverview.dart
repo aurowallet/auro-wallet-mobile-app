@@ -1,10 +1,10 @@
 import 'dart:ui';
 
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/staking/staking.dart';
 import 'package:auro_wallet/store/staking/types/overviewData.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -35,7 +35,7 @@ class StakingOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     OverviewData data = store.staking!.overviewData;
     List<String> time = _getTime();
     var theme = Theme.of(context).textTheme;
@@ -64,7 +64,7 @@ class StakingOverview extends StatelessWidget {
                   width: 8,
                 ),
                 Text(
-                  i18n['epochInfo']!,
+                  dic.epochInfo,
                   style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -117,7 +117,7 @@ class StakingOverview extends StatelessWidget {
                       ),
                       Padding(padding: EdgeInsets.only(top: 10)),
                       Text(
-                        i18n['epochEndTime']!,
+                        dic.epochEndTime,
                         style: labelStyle,
                       ),
                       Row(

@@ -1,10 +1,10 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/services.dart';
 
 class LedgerAccountNameParams {
@@ -83,13 +83,12 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
-    final Map<String, String> ledgerDic = I18n.of(context).ledger;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     LedgerAccountNameParams params =
         ModalRoute.of(context)!.settings.arguments as LedgerAccountNameParams;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountName']!),
+        title: Text(dic.accountName),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -106,7 +105,7 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
                         children: [
                       InputItem(
                         maxLength: 16,
-                        label: dic['accountNameTip']!,
+                        label: dic.accountNameTip,
                         initialValue: '',
                         placeholder: params.placeholder,
                         controller: _nameCtrl,
@@ -126,7 +125,7 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
                                 Padding(
                                   padding: EdgeInsets.only(right: 20),
                                   child: Text(
-                                    dic['advanceMode']!,
+                                    dic.advanceMode,
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600),
@@ -150,7 +149,7 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
                               child: Wrap(
                                 children: [
                                   Text(
-                                    ledgerDic['selectHdPath']!,
+                                    dic.selectHdPath,
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
@@ -207,7 +206,7 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
                     child: NormalButton(
                       submitting: importing,
                       color: ColorsUtil.hexColor(0x6D5FFE),
-                      text: I18n.of(context).main['confirm']!,
+                      text: dic.confirm,
                       onPressed: _handleSubmit,
                     ))
               ],

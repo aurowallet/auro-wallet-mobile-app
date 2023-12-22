@@ -3,6 +3,7 @@ import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/ledgerStatus.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -11,7 +12,6 @@ import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
@@ -89,7 +89,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
   }
 
   List<Widget> renderLedgerConfirm() {
-    final Map<String, String> i18n = I18n.of(context).ledger;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return [
       Container(
         padding: EdgeInsets.only(top: 35),
@@ -104,7 +104,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
         padding: EdgeInsets.only(top: 29),
         child: Center(
           child: Text(
-            i18n['waitingLedger']!,
+            dic.waitingLedger,
             style: TextStyle(
                 color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
           ),
@@ -113,7 +113,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       Padding(
         padding: EdgeInsets.only(top: 7),
         child: Text(
-          i18n['waitingLedgerSign']!,
+          dic.waitingLedgerSign,
           textAlign: TextAlign.center,
           style: TextStyle(
               color: Colors.black.withOpacity(0.5),
@@ -125,7 +125,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
         padding: EdgeInsets.only(top: 14, bottom: 60),
         child: Center(
           child: CustomStyledText(
-              text: i18n['ledgerAddressTip3']!,
+              text: dic.ledgerAddressTip3,
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 14,
@@ -170,7 +170,6 @@ class _TxActionDialogState extends State<TxActionDialog> {
   }
 
   void showAdvanceDialog() async {
-    final Map<String, String> i18n = I18n.of(context).main;
     String? nextFee = await showDialog<String>(
       context: context,
       builder: (_) {
@@ -188,7 +187,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
   Future<bool> onClickNextStep() async {
     bool exited = false;
     bool isDelagetion = false;
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String? privateKey;
     if (!isLedger) {
       String? password = await UI.showPasswordDialog(
@@ -203,7 +202,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
           widget.store.wallet!.currentWallet.currentAccountIndex,
           password);
       if (privateKey == null) {
-        UI.toast(i18n['passwordError']!);
+        UI.toast(dic.passwordError);
         return false;
       }
     }
@@ -270,7 +269,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final showLedgerConfirm = submitting && isLedger;
     return Container(
         decoration: BoxDecoration(
@@ -341,7 +340,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            i18n["currentFee"]!,
+                                            dic.currentFee,
                                             textAlign: TextAlign.left,
                                             style: TextStyle(
                                                 fontSize: 12,
@@ -373,7 +372,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
-                                          Text(i18n["currentFee"]!,
+                                          Text(dic.currentFee,
                                               textAlign: TextAlign.right,
                                               style: TextStyle(
                                                   fontSize: 12,
@@ -404,7 +403,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
                                     child: GestureDetector(
                                         onTap: () => showAdvanceDialog(),
                                         child: Text(
-                                          i18n["advanceMode"]!,
+                                          dic.advanceMode,
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
                                               fontSize: 12,
@@ -421,7 +420,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
                     padding: EdgeInsets.only(top: 20, left: 18, right: 18),
                     child: NormalButton(
                       submitting: submitting,
-                      text: widget.buttonText ?? i18n['confirm']!,
+                      text: widget.buttonText ?? dic.confirm,
                       onPressed: () async {
                         if (isLedger && !await _ledgerCheck()) {
                           return;
@@ -452,10 +451,10 @@ class TxActionTip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     if (type == TxActionType.cancel) {
       return Text(
-        i18n['transactionCancelTip']!,
+        dic.transactionCancelTip,
         style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,
@@ -465,21 +464,21 @@ class TxActionTip extends StatelessWidget {
       return new RichText(
         text: TextSpan(children: [
           new TextSpan(
-            text: i18n['speedUpTip_1']!,
+            text: dic.speedUpTip_1,
             style: TextStyle(
                 color: Color(0xFF808080),
                 fontSize: 14,
                 fontWeight: FontWeight.w400),
           ),
           new TextSpan(
-            text: i18n['speedUpTip_2']!,
+            text: dic.speedUpTip_2,
             style: TextStyle(
                 color: Color(0xFF000000).withOpacity(0.8),
                 fontSize: 14,
                 fontWeight: FontWeight.w500),
           ),
           new TextSpan(
-            text: i18n['speedUpTip_3']!,
+            text: dic.speedUpTip_3,
             style: TextStyle(
                 color: Color(0xFF808080),
                 fontSize: 14,

@@ -1,7 +1,7 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/service/api/api.dart';
 
@@ -29,9 +29,10 @@ class _Currencies extends State<CurrenciesPage> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(I18n.of(context).main['currency']!),
+        title: Text(dic.currency),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,

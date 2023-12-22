@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ import 'package:auro_wallet/service/api/apiSetting.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/service/graphql.dart';
 
 // global api instance
@@ -121,12 +121,12 @@ class Api {
     } else {
       req = graphQLClient.query(options);
     }
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     try {
       result = await req.timeout(Duration(seconds: timeout));
     } on TimeoutException catch (_) {
       return GqlResult(
-          result: null, error: true, errorMessage: i18n['timeout']!);
+          result: null, error: true, errorMessage: dic.timeout);
     }
     if (result.hasException) {
       print('gql出错了：' + result.exception.toString());

@@ -1,4 +1,4 @@
-import 'package:auro_wallet/utils/i18n/index.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -18,7 +18,7 @@ class _LoadingCircleState extends State<LoadingCircle>{
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Padding(
         padding: widget.padding,
         child: Column(
@@ -28,7 +28,7 @@ class _LoadingCircleState extends State<LoadingCircle>{
             RotatingCircle(size: 20,),
             Container(
               padding: EdgeInsets.only(top: 10),
-              child: Text('  '+ i18n["loading"]! + '...', style: TextStyle(
+              child: Text('  '+ dic.loading + '...', style: TextStyle(
                 fontSize: 12,
                 color: Colors.black.withOpacity(0.3)
               ),),

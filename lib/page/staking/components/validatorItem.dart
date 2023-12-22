@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/staking/staking.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,8 +23,6 @@ class ValidatorItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
-    final Map<String, String> i18n = I18n.of(context).main;
-    final Map<String, String> stakingI18n = I18n.of(context).staking;
     return Container(
         margin: const EdgeInsets.only(top: 10),
         child: Material(

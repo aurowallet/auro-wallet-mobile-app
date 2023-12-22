@@ -1,8 +1,8 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 
 class FeeSelector extends StatefulWidget {
   FeeSelector({
@@ -37,7 +37,7 @@ class _FeeSelectorState extends State<FeeSelector> {
   @override
   Widget build(BuildContext context) {
     final fees = widget.fees;
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     double? value = widget.value;
     return Container(
       margin: EdgeInsets.only(top: 20, bottom: 10),
@@ -45,7 +45,7 @@ class _FeeSelectorState extends State<FeeSelector> {
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text(
-              i18n['fee']!,
+              dic.fee,
               style: TextStyle(
                   fontSize: 12,
                   color: Color(0xD9000000),
@@ -65,7 +65,7 @@ class _FeeSelectorState extends State<FeeSelector> {
             children: [
               Flexible(
                 child: FeeItem(
-                  text: i18n['fee_slow']!,
+                  text: dic.fee_slow,
                   value: fees.slow,
                   isActive: fees.slow == value,
                   onClick: _onClick,
@@ -75,7 +75,7 @@ class _FeeSelectorState extends State<FeeSelector> {
               SizedBox(width: 11),
               Flexible(
                 child: FeeItem(
-                  text: i18n['fee_default']!,
+                  text: dic.fee_default,
                   value: fees.medium,
                   isActive: fees.medium == value,
                   onClick: _onClick,
@@ -85,7 +85,7 @@ class _FeeSelectorState extends State<FeeSelector> {
               SizedBox(width: 11),
               Flexible(
                 child: FeeItem(
-                  text: i18n['fee_fast']!,
+                  text: dic.fee_fast,
                   value: fees.fast,
                   isActive: fees.fast == value,
                   onClick: _onClick,

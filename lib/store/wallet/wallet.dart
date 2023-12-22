@@ -9,7 +9,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/encryption.dart';
 import 'package:auro_wallet/store/wallet/types/seedData.dart';
 import 'package:collection/collection.dart';

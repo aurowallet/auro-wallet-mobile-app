@@ -1,9 +1,9 @@
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
@@ -44,14 +44,14 @@ class _TxActionRowState extends State<TxActionRow> {
   }
 
   void onOpenModal(bool isSpeedUp) async {
-    final Map<String, String> i18n = I18n.of(context).main;
-    var title = isSpeedUp ? i18n['speedUpTitle'] : i18n['cancelTransaction'];
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    var title = isSpeedUp ? dic.speedUpTitle : dic.cancelTransaction;
     var modalType = isSpeedUp ? TxActionType.speedup : TxActionType.cancel;
     await UI.showTxAction(
         context: context,
         title: title!,
         txData: widget.data,
-        buttonText: i18n['confirm'],
+        buttonText: dic.confirm,
         modalType: modalType,
         onConfirm: () async {
           return false;
@@ -60,6 +60,7 @@ class _TxActionRowState extends State<TxActionRow> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Row(
       children: [
         widget.data.showSpeedUp == true
@@ -77,7 +78,7 @@ class _TxActionRowState extends State<TxActionRow> {
                         padding: EdgeInsets.only(left: 4, right: 4),
                         child: Text(
                           textAlign: TextAlign.center,
-                          I18n.of(context).main['speedUp']!,
+                          dic.speedUp,
                           style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
@@ -111,7 +112,7 @@ class _TxActionRowState extends State<TxActionRow> {
             child: Padding(
               padding: EdgeInsets.only(left: 4, right: 4),
               child: Text(
-                I18n.of(context).main['cancel']!,
+                dic.cancel,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 12,

@@ -1,3 +1,4 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/assets/index.dart';
 import 'package:auro_wallet/page/settings/index.dart';
@@ -5,7 +6,6 @@ import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 
 class HomePage extends StatefulWidget {
   HomePage(this.store);
@@ -35,10 +35,15 @@ class _HomePageState extends State<HomePage> {
   int _tabIndex = 0;
 
   List<BottomNavigationBarItem> _navBarItems(int activeItem) {
-    Map<String, String> tabs = I18n.of(context).main;
+    Map<String, String> tabI10n = {
+      'wallet':AppLocalizations.of(context)!.wallet,
+      'staking':AppLocalizations.of(context)!.staking,
+      'setting':AppLocalizations.of(context)!.setting
+    };
     return _tabList.asMap().keys.map((index) {
       String icon = 'assets/images/public/${_tabIcons[index]}.svg';
       String label = _tabList[index];
+      String showLabel = tabI10n[label]!;
       Color tabColor = _tabList[activeItem] == label
           ? Colors.black
           : Colors.black.withOpacity(0.5);
@@ -50,7 +55,7 @@ class _HomePageState extends State<HomePage> {
               color: tabColor,
             ),
           ),
-          label: tabs[label]!
+          label: showLabel
       );
     }).toList();
   }

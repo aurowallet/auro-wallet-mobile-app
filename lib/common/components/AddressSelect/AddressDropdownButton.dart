@@ -1,6 +1,6 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter_svg/svg.dart';
@@ -34,7 +34,7 @@ class AddressDropdownButton extends StatefulWidget {
 class _AddressDropdownButtonState extends State<AddressDropdownButton> {
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var dropdownWidth = MediaQuery.of(context).size.width - 40;
     var customButtonWidth = 40;
     var offsetX = customButtonWidth - dropdownWidth;
@@ -93,7 +93,7 @@ class _AddressDropdownButtonState extends State<AddressDropdownButton> {
                           )
                         : Container(
                             child: Text(
-                            dic['emptyAddress']!,
+                            dic.emptyAddress,
                             style: TextStyle(
                                 color: ColorsUtil.hexColor(0x808080),
                                 fontSize: 16,

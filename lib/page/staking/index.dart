@@ -1,13 +1,13 @@
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/staking/components/delegationInfo.dart';
 import 'package:auro_wallet/page/staking/components/stakingOverview.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
@@ -62,7 +62,7 @@ class _StakingState extends State<Staking> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     Color primaryColor = Theme.of(context).primaryColor;
     AccountInfo? acc = store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
     bool isDelegated = acc != null ? acc.isDelegated : false;
@@ -84,7 +84,7 @@ class _StakingState extends State<Staking> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TabPageTitle(title: i18n['staking']!),
+                TabPageTitle(title: dic.staking),
                 Expanded(child:  ListView(
                   children: [
                     StakingOverview(store: store,),
@@ -95,7 +95,7 @@ class _StakingState extends State<Staking> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             NormalButton(
-                              text: i18n['goStake']!,
+                              text: dic.goStake,
                               textStyle: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600

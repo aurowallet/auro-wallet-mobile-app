@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 class AccountNameParams {
   AccountNameParams({
     this.redirect,
@@ -73,11 +73,11 @@ class _AccountNamePageState extends State<AccountNamePage> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     AccountNameParams params = ModalRoute.of(context)!.settings.arguments as AccountNameParams;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountName']!),
+        title: Text(dic.accountName),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -93,7 +93,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
                   children: [
                     InputItem(
                       maxLength: 16,
-                      label: dic['accountNameTip']!,
+                      label: dic.accountNameTip,
                       initialValue: '',
                       placeholder: params.placeholder,
                       controller: _nameCtrl,
@@ -106,7 +106,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
                   child:
                   NormalButton(
                     color: ColorsUtil.hexColor(0x6D5FFE),
-                    text: I18n.of(context).main['confirm']!,
+                    text: dic.confirm,
                     onPressed: _handleSubmit,
                     submitting:submitting
                   )

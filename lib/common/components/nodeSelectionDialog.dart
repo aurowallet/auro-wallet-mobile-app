@@ -1,9 +1,9 @@
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 
 enum TxItemTypes { address, amount, text }
@@ -27,7 +27,7 @@ class NodeSelectionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     double height = MediaQuery.of(context).size.height;
 
     return Container(
@@ -44,7 +44,7 @@ class NodeSelectionDialog extends StatelessWidget {
               Wrap(
                 children: [
                   Center(
-                    child: Text(dic['network']!,
+                    child: Text(dic.network,
                         style: TextStyle(
                           color: ColorsUtil.hexColor(0x090909),
                           fontSize: 20,

@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/Separator.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -74,7 +74,6 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   }
 
   Widget _renderCustomNodeList(BuildContext context, bool isEditing) {
-    var i18n = I18n.of(context).main;
     final theme = Theme.of(context).textTheme;
     List<CustomNode> endpoints =
         List<CustomNode>.of(widget.settingStore.customNodeListV2);
@@ -121,12 +120,12 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   @override
   Widget build(BuildContext context) {
-    var i18n = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final theme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(i18n['networkConfig']!),
+        title: Text(dic.networkConfig),
         centerTitle: true,
         actions: [
           Observer(builder: (_) {
@@ -135,7 +134,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
             return endpoints.length > 0
                 ? TextButton(
                     child: Text(
-                      isEditing ? i18n['save']! : i18n['edit']!,
+                      isEditing ? dic.save : dic.edit,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -196,7 +195,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                         ),
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(i18n['testnet']!,
+                          child: Text(dic.testnet,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: ColorsUtil.hexColor(0x808080),
@@ -234,7 +233,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                 padding:
                     EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
                 child: NormalButton(
-                  text: I18n.of(context).settings['addNetWork']!,
+                  text: dic.addNetWork,
                   onPressed: () {
                     _addCustomNode(null);
                   },

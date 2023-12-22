@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -43,11 +43,11 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
 
   void _handleSubmit() async {
     UI.unfocus(context);
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String privateKey = _privateKeyCtrl.text.trim();
     bool isPrivateKeyValid = await webApi.account.isPrivateKeyValid(privateKey);
     if (!isPrivateKeyValid) {
-      UI.toast(dic['privateError']!);
+      UI.toast(dic.privateError);
       return;
     }
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
@@ -75,11 +75,11 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic['accountImport']!),
+        title: Text(dic.accountImport),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -97,7 +97,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
                     InputItem(
                       padding: EdgeInsets.zero,
                       inputPadding: EdgeInsets.only(top: 20),
-                      label: dic['pleaseInputPriKey']!,
+                      label: dic.pleaseInputPriKey,
                       controller: _privateKeyCtrl,
                       maxLines: 3,
                     ),
@@ -105,10 +105,10 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
                       padding: EdgeInsets.only(top: 10),
                     ),
                     Flexible(
-                        child: Text(dic['importAccount_2']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
+                        child: Text(dic.importAccount_2, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
                     ),
                     Flexible(
-                        child: Text(dic['importAccount_3']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
+                        child: Text(dic.importAccount_3, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
                     ),
                   ],
                 ),
@@ -118,7 +118,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
                   child: NormalButton(
                     submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),
-                    text: I18n.of(context).main['confirm']!,
+                    text: dic.confirm,
                     onPressed: _handleSubmit,
                   )
               ),

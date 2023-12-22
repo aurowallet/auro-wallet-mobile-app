@@ -1,7 +1,7 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/i18n/terms.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 
 class TermsDialog extends StatefulWidget {
@@ -21,12 +21,11 @@ class _TermsDialogState extends State<TermsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
-    var i18n = I18n.of(context);
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     var languageCode = widget.store.localeCode.isNotEmpty
         ? widget.store.localeCode
-        : i18n.locale.languageCode.toLowerCase();
+        : dic.localeName;
     print('languageCode' + languageCode);
     var aboutUsData = widget.store.aboutus;
     var termsUrl = '';
@@ -56,7 +55,7 @@ class _TermsDialogState extends State<TermsDialog> {
             children: [
               Padding(
                 padding: EdgeInsets.only(top: 20),
-                child: Text(dic['termsDialogTitle']!,
+                child: Text(dic.termsDialogTitle,
                     style: theme.headline3!.copyWith(
                       color: ColorsUtil.hexColor(0x333333),
                     )),
@@ -85,7 +84,7 @@ class _TermsDialogState extends State<TermsDialog> {
                               borderRadius: BorderRadius.zero,
                               // side: BorderSide(color: Colors.red)
                             )),
-                        child: Text(dic['refuse']!, style: theme.headline5!),
+                        child: Text(dic.refuse, style: theme.headline5!),
                         onPressed: () {
                           Navigator.of(context).pop(false);
                         },
@@ -107,7 +106,7 @@ class _TermsDialogState extends State<TermsDialog> {
                                     borderRadius: BorderRadius.zero,
                                     // side: BorderSide(color: Colors.red)
                                   )),
-                              child: Text(dic['agree']!,
+                              child: Text(dic.agree,
                                   style: theme.headline5!.copyWith(
                                       color: Theme.of(context).primaryColor)),
                               onPressed: () {

@@ -1,11 +1,11 @@
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/ledgerStatus.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
@@ -71,9 +71,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
   }
 
   List<Widget> renderLedgerConfirm() {
-    final Map<String, String> dic = I18n
-        .of(context)
-        .ledger;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return [
       Container(
         padding: EdgeInsets.only(top: 35),
@@ -88,7 +86,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
         padding: EdgeInsets.only(top: 29),
         child: Center(
           child: Text(
-            dic['waitingLedger']!,
+            dic.waitingLedger,
             style: TextStyle(
                 color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
           ),
@@ -97,7 +95,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
       Padding(
         padding: EdgeInsets.only(top: 7),
         child: Text(
-          dic['waitingLedgerSign']!,
+          dic.waitingLedgerSign,
           textAlign: TextAlign.center,
           style: TextStyle(
               color: Colors.black.withOpacity(0.5),
@@ -109,7 +107,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
         padding: EdgeInsets.only(top: 14, bottom: 60),
         child: Center(
           child: CustomStyledText(
-            text: dic['ledgerAddressTip3']!,
+            text: dic.ledgerAddressTip3,
             style: TextStyle(
                 color: Colors.black,
                 fontSize: 14,
@@ -155,9 +153,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n
-        .of(context)
-        .main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     final showLedgerConfirm = submitting && widget.isLedger;
     return Container(
         decoration: BoxDecoration(
@@ -231,7 +227,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                           child: NormalButton(
                             disabled: widget.disabled,
                             submitting: submitting,
-                            text: widget.buttonText ?? dic['confirm']!,
+                            text: widget.buttonText ?? dic.confirm,
                             onPressed: () async {
                               if (widget.isLedger && !await _ledgerCheck()) {
                                 return;

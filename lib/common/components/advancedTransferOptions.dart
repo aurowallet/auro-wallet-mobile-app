@@ -1,3 +1,4 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -5,7 +6,6 @@ import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/outlinedButtonSmall.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:flutter/services.dart';
 class AdvancedTransferOptions extends StatefulWidget {
@@ -40,7 +40,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
   }
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.zero,
       child: Column(
@@ -60,7 +60,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                 ),
                 child: Stack(
                   children: [
-                    Padding(padding: EdgeInsets.only(right: 20), child: Text(dic['advanceMode']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),),
+                    Padding(padding: EdgeInsets.only(right: 20), child: Text(dic.advanceMode, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),),
                     Positioned(
                       right: 0,
                       top: -1,
@@ -73,7 +73,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
               child: Column(
                   children: [
                     InputItem(
-                      label: dic['fee']!,
+                      label: dic.fee,
                       padding: EdgeInsets.zero,
                       // placeholder: widget.placeHolder != null ? widget.placeHolder.toString() : '0',
                       controller: widget.feeCtrl,
@@ -85,7 +85,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                     InputErrorTip(
                       padding: EdgeInsets.only(top: 8),
                       ctrl: widget.feeCtrl,
-                      message: dic['feeTooLarge']!,
+                      message: dic.feeTooLarge,
                       keepShow: false,
                       validate: _validateFee,
                       tipType: TipType.warn,

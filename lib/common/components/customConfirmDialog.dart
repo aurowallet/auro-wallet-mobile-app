@@ -1,5 +1,5 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 
 class CustomConfirmDialog extends StatefulWidget {
   CustomConfirmDialog(
@@ -34,7 +34,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> dic = I18n.of(context).main;
+    AppLocalizations dic = AppLocalizations.of(context)!;
 
     return Dialog(
       clipBehavior: Clip.hardEdge,
@@ -98,7 +98,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                     borderRadius: BorderRadius.zero,
                     // side: BorderSide(color: Colors.red)
                   )),
-              child: Text(widget.cancelText ?? dic['cancel']!,
+              child: Text(widget.cancelText ?? dic.cancel,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               onPressed: () {
                 if (widget.onCancel != null) {
@@ -124,7 +124,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                     borderRadius: BorderRadius.zero,
                     // side: BorderSide(color: Colors.red)
                   )),
-              child: Text(widget.okText ?? dic['confirm']!,
+              child: Text(widget.okText ?? dic.confirm,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               onPressed: () {
                 if (widget.onOk != null) {

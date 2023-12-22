@@ -1,6 +1,6 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/termsDialog.dart';
-import 'package:auro_wallet/utils/i18n/index.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
@@ -26,7 +26,7 @@ class CreateAccountEntryPage extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
-    var i18n = I18n.of(context);
+    AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     _ctx = context;
     return Scaffold(
@@ -107,7 +107,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                     children: [
                       SvgPicture.asset("assets/images/entry/icon_add.svg"),
                       SizedBox(width: 8,),
-                      Text(I18n.of(context).main['createWallet']!, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))
+                      Text(dic.createWallet, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600))
                     ],
                   ),
                 ),
@@ -126,14 +126,14 @@ class CreateAccountEntryPage extends StatelessWidget {
                     children: [
                       SvgPicture.asset("assets/images/entry/icon_restore.svg"),
                       SizedBox(width: 8,),
-                      Text(I18n.of(context).main['restoreWallet']!, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16, fontWeight: FontWeight.w600))
+                      Text(dic.restoreWallet, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16, fontWeight: FontWeight.w600))
                     ],
                   ),
                 ),
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 50, 20, 0),
-                child: Text(i18n.main['restoreTip']!, style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xCCCCCC)), textAlign: TextAlign.center,),
+                child: Text(dic.restoreTip, style: theme.bodySmall?.copyWith(color: ColorsUtil.hexColor(0xCCCCCC)), textAlign: TextAlign.center,),
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(0, 31, 0, 24),

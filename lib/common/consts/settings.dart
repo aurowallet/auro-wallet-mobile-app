@@ -25,3 +25,5 @@ final mainNetNode = CustomNode(
     name: 'Mainnet', url: GRAPH_QL_MAINNET_NODE_URL, networksType: '0');
 final devNetNode = CustomNode(
     name: 'Devnet', url: GRAPH_QL_TESTNET_NODE_URL, networksType: '1');
+
+final Map<String, String> languageConfig = {"zh": '中文（简体）', "en": 'English'};
