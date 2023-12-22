@@ -160,7 +160,7 @@ class _SecurityPageState extends State<SecurityPage> {
                 MenuItem(text: dic['restoreSeed']!, onClick: _onBackup,),
                 MenuItem(text: dic['changePassword']!, onClick: _onChangePassword,),
                 _supportBiometric ?
-                SwitchItem(text: dic['unlock.bio.enable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
+                SwitchItem(text: dic['unlockBioEnable']!, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
                     : Container()
               ],
             )

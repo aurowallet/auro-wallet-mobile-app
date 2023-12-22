@@ -46,6 +46,7 @@ import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
@@ -134,6 +135,7 @@ class _WalletAppState extends State<WalletApp> {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [
         AppLocalizationsDelegate(_locale),
+        AppLocalizations.delegate, // Add this line
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

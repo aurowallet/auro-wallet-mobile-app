@@ -16,7 +16,7 @@ class WillPopScopWrapper extends StatelessWidget {
         if (Platform.isAndroid) {
           bool? res = await UI.showConfirmDialog(
             context: context,
-            contents: [I18n.of(context).main['exit.confirm']!],
+            contents: [I18n.of(context).main['exitConfirm']!],
             okText: I18n.of(context).main['confirm']!,
             cancelText: I18n.of(context).main['cancel']!,
           );

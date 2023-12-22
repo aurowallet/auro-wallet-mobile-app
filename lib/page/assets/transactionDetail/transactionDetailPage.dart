@@ -45,15 +45,15 @@ class TransactionDetailPage extends StatelessWidget {
     if (pending) {
       statusIcon = 'assets/images/public/pending_tip.svg';
       statusColor = ColorsUtil.hexColor(0xFFC633);
-      statusText = dic['PENDING']!;
+      statusText = dic['pending']!;
     } else if (success == true) {
       statusIcon = 'assets/images/public/success_tip.svg';
       statusColor = ColorsUtil.hexColor(0x38d79f);
-      statusText = dic['APPLIED']!;
+      statusText = dic['applied']!;
     } else {
       statusIcon = 'assets/images/public/error_tip.svg';
       statusColor = ColorsUtil.hexColor(0xE84335);
-      statusText = dic['FAILED']!;
+      statusText = dic['failed']!;
     }
 
     final items = [

@@ -598,12 +598,12 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           StorageFileInitOptions(authenticationValidityDurationSeconds: -1),
       promptInfo: PromptInfo(
           androidPromptInfo: AndroidPromptInfo(
-            title: dic['unlock.bio']!,
+            title: dic['unlockBio']!,
             negativeButton: dic['cancel']!,
           ),
           iosPromptInfo: IosPromptInfo(
-            saveTitle: dic['unlock.bio']!,
-            accessTitle: dic['unlock.bio']!,
+            saveTitle: dic['unlockBio']!,
+            accessTitle: dic['unlockBio']!,
           )),
     );
   }

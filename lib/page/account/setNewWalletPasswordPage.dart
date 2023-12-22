@@ -286,7 +286,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                               Padding(
                                 padding: EdgeInsets.only(left: 16),
                                 child: Text(
-                                    I18n.of(context).main['unlock.bio.enable']!),
+                                    I18n.of(context).main['unlockBioEnable']!),
                               )
                             ],
                           ),
