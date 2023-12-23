@@ -280,5 +280,6 @@
     "ledgerSearching": "Searching...",
     "ledgerSupport": "(<lightred>Only support Ledger Nano X</lightred>)",
     "termsAndPrivacy_line1": "This service is provided by Auro Wallet, please take time to read carefully and understand the Terms and Conditions and Privacy Policy.",
-    "termsAndPrivacy_line2": "Please read the <conditions>Terms and Conditions</conditions> and <policy>Privacy Policy</policy> carefully. If you understand fully and agree, please click [Agree] to start using this wallet service."
+    "termsAndPrivacy_line2": "Please read the <conditions>Terms and Conditions</conditions> and <policy>Privacy Policy</policy> carefully. If you understand fully and agree, please click [Agree] to start using this wallet service.",
+    "contributeLanguage":"Contribute other language"
 }
