@@ -92,15 +92,10 @@ class _WalletAppState extends State<WalletApp> {
 
   void _changeLang(BuildContext context, String code) {
     Locale res;
-    switch (code) {
-      case 'zh':
-        res = const Locale('zh', '');
-        break;
-      case 'en':
-        res = const Locale('en', '');
-        break;
-      default:
-        res = Localizations.localeOf(context);
+    if (code.isNotEmpty && AppLocalizations.supportedLocales.any((locale) => locale.languageCode == code)) {
+      res = new Locale(code, '');
+    } else {
+      res = Localizations.localeOf(context);
     }
     setState(() {
       _locale = res;

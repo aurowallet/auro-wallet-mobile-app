@@ -31,15 +31,12 @@ class _TermsDialogState extends State<TermsDialog> {
     var termsUrl = '';
     var privacyUrl = '';
     if (aboutUsData != null) {
-      switch (languageCode) {
-        case 'en':
-          termsUrl = aboutUsData.termsAndContionsEN;
-          privacyUrl = aboutUsData.privacyPolicyEN;
-          break;
-        case 'zh':
-          termsUrl = aboutUsData.termsAndContionsZH;
-          privacyUrl = aboutUsData.privacyPolicyZH;
-          break;
+      if(languageCode == 'zh'){
+        termsUrl = aboutUsData.termsAndContionsZH;
+        privacyUrl = aboutUsData.privacyPolicyZH;
+      }else{
+        termsUrl = aboutUsData.termsAndContionsEN;
+        privacyUrl = aboutUsData.privacyPolicyEN;
       }
     }
 

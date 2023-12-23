@@ -29,6 +29,21 @@ class _Settings extends State<LocalesPage> {
     }
   }
 
+  Widget _renderLanguageList(BuildContext context, String languageCode) {
+    List<Widget> listWidget = [];
+    languageConfig.forEach((langCode, displayName) {
+      listWidget.add(LocaleItem(
+        text: languageConfig[langCode].toString(),
+        localeKey: langCode,
+        checked: languageCode == langCode,
+        onChecked: _onChangeLocale,
+      ));
+    });
+    return Expanded(
+        child:
+            ListView(padding: EdgeInsets.only(top: 20), children: listWidget));
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -47,24 +62,7 @@ class _Settings extends State<LocalesPage> {
               maintainBottomViewPadding: true,
               child: Column(
                 children: [
-                  Expanded(
-                      child: ListView(
-                    padding: EdgeInsets.only(top: 20),
-                    children: <Widget>[
-                      LocaleItem(
-                        text: languageConfig['en'].toString(),
-                        localeKey: 'en',
-                        checked: languageCode == 'en',
-                        onChecked: _onChangeLocale,
-                      ),
-                      LocaleItem(
-                        text: languageConfig['zh'].toString(),
-                        localeKey: 'zh',
-                        checked: languageCode == 'zh',
-                        onChecked: _onChangeLocale,
-                      ),
-                    ],
-                  )),
+                  _renderLanguageList(context, languageCode),
                   Container(
                       margin: EdgeInsets.only(
                           top: 20, left: 30, right: 30, bottom: 40),
