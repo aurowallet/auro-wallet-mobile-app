@@ -58,7 +58,7 @@ class _WalletAppState extends State<WalletApp> {
   _WalletAppState();
 
   AppStore? _appStore;
-  Locale _locale = const Locale('en', '');
+  Locale? _locale;
 
   ThemeData _theme = appTheme;
   bool _isDangerous = false;
@@ -209,8 +209,7 @@ class _WalletAppState extends State<WalletApp> {
         AccountManagePage.route: (_) => AccountManagePage(_appStore!),
         ChangePasswordPage.route: (_) => ChangePasswordPage(_appStore!.wallet!),
         ExportResultPage.route: (_) => ExportResultPage(),
-        RemoteNodeListPage.route: (_) =>
-            RemoteNodeListPage(_appStore!),
+        RemoteNodeListPage.route: (_) => RemoteNodeListPage(_appStore!),
         NodeEditPage.route: (_) => NodeEditPage(_appStore!.settings!),
         AboutPage.route: (_) => AboutPage(_appStore!),
         LocalesPage.route: (_) =>

@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -39,30 +40,58 @@ class _Settings extends State<LocalesPage> {
       backgroundColor: Colors.white,
       body: Observer(
         builder: (_) {
-          var languageCode = store.localeCode.isNotEmpty ? store.localeCode : dic.localeName.toLowerCase();
+          var languageCode = store.localeCode.isNotEmpty
+              ? store.localeCode
+              : dic.localeName.toLowerCase();
           return SafeArea(
-            maintainBottomViewPadding: true,
-            child: ListView(
-              padding: EdgeInsets.only(top: 20),
-              children: <Widget>[
-                LocaleItem(text: languageConfig['en'].toString(), localeKey: 'en', checked: languageCode == 'en', onChecked: _onChangeLocale,),
-                LocaleItem(text: languageConfig['zh'].toString(), localeKey: 'zh', checked: languageCode == 'zh', onChecked: _onChangeLocale,),
-              ],
-            ),
-          );
+              maintainBottomViewPadding: true,
+              child: Column(
+                children: [
+                  Expanded(
+                      child: ListView(
+                    padding: EdgeInsets.only(top: 20),
+                    children: <Widget>[
+                      LocaleItem(
+                        text: languageConfig['en'].toString(),
+                        localeKey: 'en',
+                        checked: languageCode == 'en',
+                        onChecked: _onChangeLocale,
+                      ),
+                      LocaleItem(
+                        text: languageConfig['zh'].toString(),
+                        localeKey: 'zh',
+                        checked: languageCode == 'zh',
+                        onChecked: _onChangeLocale,
+                      ),
+                    ],
+                  )),
+                  Container(
+                      margin: EdgeInsets.only(
+                          top: 20, left: 30, right: 30, bottom: 40),
+                      child: BrowserLink(
+                        contributeMoreLanguage,
+                        text: dic.contributeLanguage,
+                        showIcon: false,
+                        textStyle: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w500),
+                      )),
+                ],
+              ));
         },
       ),
     );
   }
 }
+
 class LocaleItem extends StatelessWidget {
-  LocaleItem(
-      {
-        this.checked = false,
-        required this.text,
-        required this.localeKey,
-        required this.onChecked,
-      });
+  LocaleItem({
+    this.checked = false,
+    required this.text,
+    required this.localeKey,
+    required this.onChecked,
+  });
   final bool checked;
   final String text;
   final String localeKey;
@@ -70,29 +99,38 @@ class LocaleItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 54,
-      child: ListTile(
-        leading: null,
-        minLeadingWidth: 0,
-        minVerticalPadding: 0,
-        contentPadding: EdgeInsets.only(left: 20, right: 20),
-        selectedColor: Colors.red,
-        focusColor: Colors.amber,
-        title: Text(text, style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600)),
-        trailing: checked ? RoundCheckBox(
-          size: 18,
-          borderColor: Colors.transparent,
-          isChecked: checked,
-          uncheckedColor: Colors.white,
-          checkedColor: Theme.of(context).primaryColor,
-          checkedWidget: Icon(Icons.check, color: Colors.white, size: 12,),
-          // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-          onTap: (bool? checkedFlag) {
-            onChecked(checkedFlag!, localeKey);
-          },
-        ) : null,
-        onTap: () => onChecked(!checked, localeKey),
-      )
-    );
+        height: 54,
+        child: ListTile(
+          leading: null,
+          minLeadingWidth: 0,
+          minVerticalPadding: 0,
+          contentPadding: EdgeInsets.only(left: 20, right: 20),
+          selectedColor: Colors.red,
+          focusColor: Colors.amber,
+          title: Text(text,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600)),
+          trailing: checked
+              ? RoundCheckBox(
+                  size: 18,
+                  borderColor: Colors.transparent,
+                  isChecked: checked,
+                  uncheckedColor: Colors.white,
+                  checkedColor: Theme.of(context).primaryColor,
+                  checkedWidget: Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                  // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+                  onTap: (bool? checkedFlag) {
+                    onChecked(checkedFlag!, localeKey);
+                  },
+                )
+              : null,
+          onTap: () => onChecked(!checked, localeKey),
+        ));
   }
 }
