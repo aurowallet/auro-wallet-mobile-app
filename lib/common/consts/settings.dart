@@ -26,7 +26,11 @@ final mainNetNode = CustomNode(
 final devNetNode = CustomNode(
     name: 'Devnet', url: GRAPH_QL_TESTNET_NODE_URL, networksType: '1');
 
-final Map<String, String> languageConfig = {"zh": '中文（简体）', "en": 'English'};
+final Map<String, String> languageConfig = {
+  "en": 'English',
+  "zh": '中文（简体）', 
+  "tr": "Türkçe"
+};
 
 // ** language contrubute url
 final String contributeMoreLanguage = "https://hosted.weblate.org/projects/aurowallet/";
