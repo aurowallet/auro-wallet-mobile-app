@@ -45,7 +45,7 @@
   "@backup_success_restore": {},
   "backup_success_title": "Successful",
   "@backup_success_title": {},
-  "inputSeed": "Please enter 12 mnemonic words in order, with each word separated by a space.",
+  "inputSeed": "Please enter 12 mnemonic phrases in order, with each word separated by a space.",
   "@inputSeed": {},
   "inputVaildSeed": "Invalid mnemonic phrase",
   "@inputVaildSeed": {},
