@@ -125,7 +125,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic.networkConfig),
+        title: Text(dic.network),
         centerTitle: true,
         actions: [
           Observer(builder: (_) {

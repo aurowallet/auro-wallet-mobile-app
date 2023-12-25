@@ -75,7 +75,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic.accountImport),
+        title: Text(dic.importAccount),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,

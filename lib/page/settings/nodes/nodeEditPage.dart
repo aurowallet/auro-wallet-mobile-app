@@ -252,7 +252,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
                     children: [
                       InputItem(
                         padding: const EdgeInsets.only(top: 0),
-                        label: dic.networkName,
+                        label: dic.name,
                         controller: _nameCtrl,
                         maxLength: 50,
                       ),
