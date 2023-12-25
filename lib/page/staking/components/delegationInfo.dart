@@ -118,7 +118,7 @@ class DelegateInfo extends StatelessWidget {
     final ValidatorData? validatorItem = store.staking!.validatorsInfo
         .firstWhereOrNull((e) => e.address == delegate);
     String? validatorName = validatorItem?.name;
-    if (validatorInfo == null) {
+    if (validatorName == null) {
       return Container(
           constraints: BoxConstraints(minHeight: 100),
           child: Column(
@@ -147,7 +147,7 @@ class DelegateInfo extends StatelessWidget {
               margin: EdgeInsets.only(right: 100),
               child: DelegateInfoItem(
                   labelText: dic.blockProducerName,
-                  value: validatorName ?? Fmt.address(delegate, pad: 10)),
+                  value: validatorName),
             ))
           ]),
           Row(children: [

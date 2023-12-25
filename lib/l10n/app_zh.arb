@@ -280,5 +280,6 @@
   "ledgerSearching": "搜索...",
   "ledgerSupport": "(<lightred>仅支持 Ledger Nano X</lightred>)",
   "termsAndPrivacy_line1": "使用 Auro 钱包提供的服务，你需要阅读并充分理解使用条款和隐私政策相关的内容。",
-  "termsAndPrivacy_line2": "你可以阅读<conditions>《使用条款》</conditions>和<policy>《隐私政策》</policy>了解详细信息，如果你同意，请点击【同意】开始使用钱包服务。"
+  "termsAndPrivacy_line2": "你可以阅读<conditions>《使用条款》</conditions>和<policy>《隐私政策》</policy>了解详细信息，如果你同意，请点击【同意】开始使用钱包服务。",
+  "contributeLanguage":"贡献语言"
 }
