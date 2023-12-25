@@ -138,7 +138,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 0),
-              child: Text(dic.securityPassword,
+              child: Text(dic.password,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,

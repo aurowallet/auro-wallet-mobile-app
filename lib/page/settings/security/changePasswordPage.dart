@@ -200,7 +200,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
       onTap: _unFocus,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(dic.changeSecPassword),
+          title: Text(dic.changePassword),
           centerTitle: true,
         ),
         resizeToAvoidBottomInset: false,
