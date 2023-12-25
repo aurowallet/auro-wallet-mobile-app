@@ -11,8 +11,6 @@
   "@restoreWallet": {},
   "inputPassword": "Enter password",
   "@inputPassword": {},
-  "confirmPassword": "Re-enter password",
-  "@confirmPassword": {},
   "createPasswordTip": "The password will be used for identity verification purposes to send transactions in Auro Wallet. Auro Wallet won't store the password itself or retrieve it for you. Please keep your password safe.",
   "@createPasswordTip": {},
   "next": "Next",

@@ -231,8 +231,6 @@
   "@inputPassword": {},
   "advanceMode": "Gelişmiş",
   "@advanceMode": {},
-  "confirmPassword": "Şifresini tekrar giriniz",
-  "@confirmPassword": {},
   "copyTipContent": "Özel anahtarın kopyalanması risklidir ve pano üçüncü taraf uygulamalar tarafından kolayca izlenebilir ve çalınabilir.",
   "@copyTipContent": {},
   "lockTitle": "Kilitle",

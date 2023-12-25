@@ -11,8 +11,6 @@
   "@restoreWallet": {},
   "inputPassword": "输入密码",
   "@inputPassword": {},
-  "confirmPassword": "再次输入密码",
-  "@confirmPassword": {},
   "createPasswordTip": "密码将用于在 Auro 钱包中发送交易和身份验证。Auro 钱包不保存密码，也无法帮您找回，请妥善保管。",
   "@createPasswordTip": {},
   "next": "下一步",
