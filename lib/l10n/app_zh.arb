@@ -67,7 +67,6 @@
   "importLedger": "Ledger",
   "accountName": "账户名称",
   "accountNameTip": "请输入账户名称",
-  "confirm_1": "确定",
   "importPrivateKey": "导入私钥",
   "importAccount_1": "此页面仅支持使用私钥导入。",
   "importAccount_2": "导入的账号不会与最初创建的 Auro 钱包进行关联。",

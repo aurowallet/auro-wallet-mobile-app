@@ -211,8 +211,6 @@
   "@startHome": {},
   "backTips_1": "Anımsatıcı ifadenizi şimdi yedekleyin!",
   "@backTips_1": {},
-  "confirm_1": "Onayla",
-  "@confirm_1": {},
   "createPasswordTip": "Şifresi, Auro Wallet’ta işlem onaylamak için kimlik doğrulama amacıyla kullanılacaktır. Auro Wallet, şifresini saklamaz veya sizin için geri alamaz. Lütfen şifrenizi güvende tutun. ",
   "@createPasswordTip": {},
   "welcomeBack": "Tekrar Hoş Geldiniz!",

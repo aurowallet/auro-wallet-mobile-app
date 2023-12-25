@@ -68,7 +68,6 @@
     "importLedger": "Ledger",
     "accountName": "Account Name",
     "accountNameTip": "Please enter your account name",
-    "confirm_1": "Confirm",
     "importPrivateKey": "Import Private Key",
     "importAccount_1": "This page only supports Private Key importing.",
     "importAccount_2": "The imported accounts will not be associated with your originally created Auro wallet.",
