@@ -291,7 +291,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                             Container(
                               width: 8,
                             ),
-                            Text(dic.importAccount)
+                            Text(dic.import)
                           ],
                         ),
                         style: outlineBtnStyle,

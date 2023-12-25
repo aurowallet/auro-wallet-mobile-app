@@ -266,15 +266,6 @@ class ReceivePage extends StatelessWidget {
                                               ),
                                             )
                                           ]),
-                                      // Container(
-                                      //   width: MediaQuery.of(context).size.width / 2,
-                                      //   padding: EdgeInsets.only(top: 40, bottom: 10),
-                                      //   child: NormalButton(
-                                      //     text:dic.copyAddress,
-                                      //     onPressed: () => UI.copyAndNotify(
-                                      //         context, store.wallet!.currentAddress),
-                                      //   ),
-                                      // )
                                     ],
                                   ),
                                 ),
