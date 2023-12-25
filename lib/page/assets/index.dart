@@ -256,7 +256,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! *
           Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
     }
-    var currencySymbol = Currency(code: store.settings!.currencyCode).symbol;
+    var currency = currencyConfig.firstWhere((element) => element.key == store.settings!.currencyCode);
+    var currencySymbol = currency.symbol;
     final amountColor = (store.assets!.isBalanceLoading) ? 0xDDDDDD : 0xFFFFFF;
     final priceColor = (store.assets!.isBalanceLoading)
         ? Color(0xFFDDDDDD)
