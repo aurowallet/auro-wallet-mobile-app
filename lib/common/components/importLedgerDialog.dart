@@ -152,7 +152,7 @@ class _ImportLedgerState extends State<ImportLedger> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(dic.connectLedger,
+                          Text(dic.connectHardwareWallet,
                               style: TextStyle(
                                   color: Color(0xFF222222),
                                   fontSize: 16,

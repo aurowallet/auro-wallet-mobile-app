@@ -79,7 +79,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic.importAccount),
+        title: Text(dic.import),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,

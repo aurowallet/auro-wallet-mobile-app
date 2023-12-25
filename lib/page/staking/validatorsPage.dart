@@ -198,7 +198,7 @@ class SubmitNodeButton extends StatelessWidget {
                 BrowserLink(
                     'https://github.com/aurowallet/launch/tree/master/validators',
                     showIcon: false,
-                    text: dic.submitList,
+                    text: dic.submitNode,
                     textStyle: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,

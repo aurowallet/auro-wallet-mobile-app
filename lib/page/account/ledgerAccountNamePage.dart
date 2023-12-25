@@ -105,7 +105,7 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
                         children: [
                       InputItem(
                         maxLength: 16,
-                        label: dic.accountNameTip,
+                        label: dic.inputAccountName,
                         initialValue: '',
                         placeholder: params.placeholder,
                         controller: _nameCtrl,

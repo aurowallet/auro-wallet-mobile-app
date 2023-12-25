@@ -218,7 +218,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
             style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(Colors.transparent)),
             child: Text(
-              dic.resetWallet,
+              dic.reset,
               style: TextStyle(fontSize: 14, color: Color(0xFFD65A5A)),
             ),
             onPressed: _onResetApp,

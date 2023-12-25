@@ -158,7 +158,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                     ? () async {
                         if (_wordsSelected.join(' ') !=
                             store.wallet!.newWalletParams.seed) {
-                          UI.toast(dic.seed_incorrect);
+                          UI.toast(dic.seed_error);
                           setState(() {
                             _wordsLeft.clear();
                             _wordsLeft.addAll(

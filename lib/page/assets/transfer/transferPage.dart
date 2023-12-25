@@ -538,7 +538,7 @@ class _TransferPageState extends State<TransferPage> {
                                         TextInputType.numberWithOptions(
                                             decimal: true),
                                     rightWidget: Text(
-                                      '${dic.balance}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
+                                      '${dic.available}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontSize: 12,

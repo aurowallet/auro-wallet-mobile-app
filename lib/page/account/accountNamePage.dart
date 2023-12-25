@@ -93,7 +93,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
                   children: [
                     InputItem(
                       maxLength: 16,
-                      label: dic.accountNameTip,
+                      label: dic.inputAccountName,
                       initialValue: '',
                       placeholder: params.placeholder,
                       controller: _nameCtrl,
