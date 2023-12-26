@@ -433,7 +433,7 @@
   "@contributeLanguage": {},
   "available": "Available",
   "@available": {},
-  "importSameAccount_1": "The address of the account to be created is:\n<theme>{address}</theme>",
+  "importSameAccount_1": "The address of the account to be created is: <theme>{address}</theme>",
   "@importSameAccount_1": {
     "placeholders": {
       "address": {

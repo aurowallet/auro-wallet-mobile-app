@@ -305,7 +305,7 @@
   "@termsDialogTitle": {},
   "scan": "扫描",
   "@scan": {},
-  "restoreTip": "提示: 若要导入私钥匙/Keystore或连接Ledger，需先[创建钱包]或者[恢复钱包]。",
+  "restoreTip": "提示: 若要导入私钥匙 / Keystore 或连接 Ledger，需先[创建钱包]或者[恢复钱包]。",
   "@restoreTip": {},
   "reset": "重置",
   "@reset": {},
@@ -433,7 +433,7 @@
   "@contributeLanguage": {},
   "available": "可用",
   "@available": {},
-  "importSameAccount_1": "即将创建的账户地址为：\n<theme>{address}</theme>",
+  "importSameAccount_1": "即将创建的账户地址为：<theme>{address}</theme>",
   "@importSameAccount_1": {
     "placeholders": {
       "address": {

@@ -433,7 +433,7 @@
   "@failed": {},
   "available": "Mevcut",
   "@available": {},
-  "importSameAccount_1": "Oluşturulacak hesabın adresi:\n<theme>{address}</theme>",
+  "importSameAccount_1": "Oluşturulacak hesabın adresi: <theme>{address}</theme>",
   "@importSameAccount_1": {
     "placeholders": {
       "address": {
