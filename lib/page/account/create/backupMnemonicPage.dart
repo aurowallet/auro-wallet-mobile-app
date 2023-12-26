@@ -42,7 +42,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
     return Observer(
       builder: (_) => Scaffold(
         appBar: AppBar(
-          title: Text(dic.backTips_title),
+          title: Text(dic.restoreSeed),
           centerTitle: true,
         ),
         backgroundColor: Colors.white,
@@ -109,7 +109,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic.backTips_title),
+        title: Text(dic.restoreSeed),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {

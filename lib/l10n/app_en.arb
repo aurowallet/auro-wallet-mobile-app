@@ -21,8 +21,6 @@
   "@passwordRequires": {},
   "passwordDifferent": "Passwords do not match",
   "@passwordDifferent": {},
-  "backTips_title": "Backup Mnemonic Phrase",
-  "@backTips_title": {},
   "backTips_1": "Backup your mnemonic phrase now!",
   "@backTips_1": {},
   "backTips_2": "The Mnemonic phrase consists of 12 English words, which cannot be retrieved if they are lost. Make sure the mnemonic phrase is kept in a secure location.",

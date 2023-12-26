@@ -21,8 +21,6 @@
   "@passwordRequires": {},
   "passwordDifferent": "密码不匹配",
   "@passwordDifferent": {},
-  "backTips_title": "备份助记词",
-  "@backTips_title": {},
   "backTips_1": "现在开始备份助记词！",
   "@backTips_1": {},
   "backTips_2": "助记词由12个英文单词组成，丢失无法找回。请确认保存好助记词，并将其放在安全的地方。",

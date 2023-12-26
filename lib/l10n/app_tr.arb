@@ -175,8 +175,6 @@
   "@security": {},
   "backup_success_restore": "Tebrikler! Bir cüzdanı başarıyla geri yüklediniz!",
   "@backup_success_restore": {},
-  "backTips_title": "Anımsatıcı İfadeyi Yedekleyin",
-  "@backTips_title": {},
   "passwordRequires": "En az 8 karakter",
   "@passwordRequires": {},
   "changePassword": "Şifresini Değiştir",

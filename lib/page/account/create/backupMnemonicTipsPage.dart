@@ -42,7 +42,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
     var theme = Theme.of(context).textTheme;
       AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(dic.backTips_title)),
+      appBar: AppBar(title: Text(dic.restoreSeed)),
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
