@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [1.1.8]
+- UI enhancements
+- add language:Turkish
+- fix txDetail explorer click issue
+- update networkPage
 
 ## [1.1.7]
 - Add internal transfer
