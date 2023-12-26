@@ -331,8 +331,6 @@
   "@deleteWatch": {},
   "allTransfer": "全部",
   "@allTransfer": {},
-  "accountRepeatAlert": "即将创建的账户地址为：\n<theme>{address}</theme>\n\n已存在导入账户【{accountName}】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<link href='aurowallet://back' route='/wallet/manage'>账户管理页</link>将已导入的账户删除。",
-  "@accountRepeatAlert": {},
   "password": "密码",
   "@password": {},
   "confirmPasswordShort": "确认密码",
@@ -434,5 +432,23 @@
   "contributeLanguage": "贡献语言",
   "@contributeLanguage": {},
   "available": "可用",
-  "@available": {}
+  "@available": {},
+  "importSameAccount_1": "即将创建的账户地址为：\n<theme>{address}</theme>",
+  "@importSameAccount_1": {
+    "placeholders": {
+      "address": {
+        "type": "String",
+        "example": "B62..."
+      }
+    }
+  },
+  "importSameAccount_2": "已存在导入账户【{accountName}】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<acmanage>账户管理页</acmanage>将已导入的账户删除。",
+  "@importSameAccount_2": {
+    "placeholders": {
+      "accountName": {
+        "type": "String",
+        "example": "Account 1..."
+      }
+    }
+  }
 }

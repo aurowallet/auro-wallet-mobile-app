@@ -335,8 +335,6 @@
   "@ledgerTip2": {},
   "manualAdd": "BÜ düğüm adresini girin",
   "@manualAdd": {},
-  "accountRepeatAlert": "Oluşturulacak hesabın adresi:\n<theme>{address}</theme>\n\nMevcut bir içe aktarılmış hesap [{accountName}]<link href='aurowallet://back' route='/wallet/manage'> bu adresin kopyasıdır. Auro Wallet, yinelenen hesap adreslerinin oluşturulmasını desteklemez. İçe aktarılan hesabı silmek için lütfen <link href='aurowallet://back' route='/wallet/manage'>Hesap Yönetimi</link>’ne gidin.",
-  "@accountRepeatAlert": {},
   "reset": "Sıfırla",
   "@reset": {},
   "invalidContact": "Geçersiz Adres",
@@ -434,5 +432,23 @@
   "failed": "HATALI",
   "@failed": {},
   "available": "Mevcut",
-  "@available": {}
+  "@available": {},
+  "importSameAccount_1": "Oluşturulacak hesabın adresi:\n<theme>{address}</theme>",
+  "@importSameAccount_1": {
+    "placeholders": {
+      "address": {
+        "type": "String",
+        "example": "B62..."
+      }
+    }
+  },
+  "importSameAccount_2": "Mevcut bir içe aktarılmış hesap [{accountName}] bu adresin kopyasıdır. Auro Wallet, yinelenen hesap adreslerinin oluşturulmasını desteklemez. İçe aktarılan hesabı silmek için lütfen <acmanage>Hesap Yönetimi</acmanage>’ne gidin.",
+  "@importSameAccount_2": {
+    "placeholders": {
+      "accountName": {
+        "type": "String",
+        "example": "Account 1..."
+      }
+    }
+  }
 }

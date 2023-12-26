@@ -331,8 +331,6 @@
   "@allTransfer": {},
   "noMoreSupported": "No longer supported account",
   "@noMoreSupported": {},
-  "accountRepeatAlert": "The address of the account to be created is:\n<theme>{address}</theme>\n\nAn existing imported account [{accountName}] is a duplicate of this address. Auro Wallet does not support the creation of duplicate account addresses. Please go to the <link href='aurowallet://back' route='/wallet/manage'>Account Management</link> to delete the imported account.",
-  "@accountRepeatAlert": {},
   "password": "Password",
   "@password": {},
   "confirmPasswordShort": "Confirm Password",
@@ -434,5 +432,23 @@
   "contributeLanguage": "Contribute language",
   "@contributeLanguage": {},
   "available": "Available",
-  "@available": {}
+  "@available": {},
+  "importSameAccount_1": "The address of the account to be created is:\n<theme>{address}</theme>",
+  "@importSameAccount_1": {
+    "placeholders": {
+      "address": {
+        "type": "String",
+        "example": "B62..."
+      }
+    }
+  },
+  "importSameAccount_2": "An existing imported account [{accountName}] is a duplicate of this address. Auro Wallet does not support the creation of duplicate account addresses. Please go to the <acmanage>Account Management</acmanage> to delete the imported account.",
+  "@importSameAccount_2": {
+    "placeholders": {
+      "accountName": {
+        "type": "String",
+        "example": "Account 1..."
+      }
+    }
+  }
 }

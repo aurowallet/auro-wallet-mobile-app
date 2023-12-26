@@ -1,3 +1,4 @@
+import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
 
@@ -38,6 +39,13 @@ class CustomStyledText extends StatelessWidget {
               }
             }
             print('The "$link" link is tapped.');
+          },
+          style: TextStyle(
+              decoration: TextDecoration.underline, color: primaryColor),
+        ),
+        'acmanage': StyledTextActionTag(
+          (String? text, Map<String?, String?> attrs) {
+              Navigator.popUntil(context, ModalRoute.withName(WalletManagePage.route));
           },
           style: TextStyle(
               decoration: TextDecoration.underline, color: primaryColor),

@@ -73,10 +73,10 @@ class _WalletManagePageState extends State<WalletManagePage> {
         if (matchedAccount != null) {
           UI.showAlertDialog(
               context: context,
+              crossAxisAlignment:CrossAxisAlignment.start,
               contents: [
-                dic.accountRepeatAlert
-                    .replaceAll('{address}', matchedAccount.address)
-                    .replaceAll('{accountName}', matchedAccount.name)
+                dic.importSameAccount_1(matchedAccount.address)+"\n",
+                dic.importSameAccount_2(matchedAccount.name)
               ],
               confirm: dic.isee);
           return false;
