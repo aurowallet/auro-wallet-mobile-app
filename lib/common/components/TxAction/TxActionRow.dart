@@ -68,14 +68,14 @@ class _TxActionRowState extends State<TxActionRow> {
                 children: [
                   GestureDetector(
                     child: Container(
-                      height: 18,
+                      height: 20,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                           color: Color(0xFF594AF1),
                           borderRadius: BorderRadius.circular(4)),
                       margin: EdgeInsets.symmetric(horizontal: 2, vertical: 4),
                       child: Padding(
-                        padding: EdgeInsets.only(left: 4, right: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                         child: Text(
                           textAlign: TextAlign.center,
                           dic.speedUp,
@@ -100,7 +100,7 @@ class _TxActionRowState extends State<TxActionRow> {
             : Container(),
         GestureDetector(
           child: Container(
-            height: 18,
+            height: 20,
             alignment: Alignment.center,
             decoration: BoxDecoration(
                 border: Border.all(
