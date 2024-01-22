@@ -37,7 +37,7 @@
   "@backup_success": {},
   "backup_success_restore": "恭喜你，已经成功导入钱包！",
   "@backup_success_restore": {},
-  "inputSeed": "请按顺序输入12位助记词，每位单词使用空格隔开。",
+  "inputSeed": "请按顺序输入12位助记词，没有大写和标点符号。",
   "@inputSeed": {},
   "confirm": "确定",
   "@confirm": {},

@@ -35,7 +35,7 @@
   "@accountName": {},
   "amountError": "Girdiğiniz tutarın formatı hatalı",
   "@amountError": {},
-  "inputSeed": "Lütfen her kelime bir boşlukla ayrılmış olacak şekilde 12 anımsatıcı kelimeyi sırayla girin.",
+  "inputSeed": "Lütfen 12 anımsatıcı ifadeyi, büyük harf ve noktalama işareti olmadan, sırayla girin.",
   "@inputSeed": {},
   "fee_fast": "Hızlı",
   "@fee_fast": {},
