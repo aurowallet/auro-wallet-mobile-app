@@ -37,7 +37,7 @@
   "@backup_success": {},
   "backup_success_restore": "Congrats, You have successfully restored a wallet!",
   "@backup_success_restore": {},
-  "inputSeed": "Please enter 12 mnemonic phrases in order, with each word separated by a space.",
+  "inputSeed": "Please enter 12 mnemonic phrases in order, without capitalization, punctuation symbols.",
   "@inputSeed": {},
   "confirm": "Confirm",
   "@confirm": {},
