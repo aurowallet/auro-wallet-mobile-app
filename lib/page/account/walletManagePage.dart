@@ -165,12 +165,13 @@ class _WalletManagePageState extends State<WalletManagePage> {
     if (confirmed != true) {
       return;
     }
+    String deleteTag = dic.delete.toLowerCase();
     String? confirmInput = await showDialog<String>(
       context: context,
       builder: (_) {
         return CustomPromptDialog(
-          title: dic.deleteConfirm,
-          placeholder: '',
+          title: dic.deleteConfirm(deleteTag),
+          placeholder: deleteTag,
           onOk: (String? text) {
             if (text == null || text.isEmpty) {
               return false;
@@ -178,7 +179,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
             return true;
           },
           validate: (text) {
-            return text.toLowerCase() == dic.delete.toLowerCase();
+            return text.toLowerCase() == deleteTag;
           },
         );
       },

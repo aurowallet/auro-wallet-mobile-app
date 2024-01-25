@@ -317,8 +317,15 @@
   "@confirmReset": {},
   "cancelReset": "取消",
   "@cancelReset": {},
-  "deleteConfirm": "请输入“删除”确定重置钱包",
-  "@deleteConfirm": {},
+  "deleteConfirm": "请输入“{tag}”确定重置钱包",
+  "@deleteConfirm": {
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "delete"
+      }
+    }
+  },
   "edit": "编辑",
   "@edit": {},
   "save": "保存",

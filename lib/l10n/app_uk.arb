@@ -203,7 +203,7 @@
   "@createPassword": {},
   "epochInfo": "Інформація про епоху",
   "@epochInfo": {},
-  "delegationInfo": "Інформація про делегацію",
+  "delegationInfo": "Делегування",
   "@delegationInfo": {},
   "emptyDelegateTitle": "Ви ще не делегували",
   "@emptyDelegateTitle": {},
@@ -317,8 +317,15 @@
   "@confirmReset": {},
   "cancelReset": "Скасувати",
   "@cancelReset": {},
-  "deleteConfirm": "Введіть «видалити», щоб назавжди стерти поточний гаманець",
-  "@deleteConfirm": {},
+  "deleteConfirm": "Введіть «{tag}», щоб назавжди стерти поточний гаманець",
+  "@deleteConfirm": {
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "delete"
+      }
+    }
+  },
   "edit": "Редагувати",
   "@edit": {},
   "save": "зберегти",

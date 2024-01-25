@@ -267,8 +267,15 @@
   "@epochEndTime": {},
   "agree": "Kabul Ediyorum",
   "@agree": {},
-  "deleteConfirm": "Mevcut cüzdanı kalıcı olarak silmek için ‘sil’ yazın",
-  "@deleteConfirm": {},
+  "deleteConfirm": "Mevcut cüzdanı kalıcı olarak silmek için ‘{tag}’ yazın",
+  "@deleteConfirm": {
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "delete"
+      }
+    }
+  },
   "protectMnemonic": "Anımsatıcı cümleyi korumanın tüm sorumluluğunu alıyorum.",
   "@protectMnemonic": {},
   "termsAndPrivacy_line1": "Bu hizmet Auro Wallet tarafından sağlanmaktadır, lütfen Şartlar ve Koşullar ile Gizlilik Politikasını dikkatlice okuyup anlamak için zaman ayırın.",

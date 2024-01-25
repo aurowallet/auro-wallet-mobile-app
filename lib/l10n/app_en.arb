@@ -317,8 +317,15 @@
   "@confirmReset": {},
   "cancelReset": "Cancel",
   "@cancelReset": {},
-  "deleteConfirm": "Type 'delete' to erase current wallet permanently",
-  "@deleteConfirm": {},
+  "deleteConfirm": "Type '{tag}' to erase current wallet permanently",
+  "@deleteConfirm": {
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "delete"
+      }
+    }
+  },
   "edit": "Edit",
   "@edit": {},
   "save": "Save",
