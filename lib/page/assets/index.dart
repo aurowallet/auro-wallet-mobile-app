@@ -213,7 +213,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                   child: NodeSelectionDropdown(store: store),
                 ),
                 Container(
-                  width: 15,
+                  width: 12,
                 ),
                 IconButton(
                     iconSize: 30,
