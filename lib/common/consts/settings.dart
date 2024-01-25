@@ -19,7 +19,7 @@ const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 /// app versions
-const String app_version = 'v1.1.8(1121)';
+const String app_version = 'v1.1.9(1122)';
 
 final mainNetNode = CustomNode(
     name: 'Mainnet', url: GRAPH_QL_MAINNET_NODE_URL, networksType: '0');
@@ -29,7 +29,8 @@ final devNetNode = CustomNode(
 final Map<String, String> languageConfig = {
   "en": 'English',
   "zh": '中文（简体）', 
-  "tr": "Türkçe"
+  "tr": "Türkçe",
+  "uk": "Українська мова",
 };
 
 // ** language contrubute url
