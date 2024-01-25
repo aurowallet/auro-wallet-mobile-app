@@ -17,4 +17,5 @@ final List<Currency> currencyConfig = [
   Currency(key: "eur", value: "EUR", symbol: "€"),
   Currency(key: "gbp", value: "GBP", symbol: "£"),
   Currency(key: "try", value: "TRY", symbol: "₺"),
+  Currency(key: "uah", value: "UAH", symbol: "₴"),
 ];
