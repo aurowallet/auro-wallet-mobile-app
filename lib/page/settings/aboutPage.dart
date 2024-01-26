@@ -86,7 +86,8 @@ class _AboutPage extends State<AboutPage> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 10, right: 30, left: 30),
-                  child: Text(dic.walletAbout,
+                  child: Text(dic.walletAbout, 
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -123,7 +124,7 @@ class _AboutPage extends State<AboutPage> {
                 Container(
                   padding: EdgeInsets.only(top: 40, bottom: 23),
                   child: Text(dic.followUs,
-                      style: TextStyle(fontSize: 12, color: Color(0x80000000))),
+                      style: TextStyle(fontSize: 12, color: Color.fromRGBO(128, 128, 128, 1))),
                 ),
                 aboutus != null
                     ? Row(
@@ -155,11 +156,7 @@ class _AboutPage extends State<AboutPage> {
                                   ? SocialItem(
                                       name: 'Telegram',
                                       link: aboutus.telegram!.website,
-                                      image: Image.asset(
-                                        'assets/images/setting/telegram.png',
-                                        width: 24,
-                                        height: 24,
-                                      ),
+                                      icon: 'assets/images/setting/telegram.svg',
                                     )
                                   : Container(),
                             ],
@@ -189,13 +186,13 @@ class SocialItem extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              color: Color(0x1AC4C4C4),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Color(0x1A000000), width: 1)),
+              color: Color.fromRGBO(89, 74, 241, 0.1),
+              borderRadius: BorderRadius.circular(48),
+              ),
           child: IconBrowserLink(link,
               icon: image ??
                   (icon != null ? SvgPicture.asset(icon!) : Container())),
@@ -206,7 +203,7 @@ class SocialItem extends StatelessWidget {
           style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: Color(0x80000000),
+              color: Color.fromRGBO(128, 128, 128, 1),
               height: 1.4),
         )
       ],
