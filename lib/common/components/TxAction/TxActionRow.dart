@@ -75,7 +75,7 @@ class _TxActionRowState extends State<TxActionRow> {
                           borderRadius: BorderRadius.circular(4)),
                       margin: EdgeInsets.symmetric(horizontal: 2, vertical: 4),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        padding: EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
                           textAlign: TextAlign.center,
                           dic.speedUp,
