@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [1.1.9]
+- Add language:ukrainian
+- Add currency:UAH
+- UI enhancements
+- Optimize reset wallet
+
 ## [1.1.8]
 - UI enhancements
 - add language:Turkish
