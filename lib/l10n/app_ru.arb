@@ -349,7 +349,7 @@
   "@addressQrTip": {},
   "homeNoTx": "Неизвестный узел, не способный предоставить историю.",
   "@homeNoTx": {},
-  "delegationInfo": "Делегация Информация",
+  "delegationInfo": "Делегировании",
   "@delegationInfo": {},
   "privateKey": "Приватный ключ",
   "@privateKey": {},
