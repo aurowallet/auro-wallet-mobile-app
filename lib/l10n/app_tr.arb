@@ -334,8 +334,6 @@
   "@refuse": {},
   "deleteaddress": "Adres Silinsin Mi?",
   "@deleteaddress": {},
-  "ledgerAddressTip2": "Get Address > Generate > Approve",
-  "@ledgerAddressTip2": {},
   "copyToClipboard": "Panoya Kopyala",
   "@copyToClipboard": {},
   "ledgerTip2": "<bold>Mina hazır</bold> mesajını görene kadar Ledger cihazınızda Mina uygulamasını açın.",

@@ -414,8 +414,6 @@
   "@ledgerStatus": {},
   "ledgerAddressTip1": "Продовжуйте подальшу операцію згідно з підказкою апаратного гаманця Ledger.",
   "@ledgerAddressTip1": {},
-  "ledgerAddressTip2": "Get Address > Generate > Approve",
-  "@ledgerAddressTip2": {},
   "ledgerAddressTip3": "<lightred>Не закривайте це вікно.</lightred> Щойно Ledger буде завершено, сторінка буде автоматично переспрямована.",
   "@ledgerAddressTip3": {},
   "waitingLedger": "Очікування підтвердження…",
