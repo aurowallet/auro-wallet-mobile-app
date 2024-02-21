@@ -414,8 +414,6 @@
   "@ledgerStatus": {},
   "ledgerAddressTip1": "Please continue the follow-up operation according to the prompt of the Ledger hardware wallet.",
   "@ledgerAddressTip1": {},
-  "ledgerAddressTip2": "Get Address > Generate > Approve",
-  "@ledgerAddressTip2": {},
   "ledgerAddressTip3": "<lightred>Do not close this window.</lightred> Once the Ledger is complete, the page will redirect automatically.",
   "@ledgerAddressTip3": {},
   "waitingLedger": "Waiting for confirmation…",

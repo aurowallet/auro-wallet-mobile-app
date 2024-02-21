@@ -216,7 +216,7 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
         Padding(
           padding: EdgeInsets.symmetric(vertical: 20),
           child: Text(
-            dic.ledgerAddressTip2,
+            "Get Address > Generate > Approve",
             style: TextStyle(
                 fontSize: 14,
                 color: Colors.black,
