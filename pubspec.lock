@@ -150,20 +150,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.1"
-  charts_common:
-    dependency: transitive
-    description:
-      name: charts_common
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.10.0"
-  charts_flutter:
-    dependency: "direct main"
-    description:
-      name: charts_flutter
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.10.0"
   checked_yaml:
     dependency: transitive
     description:
@@ -276,13 +262,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.17.2"
-  cupertino_icons:
-    dependency: "direct main"
-    description:
-      name: cupertino_icons
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.5"
   dart_style:
     dependency: transitive
     description:
@@ -325,13 +304,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.8.9"
-  dropdown_search:
-    dependency: "direct main"
-    description:
-      name: dropdown_search
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.9"
   encrypt:
     dependency: "direct main"
     description:
@@ -440,13 +412,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.2.1"
-  flutter_slidable:
-    dependency: "direct main"
-    description:
-      name: flutter_slidable
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.6.0"
   flutter_sodium:
     dependency: "direct main"
     description:
@@ -468,13 +433,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.6"
-  flutter_svg_provider:
-    dependency: "direct main"
-    description:
-      name: flutter_svg_provider
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.3"
   flutter_switch:
     dependency: "direct main"
     description:
@@ -507,7 +465,7 @@ packages:
     source: hosted
     version: "2.2.0"
   freezed_annotation:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: freezed_annotation
       url: "https://pub.flutter-io.cn"
@@ -793,13 +751,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
-  mobx_codegen:
-    dependency: "direct main"
-    description:
-      name: mobx_codegen
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.7+3"
   mockito:
     dependency: "direct dev"
     description:
@@ -996,13 +947,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
-  provider:
-    dependency: "direct main"
-    description:
-      name: provider
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.2.0"
   pub_semver:
     dependency: transitive
     description:
@@ -1374,34 +1318,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.5.2"
-  webview_flutter:
-    dependency: "direct main"
-    description:
-      name: webview_flutter
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.8.0"
-  webview_flutter_android:
-    dependency: transitive
-    description:
-      name: webview_flutter_android
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.10.4"
-  webview_flutter_platform_interface:
-    dependency: transitive
-    description:
-      name: webview_flutter_platform_interface
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.9.5"
-  webview_flutter_wkwebview:
-    dependency: transitive
-    description:
-      name: webview_flutter_wkwebview
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.9.5"
   win32:
     dependency: transitive
     description:
