@@ -48,8 +48,6 @@ dependencies:
   # QR code generator & reader
   qr_flutter: ^4.0.0
   permission_handler: ^10.2.0
-  # PackageInfo
-  package_info: ^0.4.0
   # svg renderer
   flutter_svg: ^1.1.5
   # open link in browser
