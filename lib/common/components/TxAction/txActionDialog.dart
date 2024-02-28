@@ -1,5 +1,4 @@
 import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
-import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/ledgerStatus.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -125,7 +124,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       Container(
         padding: EdgeInsets.only(top: 14, bottom: 60),
         child: Center(
-          child: CustomStyledText(
+          child: StyledText(
               text: dic.ledgerAddressTip3,
               style: TextStyle(
                   color: Colors.black,
