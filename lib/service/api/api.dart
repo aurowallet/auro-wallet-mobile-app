@@ -37,7 +37,10 @@ class Api {
 
   late BridgeService bridge;
 
-  void init() {
+  void init() async {
+    bridge = BridgeService();
+    await launchWebview();
+
     account = ApiAccount(this);
     assets = ApiAssets(this);
     staking = ApiStaking(this);
@@ -46,14 +49,12 @@ class Api {
         clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
             .value;
     fetchInitialInfo();
-    bridge = BridgeService();
-
-    launchWebview();
   }
 
   Future<void> launchWebview() async {
     await bridge.init();
   }
+
   void dispose() {}
 
   void updateGqlClient(String endpoint) {
@@ -134,8 +135,7 @@ class Api {
     try {
       result = await req.timeout(Duration(seconds: timeout));
     } on TimeoutException catch (_) {
-      return GqlResult(
-          result: null, error: true, errorMessage: dic.timeout);
+      return GqlResult(result: null, error: true, errorMessage: dic.timeout);
     }
     if (result.hasException) {
       print('gql出错了：' + result.exception.toString());

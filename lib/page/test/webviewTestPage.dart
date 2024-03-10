@@ -30,6 +30,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   };
   bool createWalletStatus = false;
   bool signTransactionStatus = false;
+  bool pageCreateWalletStatus = false;
 
   @override
   void initState() {
@@ -430,13 +431,21 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   }
 
   Future<void> createWalletInDev() async {
-    var isSuccess = await webApi.account.createWalletByPrivateKey(
-        "accountName",
-        "EKEfKdYoaCeGy4aZoCSam6DdGejrL121HSwFGrckzkLcLqPTMUxW",
-        "Qw1skjaas",
-        context: context,
-        source: WalletSource.outside);
-    print('createWalletInDev: ${isSuccess}');
+    setState(() {
+      pageCreateWalletStatus = true;
+    });
+    var isSuccess = await webApi.account.createWalletByPrivateKey("accountName",
+        "EKEfKdYoaCeGy4aZoCSam6DdGejrL121HSwFGrckzkLcLqPTMUxW", "Qw1skjaas",
+        context: context, source: WalletSource.outside);
+    setState(() {
+      pageCreateWalletStatus = false;
+    });
+    print('createWalletInDev: $isSuccess');
+    if (isSuccess) {
+      showConfirmDialog("Wallet create success");
+    } else {
+      showConfirmDialog("Wallet create failed");
+    }
   }
 
   @override
@@ -477,6 +486,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
                 child: NormalButton(
                   text: "Page test create wallet",
                   onPressed: createWalletInDev,
+                  submitting: pageCreateWalletStatus,
                 ))
           ],
         ),
