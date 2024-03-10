@@ -1,21 +1,9 @@
-import 'dart:ffi'; // For FFI
-import 'dart:io'; // For Platform.isX
-import 'dart:math';
 import 'dart:convert';
+
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:bip32/bip32.dart' as bip32;
+import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:flutter/foundation.dart';
 import "package:hex/hex.dart";
-import 'package:bs58check/bs58check.dart' as bs58check;
-import 'package:auro_wallet/walletSdk/types.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
-
-// import 'package:auro_wallet/walletSdk/rust_api_generated.dart';
-
-final path = 'librust_signer.so'; 
-late final dylib =
-    Platform.isIOS ? DynamicLibrary.process() : DynamicLibrary.open(path);
-// late final api = RustSignerImpl(dylib);
 
 String generateRandMnemonic() {
   String randomMnemonic = bip39.generateMnemonic();
