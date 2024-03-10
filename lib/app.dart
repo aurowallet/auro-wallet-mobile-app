@@ -4,6 +4,7 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
+import 'package:auro_wallet/page/test/webviewTestPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -92,7 +93,9 @@ class _WalletAppState extends State<WalletApp> {
 
   void _changeLang(BuildContext context, String code) {
     Locale res;
-    if (code.isNotEmpty && AppLocalizations.supportedLocales.any((locale) => locale.languageCode == code)) {
+    if (code.isNotEmpty &&
+        AppLocalizations.supportedLocales
+            .any((locale) => locale.languageCode == code)) {
       res = new Locale(code, '');
     } else {
       res = Localizations.localeOf(context);
@@ -217,6 +220,9 @@ class _WalletAppState extends State<WalletApp> {
         // staking
         DelegatePage.route: (_) => DelegatePage(_appStore!),
         ValidatorsPage.route: (_) => ValidatorsPage(_appStore!),
+
+        // webview bridge test page
+        // WebviewBridgeTestPage.route: (_) => WebviewBridgeTestPage(),
       },
     );
   }

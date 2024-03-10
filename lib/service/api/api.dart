@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/service/webview/bridgeService.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,8 @@ class Api {
   late ApiStaking staking;
   late ApiSetting setting;
 
+  late BridgeService bridge;
+
   void init() {
     account = ApiAccount(this);
     assets = ApiAssets(this);
@@ -43,8 +46,14 @@ class Api {
         clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
             .value;
     fetchInitialInfo();
+    bridge = BridgeService();
+
+    launchWebview();
   }
 
+  Future<void> launchWebview() async {
+    await bridge.init();
+  }
   void dispose() {}
 
   void updateGqlClient(String endpoint) {
