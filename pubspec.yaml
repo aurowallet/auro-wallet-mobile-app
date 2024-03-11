@@ -80,6 +80,7 @@ dependencies:
   ledger_flutter: ^1.0.1
   decimal: ^2.3.3
   flutter_inappwebview: ^5.8.0
+  webview_flutter: ^4.0.7
   
 dependency_overrides:
   reactive_ble_mobile: '5.0.3'
@@ -193,6 +194,7 @@ flutter:
     ## tab bar bottom
     - assets/images/public/home_tab.svg
     - assets/images/public/stake_tab.svg
+    - assets/images/public/browser_tab.svg
     - assets/images/public/setting_tab.svg
     - assets/images/assets/scanner_black.png
     - assets/images/assets/receive_line_black.png

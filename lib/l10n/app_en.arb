@@ -457,5 +457,8 @@
         "example": "Account 1..."
       }
     }
-  }
+  },
+  "browser": "Browser",
+  "@browser": {},
+  "searchOrInputUrl":"Search or input URL"
 }
