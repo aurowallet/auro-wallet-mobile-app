@@ -238,6 +238,16 @@ flutter:
     - assets/images/entry/auro_logo.png
     - assets/images/entry/2.0x/auro_logo.png
 
+    # # webview
+    - assets/images/webview/icon_unfav.svg
+    - assets/images/webview/icon_back.svg
+    - assets/images/webview/icon_clear.svg
+    - assets/images/webview/icon_close.svg
+    - assets/images/webview/icon_fav.svg
+    - assets/images/webview/icon_pop.svg
+    - assets/images/webview/icon_refresh.svg
+    - assets/images/webview/icon_copy.svg
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
