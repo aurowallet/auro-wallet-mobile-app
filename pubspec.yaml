@@ -247,6 +247,8 @@ flutter:
     - assets/images/webview/icon_pop.svg
     - assets/images/webview/icon_refresh.svg
     - assets/images/webview/icon_copy.svg
+    - assets/images/webview/icon_link.svg
+    - assets/images/webview/icon_web_holder.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
