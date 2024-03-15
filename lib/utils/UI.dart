@@ -3,6 +3,10 @@ import 'dart:io';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
+import 'package:auro_wallet/page/browser/components/connectDialog.dart';
+import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
+import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -212,6 +216,106 @@ class UI {
                 Navigator.of(context).pop();
               }
             });
+      },
+    );
+  }
+
+  static Future<void> showConnectAction({
+    required BuildContext context,
+    required String url,
+    required Future<String> Function() onConfirm,
+    Future<void> Function()? onCancel,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (BuildContext context) {
+        return ConnectDialog(
+            url: url,
+            onConfirm: () async {
+            },
+            onCancel: () {
+            });
+      },
+    );
+  }
+
+  static Future<void> showSwitchChainAction({
+    required BuildContext context,
+    required String chainId,
+    required Future<String> Function() onConfirm,
+    Future<void> Function()? onCancel,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return SwitchChainDialog(
+            chainId: chainId,
+            onConfirm: () async {
+              Navigator.of(context).pop();
+              onConfirm();
+            },
+            onCancel: () {
+              Navigator.of(context).pop();
+            });
+      },
+    );
+  }
+
+  static Future<void> showAddChainAction({
+    required BuildContext context,
+    required String nodeUrl,
+    required String nodeName,
+    required Future<String> Function() onConfirm,
+    Future<void> Function()? onCancel,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return AddChainDialog(
+            nodeUrl: nodeUrl,
+            nodeName: nodeName,
+            onConfirm: () async {
+              onConfirm();
+            },
+            onCancel: () {});
+      },
+    );
+  }
+
+  static Future<void> showSignatureAction({
+    required BuildContext context,
+    required Object content,
+    required Future<String> Function() onConfirm,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return SignatureDialog(
+          content: content,
+          onConfirm: () async {
+            onConfirm();
+          },
+        );
       },
     );
   }
