@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/browser/components/accountSelectDialog.dart';
 import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
 import 'package:auro_wallet/page/browser/components/connectDialog.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
@@ -208,8 +209,8 @@ class UI {
       builder: (BuildContext context) {
         return TxActionDialog(
             title: title,
-            txData:txData,
-            modalType:modalType,
+            txData: txData,
+            modalType: modalType,
             buttonText: buttonText,
             onConfirm: () async {
               bool? success = await onConfirm();
@@ -235,12 +236,7 @@ class UI {
       isDismissible: true,
       enableDrag: true,
       builder: (BuildContext context) {
-        return ConnectDialog(
-            url: url,
-            onConfirm: () async {
-            },
-            onCancel: () {
-            });
+        return ConnectDialog(url: url, onConfirm: () async {}, onCancel: () {});
       },
     );
   }
@@ -345,7 +341,28 @@ class UI {
           amount: amount,
           fee: fee,
           memo: memo,
-          transaction:transaction,
+          transaction: transaction,
+          onConfirm: () async {
+            onConfirm();
+          },
+        );
+      },
+    );
+  }
+
+  static Future<void> showAccountSelectAction({
+    required BuildContext context,
+    required Future<String> Function() onConfirm,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (BuildContext context) {
+        return AccountSelectDialog(
           onConfirm: () async {
             onConfirm();
           },
