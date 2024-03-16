@@ -5,6 +5,7 @@ import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
 import 'package:auro_wallet/page/browser/components/connectDialog.dart';
+import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
 import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
@@ -312,6 +313,39 @@ class UI {
       builder: (BuildContext context) {
         return SignatureDialog(
           content: content,
+          onConfirm: () async {
+            onConfirm();
+          },
+        );
+      },
+    );
+  }
+
+  static Future<void> showSignTransactionAction({
+    required BuildContext context,
+    required SignTxDialogType signType,
+    required String to,
+    String? amount,
+    String? fee,
+    String? memo,
+    Object? transaction,
+    required Future<String> Function() onConfirm,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return SignTransactionDialog(
+          signType: signType,
+          to: to,
+          amount: amount,
+          fee: fee,
+          memo: memo,
+          transaction:transaction,
           onConfirm: () async {
             onConfirm();
           },

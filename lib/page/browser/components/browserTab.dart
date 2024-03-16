@@ -4,11 +4,13 @@ class BrowserTab extends StatefulWidget {
   BrowserTab({
     required this.tabTitles,
     required this.tabContents,
+    this.tabRightWidget,
     Key? key,
   }) : super(key: key);
 
   final List<String> tabTitles;
   final List<Widget> tabContents;
+  final Widget? tabRightWidget;
 
   @override
   _BrowserTabState createState() => _BrowserTabState();
@@ -47,7 +49,7 @@ class _BrowserTabState extends State<BrowserTab>
               ),
             ),
             Container(
-              constraints: BoxConstraints.expand(height: 45),
+              constraints: BoxConstraints.expand(height: 35),
               child: TabBar(
                   isScrollable: true,
                   controller: _tabController,
@@ -66,6 +68,9 @@ class _BrowserTabState extends State<BrowserTab>
                   labelPadding:
                       EdgeInsets.only(left: 0, right: 20, top: 0, bottom: 0)),
             ),
+            widget.tabRightWidget != null
+                ? Positioned(bottom: 8, right: 0, child: widget.tabRightWidget!)
+                : Container(),
           ],
         ),
         SizedBox(height: 10),
