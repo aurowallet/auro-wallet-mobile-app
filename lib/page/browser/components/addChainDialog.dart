@@ -1,6 +1,6 @@
-import 'package:auro_wallet/browser/components/browserBaseUi.dart';
-import 'package:auro_wallet/browser/components/zkAppBottomButton.dart';
-import 'package:auro_wallet/browser/components/zkAppWebsite.dart';
+import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
+import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
+import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 
@@ -8,12 +8,16 @@ class AddChainDialog extends StatefulWidget {
   AddChainDialog({
     required this.nodeUrl,
     required this.nodeName,
+    required this.url,
+    this.iconUrl,
     this.onConfirm,
     this.onCancel,
   });
 
   final String nodeUrl;
   final String nodeName;
+  final String url;
+  final String? iconUrl;
   final Function()? onConfirm;
   final Function()? onCancel;
 
@@ -26,7 +30,6 @@ class _AddChainDialogState extends State<AddChainDialog> {
   void initState() {
     super.initState();
   }
-
 
   void onConfirm() {
     widget.onConfirm!();
@@ -68,11 +71,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ZkAppWebsite(
-                              icon:
-                                  "https://test-zkapp.aurowallet.com/imgs/auro.png",
-                              url:
-                                  "https://aurowallet.github.io/auro-test-dapp/https://aurowallet.github.io/auro-test-dapp/"),
+                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
                           Container(
                             margin: EdgeInsets.only(top: 20),
                             child: Text("Allow this site to add a network?",

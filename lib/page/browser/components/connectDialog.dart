@@ -1,3 +1,4 @@
+import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 class ConnectDialog extends StatefulWidget {
   ConnectDialog({
     required this.url,
+    this.iconUrl,
     this.onConfirm,
     this.onCancel,
   });
@@ -13,8 +15,7 @@ class ConnectDialog extends StatefulWidget {
   final String url;
   final Function()? onConfirm;
   final Function()? onCancel;
-
-  // final store = globalAppStore;
+  final String? iconUrl;
 
   @override
   _ConnectDialogState createState() => new _ConnectDialogState();
@@ -26,12 +27,15 @@ class _ConnectDialogState extends State<ConnectDialog> {
     super.initState();
   }
 
-
   void onConfirm() {
-    print('onConfirm');
+    print(' ConnectDialog  onConfirm');
+    widget.onConfirm!();
   }
 
-  void onCancel() {}
+  void onCancel() {
+    print(' ConnectDialog  onCancel');
+    widget.onCancel!();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,33 +52,13 @@ class _ConnectDialogState extends State<ConnectDialog> {
             children: [
               Wrap(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text("Connection Request",
-                            style: TextStyle(
-                                color: Color(0xFF222222),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: 0.5,
-                    color: Color(0xFF000000).withOpacity(0.1),
-                  ),
+                  BrowserDialogTitleRow(title: "Connection Request"),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ZkAppWebsite(
-                              icon:
-                                  "https://test-zkapp.aurowallet.com/imgs/auro.png", // todo
-                              url: widget.url),
+                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
                           Container(
                             margin: EdgeInsets.only(top: 20),
                             child: Text(

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/browserTab.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
@@ -7,11 +8,15 @@ import 'package:flutter/material.dart';
 class SignatureDialog extends StatefulWidget {
   SignatureDialog({
     required this.content,
+    required this.url,
+    this.iconUrl,
     this.onConfirm,
     this.onCancel,
   });
 
-  final Object content; 
+  final Object content;
+  final String url;
+  final String? iconUrl;
   final Function()? onConfirm;
   final Function()? onCancel;
 
@@ -20,6 +25,8 @@ class SignatureDialog extends StatefulWidget {
 }
 
 class _SignatureDialogState extends State<SignatureDialog> {
+  String currentChainId = "Mainnet";
+
   @override
   void initState() {
     super.initState();
@@ -32,10 +39,12 @@ class _SignatureDialogState extends State<SignatureDialog> {
 
   void onConfirm() {
     print('onConfirm');
-    // if error disable confirm
+    widget.onConfirm!();
   }
 
-  void onCancel() {}
+  void onCancel() {
+    widget.onCancel!();
+  }
 
   Widget _build() {
     if (widget.content is String) {
@@ -77,6 +86,13 @@ class _SignatureDialogState extends State<SignatureDialog> {
                 ))
             .toList(),
       );
+    } else if (widget.content is List<dynamic>) {
+      String showContent = jsonEncode(widget.content);
+      return Text(showContent,
+          style: TextStyle(
+              color: Colors.black.withOpacity(0.8),
+              fontSize: 14,
+              fontWeight: FontWeight.w400));
     } else {
       return Text('Error: Unknown content type'); // if error disable confirm
     }
@@ -85,7 +101,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
   @override
   Widget build(BuildContext context) {
     Map userInfo = {
-      "accountName": "Zhangsan",
+      "accountName": "xxx",
       "address": "B62456...123456",
       "balance": "123.4321 MINA",
     };
@@ -104,7 +120,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                 children: [
                   BrowserDialogTitleRow(
                     title: "Signature Request",
-                    chainId: "Mainnet",
+                    chainId: currentChainId,
                   ),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
@@ -112,11 +128,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ZkAppWebsite(
-                              icon:
-                                  "https://test-zkapp.aurowallet.com/imgs/auro.png",
-                              url:
-                                  "https://aurowallet.github.io/auro-test-dapp/https://aurowallet.github.io/auro-test-dapp/"),
+                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
                           SizedBox(
                             height: 20,
                           ),
@@ -169,13 +181,6 @@ class _SignatureDialogState extends State<SignatureDialog> {
                               height: 200,
                               margin: EdgeInsets.only(top: 20),
                               width: double.infinity,
-                              // child: BrowserTab(
-                              //   tabTitles: ["Content", "Memo"],
-                              //   tabContents: [
-                              //     Container(child: Text('Content View')),
-                              //     Center(child: Text('Memo View')),
-                              //   ],
-                              // )
 
                               child: BrowserTab(
                                 tabTitles: ["Content"],

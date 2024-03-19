@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ZkAppWebsite extends StatelessWidget {
-  ZkAppWebsite({required this.icon, required this.url});
+  ZkAppWebsite({this.icon, required this.url});
 
-  final String icon;
+  final String? icon;
   final String url;
   @override
   Widget build(BuildContext context) {

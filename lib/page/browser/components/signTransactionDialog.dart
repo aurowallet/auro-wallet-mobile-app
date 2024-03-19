@@ -12,12 +12,14 @@ class SignTransactionDialog extends StatefulWidget {
   SignTransactionDialog({
     required this.signType,
     required this.to,
+    required this.onConfirm,
+    required this.url,
     this.amount,
     this.fee,
     this.memo,
     this.transaction,
-    this.onConfirm,
     this.onCancel,
+    this.iconUrl,
   });
 
   final SignTxDialogType signType;
@@ -26,8 +28,10 @@ class SignTransactionDialog extends StatefulWidget {
   final String? fee;
   final String? memo;
   final Object? transaction;
+  final String url;
+  final String? iconUrl;
 
-  final Function()? onConfirm;
+  final Function() onConfirm;
   final Function()? onCancel;
 
   @override
@@ -51,14 +55,16 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   void onConfirm() {
     print('onConfirm');
-    // if error disable confirm
+    widget.onConfirm!();
   }
 
-  void onCancel() {}
+  void onCancel() {
+    widget.onCancel!();
+  }
 
   Widget _buildAccountRow() {
     Map userInfo = {
-      "accountName": "Zhangsan",
+      "accountName": "xxx",
       "address": "B62456...123456",
       "balance": "123.4321 MINA",
     };
@@ -159,9 +165,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         );
       },
     );
-    // if (nextFee!.isNotEmpty) {
-    // nextStateFee = double.parse(nextFee);
-    // }
+    if (nextFee!.isNotEmpty) {
+      // nextStateFee = double.parse(nextFee);
+    }
   }
 
   Widget _buildFeeRow() {
@@ -320,10 +326,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         );
       }
     }
-
-    if (widget.memo != null) {
+    if (widget.memo != null && widget.memo!.isNotEmpty) {
       tabTitleList.add('Memo');
       tabContengList.add(TabBorderContent(tabContent: _buildMemoContent()));
+    }
+    if (tabTitleList.length == 0) {
+      return Container();
     }
     return Container(
         height: 200,
@@ -413,10 +421,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                                 children: [
                                   isRiskAddress ? _buildRiskTip() : Container(),
                                   ZkAppWebsite(
-                                      icon:
-                                          "https://test-zkapp.aurowallet.com/imgs/auro.png",
-                                      url:
-                                          "https://aurowallet.github.io/auro-test-dapp/https://aurowallet.github.io/auro-test-dapp/"),
+                                      icon: widget.iconUrl!, url: widget.url),
                                   SizedBox(
                                     height: 20,
                                   ),

@@ -225,18 +225,28 @@ class UI {
   static Future<void> showConnectAction({
     required BuildContext context,
     required String url,
-    required Future<String> Function() onConfirm,
-    Future<void> Function()? onCancel,
+    String? iconUrl,
+    required Future<void> Function() onConfirm,
+    Function()? onCancel,
     String? buttonText,
-  }) {
+  }) async {
     return showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      isDismissible: true,
-      enableDrag: true,
+      isDismissible: false,
+      enableDrag: false,
       builder: (BuildContext context) {
-        return ConnectDialog(url: url, onConfirm: () async {}, onCancel: () {});
+        return ConnectDialog(
+            url: url,
+            iconUrl: iconUrl,
+            onConfirm: () async {
+              Navigator.of(context).pop();
+              onConfirm();
+            },
+            onCancel: () {
+              onCancel!();
+            });
       },
     );
   }
@@ -244,8 +254,10 @@ class UI {
   static Future<void> showSwitchChainAction({
     required BuildContext context,
     required String chainId,
-    required Future<String> Function() onConfirm,
-    Future<void> Function()? onCancel,
+    required String url,
+    String? iconUrl,
+    required Future Function() onConfirm,
+    void Function()? onCancel,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -257,12 +269,14 @@ class UI {
       builder: (BuildContext context) {
         return SwitchChainDialog(
             chainId: chainId,
+            url: url,
+            iconUrl: iconUrl,
             onConfirm: () async {
               Navigator.of(context).pop();
               onConfirm();
             },
             onCancel: () {
-              Navigator.of(context).pop();
+              onCancel!();
             });
       },
     );
@@ -272,8 +286,10 @@ class UI {
     required BuildContext context,
     required String nodeUrl,
     required String nodeName,
+    required String url,
+    String? iconUrl,
     required Future<String> Function() onConfirm,
-    Future<void> Function()? onCancel,
+    void Function()? onCancel,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -286,10 +302,14 @@ class UI {
         return AddChainDialog(
             nodeUrl: nodeUrl,
             nodeName: nodeName,
+            url: url,
+            iconUrl: iconUrl,
             onConfirm: () async {
               onConfirm();
             },
-            onCancel: () {});
+            onCancel: () {
+              onCancel!();
+            });
       },
     );
   }
@@ -297,7 +317,10 @@ class UI {
   static Future<void> showSignatureAction({
     required BuildContext context,
     required Object content,
+    required String url,
+    String? iconUrl,
     required Future<String> Function() onConfirm,
+    Function()? onCancel,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -308,11 +331,16 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return SignatureDialog(
-          content: content,
-          onConfirm: () async {
-            onConfirm();
-          },
-        );
+            content: content,
+            url: url,
+            iconUrl: iconUrl,
+            onConfirm: () async {
+              Navigator.of(context).pop();
+              onConfirm();
+            },
+            onCancel: () {
+              onCancel!();
+            });
       },
     );
   }
@@ -325,7 +353,10 @@ class UI {
     String? fee,
     String? memo,
     Object? transaction,
+    required String url,
+    String? iconUrl,
     required Future<String> Function() onConfirm,
+    Function()? onCancel,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -336,16 +367,21 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return SignTransactionDialog(
-          signType: signType,
-          to: to,
-          amount: amount,
-          fee: fee,
-          memo: memo,
-          transaction: transaction,
-          onConfirm: () async {
-            onConfirm();
-          },
-        );
+            signType: signType,
+            to: to,
+            amount: amount,
+            fee: fee,
+            memo: memo,
+            transaction: transaction,
+            url: url,
+            iconUrl: iconUrl,
+            onConfirm: () async {
+              Navigator.of(context).pop();
+              onConfirm();
+            },
+            onCancel: () {
+              onCancel!();
+            });
       },
     );
   }

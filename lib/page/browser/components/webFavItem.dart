@@ -13,6 +13,10 @@ class WebFavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String showTitle = data.title;
+    if (data.title.length > 16) {
+      showTitle = data.title.substring(0, 16);
+    }
     return Container(
         margin: const EdgeInsets.only(top: 10),
         child: Material(
@@ -30,7 +34,6 @@ class WebFavItem extends StatelessWidget {
                         color: Colors.black.withOpacity(0.05), width: 0.5)),
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ItemLogo(
@@ -38,19 +41,12 @@ class WebFavItem extends StatelessWidget {
                       logo: data.icon,
                     ),
                     Container(
-                      width: 10,
+                      child: Text(showTitle,
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w400)),
                     ),
-                    Expanded(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(data.title,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w400)),
-                      ],
-                    )),
                   ],
                 )),
           ),
@@ -149,7 +145,7 @@ class WebHistoryItem extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(top: 2),
                     ),
-                    Text(data.uri,
+                    Text(data.url,
                         style: TextStyle(
                             color:
                                 ColorsUtil.hexColor(0x808080).withOpacity(0.5),

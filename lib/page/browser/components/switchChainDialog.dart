@@ -8,11 +8,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 class SwitchChainDialog extends StatefulWidget {
   SwitchChainDialog({
     required this.chainId,
+    required this.url,
+    this.iconUrl,
     this.onConfirm,
     this.onCancel,
   });
 
   final String chainId;
+  final String url;
+  final String? iconUrl;
   final Function()? onConfirm;
   final Function()? onCancel;
 
@@ -21,16 +25,22 @@ class SwitchChainDialog extends StatefulWidget {
 }
 
 class _SwitchChainDialogState extends State<SwitchChainDialog> {
+  String currentChainId = "currentChainId";
+
   @override
   void initState() {
     super.initState();
   }
 
   void onConfirm() {
-    print('onConfirm');
+    print(' SwitchChainDialog  onConfirm');
+    widget.onConfirm!();
   }
 
-  void onCancel() {}
+  void onCancel() {
+    print(' SwitchChainDialog  onCancel');
+    widget.onCancel!();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +63,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ZkAppWebsite(
-                              icon:
-                                  "https://test-zkapp.aurowallet.com/imgs/auro.png",
-                              url:
-                                  "https://aurowallet.github.io/auro-test-dapp/https://aurowallet.github.io/auro-test-dapp/"),
+                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
                           Container(
                             margin: EdgeInsets.only(top: 20, bottom: 20),
                             child: Text(
@@ -72,8 +78,8 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 ChainItem(
-                                    chainId: "Mainnet",
                                     title: "Current",
+                                    chainId: currentChainId,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start),
                                 SvgPicture.asset(
@@ -82,8 +88,8 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                                   color: Color(0xFF594AF1),
                                 ),
                                 ChainItem(
-                                    chainId: "Berkeley",
                                     title: "Target",
+                                    chainId: widget.chainId,
                                     crossAxisAlignment: CrossAxisAlignment.end),
                               ])
                         ],

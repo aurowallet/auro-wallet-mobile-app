@@ -68,26 +68,6 @@ class _TxActionDialogState extends State<TxActionDialog> {
         WalletStore.seedTypeLedger;
   }
 
-  Widget renderHead(String headerLabel, Widget headerValue) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 40),
-      child: Center(
-        child: Column(
-          children: [
-            Text(
-              headerLabel,
-              style: TextStyle(
-                  color: const Color(0x80000000),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500),
-            ),
-            headerValue
-          ],
-        ),
-      ),
-    );
-  }
-
   List<Widget> renderLedgerConfirm() {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return [
