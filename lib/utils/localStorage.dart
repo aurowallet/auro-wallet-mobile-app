@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:auro_wallet/utils/secureStorage.dart';
 
 class LocalStorage {
   final walletsKey = 'wallet_account_list';
@@ -10,6 +9,8 @@ class LocalStorage {
   final contactsKey = 'wallet_contact_list';
   final seedKey = 'wallet_seed';
   final customKVKey = 'wallet_kv';
+  final webview_fav_kv = 'webview_fav_kv';
+  final webview_history_kv = 'webview_history_kv';
 
   _LocalStorage storage = _LocalStorage();
 
@@ -53,11 +54,10 @@ class LocalStorage {
     return storage.removeItemFromList(contactsKey, 'address', address);
   }
 
-  Future<void> updateContact(Map<String, dynamic> con, String oldAddress) async {
-    return storage.updateItemInList(
-        contactsKey, 'address', oldAddress, con);
+  Future<void> updateContact(
+      Map<String, dynamic> con, String oldAddress) async {
+    return storage.updateItemInList(contactsKey, 'address', oldAddress, con);
   }
-
 
   Future<bool> setObject(String key, Object value) async {
     String str = await compute(jsonEncode, value);
@@ -108,10 +108,38 @@ class LocalStorage {
     return DateTime.now().millisecondsSinceEpoch - customCacheTimeLength >
         cacheTime;
   }
+
+  Future<List<Map<String, dynamic>>> getWebviewFavList() async {
+    return storage.getList(webview_fav_kv);
+  }
+
+  Future<void> removeWebviewFav(String url) async {
+    return storage.removeItemFromList(webview_fav_kv, 'url', url);
+  }
+
+  Future<void> updateWebviewFav(Map<String, dynamic> con, String oldUrl) async {
+    return storage.updateOrAddItemInList(webview_fav_kv, 'url', oldUrl, con);
+  }
+  
+  Future<List<Map<String, dynamic>>> getWebHistoryList() async {
+    return storage.getList(webview_history_kv);
+  }
+
+  Future<void> removeWebHistory(String url) async {
+    return storage.removeItemFromList(webview_history_kv, 'url', url);
+  }
+
+  Future<void> updateWebHistoryList(
+      Map<String, dynamic> con, String oldUrl) async {
+    return storage.updateOrAddItemInList(webview_history_kv, 'url', oldUrl, con);
+  }
+
+  Future<void> clearWebHistoryList() async {
+    return storage.clearList(webview_history_kv);
+  }
 }
 
 class _LocalStorage {
-
   Future<String?> getKV(String key) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
@@ -162,6 +190,19 @@ class _LocalStorage {
       ls.removeAt(index);
       ls.insert(index, itemNew);
       setKV(storeKey, jsonEncode(ls));
+    }
+  }
+
+  Future<void> updateOrAddItemInList(String storeKey, String itemKey,
+      String itemValue, Map<String, dynamic> itemNew) async {
+    List<Map<String, dynamic>> ls = await getList(storeKey);
+    int index = ls.indexWhere((item) => item[itemKey] == itemValue);
+    if (index >= 0) {
+      ls.removeAt(index);
+      ls.insert(index, itemNew);
+      setKV(storeKey, jsonEncode(ls));
+    } else {
+      addItemToList(storeKey, itemNew);
     }
   }
 
