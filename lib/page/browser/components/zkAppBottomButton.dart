@@ -1,14 +1,38 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 
 class ZkAppBottomButton extends StatelessWidget {
-  ZkAppBottomButton({this.onCancel, required this.onConfirm});
+  ZkAppBottomButton({required this.onConfirm, this.onCancel, this.hideCancel});
 
   final Function()? onCancel;
   final Function()? onConfirm;
+  final bool? hideCancel;
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    List<Widget> leftWidget = [];
+    if (!(hideCancel == true)) {
+      leftWidget.add(Expanded(
+          child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          minimumSize: Size(double.infinity, 48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        onPressed: () {
+          onCancel!();
+          Navigator.of(context).pop();
+        },
+        child: Text(dic.cancel,
+            style: TextStyle(
+                color: Color(0xFF594AF1),
+                fontSize: 14,
+                fontWeight: FontWeight.w600)),
+      )));
+      leftWidget.add(SizedBox(width: 15));
+    }
     return Container(
       margin: EdgeInsets.only(
         top: 20,
@@ -17,24 +41,7 @@ class ZkAppBottomButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-              child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              minimumSize: Size(double.infinity, 48),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              onCancel!();
-              Navigator.of(context).pop();
-            },
-            child: Text("Cancel",
-                style: TextStyle(
-                    color: Color(0xFF594AF1),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
-          )),
-          SizedBox(width: 15),
+          ...leftWidget,
           Expanded(
               child: ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -49,7 +56,7 @@ class ZkAppBottomButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Confirm",
+                Text(dic.confirm,
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 14,

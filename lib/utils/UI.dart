@@ -5,6 +5,7 @@ import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/accountSelectDialog.dart';
 import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
+import 'package:auro_wallet/page/browser/components/advanceDialog.dart';
 import 'package:auro_wallet/page/browser/components/connectDialog.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
@@ -296,7 +297,7 @@ class UI {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      isDismissible: true,
+      isDismissible: false,
       enableDrag: false,
       builder: (BuildContext context) {
         return AddChainDialog(
@@ -327,7 +328,7 @@ class UI {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      isDismissible: true,
+      isDismissible: false,
       enableDrag: false,
       builder: (BuildContext context) {
         return SignatureDialog(
@@ -363,7 +364,7 @@ class UI {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      isDismissible: true,
+      isDismissible: false,
       enableDrag: false,
       builder: (BuildContext context) {
         return SignTransactionDialog(
@@ -388,7 +389,7 @@ class UI {
 
   static Future<void> showAccountSelectAction({
     required BuildContext context,
-    required Future<String> Function() onConfirm,
+    Function()? onConfirm,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -399,8 +400,31 @@ class UI {
       enableDrag: true,
       builder: (BuildContext context) {
         return AccountSelectDialog(
-          onConfirm: () async {
-            onConfirm();
+          onConfirm: () {
+            onConfirm!();
+          },
+        );
+      },
+    );
+  }
+
+  static Future<void> showAdvance({
+    required BuildContext context,
+    required double fee,
+    Function(double, int)? onConfirm,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return AdvanceDialog(
+          nextStateFee:fee,
+          onConfirm: (double fee, int nonce) {
+            onConfirm!(fee,nonce);
           },
         );
       },
