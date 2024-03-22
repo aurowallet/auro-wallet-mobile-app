@@ -125,7 +125,8 @@ class _NodeEditPageState extends State<NodeEditPage> {
     // only support mainnet and testnet
     if (targetNetworks.isEmpty ||
         (targetNetworks.first.type != '0' &&
-            targetNetworks.first.type != '1')) {
+            targetNetworks.first.type != '1' &&
+            targetNetworks.first.type != '11')) {
       setState(() {
         errorText = dic.urlError_1;
         addressError = true;
