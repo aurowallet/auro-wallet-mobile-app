@@ -10,5 +10,6 @@ class WalletSource {
 enum NetworkTypes {
   mainnet,
   devnet,
-  others
+  berkeley,
+  unknown
 }

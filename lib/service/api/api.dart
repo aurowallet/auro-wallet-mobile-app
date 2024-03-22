@@ -99,20 +99,13 @@ class Api {
     // }
   }
 
-  String getTransactionsApiUrl() {
-    bool isMain = this.getIsMainApi();
-    if (isMain) {
-      return MAINNET_TRANSACTION_URL;
-    }
-    return TESTNET_TRANSACTION_URL;
-  }
 
   String getTxRecordsApiUrl() {
-    bool isMain = this.getIsMainApi();
-    if (isMain) {
-      return MAIN_TX_RECORDS_GQL_URL;
+    String? txUrl = store.settings!.currentNode?.txUrl;
+    if(txUrl!=null){
+      return txUrl;
     }
-    return TEST_TX_RECORDS_GQL_URL;
+    return MAIN_TX_RECORDS_GQL_URL;
   }
 
   Future<void> refreshNetwork() async {
@@ -137,7 +130,7 @@ class Api {
     } on TimeoutException catch (_) {
       return GqlResult(result: null, error: true, errorMessage: dic.timeout);
     }
-    if (result.hasException) {
+    if (result!.hasException) {
       print('gql出错了：' + result.exception.toString());
       String message = '';
       if (result.exception!.graphqlErrors.length > 0) {

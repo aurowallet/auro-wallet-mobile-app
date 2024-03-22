@@ -1,7 +1,9 @@
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -22,7 +24,7 @@ class NodeSelectionDialog extends StatelessWidget {
     required this.settingsStore,
   });
 
-  final Function(CustomNode node) onSelectNode;
+  final Function(CustomNodeV2 node) onSelectNode;
   final SettingsStore settingsStore;
 
   @override
@@ -62,17 +64,11 @@ class NodeSelectionDialog extends StatelessWidget {
                         NodeItem(
                           // noMargin: true,
                           onSelectNode: onSelectNode,
-                          data: CustomNode(
-                            name: 'Mainnet',
-                            url: GRAPH_QL_MAINNET_NODE_URL,
-                          ),
+                          data: netConfigMap[NetworkTypes.mainnet]!,
                         ),
                         NodeItem(
                           onSelectNode: onSelectNode,
-                          data: CustomNode(
-                            name: 'Devnet',
-                            url: GRAPH_QL_TESTNET_NODE_URL,
-                          ),
+                          data: netConfigMap[NetworkTypes.devnet]!,
                         ),
                         ...settingsStore.customNodeListV2.map((e) {
                           return NodeItem(
@@ -107,8 +103,8 @@ class NodeItem extends StatelessWidget {
   NodeItem(
       {required this.data, required this.onSelectNode, this.noMargin = false});
 
-  final CustomNode data;
-  final Function(CustomNode node) onSelectNode;
+  final CustomNodeV2 data;
+  final Function(CustomNodeV2 node) onSelectNode;
   bool noMargin;
 
   void _onClick() {

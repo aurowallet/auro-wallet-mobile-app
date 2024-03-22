@@ -131,10 +131,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   Future<void> _fetchTransactions() async {
-    print('start fetch tx list');
+    print('start fetch tx list=0${store.settings!.currentNode?.id}');
     if (!store.settings!.isSupportedNode) {
+      print('start fetch tx list=1');
       return;
     }
+    print('start fetch tx list=2');
     store.assets!.setTxsLoading(true);
     await Future.wait([
       webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress),
@@ -256,7 +258,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! *
           Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
     }
-    var currency = currencyConfig.firstWhere((element) => element.key == store.settings!.currencyCode);
+    var currency = currencyConfig
+        .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
     final amountColor = (store.assets!.isBalanceLoading) ? 0xDDDDDD : 0xFFFFFF;
     final priceColor = (store.assets!.isBalanceLoading)
@@ -277,9 +280,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       margin: EdgeInsets.fromLTRB(20, 4, 20, 0),
       padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        color: Color(0xFF594AF1)
-      ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          color: Color(0xFF594AF1)),
       child: Stack(children: [
         Positioned(
           right: 20,
@@ -494,6 +496,10 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       ...store.assets!.totalTxs
     ];
     if (store.settings!.isSupportedNode) {
+      String? browserLink = store.settings!.currentNode?.explorerUrl;
+      if (browserLink == null) {
+        browserLink = MAINNET_TRANSACTIONS_EXPLORER_URL;
+      }
       res.addAll(txs.map((i) {
         return TransferListItem(
           store: store,
@@ -508,7 +514,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: BrowserLink(
-                  '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/account/${store.wallet!.currentAddress}/txs',
+                  '$browserLink/account/${store.wallet!.currentAddress}/txs',
                   text: dic.goToExplorer,
                 ))
           ],
@@ -762,7 +768,7 @@ class TransferListItem extends StatelessWidget {
                             margin: EdgeInsets.only(left: 36),
                             child: Column(children: [
                               Padding(padding: EdgeInsets.only(top: 6)),
-                              TxActionRow(store: store, data:data)
+                              TxActionRow(store: store, data: data)
                             ]))
                         : Container()
                   ],

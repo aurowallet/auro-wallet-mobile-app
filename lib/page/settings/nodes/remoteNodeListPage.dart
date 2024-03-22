@@ -1,8 +1,11 @@
 import 'package:auro_wallet/common/components/Separator.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +34,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   bool isEditing = false;
 
-  void _addCustomNode(CustomNode? originEndpoint) async {
+  void _addCustomNode(CustomNodeV2? originEndpoint) async {
     await Navigator.of(context).pushNamed(NodeEditPage.route, arguments: {
       "name": originEndpoint?.name,
       "address": originEndpoint?.url,
@@ -42,16 +45,17 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     });
   }
 
-  void _editNode(CustomNode endpoint) async {
+  void _editNode(CustomNodeV2 endpoint) async {
     this._addCustomNode(endpoint);
   }
 
   void _removeNode(String url) async {
-    List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.settingStore.customNodeListV2);
+    List<CustomNodeV2> endpoints =
+        List<CustomNodeV2>.of(widget.settingStore.customNodeListV2);
     endpoints.removeWhere((endpointItem) => endpointItem.url == url);
     if (widget.settingStore.currentNode?.url == url) {
-      await widget.settingStore.setCurrentNode(mainNetNode);
+      await widget.settingStore
+          .setCurrentNode(netConfigMap[NetworkTypes.mainnet]!);
       webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
       webApi.refreshNetwork();
     }
@@ -75,8 +79,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   Widget _renderCustomNodeList(BuildContext context, bool isEditing) {
     final theme = Theme.of(context).textTheme;
-    List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.settingStore.customNodeListV2);
+    List<CustomNodeV2> endpoints =
+        List<CustomNodeV2>.of(widget.settingStore.customNodeListV2);
     if (endpoints.length == 0) {
       return Container();
     }
@@ -118,6 +122,14 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     });
   }
 
+String? getChainIdFromStore(String id){
+  final networks = widget.settingStore.networks;
+  final NetworkType? types = networks
+              .map((e) => e as NetworkType?)
+              .firstWhere((element) => element?.type == id,
+                  orElse: () => null);
+  return types?.chainId;
+}
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -129,8 +141,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         centerTitle: true,
         actions: [
           Observer(builder: (_) {
-            List<CustomNode> endpoints =
-                List<CustomNode>.of(widget.settingStore.customNodeListV2);
+            List<CustomNodeV2> endpoints =
+                List<CustomNodeV2>.of(widget.settingStore.customNodeListV2);
             return endpoints.length > 0
                 ? TextButton(
                     child: Text(
@@ -150,16 +162,9 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Observer(builder: (_) {
-          final networks = widget.settingStore.networks;
-          final NetworkType? mainnet = networks
-              .map((e) => e as NetworkType?)
-              .firstWhere((element) => element?.type == '0',
-                  orElse: () => null);
-          final NetworkType? testnet = networks
-              .map((e) => e as NetworkType?)
-              .firstWhere((element) => element?.type == '1',
-                  orElse: () => null);
-
+          CustomNodeV2 mainnetConfig = netConfigMap[NetworkTypes.mainnet]!;
+          CustomNodeV2 devnetConfig = netConfigMap[NetworkTypes.devnet]!;
+          CustomNodeV2 berkeleyConfig = netConfigMap[NetworkTypes.berkeley]!;
           return Column(
             children: [
               Expanded(
@@ -170,14 +175,13 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         NodeItem(
-                          margin: EdgeInsets.only(top: 10),
-                          text: 'Mainnet',
-                          value: GRAPH_QL_MAINNET_NODE_URL,
+                          text: mainnetConfig.name,
+                          value: mainnetConfig.url,
                           onChecked: onChangeEndpoint,
-                          checked: GRAPH_QL_MAINNET_NODE_URL ==
+                          checked: mainnetConfig.url ==
                               widget.settingStore.currentNode?.url,
                           tag: null,
-                          chainId: mainnet?.chainId,
+                          chainId: getChainIdFromStore(mainnetConfig.id as String),//?.chainId,
                           isEditing: isEditing,
                         ),
                       ],
@@ -214,16 +218,26 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         NodeItem(
-                          // margin: EdgeInsets.only(top: 0),
-                          text: 'Devnet',
-                          value: GRAPH_QL_TESTNET_NODE_URL,
+                          text: devnetConfig.name,
+                          value: devnetConfig.url,
                           onChecked: onChangeEndpoint,
-                          checked: GRAPH_QL_TESTNET_NODE_URL ==
+                          checked: devnetConfig.url ==
                               widget.settingStore.currentNode?.url,
                           tag: null,
-                          chainId: testnet?.chainId,
+                          chainId: getChainIdFromStore(devnetConfig.id as String),
                           isEditing: isEditing,
-                        )
+                        ),
+                        SizedBox(height: 10,),
+                        NodeItem(
+                          text: berkeleyConfig.name,
+                          value: berkeleyConfig.url,
+                          onChecked: onChangeEndpoint,
+                          checked: berkeleyConfig.url ==
+                              widget.settingStore.currentNode?.url,
+                          tag: null,
+                          chainId: getChainIdFromStore(berkeleyConfig.id as String),
+                          isEditing: isEditing,
+                        ),
                       ],
                     ),
                   ),
@@ -269,9 +283,9 @@ class NodeItem extends StatelessWidget {
   final String? chainId;
   final String value;
   final String? tag;
-  final CustomNode? endpoint;
+  final CustomNodeV2? endpoint;
   final void Function(bool, String) onChecked;
-  final void Function(CustomNode)? onEdit;
+  final void Function(CustomNodeV2)? onEdit;
   final EdgeInsetsGeometry margin;
 
   onPressed() {

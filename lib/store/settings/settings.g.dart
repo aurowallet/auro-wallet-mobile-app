@@ -107,13 +107,13 @@ mixin _$SettingsStore on _SettingsStore, Store {
       Atom(name: '_SettingsStore.currentNode', context: context);
 
   @override
-  CustomNode? get currentNode {
+  CustomNodeV2? get currentNode {
     _$currentNodeAtom.reportRead();
     return super.currentNode;
   }
 
   @override
-  set currentNode(CustomNode? value) {
+  set currentNode(CustomNodeV2? value) {
     _$currentNodeAtom.reportWrite(value, super.currentNode, () {
       super.currentNode = value;
     });
@@ -155,13 +155,13 @@ mixin _$SettingsStore on _SettingsStore, Store {
       Atom(name: '_SettingsStore.customNodeListV2', context: context);
 
   @override
-  List<CustomNode> get customNodeListV2 {
+  List<CustomNodeV2> get customNodeListV2 {
     _$customNodeListV2Atom.reportRead();
     return super.customNodeListV2;
   }
 
   @override
-  set customNodeListV2(List<CustomNode> value) {
+  set customNodeListV2(List<CustomNodeV2> value) {
     _$customNodeListV2Atom.reportWrite(value, super.customNodeListV2, () {
       super.customNodeListV2 = value;
     });
@@ -293,7 +293,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.updateCustomNode', context: context);
 
   @override
-  Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) {
+  Future<void> updateCustomNode(CustomNodeV2 newNode, CustomNodeV2 oldNode) {
     return _$updateCustomNodeAsyncAction
         .run(() => super.updateCustomNode(newNode, oldNode));
   }
@@ -302,7 +302,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.setCustomNodeList', context: context);
 
   @override
-  Future<void> setCustomNodeList(List<CustomNode> nodeList) {
+  Future<void> setCustomNodeList(List<CustomNodeV2> nodeList) {
     return _$setCustomNodeListAsyncAction
         .run(() => super.setCustomNodeList(nodeList));
   }
@@ -320,7 +320,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.setCurrentNode', context: context);
 
   @override
-  Future<void> setCurrentNode(CustomNode value) {
+  Future<void> setCurrentNode(CustomNodeV2 value) {
     return _$setCurrentNodeAsyncAction.run(() => super.setCurrentNode(value));
   }
 

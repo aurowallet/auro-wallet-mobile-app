@@ -1,5 +1,7 @@
 import 'package:auro_wallet/common/components/customDropdownButton.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -49,14 +51,15 @@ class _NodeSelectionDropdownState extends State<NodeSelectionDropdown> {
   Widget build(BuildContext context) {
     return CustomDropdownButton(
         items: [
-          DropdownItem(text: 'Mainnet', value: mainNetNode.url),
+          DropdownItem(text: netConfigMap[NetworkTypes.mainnet]!.name, value: netConfigMap[NetworkTypes.mainnet]!.url),
           ...widget.store.settings!.customNodeListV2.map((e) {
             return DropdownItem(
                 text: Fmt.stringSlice(e.name, 8, withEllipsis: true),
                 value: e.url);
           }).toList(),
           DropdownItem(text: "", value: "networkDivider"),
-          DropdownItem(text: 'Devnet', value: devNetNode.url),
+          DropdownItem(text: netConfigMap[NetworkTypes.devnet]!.name, value: netConfigMap[NetworkTypes.devnet]!.url),
+          DropdownItem(text: netConfigMap[NetworkTypes.berkeley]!.name, value: netConfigMap[NetworkTypes.berkeley]!.url),
         ],
         onChoose: onChoose,
         // value: GRAPH_QL_TESTNET_NODE_URL

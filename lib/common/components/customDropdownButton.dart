@@ -86,7 +86,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
               child: DropdownButton2(
         buttonStyleData: ButtonStyleData(
           height: 40,
-          width: 100,
+          width: 110,
           padding: const EdgeInsets.only(left: 14, right: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
