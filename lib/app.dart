@@ -168,11 +168,10 @@ class _WalletAppState extends State<WalletApp> {
                 builder: (_, AsyncSnapshot<int> snapshot) {
                   if (snapshot.hasData) {
                     FlutterNativeSplash.remove();
-                    return WebviewBridgeTestPage();
-                    // return snapshot.data! > 0
-                    //     ? HomePage(_appStore!)
-                    //     : CreateAccountEntryPage(
-                    //         _appStore!.settings!, _changeLang);
+                    return snapshot.data! > 0
+                        ? HomePage(_appStore!)
+                        : CreateAccountEntryPage(
+                            _appStore!.settings!, _changeLang);
                   } else {
                     return Container();
                     // return SplashScreen();

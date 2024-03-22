@@ -1,13 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class BrowserDialogTitleRow extends StatelessWidget {
-  BrowserDialogTitleRow({required this.title, this.chainId});
+  BrowserDialogTitleRow(
+      {required this.title, this.chainId, this.showCloseIcon});
 
   final String title;
   final String? chainId;
+  final bool? showCloseIcon;
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> closeWidget = [];
+    if (showCloseIcon == true) {
+      closeWidget.add(Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              child: SvgPicture.asset(
+                'assets/images/public/icon_nav_close.svg',
+                width: 24,
+                height: 24,
+                color: Colors.black,
+              ),
+              onTap: () => Navigator.pop(context),
+            )
+          ],
+        ),
+      ));
+    }
     return Container(
       child: Column(
         children: [
@@ -52,7 +75,8 @@ class BrowserDialogTitleRow extends StatelessWidget {
                           ],
                         ),
                       )
-                    : Container()
+                    : Container(),
+                ...closeWidget,
               ],
             ),
           ),
