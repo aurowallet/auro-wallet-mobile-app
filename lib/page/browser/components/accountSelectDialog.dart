@@ -1,33 +1,32 @@
+import 'package:auro_wallet/common/components/accountItem.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AccountSelectDialog extends StatefulWidget {
   AccountSelectDialog({
-    this.onConfirm,
-    this.onCancel,
+    required this.onSelectAccount,
   });
 
-  final Function()? onConfirm;
-  final Function()? onCancel;
+  final Function(String) onSelectAccount;
 
   @override
   _AccountSelectDialogState createState() => new _AccountSelectDialogState();
 }
 
 class _AccountSelectDialogState extends State<AccountSelectDialog> {
+  final store = globalAppStore;
+
   @override
   void initState() {
     super.initState();
   }
 
-  void onConfirm() {
-    print('onConfirm');
-  }
-
-  void onCancel() {}
-
   Widget renderDrapbar() {
     return Container(
-      // color: Colors.amber.withOpacity(0.3),
       height: 20,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -45,6 +44,28 @@ class _AccountSelectDialogState extends State<AccountSelectDialog> {
     );
   }
 
+  List<Widget> _renderAccountList() {
+    Map<String, WalletData> walletMap = store.wallet!.walletsMap;
+    List<Widget> items = [];
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    final renderItem = (account) {
+      AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
+      print(balancesInfo?.total);
+      return WalletItem(
+          account: account,
+          balance: balancesInfo?.total ?? BigInt.from(0),
+          store: store,
+          wallet: walletMap[account.walletId]!,
+          hideOption: true,
+          onSelectAccount: widget.onSelectAccount,
+          );
+    };
+    items.addAll(store.wallet!.accountListAll.map((account) {
+      return renderItem(account);
+    }));
+    return items;
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -57,37 +78,17 @@ class _AccountSelectDialogState extends State<AccountSelectDialog> {
               topRight: Radius.circular(12),
               topLeft: Radius.circular(12),
             )),
-        child: SafeArea(
-          child: Column(
+        child: SafeArea(child: Observer(builder: (BuildContext context) {
+          return Column(
             children: [
               renderDrapbar(),
-              Flexible(
-                child: ListView.builder(
-                  itemCount: 2,
-                  itemBuilder: (context, index) =>
-                      Container(child: Text("Test")), // use real WalletItem
+              Expanded(
+                child: ListView(
+                  children: _renderAccountList(),
                 ),
-              )
+              ),
             ],
-          ),
-        ));
-    // return Container(
-    //     height: 300,
-    //     decoration: BoxDecoration(
-    //         color: Colors.white,
-    //         borderRadius: BorderRadius.only(
-    //           topRight: Radius.circular(12),
-    //           topLeft: Radius.circular(12),
-    //         )),
-    //     child: SafeArea(
-    //         child: SingleChildScrollView(
-    //       child: Column(
-    //         children: [
-    //           renderDrapbar(),
-    //           ...List.generate(
-    //               4, (index) => WalletItem()), // Generate your items
-    //         ],
-    //       ),
-    //     )));
+          );
+        })));
   }
 }

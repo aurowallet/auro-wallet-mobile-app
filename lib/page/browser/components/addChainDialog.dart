@@ -1,6 +1,14 @@
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/network.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/networkType.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 
@@ -26,13 +34,83 @@ class AddChainDialog extends StatefulWidget {
 }
 
 class _AddChainDialogState extends State<AddChainDialog> {
+  AppStore store = globalAppStore;
+  bool submitting = false;
+
   @override
   void initState() {
     super.initState();
   }
 
-  void onConfirm() {
+  CustomNodeV2 findCustomNodeV2ById(String id) {
+    for (var entry in netConfigMap.entries) {
+      if (entry.value.id == id) {
+        return entry.value;
+      }
+    }
+    return netConfigMap[NetworkTypes.unknown]!;
+  }
+
+  void _confirm() async {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    final name = widget.nodeName;
+    final address = widget.nodeUrl;
+    CustomNodeV2 endpoint = CustomNodeV2(name: name, url: address);
+    setState(() {
+      submitting = true;
+    });
+    String? chainId = await webApi.setting.fetchChainId(endpoint.url);
+
+    if (chainId == null) {
+      setState(() {
+        submitting = false;
+      });
+      UI.toast(dic.urlError_1);
+      return;
+    }
+    endpoint.chainId = chainId;
+    List<NetworkType> fetchNetworkTypes =
+        await webApi.setting.fetchNetworkTypes();
+    final targetNetworks = fetchNetworkTypes
+        .where((element) => element.chainId == endpoint.chainId);
+    if (targetNetworks.isEmpty ||
+        (targetNetworks.first.type != '0' &&
+            targetNetworks.first.type != '1' &&
+            targetNetworks.first.type != '11')) {
+      setState(() {
+        submitting = false;
+      });
+      UI.toast(dic.urlError_1);
+      return;
+    }
+    CustomNodeV2 tempConfig = findCustomNodeV2ById(targetNetworks.first.type);
+    if (tempConfig.netType != NetworkTypes.unknown) {
+      endpoint.url = address;
+      endpoint.name = name;
+      endpoint.isDefaultNode = false;
+      endpoint.chainId = chainId;
+
+      endpoint.netType = tempConfig.netType;
+      endpoint.explorerUrl = tempConfig.explorerUrl;
+      endpoint.txUrl = tempConfig.txUrl;
+      endpoint.id = tempConfig.id;
+    } else {
+      UI.toast("can not find support config");
+      return;
+    }
+    List<CustomNodeV2> endpoints =
+        List<CustomNodeV2>.of(store.settings!.customNodeListV2);
+
+    endpoints.add(endpoint);
+    await store.settings!.setCustomNodeList(endpoints);
+    setState(() {
+      submitting = false;
+    });
     widget.onConfirm!();
+  }
+
+  void onConfirm() {
+    _confirm();
   }
 
   void onCancel() {
@@ -41,6 +119,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -54,13 +133,12 @@ class _AddChainDialogState extends State<AddChainDialog> {
             children: [
               Wrap(
                 children: [
-                  BrowserDialogTitleRow(title: "Add Network"),
+                  BrowserDialogTitleRow(title: dic.addNetWork),
                   Container(
                     color: Color(0xFFD65A5A).withOpacity(0.1),
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     margin: EdgeInsets.only(top: 20),
-                    child: Text(
-                        "Only add nodes that you trust. Using unknown nodes can be risky.",
+                    child: Text(dic.nodeAlert,
                         style: TextStyle(
                             fontSize: 14,
                             color: ColorsUtil.hexColor(0xD65A5A),
@@ -74,7 +152,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                           ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
                           Container(
                             margin: EdgeInsets.only(top: 20),
-                            child: Text("Allow this site to add a network?",
+                            child: Text(dic.allowSiteAddNode,
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
                                     fontSize: 14,
@@ -95,7 +173,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                               children: [
                                 Container(
                                   margin: EdgeInsets.only(bottom: 10),
-                                  child: Text("Name",
+                                  child: Text(dic.name,
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontSize: 14,
@@ -113,7 +191,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                                 ),
                                 Container(
                                   margin: EdgeInsets.only(bottom: 10),
-                                  child: Text("Node URL",
+                                  child: Text(dic.nodeAddress,
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontSize: 14,
@@ -136,6 +214,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                   ZkAppBottomButton(
                     onConfirm: onConfirm,
                     onCancel: onCancel,
+                    submitting: submitting,
                   )
                 ],
               ),

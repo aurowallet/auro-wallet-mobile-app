@@ -1,7 +1,11 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 
 class ConnectDialog extends StatefulWidget {
@@ -22,6 +26,8 @@ class ConnectDialog extends StatefulWidget {
 }
 
 class _ConnectDialogState extends State<ConnectDialog> {
+  final store = globalAppStore;
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +45,8 @@ class _ConnectDialogState extends State<ConnectDialog> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    WalletData acc = store.wallet!.currentWallet;
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -52,7 +60,7 @@ class _ConnectDialogState extends State<ConnectDialog> {
             children: [
               Wrap(
                 children: [
-                  BrowserDialogTitleRow(title: "Connection Request"),
+                  BrowserDialogTitleRow(title: dic.connectionRequest),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                       child: Column(
@@ -61,8 +69,7 @@ class _ConnectDialogState extends State<ConnectDialog> {
                           ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
                           Container(
                             margin: EdgeInsets.only(top: 20),
-                            child: Text(
-                                "This website would like to view account:",
+                            child: Text(dic.connectTip + ":",
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
                                     fontSize: 14,
@@ -71,7 +78,13 @@ class _ConnectDialogState extends State<ConnectDialog> {
                           ),
                           Container(
                             margin: EdgeInsets.only(top: 20),
-                            child: Text("Account 1 (B62456...123456)",
+                            child: Text(
+                                Fmt.accountName(acc.currentAccount) +
+                                    "(" +
+                                    Fmt.address(store.wallet!.currentAddress,
+                                        pad: 10) +
+                                    ")",
+                                // "Account 1 (B62456...123456)",
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
                                     fontSize: 14,
@@ -80,8 +93,7 @@ class _ConnectDialogState extends State<ConnectDialog> {
                           ),
                           Container(
                             margin: EdgeInsets.only(top: 20),
-                            child: Text(
-                                "* Make sure you only connect to trusted sites.",
+                            child: Text(dic.trustedSitesTip,
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
                                     fontSize: 14,

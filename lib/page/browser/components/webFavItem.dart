@@ -1,32 +1,66 @@
 import 'dart:ui';
 
-import 'package:auro_wallet/page/browser/types/webConfig.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class WebFavItem extends StatelessWidget {
-  WebFavItem({required this.data, this.onClickItem});
+  WebFavItem({required this.data, this.onClickItem, this.onClickDelete});
 
   final WebConfig data;
   final Function(WebConfig)? onClickItem;
+  final Function(WebConfig)? onClickDelete;
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String showTitle = data.title;
-    if (data.title.length > 16) {
-      showTitle = data.title.substring(0, 16);
-    }
+    var itemWidth = (MediaQuery.of(context).size.width - 40) / 2 - 50;
     return Container(
         margin: const EdgeInsets.only(top: 10),
         child: Material(
           color: Color(0xFFF9FAFC),
           borderRadius: BorderRadius.circular(8),
-          child: InkWell(
+          child: GestureDetector(
             onTap: () {
               onClickItem!(data);
             },
-            borderRadius: BorderRadius.circular(8),
+            onLongPressStart: (details) {
+              Feedback.forLongPress(context);
+              showMenu(
+                context: context,
+                color: Colors.black,
+                constraints: BoxConstraints(
+                  maxWidth: 100,
+                ),
+                position: RelativeRect.fromLTRB(
+                  details.globalPosition.dx,
+                  details.globalPosition.dy,
+                  details.globalPosition.dx,
+                  details.globalPosition.dy,
+                ),
+                items: <PopupMenuEntry>[
+                  PopupMenuItem(
+                    onTap: () {
+                      onClickDelete!(data);
+                    },
+                    height: 20,
+                    textStyle: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12),
+                    child: Center(
+                      child: Text(
+                        dic.delete,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+            // _simplePopup(),
             child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
@@ -41,7 +75,12 @@ class WebFavItem extends StatelessWidget {
                       logo: data.icon,
                     ),
                     Container(
+                      width: itemWidth,
                       child: Text(showTitle,
+                          softWrap: true,
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                           style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -138,6 +177,10 @@ class WebHistoryItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(data.title,
+                        softWrap: true,
+                        textAlign: TextAlign.left,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         style: TextStyle(
                             fontSize: 12,
                             color: Color(0xFF000000).withOpacity(0.8),
@@ -146,6 +189,10 @@ class WebHistoryItem extends StatelessWidget {
                       padding: EdgeInsets.only(top: 2),
                     ),
                     Text(data.url,
+                        softWrap: true,
+                        textAlign: TextAlign.left,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         style: TextStyle(
                             color:
                                 ColorsUtil.hexColor(0x808080).withOpacity(0.5),
