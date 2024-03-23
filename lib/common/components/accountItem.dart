@@ -20,6 +20,8 @@ class WalletItem extends StatelessWidget {
     required this.wallet,
     required this.account,
     required this.store,
+    this.hideOption,
+    this.onSelectAccount,
   });
 
   final WalletData wallet;
@@ -27,11 +29,16 @@ class WalletItem extends StatelessWidget {
   final BigInt balance;
   final AppStore store;
   BuildContext? _context;
+  bool? hideOption;
+  Function(String)? onSelectAccount;
 
   void _changeCurrentAccount(bool? isChecked) async {
     if (isChecked! && account.address != store.wallet!.currentAddress) {
+      onSelectAccount!(account.address);
       await webApi.account
           .changeCurrentAccount(pubKey: account.address, fetchData: true);
+    }else{
+      onSelectAccount!("");
     }
   }
 
@@ -169,7 +176,7 @@ class WalletItem extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Column(
+                    hideOption==true?Container(): Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisSize: MainAxisSize.max,
                         children: [

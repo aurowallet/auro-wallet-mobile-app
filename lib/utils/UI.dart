@@ -242,8 +242,8 @@ class UI {
             url: url,
             iconUrl: iconUrl,
             onConfirm: () async {
-              Navigator.of(context).pop();
               onConfirm();
+              Navigator.of(context).pop();
             },
             onCancel: () {
               onCancel!();
@@ -257,8 +257,9 @@ class UI {
     required String chainId,
     required String url,
     String? iconUrl,
-    required Future Function() onConfirm,
-    void Function()? onCancel,
+    String? gqlUrl,
+    required Future Function(String,String) onConfirm,
+    Function()? onCancel,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -272,9 +273,10 @@ class UI {
             chainId: chainId,
             url: url,
             iconUrl: iconUrl,
-            onConfirm: () async {
+            gqlUrl:gqlUrl,
+            onConfirm: (String networkName,String chainId) async {
+              onConfirm(networkName,chainId);
               Navigator.of(context).pop();
-              onConfirm();
             },
             onCancel: () {
               onCancel!();
@@ -289,8 +291,8 @@ class UI {
     required String nodeName,
     required String url,
     String? iconUrl,
-    required Future<String> Function() onConfirm,
-    void Function()? onCancel,
+    required Function() onConfirm,
+    Function()? onCancel,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -305,7 +307,7 @@ class UI {
             nodeName: nodeName,
             url: url,
             iconUrl: iconUrl,
-            onConfirm: () async {
+            onConfirm: () {
               onConfirm();
             },
             onCancel: () {
@@ -319,6 +321,7 @@ class UI {
     required BuildContext context,
     required Object content,
     required String url,
+    required String method,
     String? iconUrl,
     required Future<String> Function() onConfirm,
     Function()? onCancel,
@@ -332,11 +335,11 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return SignatureDialog(
+            method:method,
             content: content,
             url: url,
             iconUrl: iconUrl,
             onConfirm: () async {
-              Navigator.of(context).pop();
               onConfirm();
             },
             onCancel: () {
@@ -377,7 +380,6 @@ class UI {
             url: url,
             iconUrl: iconUrl,
             onConfirm: () async {
-              Navigator.of(context).pop();
               onConfirm();
             },
             onCancel: () {
@@ -389,7 +391,7 @@ class UI {
 
   static Future<void> showAccountSelectAction({
     required BuildContext context,
-    Function()? onConfirm,
+    required Function(String) onSelectAccount,
     String? buttonText,
   }) {
     return showModalBottomSheet<void>(
@@ -400,8 +402,8 @@ class UI {
       enableDrag: true,
       builder: (BuildContext context) {
         return AccountSelectDialog(
-          onConfirm: () {
-            onConfirm!();
+          onSelectAccount: (String address) {
+            onSelectAccount(address);
           },
         );
       },
