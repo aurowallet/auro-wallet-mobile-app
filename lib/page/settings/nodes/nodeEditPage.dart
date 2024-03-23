@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
@@ -89,6 +92,15 @@ class _NodeEditPageState extends State<NodeEditPage> {
     }
   }
 
+  CustomNodeV2 findCustomNodeV2ById(String id) {
+    for (var entry in netConfigMap.entries) {
+      if (entry.value.id == id) {
+        return entry.value;
+      }
+    }
+    return netConfigMap[NetworkTypes.unknown]!;
+  }
+
   void _confirm() async {
     _addressFocus.unfocus();
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -121,8 +133,6 @@ class _NodeEditPageState extends State<NodeEditPage> {
         await webApi.setting.fetchNetworkTypes();
     final targetNetworks = fetchNetworkTypes
         .where((element) => element.chainId == endpoint.chainId);
-
-    // only support mainnet and testnet
     if (targetNetworks.isEmpty ||
         (targetNetworks.first.type != '0' &&
             targetNetworks.first.type != '1' &&
@@ -134,7 +144,21 @@ class _NodeEditPageState extends State<NodeEditPage> {
       });
       return;
     }
-    endpoint.id = targetNetworks.first.type;
+    CustomNodeV2 tempConfig = findCustomNodeV2ById(targetNetworks.first.type);
+    if (tempConfig.netType != NetworkTypes.unknown) {
+      endpoint.url = address;
+      endpoint.name = name;
+      endpoint.isDefaultNode = false;
+      endpoint.chainId = chainId;
+
+      endpoint.netType = tempConfig.netType;
+      endpoint.explorerUrl = tempConfig.explorerUrl;
+      endpoint.txUrl = tempConfig.txUrl;
+      endpoint.id = tempConfig.id;
+    } else {
+      UI.toast("can not find support config");
+      return;
+    }
     List<CustomNodeV2> endpoints =
         List<CustomNodeV2>.of(widget.store.customNodeListV2);
     if (isEdit) {
