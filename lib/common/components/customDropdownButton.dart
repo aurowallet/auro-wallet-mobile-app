@@ -1,8 +1,8 @@
 import 'package:auro_wallet/common/components/Separator.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/material.dart';
 
 class DropdownItem {
   DropdownItem({required this.text, required this.value});
@@ -61,6 +61,8 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
         value: item.value,
         child: Center(
           child: Text(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             item.text,
             style: TextStyle(
                 fontWeight: FontWeight.w500,
@@ -107,6 +109,8 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     item.value == widget.value ? item.text : '',
                     style: TextStyle(
                         fontSize: 14,
