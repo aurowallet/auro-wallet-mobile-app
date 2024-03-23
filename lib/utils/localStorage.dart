@@ -202,7 +202,7 @@ class _LocalStorage {
       ls.insert(index, itemNew);
       setKV(storeKey, jsonEncode(ls));
     } else {
-      addItemToList(storeKey, itemNew);
+      await addItemToList(storeKey, itemNew);
     }
   }
 

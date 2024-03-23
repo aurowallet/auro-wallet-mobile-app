@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/browser/index.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/assets/index.dart';
 import 'package:auro_wallet/page/settings/index.dart';
@@ -25,11 +26,13 @@ class _HomePageState extends State<HomePage> {
   List<String> _tabList = [
     'wallet',
     'staking',
+    'browser',
     'setting',
   ];
   List<String> _tabIcons = [
     'home_tab',
     'stake_tab',
+    "browser_tab",
     'setting_tab',
   ];
   int _tabIndex = 0;
@@ -38,6 +41,7 @@ class _HomePageState extends State<HomePage> {
     Map<String, String> tabI10n = {
       'wallet':AppLocalizations.of(context)!.wallet,
       'staking':AppLocalizations.of(context)!.staking,
+      'browser':AppLocalizations.of(context)!.browser,
       'setting':AppLocalizations.of(context)!.setting
     };
     return _tabList.asMap().keys.map((index) {
@@ -66,6 +70,8 @@ class _HomePageState extends State<HomePage> {
         return Assets(store);
       case 1:
         return Staking(store);
+      case 2:
+        return Browser(store);
       default:
         return Profile(store);
     }

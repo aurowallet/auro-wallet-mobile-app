@@ -1,18 +1,13 @@
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
-import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
-import 'package:auro_wallet/store/settings/types/networkType.dart';
-import 'package:mobx/mobx.dart';
-
-import 'package:json_annotation/json_annotation.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'dart:convert';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/localStorage.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:mobx/mobx.dart';
 
 part 'settings.g.dart';
 
@@ -84,6 +79,15 @@ abstract class _SettingsStore with Store {
     //   }
     // }
     // return false;
+  }
+
+  List<String> getSupportNetTypes() {
+    return netConfigMap.entries
+        .where((entry) =>
+            entry.key != NetworkTypes.unknown) // Filter out unknown types
+        .map(
+            (entry) => entry.key.name) // Convert each entry to its netType name
+        .toList(); // Convert the result to a List<String>
   }
 
   bool get isMainnet {

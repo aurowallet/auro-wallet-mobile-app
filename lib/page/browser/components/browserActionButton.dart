@@ -1,11 +1,13 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class BrowserActionButton extends StatelessWidget {
-  const BrowserActionButton(this._controller, {Key? key})
-      : super(key: key);
-  final WebViewController _controller;
+  BrowserActionButton({required this.url, this.isFav, this.onClickFav});
+  final String url;
+  final bool? isFav;
+  final Function()? onClickFav;
 
   Widget buildItem(
       String icon, String name, Function onTap, BuildContext context) {
@@ -49,6 +51,11 @@ class BrowserActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    String favUrl = isFav == true
+        ? "assets/images/webview/icon_fav.svg"
+        : "assets/images/webview/icon_unfav.svg";
+    String favTxt = isFav == true ? dic.removeFavorites : dic.addFavorites;
     return SafeArea(
         child: ClipRRect(
             borderRadius: const BorderRadius.only(
@@ -63,21 +70,19 @@ class BrowserActionButton extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 8),
                     child: Column(
                       children: [
-                        buildItem("assets/images/webview/icon_refresh.svg",
-                            "Refresh", () {
-                          Navigator.pop(context);
-                          _controller.reload();
-                        }, context),
-                        buildItem("assets/images/webview/icon_copy.svg",
-                            "Copy Link", () {
-                          Navigator.pop(context);
-                        }, context),
                         buildItem(
-                            "assets/images/webview/icon_fav.svg",
-                            "Remove from favorites", () {
-                          // assets/images/webview/icon_unfav.svg
-                          // Add to favorites
+                            "assets/images/webview/icon_copy.svg", dic.copyLink,
+                            () {
                           Navigator.pop(context);
+                        }, context),
+                        buildItem(favUrl, favTxt, () {
+                          onClickFav!();
+                          Navigator.pop(context);
+                        }, context),
+                        buildItem("assets/images/webview/icon_link.svg",
+                            dic.openInBrowser, () {
+                          Navigator.pop(context);
+                          UI.launchURL(url);
                         }, context),
                       ],
                     ),

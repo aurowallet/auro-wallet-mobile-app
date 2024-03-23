@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/browser/browserSearchPage.dart';
 import 'package:auro_wallet/page/browser/browserWrapperPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
@@ -224,8 +225,8 @@ class _WalletAppState extends State<WalletApp> {
 
         // webview bridge test page
         WebviewBridgeTestPage.route: (_) => WebviewBridgeTestPage(),
-
-          BrowserWrapperPage.route: (_) => BrowserWrapperPage(),
+        BrowserWrapperPage.route: (_) => BrowserWrapperPage(_appStore!),
+        BrowserSearchPage.route: (_) => BrowserSearchPage(_appStore!),
       },
     );
   }

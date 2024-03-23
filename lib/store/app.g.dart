@@ -85,6 +85,21 @@ mixin _$AppStore on _AppStore, Store {
     });
   }
 
+  late final _$browserAtom = Atom(name: '_AppStore.browser', context: context);
+
+  @override
+  BrowserStore? get browser {
+    _$browserAtom.reportRead();
+    return super.browser;
+  }
+
+  @override
+  set browser(BrowserStore? value) {
+    _$browserAtom.reportWrite(value, super.browser, () {
+      super.browser = value;
+    });
+  }
+
   late final _$isReadyAtom = Atom(name: '_AppStore.isReady', context: context);
 
   @override
@@ -116,6 +131,7 @@ wallet: ${wallet},
 assets: ${assets},
 staking: ${staking},
 ledger: ${ledger},
+browser: ${browser},
 isReady: ${isReady}
     ''';
   }

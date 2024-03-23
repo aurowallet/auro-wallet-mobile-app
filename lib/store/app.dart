@@ -3,6 +3,7 @@ import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/assets/assets.dart';
 import 'package:auro_wallet/store/staking/staking.dart';
+import 'package:auro_wallet/store/browser/browser.dart';
 import 'package:auro_wallet/utils/localStorage.dart';
 import 'package:auro_wallet/utils/secureStorage.dart';
 
@@ -29,6 +30,9 @@ abstract class _AppStore with Store {
 
   @observable
   LedgerStore? ledger;
+
+  @observable
+  BrowserStore? browser;
 
   @observable
   bool isReady = false;
@@ -59,6 +63,14 @@ abstract class _AppStore with Store {
     ledger = LedgerStore();
 
     assets = AssetsStore(this as AppStore);
+
+    browser = BrowserStore(this as AppStore);
+
+    try {
+      await browser!.init();
+    } catch (e) {
+      print(e);
+    }
 
     await assets!.loadCache();
 

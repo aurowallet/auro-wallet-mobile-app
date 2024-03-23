@@ -82,9 +82,6 @@ dependencies:
   flutter_inappwebview: ^5.8.0
   webview_flutter: ^4.0.7
   
-dependency_overrides:
-  reactive_ble_mobile: '5.0.3'
-  reactive_ble_platform_interface: '5.0.3'
 
 
 dev_dependencies:
@@ -131,6 +128,7 @@ flutter:
   assets:
     - assets/webview/bridge.js
     - assets/webview/bridge.html
+    - assets/webview/provider.js
     # images
     ## images - settings
     # - assets/images/assets/Mina.png  unuse
