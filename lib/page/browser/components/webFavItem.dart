@@ -84,7 +84,7 @@ class WebFavItem extends StatelessWidget {
                     ItemLogo(
                       name: data.title,
                       logo: logoUrl,
-                      radius: 10,
+                      width: 20,
                     ),
                     SizedBox(
                       width: 5,
@@ -109,11 +109,17 @@ class WebFavItem extends StatelessWidget {
 }
 
 class ItemLogo extends StatefulWidget {
-  ItemLogo({this.name, this.logo, this.radius = 15, this.showHolderIcon});
+  ItemLogo(
+      {this.name,
+      this.logo,
+      this.radius = 15,
+      required this.width,
+      this.showHolderIcon});
 
   final String? name;
   final String? logo;
   final double? radius;
+  final double width;
   bool? showHolderIcon;
 
   @override
@@ -124,11 +130,11 @@ class ItemLogoState extends State<ItemLogo> {
   @override
   Widget build(BuildContext context) {
     bool showHolderIcon = widget.showHolderIcon == true;
-    double imgWidth = widget.radius! * 2;
     return ClipRRect(
         borderRadius: BorderRadius.circular(widget.radius ?? 0),
         child: CachedNetworkImage(
-            width: imgWidth,
+            width: widget.width,
+            height: widget.width,
             imageUrl: widget.logo!.trim(),
             placeholder: (context, url) {
               return Text(
@@ -182,7 +188,13 @@ class WebHistoryItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ItemLogo(name: data.title, logo: logoUrl, showHolderIcon: true),
+                ItemLogo(
+                  name: data.title,
+                  logo: logoUrl,
+                  showHolderIcon: true,
+                  radius: 30,
+                  width: 24,
+                ),
                 Container(
                   width: 10,
                 ),
