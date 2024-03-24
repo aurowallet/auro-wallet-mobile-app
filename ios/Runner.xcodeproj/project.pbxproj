@@ -3,56 +3,20 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		2E2152B72D28B25F6A9DFA68 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F037ECA966B033CE50761AA /* Pods_Runner.framework */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		41556029265C0B2E0086EC5E /* mina_sdk.c in Sources */ = {isa = PBXBuildFile; fileRef = 41556028265C0B2E0086EC5E /* mina_sdk.c */; };
 		41741D3B26FB923200B4FD19 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 41741D3D26FB923200B4FD19 /* InfoPlist.strings */; };
-		41D358832665EB1A0018C72D /* crypto.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D3586A2665EB190018C72D /* crypto.c */; };
-		41D358842665EB1A0018C72D /* base58.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D3586C2665EB190018C72D /* base58.c */; };
-		41D358852665EB1A0018C72D /* base10.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D3586E2665EB190018C72D /* base10.c */; };
-		41D358872665EB1A0018C72D /* poseidon.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D358722665EB190018C72D /* poseidon.c */; };
-		41D358882665EB1A0018C72D /* sha256.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D358732665EB190018C72D /* sha256.c */; };
-		41D3588A2665EB1A0018C72D /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D358762665EB190018C72D /* utils.c */; };
-		41D3588C2665EB1A0018C72D /* pasta_fq.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D358792665EB190018C72D /* pasta_fq.c */; };
-		41D3588D2665EB1A0018C72D /* curve_checks.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D3587A2665EB190018C72D /* curve_checks.c */; };
-		41D3588E2665EB1A0018C72D /* pasta_fp.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D3587B2665EB190018C72D /* pasta_fp.c */; };
-		41D358902665EB1A0018C72D /* blake2b-ref.c in Sources */ = {isa = PBXBuildFile; fileRef = 41D3587E2665EB1A0018C72D /* blake2b-ref.c */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		FA6831C62830D82A00459FD0 /* librust-signer_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA6831C12830D76900459FD0 /* librust-signer_static.a */; };
-		FA6831CB2830DA8900459FD0 /* bridge_generated.h in Resources */ = {isa = PBXBuildFile; fileRef = FA6831C92830DA3100459FD0 /* bridge_generated.h */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		FA6831C02830D76900459FD0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FA6831BB2830D76900459FD0 /* rust-signer.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CA604F1EFF9DBBEE1362BBB0;
-			remoteInfo = "rust-signer-staticlib";
-		};
-		FA6831C22830D76900459FD0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FA6831BB2830D76900459FD0 /* rust-signer.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CA60DF9640A8345ED6AD7F7A;
-			remoteInfo = "rust-signer-cdylib";
-		};
-		FA6831C42830D81100459FD0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FA6831BB2830D76900459FD0 /* rust-signer.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = CA60E153D69C928A3A781252;
-			remoteInfo = "rust-signer-staticlib";
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
@@ -60,33 +24,7 @@
 		2913C44F2417A2DC002C2368 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		375B8552404327C8120DE01D /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
-		41556028265C0B2E0086EC5E /* mina_sdk.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mina_sdk.c; sourceTree = "<group>"; };
 		41741D3C26FB923200B4FD19 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		41D358642665EB180018C72D /* curve_checks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curve_checks.h; sourceTree = "<group>"; };
-		41D358652665EB180018C72D /* libbase58.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libbase58.h; sourceTree = "<group>"; };
-		41D358662665EB180018C72D /* crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
-		41D358672665EB180018C72D /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
-		41D358682665EB190018C72D /* base10.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base10.h; sourceTree = "<group>"; };
-		41D3586A2665EB190018C72D /* crypto.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crypto.c; sourceTree = "<group>"; };
-		41D3586B2665EB190018C72D /* poseidon_params_3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poseidon_params_3.h; sourceTree = "<group>"; };
-		41D3586C2665EB190018C72D /* base58.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base58.c; sourceTree = "<group>"; };
-		41D3586D2665EB190018C72D /* pasta_fq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pasta_fq.h; sourceTree = "<group>"; };
-		41D3586E2665EB190018C72D /* base10.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base10.c; sourceTree = "<group>"; };
-		41D3586F2665EB190018C72D /* poseidon_params_3w.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poseidon_params_3w.h; sourceTree = "<group>"; };
-		41D358712665EB190018C72D /* poseidon_params_5w.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poseidon_params_5w.h; sourceTree = "<group>"; };
-		41D358722665EB190018C72D /* poseidon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = poseidon.c; sourceTree = "<group>"; };
-		41D358732665EB190018C72D /* sha256.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sha256.c; sourceTree = "<group>"; };
-		41D358752665EB190018C72D /* poseidon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poseidon.h; sourceTree = "<group>"; };
-		41D358762665EB190018C72D /* utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utils.c; sourceTree = "<group>"; };
-		41D358772665EB190018C72D /* blake2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blake2.h; sourceTree = "<group>"; };
-		41D358792665EB190018C72D /* pasta_fq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pasta_fq.c; sourceTree = "<group>"; };
-		41D3587A2665EB190018C72D /* curve_checks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = curve_checks.c; sourceTree = "<group>"; };
-		41D3587B2665EB190018C72D /* pasta_fp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pasta_fp.c; sourceTree = "<group>"; };
-		41D3587C2665EB1A0018C72D /* pasta_fp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pasta_fp.h; sourceTree = "<group>"; };
-		41D3587E2665EB1A0018C72D /* blake2b-ref.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "blake2b-ref.c"; sourceTree = "<group>"; };
-		41D3587F2665EB1A0018C72D /* sha256.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha256.h; sourceTree = "<group>"; };
-		41D358802665EB1A0018C72D /* blake2-impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "blake2-impl.h"; sourceTree = "<group>"; };
-		41FC03D626677FAF00F33ED9 /* portable_endian.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = portable_endian.h; sourceTree = "<group>"; };
 		4F037ECA966B033CE50761AA /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B45ACFE14ADB7532C11E2B3 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -100,8 +38,6 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C4FC5EC6A769B3E515718C78 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
-		FA6831BB2830D76900459FD0 /* rust-signer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "rust-signer.xcodeproj"; path = "../../rust/rust-signer.xcodeproj"; sourceTree = "<group>"; };
-		FA6831C92830DA3100459FD0 /* bridge_generated.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bridge_generated.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,7 +45,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA6831C62830D82A00459FD0 /* librust-signer_static.a in Frameworks */,
 				2E2152B72D28B25F6A9DFA68 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -117,47 +52,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		41556024265C0AC90086EC5E /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				41D358622665EB010018C72D /* signer */,
-				41556028265C0B2E0086EC5E /* mina_sdk.c */,
-				41FC03D626677FAF00F33ED9 /* portable_endian.h */,
-			);
-			path = Classes;
-			sourceTree = "<group>";
-		};
-		41D358622665EB010018C72D /* signer */ = {
-			isa = PBXGroup;
-			children = (
-				41D3586E2665EB190018C72D /* base10.c */,
-				41D358682665EB190018C72D /* base10.h */,
-				41D3586C2665EB190018C72D /* base58.c */,
-				41D358802665EB1A0018C72D /* blake2-impl.h */,
-				41D358772665EB190018C72D /* blake2.h */,
-				41D3587E2665EB1A0018C72D /* blake2b-ref.c */,
-				41D3586A2665EB190018C72D /* crypto.c */,
-				41D358662665EB180018C72D /* crypto.h */,
-				41D3587A2665EB190018C72D /* curve_checks.c */,
-				41D358642665EB180018C72D /* curve_checks.h */,
-				41D358652665EB180018C72D /* libbase58.h */,
-				41D3587B2665EB190018C72D /* pasta_fp.c */,
-				41D3587C2665EB1A0018C72D /* pasta_fp.h */,
-				41D358792665EB190018C72D /* pasta_fq.c */,
-				41D3586D2665EB190018C72D /* pasta_fq.h */,
-				41D3586B2665EB190018C72D /* poseidon_params_3.h */,
-				41D3586F2665EB190018C72D /* poseidon_params_3w.h */,
-				41D358712665EB190018C72D /* poseidon_params_5w.h */,
-				41D358722665EB190018C72D /* poseidon.c */,
-				41D358752665EB190018C72D /* poseidon.h */,
-				41D358732665EB190018C72D /* sha256.c */,
-				41D3587F2665EB1A0018C72D /* sha256.h */,
-				41D358762665EB190018C72D /* utils.c */,
-				41D358672665EB180018C72D /* utils.h */,
-			);
-			path = signer;
-			sourceTree = "<group>";
-		};
 		4C9779789C63CFC44F1E60AD /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -202,8 +96,6 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				FA6831C92830DA3100459FD0 /* bridge_generated.h */,
-				FA6831BB2830D76900459FD0 /* rust-signer.xcodeproj */,
 				2913C44F2417A2DC002C2368 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -232,15 +124,6 @@
 				4F037ECA966B033CE50761AA /* Pods_Runner.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		FA6831BC2830D76900459FD0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				FA6831C12830D76900459FD0 /* librust-signer_static.a */,
-				FA6831C32830D76900459FD0 /* rust-signer.dylib */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -274,7 +157,7 @@
 		97C146E61CF9000F007C117D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "The Chromium Authors";
 				TargetAttributes = {
 					97C146ED1CF9000F007C117D = {
@@ -296,12 +179,6 @@
 			mainGroup = 97C146E51CF9000F007C117D;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = FA6831BC2830D76900459FD0 /* Products */;
-					ProjectRef = FA6831BB2830D76900459FD0 /* rust-signer.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
@@ -309,22 +186,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		FA6831C12830D76900459FD0 /* librust-signer_static.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "librust-signer_static.a";
-			remoteRef = FA6831C02830D76900459FD0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		FA6831C32830D76900459FD0 /* rust-signer.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = "rust-signer.dylib";
-			remoteRef = FA6831C22830D76900459FD0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		97C146EC1CF9000F007C117D /* Resources */ = {
@@ -367,10 +228,12 @@
 		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
 			);
 			name = "Thin Binary";
 			outputPaths = (
@@ -388,18 +251,19 @@
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/DTTJailbreakDetection/DTTJailbreakDetection.framework",
 				"${BUILT_PRODUCTS_DIR}/MTBBarcodeScanner/MTBBarcodeScanner.framework",
+				"${BUILT_PRODUCTS_DIR}/OrderedSet/OrderedSet.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/Reachability/Reachability.framework",
+				"${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftProtobuf/SwiftProtobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/Toast/Toast.framework",
 				"${BUILT_PRODUCTS_DIR}/biometric_storage/biometric_storage.framework",
 				"${BUILT_PRODUCTS_DIR}/connectivity_plus/connectivity_plus.framework",
+				"${BUILT_PRODUCTS_DIR}/flutter_inappwebview/flutter_inappwebview.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_native_splash/flutter_native_splash.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_secure_storage/flutter_secure_storage.framework",
 				"${BUILT_PRODUCTS_DIR}/flutter_sodium/flutter_sodium.framework",
 				"${BUILT_PRODUCTS_DIR}/fluttertoast/fluttertoast.framework",
 				"${BUILT_PRODUCTS_DIR}/image_picker_ios/image_picker_ios.framework",
-				"${BUILT_PRODUCTS_DIR}/package_info/package_info.framework",
 				"${BUILT_PRODUCTS_DIR}/path_provider_ios/path_provider_ios.framework",
 				"${BUILT_PRODUCTS_DIR}/qr_code_scanner/qr_code_scanner.framework",
 				"${BUILT_PRODUCTS_DIR}/qr_code_tools/qr_code_tools.framework",
@@ -407,6 +271,7 @@
 				"${BUILT_PRODUCTS_DIR}/safe_device/safe_device.framework",
 				"${BUILT_PRODUCTS_DIR}/share/share.framework",
 				"${BUILT_PRODUCTS_DIR}/shared_preferences_ios/shared_preferences_ios.framework",
+				"${BUILT_PRODUCTS_DIR}/sqflite/sqflite.framework",
 				"${BUILT_PRODUCTS_DIR}/url_launcher_ios/url_launcher_ios.framework",
 				"${BUILT_PRODUCTS_DIR}/webcrypto/webcrypto.framework",
 				"${BUILT_PRODUCTS_DIR}/webview_flutter_wkwebview/webview_flutter_wkwebview.framework",
@@ -415,18 +280,19 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DTTJailbreakDetection.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MTBBarcodeScanner.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OrderedSet.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reachability.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftProtobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Toast.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/biometric_storage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/connectivity_plus.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_inappwebview.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_native_splash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_secure_storage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_sodium.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/fluttertoast.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/image_picker_ios.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/package_info.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/path_provider_ios.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/qr_code_scanner.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/qr_code_tools.framework",
@@ -434,6 +300,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/safe_device.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/share.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/shared_preferences_ios.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/sqflite.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/url_launcher_ios.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/webcrypto.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/webview_flutter_wkwebview.framework",
@@ -445,6 +312,7 @@
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -465,30 +333,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
-				41D358842665EB1A0018C72D /* base58.c in Sources */,
-				41D3588C2665EB1A0018C72D /* pasta_fq.c in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
-				41D358852665EB1A0018C72D /* base10.c in Sources */,
-				41D358872665EB1A0018C72D /* poseidon.c in Sources */,
-				41D3588A2665EB1A0018C72D /* utils.c in Sources */,
-				41D358832665EB1A0018C72D /* crypto.c in Sources */,
-				41D3588E2665EB1A0018C72D /* pasta_fp.c in Sources */,
-				41D358902665EB1A0018C72D /* blake2b-ref.c in Sources */,
-				41D358882665EB1A0018C72D /* sha256.c in Sources */,
-				41556029265C0B2E0086EC5E /* mina_sdk.c in Sources */,
-				41D3588D2665EB1A0018C72D /* curve_checks.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		FA6831C52830D81100459FD0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "rust-signer-staticlib";
-			targetProxy = FA6831C42830D81100459FD0 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		41741D3D26FB923200B4FD19 /* InfoPlist.strings */ = {
@@ -560,7 +409,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -587,7 +436,10 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
@@ -651,7 +503,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -701,7 +553,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -730,7 +582,10 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
@@ -765,7 +620,10 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
