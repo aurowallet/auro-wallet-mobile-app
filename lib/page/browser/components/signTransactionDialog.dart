@@ -1,12 +1,34 @@
-import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/browserTab.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
+import 'package:auro_wallet/page/browser/components/zkRow.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/transferData.dart';
+import 'package:auro_wallet/store/browser/types/zkApp.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/network.dart';
+import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 enum SignTxDialogType { Payment, Delegation, zkApp }
+
+enum FeeTypeEnum {
+  fee_recommed_site,
+  fee_recommed_default,
+  fee_recommed_custom,
+}
 
 class SignTransactionDialog extends StatefulWidget {
   SignTransactionDialog({
@@ -14,12 +36,14 @@ class SignTransactionDialog extends StatefulWidget {
     required this.to,
     required this.onConfirm,
     required this.url,
+    required this.preNonce,
     this.amount,
     this.fee,
     this.memo,
     this.transaction,
     this.onCancel,
     this.iconUrl,
+    this.feePayer,
   });
 
   final SignTxDialogType signType;
@@ -28,10 +52,12 @@ class SignTransactionDialog extends StatefulWidget {
   final String? fee;
   final String? memo;
   final Object? transaction;
+  final Map<String, dynamic>? feePayer;
   final String url;
   final String? iconUrl;
+  int preNonce;
 
-  final Function() onConfirm;
+  final Function(String, int) onConfirm;
   final Function()? onCancel;
 
   @override
@@ -40,12 +66,102 @@ class SignTransactionDialog extends StatefulWidget {
 }
 
 class _SignTransactionDialogState extends State<SignTransactionDialog> {
-  bool isRiskAddress = true;
+  final store = globalAppStore;
+
+  bool isRiskAddress = false;
   bool showRawDataStatus = false;
+  double lastFee = 0.0101;
+  late String? lastMemo = "";
+  late int inputNonce;
+  FeeTypeEnum feeType = FeeTypeEnum.fee_recommed_default;
+  bool showFeeErrorTip = false;
+  bool submitting = false;
+  late String showToAddress = "";
+  String sourceData = "";
+  List<DataItem> rawData = [];
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkParams();
+    });
+  }
+
+  void checkParams() {
+    String toAddress = widget.to.toLowerCase();
+    bool isScam = toAddress.isNotEmpty &&
+        store.assets!.scamAddressStr.indexOf(toAddress) != -1;
+    setState(() {
+      isRiskAddress = isScam;
+    });
+
+    setState(() {
+      inputNonce = widget.preNonce;
+    });
+
+    String toAddressTemp = widget.to;
+    String? memoTemp = widget.memo;
+    String? zkFee;
+    String? zkMemo;
+    if (widget.signType == SignTxDialogType.zkApp) {
+      String transaction = zkCommandFormat(widget.transaction);
+      toAddressTemp = getContractAddress(transaction);
+      List<dynamic> zkFormatData =
+          getZkInfo(transaction, store.wallet!.currentAddress);
+      List<DataItem> dataItems = zkFormatData
+          .map<DataItem>((item) => DataItem.fromJson(item))
+          .toList();
+
+      zkFee = getZkFee(transaction);
+      zkMemo = getZkMemo(transaction);
+      String zkSourceData =
+          const JsonEncoder.withIndent('  ').convert(jsonDecode(transaction));
+      setState(() {
+        showToAddress = toAddressTemp;
+        sourceData = zkSourceData;
+        rawData = dataItems;
+      });
+    } else {
+      setState(() {
+        showToAddress = toAddressTemp;
+      });
+    }
+
+    FeeTypeEnum tempFeeType;
+    String? webFee = zkFee ?? widget.fee;
+    if (zkMemo != null && zkMemo.isNotEmpty) {
+      memoTemp = zkMemo;
+    } else {
+      Map<String, dynamic>? feePayer = widget.feePayer;
+      if (feePayer?['memo'] != null && feePayer?['memo'].isNotEmpty) {
+        memoTemp = feePayer?['memo'];
+      } else {
+        memoTemp = widget.memo;
+      }
+    }
+
+    setState(() {
+      lastMemo = memoTemp;
+    });
+
+    if (webFee != null && webFee.isNotEmpty && Fmt.isNumber(webFee)) {
+      lastFee = double.parse(webFee as String);
+      tempFeeType = FeeTypeEnum.fee_recommed_site;
+      showFeeErrorTip = lastFee >= store.assets!.transferFees.cap;
+      setState(() {
+        lastFee = lastFee;
+        feeType = tempFeeType;
+        showFeeErrorTip = showFeeErrorTip;
+      });
+    } else {
+      lastFee = store.assets!.transferFees.medium;
+      tempFeeType = FeeTypeEnum.fee_recommed_default;
+      setState(() {
+        lastFee = lastFee;
+        feeType = tempFeeType;
+      });
+    }
   }
 
   @override
@@ -53,9 +169,134 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     super.dispose();
   }
 
-  void onConfirm() {
+  String? _validateAmount() {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    BigInt available =
+        store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
+            BigInt.from(0);
+    final int decimals = COIN.decimals;
+    double fee = lastFee;
+    if (double.parse(Fmt.parseNumber(widget.amount as String)) >=
+        available / BigInt.from(pow(10, decimals)) - fee) {
+      return dic.balanceNotEnough;
+    }
+    return null;
+  }
+
+  Future<bool> _validate() async {
+    if (widget.signType == SignTxDialogType.Payment) {
+      String? amountError = _validateAmount();
+      if (amountError != null) {
+        UI.toast(amountError);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<bool> onConfirm() async {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     print('onConfirm');
-    widget.onConfirm!();
+    final isLedger =
+        store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+    bool exited = false;
+    if (await _validate()) {
+      String? privateKey;
+      if (!isLedger) {
+        String? password = await UI.showPasswordDialog(
+            context: context,
+            wallet: store.wallet!.currentWallet,
+            inputPasswordRequired: false);
+        if (password == null) {
+          return false;
+        }
+        privateKey = await webApi.account.getPrivateKey(
+            store.wallet!.currentWallet,
+            store.wallet!.currentWallet.currentAccountIndex,
+            password);
+        if (privateKey == null) {
+          UI.toast(dic.passwordError);
+          return false;
+        }
+      }
+      setState(() {
+        submitting = true;
+      });
+      Map txInfo;
+      bool isDelagetion = false;
+      if (widget.signType == SignTxDialogType.zkApp) {
+        txInfo = {
+          "privateKey": privateKey,
+          "fromAddress": store.wallet!.currentAddress,
+          "fee": lastFee,
+          "nonce": inputNonce,
+          "memo": lastMemo,
+          "transaction": zkCommandFormat(widget.transaction)
+        };
+      } else {
+        txInfo = {
+          "privateKey": privateKey,
+          "accountIndex": store.wallet!.currentWallet.currentAccountIndex,
+          "fromAddress": store.wallet!.currentAddress,
+          "toAddress": widget.to,
+          "fee": lastFee,
+          "nonce": inputNonce,
+          "memo": lastMemo,
+        };
+        if (widget.signType == SignTxDialogType.Payment) {
+          double amount = double.parse(Fmt.balance(
+              widget.amount.toString(), COIN.decimals,
+              maxLength: COIN.decimals));
+          txInfo["amount"] = amount;
+        } else if (widget.signType == SignTxDialogType.Delegation) {
+          isDelagetion = true;
+        }
+      }
+      TransferData? data;
+      if (isLedger) {
+        if (widget.signType == SignTxDialogType.zkApp) {
+          UI.toast(dic.notSupportNow);
+          return false;
+        }
+        print('start sign ledger');
+        final tx = await webApi.account
+            .ledgerSign(txInfo, context: context, isDelegation: isDelagetion);
+        if (tx == null) {
+          return false;
+        }
+        if (!exited) {
+          data = await webApi.account
+              .sendTxBody(tx, context: context, isDelegation: isDelagetion);
+        }
+      } else {
+        if (widget.signType == SignTxDialogType.zkApp) {
+          data = await webApi.account.signAndSendZkTx(txInfo, context: context);
+        } else {
+          if (isDelagetion) {
+            data = await webApi.account
+                .signAndSendDelegationTx(txInfo, context: context);
+          } else {
+            data = await webApi.account.signAndSendTx(txInfo, context: context);
+          }
+        }
+      }
+      setState(() {
+        submitting = false;
+      });
+      if (data!.hash.isNotEmpty) {
+        if (mounted && !exited) {
+          widget.onConfirm(data.hash, inputNonce);
+          globalBalanceRefreshKey.currentState!.show();
+
+          return true;
+        }
+      } else {
+        UI.toast("service error");
+      }
+      return false;
+    }
+    exited = true;
+    return false;
   }
 
   void onCancel() {
@@ -63,17 +304,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   }
 
   Widget _buildAccountRow() {
-    Map userInfo = {
-      "accountName": "xxx",
-      "address": "B62456...123456",
-      "balance": "123.4321 MINA",
-    };
+    AppLocalizations dic = AppLocalizations.of(context)!;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(
-            child: Text(userInfo['accountName'],
+            child: Text(
+                Fmt.accountName(store.wallet!.currentWallet.currentAccount),
                 style: TextStyle(
                     color: Colors.black.withOpacity(0.5),
                     fontSize: 12,
@@ -81,7 +320,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           ),
           Container(
             margin: EdgeInsets.only(top: 4),
-            child: Text(userInfo['address'],
+            child: Text('${Fmt.address(store.wallet!.currentAddress, pad: 6)}',
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 14,
@@ -108,7 +347,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                             color: Color(0xFF594AF1),
                             fontSize: 10,
                             fontWeight: FontWeight.w500))),
-                Text("To",
+                Text(dic.toAddress,
                     style: TextStyle(
                         color: Colors.black.withOpacity(0.5),
                         fontSize: 12,
@@ -118,11 +357,13 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           ),
           Container(
             margin: EdgeInsets.only(top: 4),
-            child: Text(widget.to,
-                style: TextStyle(
-                    color: isRiskAddress ? Colors.black : Color(0xFFD65A5A),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500)),
+            child: CopyContainer(
+                text: widget.to,
+                child: Text('${Fmt.address(showToAddress, pad: 6)}',
+                    style: TextStyle(
+                        color: isRiskAddress ? Color(0xFFD65A5A) : Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500))),
           )
         ]),
       ],
@@ -130,13 +371,14 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   }
 
   Widget _buildAmountRow() {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return widget.amount != null
         ? Container(
             margin: EdgeInsets.only(top: 20),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Container(
-                child: Text("Amount",
+                child: Text(dic.amount,
                     style: TextStyle(
                         color: Colors.black.withOpacity(0.5),
                         fontSize: 12,
@@ -144,7 +386,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
               ),
               Container(
                 margin: EdgeInsets.only(top: 4),
-                child: Text(widget.amount! + " MINA",
+                child: Text(widget.amount! + " " + COIN.coinSymbol,
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 14,
@@ -156,31 +398,51 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   }
 
   void showAdvanceDialog() async {
-    String? nextFee = await showDialog<String>(
-      context: context,
-      builder: (_) {
-        return TxAdvanceDialog(
-          currentNonce: 0,
-          nextStateFee: 0.01,
-        );
-      },
-    );
-    if (nextFee!.isNotEmpty) {
-      // nextStateFee = double.parse(nextFee);
+    UI.showAdvance(
+        context: context,
+        fee: lastFee,
+        nonce: inputNonce,
+        onConfirm: (double fee, int nonce) {
+          setState(() {
+            lastFee = fee;
+            inputNonce = nonce;
+            showFeeErrorTip = fee >= store.assets!.transferFees.cap;
+            feeType = FeeTypeEnum.fee_recommed_custom;
+          });
+        });
+  }
+
+  Widget _buildFeeTip() {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    Widget feeTip = Container();
+    if (feeType != FeeTypeEnum.fee_recommed_custom) {
+      bool isFeeDefault = feeType == FeeTypeEnum.fee_recommed_default;
+      String feeContent = isFeeDefault ? dic.fee_default : dic.siteSuggested;
+      Color feeTipBg = isFeeDefault
+          ? Color(0xFF808080).withOpacity(0.1)
+          : Color(0xFF0DB27C).withOpacity(0.1);
+      Color feeContentColor =
+          isFeeDefault ? Color(0xFF808080).withOpacity(0.5) : Color(0xFF0DB27C);
+      feeTip = Container(
+        padding: EdgeInsets.symmetric(horizontal: 4),
+        margin: EdgeInsets.only(left: 4),
+        decoration: BoxDecoration(
+            color: feeTipBg,
+            borderRadius: BorderRadius.all(Radius.circular(3))),
+        child: Text(feeContent,
+            style: TextStyle(
+                color: feeContentColor,
+                fontSize: 12,
+                height: 1.25,
+                fontWeight: FontWeight.w500)),
+      );
     }
+    return feeTip;
   }
 
   Widget _buildFeeRow() {
-    bool showDefault = true;
-    bool showFeeHighTip = false;
-    String showFee;
-    if (widget.fee != null) {
-      showFee = widget.fee!;
-      showDefault = false;
-      showFeeHighTip = true; // need check
-    } else {
-      showFee = "0.001";
-    }
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    String showFee = (lastFee).toString();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -191,7 +453,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Container(
-                  child: Text("Transaction Fee",
+                  child: Text(dic.transactionFee,
                       style: TextStyle(
                           color: Colors.black.withOpacity(0.5),
                           fontSize: 12,
@@ -201,40 +463,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                   margin: EdgeInsets.only(top: 4),
                   child: Row(
                     children: [
-                      Text(showFee + " MINA",
+                      Text(showFee + " " + COIN.coinSymbol,
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 14,
                               fontWeight: FontWeight.w500)),
-                      showDefault
-                          ? Container(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              margin: EdgeInsets.only(left: 4),
-                              decoration: BoxDecoration(
-                                  color: Color(0xFF808080).withOpacity(0.1),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(3))),
-                              child: Text('Default',
-                                  style: TextStyle(
-                                      color: Color(0xFF808080).withOpacity(0.5),
-                                      fontSize: 12,
-                                      height: 1.25,
-                                      fontWeight: FontWeight.w500)),
-                            )
-                          : Container(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              margin: EdgeInsets.only(left: 4),
-                              decoration: BoxDecoration(
-                                  color: Color(0xFF0DB27C).withOpacity(0.1),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(3))),
-                              child: Text('Site suggested',
-                                  style: TextStyle(
-                                      color: Color(0xFF0DB27C),
-                                      fontSize: 12,
-                                      height: 1.25,
-                                      fontWeight: FontWeight.w500)),
-                            )
+                      _buildFeeTip(),
                     ],
                   ),
                 )
@@ -247,7 +481,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                     onTap: () => showAdvanceDialog(),
                     child: Container(
                       margin: EdgeInsets.only(top: 4),
-                      child: Text("Advanced",
+                      child: Text(dic.advanceMode,
                           style: TextStyle(
                               color: Color(0xFF594AF1),
                               fontSize: 14,
@@ -257,20 +491,22 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             ],
           ),
         ),
-        Container(
-          margin: EdgeInsets.only(top: 4),
-          child: Text('Fees are much higher than average',
-              style: TextStyle(
-                  color: Color(0xFFE4B200),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400)),
-        )
+        showFeeErrorTip
+            ? Container(
+                margin: EdgeInsets.only(top: 4),
+                child: Text(dic.feeTooLarge,
+                    style: TextStyle(
+                        color: Color(0xFFE4B200),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400)),
+              )
+            : Container()
       ],
     );
   }
 
   Widget _buildMemoContent() {
-    return Text(widget.memo!,
+    return Text(lastMemo!,
         style: TextStyle(
             color: Colors.black.withOpacity(0.8),
             fontSize: 14,
@@ -279,17 +515,13 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   Widget _buildZkTransactionContent() {
     if (showRawDataStatus) {
-      return Text('sourceData',
+      return Text(sourceData,
           style: TextStyle(
               color: Colors.black.withOpacity(0.8),
               fontSize: 14,
               fontWeight: FontWeight.w400));
     } else {
-      return Text('showData',
-          style: TextStyle(
-              color: Colors.black.withOpacity(0.8),
-              fontSize: 14,
-              fontWeight: FontWeight.w400));
+      return TypeRowInfo(data: rawData, isZkData: true);
     }
   }
 
@@ -301,16 +533,18 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   }
 
   Widget _buildTabRow() {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     List<String> tabTitleList = [];
     List<Widget> tabContengList = [];
     Widget? tabRightWidget;
 
     if (widget.transaction != null) {
-      tabTitleList.add('Content');
+      tabTitleList.add(dic.content);
       tabContengList
           .add(TabBorderContent(tabContent: _buildZkTransactionContent()));
       if (widget.signType == SignTxDialogType.zkApp) {
-        String showContent = showRawDataStatus ? "Raw data</>" : "Show data ";
+        String showContent =
+            showRawDataStatus ? dic.rawData + "</>" : dic.showData;
         tabRightWidget = GestureDetector(
           child: Container(
             padding: EdgeInsets.only(bottom: 5, top: 5, left: 5),
@@ -326,7 +560,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         );
       }
     }
-    if (widget.memo != null && widget.memo!.isNotEmpty) {
+    if (lastMemo != null && lastMemo!.isNotEmpty) {
       tabTitleList.add('Memo');
       tabContengList.add(TabBorderContent(tabContent: _buildMemoContent()));
     }
@@ -344,6 +578,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   }
 
   Widget _buildRiskTip() {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.only(bottom: 20),
@@ -360,18 +595,14 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                 height: 30,
                 width: 30,
               ),
-              SizedBox(
-                width: 10,
-              ),
-              Text("WARNING",
+              Text(dic.warning,
                   style: TextStyle(
                       color: Color(0xFFD65A5A),
                       fontSize: 14,
                       fontWeight: FontWeight.w500))
             ],
           ),
-          Text(
-              'You are interacting with an address or contract that has been flagged as scam. If you sign, you could lose access to all of your NFTs and any funds or other assets in your wallet.',
+          Text(dic.warningTip,
               style: TextStyle(
                   color: Color(0xFFD65A5A),
                   fontSize: 12,
@@ -383,14 +614,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     double screenHeight = MediaQuery.of(context).size.height;
-    // Calculate 80% of the screen height
     double containerMaxHeight = screenHeight * 0.6;
     double minHeight = 200;
     if (containerMaxHeight <= minHeight) {
       containerMaxHeight = containerMaxHeight + 50;
     }
-
+    String networkName =
+        NetworkUtil.getNetworkName(store.settings!.currentNode);
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -405,8 +637,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
               Wrap(
                 children: [
                   BrowserDialogTitleRow(
-                    title: "Transaction Request",
-                    chainId: "Mainnet",
+                    title: dic.transactionRequest,
+                    chainId: networkName,
                   ),
                   Container(
                       constraints: BoxConstraints(
@@ -432,9 +664,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                                 ],
                               )))),
                   ZkAppBottomButton(
-                    onConfirm: onConfirm,
-                    onCancel: onCancel,
-                  )
+                      onConfirm: onConfirm,
+                      onCancel: onCancel,
+                      submitting: submitting)
                 ],
               ),
             ],
