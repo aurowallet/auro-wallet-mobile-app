@@ -159,7 +159,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     String? webTitle = await _controller.getTitle();
     String title = webTitle ?? url;
 
-    return {"webIconUrl": webIconUrl ?? "", "webTitle": title};
+    return {"webIconUrl": webIconUrl, "webTitle": title};
   }
 
   String getOrigin(String url) {

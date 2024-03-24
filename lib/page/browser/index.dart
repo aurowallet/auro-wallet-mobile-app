@@ -57,7 +57,8 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
   }
 
   Widget _buildBottomList() {
-    if (store.browser!.webFavList.length == 0 && store.browser!.webHistoryList.length == 0) {
+    if (store.browser!.webFavList.length == 0 &&
+        store.browser!.webHistoryList.length == 0) {
       return Container();
     }
     List<Widget> bottomWidget = [];
@@ -73,7 +74,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
   }
 
   List<Widget> getHistoryListWidget() {
-     if (store.browser!.webHistoryList.length == 0) {
+    if (store.browser!.webHistoryList.length == 0) {
       return [];
     }
     AppLocalizations dic = AppLocalizations.of(context)!;

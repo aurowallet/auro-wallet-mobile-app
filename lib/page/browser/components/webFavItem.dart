@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -19,6 +20,13 @@ class WebFavItem extends StatelessWidget {
     AppLocalizations dic = AppLocalizations.of(context)!;
     String showTitle = data.title;
     var itemWidth = (MediaQuery.of(context).size.width - 40) / 2 - 50;
+    String logoUrl = "";
+    if (data.icon != null && data.icon!.isNotEmpty) {
+      if (data.icon!.length >= 5) {
+        logoUrl = data.icon!.substring(1, data.icon!.length - 1);
+      }
+    }
+
     return Container(
         margin: const EdgeInsets.only(top: 10),
         child: Material(
@@ -70,9 +78,16 @@ class WebFavItem extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      width: 5,
+                    ),
                     ItemLogo(
                       name: data.title,
-                      logo: data.icon,
+                      logo: logoUrl,
+                      radius: 10,
+                    ),
+                    SizedBox(
+                      width: 5,
                     ),
                     Container(
                       width: itemWidth,
@@ -106,24 +121,23 @@ class ItemLogo extends StatefulWidget {
 }
 
 class ItemLogoState extends State<ItemLogo> {
-
-
   @override
   Widget build(BuildContext context) {
     bool showHolderIcon = widget.showHolderIcon == true;
     double imgWidth = widget.radius! * 2;
-    return CircleAvatar(
-        radius: widget.radius,
-        backgroundColor: showHolderIcon ? Colors.transparent : Color(0x4D000000),
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(widget.radius ?? 0),
         child: CachedNetworkImage(
             width: imgWidth,
-            imageUrl: widget
-                .logo!,
+            imageUrl: widget.logo!.trim(),
             placeholder: (context, url) {
               return Text(
                 widget.name?.substring(0, 1).toUpperCase() ?? 'U',
                 style: TextStyle(fontSize: 14, color: Colors.white),
               );
+            },
+            errorListener: (value) {
+              print('errorListener===0,${value}');
             },
             errorWidget: (context, url, error) {
               if (showHolderIcon) {
@@ -150,6 +164,12 @@ class WebHistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String logoUrl = "";
+    if (data.icon != null && data.icon!.isNotEmpty) {
+      if (data.icon!.length >= 5) {
+        logoUrl = data.icon!.substring(1, data.icon!.length - 1);
+      }
+    }
     return Container(
       child: InkWell(
         onTap: () {
@@ -162,8 +182,7 @@ class WebHistoryItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ItemLogo(
-                    name: data.title, logo: data.icon, showHolderIcon: true),
+                ItemLogo(name: data.title, logo: logoUrl, showHolderIcon: true),
                 Container(
                   width: 10,
                 ),
