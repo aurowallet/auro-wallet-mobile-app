@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -60,7 +61,6 @@ class WebFavItem extends StatelessWidget {
                 ],
               );
             },
-            // _simplePopup(),
             child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
@@ -106,44 +106,39 @@ class ItemLogo extends StatefulWidget {
 }
 
 class ItemLogoState extends State<ItemLogo> {
-  bool loadError = false;
 
-  onLoadError(exception, stackTrace) {
-    setState(() {
-      loadError = true;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    bool showHolderText = false;
-    if (widget.logo != null && widget.logo!.isNotEmpty) {
-      showHolderText = loadError;
-    } else {
-      showHolderText = true;
-    }
     bool showHolderIcon = widget.showHolderIcon == true;
+    double imgWidth = widget.radius! * 2;
     return CircleAvatar(
-      radius: widget.radius,
-      backgroundColor: showHolderIcon ? Colors.transparent : Color(0x4D000000),
-      onBackgroundImageError: !showHolderText ? onLoadError : null,
-      backgroundImage: !showHolderText
-          ? NetworkImage(
-              widget.logo!,
-            )
-          : null,
-      child: showHolderText
-          ? showHolderIcon
-              ? SvgPicture.asset(
+        radius: widget.radius,
+        backgroundColor: showHolderIcon ? Colors.transparent : Color(0x4D000000),
+        child: CachedNetworkImage(
+            width: imgWidth,
+            imageUrl: widget
+                .logo!,
+            placeholder: (context, url) {
+              return Text(
+                widget.name?.substring(0, 1).toUpperCase() ?? 'U',
+                style: TextStyle(fontSize: 14, color: Colors.white),
+              );
+            },
+            errorWidget: (context, url, error) {
+              if (showHolderIcon) {
+                return SvgPicture.asset(
                   "assets/images/public/browser_tab.svg",
                   color: Colors.black,
-                )
-              : Text(
+                );
+              }
+              return Center(
+                child: Text(
                   widget.name?.substring(0, 1).toUpperCase() ?? 'U',
                   style: TextStyle(fontSize: 14, color: Colors.white),
-                )
-          : null,
-    );
+                ),
+              );
+            }));
   }
 }
 

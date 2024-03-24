@@ -1,12 +1,22 @@
 import 'dart:convert';
+
+import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/browserTab.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/network.dart';
 import 'package:flutter/material.dart';
 
 class SignatureDialog extends StatefulWidget {
   SignatureDialog({
+    required this.method,
     required this.content,
     required this.url,
     this.iconUrl,
@@ -15,9 +25,10 @@ class SignatureDialog extends StatefulWidget {
   });
 
   final Object content;
+  final String method;
   final String url;
   final String? iconUrl;
-  final Function()? onConfirm;
+  final Function(Map)? onConfirm;
   final Function()? onCancel;
 
   @override
@@ -25,7 +36,9 @@ class SignatureDialog extends StatefulWidget {
 }
 
 class _SignatureDialogState extends State<SignatureDialog> {
-  String currentChainId = "Mainnet";
+  final store = globalAppStore;
+  bool formatStatus = true;
+  bool submitting = false;
 
   @override
   void initState() {
@@ -37,9 +50,74 @@ class _SignatureDialogState extends State<SignatureDialog> {
     super.dispose();
   }
 
-  void onConfirm() {
+  Future<bool> onConfirm() async {
     print('onConfirm');
-    widget.onConfirm!();
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    final isLedger =
+        store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+    if (!formatStatus) {
+      UI.toast("Error: Unknown content type");
+      return false;
+    }
+    if (!isLedger) {
+      String? privateKey;
+      String? password = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: false);
+      if (password == null) {
+        return false;
+      }
+      privateKey = await webApi.account.getPrivateKey(
+          store.wallet!.currentWallet,
+          store.wallet!.currentWallet.currentAccountIndex,
+          password);
+      if (privateKey == null) {
+        UI.toast(dic.passwordError);
+        return false;
+      }
+      setState(() {
+        submitting = true;
+      });
+      Map signInfo = {
+        "privateKey": privateKey,
+        "type": "message",
+        "publicKey": store.wallet!.currentAddress,
+        "message": widget.content
+      };
+      late Map data;
+      if (widget.method == 'mina_signMessage') {
+        data = await webApi.account.signMessage(
+          signInfo,
+          context: context,
+        );
+      } else if (widget.method == 'mina_signFields') {
+        data = await webApi.account.signFields(
+          signInfo,
+          context: context,
+        );
+      } else if (widget.method == 'mina_createNullifier') {
+        data = await webApi.account.createNullifier(
+          signInfo,
+          context: context,
+        );
+      } else {
+         setState(() {
+        submitting = false;
+      });
+        // unsupport
+        UI.toast(dic.notSupportNow);
+        return false;
+      }
+      setState(() {
+        submitting = false;
+      });
+      widget.onConfirm!(data);
+      return true;
+    } else {
+      UI.toast(dic.ledgerNotSupportSign);
+      return false;
+    }
   }
 
   void onCancel() {
@@ -94,17 +172,19 @@ class _SignatureDialogState extends State<SignatureDialog> {
               fontSize: 14,
               fontWeight: FontWeight.w400));
     } else {
+      formatStatus = false;
       return Text('Error: Unknown content type'); // if error disable confirm
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Map userInfo = {
-      "accountName": "xxx",
-      "address": "B62456...123456",
-      "balance": "123.4321 MINA",
-    };
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    BigInt balance =
+        store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
+            BigInt.from(0);
+    String networkName =
+        NetworkUtil.getNetworkName(store.settings!.currentNode);
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -119,8 +199,8 @@ class _SignatureDialogState extends State<SignatureDialog> {
               Wrap(
                 children: [
                   BrowserDialogTitleRow(
-                    title: "Signature Request",
-                    chainId: currentChainId,
+                    title: dic.signatureRequest,
+                    chainId: networkName,
                   ),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
@@ -139,7 +219,9 @@ class _SignatureDialogState extends State<SignatureDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      child: Text(userInfo['accountName'],
+                                      child: Text(
+                                          Fmt.accountName(store.wallet!
+                                              .currentWallet.currentAccount),
                                           style: TextStyle(
                                               color:
                                                   Colors.black.withOpacity(0.5),
@@ -148,7 +230,8 @@ class _SignatureDialogState extends State<SignatureDialog> {
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(top: 4),
-                                      child: Text(userInfo['address'],
+                                      child: Text(
+                                          '${Fmt.address(store.wallet!.currentAddress, pad: 6)}',
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 14,
@@ -159,7 +242,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Container(
-                                      child: Text("Balance",
+                                      child: Text(dic.amount,
                                           style: TextStyle(
                                               color:
                                                   Colors.black.withOpacity(0.5),
@@ -168,7 +251,11 @@ class _SignatureDialogState extends State<SignatureDialog> {
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(top: 4),
-                                      child: Text(userInfo['balance'],
+                                      child: Text(
+                                          Fmt.balance(balance.toString(),
+                                                  COIN.decimals) +
+                                              " " +
+                                              COIN.coinSymbol,
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 14,
@@ -181,9 +268,8 @@ class _SignatureDialogState extends State<SignatureDialog> {
                               height: 200,
                               margin: EdgeInsets.only(top: 20),
                               width: double.infinity,
-
                               child: BrowserTab(
-                                tabTitles: ["Content"],
+                                tabTitles: [dic.content],
                                 tabContents: [
                                   TabBorderContent(tabContent: _build())
                                 ],
@@ -191,9 +277,9 @@ class _SignatureDialogState extends State<SignatureDialog> {
                         ],
                       )),
                   ZkAppBottomButton(
-                    onConfirm: onConfirm,
-                    onCancel: onCancel,
-                  )
+                      onConfirm: onConfirm,
+                      onCancel: onCancel,
+                      submitting: submitting)
                 ],
               ),
             ],

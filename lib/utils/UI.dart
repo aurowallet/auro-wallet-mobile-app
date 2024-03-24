@@ -323,7 +323,7 @@ class UI {
     required String url,
     required String method,
     String? iconUrl,
-    required Future<String> Function() onConfirm,
+    required Future<void> Function(Map) onConfirm,
     Function()? onCancel,
     String? buttonText,
   }) {
@@ -339,8 +339,8 @@ class UI {
             content: content,
             url: url,
             iconUrl: iconUrl,
-            onConfirm: () async {
-              onConfirm();
+            onConfirm: (Map data) async {
+              onConfirm(data);
             },
             onCancel: () {
               onCancel!();
@@ -357,9 +357,10 @@ class UI {
     String? fee,
     String? memo,
     Object? transaction,
+    Map<String,dynamic>? feePayer,
     required String url,
     String? iconUrl,
-    required Future<String> Function() onConfirm,
+    required Future<String> Function(String) onConfirm,
     Function()? onCancel,
     String? buttonText,
   }) {
@@ -376,11 +377,13 @@ class UI {
             amount: amount,
             fee: fee,
             memo: memo,
+            feePayer:feePayer,
             transaction: transaction,
             url: url,
             iconUrl: iconUrl,
-            onConfirm: () async {
-              onConfirm();
+            onConfirm: (String hash) async {
+              onConfirm(hash);
+              Navigator.of(context).pop();
             },
             onCancel: () {
               onCancel!();

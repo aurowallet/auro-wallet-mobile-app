@@ -1,8 +1,14 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SwitchChainDialog extends StatefulWidget {
@@ -12,38 +18,86 @@ class SwitchChainDialog extends StatefulWidget {
     this.iconUrl,
     this.onConfirm,
     this.onCancel,
+    this.gqlUrl,
   });
 
   final String chainId;
   final String url;
   final String? iconUrl;
-  final Function()? onConfirm;
+  final Function(String, String)? onConfirm;
   final Function()? onCancel;
+  final String? gqlUrl;
 
   @override
   _SwitchChainDialogState createState() => new _SwitchChainDialogState();
 }
 
 class _SwitchChainDialogState extends State<SwitchChainDialog> {
-  String currentChainId = "currentChainId";
+  AppStore store = globalAppStore;
+  late CustomNodeV2 showNode;
 
   @override
   void initState() {
     super.initState();
+    setNextChainConfig();
   }
 
-  void onConfirm() {
-    print(' SwitchChainDialog  onConfirm');
-    widget.onConfirm!();
+  CustomNodeV2 setNextChainConfig() {
+    bool changeByUrl = widget.gqlUrl != null;
+    CustomNodeV2 nextNode;
+    dynamic nodes = store.settings!.allNodes.where((element) {
+      if (!changeByUrl) {
+        return element.netType!.name == widget.chainId.toLowerCase();
+      } else {
+        return element.url.toLowerCase() == widget.gqlUrl?.toLowerCase();
+      }
+    });
+    final defaultNodes =
+        nodes.where((element) => element.isDefaultNode == true);
+    if (changeByUrl) {
+      nextNode = nodes.first;
+    } else {
+      nextNode = defaultNodes.length > 0 ? defaultNodes.first : nodes.first;
+    }
+    setState(() {
+      showNode = nextNode;
+    });
+    return nextNode;
+  }
+
+  void onConfirm() async {
+    bool changeByUrl = widget.gqlUrl != null;
+
+    print(' ConnectDialog  onConfirm');
+    dynamic nodes = store.settings!.allNodes.where((element) {
+      if (!changeByUrl) {
+        return element.netType!.name == widget.chainId.toLowerCase();
+      } else {
+        return element.url.toLowerCase() == widget.gqlUrl?.toLowerCase();
+      }
+    });
+
+    await store.assets!.clearAllTxs();
+    store.assets!.setTxsLoading(true);
+    await store.settings!.setCurrentNode(showNode);
+    webApi.updateGqlClient(showNode.url);
+    webApi.staking.refreshStaking();
+    globalBalanceRefreshKey.currentState?.show();
+
+    String networkName = showNode.name;
+    String chainId = showNode.netType!.name;
+
+    widget.onConfirm!(networkName, chainId);
   }
 
   void onCancel() {
-    print(' SwitchChainDialog  onCancel');
+    print(' ConnectDialog  onCancel');
     widget.onCancel!();
   }
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -57,7 +111,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
             children: [
               Wrap(
                 children: [
-                  BrowserDialogTitleRow(title: "Switch Network"),
+                  BrowserDialogTitleRow(title: dic.switchNetwork),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                       child: Column(
@@ -65,21 +119,22 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                         children: [
                           ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
                           Container(
-                            margin: EdgeInsets.only(top: 20, bottom: 20),
-                            child: Text(
-                                "Allow this site to switch the network?",
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: ColorsUtil.hexColor(0x808080),
-                                    fontWeight: FontWeight.w400)),
-                          ),
+                              margin: EdgeInsets.only(top: 20, bottom: 20),
+                              child: Observer(builder: (_) {
+                                return Text(dic.allowSwitch,
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: ColorsUtil.hexColor(0x808080),
+                                        fontWeight: FontWeight.w400));
+                              })),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 ChainItem(
-                                    title: "Current",
-                                    chainId: currentChainId,
+                                    title: dic.current,
+                                    chainId: store.settings!.currentNode
+                                        ?.netType!.name as String,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start),
                                 SvgPicture.asset(
@@ -88,8 +143,10 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                                   color: Color(0xFF594AF1),
                                 ),
                                 ChainItem(
-                                    title: "Target",
-                                    chainId: widget.chainId,
+                                    title: dic.target,
+                                    chainId:
+                                        showNode?.netType!.name.toLowerCase() ??
+                                            "",
                                     crossAxisAlignment: CrossAxisAlignment.end),
                               ])
                         ],

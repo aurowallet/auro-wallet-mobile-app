@@ -73,6 +73,7 @@ class BrowserActionButton extends StatelessWidget {
                         buildItem(
                             "assets/images/webview/icon_copy.svg", dic.copyLink,
                             () {
+                          UI.copyAndNotify(context, url);
                           Navigator.pop(context);
                         }, context),
                         buildItem(favUrl, favTxt, () {

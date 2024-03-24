@@ -58,16 +58,16 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildBottomList(bool favEmpty, bool historyEmpty) {
-    if (favEmpty && historyEmpty) {
+  Widget _buildBottomList() {
+    if (store.browser!.webFavList.length == 0 && store.browser!.webHistoryList.length == 0) {
       return Container();
     }
     List<Widget> bottomWidget = [];
-    if (!favEmpty) {
+    if (store.browser!.webFavList.length > 0) {
       List<Widget> favWidget = getFavListWidget();
       bottomWidget.addAll(favWidget);
     }
-    if (!historyEmpty) {
+    if (store.browser!.webHistoryList.length > 0) {
       List<Widget> historyWidget = getHistoryListWidget();
       bottomWidget.addAll(historyWidget);
     }
@@ -75,6 +75,9 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
   }
 
   List<Widget> getHistoryListWidget() {
+     if (store.browser!.webHistoryList.length == 0) {
+      return [];
+    }
     AppLocalizations dic = AppLocalizations.of(context)!;
     List<Widget> historyWidget = [];
     historyWidget.add(Container(
@@ -220,7 +223,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
                                   fontWeight: FontWeight.w400,
                                   decoration: TextDecoration.none))))
                   : Container(),
-              _buildBottomList(favEmpty, historyEmpty),
+              _buildBottomList(),
             ],
           );
         }),

@@ -81,6 +81,7 @@ dependencies:
   decimal: ^2.3.3
   flutter_inappwebview: ^5.8.0
   webview_flutter: ^4.0.7
+  cached_network_image: ^3.3.0
   
 
 

@@ -19,12 +19,21 @@ class BrowserTab extends StatefulWidget {
 class _BrowserTabState extends State<BrowserTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int? currentIndex=0;
 
   @override
   void initState() {
     super.initState();
     _tabController =
         TabController(vsync: this, length: widget.tabTitles.length);
+    _tabController.addListener(_handleTabSelection);
+  }
+  void _handleTabSelection() {
+    if (_tabController.indexIsChanging) {
+      setState(() {
+        currentIndex = _tabController.index;
+      });
+    }
   }
 
   @override
@@ -68,7 +77,7 @@ class _BrowserTabState extends State<BrowserTab>
                   labelPadding:
                       EdgeInsets.only(left: 0, right: 20, top: 0, bottom: 0)),
             ),
-            widget.tabRightWidget != null
+            widget.tabRightWidget != null && currentIndex ==0
                 ? Positioned(bottom: 8, right: 0, child: widget.tabRightWidget!)
                 : Container(),
           ],
