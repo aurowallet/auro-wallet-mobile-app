@@ -9,7 +9,6 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/localStorage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -33,11 +32,12 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
   final AppStore store;
 
   late WebViewController _controller;
-  LocalStorage localStorage = LocalStorage();
   bool canGoback = false;
   bool canGoForward = false;
   bool isFav = false;
   late String loadUrl;
+
+  int nextUseInferredNonce = 0;
 
   Widget _buildScaffold({
     required Function onBack,
@@ -99,8 +99,10 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      onCheckFav();
+      nextUseInferredNonce = store
+          .assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
       _loadData();
+      onCheckFav();
     });
   }
 
@@ -109,6 +111,8 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
       webApi.assets.fetchAccountInfo(),
       webApi.assets.queryTxFees(),
     ]);
+    nextUseInferredNonce =
+        store.assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
   }
 
   void onCheckFav() async {
@@ -205,18 +209,24 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
             child: Column(
               children: [
                 Expanded(
-                  child: WebViewInjected(
-                    url,
-                    onWebViewCreated: (controller) {
-                      _controller = controller;
-                    },
-                    onPageFinished: (gobackStatus, goForwardStatus) {
-                      setState(() {
-                        canGoback = gobackStatus;
-                        canGoForward = goForwardStatus;
-                      });
-                    },
-                  ),
+                  child: WebViewInjected(url,
+                      onGetNewestNonce: () => nextUseInferredNonce,
+                      onWebViewCreated: (controller) {
+                        _controller = controller;
+                      },
+                      onPageFinished: (gobackStatus, goForwardStatus) {
+                        setState(() {
+                          canGoback = gobackStatus;
+                          canGoForward = goForwardStatus;
+                        });
+                      },
+                      onTxConfirmed: (int nonce) {
+                        if (nonce == nextUseInferredNonce) {
+                          nextUseInferredNonce = nextUseInferredNonce + 1;
+                        } else {
+                          _loadData();
+                        }
+                      }),
                 ),
                 Container(
                   decoration: BoxDecoration(

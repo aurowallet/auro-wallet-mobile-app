@@ -8,7 +8,6 @@ import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/localStorage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -27,7 +26,6 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
   _BrowserState(this.store);
   final AppStore store;
 
-  LocalStorage localStorage = LocalStorage();
 
   TextEditingController editingController = new TextEditingController();
   String? keywords;

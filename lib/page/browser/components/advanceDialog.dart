@@ -12,10 +12,12 @@ import 'package:flutter/services.dart';
 class AdvanceDialog extends StatefulWidget {
   AdvanceDialog({
     required this.onConfirm,
+    required this.nonce,
     this.nextStateFee,
   });
 
   final Function(double fee, int nonce) onConfirm;
+  final int nonce;
   final double? nextStateFee;
 
   @override
@@ -36,8 +38,7 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
   void onConfirm() {
     String inputFee = _feeCtrl.text.trim();
     String inputNonce = _nonceCtrl.text.trim();
-    int inferredNonce = store.assets!.accountsInfo[store.wallet!.currentAddress]
-        ?.inferredNonce as int;
+    int inferredNonce = widget.nonce;
 
     double fee = 0.0101;
     if (inputFee.isNotEmpty) {
@@ -113,11 +114,7 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
                     child: InputItem(
                       label: "Nonce",
                       initialValue: '',
-                      placeholder: store
-                          .assets!
-                          .accountsInfo[store.wallet!.currentAddress]
-                          ?.inferredNonce
-                          .toString(),
+                      placeholder: widget.nonce.toString(),
                       padding: EdgeInsets.only(top: 20),
                       controller: _nonceCtrl,
                       inputFormatters: <TextInputFormatter>[

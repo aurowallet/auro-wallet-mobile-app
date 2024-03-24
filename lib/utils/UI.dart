@@ -353,6 +353,7 @@ class UI {
     required BuildContext context,
     required SignTxDialogType signType,
     required String to,
+    required int nonce,
     String? amount,
     String? fee,
     String? memo,
@@ -360,7 +361,7 @@ class UI {
     Map<String,dynamic>? feePayer,
     required String url,
     String? iconUrl,
-    required Future<String> Function(String) onConfirm,
+    required Future<String> Function(String,int) onConfirm,
     Function()? onCancel,
     String? buttonText,
   }) {
@@ -381,8 +382,9 @@ class UI {
             transaction: transaction,
             url: url,
             iconUrl: iconUrl,
-            onConfirm: (String hash) async {
-              onConfirm(hash);
+            preNonce:nonce,
+            onConfirm: (String hash,int nonce) async {
+              onConfirm(hash,nonce);
               Navigator.of(context).pop();
             },
             onCancel: () {
@@ -416,6 +418,7 @@ class UI {
   static Future<void> showAdvance({
     required BuildContext context,
     required double fee,
+    required int nonce,
     Function(double, int)? onConfirm,
     String? buttonText,
   }) {
@@ -428,6 +431,7 @@ class UI {
       builder: (BuildContext context) {
         return AdvanceDialog(
           nextStateFee:fee,
+          nonce:nonce,
           onConfirm: (double fee, int nonce) {
             onConfirm!(fee,nonce);
           },
