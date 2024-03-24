@@ -59,65 +59,63 @@ class _SignatureDialogState extends State<SignatureDialog> {
       UI.toast("Error: Unknown content type");
       return false;
     }
-    if (!isLedger) {
-      String? privateKey;
-      String? password = await UI.showPasswordDialog(
-          context: context,
-          wallet: store.wallet!.currentWallet,
-          inputPasswordRequired: false);
-      if (password == null) {
-        return false;
-      }
-      privateKey = await webApi.account.getPrivateKey(
-          store.wallet!.currentWallet,
-          store.wallet!.currentWallet.currentAccountIndex,
-          password);
-      if (privateKey == null) {
-        UI.toast(dic.passwordError);
-        return false;
-      }
-      setState(() {
-        submitting = true;
-      });
-      Map signInfo = {
-        "privateKey": privateKey,
-        "type": "message",
-        "publicKey": store.wallet!.currentAddress,
-        "message": widget.content
-      };
-      late Map data;
-      if (widget.method == 'mina_signMessage') {
-        data = await webApi.account.signMessage(
-          signInfo,
-          context: context,
-        );
-      } else if (widget.method == 'mina_signFields') {
-        data = await webApi.account.signFields(
-          signInfo,
-          context: context,
-        );
-      } else if (widget.method == 'mina_createNullifier') {
-        data = await webApi.account.createNullifier(
-          signInfo,
-          context: context,
-        );
-      } else {
-         setState(() {
-        submitting = false;
-      });
-        // unsupport
-        UI.toast(dic.notSupportNow);
-        return false;
-      }
-      setState(() {
-        submitting = false;
-      });
-      widget.onConfirm!(data);
-      return true;
-    } else {
+    if (isLedger) {
       UI.toast(dic.ledgerNotSupportSign);
       return false;
     }
+    String? privateKey;
+    String? password = await UI.showPasswordDialog(
+        context: context,
+        wallet: store.wallet!.currentWallet,
+        inputPasswordRequired: false);
+    if (password == null) {
+      return false;
+    }
+    privateKey = await webApi.account.getPrivateKey(store.wallet!.currentWallet,
+        store.wallet!.currentWallet.currentAccountIndex, password);
+    if (privateKey == null) {
+      UI.toast(dic.passwordError);
+      return false;
+    }
+    setState(() {
+      submitting = true;
+    });
+    Map signInfo = {
+      "privateKey": privateKey,
+      "type": "message",
+      "publicKey": store.wallet!.currentAddress,
+      "message": widget.content
+    };
+    late Map data;
+    if (widget.method == 'mina_signMessage' ||
+        widget.method == 'mina_sign_JsonMessage') {
+      data = await webApi.account.signMessage(
+        signInfo,
+        context: context,
+      );
+    } else if (widget.method == 'mina_signFields') {
+      data = await webApi.account.signFields(
+        signInfo,
+        context: context,
+      );
+    } else if (widget.method == 'mina_createNullifier') {
+      data = await webApi.account.createNullifier(
+        signInfo,
+        context: context,
+      );
+    } else {
+      setState(() {
+        submitting = false;
+      });
+      // unsupport
+      UI.toast(dic.notSupportNow);
+      return false;
+    }
+    setState(() {
+      submitting = false;
+    });
+    widget.onConfirm!(data);
+    return true;
   }
 
   void onCancel() {

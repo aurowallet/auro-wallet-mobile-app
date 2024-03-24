@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/common/components/ledgerStatus.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/browserTab.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
@@ -14,6 +16,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
+import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -21,6 +24,7 @@ import 'package:auro_wallet/utils/network.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 
 enum SignTxDialogType { Payment, Delegation, zkApp }
 
@@ -79,11 +83,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   late String showToAddress = "";
   String sourceData = "";
   List<DataItem> rawData = [];
+  bool isLedger =false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        isLedger = store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+      });
       checkParams();
     });
   }
@@ -194,13 +202,55 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     return true;
   }
 
+  Future<bool> _ledgerCheck() async {
+    bool showLedgerDialog = false;
+    if (store.ledger!.ledgerDevice == null) {
+      showLedgerDialog = true;
+    } else {
+      try {
+        final minaApp =
+            MinaLedgerApp(store.ledger!.ledgerInstance!, accountIndex: 0);
+        await Future.delayed(Duration(
+            milliseconds: 400)); // avoid conflict with ledgerStatus Component
+        await minaApp.getVersion(store.ledger!.ledgerDevice!);
+        store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
+      } on LedgerException catch (e) {
+        store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
+        showLedgerDialog = true;
+      }
+    }
+    if (showLedgerDialog) {
+      print('connect ledger');
+      bool? connected = await UI.showImportLedgerDialog(context: context);
+      print('connected ledger');
+      print(connected);
+      // if (connected != true) {
+      //   print('return');
+      //   return false;
+      // }
+      // wait leger Status Version response
+      await Future.delayed(const Duration(milliseconds: 500));
+      return false;
+    }
+    return true;
+  }
+
   Future<bool> onConfirm() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
+    if (widget.signType == SignTxDialogType.zkApp) {
+      UI.toast(dic.notSupportNow);
+      return false;
+    }
     print('onConfirm');
-    final isLedger =
-        store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
     bool exited = false;
     if (await _validate()) {
+      if (isLedger && !await _ledgerCheck()) {
+        return false;
+      }
+      setState(() {
+        submitting = true;
+      });
+
       String? privateKey;
       if (!isLedger) {
         String? password = await UI.showPasswordDialog(
@@ -219,9 +269,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           return false;
         }
       }
-      setState(() {
-        submitting = true;
-      });
       Map txInfo;
       bool isDelagetion = false;
       if (widget.signType == SignTxDialogType.zkApp) {
@@ -230,7 +277,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           "fromAddress": store.wallet!.currentAddress,
           "fee": lastFee,
           "nonce": inputNonce,
-          "memo": lastMemo,
+          "memo": lastMemo !=null ? lastMemo : "",
           "transaction": zkCommandFormat(widget.transaction)
         };
       } else {
@@ -241,7 +288,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           "toAddress": widget.to,
           "fee": lastFee,
           "nonce": inputNonce,
-          "memo": lastMemo,
+          "memo": lastMemo !=null ? lastMemo : "",
         };
         if (widget.signType == SignTxDialogType.Payment) {
           double amount = double.parse(Fmt.balance(
@@ -254,10 +301,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       }
       TransferData? data;
       if (isLedger) {
-        if (widget.signType == SignTxDialogType.zkApp) {
-          UI.toast(dic.notSupportNow);
-          return false;
-        }
         print('start sign ledger');
         final tx = await webApi.account
             .ledgerSign(txInfo, context: context, isDelegation: isDelagetion);
@@ -639,6 +682,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                   BrowserDialogTitleRow(
                     title: dic.transactionRequest,
                     chainId: networkName,
+                    ledgerWidget:isLedger ? LedgerStatus() : Container(),
                   ),
                   Container(
                       constraints: BoxConstraints(

@@ -34,11 +34,11 @@ class WalletItem extends StatelessWidget {
 
   void _changeCurrentAccount(bool? isChecked) async {
     if (isChecked! && account.address != store.wallet!.currentAddress) {
-      onSelectAccount!(account.address);
+      onSelectAccount?.call(account.address);
       await webApi.account
           .changeCurrentAccount(pubKey: account.address, fetchData: true);
-    }else{
-      onSelectAccount!("");
+    } else {
+      onSelectAccount?.call("");
     }
   }
 
@@ -176,51 +176,54 @@ class WalletItem extends StatelessWidget {
                         ],
                       ),
                     ),
-                    hideOption==true?Container(): Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          isObserve && !isChecked
-                              ? IconButton(
-                                  icon: Icon(
-                                    Icons.info,
-                                    color: Colors.red,
-                                    size: 30,
+                    hideOption == true
+                        ? Container()
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                                isObserve && !isChecked
+                                    ? IconButton(
+                                        icon: Icon(
+                                          Icons.info,
+                                          color: Colors.red,
+                                          size: 30,
+                                        ),
+                                        onPressed: _viewAccountInfo)
+                                    : isChecked
+                                        ? RoundCheckBox(
+                                            size: 18,
+                                            borderColor: Colors.transparent,
+                                            isChecked: isChecked,
+                                            uncheckedColor: Colors.white,
+                                            uncheckedWidget: Container(),
+                                            checkedColor: Color(0xFFF9FAFC),
+                                            checkedWidget: Icon(
+                                              Icons.check,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              size: 14,
+                                            ),
+                                            // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
+                                            onTap: (selected) {
+                                              if (selected == true) {
+                                                _onTapWallet();
+                                              }
+                                            },
+                                          )
+                                        : Container(),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                ),
+                                GestureDetector(
+                                  child: Icon(
+                                    Icons.more_horiz,
+                                    size: 20,
+                                    color: textColor,
                                   ),
-                                  onPressed: _viewAccountInfo)
-                              : isChecked
-                                  ? RoundCheckBox(
-                                      size: 18,
-                                      borderColor: Colors.transparent,
-                                      isChecked: isChecked,
-                                      uncheckedColor: Colors.white,
-                                      uncheckedWidget: Container(),
-                                      checkedColor: Color(0xFFF9FAFC),
-                                      checkedWidget: Icon(
-                                        Icons.check,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 14,
-                                      ),
-                                      // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                                      onTap: (selected) {
-                                        if (selected == true) {
-                                          _onTapWallet();
-                                        }
-                                      },
-                                    )
-                                  : Container(),
-                          Padding(
-                            padding: EdgeInsets.only(top: 10),
-                          ),
-                          GestureDetector(
-                            child: Icon(
-                              Icons.more_horiz,
-                              size: 20,
-                              color: textColor,
-                            ),
-                            onTap: _viewAccountInfo,
-                          )
-                        ])
+                                  onTap: _viewAccountInfo,
+                                )
+                              ])
                   ],
                 ),
               ),

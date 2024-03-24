@@ -3,15 +3,23 @@ import 'package:flutter_svg/svg.dart';
 
 class BrowserDialogTitleRow extends StatelessWidget {
   BrowserDialogTitleRow(
-      {required this.title, this.chainId, this.showCloseIcon});
+      {required this.title,
+      this.chainId,
+      this.showCloseIcon,
+      this.ledgerWidget});
 
   final String title;
   final String? chainId;
   final bool? showCloseIcon;
+  final Widget? ledgerWidget;
 
   @override
   Widget build(BuildContext context) {
     List<Widget> closeWidget = [];
+    List<Widget> ledgerRow = [];
+    if (ledgerWidget != null) {
+      ledgerRow.add(ledgerWidget!);
+    }
     if (showCloseIcon == true) {
       closeWidget.add(Container(
         child: Row(
@@ -80,6 +88,14 @@ class BrowserDialogTitleRow extends StatelessWidget {
               ],
             ),
           ),
+          ledgerRow.length > 0
+              ? Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [...ledgerRow]))
+              : Container(),
           Container(
             height: 0.5,
             color: Color(0xFF000000).withOpacity(0.1),
