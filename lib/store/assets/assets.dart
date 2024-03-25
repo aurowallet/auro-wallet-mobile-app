@@ -32,6 +32,8 @@ abstract class _AssetsStore with Store {
   final String cacheScamListKey = 'scam_list';
   final scamKey = 'wallet_sacm_list';
 
+  final String cacheZkTxsKey = 'zk_txs';
+
   @observable
   bool isTxsLoading = true;
 
@@ -70,6 +72,13 @@ abstract class _AssetsStore with Store {
   @observable
   String scamAddressStr = "";
 
+  @observable
+  ObservableList<TransferData> pendingZkTxs = ObservableList<TransferData>();
+
+  @observable
+  ObservableList<TransferData> zkTxs = ObservableList<TransferData>();
+
+
   @computed
   List<TransferData> get totalTxs {
     var gettime = (TransferData tx) {
@@ -81,7 +90,7 @@ abstract class _AssetsStore with Store {
       return Fmt.toDatetime(dateTimeStr);
     };
     List<TransferData> totals = [];
-    txs.forEach((i) {
+    [...txs, ...zkTxs].forEach((i) {
       if (rootStore.settings?.isMainnet == true) {
         var addlow = i.sender!.toLowerCase();
         i.isFromAddressScam = scamAddressStr.indexOf(addlow) != -1;
@@ -90,11 +99,49 @@ abstract class _AssetsStore with Store {
       }
     });
     totals.addAll(txs);
+    totals.addAll(zkTxs);
     totals.sort((tx1, tx2) {
       var dateTime1 = gettime(tx1);
       var dateTime2 = gettime(tx2);
-      return dateTime2.compareTo(dateTime1);
+      int dateTimeCompareRes = dateTime2.compareTo(dateTime1);
+      if (dateTimeCompareRes != 0) {
+        return dateTimeCompareRes;
+      }
+      int? nonce1 = tx1.nonce;
+      int? nonce2 = tx2.nonce;
+      if (nonce1 != null && nonce2 != null) {
+        return nonce1.compareTo(nonce2);
+      }
+      return 0;
     });
+    return totals;
+  }
+
+  @computed
+  List<TransferData> get totalZkTxs {
+    List<TransferData> totals = [];
+    [...pendingTxs, ...pendingZkTxs].forEach((i) {
+      if (rootStore.settings?.isMainnet == true) {
+        var addlow = i.sender!.toLowerCase();
+        i.isFromAddressScam = scamAddressStr.indexOf(addlow) != -1;
+      } else {
+        i.isFromAddressScam = false;
+      }
+    });
+
+    totals.addAll(pendingTxs);
+    totals.addAll(pendingZkTxs);
+    totals.sort((tx1, tx2) {
+      int? nonce1 = tx1.nonce;
+      int? nonce2 = tx2.nonce;
+      if (nonce1 != null && nonce2 != null) {
+        return nonce1.compareTo(nonce2);
+      }
+      return 0;
+    });
+        if(totals.isNotEmpty){
+      totals[0].showSpeedUp = true;
+    }
     return totals;
   }
 
@@ -135,6 +182,11 @@ abstract class _AssetsStore with Store {
   }
 
   @action
+  Future<void> clearZkTxs() async {
+    zkTxs.clear();
+  }
+
+  @action
   Future<void> clearFeeTxs() async {
     feeTxs.clear();
   }
@@ -145,9 +197,16 @@ abstract class _AssetsStore with Store {
   }
 
   @action
+  Future<void> clearPendingZkTxs() async {
+    pendingZkTxs.clear();
+  }
+
+  @action
   Future<void> clearAllTxs() async {
     txs.clear();
+    zkTxs.clear();
     pendingTxs.clear();
+    pendingZkTxs.clear();
     await rootStore.localStorage.setAccountCache(
         rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, []);
   }
@@ -162,9 +221,18 @@ abstract class _AssetsStore with Store {
       pendingTxs.add(tx);
     });
     pendingTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
-    if(pendingTxs.isNotEmpty){
-      pendingTxs[0].showSpeedUp = true;  
-    }
+  }
+
+  @action
+  Future<void> addPendingZkTxs(List<dynamic>? ls, String address) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+    if (ls == null) return;
+    ls.forEach((i) {
+      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
+      TransferData tx = TransferData.fromZkPendingJson(i);
+      pendingZkTxs.add(tx);
+    });
+    pendingZkTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
   }
 
   @action
@@ -203,6 +271,25 @@ abstract class _AssetsStore with Store {
     if (shouldCache) {
       rootStore.localStorage.setAccountCache(
           rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, ls);
+    }
+  }
+
+  @action
+  Future<void> addZkTxs(List<dynamic> ls, String address,
+      {bool shouldCache = false}) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+    if (ls == null) return;
+
+    ls.forEach((i) {
+      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
+      TransferData tx = TransferData.fromZkGraphQLJson(i);
+      tx.success = tx.status != 'failed';
+      i['success'] = tx.success;
+      zkTxs.add(tx);
+    });
+    if (shouldCache) {
+      rootStore.localStorage.setAccountCache(
+          rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, ls);
     }
   }
 
@@ -246,6 +333,7 @@ abstract class _AssetsStore with Store {
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheFeeTxsKey),
+      rootStore.localStorage.getAccountCache(pubKey, cacheZkTxsKey),
     ]);
 
     if (cache[0] != null) {
@@ -262,6 +350,12 @@ abstract class _AssetsStore with Store {
           List.of(cache[2]).map((i) => FeeTransferData.fromJson(i)).toList());
     } else {
       feeTxs = ObservableList();
+    }
+    if (cache[3] != null) {
+      zkTxs = ObservableList.of(
+          List.of(cache[1]).map((i) => TransferData.fromJson(i)).toList());
+    } else {
+      zkTxs = ObservableList();
     }
   }
 
@@ -291,9 +385,11 @@ abstract class _AssetsStore with Store {
     rootStore.localStorage.clearAccountsCache(cacheTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheFeeTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
+    rootStore.localStorage.clearAccountsCache(cacheZkTxsKey);
     txs = ObservableList();
     feeTxs = ObservableList();
     accountsInfo = ObservableMap<String, AccountInfo>();
+    zkTxs = ObservableList();
   }
 
   @action

@@ -38,8 +38,6 @@ class Api {
   late BridgeService bridge;
 
   void init() async {
-    bridge = BridgeService();
-    await launchWebview();
 
     account = ApiAccount(this);
     assets = ApiAssets(this);
@@ -48,6 +46,9 @@ class Api {
     graphQLClient =
         clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
             .value;
+
+    bridge = BridgeService();
+    await launchWebview();
     fetchInitialInfo();
   }
 
@@ -113,6 +114,8 @@ class Api {
     staking.refreshStaking();
     assets.fetchPendingTransactions(store.wallet!.currentAddress);
     assets.fetchTransactions(store.wallet!.currentAddress);
+    assets.fetchPendingZkTransactions(store.wallet!.currentAddress);
+    assets.fetchZkTransactions(store.wallet!.currentAddress);
   }
 
   Future<GqlResult> gqlRequest(dynamic options,

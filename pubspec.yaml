@@ -143,6 +143,7 @@ flutter:
     - assets/images/assets/2x/round_checked@2x.png
     - assets/images/assets/tx_in.svg
     - assets/images/assets/tx_out.svg
+    - assets/images/assets/tx_zkapp.svg
     - assets/images/assets/tx_stake.svg
     - assets/images/assets/right_arrow.svg
     - assets/images/assets/copy.svg

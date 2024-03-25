@@ -323,7 +323,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
     final amountLarge =
         BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
-    
+
     final signedTx = await apiRoot.bridge.signPaymentTx({
       "network": network,
       "type": "payment",
@@ -450,6 +450,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchAccountInfo();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
+      webApi.assets.fetchPendingZkTransactions(store.wallet!.currentAddress);
+      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress);
       return true;
     } catch (e) {
       return false;
@@ -489,6 +491,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchAccountInfo();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
+      webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress);
+      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress);
       return true;
     } catch (e) {
       return false;

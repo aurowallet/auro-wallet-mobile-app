@@ -141,6 +141,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     await Future.wait([
       webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress),
       webApi.assets.fetchTransactions(store.wallet!.currentAddress),
+      webApi.assets.fetchPendingZkTransactions(store.wallet!.currentAddress),
+      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress) 
     ]);
     store.assets!.setTxsLoading(false);
     print('finish fetch tx list');
@@ -492,7 +494,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     List<Widget> res = [];
     bool isTxsLoading = store.assets!.isTxsLoading;
     List<TransferData> txs = [
-      ...store.assets!.pendingTxs,
+      ...store.assets!.totalZkTxs,
       ...store.assets!.totalTxs
     ];
     if (store.settings!.isSupportedNode) {
@@ -507,7 +509,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           isOut: i.sender == store.wallet!.currentAddress,
         );
       }));
-      if (store.assets!.txs.length >= 15) {
+      if (txs.length >= 15) {
         res.add(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -534,8 +536,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return Observer(
       builder: (_) {
         bool isTxsLoading = store.assets!.isTxsLoading;
-        bool isEmpty = store.assets!.txs.length == 0 &&
-            store.assets!.pendingTxs.length == 0;
+        bool isEmpty = store.assets!.totalTxs.length == 0 &&
+            store.assets!.totalZkTxs.length == 0;
         return RefreshIndicator(
           key: globalBalanceRefreshKey,
           onRefresh: _onRefresh,
@@ -639,6 +641,11 @@ class TransferListItem extends StatelessWidget {
       case 'stake_delegation':
         {
           icon = 'tx_stake';
+        }
+        break;
+      case "zkapp":
+        {
+          icon = 'tx_zkapp';
         }
         break;
       default:
