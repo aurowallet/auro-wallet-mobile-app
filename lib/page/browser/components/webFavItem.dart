@@ -143,7 +143,7 @@ class ItemLogoState extends State<ItemLogo> {
               );
             },
             errorListener: (value) {
-              print('errorListener===0,${value}');
+              print('browser icon load faile ,${value}');
             },
             errorWidget: (context, url, error) {
               if (showHolderIcon) {

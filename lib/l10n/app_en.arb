@@ -487,5 +487,6 @@
   "browserEmptyTip": "Your favorites and history will show up here",
   "websiteNotFound":"Website Not Found",
   "ledgerNotSupportSign": "Ledger doesn't support sign message",
-  "notSupportNow": "Not supported yet"
+  "notSupportNow": "Not supported yet",
+  "newFee": "New Fee"
 }

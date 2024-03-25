@@ -89,7 +89,7 @@ class TransferData extends _TransferData {
     json['fee'] = fee;
     json['status'] = "pending";
     json['success'] = false;
-    json['transaction'] = jsonEncode(json);
+    json['transaction'] = jsonEncode(json['zkappCommand']);
     json['amount'] = "0";
     var data = fromJson(json);
     return data;

@@ -96,7 +96,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
       return;
     }
 
-    Navigator.pushNamed(
+    Navigator.pushReplacementNamed(
       context,
       BrowserWrapperPage.route,
       arguments: {

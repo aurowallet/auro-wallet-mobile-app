@@ -237,7 +237,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   Future<bool> onConfirm() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    if (widget.signType == SignTxDialogType.zkApp) {
+    if (isLedger && widget.signType == SignTxDialogType.zkApp) {
       UI.toast(dic.notSupportNow);
       return false;
     }
