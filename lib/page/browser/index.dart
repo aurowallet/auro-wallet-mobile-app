@@ -170,10 +170,6 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
 
-    bool favEmpty = store.browser!.webFavList.length == 0;
-    bool historyEmpty = store.browser!.webHistoryList.length == 0;
-    bool showEmptyTip = favEmpty && historyEmpty;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -211,7 +207,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
                       ],
                     ),
                   )),
-              showEmptyTip
+              store.browser!.webFavList.length == 0 && store.browser!.webHistoryList.length == 0
                   ? Expanded(
                       child: Center(
                           child: Text(dic.browserEmptyTip,
