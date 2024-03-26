@@ -6,8 +6,10 @@ import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/browserTab.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
+import 'package:auro_wallet/page/browser/components/zkRow.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/browser/types/zkApp.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -84,7 +86,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
       "privateKey": privateKey,
       "type": "message",
       "publicKey": store.wallet!.currentAddress,
-      "message": widget.content
+      "message": widget.method == 'mina_sign_JsonMessage' ? jsonEncode(widget.content) :widget.content
     };
     late Map data;
     if (widget.method == 'mina_signMessage' ||
@@ -163,6 +165,16 @@ class _SignatureDialogState extends State<SignatureDialog> {
             .toList(),
       );
     } else if (widget.content is List<dynamic>) {
+      List<dynamic> showJsonContent = widget.content as List<dynamic>;
+      if (widget.method == "mina_sign_JsonMessage") {
+        List<DataItem> realShowContent = showJsonContent
+            .map<DataItem>((json) => DataItem.fromJson(json))
+            .toList();
+        return TypeRowInfo(
+          data: realShowContent,
+          isZkData: false,
+        );
+      }
       String showContent = jsonEncode(widget.content);
       return Text(showContent,
           style: TextStyle(

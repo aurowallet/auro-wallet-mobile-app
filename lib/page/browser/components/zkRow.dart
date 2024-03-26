@@ -14,6 +14,8 @@ class TypeRowInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: data
             .map(
                 (item) => ChildView(data: item, count: 0, showInLine: isZkData))
@@ -65,38 +67,80 @@ class ContentRow extends StatelessWidget {
   final bool showInLine;
   final bool withColon;
 
-  const ContentRow(
-      {Key? key,
-      required this.title,
-      required this.content,
-      this.count = 0,
-      this.showInLine = false,
-      this.withColon = false})
-      : super(key: key);
+  const ContentRow({
+    Key? key,
+    required this.title,
+    required this.content,
+    this.count = 0,
+    this.showInLine = false,
+    this.withColon = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final marginLeftValue = max(0, 20.0 * (count - 1));
+    double marginLeftValue = 0;
+    if (showInLine) {
+      marginLeftValue = max(0, 20.0 * (count - 1));
+    }
     return Container(
       margin: EdgeInsets.only(left: marginLeftValue.toDouble(), top: 6),
-      child: Row(
-        children: [
-          Text(
-            withColon ? "$title: " : title,
-            style: TextStyle(
-                color: Color(0xFF000000).withOpacity(0.8),
-                fontSize: 14,
-                fontWeight: FontWeight.w600),
-          ),
-          Expanded(
-              child: Text(
-            content,
-            style: TextStyle(
-                color: Color(0xFF000000).withOpacity(0.8),
-                fontWeight: FontWeight.w400),
-          )),
-        ],
+      child: showInLine
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildWidgets(),
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildWidgetsColumn(),
+            ),
+    );
+  }
+
+  List<Widget> _buildWidgets() {
+    final titleText = Text(
+      withColon ? "$title: " : title,
+      style: TextStyle(
+          color: Color(0xFF000000).withOpacity(0.8),
+          fontSize: 14,
+          fontWeight: FontWeight.w600),
+    );
+
+    final contentText = Expanded(
+      child: Text(
+        content,
+        style: TextStyle(
+            color: Color(0xFF000000).withOpacity(0.8),
+            fontWeight: FontWeight.w400),
       ),
     );
+
+    return [titleText, contentText];
+  }
+
+  List<Widget> _buildWidgetsColumn() {
+    final titleText = Text(
+      withColon ? "$title: " : title,
+      style: TextStyle(
+          color: Color(0xFF000000).withOpacity(0.8),
+          fontSize: 14,
+          fontWeight: FontWeight.w600),
+    );
+
+    final contentText = Text(
+      content,
+      style: TextStyle(
+          color: Color(0xFF000000).withOpacity(0.8),
+          fontWeight: FontWeight.w400),
+    );
+
+    return [
+      titleText,
+      Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: contentText,
+      )
+    ];
   }
 }

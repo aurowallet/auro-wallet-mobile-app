@@ -270,7 +270,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         onHandleSignTxDialog("mina_sendTransaction", isConnect, payload);
         return;
       case "mina_signMessage":
-        print('_msgHandler===2=,${method}');
         onHandleSignMessageDialog("mina_signMessage", isConnect, payload);
         break;
       case "mina_sign_JsonMessage":
