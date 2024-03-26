@@ -50,48 +50,58 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
       backgroundColor: const Color(0xFF212224),
       extendBodyBehindAppBar: false,
       body: body,
-      appBar: AppBar(
-        title: Text(
-          url.split("://").length > 1 ? url.split("://")[1] : url,
-          style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
-              fontSize: 16, color: Color(0xFF000000).withOpacity(0.8)),
-        ),
-        automaticallyImplyLeading: false,
-        titleTextStyle: Theme.of(context)
-            .appBarTheme
-            .titleTextStyle
-            ?.copyWith(color: Colors.white),
-        toolbarHeight: 38,
-        leading: Row(
-          children: [
-            Container(
-              child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: GestureDetector(
-                    child: SvgPicture.asset(
-                      'assets/images/public/icon_nav_close.svg',
-                      width: 30,
-                      height: 30,
-                    ),
-                    onTap: () {
-                      onBack();
-                    },
-                  )),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(42.0),
+        child: Material(
+          elevation: 1.0,
+          shadowColor: Colors.black,
+          child: AppBar(
+            title: Text(
+              url.split("://").length > 1 ? url.split("://")[1] : url,
+              style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+                  fontSize: 16, color: Color(0xFF000000).withOpacity(0.8)),
             ),
-          ],
+            automaticallyImplyLeading: false,
+            titleTextStyle: Theme.of(context)
+                .appBarTheme
+                .titleTextStyle
+                ?.copyWith(color: Colors.white),
+            elevation: 0.0,
+            toolbarHeight: 42,
+            centerTitle: true,
+            leading: Row(
+              children: [
+                Container(
+                  child: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: GestureDetector(
+                        child: SvgPicture.asset(
+                          'assets/images/public/icon_nav_close.svg',
+                          width: 30,
+                          height: 30,
+                        ),
+                        onTap: () {
+                          onBack();
+                        },
+                      )),
+                ),
+              ],
+            ),
+            actions: [
+              Observer(builder: (_) {
+                WalletData acc = store.wallet!.currentWallet;
+                return Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    child: AccoutIcon(
+                        accountName: Fmt.accountName(acc.currentAccount),
+                        onPressed: actionOnPressed));
+              })
+            ],
+          ),
         ),
-        actions: [
-          Observer(builder: (_) {
-            WalletData acc = store.wallet!.currentWallet;
-            return Container(
-                margin: const EdgeInsets.only(right: 10),
-                child: AccoutIcon(
-                    accountName: Fmt.accountName(acc.currentAccount),
-                    onPressed: actionOnPressed));
-          })
-        ],
       ),
     );
+    ;
   }
 
   @override
