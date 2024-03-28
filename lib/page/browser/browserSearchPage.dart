@@ -1,6 +1,7 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/browserWrapperPage.dart';
 import 'package:auro_wallet/page/browser/components/webFavItem.dart';
+import 'package:auro_wallet/page/browser/index.dart';
 import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
@@ -24,7 +25,6 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
   final AppStore store;
 
   List<WebConfig> searchList = [];
-  List<WebConfig> uiList = [];
 
   TextEditingController editingController = new TextEditingController();
   String? keywords;
@@ -59,20 +59,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
   void _onKeywordsChange() {
     setState(() {
       keywords = editingController.text.trim();
-      uiList = _filter(mergeWebConfigs(
-          store.browser!.webFavList, store.browser!.webHistoryList));
     });
-  }
-
-  List<WebConfig> _filter(List<WebConfig> list) {
-    if (keywords == null || keywords!.isEmpty) {
-      return list;
-    }
-    var res = list.where((element) {
-      return (element.url.toLowerCase().contains(keywords!.toLowerCase())) ||
-          (element.title.toLowerCase().contains(keywords!.toLowerCase()));
-    }).toList();
-    return res;
   }
 
   @override
@@ -111,17 +98,44 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
   }
 
   Widget _buildHistoryList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      padding: const EdgeInsets.only(left: 20, right: 20),
-      itemCount: store.browser!.webHistoryList.length,
-      itemBuilder: (context, index) {
-        return WebHistoryItem(
-          data: store.browser!.webHistoryList[index],
-          onClickItem: _onLoadHistoryUrl,
-        );
-      },
-    );
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    return Expanded(
+        child: ListView(shrinkWrap: true, children: [
+      Container(
+        margin: const EdgeInsets.only(left: 20, right: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CategoryTitle(title: dic.recently),
+            Container(
+                margin: EdgeInsets.only(top: 10),
+                padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+                child: GestureDetector(
+                  child: SvgPicture.asset(
+                    'assets/images/webview/icon_clear.svg',
+                    width: 16,
+                    height: 16,
+                  ),
+                  onTap: () {
+                    store.browser!.clearWebHistoryList();
+                  },
+                )),
+          ],
+        ),
+      ),
+      ListView.builder(
+        shrinkWrap: true,
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        itemCount: store.browser!.webHistoryList.length,
+        itemBuilder: (context, index) {
+          return WebHistoryItem(
+            data: store.browser!.webHistoryList[index],
+            onClickItem: _onLoadHistoryUrl,
+          );
+        },
+      )
+    ]));
   }
 
   @override
@@ -141,51 +155,66 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-                padding: EdgeInsets.only(bottom: 8),
-                child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Flexible(
-                          child: Container(
-                        child: GestureDetector(
-                          child: SearchInput(
-                              commentFocus: _commentFocus,
-                              isReadOnly: false,
-                              editingController: editingController,
-                              placeholder: dic.searchOrInputUrl,
-                              onSubmit: _onLoadUrl),
+            Container(
+              margin: EdgeInsets.only(top: 10, left: 20, right: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                      child: Container(
+                    child: GestureDetector(
+                      child: SearchInput(
+                          customMargin: EdgeInsets.all(0),
+                          commentFocus: _commentFocus,
+                          isReadOnly: false,
+                          editingController: editingController,
+                          placeholder: dic.searchOrInputUrl,
+                          onSubmit: _onLoadUrl,
+                          suffixIcon: keywords != null && keywords!.length > 0
+                              ? GestureDetector(
+                                  onTap: () {
+                                    editingController.clear();
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.only(
+                                        top: 4, bottom: 4, right: 8),
+                                    child: SvgPicture.asset(
+                                      'assets/images/webview/icon_close_bg.svg',
+                                      width: 16,
+                                      height: 16,
+                                      color: Color(0x000033).withOpacity(0.2),
+                                    ),
+                                  ),
+                                )
+                              : null),
+                    ),
+                  )),
+                  GestureDetector(
+                    onTap: () {
+                      editingController.clear();
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+                      child: Text(
+                        dic.cancel,
+                        style: TextStyle(
+                          color: Color(0xFF594AF1),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
-                      )),
-                      GestureDetector(
-                        onTap: () {
-                          editingController.clear();
-                          Navigator.of(context).pop();
-                        },
-                        child: Container(
-                          margin: EdgeInsets.only(
-                            right: 10,
-                            top: 20,
-                          ),
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            dic.cancel,
-                            style: TextStyle(
-                              color: Color(0xFF594AF1),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                )),
-            uiList.length != 0
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            store.browser!.webHistoryList.length != 0
                 ? _buildHistoryList()
-                : keywords == null || keywords!.isEmpty || isValidHttpUrl(keywords!)
+                : keywords == null ||
+                        keywords!.isEmpty ||
+                        isValidHttpUrl(keywords!)
                     ? Container()
                     : Expanded(
                         child: Center(

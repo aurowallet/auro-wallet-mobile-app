@@ -28,7 +28,7 @@ class WebFavItem extends StatelessWidget {
     }
 
     return Container(
-        margin: const EdgeInsets.only(top: 10),
+        margin: const EdgeInsets.symmetric(vertical: 5),
         child: Material(
           color: Color(0xFFF9FAFC),
           borderRadius: BorderRadius.circular(8),
@@ -99,7 +99,7 @@ class WebFavItem extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,
-                              fontWeight: FontWeight.w400)),
+                              fontWeight: FontWeight.w600)),
                     ),
                   ],
                 )),
@@ -181,9 +181,9 @@ class WebHistoryItem extends StatelessWidget {
         onTap: () {
           onClickItem!(data);
         },
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(2),
         child: Container(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 5, bottom: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -210,7 +210,7 @@ class WebHistoryItem extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 12,
                             color: Color(0xFF000000).withOpacity(0.8),
-                            fontWeight: FontWeight.w400)),
+                            fontWeight: FontWeight.w600)),
                     Padding(
                       padding: EdgeInsets.only(top: 2),
                     ),
