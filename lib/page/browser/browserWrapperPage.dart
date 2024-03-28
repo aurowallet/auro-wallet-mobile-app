@@ -36,6 +36,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
   bool canGoForward = false;
   bool isFav = false;
   late String loadUrl;
+  String loadTitle = "";
 
   int nextUseInferredNonce = 0;
 
@@ -47,7 +48,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     String url = getLoadUrl(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF212224),
+      backgroundColor: Colors.white,
       extendBodyBehindAppBar: false,
       body: body,
       appBar: PreferredSize(
@@ -57,9 +58,11 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
           shadowColor: Colors.black,
           child: AppBar(
             title: Text(
-              url.split("://").length > 1 ? url.split("://")[1] : url,
+              loadTitle,
               style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
-                  fontSize: 16, color: Color(0xFF000000).withOpacity(0.8)),
+                  fontSize: 14,
+                  color: Color(0xFF000000).withOpacity(0.8),
+                  fontWeight: FontWeight.w500),
             ),
             automaticallyImplyLeading: false,
             titleTextStyle: Theme.of(context)
@@ -77,8 +80,8 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                       child: GestureDetector(
                         child: SvgPicture.asset(
                           'assets/images/public/icon_nav_close.svg',
-                          width: 30,
-                          height: 30,
+                          width: 24,
+                          height: 24,
                         ),
                         onTap: () {
                           onBack();
@@ -224,7 +227,13 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                       onWebViewCreated: (controller) {
                         _controller = controller;
                       },
-                      onPageFinished: (gobackStatus, goForwardStatus) {
+                      onPageFinished: (gobackStatus, goForwardStatus) async {
+                        String title = await _controller.getTitle() ?? "";
+                        if (title.isNotEmpty) {
+                          setState(() {
+                            loadTitle = title;
+                          });
+                        }
                         setState(() {
                           canGoback = gobackStatus;
                           canGoForward = goForwardStatus;
@@ -244,7 +253,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                     border: Border(
                       top: BorderSide(
                         width: 0.5,
-                        color: Color(0xFF000000).withOpacity(0.1),
+                        color: Colors.black.withOpacity(0.1),
                       ),
                     ),
                   ),
