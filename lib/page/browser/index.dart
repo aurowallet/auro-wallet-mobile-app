@@ -26,7 +26,6 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
   _BrowserState(this.store);
   final AppStore store;
 
-
   TextEditingController editingController = new TextEditingController();
   String? keywords;
   bool isSearchInputFocus = false;
@@ -111,6 +110,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
         return WebHistoryItem(
           data: store.browser!.webHistoryList[index],
           onClickItem: _onLoadUrl,
+          onClickDelete: onClickHistoryDelete,
         );
       },
     ));
@@ -118,7 +118,11 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
     return historyWidget;
   }
 
-  void onClickDelete(WebConfig data) {
+  void onClickHistoryDelete(WebConfig data) {
+    store.browser!.removeWebHistoryItem(data.url);
+  }
+
+  void onClickFavDelete(WebConfig data) {
     store.browser!.removeFavItem(data.url);
   }
 
@@ -141,7 +145,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
       cellsTemp.add(WebFavItem(
         data: favItem,
         onClickItem: _onLoadUrl,
-        onClickDelete: onClickDelete,
+        onClickDelete: onClickFavDelete,
       ));
     });
 
@@ -151,7 +155,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
           shrinkWrap: true,
           crossAxisCount: 2,
           crossAxisSpacing: 10,
-          mainAxisSpacing: 6,
+          mainAxisSpacing: 10,
           childAspectRatio: childAspectRatio,
           children: cellsTemp,
           physics: NeverScrollableScrollPhysics(),
@@ -159,10 +163,30 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
     return favWidget;
   }
 
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          BrowserSearchPage(store),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = 0.0;
+        var end = 2.0;
+        var curve = Curves.ease;
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var opacityAnimation = animation.drive(tween);
+
+        return FadeTransition(
+          opacity: opacityAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
   void onClickInput() {
-    Navigator.pushNamed(
+    Navigator.push(
       context,
-      BrowserSearchPage.route,
+      _createRoute(),
     );
   }
 
@@ -207,7 +231,8 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
                       ],
                     ),
                   )),
-              store.browser!.webFavList.length == 0 && store.browser!.webHistoryList.length == 0
+              store.browser!.webFavList.length == 0 &&
+                      store.browser!.webHistoryList.length == 0
                   ? Expanded(
                       child: Center(
                           child: Text(dic.browserEmptyTip,

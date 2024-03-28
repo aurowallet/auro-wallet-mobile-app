@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -15,9 +14,7 @@ class WebFavItem extends StatelessWidget {
   final Function(WebConfig)? onClickItem;
   final Function(WebConfig)? onClickDelete;
 
-  @override
-  Widget build(BuildContext context) {
-    AppLocalizations dic = AppLocalizations.of(context)!;
+  Widget buildWidget(BuildContext context) {
     String showTitle = data.title;
     var itemWidth = (MediaQuery.of(context).size.width - 40) / 2 - 50;
     String logoUrl = "";
@@ -26,85 +23,124 @@ class WebFavItem extends StatelessWidget {
         logoUrl = data.icon!.substring(1, data.icon!.length - 1);
       }
     }
-
     return Container(
-        margin: const EdgeInsets.symmetric(vertical: 5),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border:
+                Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 5,
+            ),
+            ItemLogo(
+              name: data.title,
+              logo: logoUrl,
+              width: 20,
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Container(
+              width: itemWidth,
+              child: Text(showTitle,
+                  softWrap: true,
+                  textAlign: TextAlign.left,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500)),
+            ),
+          ],
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 36,
         child: Material(
-          color: Color(0xFFF9FAFC),
-          borderRadius: BorderRadius.circular(8),
-          child: GestureDetector(
-            onTap: () {
-              onClickItem!(data);
-            },
-            onLongPressStart: (details) {
-              Feedback.forLongPress(context);
-              showMenu(
-                context: context,
-                color: Colors.black,
-                constraints: BoxConstraints(
-                  maxWidth: 100,
-                ),
-                position: RelativeRect.fromLTRB(
-                  details.globalPosition.dx,
-                  details.globalPosition.dy,
-                  details.globalPosition.dx,
-                  details.globalPosition.dy,
-                ),
-                items: <PopupMenuEntry>[
-                  PopupMenuItem(
-                    onTap: () {
-                      onClickDelete!(data);
-                    },
-                    height: 20,
-                    textStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12),
-                    child: Center(
-                      child: Text(
-                        dic.delete,
-                      ),
+            color: Color(0xFFF9FAFC),
+            borderRadius: BorderRadius.circular(8),
+            child: LongPressMenu(
+              data: data,
+              onClickItem: onClickItem,
+              onClickDelete: onClickDelete,
+              childWidget: buildWidget(context),
+            )));
+  }
+}
+
+class LongPressMenu extends StatelessWidget {
+  LongPressMenu(
+      {required this.data,
+      required this.childWidget,
+      this.onClickItem,
+      this.onClickDelete});
+
+  final WebConfig data;
+  final Function(WebConfig)? onClickItem;
+  final Function(WebConfig)? onClickDelete;
+  final Widget childWidget;
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    return InkWell(
+      onTap: () {
+        onClickItem!(data);
+      },
+      child: GestureDetector(
+          onLongPressStart: (details) {
+            Feedback.forLongPress(context);
+            showMenu(
+              context: context,
+              color: Colors.black,
+              constraints: BoxConstraints(
+                maxWidth: 100,
+              ),
+              position: RelativeRect.fromLTRB(
+                details.globalPosition.dx,
+                details.globalPosition.dy,
+                details.globalPosition.dx,
+                details.globalPosition.dy,
+              ),
+              items: <PopupMenuEntry>[
+                PopupMenuItem(
+                  onTap: () {
+                    onClickDelete!(data);
+                  },
+                  height: 20,
+                  textStyle: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          dic.delete,
+                        ),
+                        SizedBox(width: 4),
+                        SvgPicture.asset(
+                          'assets/images/webview/icon_clear.svg',
+                          width: 14,
+                          height: 14,
+                          color: Colors.white,
+                        )
+                      ],
                     ),
                   ),
-                ],
-              );
-            },
-            child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: Colors.black.withOpacity(0.05), width: 0.5)),
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 5,
-                    ),
-                    ItemLogo(
-                      name: data.title,
-                      logo: logoUrl,
-                      width: 20,
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Container(
-                      width: itemWidth,
-                      child: Text(showTitle,
-                          softWrap: true,
-                          textAlign: TextAlign.left,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ],
-                )),
-          ),
-        ));
+                ),
+              ],
+            );
+          },
+          child: childWidget),
+    );
   }
 }
 
@@ -152,24 +188,29 @@ class ItemLogoState extends State<ItemLogo> {
                   color: Colors.black,
                 );
               }
-              return Center(
-                child: Text(
-                  widget.name?.substring(0, 1).toUpperCase() ?? 'U',
-                  style: TextStyle(fontSize: 14, color: Colors.white),
-                ),
-              );
+              return Container(
+                  decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  width: 20,
+                  height: 20,
+                  child: Center(
+                    child: Text(
+                      widget.name?.substring(0, 1).toUpperCase() ?? 'U',
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                  ));
             }));
   }
 }
 
 class WebHistoryItem extends StatelessWidget {
-  WebHistoryItem({required this.data, this.onClickItem});
+  WebHistoryItem({required this.data, this.onClickItem, this.onClickDelete});
 
   final WebConfig data;
   final Function(WebConfig)? onClickItem;
-
-  @override
-  Widget build(BuildContext context) {
+  final Function(WebConfig)? onClickDelete;
+  Widget buildWidget(BuildContext context) {
     String logoUrl = "";
     if (data.icon != null && data.icon!.isNotEmpty) {
       if (data.icon!.length >= 5) {
@@ -177,58 +218,60 @@ class WebHistoryItem extends StatelessWidget {
       }
     }
     return Container(
-      child: InkWell(
-        onTap: () {
-          onClickItem!(data);
-        },
-        borderRadius: BorderRadius.circular(2),
-        child: Container(
-            padding: const EdgeInsets.only(top: 5, bottom: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+        padding: const EdgeInsets.only(top: 5, bottom: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ItemLogo(
+              name: data.title,
+              logo: logoUrl,
+              showHolderIcon: true,
+              radius: 30,
+              width: 24,
+            ),
+            Container(
+              width: 10,
+            ),
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ItemLogo(
-                  name: data.title,
-                  logo: logoUrl,
-                  showHolderIcon: true,
-                  radius: 30,
-                  width: 24,
+                Text(data.title,
+                    softWrap: true,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF000000).withOpacity(0.8),
+                        fontWeight: FontWeight.w500)),
+                Padding(
+                  padding: EdgeInsets.only(top: 2),
                 ),
-                Container(
-                  width: 10,
-                ),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(data.title,
-                        softWrap: true,
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF000000).withOpacity(0.8),
-                            fontWeight: FontWeight.w600)),
-                    Padding(
-                      padding: EdgeInsets.only(top: 2),
-                    ),
-                    Text(data.url,
-                        softWrap: true,
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                            color:
-                                ColorsUtil.hexColor(0x808080).withOpacity(0.5),
-                            fontWeight: FontWeight.w400,
-                            fontSize: 10)),
-                  ],
-                )),
+                Text(data.url,
+                    softWrap: true,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                        color: ColorsUtil.hexColor(0x808080).withOpacity(0.5),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 10)),
               ],
             )),
-      ),
-    );
+          ],
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: LongPressMenu(
+      data: data,
+      onClickItem: onClickItem,
+      onClickDelete: onClickDelete,
+      childWidget: buildWidget(context),
+    ));
   }
 }

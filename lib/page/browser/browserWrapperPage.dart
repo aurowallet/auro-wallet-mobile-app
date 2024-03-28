@@ -317,7 +317,13 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
             ),
           )),
       onWillPop: () async {
-        return true;
+        final canGoBack = await _controller?.canGoBack();
+        if (canGoBack ?? false) {
+          _controller?.goBack();
+          return false;
+        } else {
+          return true;
+        }
       },
     );
   }

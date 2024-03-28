@@ -43,6 +43,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   late WebViewController _controller;
   bool _signing = false;
   double loadProcess = 0.0;
+  bool isSaveUrlHistory = false;
 
   Future<dynamic> _responseToZkApp(String method, Map resData) async {
     print('respond ${method} to zkApp:');
@@ -465,7 +466,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     if (widget.onPageFinished != null) {
       _onGetPageActionStatus();
     }
-    onSaveHistory(url);
+    if (!isSaveUrlHistory) {
+      isSaveUrlHistory = true;
+      onSaveHistory(url);
+    }
   }
 
   void _onGetPageActionStatus() async {
