@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
@@ -52,7 +53,7 @@ class _FeeSelectorState extends State<FeeSelector> {
                   fontWeight: FontWeight.w600),
             ),
             Text(
-              value == null ? '' : value.toString(),
+              value == null ? '' : value.toString() + " "+COIN.coinSymbol,
               style: TextStyle(
                   fontSize: 12,
                   color: Color(0x80000000),
