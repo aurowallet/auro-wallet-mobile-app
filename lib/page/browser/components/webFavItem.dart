@@ -89,58 +89,56 @@ class LongPressMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    return InkWell(
-      onTap: () {
-        onClickItem!(data);
-      },
-      child: GestureDetector(
-          onLongPressStart: (details) {
-            Feedback.forLongPress(context);
-            showMenu(
-              context: context,
-              color: Colors.black,
-              constraints: BoxConstraints(
-                maxWidth: 100,
-              ),
-              position: RelativeRect.fromLTRB(
-                details.globalPosition.dx,
-                details.globalPosition.dy,
-                details.globalPosition.dx,
-                details.globalPosition.dy,
-              ),
-              items: <PopupMenuEntry>[
-                PopupMenuItem(
-                  onTap: () {
-                    onClickDelete!(data);
-                  },
-                  height: 20,
-                  textStyle: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 12),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          dic.delete,
-                        ),
-                        SizedBox(width: 4),
-                        SvgPicture.asset(
-                          'assets/images/webview/icon_clear.svg',
-                          width: 14,
-                          height: 14,
-                          color: Colors.white,
-                        )
-                      ],
-                    ),
+    return GestureDetector(
+        onTap: () {
+          onClickItem!(data);
+        },
+        onLongPressStart: (details) {
+          Feedback.forLongPress(context);
+          showMenu(
+            context: context,
+            color: Colors.black,
+            constraints: BoxConstraints(
+              maxWidth: 100,
+            ),
+            position: RelativeRect.fromLTRB(
+              details.globalPosition.dx,
+              details.globalPosition.dy,
+              details.globalPosition.dx,
+              details.globalPosition.dy,
+            ),
+            items: <PopupMenuEntry>[
+              PopupMenuItem(
+                onTap: () {
+                  onClickDelete!(data);
+                },
+                height: 20,
+                textStyle: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        dic.delete,
+                      ),
+                      SizedBox(width: 4),
+                      SvgPicture.asset(
+                        'assets/images/webview/icon_clear.svg',
+                        width: 14,
+                        height: 14,
+                        color: Colors.white,
+                      )
+                    ],
                   ),
                 ),
-              ],
-            );
-          },
-          child: childWidget),
-    );
+              ),
+            ],
+          );
+        },
+        child: childWidget);
   }
 }
 
@@ -243,7 +241,7 @@ class WebHistoryItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: Color(0xFF000000).withOpacity(0.8),
                         fontWeight: FontWeight.w500)),
                 Padding(

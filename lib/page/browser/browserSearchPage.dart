@@ -41,24 +41,23 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     super.initState();
   }
 
-  List<WebConfig> mergeWebConfigs(
-      List<WebConfig> list1, List<WebConfig> list2) {
-    final Map<String, WebConfig> mergedMap = {};
-
-    for (var webConfig in list1) {
-      mergedMap[webConfig.url] = webConfig;
+  List<WebConfig> _filter(String? key, List<WebConfig> list) {
+    if (key == null || key!.isEmpty) {
+      return list;
     }
-
-    for (var webConfig in list2) {
-      mergedMap[webConfig.url] = webConfig;
-    }
-
-    return mergedMap.values.toList();
+    var res = list.where((element) {
+      return (element.url.toLowerCase().contains(keywords!.toLowerCase())) ||
+          (element.title.toLowerCase().contains(key!.toLowerCase()));
+    }).toList();
+    return res;
   }
 
   void _onKeywordsChange() {
+    String value = editingController.text.trim();
+    List<WebConfig> uiList = _filter(value, store.browser!.webHistoryList);
     setState(() {
-      keywords = editingController.text.trim();
+      keywords = value;
+      searchList = uiList;
     });
   }
 
@@ -68,26 +67,23 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     editingController.dispose();
   }
 
-  bool isValidHttpUrl(String url) {
-    final Uri? uri = Uri.tryParse(url);
-    if (uri == null) {
-      return false;
+  String formatUrl(String url) {
+    if (url.startsWith("http") || url.startsWith("https")) {
+      return url;
     }
-    return (uri.scheme == 'http' || uri.scheme == 'https') &&
-        uri.host.isNotEmpty;
+    return "https://" + url;
   }
 
   void _onLoadUrl(String url) async {
-    if (!isValidHttpUrl(url)) {
-      print("error url, please reinput");
+    if(url.isEmpty){
+      print("error url, please input");
       return;
     }
-
     Navigator.pushReplacementNamed(
       context,
       BrowserWrapperPage.route,
       arguments: {
-        "url": url,
+        "url": formatUrl(url),
       },
     );
     editingController.clear();
@@ -127,10 +123,10 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
       ListView.builder(
         shrinkWrap: true,
         padding: const EdgeInsets.only(left: 20, right: 20),
-        itemCount: store.browser!.webHistoryList.length,
+        itemCount: searchList.length,
         itemBuilder: (context, index) {
           return WebHistoryItem(
-            data: store.browser!.webHistoryList[index],
+            data: searchList[index],
             onClickItem: _onLoadHistoryUrl,
           );
         },
@@ -183,7 +179,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
                                       'assets/images/webview/icon_close_bg.svg',
                                       width: 16,
                                       height: 16,
-                                      color: Color(0x000033).withOpacity(0.2),
+                                      color: Color(0x000033).withOpacity(0.5),
                                     ),
                                   ),
                                 )
@@ -192,7 +188,6 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
                   )),
                   GestureDetector(
                     onTap: () {
-                      editingController.clear();
                       Navigator.of(context).pop();
                     },
                     child: Container(
@@ -210,11 +205,10 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
                 ],
               ),
             ),
-            store.browser!.webHistoryList.length != 0
+            searchList.length != 0
                 ? _buildHistoryList()
                 : keywords == null ||
-                        keywords!.isEmpty ||
-                        isValidHttpUrl(keywords!)
+                        keywords!.isEmpty 
                     ? Container()
                     : Expanded(
                         child: Center(
