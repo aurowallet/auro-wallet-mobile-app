@@ -103,9 +103,9 @@ class LongPressMenu extends StatelessWidget {
             ),
             position: RelativeRect.fromLTRB(
               details.globalPosition.dx,
-              details.globalPosition.dy,
+              details.globalPosition.dy - 60,
               details.globalPosition.dx,
-              details.globalPosition.dy,
+              details.globalPosition.dy - 60,
             ),
             items: <PopupMenuEntry>[
               PopupMenuItem(
