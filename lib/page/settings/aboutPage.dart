@@ -36,10 +36,10 @@ class _AboutPage extends State<AboutPage> {
         color: Theme.of(context).primaryColor,
         fontWeight: FontWeight.w500);
     if (aboutUsData != null) {
-      if(languageCode == 'zh'){
+      if (languageCode == 'zh') {
         termsUrl = aboutUsData.termsAndContionsZH;
         privacyUrl = aboutUsData.privacyPolicyZH;
-      }else{
+      } else {
         termsUrl = aboutUsData.termsAndContionsEN;
         privacyUrl = aboutUsData.privacyPolicyEN;
       }
@@ -86,7 +86,7 @@ class _AboutPage extends State<AboutPage> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 10, right: 30, left: 30),
-                  child: Text(dic.walletAbout, 
+                  child: Text(dic.walletAbout,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 14,
@@ -124,7 +124,9 @@ class _AboutPage extends State<AboutPage> {
                 Container(
                   padding: EdgeInsets.only(top: 40, bottom: 23),
                   child: Text(dic.followUs,
-                      style: TextStyle(fontSize: 12, color: Color.fromRGBO(128, 128, 128, 1))),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Color.fromRGBO(128, 128, 128, 1))),
                 ),
                 aboutus != null
                     ? Row(
@@ -156,7 +158,8 @@ class _AboutPage extends State<AboutPage> {
                                   ? SocialItem(
                                       name: 'Telegram',
                                       link: aboutus.telegram!.website,
-                                      icon: 'assets/images/setting/telegram.svg',
+                                      icon:
+                                          'assets/images/setting/telegram.svg',
                                     )
                                   : Container(),
                             ],
@@ -190,12 +193,16 @@ class SocialItem extends StatelessWidget {
           height: 48,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              color: Color.fromRGBO(89, 74, 241, 0.1),
-              borderRadius: BorderRadius.circular(48),
-              ),
+            color: Color.fromRGBO(89, 74, 241, 0.1),
+            borderRadius: BorderRadius.circular(48),
+          ),
           child: IconBrowserLink(link,
               icon: image ??
-                  (icon != null ? SvgPicture.asset(icon!) : Container())),
+                  (icon != null
+                      ? SvgPicture.asset(
+                          icon!,
+                        )
+                      : Container())),
         ),
         SizedBox(height: 4),
         Text(

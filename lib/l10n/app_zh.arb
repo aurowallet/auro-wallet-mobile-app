@@ -408,8 +408,6 @@
   "@ledgerTip3": {},
   "ledgerAddressTip1": "请根据 Ledger 硬件钱包中的提示进行以下操作。",
   "@ledgerAddressTip1": {},
-  "ledgerAddressTip2": "Get Address > Generate > Approve",
-  "@ledgerAddressTip2": {},
   "ledgerAddressTip3": "<lightred>不要关闭本窗口。</lightred>Ledger 完成后，页面将自动跳转。",
   "@ledgerAddressTip3": {},
   "connectHardwareWallet": "连接硬件钱包",
