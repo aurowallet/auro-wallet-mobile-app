@@ -7,6 +7,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
 class BrowserSearchPage extends StatefulWidget {
@@ -37,6 +38,10 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       editingController.addListener(_onKeywordsChange);
       _commentFocus.requestFocus();
+
+      setState(() {
+        searchList = store.browser!.webHistoryList;
+      });
     });
     super.initState();
   }
@@ -54,7 +59,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
 
   void _onKeywordsChange() {
     String value = editingController.text.trim();
-    List<WebConfig> uiList = _filter(value, store.browser!.webHistoryList);
+    List<WebConfig> uiList = _filter(value, searchList);
     setState(() {
       keywords = value;
       searchList = uiList;
@@ -75,7 +80,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
   }
 
   void _onLoadUrl(String url) async {
-    if(url.isEmpty){
+    if (url.isEmpty) {
       print("error url, please input");
       return;
     }
@@ -93,45 +98,59 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     _onLoadUrl(data.url);
   }
 
+  void onClickHistoryDelete(WebConfig data) {
+    store.browser!.removeWebHistoryItem(data.url);
+    List<WebConfig> uiList = [...searchList];
+    uiList.removeWhere((item) => item.url == data.url);
+    setState(() {
+      searchList = uiList;
+    });
+  }
+
   Widget _buildHistoryList() {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    return Expanded(
-        child: ListView(shrinkWrap: true, children: [
-      Container(
-        margin: const EdgeInsets.only(left: 20, right: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CategoryTitle(title: dic.recently),
-            Container(
-                margin: EdgeInsets.only(top: 10),
-                padding: EdgeInsets.only(left: 10, top: 10, bottom: 10),
-                child: GestureDetector(
-                  child: SvgPicture.asset(
-                    'assets/images/webview/icon_clear.svg',
-                    width: 16,
-                    height: 16,
-                  ),
-                  onTap: () {
-                    store.browser!.clearWebHistoryList();
-                  },
-                )),
-          ],
-        ),
-      ),
-      ListView.builder(
-        shrinkWrap: true,
-        padding: const EdgeInsets.only(left: 20, right: 20),
-        itemCount: searchList.length,
+    return Observer(builder: (BuildContext context) {
+      return Expanded(
+          child: ListView.builder(
+        itemCount: searchList.length + 1,
         itemBuilder: (context, index) {
-          return WebHistoryItem(
-            data: searchList[index],
-            onClickItem: _onLoadHistoryUrl,
-          );
+          if (index == 0) {
+            return Container(
+              margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CategoryTitle(title: dic.recently),
+                  GestureDetector(
+                    child: SvgPicture.asset(
+                      'assets/images/webview/icon_clear.svg',
+                      width: 16,
+                      height: 16,
+                    ),
+                    onTap: () {
+                      store.browser!.clearWebHistoryList();
+                      setState(() {
+                        searchList = [];
+                      });
+                    },
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: WebHistoryItem(
+                data: searchList[index - 1],
+                onClickItem: _onLoadHistoryUrl,
+                onClickDelete: onClickHistoryDelete,
+              ),
+            );
+          }
         },
-      )
-    ]));
+      ));
+    });
   }
 
   @override
@@ -207,8 +226,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
             ),
             searchList.length != 0
                 ? _buildHistoryList()
-                : keywords == null ||
-                        keywords!.isEmpty 
+                : keywords == null || keywords!.isEmpty
                     ? Container()
                     : Expanded(
                         child: Center(
