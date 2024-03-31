@@ -56,40 +56,46 @@ class BrowserActionButton extends StatelessWidget {
         ? "assets/images/webview/icon_fav.svg"
         : "assets/images/webview/icon_unfav.svg";
     String favTxt = isFav == true ? dic.removeFavorites : dic.addFavorites;
-    return SafeArea(
-        child: ClipRRect(
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12), topRight: Radius.circular(12)),
-            child: Container(
-              height: 128,
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(12),
+            topLeft: Radius.circular(12),
+          )),
+      padding: EdgeInsets.only(top: 8, bottom: 16),
+      child: SafeArea(
+          child: Container(
+        height: 128,
+        child: Column(
+          children: [
+            Expanded(
+                child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.only(top: 8),
               child: Column(
                 children: [
-                  Expanded(
-                      child: Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Column(
-                      children: [
-                        buildItem(
-                            "assets/images/webview/icon_copy.svg", dic.copyLink,
-                            () {
-                          UI.copyAndNotify(context, url);
-                          Navigator.pop(context);
-                        }, context),
-                        buildItem(favUrl, favTxt, () {
-                          onClickFav!();
-                          Navigator.pop(context);
-                        }, context),
-                        buildItem("assets/images/webview/icon_link.svg",
-                            dic.openInBrowser, () {
-                          Navigator.pop(context);
-                          UI.launchURL(url);
-                        }, context),
-                      ],
-                    ),
-                  ))
+                  buildItem("assets/images/webview/icon_copy.svg", dic.copyLink,
+                      () {
+                    UI.copyAndNotify(context, url);
+                    Navigator.pop(context);
+                  }, context),
+                  buildItem(favUrl, favTxt, () {
+                    onClickFav!();
+                    Navigator.pop(context);
+                  }, context),
+                  buildItem(
+                      "assets/images/webview/icon_link.svg", dic.openInBrowser,
+                      () {
+                    Navigator.pop(context);
+                    UI.launchURL(url);
+                  }, context),
                 ],
               ),
-            )));
+            ))
+          ],
+        ),
+      )),
+    );
   }
 }

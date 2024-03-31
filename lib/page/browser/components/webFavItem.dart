@@ -93,6 +93,7 @@ class LongPressMenu extends StatelessWidget {
         onTap: () {
           onClickItem!(data);
         },
+        behavior: HitTestBehavior.opaque,
         onLongPressStart: (details) {
           Feedback.forLongPress(context);
           showMenu(

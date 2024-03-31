@@ -306,8 +306,12 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                           icon: Icon(Icons.more_horiz),
                           color: ColorsUtil.hexColor(0x000000).withOpacity(0.8),
                           onPressed: () {
-                            showCupertinoModalPopup(
+                            showModalBottomSheet(
                               context: context,
+                              backgroundColor: Colors.transparent,
+                              isScrollControlled: true,
+                              isDismissible: true,
+                              enableDrag: false,
                               builder: (contextPopup) {
                                 return BrowserActionButton(
                                   url: url,
