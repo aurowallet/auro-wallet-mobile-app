@@ -1,4 +1,7 @@
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
@@ -6,38 +9,26 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class NetworkItem extends StatelessWidget {
   NetworkItem({
-    this.checked = false,
-    required this.text,
-    required this.value,
+    required this.endpoint,
     required this.onChecked,
-    required this.tag,
-    required this.isEditing,
-    this.chainId,
-    this.editable = false,
+    this.isEditing,
     this.onEdit,
-    this.endpoint,
     this.margin = const EdgeInsets.only(top: 0),
-    this.iconUrl,
   });
 
-  final bool checked;
-  final bool isEditing;
-  final bool editable;
-  final String text;
-  final String? chainId;
-  final String value;
-  final String? tag;
-  final CustomNodeV2? endpoint;
+  final store = globalAppStore;
+
+  final bool? isEditing;
+  final CustomNodeV2 endpoint;
   final void Function(bool, String) onChecked;
   final void Function(CustomNodeV2)? onEdit;
   final EdgeInsetsGeometry margin;
-  final String? iconUrl;
 
   onPressed() {
-    if (isEditing && onEdit != null && endpoint != null) {
-      onEdit!(endpoint!);
+    if (isEditing == true && onEdit != null) {
+      onEdit!(endpoint);
     } else {
-      onChecked(!checked, value);
+      onChecked(!getNetworkCheckStatus(), endpoint.url);
     }
   }
 
@@ -57,11 +48,62 @@ class NetworkItem extends StatelessWidget {
     return Colors.black.withOpacity(0.1);
   }
 
+  bool getNetworkCheckStatus() {
+    return store.settings!.currentNode?.url == endpoint.url;
+  }
+
+  String? getChainIdFromStore(String id) {
+    final networks = store.settings!.networks;
+    final NetworkType? types = networks
+        .map((e) => e as NetworkType?)
+        .firstWhere((element) => element?.type == id, orElse: () => null);
+    return types?.chainId;
+  }
+
+  String? getNetworkChainId() {
+    String? tempChainId = "";
+    if (endpoint.isDefaultNode == true) {
+      tempChainId = getChainIdFromStore(endpoint.id as String);
+    } else {
+      tempChainId = endpoint.chainId;
+    }
+    return tempChainId;
+  }
+
+  String? getNetworkIcon() {
+    String? iconUrl;
+    if (endpoint.isDefaultNode == true) {
+      if (endpoint.netType == NetworkTypes.mainnet) {
+        iconUrl = "assets/images/stake/icon_mina_color.png";
+      } else {
+        iconUrl = 'assets/images/stake/icon_mina_gray.svg';
+      }
+    }
+    return iconUrl;
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool editable = endpoint.isDefaultNode != true;
     var theme = Theme.of(context).textTheme;
-    Color chainNameColor = getChainNameColor(checked, isEditing, editable);
-    Color chainIdColor = getChainIdColor(checked, isEditing);
+    bool checked = getNetworkCheckStatus();
+    bool editing = isEditing == true;
+    Color chainNameColor = getChainNameColor(checked, editing, editable);
+    Color chainIdColor = getChainIdColor(checked, editing);
+
+    final networks = store.settings!.networks;
+    final filterNetworks =
+        networks.where((element) => element.chainId == endpoint.chainId);
+    NetworkType? networkType;
+    if (filterNetworks.isNotEmpty) {
+      networkType = filterNetworks.first;
+    }
+    String? tagStr;
+    if (editable) {
+      tagStr = networkType != null ? networkType.name : "Unknown";
+    }
+
+    String? showChainId = getNetworkChainId();
 
     return Padding(
       padding: margin,
@@ -77,7 +119,7 @@ class NetworkItem extends StatelessWidget {
               child: Container(
                   padding: EdgeInsets.all(16).copyWith(bottom: 12),
                   decoration: BoxDecoration(
-                      color: checked && !isEditing
+                      color: checked && !editing
                           ? Color(0xFF594AF1)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
@@ -86,8 +128,8 @@ class NetworkItem extends StatelessWidget {
                   child: Row(
                     children: [
                       NetworkIcon(
-                        iconUrl: iconUrl,
-                        iconName: text,
+                        iconUrl: getNetworkIcon(),
+                        iconName: endpoint.name,
                       ),
                       Expanded(
                           child: Column(
@@ -101,12 +143,12 @@ class NetworkItem extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.max,
                                 children: [
                                   Flexible(
-                                      child: Text(Fmt.breakWord(text)!,
+                                      child: Text(Fmt.breakWord(endpoint.name)!,
                                           style: TextStyle(
                                               fontSize: 16,
                                               color: chainNameColor,
                                               fontWeight: FontWeight.w500))),
-                                  tag != null
+                                  tagStr != null
                                       ? Container(
                                           margin: EdgeInsets.only(left: 5),
                                           padding: EdgeInsets.symmetric(
@@ -117,7 +159,7 @@ class NetworkItem extends StatelessWidget {
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
                                           ),
-                                          child: Text(tag!,
+                                          child: Text(tagStr!,
                                               style: theme.headline6!.copyWith(
                                                   color: Colors.white,
                                                   fontSize: 12,
@@ -128,12 +170,12 @@ class NetworkItem extends StatelessWidget {
                               )),
                             ],
                           ),
-                          chainId != null
+                          showChainId != null
                               ? Container(
                                   margin: EdgeInsets.only(top: 4),
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                      Fmt.address(chainId,
+                                      Fmt.address(showChainId,
                                           pad: 6, padSame: true),
                                       style: TextStyle(
                                           fontSize: 12,
@@ -143,7 +185,7 @@ class NetworkItem extends StatelessWidget {
                               : Container()
                         ],
                       )),
-                      isEditing
+                      editing
                           ? Container(
                               alignment: Alignment.centerRight,
                               child: Container(

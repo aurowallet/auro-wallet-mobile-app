@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
+import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/accountSelectDialog.dart';
 import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
@@ -11,6 +12,7 @@ import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
 import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
@@ -258,7 +260,7 @@ class UI {
     required String url,
     String? iconUrl,
     String? gqlUrl,
-    required Future Function(String,String) onConfirm,
+    required Future Function(String, String) onConfirm,
     Function()? onCancel,
     String? buttonText,
   }) {
@@ -273,9 +275,9 @@ class UI {
             chainId: chainId,
             url: url,
             iconUrl: iconUrl,
-            gqlUrl:gqlUrl,
-            onConfirm: (String networkName,String chainId) async {
-              onConfirm(networkName,chainId);
+            gqlUrl: gqlUrl,
+            onConfirm: (String networkName, String chainId) async {
+              onConfirm(networkName, chainId);
               Navigator.of(context).pop();
             },
             onCancel: () {
@@ -335,7 +337,7 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return SignatureDialog(
-            method:method,
+            method: method,
             content: content,
             url: url,
             iconUrl: iconUrl,
@@ -358,10 +360,10 @@ class UI {
     String? fee,
     String? memo,
     Object? transaction,
-    Map<String,dynamic>? feePayer,
+    Map<String, dynamic>? feePayer,
     required String url,
     String? iconUrl,
-    required Future<String> Function(String,int) onConfirm,
+    required Future<String> Function(String, int) onConfirm,
     Function()? onCancel,
     String? buttonText,
   }) {
@@ -378,13 +380,13 @@ class UI {
             amount: amount,
             fee: fee,
             memo: memo,
-            feePayer:feePayer,
+            feePayer: feePayer,
             transaction: transaction,
             url: url,
             iconUrl: iconUrl,
-            preNonce:nonce,
-            onConfirm: (String hash,int nonce) async {
-              onConfirm(hash,nonce);
+            preNonce: nonce,
+            onConfirm: (String hash, int nonce) async {
+              onConfirm(hash, nonce);
               Navigator.of(context).pop();
             },
             onCancel: () {
@@ -430,12 +432,27 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return AdvanceDialog(
-          nextStateFee:fee,
-          nonce:nonce,
+          nextStateFee: fee,
+          nonce: nonce,
           onConfirm: (double fee, int nonce) {
-            onConfirm!(fee,nonce);
+            onConfirm!(fee, nonce);
           },
         );
+      },
+    );
+  }
+
+  static Future<void> showNetworkSelectDialog({
+    required BuildContext context,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return NetworkSelectionDialog();
       },
     );
   }

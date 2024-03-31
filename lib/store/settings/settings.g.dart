@@ -119,6 +119,22 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
+  late final _$testnetShowStatusAtom =
+      Atom(name: '_SettingsStore.testnetShowStatus', context: context);
+
+  @override
+  bool get testnetShowStatus {
+    _$testnetShowStatusAtom.reportRead();
+    return super.testnetShowStatus;
+  }
+
+  @override
+  set testnetShowStatus(bool value) {
+    _$testnetShowStatusAtom.reportWrite(value, super.testnetShowStatus, () {
+      super.testnetShowStatus = value;
+    });
+  }
+
   late final _$aboutusAtom =
       Atom(name: '_SettingsStore.aboutus', context: context);
 
@@ -324,6 +340,24 @@ mixin _$SettingsStore on _SettingsStore, Store {
     return _$setCurrentNodeAsyncAction.run(() => super.setCurrentNode(value));
   }
 
+  late final _$setTestnetShowStatusAsyncAction =
+      AsyncAction('_SettingsStore.setTestnetShowStatus', context: context);
+
+  @override
+  Future<void> setTestnetShowStatus(bool status) {
+    return _$setTestnetShowStatusAsyncAction
+        .run(() => super.setTestnetShowStatus(status));
+  }
+
+  late final _$loadTestnetShowStatusAsyncAction =
+      AsyncAction('_SettingsStore.loadTestnetShowStatus', context: context);
+
+  @override
+  Future<void> loadTestnetShowStatus() {
+    return _$loadTestnetShowStatusAsyncAction
+        .run(() => super.loadTestnetShowStatus());
+  }
+
   late final _$loadCurrentNodeAsyncAction =
       AsyncAction('_SettingsStore.loadCurrentNode', context: context);
 
@@ -397,6 +431,7 @@ loading: ${loading},
 localeCode: ${localeCode},
 currencyCode: ${currencyCode},
 currentNode: ${currentNode},
+testnetShowStatus: ${testnetShowStatus},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
 customNodeListV2: ${customNodeListV2},

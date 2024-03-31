@@ -8,6 +8,7 @@ import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -142,7 +143,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress),
       webApi.assets.fetchTransactions(store.wallet!.currentAddress),
       webApi.assets.fetchPendingZkTransactions(store.wallet!.currentAddress),
-      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress) 
+      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress)
     ]);
     store.assets!.setTxsLoading(false);
     print('finish fetch tx list');
@@ -187,6 +188,44 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
   }
 
+  void _showNetworkDialog() {
+    UI.showNetworkSelectDialog(context: context);
+  }
+
+  Widget _buildNetworkEntry(BuildContext context) {
+    String networkName = widget.store.settings!.currentNode!.name;
+    return InkWell(
+        onTap: _showNetworkDialog,
+        child: Container(
+          height: 30,
+          padding: const EdgeInsets.only(left: 14, right: 8),
+          decoration: BoxDecoration(
+            border: new Border.all(color: Color(0x1A000000), width: 1),
+            borderRadius: BorderRadius.circular((15)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                Fmt.stringSlice(networkName, 8, withEllipsis: true),
+                style: TextStyle(
+                    fontSize: 14,
+                    height: 1,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black),
+              ),
+              SizedBox(
+                width: 4,
+              ),
+              Icon(
+                Icons.expand_more,
+                size: 20,
+              )
+            ],
+          ),
+        ));
+  }
+
   Widget _buildTopBar(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -213,9 +252,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 // Flexible(child: Container(),),
-                Container(
-                  child: NodeSelectionDropdown(store: store),
-                ),
+                Container(child: _buildNetworkEntry(context)),
                 Container(
                   width: 12,
                 ),

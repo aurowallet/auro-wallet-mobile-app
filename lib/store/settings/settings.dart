@@ -47,6 +47,8 @@ abstract class _SettingsStore with Store {
   final String cacheNetworkStateKey = 'network';
   final String cacheNetworkConstKey = 'network_const';
 
+  final String cacheTestnetShowStatusKey = 'network_testnet_status';
+
   @observable
   bool loading = true;
 
@@ -58,6 +60,9 @@ abstract class _SettingsStore with Store {
 
   @observable
   CustomNodeV2? currentNode;
+
+  @observable
+  bool testnetShowStatus = false;
 
   bool get isSupportedNode {
     if (currentNode?.id == '0' ||
@@ -142,6 +147,7 @@ abstract class _SettingsStore with Store {
     await loadCurrencyCode();
     await loadCustomNodeList();
     await loadCurrentNode();
+    await loadTestnetShowStatus();
     await loadAboutUs();
     await loadNetworkTypes();
     await loadContacts();
@@ -244,6 +250,19 @@ abstract class _SettingsStore with Store {
   Future<void> setCurrentNode(CustomNodeV2 value) async {
     currentNode = value;
     await rootStore.localStorage.setObject(localStorageCurrentNodeKeyV3, value);
+  }
+
+  @action
+  Future<void> setTestnetShowStatus(bool status) async {
+    testnetShowStatus = status;
+    await rootStore.localStorage.setObject(cacheTestnetShowStatusKey, status);
+  }
+
+  @action
+  Future<void> loadTestnetShowStatus() async {
+    bool? showStatus = await rootStore.localStorage
+        .getObject(cacheTestnetShowStatusKey) as bool?;
+    testnetShowStatus = showStatus == true;
   }
 
   @action

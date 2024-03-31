@@ -17,7 +17,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 class RemoteNodeListPage extends StatefulWidget {
   final AppStore store;
-  SettingsStore settingStore;
+  final SettingsStore settingStore;
   static final String route = '/profile/endpoint';
 
   RemoteNodeListPage(this.store) : settingStore = store.settings!;
@@ -94,14 +94,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
           key: Key(endpoint.url),
           padding: EdgeInsets.only(top: 10, left: 20, right: 20),
           child: NetworkItem(
-            text: endpoint.name,
-            value: endpoint.url,
-            chainId: endpoint.chainId,
-            checked: widget.settingStore.currentNode?.url == endpoint.url,
             onChecked: onChangeEndpoint,
-            tag: tagStr,
             isEditing: isEditing,
-            editable: true,
             onEdit: _editNode,
             endpoint: endpoint,
           ));
@@ -172,16 +166,9 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         NetworkItem(
-                          text: mainnetConfig.name,
-                          value: mainnetConfig.url,
                           onChecked: onChangeEndpoint,
-                          checked: mainnetConfig.url ==
-                              widget.settingStore.currentNode?.url,
-                          tag: null,
-                          chainId:
-                              getChainIdFromStore(mainnetConfig.id as String),
                           isEditing: isEditing,
-                          iconUrl: "assets/images/stake/icon_mina_color.png",
+                          endpoint: mainnetConfig,
                         ),
                       ],
                     ),
@@ -217,31 +204,17 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         NetworkItem(
-                          text: devnetConfig.name,
-                          value: devnetConfig.url,
                           onChecked: onChangeEndpoint,
-                          checked: devnetConfig.url ==
-                              widget.settingStore.currentNode?.url,
-                          tag: null,
-                          chainId:
-                              getChainIdFromStore(devnetConfig.id as String),
                           isEditing: isEditing,
-                          iconUrl: 'assets/images/stake/icon_mina_gray.svg',
+                          endpoint: devnetConfig,
                         ),
                         SizedBox(
                           height: 10,
                         ),
                         NetworkItem(
-                          text: berkeleyConfig.name,
-                          value: berkeleyConfig.url,
                           onChecked: onChangeEndpoint,
-                          checked: berkeleyConfig.url ==
-                              widget.settingStore.currentNode?.url,
-                          tag: null,
-                          chainId:
-                              getChainIdFromStore(berkeleyConfig.id as String),
                           isEditing: isEditing,
-                          iconUrl: 'assets/images/stake/icon_mina_gray.svg',
+                          endpoint: berkeleyConfig,
                         ),
                       ],
                     ),
