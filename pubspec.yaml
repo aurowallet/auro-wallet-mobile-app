@@ -190,6 +190,9 @@ flutter:
     ## stake
     - assets/images/stake/icon_delegation.svg
     - assets/images/stake/icon_epoch.svg
+    - assets/images/stake/icon_mina_gray.svg 
+    - assets/images/stake/icon_mina_color.png
+    - assets/images/stake/icon_edit.svg
 
     ## tab bar bottom
     - assets/images/public/home_tab.svg

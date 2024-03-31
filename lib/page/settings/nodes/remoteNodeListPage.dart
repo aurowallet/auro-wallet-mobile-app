@@ -1,21 +1,18 @@
 import 'package:auro_wallet/common/components/Separator.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/settings/components/networkItem.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
+import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:flutter/material.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:roundcheckbox/roundcheckbox.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class RemoteNodeListPage extends StatefulWidget {
@@ -96,7 +93,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       return Padding(
           key: Key(endpoint.url),
           padding: EdgeInsets.only(top: 10, left: 20, right: 20),
-          child: NodeItem(
+          child: NetworkItem(
             text: endpoint.name,
             value: endpoint.url,
             chainId: endpoint.chainId,
@@ -122,14 +119,14 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     });
   }
 
-String? getChainIdFromStore(String id){
-  final networks = widget.settingStore.networks;
-  final NetworkType? types = networks
-              .map((e) => e as NetworkType?)
-              .firstWhere((element) => element?.type == id,
-                  orElse: () => null);
-  return types?.chainId;
-}
+  String? getChainIdFromStore(String id) {
+    final networks = widget.settingStore.networks;
+    final NetworkType? types = networks
+        .map((e) => e as NetworkType?)
+        .firstWhere((element) => element?.type == id, orElse: () => null);
+    return types?.chainId;
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -174,15 +171,17 @@ String? getChainIdFromStore(String id){
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        NodeItem(
+                        NetworkItem(
                           text: mainnetConfig.name,
                           value: mainnetConfig.url,
                           onChecked: onChangeEndpoint,
                           checked: mainnetConfig.url ==
                               widget.settingStore.currentNode?.url,
                           tag: null,
-                          chainId: getChainIdFromStore(mainnetConfig.id as String),//?.chainId,
+                          chainId:
+                              getChainIdFromStore(mainnetConfig.id as String),
                           isEditing: isEditing,
+                          iconUrl: "assets/images/stake/icon_mina_color.png",
                         ),
                       ],
                     ),
@@ -217,26 +216,32 @@ String? getChainIdFromStore(String id){
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        NodeItem(
+                        NetworkItem(
                           text: devnetConfig.name,
                           value: devnetConfig.url,
                           onChecked: onChangeEndpoint,
                           checked: devnetConfig.url ==
                               widget.settingStore.currentNode?.url,
                           tag: null,
-                          chainId: getChainIdFromStore(devnetConfig.id as String),
+                          chainId:
+                              getChainIdFromStore(devnetConfig.id as String),
                           isEditing: isEditing,
+                          iconUrl: 'assets/images/stake/icon_mina_gray.svg',
                         ),
-                        SizedBox(height: 10,),
-                        NodeItem(
+                        SizedBox(
+                          height: 10,
+                        ),
+                        NetworkItem(
                           text: berkeleyConfig.name,
                           value: berkeleyConfig.url,
                           onChecked: onChangeEndpoint,
                           checked: berkeleyConfig.url ==
                               widget.settingStore.currentNode?.url,
                           tag: null,
-                          chainId: getChainIdFromStore(berkeleyConfig.id as String),
+                          chainId:
+                              getChainIdFromStore(berkeleyConfig.id as String),
                           isEditing: isEditing,
+                          iconUrl: 'assets/images/stake/icon_mina_gray.svg',
                         ),
                       ],
                     ),
@@ -256,172 +261,6 @@ String? getChainIdFromStore(String id){
             ],
           );
         }),
-      ),
-    );
-  }
-}
-
-class NodeItem extends StatelessWidget {
-  NodeItem({
-    this.checked = false,
-    required this.text,
-    required this.value,
-    required this.onChecked,
-    required this.tag,
-    required this.isEditing,
-    this.chainId,
-    this.editable = false,
-    this.onEdit,
-    this.endpoint,
-    this.margin = const EdgeInsets.only(top: 0),
-  });
-
-  final bool checked;
-  final bool isEditing;
-  final bool editable;
-  final String text;
-  final String? chainId;
-  final String value;
-  final String? tag;
-  final CustomNodeV2? endpoint;
-  final void Function(bool, String) onChecked;
-  final void Function(CustomNodeV2)? onEdit;
-  final EdgeInsetsGeometry margin;
-
-  onPressed() {
-    if (isEditing && onEdit != null && endpoint != null) {
-      onEdit!(endpoint!);
-    } else {
-      onChecked(!checked, value);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
-    return Padding(
-      padding: margin,
-      child: Container(
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Material(
-          color: Color(0xFFF9FAFC),
-          child: InkWell(
-              onTap: onPressed,
-              child: Container(
-                  padding: EdgeInsets.all(16).copyWith(bottom: 12),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: Colors.black.withOpacity(0.05), width: 1)),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                  child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Flexible(
-                                      child: Text(Fmt.breakWord(text)!,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              color: isEditing && !editable
-                                                  ? Colors.black
-                                                      .withOpacity(0.05)
-                                                  : ColorsUtil.hexColor(
-                                                      0x01000D),
-                                              fontWeight: FontWeight.w500))),
-                                  tag != null
-                                      ? Container(
-                                          margin: EdgeInsets.only(left: 5),
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 4, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: ColorsUtil.hexColor(0x000000)
-                                                .withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(4.0),
-                                          ),
-                                          child: Text(tag!,
-                                              style: theme.headline6!.copyWith(
-                                                  color: Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500)),
-                                        )
-                                      : Container()
-                                ],
-                              )),
-                            ],
-                          ),
-                          chainId != null
-                              ? Container(
-                                  margin: EdgeInsets.only(top: 4),
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                      Fmt.address(chainId,
-                                          pad: 6, padSame: true),
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black.withOpacity(0.1),
-                                          fontWeight: FontWeight.w400)),
-                                )
-                              : Container()
-                        ],
-                      )),
-                      isEditing
-                          ? Container(
-                              width: 32,
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                width: 6,
-                                margin: EdgeInsets.only(
-                                  left: 14,
-                                ),
-                                child: editable
-                                    ? SvgPicture.asset(
-                                        'assets/images/assets/right_arrow.svg',
-                                        width: 6,
-                                        height: 12)
-                                    : Container(),
-                              ))
-                          : Container(
-                              width: 32,
-                              child: Center(
-                                child: checked
-                                    ? Padding(
-                                        padding: EdgeInsets.only(left: 14),
-                                        child: RoundCheckBox(
-                                          size: 18,
-                                          borderColor: Colors.transparent,
-                                          isChecked: checked,
-                                          uncheckedColor: Colors.white,
-                                          checkedColor:
-                                              Theme.of(context).primaryColor,
-                                          checkedWidget: Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 12,
-                                          ),
-                                          // inactiveColor: ColorsUtil.hexColor(0xCCCCCC),
-                                          onTap: (bool? checkedFlag) {
-                                            onChecked(checkedFlag!, value);
-                                          },
-                                        ),
-                                      )
-                                    : Container(),
-                              ),
-                            ),
-                    ],
-                  ))),
-        ),
       ),
     );
   }
