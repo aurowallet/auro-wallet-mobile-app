@@ -424,12 +424,9 @@ class UI {
     Function(double, int)? onConfirm,
     String? buttonText,
   }) {
-    return showModalBottomSheet<void>(
+    return showDialog<void>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AdvanceDialog(
           nextStateFee: fee,
