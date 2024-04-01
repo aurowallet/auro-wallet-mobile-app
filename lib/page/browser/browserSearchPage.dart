@@ -72,6 +72,26 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     editingController.dispose();
   }
 
+  bool isValidHttpUrl(String url) {
+    try {
+      if (url.endsWith('.')) {
+        return false;
+      }
+      List<String> parts = url.split('.');
+      if (parts.length < 2) {
+        return false;
+      }
+      for (int i = 0; i < parts.length - 1; i++) {
+        if (parts[i].isNotEmpty && parts[i + 1].isNotEmpty) {
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      return true;
+    }
+  }
+
   String formatUrl(String url) {
     if (url.startsWith("http") || url.startsWith("https")) {
       return url;
@@ -80,7 +100,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
   }
 
   void _onLoadUrl(String url) async {
-    if (url.isEmpty) {
+    if (url.isEmpty || !isValidHttpUrl(url)) {
       print("error url, please input");
       return;
     }

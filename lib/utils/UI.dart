@@ -45,14 +45,15 @@ class UI {
   }
 
   static Future<void> launchURL(String url) async {
-    if (await canLaunch(url)) {
-      try {
-        await launch(url);
-      } catch (err) {
-        print(err);
+    try {
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        print('Could not launch $url');
       }
-    } else {
-      print('Could not launch $url');
+    } catch (err) {
+      print(err);
     }
   }
 

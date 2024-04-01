@@ -356,7 +356,7 @@ class AccoutIcon extends StatelessWidget {
       }
     }
 
-    return formattedName;
+    return formattedName.toUpperCase();
   }
 
   @override
@@ -365,10 +365,13 @@ class AccoutIcon extends StatelessWidget {
         onTap: onPressed,
         child: CircleAvatar(
             radius: 15,
-            backgroundColor: Color(0xFF000000).withOpacity(0.3),
+            backgroundColor: Color(0xFF594AF1),
             child: Text(
               formatAccountName(accountName),
-              style: TextStyle(fontSize: 12, color: Colors.white),
+              style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500),
             )));
   }
 }

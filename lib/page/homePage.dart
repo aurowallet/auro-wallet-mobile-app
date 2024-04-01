@@ -39,10 +39,10 @@ class _HomePageState extends State<HomePage> {
 
   List<BottomNavigationBarItem> _navBarItems(int activeItem) {
     Map<String, String> tabI10n = {
-      'wallet':AppLocalizations.of(context)!.wallet,
-      'staking':AppLocalizations.of(context)!.staking,
-      'browser':AppLocalizations.of(context)!.browser,
-      'setting':AppLocalizations.of(context)!.setting
+      'wallet': AppLocalizations.of(context)!.wallet,
+      'staking': AppLocalizations.of(context)!.staking,
+      'browser': AppLocalizations.of(context)!.browser,
+      'setting': AppLocalizations.of(context)!.setting
     };
     return _tabList.asMap().keys.map((index) {
       String icon = 'assets/images/public/${_tabIcons[index]}.svg';
@@ -59,8 +59,7 @@ class _HomePageState extends State<HomePage> {
               color: tabColor,
             ),
           ),
-          label: showLabel
-      );
+          label: showLabel);
     }).toList();
   }
 
@@ -116,13 +115,11 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override
   Widget build(BuildContext context) {
-
     final textStyle = TextStyle(
       fontSize: 12,
     );
@@ -130,14 +127,10 @@ class _HomePageState extends State<HomePage> {
       body: _buildPage(_tabIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            top: BorderSide(
-                color: Colors.black.withOpacity(0.1),
-                width: 0.5
-            )
-          )
-        ),
+            color: Colors.white,
+            border: Border(
+                top: BorderSide(
+                    color: Colors.black.withOpacity(0.1), width: 0.5))),
         child: BottomNavigationBar(
           currentIndex: _tabIndex,
           backgroundColor: Colors.white,
@@ -149,9 +142,7 @@ class _HomePageState extends State<HomePage> {
             });
           },
           unselectedLabelStyle: textStyle,
-          selectedLabelStyle: textStyle.copyWith(
-              color: Colors.black
-          ),
+          selectedLabelStyle: textStyle.copyWith(color: Colors.black),
           selectedItemColor: Colors.black,
           unselectedItemColor: Colors.black.withOpacity(0.5),
           type: BottomNavigationBarType.fixed,
