@@ -466,7 +466,7 @@
   "openInBrowser": "Open in browser",
   "connectionRequest": "Connection Request",
   "connectTip": "This website would like to view account",
-  "trustedSitesTip": "* Make sure you only connect to trusted sites.",
+  "trustedSitesTip": "Make sure you only connect to trusted sites.",
   "signatureRequest": "Signature Request",
   "content": "Content",
   "transactionFee": "Transaction Fee",

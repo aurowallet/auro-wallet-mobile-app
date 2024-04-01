@@ -150,7 +150,7 @@ class ItemLogoState extends State<ItemLogo> {
             errorWidget: (context, url, error) {
               if (showHolderIcon) {
                 return SvgPicture.asset(
-                  "assets/images/public/browser_tab.svg",
+                  "assets/images/public/tab/tab_browser_active.svg",
                   color: Colors.black,
                 );
               }

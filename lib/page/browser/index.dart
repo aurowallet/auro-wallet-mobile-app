@@ -211,7 +211,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
             children: [
               TabPageTitle(title: dic.browser),
               Padding(
-                  padding: EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: 0),
                   child: Container(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
