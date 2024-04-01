@@ -1,8 +1,8 @@
 import 'package:auro_wallet/common/components/Separator.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/material.dart';
 
 class DropdownItem {
   DropdownItem({required this.text, required this.value});
@@ -61,6 +61,8 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
         value: item.value,
         child: Center(
           child: Text(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             item.text,
             style: TextStyle(
                 fontWeight: FontWeight.w500,
@@ -84,18 +86,18 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
       child: Center(
           child: DropdownButtonHideUnderline(
               child: DropdownButton2(
-        // dropdownWidth: 180,
-        // isExpanded: false,
-        buttonDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15.0),
-          border: Border.all(color: Color(0x1A000000), width: 1),
-          // color: Colors.white,
+        buttonStyleData: ButtonStyleData(
+          height: 40,
+          width: 110,
+          padding: const EdgeInsets.only(left: 14, right: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Color(0x1A000000), width: 1),
+          ),
         ),
-        buttonPadding: const EdgeInsets.only(left: 14.0, right: 8),
-        offset: const Offset(0, -18),
-        itemHeight: 40,
-        itemPadding: EdgeInsets.symmetric(horizontal: 8),
-        dropdownPadding: EdgeInsets.symmetric(vertical: 11),
+        menuItemStyleData: const MenuItemStyleData(
+          height: 40,
+        ),
         alignment: Alignment.center,
         selectedItemBuilder: (context) {
           return widget.items.map((item) {
@@ -107,6 +109,8 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     item.value == widget.value ? item.text : '',
                     style: TextStyle(
                         fontSize: 14,
@@ -119,20 +123,24 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
             );
           }).toList();
         },
+        isExpanded: true,
         items: widget.items
             .map((item) => _renderCustomItem(context, item))
             .toList(),
-        dropdownDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          // color: Colors.red,
-        ),
-        dropdownElevation: 8,
-        icon: const Icon(
-          Icons.expand_more,
-        ),
-        iconSize: 16,
-        iconOnClick: const Icon(
-          Icons.expand_less,
+        dropdownStyleData: DropdownStyleData(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            offset: const Offset(0, -18),
+            elevation: 8),
+        iconStyleData: const IconStyleData(
+          openMenuIcon: const Icon(
+            Icons.expand_less,
+          ),
+          icon: const Icon(
+            Icons.expand_more,
+          ),
+          iconSize: 16,
         ),
         value: widget.value,
         onChanged: (String? value) {

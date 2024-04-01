@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/service/webview/bridgeService.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,10 @@ class Api {
   late ApiStaking staking;
   late ApiSetting setting;
 
-  void init() {
+  late BridgeService bridge;
+
+  void init() async {
+
     account = ApiAccount(this);
     assets = ApiAssets(this);
     staking = ApiStaking(this);
@@ -42,7 +46,14 @@ class Api {
     graphQLClient =
         clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
             .value;
+
+    bridge = BridgeService();
+    await launchWebview();
     fetchInitialInfo();
+  }
+
+  Future<void> launchWebview() async {
+    await bridge.init();
   }
 
   void dispose() {}
@@ -89,20 +100,13 @@ class Api {
     // }
   }
 
-  String getTransactionsApiUrl() {
-    bool isMain = this.getIsMainApi();
-    if (isMain) {
-      return MAINNET_TRANSACTION_URL;
-    }
-    return TESTNET_TRANSACTION_URL;
-  }
 
   String getTxRecordsApiUrl() {
-    bool isMain = this.getIsMainApi();
-    if (isMain) {
-      return MAIN_TX_RECORDS_GQL_URL;
+    String? txUrl = store.settings!.currentNode?.txUrl;
+    if(txUrl!=null){
+      return txUrl;
     }
-    return TEST_TX_RECORDS_GQL_URL;
+    return MAIN_TX_RECORDS_GQL_URL;
   }
 
   Future<void> refreshNetwork() async {
@@ -110,6 +114,8 @@ class Api {
     staking.refreshStaking();
     assets.fetchPendingTransactions(store.wallet!.currentAddress);
     assets.fetchTransactions(store.wallet!.currentAddress);
+    assets.fetchPendingZkTransactions(store.wallet!.currentAddress);
+    assets.fetchZkTransactions(store.wallet!.currentAddress);
   }
 
   Future<GqlResult> gqlRequest(dynamic options,
@@ -125,10 +131,9 @@ class Api {
     try {
       result = await req.timeout(Duration(seconds: timeout));
     } on TimeoutException catch (_) {
-      return GqlResult(
-          result: null, error: true, errorMessage: dic.timeout);
+      return GqlResult(result: null, error: true, errorMessage: dic.timeout);
     }
-    if (result.hasException) {
+    if (result!.hasException) {
       print('gql出错了：' + result.exception.toString());
       String message = '';
       if (result.exception!.graphqlErrors.length > 0) {

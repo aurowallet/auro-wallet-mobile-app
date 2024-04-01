@@ -279,7 +279,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     final amountLarge = isDelegation
         ? 0
         : BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
-    final validUntil = 4294967295;
+    final validUntil = "4294967295";
     try {
       // final rawSignature = "8c6e8717bb6b60405446b722031c99a052a3f377ef4fbc83faf6f46fcbc36610e2f8455a3b64ce66b4dd9bc91541a126caae34140a941b5a7e1b24d3d3223420";
       final rawSignature = await minaApp.signTransfer(
@@ -317,33 +317,69 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
   Future<TransferData?> signAndSendTx(Map txInfo,
       {required BuildContext context}) async {
-    final signedTx = await signPayment(
-        privateKey: txInfo['privateKey'],
-        amount: txInfo['amount'],
-        to: txInfo['toAddress'],
-        from: txInfo['fromAddress'],
-        fee: txInfo['fee'],
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    final feeLarge =
+        BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
+    final amountLarge =
+        BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
+
+    final signedTx = await apiRoot.bridge.signPaymentTx({
+      "network": network,
+      "type": "payment",
+      "privateKey": txInfo['privateKey'],
+      "fromAddress": txInfo['fromAddress'],
+      "toAddress": txInfo['toAddress'],
+      "amount": txInfo['amount'],
+      "fee": txInfo['fee'],
+      "nonce": txInfo['nonce'],
+      "memo": txInfo['memo']
+    });
+
+    final signedData = signedTx['data'];
+    final broadcastBody = prepareBroadcastBody(
+        field: signedTx['signature']["field"],
+        scalar: signedTx['signature']["scalar"],
+        from: signedData["from"],
+        to: signedData["to"],
+        fee: feeLarge,
+        amount: amountLarge,
         nonce: txInfo['nonce'],
-        memo: txInfo['memo'],
-        networkId: store.settings!.isMainnet ? 1 : 0);
+        memo: signedData["memo"],
+        validUntil: signedData["validUntil"]);
     TransferData? transferData = await sendTx(
-        signedTx['payload'], signedTx['signature'],
+        broadcastBody['payload'], broadcastBody['signature'],
         context: context);
     return transferData;
   }
 
   Future<TransferData?> signAndSendDelegationTx(Map txInfo,
       {required BuildContext context}) async {
-    final signedTx = await signDelegation(
-        privateKey: txInfo['privateKey'],
-        to: txInfo['toAddress'],
-        from: txInfo['fromAddress'],
-        fee: txInfo['fee'],
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    final feeLarge =
+        BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
+    final signedTx = await apiRoot.bridge.signStakeDelegationTx({
+      "network": network,
+      "type": "delegation",
+      "privateKey": txInfo['privateKey'],
+      "fee": txInfo['fee'],
+      "fromAddress": txInfo['fromAddress'],
+      "toAddress": txInfo['toAddress'],
+      "nonce": txInfo['nonce'],
+      "memo": txInfo['memo']
+    });
+    final signedData = signedTx['data'];
+    final broadcastBody = prepareBroadcastBody(
+        field: signedTx['signature']["field"],
+        scalar: signedTx['signature']["scalar"],
+        from: signedData["from"],
+        to: signedData["to"],
+        fee: feeLarge,
+        amount: 0,
         nonce: txInfo['nonce'],
-        memo: txInfo['memo'],
-        networkId: store.settings!.isMainnet ? 1 : 0);
+        memo: signedData["memo"],
+        validUntil: signedData["validUntil"]);
     TransferData? transferData = await sendDelegationTx(
-        signedTx['payload'], signedTx['signature'],
+        broadcastBody['payload'], broadcastBody['signature'],
         context: context);
     return transferData;
   }
@@ -412,6 +448,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchAccountInfo();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
+      webApi.assets.fetchPendingZkTransactions(store.wallet!.currentAddress);
+      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress);
       return true;
     } catch (e) {
       return false;
@@ -423,7 +461,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       String accountName, String privateKey, String password,
       {required BuildContext context,
       String source = WalletSource.outside}) async {
-    Map<String, dynamic> acc = await createAccountByPrivateKey(privateKey);
+    Map<String, dynamic> acc =
+        await apiRoot.bridge.createAccountByPrivateKey(privateKey);
     acc['name'] = accountName;
     return await _addWalletBgPrivateKey(acc, password, context, source);
   }
@@ -450,6 +489,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchAccountInfo();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
+      webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress);
+      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress);
       return true;
     } catch (e) {
       return false;
@@ -464,8 +505,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     if (mnemonic == null) {
       return null;
     }
-    Map<String, dynamic> acc =
-        await createWalletByMnemonic(mnemonic, nextAccountIndex, false);
+    Map<String, dynamic> acc = await apiRoot.bridge
+        .createWalletByMnemonic(mnemonic, nextAccountIndex, false);
     return acc;
   }
 
@@ -476,8 +517,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       if (mnemonic == null) {
         return null;
       }
-      Map<String, dynamic> acc =
-          await createWalletByMnemonic(mnemonic, accountIndex, true);
+      Map<String, dynamic> acc = await apiRoot.bridge
+          .createWalletByMnemonic(mnemonic, accountIndex, true);
       return acc["priKey"] as String;
     } else {
       String? privateKey = await store.wallet!.getPrivateKey(wallet, password);
@@ -515,7 +556,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<Map<String, dynamic>> importWalletByWalletParams() async {
     String key = store.wallet!.newWalletParams.seed;
     String seedType = store.wallet!.newWalletParams.seedType;
-    Map<String, dynamic> acc = await createWallet(key, seedType);
+    Map<String, dynamic> acc = await apiRoot.bridge.createWallet(key, seedType);
     return acc;
   }
 
@@ -606,5 +647,144 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
             accessTitle: dic.unlockBio,
           )),
     );
+  }
+
+  Future<Map<String, dynamic>> signMessage(Map signInfo,
+      {required BuildContext context}) async {
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    Map<String, dynamic> signed = await apiRoot.bridge.signMessage({
+      "network": network,
+      ...signInfo,
+    });
+    return signed;
+  }
+
+  Future<bool> verifyMessage(Map signedInfo,
+      {required BuildContext context}) async {
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    bool verifyRes = await apiRoot.bridge.verifyMessage({
+      "network": network,
+      ...signedInfo,
+    });
+    return verifyRes;
+  }
+
+  Future<Map<String, dynamic>> signFields(Map signInfo,
+      {required BuildContext context}) async {
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    Map<String, dynamic> signed = await apiRoot.bridge.signFields({
+      "network": network,
+      ...signInfo,
+    });
+    return signed;
+  }
+
+  Future<bool> verifyFields(Map signedInfo,
+      {required BuildContext context}) async {
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    bool verifyRes = await apiRoot.bridge.verifyFields({
+      "network": network,
+      ...signedInfo,
+    });
+    return verifyRes;
+  }
+
+  Future<Map<String, dynamic>> createNullifier(Map signInfo,
+      {required BuildContext context}) async {
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    Map<String, dynamic> signed = await apiRoot.bridge.createNullifier({
+      "network": network,
+      ...signInfo,
+    });
+    return signed;
+  }
+
+  Future<TransferData?> sendZkTx(Map zkappCommandInput,
+      {required BuildContext context}) async {
+    String? mutation;
+    mutation = r'''
+    mutation sendZkapp($zkappCommandInput: ZkappCommandInput!) {
+  sendZkapp(input: {zkappCommand: $zkappCommandInput}) {
+    zkapp {
+      hash
+      id
+      zkappCommand {
+        memo
+        accountUpdates {
+          body {
+            publicKey
+          }
+        }
+        feePayer {
+          body {
+            fee
+            nonce
+            publicKey
+          }
+        }
+      }
+    }
+  }
+}
+
+''';
+
+    Map<String, dynamic> variables = {"zkappCommandInput": zkappCommandInput};
+
+    final MutationOptions _options = MutationOptions(
+      document: gql(mutation),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: variables,
+    );
+
+    GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
+    if (gqlResult.error) {
+      print('zk broadcaset error：');
+      UI.toast(gqlResult.errorMessage);
+      return null;
+    }
+    Map paymentData = gqlResult.result!.data!['sendZkapp']['zkapp'];
+
+    var accountUpdates =
+        paymentData['zkappCommand']['accountUpdates'] as List<dynamic>?;
+    var firstUpdate = accountUpdates?.isNotEmpty == true
+        ? accountUpdates!.first as Map<String, dynamic>
+        : null;
+    var receiver =
+        firstUpdate != null ? firstUpdate['body']['publicKey'] : null;
+    var feePayerBody =
+        paymentData['zkappCommand']['feePayer']['body'] as Map<String, dynamic>;
+    var fee = feePayerBody['fee'].toString();
+    var data = TransferData()
+      ..hash = paymentData["hash"]
+      ..paymentId = paymentData["id"]
+      ..type = "ZKAPP"
+      ..fee = fee
+      ..amount = "0"
+      ..nonce = int.parse(feePayerBody['nonce'])
+      ..sender = feePayerBody['publicKey']
+      ..status = 'pending'
+      ..success = false
+      ..receiver = receiver;
+    return data;
+  }
+
+  Future<TransferData?> signAndSendZkTx(Map txInfo,
+      {required BuildContext context}) async {
+    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    final signedTx = await apiRoot.bridge.signZkTransaction({
+      "network": network,
+      "type": "zk",
+      "privateKey": txInfo['privateKey'],
+      "fromAddress": txInfo['fromAddress'],
+      "fee": txInfo['fee'],
+      "nonce": txInfo['nonce'],
+      "memo": "",
+      "transaction": txInfo["transaction"]
+    });
+    final signedData = signedTx['data'];
+    TransferData? transferData =
+        await sendZkTx(signedData['zkappCommand'], context: context);
+    return transferData;
   }
 }

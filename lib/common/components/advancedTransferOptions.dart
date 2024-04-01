@@ -75,7 +75,6 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
                     InputItem(
                       label: dic.fee,
                       padding: EdgeInsets.zero,
-                      // placeholder: widget.placeHolder != null ? widget.placeHolder.toString() : '0',
                       controller: widget.feeCtrl,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [

@@ -1,10 +1,12 @@
+import 'dart:convert';
+import 'dart:convert' as convert;
+
+import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/service/api/api.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
 
 class ApiAssets {
   ApiAssets(this.apiRoot);
@@ -99,6 +101,245 @@ class ApiAssets {
     print('pendg list length:${list.length}');
     store.assets!.clearPendingTxs();
     await store.assets!.addPendingTxs(list, pubKey);
+  }
+
+  Future<void> fetchPendingZkTransactions(publicKey) async {
+    const String query = r'''
+      query pendingZkTx($publicKey: PublicKey) {
+  pooledZkappCommands(publicKey: $publicKey) {
+    hash
+    failureReason {
+      index
+      failures
+    }
+    zkappCommand {
+      feePayer {
+        body {
+          publicKey
+          fee
+          validUntil
+          nonce
+        }
+        authorization
+      }
+      accountUpdates {
+        body {
+          publicKey
+          tokenId
+          update {
+            appState
+            delegate
+            verificationKey {
+              data
+              hash
+            }
+            permissions {
+              editState
+              access
+              send
+              receive
+              setDelegate
+              setPermissions
+              setVerificationKey {
+                auth
+                txnVersion
+              }
+              setZkappUri
+              editActionState
+              setTokenSymbol
+              incrementNonce
+              setVotingFor
+              setTiming
+            }
+            zkappUri
+            tokenSymbol
+            timing {
+              initialMinimumBalance
+              cliffTime
+              cliffAmount
+              vestingPeriod
+              vestingIncrement
+            }
+            votingFor
+          }
+          balanceChange {
+            magnitude
+            sgn
+          }
+          incrementNonce
+          events
+          actions
+          callData
+          callDepth
+          preconditions {
+            network {
+              snarkedLedgerHash
+              blockchainLength {
+                lower
+                upper
+              }
+              minWindowDensity {
+                lower
+                upper
+              }
+              totalCurrency {
+                lower
+                upper
+              }
+              globalSlotSinceGenesis {
+                lower
+                upper
+              }
+              stakingEpochData {
+                ledger {
+                  hash
+                  totalCurrency {
+                    lower
+                    upper
+                  }
+                }
+                seed
+                startCheckpoint
+                lockCheckpoint
+                epochLength {
+                  lower
+                  upper
+                }
+              }
+              nextEpochData {
+                ledger {
+                  hash
+                  totalCurrency {
+                    lower
+                    upper
+                  }
+                }
+                seed
+                startCheckpoint
+                lockCheckpoint
+                epochLength {
+                  lower
+                  upper
+                }
+              }
+            }
+            account {
+              balance {
+                lower
+                upper
+              }
+              nonce {
+                lower
+                upper
+              }
+              receiptChainHash
+              delegate
+              state
+              actionState
+              provedState
+              isNew
+            }
+            validWhile {
+              lower
+              upper
+            }
+          }
+          useFullCommitment
+          implicitAccountCreationFee
+          mayUseToken {
+            parentsOwnToken
+            inheritFromParent
+          }
+          authorizationKind {
+            isSigned
+            isProved
+            verificationKeyHash
+          }
+        }
+        authorization {
+          proof
+          signature
+        }
+      }
+      memo
+    }
+  }
+}
+
+    ''';
+    final QueryOptions _options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {
+        'publicKey': publicKey,
+      },
+    );
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (result.hasException) {
+      print('zk pending throw error');
+      print(result.exception.toString());
+      return;
+    }
+    List<dynamic> list = result.data!['pooledZkappCommands'];
+    print('zk pending list length:${list.length}');
+    print('zk pending list length=2:${jsonEncode(list)}');
+    store.assets!.clearPendingZkTxs();
+    await store.assets!.addPendingZkTxs(list, publicKey);
+  }
+
+
+Future<void> fetchZkTransactions(publicKey) async { 
+    final client = GraphQLClient(
+      link: HttpLink(apiRoot.getTxRecordsApiUrl()),
+      cache: GraphQLCache(),
+    );
+    const String query = r'''
+      query zkApps($publicKey: String) {
+    zkapps(limit: 15, query: {
+      zkappCommand: {feePayer: 
+      {body: {publicKey: $publicKey}}}}, sortBy: DATETIME_DESC) {
+        hash
+    dateTime
+    failureReason {
+      failures
+    }
+    zkappCommand {
+      feePayer {
+        authorization
+        body {
+          nonce
+          publicKey
+          fee
+        }
+      }
+      memo
+      accountUpdates {
+        body {
+          publicKey
+          
+        }
+      }
+    }
+    }
+  }
+    ''';
+    final QueryOptions _options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {
+        'publicKey': publicKey,
+      },
+    );
+    final QueryResult result = await client.query(_options);
+    if (result.hasException) {
+      print('tx zk list throw error');
+      print(result.exception.toString());
+      return;
+    }
+    List<dynamic> list = result.data!['zkapps'];
+    print('zk transactions');
+    store.assets!.clearZkTxs(); 
+    await store.assets!.addZkTxs(list, publicKey, shouldCache: true);
   }
 
   Future<void> queryTxFees() async {

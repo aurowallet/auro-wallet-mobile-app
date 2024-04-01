@@ -170,7 +170,7 @@ class PercentageCircle extends StatelessWidget {
     var theme = Theme.of(context).textTheme;
     return Container(
         child: new CircularPercentIndicator(
-      radius: 108.0,
+      radius: 60.0,
       lineWidth: 8.0,
       percent: percentage,
       circularStrokeCap: CircularStrokeCap.round,

@@ -254,4 +254,13 @@ class Fmt {
         (i) => String.fromCharCode(
             int.parse(hexString.substring(i * 2, (i * 2) + 2), radix: 16)),
       ).join();
+
+  static bool isNumber(String value){
+      try {
+        double.parse(value);
+        return true;
+      } catch (e) {
+        return false;
+      }
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 
 class NetworkUtil {
@@ -15,16 +16,18 @@ class NetworkUtil {
           return NetworkTypes.mainnet;
         case '1':
           return NetworkTypes.devnet;
+        case '11':
+          return NetworkTypes.berkeley;
         default:
-          return NetworkTypes.others;
+          return NetworkTypes.unknown;
       }
     }
-    return NetworkTypes.others;
+    return NetworkTypes.unknown;
   }
 
-  static String getNetworkName(CustomNode? endpoint) {
+  static String getNetworkName(CustomNodeV2? endpoint) {
     if (endpoint == null) {
-      return 'unkonwn';
+      return 'Unkonwn';
     } else {
       return endpoint.name;
     }

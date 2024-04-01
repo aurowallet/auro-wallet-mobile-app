@@ -107,15 +107,31 @@ mixin _$SettingsStore on _SettingsStore, Store {
       Atom(name: '_SettingsStore.currentNode', context: context);
 
   @override
-  CustomNode? get currentNode {
+  CustomNodeV2? get currentNode {
     _$currentNodeAtom.reportRead();
     return super.currentNode;
   }
 
   @override
-  set currentNode(CustomNode? value) {
+  set currentNode(CustomNodeV2? value) {
     _$currentNodeAtom.reportWrite(value, super.currentNode, () {
       super.currentNode = value;
+    });
+  }
+
+  late final _$testnetShowStatusAtom =
+      Atom(name: '_SettingsStore.testnetShowStatus', context: context);
+
+  @override
+  bool get testnetShowStatus {
+    _$testnetShowStatusAtom.reportRead();
+    return super.testnetShowStatus;
+  }
+
+  @override
+  set testnetShowStatus(bool value) {
+    _$testnetShowStatusAtom.reportWrite(value, super.testnetShowStatus, () {
+      super.testnetShowStatus = value;
     });
   }
 
@@ -155,13 +171,13 @@ mixin _$SettingsStore on _SettingsStore, Store {
       Atom(name: '_SettingsStore.customNodeListV2', context: context);
 
   @override
-  List<CustomNode> get customNodeListV2 {
+  List<CustomNodeV2> get customNodeListV2 {
     _$customNodeListV2Atom.reportRead();
     return super.customNodeListV2;
   }
 
   @override
-  set customNodeListV2(List<CustomNode> value) {
+  set customNodeListV2(List<CustomNodeV2> value) {
     _$customNodeListV2Atom.reportWrite(value, super.customNodeListV2, () {
       super.customNodeListV2 = value;
     });
@@ -293,7 +309,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.updateCustomNode', context: context);
 
   @override
-  Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) {
+  Future<void> updateCustomNode(CustomNodeV2 newNode, CustomNodeV2 oldNode) {
     return _$updateCustomNodeAsyncAction
         .run(() => super.updateCustomNode(newNode, oldNode));
   }
@@ -302,7 +318,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.setCustomNodeList', context: context);
 
   @override
-  Future<void> setCustomNodeList(List<CustomNode> nodeList) {
+  Future<void> setCustomNodeList(List<CustomNodeV2> nodeList) {
     return _$setCustomNodeListAsyncAction
         .run(() => super.setCustomNodeList(nodeList));
   }
@@ -320,8 +336,26 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.setCurrentNode', context: context);
 
   @override
-  Future<void> setCurrentNode(CustomNode value) {
+  Future<void> setCurrentNode(CustomNodeV2 value) {
     return _$setCurrentNodeAsyncAction.run(() => super.setCurrentNode(value));
+  }
+
+  late final _$setTestnetShowStatusAsyncAction =
+      AsyncAction('_SettingsStore.setTestnetShowStatus', context: context);
+
+  @override
+  Future<void> setTestnetShowStatus(bool status) {
+    return _$setTestnetShowStatusAsyncAction
+        .run(() => super.setTestnetShowStatus(status));
+  }
+
+  late final _$loadTestnetShowStatusAsyncAction =
+      AsyncAction('_SettingsStore.loadTestnetShowStatus', context: context);
+
+  @override
+  Future<void> loadTestnetShowStatus() {
+    return _$loadTestnetShowStatusAsyncAction
+        .run(() => super.loadTestnetShowStatus());
   }
 
   late final _$loadCurrentNodeAsyncAction =
@@ -397,6 +431,7 @@ loading: ${loading},
 localeCode: ${localeCode},
 currencyCode: ${currencyCode},
 currentNode: ${currentNode},
+testnetShowStatus: ${testnetShowStatus},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
 customNodeListV2: ${customNodeListV2},

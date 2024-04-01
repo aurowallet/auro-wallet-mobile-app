@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
 import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
-import 'package:auro_wallet/l10n/app_localizations.dart'; 
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +56,7 @@ class _TransferPageState extends State<TransferPage> {
   bool inputDirty = false;
   String? contactName;
   ContactData? _contactData;
-  List<DropdownAddressItem>  addressList = [];
+  List<DropdownAddressItem> addressList = [];
 
   var _loading = Observable(true);
 
@@ -205,9 +205,7 @@ class _TransferPageState extends State<TransferPage> {
       AppLocalizations dic = AppLocalizations.of(context)!;
       var txItems = [
         TxItem(
-            label: dic.toAddress,
-            value: toAddress,
-            type: TxItemTypes.address),
+            label: dic.toAddress, value: toAddress, type: TxItemTypes.address),
         TxItem(
             label: dic.fromAddress,
             value: store.wallet!.currentAddress,
@@ -222,8 +220,8 @@ class _TransferPageState extends State<TransferPage> {
             label: "Nonce ", value: '$inferredNonce', type: TxItemTypes.text));
       }
       if (memo.isNotEmpty) {
-        txItems.add(
-            TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
+        txItems
+            .add(TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
       }
       final isWatchMode =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
@@ -339,35 +337,42 @@ class _TransferPageState extends State<TransferPage> {
       contactName = addressInfo.name;
     });
   }
-  Future<void> _loadAddressData()async {
+
+  Future<void> _loadAddressData() async {
     var currentAddress = store.wallet!.currentAddress;
-    var accountList= store.wallet!.accountListAll.map((accountItem) => {
-          "name": Fmt.accountName(accountItem), 
-          "address": accountItem.pubKey, 
-          "type": AddressItemTypes.account
-    }).toList();
-    var contactsList = store.settings!.contactList.map((addressBookItem) => {
-          "name": addressBookItem.name, 
-          "address": addressBookItem.address, 
-          "type": AddressItemTypes.addressbook
-    }).toList();
-    List<Map<String, dynamic>> tempList = [...accountList,...contactsList];
-    List<DropdownAddressItem> convertedList = tempList.where((element) => element["address"] != currentAddress).map((data) {
+    var accountList = store.wallet!.accountListAll
+        .map((accountItem) => {
+              "name": Fmt.accountName(accountItem),
+              "address": accountItem.pubKey,
+              "type": AddressItemTypes.account
+            })
+        .toList();
+    var contactsList = store.settings!.contactList
+        .map((addressBookItem) => {
+              "name": addressBookItem.name,
+              "address": addressBookItem.address,
+              "type": AddressItemTypes.addressbook
+            })
+        .toList();
+    List<Map<String, dynamic>> tempList = [...accountList, ...contactsList];
+    List<DropdownAddressItem> convertedList = tempList
+        .where((element) => element["address"] != currentAddress)
+        .map((data) {
       return DropdownAddressItem(
-        name: data["name"],
-        address: data["address"],
-        type: data["type"],
-        addressKey: data["name"]+ data["address"] + data["type"].toString().split('.')[1]
-      );
+          name: data["name"],
+          address: data["address"],
+          type: data["type"],
+          addressKey: data["name"] +
+              data["address"] +
+              data["type"].toString().split('.')[1]);
     }).toList();
-    if(convertedList.isEmpty){
+    if (convertedList.isEmpty) {
       addressList.add(DropdownAddressItem(
-        name: "",
-        address: "",
-        type: AddressItemTypes.empty,
-        addressKey: AddressItemTypes.empty.toString().split('.')[1]
-      ));
-    }else{
+          name: "",
+          address: "",
+          type: AddressItemTypes.empty,
+          addressKey: AddressItemTypes.empty.toString().split('.')[1]));
+    } else {
       addressList.addAll(convertedList);
     }
   }
@@ -463,7 +468,7 @@ class _TransferPageState extends State<TransferPage> {
         final fees = store.assets!.transferFees;
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;
-        nextBottom = nextBottom.isNegative ? 0 : nextBottom ;
+        nextBottom = nextBottom.isNegative ? 0 : nextBottom;
         return Scaffold(
           appBar: AppBar(
             title: Text(dic.send),
@@ -497,35 +502,37 @@ class _TransferPageState extends State<TransferPage> {
                             child: Column(
                               children: [
                                 InputItem(
-                                    padding: const EdgeInsets.only(top: 0),
-                                    label: dic.toAddress,
-                                    placeholder: dic.address,
-                                    initialValue: '',
-                                    labelAffix: contactName != null
-                                        ? Container(
-                                            margin: EdgeInsets.only(
-                                                left: 8, right: 8),
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 4, vertical: 1),
-                                            decoration: BoxDecoration(
+                                  padding: const EdgeInsets.only(top: 0),
+                                  label: dic.toAddress,
+                                  placeholder: dic.address,
+                                  initialValue: '',
+                                  labelAffix: contactName != null
+                                      ? Container(
+                                          margin: EdgeInsets.only(
+                                              left: 8, right: 8),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 4, vertical: 1),
+                                          decoration: BoxDecoration(
+                                              color:
+                                                  Colors.black.withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(2)),
+                                          child: Text(
+                                            contactName!,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
                                                 color: Colors.black
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(2)),
-                                            child: Text(
-                                              contactName!,
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.black
-                                                      .withOpacity(0.5)),
-                                            ),
-                                          )
-                                        : null,
-                                    controller: _toAddressCtrl,
-                                    focusNode: addressFocusNode,
-                                    suffixIcon: AddressSelectionDropdown(addressList:addressList,onSelect:onSelect),
-                                    ),
+                                                    .withOpacity(0.5)),
+                                          ),
+                                        )
+                                      : null,
+                                  controller: _toAddressCtrl,
+                                  focusNode: addressFocusNode,
+                                  suffixIcon: AddressSelectionDropdown(
+                                      addressList: addressList,
+                                      onSelect: onSelect),
+                                ),
                                 InputItem(
                                     label: dic.amount,
                                     initialValue: '',
@@ -538,7 +545,9 @@ class _TransferPageState extends State<TransferPage> {
                                         TextInputType.numberWithOptions(
                                             decimal: true),
                                     rightWidget: Text(
-                                      '${dic.available}:${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}',
+                                      '${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}' +
+                                          " " +
+                                          COIN.coinSymbol,
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontSize: 12,

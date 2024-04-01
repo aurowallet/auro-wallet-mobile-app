@@ -1,15 +1,13 @@
-import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/store/settings/types/networkType.dart';
-import 'package:mobx/mobx.dart';
-
-import 'package:json_annotation/json_annotation.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'dart:convert';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/localStorage.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:mobx/mobx.dart';
 
 part 'settings.g.dart';
 
@@ -43,9 +41,13 @@ abstract class _SettingsStore with Store {
   final String localStorageAboutUsKey = 'about_us';
   final String localStorageCustomNodes = 'custom_node_list';
   final String localStorageCustomNodesV2 = 'custom_node_list_v2';
+  final String localStorageCustomNodesV3 = 'custom_node_list_v3';
+  final String localStorageCurrentNodeKeyV3 = 'currentNode_V3';
 
   final String cacheNetworkStateKey = 'network';
   final String cacheNetworkConstKey = 'network_const';
+
+  final String cacheTestnetShowStatusKey = 'network_testnet_status';
 
   @observable
   bool loading = true;
@@ -57,10 +59,15 @@ abstract class _SettingsStore with Store {
   String currencyCode = 'usd';
 
   @observable
-  CustomNode? currentNode;
+  CustomNodeV2? currentNode;
+
+  @observable
+  bool testnetShowStatus = false;
 
   bool get isSupportedNode {
-    if (currentNode?.networksType == '0' || currentNode?.networksType == '1') {
+    if (currentNode?.id == '0' ||
+        currentNode?.id == '1' ||
+        currentNode?.id == '11') {
       return true;
     }
     return false;
@@ -79,8 +86,17 @@ abstract class _SettingsStore with Store {
     // return false;
   }
 
+  List<String> getSupportNetTypes() {
+    return netConfigMap.entries
+        .where((entry) =>
+            entry.key != NetworkTypes.unknown) // Filter out unknown types
+        .map(
+            (entry) => entry.key.name) // Convert each entry to its netType name
+        .toList(); // Convert the result to a List<String>
+  }
+
   bool get isMainnet {
-    return currentNode?.networksType != '1';
+    return currentNode?.id == '0';
     // if (GRAPH_QL_MAINNET_NODE_URL == endpoint) {
     //   return true;
     // }
@@ -101,12 +117,17 @@ abstract class _SettingsStore with Store {
   @observable
   List<String> customNodeList = [];
 
-  List<CustomNode> get allNodes {
-    return [mainNetNode, devNetNode, ...customNodeListV2];
+  List<CustomNodeV2> get allNodes {
+    return [
+      netConfigMap[NetworkTypes.mainnet]!,
+      netConfigMap[NetworkTypes.devnet]!,
+      netConfigMap[NetworkTypes.berkeley]!,
+      ...customNodeListV2
+    ];
   }
 
   @observable
-  List<CustomNode> customNodeListV2 = [];
+  List<CustomNodeV2> customNodeListV2 = [];
 
   @observable
   List<NetworkType> networks = [];
@@ -126,6 +147,7 @@ abstract class _SettingsStore with Store {
     await loadCurrencyCode();
     await loadCustomNodeList();
     await loadCurrentNode();
+    await loadTestnetShowStatus();
     await loadAboutUs();
     await loadNetworkTypes();
     await loadContacts();
@@ -188,30 +210,30 @@ abstract class _SettingsStore with Store {
   }
 
   @action
-  Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) async {
-    var target = customNodeListV2
-        .toList()
-        .firstWhere((element) => element.url == oldNode.url);
-    target.name = newNode.name;
-    target.url = newNode.url;
-    target.chainId = newNode.chainId;
-    target.networksType = newNode.networksType;
+  Future<void> updateCustomNode(
+      CustomNodeV2 newNode, CustomNodeV2 oldNode) async {
+    int index =
+        customNodeListV2.indexWhere((element) => element.url == oldNode.url);
+
+    if (index != -1) {
+      customNodeListV2[index] = newNode;
+    }
     setCustomNodeList(customNodeListV2);
   }
 
   @action
-  Future<void> setCustomNodeList(List<CustomNode> nodeList) async {
+  Future<void> setCustomNodeList(List<CustomNodeV2> nodeList) async {
     customNodeListV2 = nodeList;
-    await rootStore.localStorage.setObject(localStorageCustomNodesV2, nodeList);
+    await rootStore.localStorage.setObject(localStorageCustomNodesV3, nodeList);
   }
 
   @action
   Future<void> loadCustomNodeList() async {
     try {
       List<dynamic>? stored = await rootStore.localStorage
-          .getObject(localStorageCustomNodesV2) as List<dynamic>?;
+          .getObject(localStorageCustomNodesV3) as List<dynamic>?;
       if (stored != null) {
-        customNodeListV2 = stored.map((s) => CustomNode.fromJson(s)).toList();
+        customNodeListV2 = stored.map((s) => CustomNodeV2.fromJson(s)).toList();
       }
     } catch (e) {
       print('loadCustomNodeList faield');
@@ -225,9 +247,22 @@ abstract class _SettingsStore with Store {
   }
 
   @action
-  Future<void> setCurrentNode(CustomNode value) async {
+  Future<void> setCurrentNode(CustomNodeV2 value) async {
     currentNode = value;
-    await rootStore.localStorage.setObject(localStorageCurrentNodeKey, value);
+    await rootStore.localStorage.setObject(localStorageCurrentNodeKeyV3, value);
+  }
+
+  @action
+  Future<void> setTestnetShowStatus(bool status) async {
+    testnetShowStatus = status;
+    await rootStore.localStorage.setObject(cacheTestnetShowStatusKey, status);
+  }
+
+  @action
+  Future<void> loadTestnetShowStatus() async {
+    bool? showStatus = await rootStore.localStorage
+        .getObject(cacheTestnetShowStatusKey) as bool?;
+    testnetShowStatus = showStatus == true;
   }
 
   @action
@@ -235,28 +270,29 @@ abstract class _SettingsStore with Store {
     String? endpoint = await rootStore.localStorage
         .getObject(localStorageEndpointKey) as String?;
     Map<String, dynamic>? value = await rootStore.localStorage
-        .getObject(localStorageCurrentNodeKey) as Map<String, dynamic>?;
+        .getObject(localStorageCurrentNodeKeyV3) as Map<String, dynamic>?;
     if (value == null) {
       if (endpoint != null) {
         if (endpoint == GRAPH_QL_MAINNET_NODE_URL) {
-          currentNode = mainNetNode;
-        } else if (endpoint == GRAPH_QL_MAINNET_NODE_URL ||
-            endpoint == GRAPH_QL_TESTNET_NODE_URL_Legacy) {
-          currentNode = devNetNode;
+          currentNode = netConfigMap[NetworkTypes.mainnet]!;
+        } else if (endpoint == GRAPH_QL_TESTNET_NODE_URL) {
+          currentNode = netConfigMap[NetworkTypes.devnet]!;
+        } else if (endpoint == GRAPH_QL_BERKELEY_NODE_URL) {
+          currentNode = netConfigMap[NetworkTypes.berkeley]!;
         } else {
           final customNodes =
               customNodeListV2.where((element) => element.url == endpoint);
           if (customNodes.length > 0) {
             currentNode = customNodes.first;
           } else {
-            currentNode = mainNetNode;
+            currentNode = netConfigMap[NetworkTypes.mainnet]!;
           }
         }
       } else {
-        currentNode = mainNetNode;
+        currentNode = netConfigMap[NetworkTypes.mainnet]!;
       }
     } else {
-      currentNode = CustomNode.fromJson(value);
+      currentNode = CustomNodeV2.fromJson(value);
     }
   }
 

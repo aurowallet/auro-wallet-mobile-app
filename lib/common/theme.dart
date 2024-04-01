@@ -3,6 +3,7 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 ThemeData theme = ThemeData();
 // TextButtonThemeData textButtonData = const TextButtonThemeData();
 final appTheme = ThemeData(
+  useMaterial3: false, // close Material 3
   primaryColor: Color(0xFF594AF1),
   // highlightColor: Colors.transparent,
   splashColor: Color(0xFF594AF1).withOpacity(0.1),

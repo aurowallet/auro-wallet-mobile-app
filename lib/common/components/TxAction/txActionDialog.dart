@@ -1,5 +1,4 @@
 import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
-import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/ledgerStatus.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -69,26 +68,6 @@ class _TxActionDialogState extends State<TxActionDialog> {
         WalletStore.seedTypeLedger;
   }
 
-  Widget renderHead(String headerLabel, Widget headerValue) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 40),
-      child: Center(
-        child: Column(
-          children: [
-            Text(
-              headerLabel,
-              style: TextStyle(
-                  color: const Color(0x80000000),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500),
-            ),
-            headerValue
-          ],
-        ),
-      ),
-    );
-  }
-
   List<Widget> renderLedgerConfirm() {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return [
@@ -125,7 +104,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       Container(
         padding: EdgeInsets.only(top: 14, bottom: 60),
         child: Center(
-          child: CustomStyledText(
+          child: StyledText(
               text: dic.ledgerAddressTip3,
               style: TextStyle(
                   color: Colors.black,
@@ -208,6 +187,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       }
     }
     Map<String, dynamic> txInfo = {};
+    String txType = widget.txData.type.toLowerCase();
     if (widget.modalType == TxActionType.cancel) {
       txInfo = {
         "privateKey": privateKey,
@@ -220,25 +200,36 @@ class _TxActionDialogState extends State<TxActionDialog> {
         "memo": ""
       };
     } else {
-      String txType = widget.txData.type.toLowerCase();
-      String? memo = widget.txData.memo;
 
-      txInfo = {
-        "privateKey": privateKey,
-        "accountIndex": widget.store.wallet!.currentWallet.currentAccountIndex,
-        "fromAddress": widget.store.wallet!.currentAddress,
-        "toAddress": widget.txData.receiver,
-        "fee": nextStateFee,
-        "nonce": widget.txData.nonce,
-        "memo": memo!.isNotEmpty ? memo : "",
-      };
-      if (txType == 'payment') {
-        double amount = double.parse(Fmt.balance(
-            widget.txData.amount.toString(), COIN.decimals,
-            maxLength: COIN.decimals));
-        txInfo["amount"] = amount;
+      String? memo = widget.txData.memo;
+      if (txType == 'zkapp') {
+        txInfo = {
+          "privateKey": privateKey,
+          "fromAddress": widget.store.wallet!.currentAddress,
+          "fee": nextStateFee,
+          "nonce": widget.txData.nonce,
+          "memo": memo!.isNotEmpty ? memo : "",
+          "transaction": widget.txData.transaction
+        };
       } else {
-        isDelagetion = true;
+        txInfo = {
+          "privateKey": privateKey,
+          "accountIndex":
+              widget.store.wallet!.currentWallet.currentAccountIndex,
+          "fromAddress": widget.store.wallet!.currentAddress,
+          "toAddress": widget.txData.receiver,
+          "fee": nextStateFee,
+          "nonce": widget.txData.nonce,
+          "memo": memo!.isNotEmpty ? memo : "",
+        };
+        if (txType == 'payment') {
+          double amount = double.parse(Fmt.balance(
+              widget.txData.amount.toString(), COIN.decimals,
+              maxLength: COIN.decimals));
+          txInfo["amount"] = amount;
+        } else {
+          isDelagetion = true;
+        }
       }
     }
     TransferData? data;
@@ -253,11 +244,15 @@ class _TxActionDialogState extends State<TxActionDialog> {
             .sendTxBody(tx, context: context, isDelegation: isDelagetion);
       }
     } else {
-      if (isDelagetion) {
-        data = await webApi.account
-            .signAndSendDelegationTx(txInfo, context: context);
+      if (txType == 'zkapp') {
+        data = await webApi.account.signAndSendZkTx(txInfo, context: context);
       } else {
-        data = await webApi.account.signAndSendTx(txInfo, context: context);
+        if (isDelagetion) {
+          data = await webApi.account
+              .signAndSendDelegationTx(txInfo, context: context);
+        } else {
+          data = await webApi.account.signAndSendTx(txInfo, context: context);
+        }
       }
     }
     if (mounted && !exited) {
@@ -373,7 +368,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
-                                          Text(dic.currentFee,
+                                          Text(dic.newFee,
                                               textAlign: TextAlign.right,
                                               style: TextStyle(
                                                   fontSize: 12,
@@ -423,6 +418,11 @@ class _TxActionDialogState extends State<TxActionDialog> {
                       submitting: submitting,
                       text: widget.buttonText ?? dic.confirm,
                       onPressed: () async {
+                        if (isLedger &&
+                            widget.txData.type.toLowerCase() == "zkapp") {
+                          UI.toast(dic.notSupportNow);
+                          return;
+                        }
                         if (isLedger && !await _ledgerCheck()) {
                           return;
                         }

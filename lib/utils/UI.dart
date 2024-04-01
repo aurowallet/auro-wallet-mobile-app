@@ -2,8 +2,17 @@ import 'dart:async';
 import 'dart:io';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
+import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/browser/components/accountSelectDialog.dart';
+import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
+import 'package:auro_wallet/page/browser/components/advanceDialog.dart';
+import 'package:auro_wallet/page/browser/components/connectDialog.dart';
+import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
+import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
+import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
@@ -36,14 +45,15 @@ class UI {
   }
 
   static Future<void> launchURL(String url) async {
-    if (await canLaunch(url)) {
-      try {
-        await launch(url);
-      } catch (err) {
-        print(err);
+    try {
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        print('Could not launch $url');
       }
-    } else {
-      print('Could not launch $url');
+    } catch (err) {
+      print(err);
     }
   }
 
@@ -203,8 +213,8 @@ class UI {
       builder: (BuildContext context) {
         return TxActionDialog(
             title: title,
-            txData:txData,
-            modalType:modalType,
+            txData: txData,
+            modalType: modalType,
             buttonText: buttonText,
             onConfirm: () async {
               bool? success = await onConfirm();
@@ -212,6 +222,235 @@ class UI {
                 Navigator.of(context).pop();
               }
             });
+      },
+    );
+  }
+
+  static Future<void> showConnectAction({
+    required BuildContext context,
+    required String url,
+    String? iconUrl,
+    required Future<void> Function() onConfirm,
+    Function()? onCancel,
+    String? buttonText,
+  }) async {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return ConnectDialog(
+            url: url,
+            iconUrl: iconUrl,
+            onConfirm: () async {
+              onConfirm();
+              Navigator.of(context).pop();
+            },
+            onCancel: () {
+              onCancel!();
+            });
+      },
+    );
+  }
+
+  static Future<void> showSwitchChainAction({
+    required BuildContext context,
+    required String chainId,
+    required String url,
+    String? iconUrl,
+    String? gqlUrl,
+    required Future Function(String, String) onConfirm,
+    Function()? onCancel,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return SwitchChainDialog(
+            chainId: chainId,
+            url: url,
+            iconUrl: iconUrl,
+            gqlUrl: gqlUrl,
+            onConfirm: (String networkName, String chainId) async {
+              onConfirm(networkName, chainId);
+              Navigator.of(context).pop();
+            },
+            onCancel: () {
+              onCancel!();
+            });
+      },
+    );
+  }
+
+  static Future<void> showAddChainAction({
+    required BuildContext context,
+    required String nodeUrl,
+    required String nodeName,
+    required String url,
+    String? iconUrl,
+    required Function() onConfirm,
+    Function()? onCancel,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return AddChainDialog(
+            nodeUrl: nodeUrl,
+            nodeName: nodeName,
+            url: url,
+            iconUrl: iconUrl,
+            onConfirm: () {
+              onConfirm();
+            },
+            onCancel: () {
+              onCancel!();
+            });
+      },
+    );
+  }
+
+  static Future<void> showSignatureAction({
+    required BuildContext context,
+    required Object content,
+    required String url,
+    required String method,
+    String? iconUrl,
+    required Future<void> Function(Map) onConfirm,
+    Function()? onCancel,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return SignatureDialog(
+            method: method,
+            content: content,
+            url: url,
+            iconUrl: iconUrl,
+            onConfirm: (Map data) async {
+              onConfirm(data);
+            },
+            onCancel: () {
+              onCancel!();
+            });
+      },
+    );
+  }
+
+  static Future<void> showSignTransactionAction({
+    required BuildContext context,
+    required SignTxDialogType signType,
+    required String to,
+    required int nonce,
+    String? amount,
+    String? fee,
+    String? memo,
+    Object? transaction,
+    Map<String, dynamic>? feePayer,
+    required String url,
+    String? iconUrl,
+    required Future<String> Function(String, int) onConfirm,
+    Function()? onCancel,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return SignTransactionDialog(
+            signType: signType,
+            to: to,
+            amount: amount,
+            fee: fee,
+            memo: memo,
+            feePayer: feePayer,
+            transaction: transaction,
+            url: url,
+            iconUrl: iconUrl,
+            preNonce: nonce,
+            onConfirm: (String hash, int nonce) async {
+              onConfirm(hash, nonce);
+              Navigator.of(context).pop();
+            },
+            onCancel: () {
+              onCancel!();
+            });
+      },
+    );
+  }
+
+  static Future<void> showAccountSelectAction({
+    required BuildContext context,
+    required Function(String) onSelectAccount,
+    String? buttonText,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (BuildContext context) {
+        return AccountSelectDialog(
+          onSelectAccount: (String address) {
+            onSelectAccount(address);
+          },
+        );
+      },
+    );
+  }
+
+  static Future<void> showAdvance({
+    required BuildContext context,
+    required double fee,
+    required int nonce,
+    Function(double, int)? onConfirm,
+    String? buttonText,
+  }) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AdvanceDialog(
+          nextStateFee: fee,
+          nonce: nonce,
+          onConfirm: (double fee, int nonce) {
+            onConfirm!(fee, nonce);
+          },
+        );
+      },
+    );
+  }
+
+  static Future<void> showNetworkSelectDialog({
+    required BuildContext context,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return NetworkSelectionDialog();
       },
     );
   }

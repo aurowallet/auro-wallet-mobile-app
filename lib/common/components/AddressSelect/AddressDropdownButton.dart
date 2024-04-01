@@ -1,8 +1,8 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 enum AddressItemTypes { addressbook, account, empty }
@@ -49,11 +49,18 @@ class _AddressDropdownButtonState extends State<AddressDropdownButton> {
           width: 10,
           height: 10,
         ),
-        offset: Offset(offsetX, -30),
-        itemPadding: EdgeInsets.symmetric(horizontal: 8),
-        dropdownPadding: EdgeInsets.symmetric(vertical: 4),
         alignment: Alignment.center,
-        dropdownMaxHeight: 200,
+        menuItemStyleData: const MenuItemStyleData(
+          height: 40,
+        ),
+        dropdownStyleData: DropdownStyleData(
+            maxHeight: 200,
+            width: MediaQuery.of(context).size.width - 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+            ),
+            offset: Offset(offsetX, -30),
+            elevation: 8),
         items: widget.items
             .map(
               (item) => DropdownMenuItem<String>(
@@ -102,14 +109,9 @@ class _AddressDropdownButtonState extends State<AddressDropdownButton> {
                   )),
             )
             .toList(),
-        dropdownDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-        ),
-        dropdownElevation: 8,
         onChanged: (String? value) {
           widget.onChoose(value);
         },
-        dropdownWidth: MediaQuery.of(context).size.width - 40,
       ))),
     ));
   }

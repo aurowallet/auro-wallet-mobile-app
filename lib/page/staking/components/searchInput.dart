@@ -2,23 +2,45 @@ import 'dart:ui';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/staking/staking.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 
 class SearchInput extends StatelessWidget {
-  SearchInput({required this.editingController});
+  SearchInput(
+      {required this.editingController,
+      this.placeholder,
+      this.onSubmit,
+      this.commentFocus,
+      this.isReadOnly,
+      this.onClickInput,
+      this.customMargin,
+      this.suffixIcon});
 
   final TextEditingController editingController;
+  final String? placeholder;
+  final Function? onSubmit;
+  final FocusNode? commentFocus;
+  final bool? isReadOnly;
+  final void Function()? onClickInput;
+  final EdgeInsetsGeometry? customMargin;
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
+    bool lastReadStatus = isReadOnly ?? false;
     return Container(
-      margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
+      margin:
+          customMargin ?? const EdgeInsets.only(top: 20, left: 20, right: 20),
       child: TextField(
+        onTap: onClickInput,
+        readOnly: lastReadStatus,
+        textInputAction: TextInputAction.go,
+        focusNode: commentFocus,
+        onSubmitted: (value) {
+          if (this.onSubmit != null) {
+            this.onSubmit!(value);
+          }
+        },
         controller: editingController,
         autocorrect: false,
         style: const TextStyle(
@@ -29,7 +51,7 @@ class SearchInput extends StatelessWidget {
         decoration: InputDecoration(
             filled: true,
             fillColor: Colors.black.withOpacity(0.05),
-            hintText: dic.searchPlaceholder,
+            hintText: placeholder != null ? placeholder : dic.searchPlaceholder,
             hintStyle: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -44,6 +66,8 @@ class SearchInput extends StatelessWidget {
               ),
             ),
             prefixIconConstraints: BoxConstraints(minWidth: 24, minHeight: 24),
+            suffixIcon: suffixIcon??null,
+            suffixIconConstraints: BoxConstraints(minWidth: 16, minHeight: 16),
             contentPadding: EdgeInsets.only(right: 8),
             isDense: true,
             focusedBorder: OutlineInputBorder(

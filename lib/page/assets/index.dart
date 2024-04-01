@@ -8,6 +8,7 @@ import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -131,14 +132,18 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   Future<void> _fetchTransactions() async {
-    print('start fetch tx list');
+    print('start fetch tx list=0${store.settings!.currentNode?.id}');
     if (!store.settings!.isSupportedNode) {
+      print('start fetch tx list=1');
       return;
     }
+    print('start fetch tx list=2');
     store.assets!.setTxsLoading(true);
     await Future.wait([
       webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress),
       webApi.assets.fetchTransactions(store.wallet!.currentAddress),
+      webApi.assets.fetchPendingZkTransactions(store.wallet!.currentAddress),
+      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress)
     ]);
     store.assets!.setTxsLoading(false);
     print('finish fetch tx list');
@@ -183,6 +188,44 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
   }
 
+  void _showNetworkDialog() {
+    UI.showNetworkSelectDialog(context: context);
+  }
+
+  Widget _buildNetworkEntry(BuildContext context) {
+    String networkName = widget.store.settings!.currentNode!.name;
+    return InkWell(
+        onTap: _showNetworkDialog,
+        child: Container(
+          height: 30,
+          padding: const EdgeInsets.only(left: 14, right: 8),
+          decoration: BoxDecoration(
+            border: new Border.all(color: Color(0x1A000000), width: 1),
+            borderRadius: BorderRadius.circular((15)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                Fmt.stringSlice(networkName, 8, withEllipsis: true),
+                style: TextStyle(
+                    fontSize: 14,
+                    height: 1,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black),
+              ),
+              SizedBox(
+                width: 4,
+              ),
+              Icon(
+                Icons.expand_more,
+                size: 20,
+              )
+            ],
+          ),
+        ));
+  }
+
   Widget _buildTopBar(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -209,9 +252,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 // Flexible(child: Container(),),
-                Container(
-                  child: NodeSelectionDropdown(store: store),
-                ),
+                Container(child: _buildNetworkEntry(context)),
                 Container(
                   width: 12,
                 ),
@@ -256,7 +297,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! *
           Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
     }
-    var currency = currencyConfig.firstWhere((element) => element.key == store.settings!.currencyCode);
+    var currency = currencyConfig
+        .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
     final amountColor = (store.assets!.isBalanceLoading) ? 0xDDDDDD : 0xFFFFFF;
     final priceColor = (store.assets!.isBalanceLoading)
@@ -277,9 +319,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       margin: EdgeInsets.fromLTRB(20, 4, 20, 0),
       padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        color: Color(0xFF594AF1)
-      ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          color: Color(0xFF594AF1)),
       child: Stack(children: [
         Positioned(
           right: 20,
@@ -490,10 +531,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     List<Widget> res = [];
     bool isTxsLoading = store.assets!.isTxsLoading;
     List<TransferData> txs = [
-      ...store.assets!.pendingTxs,
+      ...store.assets!.totalZkTxs,
       ...store.assets!.totalTxs
     ];
     if (store.settings!.isSupportedNode) {
+      String? browserLink = store.settings!.currentNode?.explorerUrl;
+      if (browserLink == null) {
+        browserLink = MAINNET_TRANSACTIONS_EXPLORER_URL;
+      }
       res.addAll(txs.map((i) {
         return TransferListItem(
           store: store,
@@ -501,14 +546,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           isOut: i.sender == store.wallet!.currentAddress,
         );
       }));
-      if (store.assets!.txs.length >= 15) {
+      if (txs.length >= 15) {
         res.add(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: BrowserLink(
-                  '${!store.settings!.isMainnet ? TESTNET_TRANSACTIONS_EXPLORER_URL : MAINNET_TRANSACTIONS_EXPLORER_URL}/account/${store.wallet!.currentAddress}/txs',
+                  '$browserLink/account/${store.wallet!.currentAddress}/txs',
                   text: dic.goToExplorer,
                 ))
           ],
@@ -528,8 +573,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return Observer(
       builder: (_) {
         bool isTxsLoading = store.assets!.isTxsLoading;
-        bool isEmpty = store.assets!.txs.length == 0 &&
-            store.assets!.pendingTxs.length == 0;
+        bool isEmpty = store.assets!.totalTxs.length == 0 &&
+            store.assets!.totalZkTxs.length == 0;
         return RefreshIndicator(
           key: globalBalanceRefreshKey,
           onRefresh: _onRefresh,
@@ -633,6 +678,11 @@ class TransferListItem extends StatelessWidget {
       case 'stake_delegation':
         {
           icon = 'tx_stake';
+        }
+        break;
+      case "zkapp":
+        {
+          icon = 'tx_zkapp';
         }
         break;
       default:
@@ -762,7 +812,7 @@ class TransferListItem extends StatelessWidget {
                             margin: EdgeInsets.only(left: 36),
                             child: Column(children: [
                               Padding(padding: EdgeInsets.only(top: 6)),
-                              TxActionRow(store: store, data:data)
+                              TxActionRow(store: store, data: data)
                             ]))
                         : Container()
                   ],

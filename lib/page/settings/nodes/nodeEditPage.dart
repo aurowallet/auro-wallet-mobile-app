@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
@@ -87,6 +92,15 @@ class _NodeEditPageState extends State<NodeEditPage> {
     }
   }
 
+  CustomNodeV2 findCustomNodeV2ById(String id) {
+    for (var entry in netConfigMap.entries) {
+      if (entry.value.id == id) {
+        return entry.value;
+      }
+    }
+    return netConfigMap[NetworkTypes.unknown]!;
+  }
+
   void _confirm() async {
     _addressFocus.unfocus();
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -100,7 +114,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
     if (!valid) {
       return null;
     }
-    CustomNode endpoint = CustomNode(name: name, url: address);
+    CustomNodeV2 endpoint = CustomNodeV2(name: name, url: address);
     setState(() {
       submitting = true;
     });
@@ -119,11 +133,10 @@ class _NodeEditPageState extends State<NodeEditPage> {
         await webApi.setting.fetchNetworkTypes();
     final targetNetworks = fetchNetworkTypes
         .where((element) => element.chainId == endpoint.chainId);
-
-    // only support mainnet and testnet
     if (targetNetworks.isEmpty ||
         (targetNetworks.first.type != '0' &&
-            targetNetworks.first.type != '1')) {
+            targetNetworks.first.type != '1' &&
+            targetNetworks.first.type != '11')) {
       setState(() {
         errorText = dic.urlError_1;
         addressError = true;
@@ -131,14 +144,28 @@ class _NodeEditPageState extends State<NodeEditPage> {
       });
       return;
     }
-    endpoint.networksType = targetNetworks.first.type;
-    List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.store.customNodeListV2);
+    CustomNodeV2 tempConfig = findCustomNodeV2ById(targetNetworks.first.type);
+    if (tempConfig.netType != NetworkTypes.unknown) {
+      endpoint.url = address;
+      endpoint.name = name;
+      endpoint.isDefaultNode = false;
+      endpoint.chainId = chainId;
+
+      endpoint.netType = tempConfig.netType;
+      endpoint.explorerUrl = tempConfig.explorerUrl;
+      endpoint.txUrl = tempConfig.txUrl;
+      endpoint.id = tempConfig.id;
+    } else {
+      UI.toast("can not find support config");
+      return;
+    }
+    List<CustomNodeV2> endpoints =
+        List<CustomNodeV2>.of(widget.store.customNodeListV2);
     if (isEdit) {
       final Map args = ModalRoute.of(context)!.settings.arguments as Map;
       final initName = args['name'] as String;
       final initAddress = args['address'] as String;
-      var originEndpoint = new CustomNode(name: initName, url: initAddress);
+      var originEndpoint = new CustomNodeV2(name: initName, url: initAddress);
       widget.store.updateCustomNode(endpoint, originEndpoint);
       if (widget.store.currentNode?.url == originEndpoint.url) {
         if (originEndpoint.url != endpoint.url ||
@@ -170,11 +197,10 @@ class _NodeEditPageState extends State<NodeEditPage> {
     if (uri == null || !uri.isAbsolute) {
       error = dic.urlError_1;
     }
-    List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.store.customNodeListV2);
+    List<CustomNodeV2> endpoints =
+        List<CustomNodeV2>.of(widget.store.customNodeListV2);
     if (endpoints.any((element) => element.url == address) ||
-        GRAPH_QL_MAINNET_NODE_URL == address ||
-        GRAPH_QL_TESTNET_NODE_URL == address) {
+        netConfigMap.values.any((node) => node.url == address)) {
       if (!(isEdit && address == originEndpoint)) {
         error = dic.urlError_3;
       }
@@ -207,9 +233,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit
-            ? dic.editNetWork
-            : dic.addNetWork),
+        title: Text(isEdit ? dic.editNetWork : dic.addNetWork),
         centerTitle: true,
         actions: isEdit
             ? [

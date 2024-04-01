@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/browser/index.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/assets/index.dart';
 import 'package:auro_wallet/page/settings/index.dart';
@@ -25,20 +26,23 @@ class _HomePageState extends State<HomePage> {
   List<String> _tabList = [
     'wallet',
     'staking',
+    'browser',
     'setting',
   ];
   List<String> _tabIcons = [
     'home_tab',
     'stake_tab',
+    "browser_tab",
     'setting_tab',
   ];
   int _tabIndex = 0;
 
   List<BottomNavigationBarItem> _navBarItems(int activeItem) {
     Map<String, String> tabI10n = {
-      'wallet':AppLocalizations.of(context)!.wallet,
-      'staking':AppLocalizations.of(context)!.staking,
-      'setting':AppLocalizations.of(context)!.setting
+      'wallet': AppLocalizations.of(context)!.wallet,
+      'staking': AppLocalizations.of(context)!.staking,
+      'browser': AppLocalizations.of(context)!.browser,
+      'setting': AppLocalizations.of(context)!.setting
     };
     return _tabList.asMap().keys.map((index) {
       String icon = 'assets/images/public/${_tabIcons[index]}.svg';
@@ -55,8 +59,7 @@ class _HomePageState extends State<HomePage> {
               color: tabColor,
             ),
           ),
-          label: showLabel
-      );
+          label: showLabel);
     }).toList();
   }
 
@@ -66,6 +69,8 @@ class _HomePageState extends State<HomePage> {
         return Assets(store);
       case 1:
         return Staking(store);
+      case 2:
+        return Browser(store);
       default:
         return Profile(store);
     }
@@ -110,13 +115,11 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override
   Widget build(BuildContext context) {
-
     final textStyle = TextStyle(
       fontSize: 12,
     );
@@ -124,14 +127,10 @@ class _HomePageState extends State<HomePage> {
       body: _buildPage(_tabIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            top: BorderSide(
-                color: Colors.black.withOpacity(0.1),
-                width: 0.5
-            )
-          )
-        ),
+            color: Colors.white,
+            border: Border(
+                top: BorderSide(
+                    color: Colors.black.withOpacity(0.1), width: 0.5))),
         child: BottomNavigationBar(
           currentIndex: _tabIndex,
           backgroundColor: Colors.white,
@@ -143,9 +142,7 @@ class _HomePageState extends State<HomePage> {
             });
           },
           unselectedLabelStyle: textStyle,
-          selectedLabelStyle: textStyle.copyWith(
-              color: Colors.black
-          ),
+          selectedLabelStyle: textStyle.copyWith(color: Colors.black),
           selectedItemColor: Colors.black,
           unselectedItemColor: Colors.black.withOpacity(0.5),
           type: BottomNavigationBarType.fixed,
