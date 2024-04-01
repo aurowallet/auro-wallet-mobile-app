@@ -9674,6 +9674,21 @@ contentScript.init();
 
 window.mina = new dist();
 window.getSiteIcon = getSiteIcon;
+function initWebInfo() {
+  try {
+    let messageBody = {
+      action: "auro_wallet_init",
+      payload: {
+        site: {
+          origin: window.location.origin,
+          webIcon: getSiteIcon(window)
+        }
+      }
+    };
+    AppProvider.postMessage(JSON.stringify(messageBody));
+  } catch (error) {}
+}
+initWebInfo();
 
 /***/ })
 /******/ ]);

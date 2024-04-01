@@ -23,6 +23,7 @@ class WebViewInjected extends StatefulWidget {
     required this.onGetNewestNonce,
     this.onPageFinished,
     this.onWebViewCreated,
+    this.onWebInfoBack,
   });
 
   final String initialUrl;
@@ -31,6 +32,7 @@ class WebViewInjected extends StatefulWidget {
   final Function(WebViewController)? onWebViewCreated;
   final Function(int) onTxConfirmed;
   final int Function() onGetNewestNonce;
+  final Function(Map)? onWebInfoBack;
 
   @override
   _WebViewInjectedState createState() => _WebViewInjectedState();
@@ -44,6 +46,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   bool _signing = false;
   double loadProcess = 0.0;
   bool isSaveUrlHistory = false;
+  Map websiteInitInfo = {};
 
   Future<dynamic> _responseToZkApp(String method, Map resData) async {
     print('respond ${method} to zkApp:');
@@ -439,10 +442,13 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   Future<Map<String, dynamic>> getWebInfoFromBridge(String url) async {
     final webIconUrl =
         await _controller.runJavaScript("getSiteIcon(window)") as String?;
+    String? icon = websiteInitInfo['webIcon'] != null
+        ? websiteInitInfo['webIcon']
+        : webIconUrl;
     String? webTitle = await _controller.getTitle();
     String title = webTitle ?? url;
 
-    return {"webIconUrl": webIconUrl ?? "", "webTitle": title};
+    return {"webIconUrl": icon ?? "", "webTitle": title, url: url};
   }
 
   void onSaveHistory(String url) async {
@@ -469,6 +475,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     if (!isSaveUrlHistory) {
       isSaveUrlHistory = true;
       onSaveHistory(url);
+    }
+    if (widget.onWebInfoBack != null) {
+      Map info = await getWebInfoFromBridge(url);
+      widget.onWebInfoBack!(info);
     }
   }
 
@@ -522,6 +532,11 @@ class _WebViewInjectedState extends State<WebViewInjected> {
 
             if (id != null && origin != null) {
               _msgHandler(msg);
+            }
+            if (id == null && origin != null) {
+              if (payload?["site"]?['webIcon'] != null) {
+                websiteInitInfo = payload?["site"];
+              }
             }
           } catch (e) {
             print('msg from error: ${e}');

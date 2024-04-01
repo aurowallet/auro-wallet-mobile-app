@@ -17,12 +17,6 @@ class WebFavItem extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     String showTitle = data.title;
     var itemWidth = (MediaQuery.of(context).size.width - 40) / 2 - 50;
-    String logoUrl = "";
-    if (data.icon != null && data.icon!.isNotEmpty) {
-      if (data.icon!.length >= 5) {
-        logoUrl = data.icon!.substring(1, data.icon!.length - 1);
-      }
-    }
     return Container(
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -37,7 +31,7 @@ class WebFavItem extends StatelessWidget {
             ),
             ItemLogo(
               name: data.title,
-              logo: logoUrl,
+              dataIcon:data.icon,
               width: 20,
             ),
             SizedBox(
@@ -106,16 +100,16 @@ class LongPressMenu extends StatelessWidget {
 class ItemLogo extends StatefulWidget {
   ItemLogo(
       {this.name,
-      this.logo,
       this.radius = 15,
       required this.width,
-      this.showHolderIcon});
+      this.showHolderIcon,
+      this.dataIcon});
 
   final String? name;
-  final String? logo;
   final double? radius;
   final double width;
   final bool? showHolderIcon;
+  final String? dataIcon;
 
   @override
   ItemLogoState createState() => ItemLogoState();
@@ -125,13 +119,25 @@ class ItemLogoState extends State<ItemLogo> {
   @override
   Widget build(BuildContext context) {
     bool showHolderIcon = widget.showHolderIcon == true;
+
+    String logoUrl = "";
+    if (widget.dataIcon != null && widget.dataIcon!.isNotEmpty) {
+      bool isFirstCharLetter = RegExp(r'^[a-zA-Z]').hasMatch(widget.dataIcon![0]);
+
+      if (!isFirstCharLetter) {
+        if (widget.dataIcon!.length >= 5) {
+          logoUrl = widget.dataIcon!.substring(1, widget.dataIcon!.length - 1);
+        }
+      } else {
+        logoUrl = widget.dataIcon!;
+      }
+    }
     return ClipRRect(
         borderRadius: BorderRadius.circular(widget.radius ?? 0),
         child: CachedNetworkImage(
             width: widget.width,
             height: widget.width,
-            // imageUrl: "https://test-zkapp.aurowallet.com/imgs/auro.png",//widget.logo!.trim(),
-            imageUrl: widget.logo!.trim(),
+            imageUrl: logoUrl.trim(),
             placeholder: (context, url) {
               return Text(
                 widget.name?.substring(0, 1).toUpperCase() ?? 'U',
@@ -171,12 +177,6 @@ class WebHistoryItem extends StatelessWidget {
   final Function(WebConfig)? onClickItem;
   final Function(WebConfig)? onClickDelete;
   Widget buildWidget(BuildContext context) {
-    String logoUrl = "";
-    if (data.icon != null && data.icon!.isNotEmpty) {
-      if (data.icon!.length >= 5) {
-        logoUrl = data.icon!.substring(1, data.icon!.length - 1);
-      }
-    }
     return Container(
         padding: const EdgeInsets.only(top: 5, bottom: 5),
         child: Row(
@@ -185,7 +185,7 @@ class WebHistoryItem extends StatelessWidget {
           children: [
             ItemLogo(
               name: data.title,
-              logo: logoUrl,
+              dataIcon: data.icon,
               showHolderIcon: true,
               radius: 30,
               width: 24,

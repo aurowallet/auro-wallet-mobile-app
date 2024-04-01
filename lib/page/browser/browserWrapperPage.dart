@@ -37,6 +37,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
   bool isFav = false;
   late String loadUrl;
   String loadTitle = "";
+  Map websiteInitInfo = {};
 
   int nextUseInferredNonce = 0;
 
@@ -140,11 +141,10 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     if (isFav) {
       store.browser!.removeFavItem(loadUrl);
     } else {
-      Map info = await getWebInfoFromBridge(loadUrl);
       store.browser!.updateFavItem({
         "url": loadUrl,
-        "title": info['webTitle'],
-        "icon": info['webIconUrl'],
+        "title": websiteInitInfo['webTitle'],
+        "icon": websiteInitInfo['webIconUrl'],
         "time": DateTime.now().toString(),
       }, loadUrl);
     }
@@ -164,15 +164,6 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
       loadUrl = url;
     });
     return url;
-  }
-
-  Future<Map<String, dynamic>> getWebInfoFromBridge(String url) async {
-    final webIconUrl =
-        await _controller.runJavaScript("getSiteIcon(window)") as String?;
-    String? webTitle = await _controller.getTitle();
-    String title = webTitle ?? url;
-
-    return {"webIconUrl": webIconUrl, "webTitle": title};
   }
 
   String getOrigin(String url) {
@@ -245,6 +236,11 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                         } else {
                           _loadData();
                         }
+                      },
+                      onWebInfoBack: (Map websiteInfo) {
+                        setState(() {
+                          websiteInitInfo = websiteInfo;
+                        });
                       }),
                 ),
                 Container(
