@@ -67,6 +67,7 @@ class WebFavItem extends StatelessWidget {
             color: Color(0xFFF9FAFC),
             borderRadius: BorderRadius.circular(8),
             child: LongPressMenu(
+              radius: 8,
               data: data,
               onClickItem: onClickItem,
               onClickDelete: onClickDelete,
@@ -80,66 +81,25 @@ class LongPressMenu extends StatelessWidget {
       {required this.data,
       required this.childWidget,
       this.onClickItem,
-      this.onClickDelete});
+      this.onClickDelete,
+      this.radius = 0});
 
   final WebConfig data;
   final Function(WebConfig)? onClickItem;
   final Function(WebConfig)? onClickDelete;
   final Widget childWidget;
+  final double radius;
   @override
   Widget build(BuildContext context) {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    return GestureDetector(
-        onTap: () {
-          onClickItem!(data);
-        },
-        behavior: HitTestBehavior.opaque,
-        onLongPressStart: (details) {
-          Feedback.forLongPress(context);
-          showMenu(
-            context: context,
-            color: Colors.black,
-            constraints: BoxConstraints(
-              maxWidth: 100,
-            ),
-            position: RelativeRect.fromLTRB(
-              details.globalPosition.dx,
-              details.globalPosition.dy - 60,
-              details.globalPosition.dx,
-              details.globalPosition.dy - 60,
-            ),
-            items: <PopupMenuEntry>[
-              PopupMenuItem(
-                onTap: () {
-                  onClickDelete!(data);
-                },
-                height: 20,
-                textStyle: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        dic.delete,
-                      ),
-                      SizedBox(width: 4),
-                      SvgPicture.asset(
-                        'assets/images/webview/icon_clear.svg',
-                        width: 14,
-                        height: 14,
-                        color: Colors.white,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-        child: childWidget);
+    return InkWell(
+      customBorder: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(radius)),
+      ),
+      onTap: () {
+        onClickItem!(data);
+      },
+      child: childWidget,
+    );
   }
 }
 
@@ -155,7 +115,7 @@ class ItemLogo extends StatefulWidget {
   final String? logo;
   final double? radius;
   final double width;
-  bool? showHolderIcon;
+  final bool? showHolderIcon;
 
   @override
   ItemLogoState createState() => ItemLogoState();
@@ -170,6 +130,7 @@ class ItemLogoState extends State<ItemLogo> {
         child: CachedNetworkImage(
             width: widget.width,
             height: widget.width,
+            // imageUrl: "https://test-zkapp.aurowallet.com/imgs/auro.png",//widget.logo!.trim(),
             imageUrl: widget.logo!.trim(),
             placeholder: (context, url) {
               return Text(
