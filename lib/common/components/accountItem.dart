@@ -137,8 +137,7 @@ class WalletItem extends StatelessWidget {
                                                 ? Color(0xFFFFFFFF)
                                                 : (isObserve
                                                     ? Colors.black
-                                                    : Colors.black
-                                                        .withOpacity(0.3))),
+                                                    : Color(0xFFFFFFFF))),
                                       ),
                                       margin: EdgeInsets.only(left: 4),
                                       padding: EdgeInsets.symmetric(

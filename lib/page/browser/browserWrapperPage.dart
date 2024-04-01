@@ -77,7 +77,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
               children: [
                 Container(
                   child: Padding(
-                      padding: const EdgeInsets.only(left: 10),
+                      padding: const EdgeInsets.all(10),
                       child: GestureDetector(
                         child: SvgPicture.asset(
                           'assets/images/public/icon_nav_close.svg',
@@ -344,19 +344,19 @@ class AccoutIcon extends StatelessWidget {
   final Function()? onPressed;
 
   String formatAccountName(String accountName) {
-    List<String> parts = accountName.split(' ');
-
-    if (parts.length == 1) {
-      return accountName.length > 1 ? accountName.substring(0, 2) : accountName;
-    }
-    String formattedName = '';
-    for (String part in parts) {
-      if (part.isNotEmpty) {
-        formattedName += part[0];
+    accountName = accountName.trim();
+    if (accountName.contains(' ')) {
+      int spaceIndex = accountName.indexOf(' ');
+      if (spaceIndex + 1 < accountName.length) {
+        return accountName[0] + accountName[spaceIndex + 1];
+      } else {
+        return accountName[0];
       }
+    } else {
+      return accountName.length >= 2
+          ? accountName.substring(0, 2)
+          : accountName;
     }
-
-    return formattedName.toUpperCase();
   }
 
   @override
@@ -367,7 +367,7 @@ class AccoutIcon extends StatelessWidget {
             radius: 15,
             backgroundColor: Color(0xFF594AF1),
             child: Text(
-              formatAccountName(accountName),
+              formatAccountName(accountName).toUpperCase(),
               style: TextStyle(
                   fontSize: 14,
                   color: Colors.white,

@@ -59,7 +59,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
 
   void _onKeywordsChange() {
     String value = editingController.text.trim();
-    List<WebConfig> uiList = _filter(value, searchList);
+    List<WebConfig> uiList = _filter(value, store.browser!.webHistoryList);
     setState(() {
       keywords = value;
       searchList = uiList;
@@ -136,7 +136,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
         itemBuilder: (context, index) {
           if (index == 0) {
             return Container(
-              margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
+              margin: const EdgeInsets.only(left: 20, right: 20, top: 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,

@@ -29,11 +29,18 @@ class _HomePageState extends State<HomePage> {
     'browser',
     'setting',
   ];
-  List<String> _tabIcons = [
-    'home_tab',
-    'stake_tab',
-    "browser_tab",
-    'setting_tab',
+
+    List<String> _tabIconsSelected = [
+    'tab_home_active',
+    'tab_stake_active',
+    "tab_browser_active",
+    'tab_setting_active',
+  ];
+    List<String> _tabIconsUnSelected = [
+    'tab_home',
+    'tab_stake',
+    "tab_browser",
+    'tab_setting',
   ];
   int _tabIndex = 0;
 
@@ -45,21 +52,23 @@ class _HomePageState extends State<HomePage> {
       'setting': AppLocalizations.of(context)!.setting
     };
     return _tabList.asMap().keys.map((index) {
-      String icon = 'assets/images/public/${_tabIcons[index]}.svg';
       String label = _tabList[index];
       String showLabel = tabI10n[label]!;
-      Color tabColor = _tabList[activeItem] == label
-          ? Colors.black
-          : Colors.black.withOpacity(0.5);
+      bool isActive = _tabList[activeItem] == label;
+      List<String> nextList = isActive ? _tabIconsSelected : _tabIconsUnSelected;
+      String icon = 'assets/images/public/tab/${nextList[index]}.svg';
+
       return BottomNavigationBarItem(
           icon: Container(
             padding: EdgeInsets.only(bottom: 6, top: 10),
             child: SvgPicture.asset(
               icon,
-              color: tabColor,
+              width: 24,
+              height: 24,
             ),
           ),
-          label: showLabel);
+          label: showLabel
+      );
     }).toList();
   }
 
@@ -126,7 +135,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: _buildPage(_tabIndex),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: BoxDecoration( 
             color: Colors.white,
             border: Border(
                 top: BorderSide(

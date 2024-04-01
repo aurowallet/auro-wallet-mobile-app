@@ -30,7 +30,7 @@ class SearchInput extends StatelessWidget {
     bool lastReadStatus = isReadOnly ?? false;
     return Container(
       margin:
-          customMargin ?? const EdgeInsets.only(top: 20, left: 20, right: 20),
+          customMargin ?? const EdgeInsets.only(top: 10, left: 20, right: 20),
       child: TextField(
         onTap: onClickInput,
         readOnly: lastReadStatus,
