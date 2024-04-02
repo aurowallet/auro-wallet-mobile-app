@@ -64,8 +64,7 @@ class _Settings extends State<LocalesPage> {
                 children: [
                   _renderLanguageList(context, languageCode),
                   Container(
-                      margin: EdgeInsets.only(
-                          top: 20, left: 30, right: 30, bottom: 40),
+                      margin: EdgeInsets.only(bottom: 20),
                       child: BrowserLink(
                         contributeMoreLanguage,
                         text: dic.contributeLanguage,
