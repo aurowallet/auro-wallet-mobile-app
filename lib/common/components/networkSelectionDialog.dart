@@ -91,7 +91,8 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                 showCloseIcon: true,
               ),
               Container(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  padding:
+                      EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 10),
                   constraints: BoxConstraints(
                     maxHeight: height * 0.3,
                   ),

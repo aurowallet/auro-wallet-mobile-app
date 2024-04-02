@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -65,7 +66,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
       });
       if(isSuccess) {
         // UI.toast(dic['backup_success_restore']!);
-        Navigator.of(context).pushReplacementNamed('/');
+        Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
       }
     }
   }
