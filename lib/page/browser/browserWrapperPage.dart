@@ -132,6 +132,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
   void onCheckFav() async {
     List<WebConfig> list = store.browser!.webFavList;
     int index = list.indexWhere((item) => item.url == loadUrl);
+    if (!mounted) return;
     setState(() {
       isFav = index >= 0;
     });
@@ -141,13 +142,16 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     if (isFav) {
       store.browser!.removeFavItem(loadUrl);
     } else {
+      final String title = websiteInitInfo['webTitle'] as String? ?? loadUrl;
+      final String icon = websiteInitInfo['webIconUrl'] as String? ?? '';
       store.browser!.updateFavItem({
         "url": loadUrl,
-        "title": websiteInitInfo['webTitle'],
-        "icon": websiteInitInfo['webIconUrl'],
+        "title": title,
+        "icon": icon,
         "time": DateTime.now().toString(),
       }, loadUrl);
     }
+    if (!mounted) return;
     setState(() {
       isFav = !isFav;
     });
@@ -160,6 +164,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     } else {
       url = ModalRoute.of(context)!.settings.arguments as String;
     }
+    if (!mounted) return "";
     setState(() {
       loadUrl = url;
     });
@@ -221,10 +226,12 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                       onPageFinished: (gobackStatus, goForwardStatus) async {
                         String title = await _controller.getTitle() ?? "";
                         if (title.isNotEmpty) {
+                          if (!mounted) return;
                           setState(() {
                             loadTitle = title;
                           });
                         }
+                        if (!mounted) return;
                         setState(() {
                           canGoback = gobackStatus;
                           canGoForward = goForwardStatus;
@@ -238,6 +245,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                         }
                       },
                       onWebInfoBack: (Map websiteInfo) {
+                        if (!mounted) return;
                         setState(() {
                           websiteInitInfo = websiteInfo;
                         });

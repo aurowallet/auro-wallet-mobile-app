@@ -502,7 +502,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         NavigationDelegate(
           onPageFinished: (String url) {
             _onFinishLoad(url);
-
+            if (!mounted) return;
             setState(() {
               loadProcess = 1;
             });
@@ -511,6 +511,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             if (progress >= 99) {
               _onGetPageActionStatus();
             }
+            if (!mounted) return;
             setState(() {
               loadProcess = progress / 100;
             });
