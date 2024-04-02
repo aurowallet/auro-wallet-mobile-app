@@ -85,8 +85,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
         padding: EdgeInsets.only(left: 28),
         child: Text(
           dic.noMoreSupported,
-          style:
-              theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666)),
+          style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
         ),
       ));
       items.addAll(watchModeAccounts.map((account) {
@@ -200,7 +200,7 @@ class SvgBackgroundTextWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.only(top: 10,bottom: 20),
+        margin: EdgeInsets.only(top: 10, bottom: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
         ),
