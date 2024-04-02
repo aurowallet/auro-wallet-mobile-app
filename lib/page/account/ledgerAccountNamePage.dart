@@ -74,7 +74,7 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
         generateAddress: true,
         accountName: accountName);
     if (generated == true) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacementNamed('/');
     }
     setState(() {
       importing = false;

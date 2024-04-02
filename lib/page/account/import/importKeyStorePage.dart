@@ -65,7 +65,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
       });
       if(isSuccess) {
         // UI.toast(dic['backup_success_restore']!);
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed('/');
       }
     }
   }

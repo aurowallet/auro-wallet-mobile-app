@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -48,67 +49,8 @@ class _WalletManagePageState extends State<WalletManagePage> {
     super.dispose();
   }
 
-  Future<bool> _onSubmitAccountName(String accountName) async {
-    String? password = await UI.showPasswordDialog(
-        context: context,
-        wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: true);
-    if (password == null) {
-      return false;
-    }
-    WalletData? wallet = store.wallet!.mnemonicWallet;
-    if (wallet != null) {
-      final accountData = await webApi.account
-          .createAccountByAccountIndex(wallet, accountName, password);
-      AppLocalizations dic = AppLocalizations.of(context)!;
-      if (accountData == null) {
-        UI.toast(dic.passwordError);
-        return false;
-      } else {
-        AccountData? matchedAccount = store.wallet!.accountListAll
-            .map((e) => e as AccountData?)
-            .firstWhere((account) => account!.pubKey == accountData['pubKey'],
-                orElse: () => null);
-
-        if (matchedAccount != null) {
-          UI.showAlertDialog(
-              context: context,
-              crossAxisAlignment:CrossAxisAlignment.start,
-              contents: [
-                dic.importSameAccount_1(matchedAccount.address)+"\n",
-                dic.importSameAccount_2(matchedAccount.name)
-              ],
-              confirm: dic.isee);
-          return false;
-        } else {
-          await store.wallet!.addAccount(accountData, accountName, wallet);
-          store.assets!.loadAccountCache();
-          return true;
-        }
-      }
-    }
-    return true;
-  }
-
-  void _onCreate() {
-    Navigator.pushNamed(context, AccountNamePage.route,
-        arguments: AccountNameParams(
-            callback: _onSubmitAccountName,
-            placeholder:
-                'Account ${store.wallet!.getNextWalletAccountIndex(store.wallet!.mnemonicWallet) + 1}'));
-  }
-
-  void _showActions() {
-    Navigator.pushNamed(context, ImportWaysPage.route);
-  }
-
-  void _showLedgerImport() async {
-    int count =
-        store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) + 1;
-    final ledgerWalletName = 'Ledger $count';
-    Navigator.pushNamed(context, LedgerAccountNamePage.route,
-        arguments: LedgerAccountNameParams(placeholder: ledgerWalletName));
-    return;
+  void onClickAddAccount() {
+    Navigator.pushNamed(context, AddAccountPage.route);
   }
 
   List<Widget> _renderAccountList() {
@@ -131,9 +73,16 @@ class _WalletManagePageState extends State<WalletManagePage> {
     items.addAll(store.wallet!.accountListAll.map((account) {
       return renderItem(account);
     }));
+    items.add(Container(
+        child: Center(
+      child: SvgBackgroundTextWidget(
+          svgAssetPath: "assets/images/assets/icon_add_border.svg",
+          text: dic.addAccount,
+          onClick: onClickAddAccount),
+    )));
     if (watchModeAccounts.length > 0) {
       items.add(Padding(
-        padding: EdgeInsets.only(left: 28, top: 20),
+        padding: EdgeInsets.only(left: 28),
         child: Text(
           dic.noMoreSupported,
           style:
@@ -196,16 +145,6 @@ class _WalletManagePageState extends State<WalletManagePage> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var theme = Theme.of(context).textTheme;
-    var outlineBtnStyle = OutlinedButton.styleFrom(
-        padding: EdgeInsets.zero,
-        alignment: Alignment.centerLeft,
-        foregroundColor: Theme.of(context).primaryColor,
-        // backgroundColor: Theme.of(context).primaryColor,
-        textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12))),
-        minimumSize: Size(0, 48));
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.black,
@@ -238,96 +177,64 @@ class _WalletManagePageState extends State<WalletManagePage> {
                   children: _renderAccountList(),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _onCreate,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            SvgPicture.asset(
-                              'assets/images/assets/add_wallet.svg',
-                              width: 20,
-                              height: 20,
-                            ),
-                            Container(
-                              width: 8,
-                            ),
-                            Text(dic.createAccount)
-                          ],
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            alignment: Alignment.centerLeft,
-                            shadowColor: Colors.transparent,
-                            backgroundColor: Theme.of(context).primaryColor,
-                            textStyle: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12))),
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size(0, 48)),
-                      ),
-                    ),
-                    Container(
-                      width: 15,
-                    ),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _showActions,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            SvgPicture.asset(
-                              'assets/images/assets/import_wallet.svg',
-                              width: 16,
-                              height: 15,
-                            ),
-                            Container(
-                              width: 8,
-                            ),
-                            Text(dic.import)
-                          ],
-                        ),
-                        style: outlineBtnStyle,
-                      ),
-                    ),
-                    Container(
-                      width: 15,
-                    ),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _showLedgerImport,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            SvgPicture.asset(
-                              'assets/images/assets/import_ledger.svg',
-                              width: 18,
-                              height: 15,
-                            ),
-                            Container(
-                              width: 8,
-                            ),
-                            Text(dic.importLedger)
-                          ],
-                        ),
-                        style: outlineBtnStyle,
-                      ),
-                    ),
-                  ],
-                ),
-              )
             ],
           );
         }),
       ),
     );
+  }
+}
+
+class SvgBackgroundTextWidget extends StatelessWidget {
+  const SvgBackgroundTextWidget({
+    Key? key,
+    required this.svgAssetPath,
+    required this.text,
+    this.onClick,
+  }) : super(key: key);
+
+  final String svgAssetPath;
+  final String text;
+  final Function()? onClick;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.only(top: 10,bottom: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        width: MediaQuery.of(context).size.width - 40,
+        height: 60,
+        child: InkWell(
+          customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          onTap: () {
+            if (onClick != null) {
+              onClick!();
+            }
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Positioned.fill(
+                child: SvgPicture.asset(
+                  svgAssetPath,
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Text(
+                text,
+                style: TextStyle(
+                  color: Color(0xFF594AF1),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ));
   }
 }

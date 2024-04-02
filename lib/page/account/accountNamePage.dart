@@ -63,7 +63,7 @@ class _AccountNamePageState extends State<AccountNamePage> {
         submitting = false;
       });
       if (res) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed('/');
       }
       return;
     }

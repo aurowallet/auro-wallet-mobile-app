@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:auro_wallet/page/browser/browserSearchPage.dart';
 import 'package:auro_wallet/page/browser/browserWrapperPage.dart';
@@ -199,6 +200,7 @@ class _WalletAppState extends State<WalletApp> {
         ImportWatchedAccountPage.route: (_) =>
             ImportWatchedAccountPage(_appStore!),
         LedgerAccountNamePage.route: (_) => LedgerAccountNamePage(_appStore!),
+        AddAccountPage.route: (_) => AddAccountPage(_appStore!),
 
         // assets
         TransferPage.route: (_) => TransferPage(_appStore!),

@@ -164,6 +164,7 @@ flutter:
     - assets/images/public/icon_copy.svg
     - assets/images/public/search.svg
     - assets/images/public/icon_address.svg
+    - assets/images/assets/icon_add_border.svg
 
     # ledger
     - assets/images/ledger/ledger_mina.svg

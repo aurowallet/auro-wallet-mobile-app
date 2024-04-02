@@ -9,12 +9,14 @@ import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 
 class NetworkSelectionDialog extends StatefulWidget {
   NetworkSelectionDialog();
 
   @override
-  _NetworkSelectionDialogState createState() => new _NetworkSelectionDialogState();
+  _NetworkSelectionDialogState createState() =>
+      new _NetworkSelectionDialogState();
 }
 
 class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
@@ -118,33 +120,36 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                               color: ColorsUtil.hexColor(0x808080),
                               fontWeight: FontWeight.w400)),
                     ),
-                    Switch(
+                    FlutterSwitch(
                       value: _isCheck,
-                      onChanged: _changed,
-                      activeColor: Colors.white,
-                      inactiveThumbColor: Colors.white,
-                      activeTrackColor: Color(0xFF594AF1),
-                      inactiveTrackColor: Color(0xFFE9E9E9),
+                      width: 54,
+                      height: 30,
+                      onToggle: (value) {
+                        _changed(value);
+                      },
+                      activeColor: Theme.of(context).primaryColor,
                     ),
                   ],
                 ),
               ),
-              _isCheck ? Container(
-                padding: EdgeInsets.only(left: 20, right: 20, top: 10),
-                child: Column(children: [
-                  NetworkItem(
-                    endpoint: netConfigMap[NetworkTypes.devnet]!,
-                    onChecked: onSelectNode,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  NetworkItem(
-                    endpoint: netConfigMap[NetworkTypes.berkeley]!,
-                    onChecked: onSelectNode,
-                  )
-                ]),
-              ):Container()
+              _isCheck
+                  ? Container(
+                      padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+                      child: Column(children: [
+                        NetworkItem(
+                          endpoint: netConfigMap[NetworkTypes.devnet]!,
+                          onChecked: onSelectNode,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        NetworkItem(
+                          endpoint: netConfigMap[NetworkTypes.berkeley]!,
+                          onChecked: onSelectNode,
+                        )
+                      ]),
+                    )
+                  : Container()
             ],
           ),
         ));

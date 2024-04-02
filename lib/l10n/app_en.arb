@@ -486,5 +486,8 @@
   "websiteNotFound":"Website Not Found",
   "ledgerNotSupportSign": "Ledger doesn't support sign message",
   "notSupportNow": "Not supported yet",
-  "newFee": "New Fee"
+  "newFee": "New Fee",
+  "addAccount": "Add Account",
+  "createAccount1":"Create Account",
+  "hardwareWallet":"Hardware Wallet"
 }
