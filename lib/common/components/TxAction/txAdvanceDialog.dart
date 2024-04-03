@@ -67,7 +67,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: InputItem(
-            label: dic.feePlaceHolder,
+            label: dic.transactionFee,
             maxLength: 16,
             initialValue: '',
             placeholder: widget.nextStateFee.toString(),
