@@ -51,7 +51,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
       return list;
     }
     var res = list.where((element) {
-      return (element.url.toLowerCase().contains(keywords!.toLowerCase())) ||
+      return (element.url.toLowerCase().contains(key!.toLowerCase())) ||
           (element.title.toLowerCase().contains(key!.toLowerCase()));
     }).toList();
     return res;
@@ -111,7 +111,6 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
         "url": formatUrl(url),
       },
     );
-    editingController.clear();
   }
 
   void _onLoadHistoryUrl(WebConfig data) async {
