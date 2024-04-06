@@ -99,8 +99,8 @@
   "@copySuccess": {},
   "accountManage": "Account Management",
   "@accountManage": {},
-  "createAccount": "Create",
-  "@createAccount": {},
+  "create": "Create",
+  "@create": {},
   "import": "Import",
   "@import": {},
   "importLedger": "Ledger",
@@ -513,7 +513,7 @@
   "notSupportNow": "Not supported yet",
   "newFee": "New Fee",
   "addAccount": "Add Account",
-  "createAccount1":"Create Account",
+  "createAccount":"Create Account",
   "hardwareWallet":"Hardware Wallet",
   "showTestnet": "Show Testnet"
 }

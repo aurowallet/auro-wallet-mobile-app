@@ -99,8 +99,8 @@
   "@copySuccess": {},
   "accountManage": "账户管理",
   "@accountManage": {},
-  "createAccount": "创建",
-  "@createAccount": {},
+  "create": "创建",
+  "@create": {},
   "import": "导入",
   "@import": {},
   "importLedger": "Ledger",
@@ -514,5 +514,8 @@
   "@newFee": {},
   "transactionRequest": "交易请求",
   "@transactionRequest": {},
-  "showTestnet": "显示测试网"
+  "showTestnet": "显示测试网",
+  "addAccount": "添加账户", 
+  "createAccount": "创建账户",
+  "hardwareWallet": "硬件钱包"
 }

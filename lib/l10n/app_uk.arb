@@ -99,8 +99,8 @@
   "@copySuccess": {},
   "accountManage": "Управління рахунками",
   "@accountManage": {},
-  "createAccount": "Створити",
-  "@createAccount": {},
+  "create": "Створити",
+  "@create": {},
   "import": "Імпорт",
   "@import": {},
   "importLedger": "Ledger",
@@ -514,5 +514,8 @@
   "@notSupportNow": {},
   "newFee": "Нова комісія",
   "@newFee": {},
-  "showTestnet": "Показати тестову мережу"
+  "showTestnet": "Показати тестову мережу",
+  "addAccount": "Додати акаунт",
+  "createAccount": "Створити акаунт",
+  "hardwareWallet": "Апаратний гаманець"
 }

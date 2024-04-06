@@ -287,8 +287,8 @@
   "@details": {},
   "walletAddress": "Адрес кошелька",
   "@walletAddress": {},
-  "createAccount": "Создать",
-  "@createAccount": {},
+  "create": "Создать",
+  "@create": {},
   "accountManage": "Управление счётами",
   "@accountManage": {},
   "importLedger": "Ledger",
@@ -516,5 +516,8 @@
   "@notSupportNow": {},
   "newFee": "Новая комиссия",
   "@newFee": {},
-  "showTestnet": "Показать Тестнеты"
+  "showTestnet": "Показать Тестнеты",
+  "addAccount": "Добавить аккаунт",
+  "createAccount": "Создать аккаунт",
+  "hardwareWallet": "Аппаратный кошелёк"
 }

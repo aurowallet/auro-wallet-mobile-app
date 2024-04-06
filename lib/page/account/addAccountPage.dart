@@ -138,7 +138,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
             child: Column(
               children: <Widget>[
                 MenuItem(
-                  text: dic.createAccount1,
+                  text: dic.createAccount,
                   onClick: _onCreate,
                 ),
                 MenuItem(
