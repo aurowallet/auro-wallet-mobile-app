@@ -230,7 +230,7 @@ class _TransferPageState extends State<TransferPage> {
       bool exited = false;
       await UI.showTxConfirm(
           context: context,
-          title: dic.sendDetail,
+          title: dic.txOverview, 
           isLedger: isLedger,
           items: txItems,
           disabled: isWatchMode,
