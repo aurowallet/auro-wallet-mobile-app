@@ -66,7 +66,6 @@ class _InputErrorTipState extends State<InputErrorTip> {
         success = widget.validate!(text);
       } else if (widget.asyncValidate != null) {
         success = await widget.asyncValidate!(text);
-        print('validate:' + success.toString());
       }
       if (mounted && widget.isError == null) {
         setState(() {
@@ -98,10 +97,6 @@ class _InputErrorTipState extends State<InputErrorTip> {
   @override
   Widget build(BuildContext context) {
     if (!widget.keepShow && (!isDirty || isCorrect || !widget.showMessage)) {
-      print('come here');
-      print('isDirty:' + isDirty.toString());
-      print('isCorrect:' + isCorrect.toString());
-      print('widget.showMessage:' + widget.showMessage.toString());
       return Container();
     }
     Color? textColor;

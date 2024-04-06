@@ -51,14 +51,12 @@ class BridgeWebView {
         initialUrlRequest: URLRequest(
             url: Uri.parse("http://localhost:8080/assets/webview/bridge.html")),
         onWebViewCreated: (controller) async {
-          print('Bridge HeadlessInAppWebView created!');
           controller.loadUrl(
               urlRequest: URLRequest(
                   url: Uri.parse(
                       "http://localhost:8080/assets/webview/bridge.html")));
         },
         onConsoleMessage: (controller, message) {
-          print("CONSOLE MESSAGE: " + message.message);
           if (jsCodeStarted < 0) {
             try {
               final msg = jsonDecode(message.message);
@@ -100,19 +98,11 @@ class BridgeWebView {
           }
         },
         onLoadStop: (controller, url) async {
-          print('webview loaded $url');
           if (webViewLoaded) return;
 
           _handleReloaded();
           await _startJSCode();
         },
-        //  onLoadError: (controller, url, code, message) {
-        //   print("webview restart");
-        //   _web = null;
-        //   launch(null,
-        //       jsCode: jsCode,
-        //       socketDisconnectedAction: socketDisconnectedAction);
-        // },
       );
 
       await _web?.dispose();
@@ -161,7 +151,6 @@ class BridgeWebView {
       for (String i in _msgCompleters.keys) {
         String call = code.split('(')[0];
         if (i.contains(call)) {
-          print('request $call loading');
           return _msgCompleters[i]!.future;
         }
       }

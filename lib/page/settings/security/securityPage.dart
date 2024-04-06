@@ -43,7 +43,6 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 
   void _onBackup() async {
-    print('pri');
     AppLocalizations dic = AppLocalizations.of(context)!;
     await UI.showAlertDialog(
       context: context,

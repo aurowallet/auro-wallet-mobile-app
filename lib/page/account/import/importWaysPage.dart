@@ -49,7 +49,6 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
   }
 
   void _onPrivateKey() {
-    print('pri');
     Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
       redirect: ImportPrivateKeyPage.route,
       placeholder: _getNextImportWalletName()
@@ -57,7 +56,6 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
   }
 
   void _onKeyStore() {
-    print('keystore');
     Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
         redirect: ImportKeyStorePage.route,
         placeholder: _getNextImportWalletName()

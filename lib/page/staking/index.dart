@@ -37,9 +37,7 @@ class _StakingState extends State<Staking> {
 
   bool _haveCacheData() {
     AccountInfo? acc = store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
-    print('store.staking!.delegatedValidator?.publicKey');
     print(store.staking!.delegatedValidator?.publicKey);
-    print('store.wallet!.currentAccountPubKey');
     print(store.wallet!.currentAccountPubKey);
     return acc != null && store.staking!.delegatedValidator != null && store.staking!.delegatedValidator?.countDelegates != null && acc.delegate == store.staking!.delegatedValidator?.publicKey;
   }

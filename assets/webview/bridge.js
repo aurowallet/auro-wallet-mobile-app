@@ -50326,12 +50326,10 @@ function reverse(bytes) {
       privateKey
     } = _ref2;
     return new Promise(resolve => {
-      console.log("privateKey", privateKey);
       const client = new mina_signer__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"]({
         network: "mainnet"
       });
       const minaPublicKey = client.derivePublicKey(privateKey);
-      console.log("minaPublicKey", minaPublicKey);
       resolve({
         priKey: privateKey,
         pubKey: minaPublicKey

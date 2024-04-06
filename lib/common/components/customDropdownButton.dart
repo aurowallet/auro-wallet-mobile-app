@@ -144,7 +144,6 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
         ),
         value: widget.value,
         onChanged: (String? value) {
-          print(value);
           widget.onChoose(value);
         },
       ))),

@@ -47,7 +47,7 @@ class ApiAssets {
     );
     final QueryResult result = await client.query(_options);
     if (result.hasException) {
-      print('请求tx list 交易出错了');
+      print('request tx list error');
       print(result.exception.toString());
       return;
     }
@@ -93,7 +93,7 @@ class ApiAssets {
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
-      print('请求pending交易出错了');
+      print('request pending tx request');
       print(result.exception.toString());
       return;
     }
@@ -392,7 +392,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
     );
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
-      print('获取余额出错了');
+      print('fetch balance error');
       print(result.exception.toString());
       return;
     }

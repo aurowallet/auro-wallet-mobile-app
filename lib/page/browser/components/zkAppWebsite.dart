@@ -48,9 +48,6 @@ class ItemLogoState extends State<ItemLogo> {
   bool loadError = false;
 
   onLoadError(exception, stackTrace) {
-    print(
-      'ItemLogo=onLoadError=0',
-    );
     setState(() {
       loadError = true;
     });

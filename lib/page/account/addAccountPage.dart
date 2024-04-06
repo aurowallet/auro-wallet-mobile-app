@@ -97,7 +97,6 @@ class _AddAccountPageState extends State<AddAccountPage> {
   }
 
   void _onPrivateKey() {
-    print('pri');
     Navigator.pushReplacementNamed(context, AccountNamePage.route,
         arguments: AccountNameParams(
             redirect: ImportPrivateKeyPage.route,
@@ -105,7 +104,6 @@ class _AddAccountPageState extends State<AddAccountPage> {
   }
 
   void _onKeyStore() {
-    print('keystore');
     Navigator.pushReplacementNamed(context, AccountNamePage.route,
         arguments: AccountNameParams(
             redirect: ImportKeyStorePage.route,

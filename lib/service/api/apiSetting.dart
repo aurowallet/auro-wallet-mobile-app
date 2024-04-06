@@ -62,7 +62,7 @@ class ApiSetting {
     );
     final QueryResult result =  await graphQLClient.query(_options);
     if (result.hasException) {
-      print('验证节点出错了');
+      print('fetch chain id error');
       print(result.exception.toString());
       return null;
     }

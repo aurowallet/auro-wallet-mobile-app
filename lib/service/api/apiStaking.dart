@@ -96,7 +96,6 @@ class ApiStaking {
 
     final QueryResult result =  await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
-      print('出错了11');
       print(result.exception.toString());
       return;
     }

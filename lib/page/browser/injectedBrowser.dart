@@ -396,7 +396,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           "signature": jsonDecode(params?['signature']),
           "verifyMessage": params?["data"],
         };
-        print('verifyData==verifyData==0${jsonEncode(verifyData)}');
         bool res = await webApi.account.verifyMessage(
           verifyData,
           context: context,
@@ -522,10 +521,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         'AppProvider',
         onMessageReceived: (JavaScriptMessage message) async {
           try {
-            print('msg from zkApp: ${message}');
-
             final msg = jsonDecode(message.message);
-            print('msg from zkApp==1: ${msg}');
             Map? payload = msg["payload"];
             String? id = payload!["id"];
 
