@@ -515,5 +515,6 @@
   "notSupportNow": "Пока не поддерживается",
   "@notSupportNow": {},
   "newFee": "Новая комиссия",
-  "@newFee": {}
+  "@newFee": {},
+  "showTestnet": "Показать Тестнеты"
 }

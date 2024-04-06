@@ -115,7 +115,7 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      child: Text("Show Testnet",
+                      child: Text(dic.showTestnet,
                           style: TextStyle(
                               fontSize: 14,
                               color: ColorsUtil.hexColor(0x808080),

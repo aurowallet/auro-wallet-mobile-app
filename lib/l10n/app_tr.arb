@@ -513,5 +513,6 @@
   "notSupportNow": "Henüz desteklenmiyor",
   "@notSupportNow": {},
   "newFee": "Yeni Ücret",
-  "@newFee": {}
+  "@newFee": {},
+  "showTestnet": "Test Ağını Göster"
 }

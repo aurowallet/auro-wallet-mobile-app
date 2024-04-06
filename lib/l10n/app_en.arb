@@ -514,5 +514,6 @@
   "newFee": "New Fee",
   "addAccount": "Add Account",
   "createAccount1":"Create Account",
-  "hardwareWallet":"Hardware Wallet"
+  "hardwareWallet":"Hardware Wallet",
+  "showTestnet": "Show Testnet"
 }

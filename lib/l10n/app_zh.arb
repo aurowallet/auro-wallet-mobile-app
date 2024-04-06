@@ -513,5 +513,6 @@
   "newFee": "新交易费",
   "@newFee": {},
   "transactionRequest": "交易请求",
-  "@transactionRequest": {}
+  "@transactionRequest": {},
+  "showTestnet": "显示测试网"
 }
