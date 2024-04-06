@@ -28,10 +28,12 @@ final devNetNode = CustomNode(
 
 final Map<String, String> languageConfig = {
   "en": 'English',
-  "zh": '中文（简体）', 
+  "zh": '中文（简体）',
   "tr": "Türkçe",
   "uk": "Українська мова",
+  "ru": "Русский"
 };
 
 // ** language contrubute url
-final String contributeMoreLanguage = "https://hosted.weblate.org/projects/aurowallet/";
+final String contributeMoreLanguage =
+    "https://hosted.weblate.org/projects/aurowallet/";

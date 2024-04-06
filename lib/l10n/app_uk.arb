@@ -492,8 +492,6 @@
   "@showData": {},
   "warning": "УВАГА",
   "@warning": {},
-  "transactionRequest": "Запит транзакції",
-  "@transactionRequest": {},
   "switchNetwork": "Перемкнути мережу",
   "@switchNetwork": {},
   "allowSwitch": "Дозволити цьому сайту змінювати мережу?",

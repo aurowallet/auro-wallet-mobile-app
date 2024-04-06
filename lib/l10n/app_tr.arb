@@ -490,8 +490,6 @@
   "@warning": {},
   "warningTip": "Sahtekarlık olarak işaretlenmiş bir adres veya sözleşmeyle etkileşimde bulunuyorsunuz. İmzalarsanız tüm NFT'lerinize ve cüzdanınızdaki tüm fonlara veya diğer varlıklara erişiminizi kaybedebilirsiniz.",
   "@warningTip": {},
-  "transactionRequest": "İşlem Talebi",
-  "@transactionRequest": {},
   "switchNetwork": "Ağ Değiştir",
   "@switchNetwork": {},
   "allowSwitch": "Bu sitenin ağı değiştirmesine izin verilsin mi?",

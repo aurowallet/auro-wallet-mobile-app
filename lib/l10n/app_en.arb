@@ -77,7 +77,7 @@
   "@fee_fast": {},
   "advanceMode": "Advanced",
   "@advanceMode": {},
-  "sendDetail": "Transaction Details",
+  "sendDetail": "Transaction Overview",
   "@sendDetail": {},
   "sendAddressError": "Please enter a valid wallet address",
   "@sendAddressError": {},
@@ -490,8 +490,6 @@
   "@warning": {},
   "warningTip": "You are interacting with an address or contract that has been flagged as scam. If you sign, you could lose access to all of your NFTs and any funds or other assets in your wallet.",
   "@warningTip": {},
-  "transactionRequest": "Transaction Request",
-  "@transactionRequest": {},
   "switchNetwork": "Switch Network",
   "@switchNetwork": {},
   "allowSwitch": "Allow this site to switch the network?",
@@ -515,6 +513,5 @@
   "addAccount": "Add Account",
   "createAccount":"Create Account",
   "hardwareWallet":"Hardware Wallet",
-  "showTestnet": "Show Testnet",
-  "txOverview": "Transaction Overview"
+  "showTestnet": "Show Testnet"
 }

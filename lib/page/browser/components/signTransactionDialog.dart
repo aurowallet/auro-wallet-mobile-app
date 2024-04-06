@@ -680,7 +680,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
               Wrap(
                 children: [
                   BrowserDialogTitleRow(
-                    title: dic.txOverview,
+                    title: dic.sendDetail,
                     chainId: networkName,
                     ledgerWidget:isLedger ? LedgerStatus() : Container(),
                   ),

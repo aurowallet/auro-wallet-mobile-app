@@ -494,8 +494,6 @@
   "@showData": {},
   "warning": "ВНИМАНИЕ",
   "@warning": {},
-  "transactionRequest": "Запрос транзакции",
-  "@transactionRequest": {},
   "switchNetwork": "Переключить сеть",
   "@switchNetwork": {},
   "allowSwitch": "Разрешить этому сайту переключать сеть?",

@@ -269,7 +269,7 @@ class _DelegatePageState extends State<DelegatePage>
       bool exited = false;
       await UI.showTxConfirm(
           context: context,
-          title: dic.txOverview,
+          title: dic.sendDetail,
           items: txItems,
           isLedger: isLedger,
           headLabel: dic.producerName,

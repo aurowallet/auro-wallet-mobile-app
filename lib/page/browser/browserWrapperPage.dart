@@ -46,7 +46,6 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     required Widget body,
     required Function() actionOnPressed,
   }) {
-    String url = getLoadUrl(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
