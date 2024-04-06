@@ -513,7 +513,11 @@
   "newFee": "Нова комісія",
   "@newFee": {},
   "showTestnet": "Показати тестову мережу",
+  "@showTestnet": {},
   "addAccount": "Додати акаунт",
+  "@addAccount": {},
   "createAccount": "Створити акаунт",
-  "hardwareWallet": "Апаратний гаманець"
+  "@createAccount": {},
+  "hardwareWallet": "Апаратний гаманець",
+  "@hardwareWallet": {}
 }

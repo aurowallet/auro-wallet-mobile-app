@@ -515,7 +515,11 @@
   "newFee": "Новая комиссия",
   "@newFee": {},
   "showTestnet": "Показать Тестнеты",
+  "@showTestnet": {},
   "addAccount": "Добавить аккаунт",
+  "@addAccount": {},
   "createAccount": "Создать аккаунт",
-  "hardwareWallet": "Аппаратный кошелёк"
+  "@createAccount": {},
+  "hardwareWallet": "Аппаратный кошелёк",
+  "@hardwareWallet": {}
 }

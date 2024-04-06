@@ -513,7 +513,11 @@
   "newFee": "新交易费",
   "@newFee": {},
   "showTestnet": "显示测试网",
-  "addAccount": "添加账户", 
+  "@showTestnet": {},
+  "addAccount": "添加账户",
+  "@addAccount": {},
   "createAccount": "创建账户",
-  "hardwareWallet": "硬件钱包"
+  "@createAccount": {},
+  "hardwareWallet": "硬件钱包",
+  "@hardwareWallet": {}
 }

@@ -509,9 +509,15 @@
   "ledgerNotSupportSign": "Ledger doesn't support sign message",
   "@ledgerNotSupportSign": {},
   "notSupportNow": "Not supported yet",
+  "@notSupportNow": {},
   "newFee": "New Fee",
+  "@newFee": {},
   "addAccount": "Add Account",
-  "createAccount":"Create Account",
-  "hardwareWallet":"Hardware Wallet",
-  "showTestnet": "Show Testnet"
+  "@addAccount": {},
+  "createAccount": "Create Account",
+  "@createAccount": {},
+  "hardwareWallet": "Hardware Wallet",
+  "@hardwareWallet": {},
+  "showTestnet": "Show Testnet",
+  "@showTestnet": {}
 }
