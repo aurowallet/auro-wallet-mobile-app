@@ -279,8 +279,6 @@
   "@fee_default": {},
   "advanceMode": "Расширенный",
   "@advanceMode": {},
-  "feePlaceHolder": "Комиссия за транзакцию",
-  "@feePlaceHolder": {},
   "sendAddressError": "Пожалуйста, введите корректный адрес кошелька",
   "@sendAddressError": {},
   "goToExplrer": "Детали запроса",

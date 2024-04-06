@@ -199,8 +199,6 @@
   "@atLeastOneLowercaseLetter": {},
   "fee": "Ücret",
   "@fee": {},
-  "feePlaceHolder": "İşlem ücreti",
-  "@feePlaceHolder": {},
   "privateError": "Özel Anahtar Hatalı",
   "@privateError": {},
   "stakingStatus_1": "Delege Edildi",

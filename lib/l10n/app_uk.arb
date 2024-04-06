@@ -79,8 +79,6 @@
   "@advanceMode": {},
   "sendDetail": "Деталі транзакції",
   "@sendDetail": {},
-  "feePlaceHolder": "Комісія за транзакцію",
-  "@feePlaceHolder": {},
   "sendAddressError": "Введіть дійсну адресу гаманця",
   "@sendAddressError": {},
   "amountError": "Введіть дійсну суму",

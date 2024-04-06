@@ -79,8 +79,6 @@
   "@advanceMode": {},
   "sendDetail": "Transaction Details",
   "@sendDetail": {},
-  "feePlaceHolder": "Transaction fee",
-  "@feePlaceHolder": {},
   "sendAddressError": "Please enter a valid wallet address",
   "@sendAddressError": {},
   "amountError": "Please enter a valid amount",

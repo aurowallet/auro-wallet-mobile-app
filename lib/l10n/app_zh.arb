@@ -79,8 +79,6 @@
   "@advanceMode": {},
   "sendDetail": "交易详情",
   "@sendDetail": {},
-  "feePlaceHolder": "请输入交易费",
-  "@feePlaceHolder": {},
   "sendAddressError": "请输入有效地址",
   "@sendAddressError": {},
   "amountError": "输入的金额格式有误",
