@@ -7,6 +7,7 @@ final appTheme = ThemeData(
   primaryColor: Color(0xFF594AF1),
   // highlightColor: Colors.transparent,
   splashColor: Color(0xFF594AF1).withOpacity(0.1),
+  brightness: Brightness.light,
   // splashFactory: NoSplashFactory(),
   appBarTheme: AppBarTheme(
       color: Colors.white,

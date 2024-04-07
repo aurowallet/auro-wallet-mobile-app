@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:auro_wallet/app.dart';
@@ -19,6 +20,10 @@ Future<void> main() async {
         child: WalletApp(),
       )
   );
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent, 
+    statusBarIconBrightness: Brightness.dark,
+  ));
   configLoading();
 }
 
