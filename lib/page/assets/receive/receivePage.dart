@@ -59,11 +59,9 @@ class ReceivePage extends StatelessWidget {
             elevation: 0.0,
             actions: null,
             systemOverlayStyle: SystemUiOverlayStyle(
-              // <-- SEE HERE
-              statusBarIconBrightness: Brightness.dark,
-              //<-- For Android SEE HERE (dark icons)
-              statusBarBrightness:
-                  Brightness.dark, //<-- For iOS SEE HERE (dark icons)
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness:Brightness.dark, 
             ),
           ),
           body: SafeArea(
@@ -85,29 +83,23 @@ class ReceivePage extends StatelessWidget {
                 Column(
                   children: [
                     AppBar(
-                        iconTheme: IconThemeData(
-                          color: Colors.white, //change your color here
-                        ),
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        title: Text(
-                          dic.receive,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        centerTitle: true,
-                        systemOverlayStyle: SystemUiOverlayStyle(
-                          // <-- SEE HERE
-                          statusBarIconBrightness: Brightness.dark,
-                          //<-- For Android SEE HERE (dark icons)
-                          statusBarBrightness: Brightness
-                              .dark, //<-- For iOS SEE HERE (dark icons)
-                        )),
+                      iconTheme: IconThemeData(
+                        color: Colors.white, //change your color here
+                      ),
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      title: Text(
+                        dic.receive,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      centerTitle: true,
+                    ),
                     Expanded(
                       child: ListView(
                         children: <Widget>[
                           Container(
                             margin: EdgeInsets.only(
-                                top: 35, left: 20, right: 20, bottom: 0),
+                                top: 10, left: 20, right: 20, bottom: 0),
                             child: Stack(
                               children: [
                                 Positioned.fill(
@@ -157,6 +149,7 @@ class ReceivePage extends StatelessWidget {
                                         alignment: Alignment.center,
                                         child: Text(
                                           dic.addressQrTip,
+                                          textAlign: TextAlign.center,
                                           style: theme.headline6!.copyWith(
                                               fontSize: 14,
                                               color: Color(0x80000000)),

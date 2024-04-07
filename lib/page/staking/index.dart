@@ -71,7 +71,6 @@ class _StakingState extends State<Staking> {
         leading: null,
         title: null,
         toolbarHeight: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(

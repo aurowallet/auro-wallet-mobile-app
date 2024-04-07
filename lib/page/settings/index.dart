@@ -34,7 +34,6 @@ class Profile extends StatelessWidget {
           leading: null,
           title: null,
           toolbarHeight: 0,
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
         ),
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,

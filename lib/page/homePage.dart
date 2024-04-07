@@ -30,13 +30,13 @@ class _HomePageState extends State<HomePage> {
     'setting',
   ];
 
-    List<String> _tabIconsSelected = [
+  List<String> _tabIconsSelected = [
     'tab_home_active',
     'tab_stake_active',
     "tab_browser_active",
     'tab_setting_active',
   ];
-    List<String> _tabIconsUnSelected = [
+  List<String> _tabIconsUnSelected = [
     'tab_home',
     'tab_stake',
     "tab_browser",
@@ -55,7 +55,8 @@ class _HomePageState extends State<HomePage> {
       String label = _tabList[index];
       String showLabel = tabI10n[label]!;
       bool isActive = _tabList[activeItem] == label;
-      List<String> nextList = isActive ? _tabIconsSelected : _tabIconsUnSelected;
+      List<String> nextList =
+          isActive ? _tabIconsSelected : _tabIconsUnSelected;
       String icon = 'assets/images/public/tab/${nextList[index]}.svg';
 
       return BottomNavigationBarItem(
@@ -67,8 +68,7 @@ class _HomePageState extends State<HomePage> {
               height: 24,
             ),
           ),
-          label: showLabel
-      );
+          label: showLabel);
     }).toList();
   }
 
@@ -101,7 +101,14 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.transparent,
           elevation: 0.0,
           actions: null,
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarIconBrightness: Brightness.dark,
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.light,
+            
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarDividerColor: Colors.white,
+          ),
         ),
         resizeToAvoidBottomInset: false,
         body: _getPage(0),
@@ -135,7 +142,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: _buildPage(_tabIndex),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration( 
+        decoration: BoxDecoration(
             color: Colors.white,
             border: Border(
                 top: BorderSide(

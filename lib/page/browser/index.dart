@@ -200,7 +200,6 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
         leading: null,
         title: null,
         toolbarHeight: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -234,14 +233,17 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
               store.browser!.webFavList.length == 0 &&
                       store.browser!.webHistoryList.length == 0
                   ? Expanded(
-                      child: Center(
-                          child: Text(dic.browserEmptyTip,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: ColorsUtil.hexColor(0x808080)
-                                      .withOpacity(0.5),
-                                  fontWeight: FontWeight.w400,
-                                  decoration: TextDecoration.none))))
+                      child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20),
+                          child: Center(
+                              child: Text(dic.browserEmptyTip,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: ColorsUtil.hexColor(0x808080)
+                                          .withOpacity(0.5),
+                                      fontWeight: FontWeight.w400,
+                                      decoration: TextDecoration.none)))))
                   : Container(),
               _buildBottomList(),
             ],

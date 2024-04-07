@@ -181,7 +181,6 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
         leading: null,
         title: null,
         toolbarHeight: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
