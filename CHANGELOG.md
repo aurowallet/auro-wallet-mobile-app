@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [2.0.0]
+- Add support for Berkeley network
+- Add support for zkApp
+- Update Signature to mina-signer-js
+- Add language: Russian
+- UI enhancements
+    - Account Management
+    - Network Management
+- Bug fixes
+
 ## [1.1.9]
 - Add language:ukrainian
 - Add currency:UAH
