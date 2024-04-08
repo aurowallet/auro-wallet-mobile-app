@@ -211,131 +211,125 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
             await UI.showAccountSelectAction(
                 context: context, onSelectAccount: onSelectAccount);
           },
-          body: Scaffold(
-              appBar: null,
-              backgroundColor: Colors.white,
-              body: SafeArea(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: WebViewInjected(url,
-                          onGetNewestNonce: () => nextUseInferredNonce,
-                          onWebViewCreated: (controller) {
-                            _controller = controller;
-                          },
-                          onPageFinished:
-                              (gobackStatus, goForwardStatus) async {
-                            String title = await _controller.getTitle() ?? "";
-                            if (title.isNotEmpty) {
-                              if (!mounted) return;
-                              setState(() {
-                                loadTitle = title;
-                              });
-                            }
-                            if (!mounted) return;
-                            setState(() {
-                              canGoback = gobackStatus;
-                              canGoForward = goForwardStatus;
-                            });
-                          },
-                          onTxConfirmed: (int nonce) {
-                            if (nonce == nextUseInferredNonce) {
-                              nextUseInferredNonce = nextUseInferredNonce + 1;
-                            } else {
-                              _loadData();
-                            }
-                          },
-                          onWebInfoBack: (Map websiteInfo) {
-                            if (!mounted) return;
-                            setState(() {
-                              websiteInitInfo = websiteInfo;
-                            });
-                          }),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border(
-                          top: BorderSide(
-                            width: 0.5,
-                            color: Colors.black.withOpacity(0.1),
-                          ),
-                        ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: WebViewInjected(url,
+                      onGetNewestNonce: () => nextUseInferredNonce,
+                      onWebViewCreated: (controller) {
+                        _controller = controller;
+                      },
+                      onPageFinished: (gobackStatus, goForwardStatus) async {
+                        String title = await _controller.getTitle() ?? "";
+                        if (title.isNotEmpty) {
+                          if (!mounted) return;
+                          setState(() {
+                            loadTitle = title;
+                          });
+                        }
+                        if (!mounted) return;
+                        setState(() {
+                          canGoback = gobackStatus;
+                          canGoForward = goForwardStatus;
+                        });
+                      },
+                      onTxConfirmed: (int nonce) {
+                        if (nonce == nextUseInferredNonce) {
+                          nextUseInferredNonce = nextUseInferredNonce + 1;
+                        } else {
+                          _loadData();
+                        }
+                      },
+                      onWebInfoBack: (Map websiteInfo) {
+                        if (!mounted) return;
+                        setState(() {
+                          websiteInitInfo = websiteInfo;
+                        });
+                      }),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      top: BorderSide(
+                        width: 0.5,
+                        color: Colors.black.withOpacity(0.1),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            child: SvgPicture.asset(
-                                'assets/images/webview/icon_back.svg',
-                                width: 30,
-                                height: 30,
-                                color: canGoback
-                                    ? enableBtnColor
-                                    : disableBtnColor),
-                            onTap: () async {
-                              if (await _controller.canGoBack()) {
-                                _controller.goBack();
-                              }
-                            },
-                          ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            child: SvgPicture.asset(
-                                'assets/images/webview/icon_pop.svg',
-                                width: 30,
-                                height: 30,
-                                color: canGoForward
-                                    ? enableBtnColor
-                                    : disableBtnColor),
-                            onTap: () async {
-                              if (await _controller.canGoForward()) {
-                                _controller.goForward();
-                              }
-                            },
-                          ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            child: SvgPicture.asset(
-                                'assets/images/webview/icon_refresh.svg',
-                                width: 24,
-                                height: 24,
-                                color: ColorsUtil.hexColor(0x000000)
-                                    .withOpacity(0.8)),
-                            onTap: () {
-                              _controller!.reload();
-                            },
-                          ),
-                          Observer(builder: (BuildContext context) {
-                            return IconButton(
-                              icon: Icon(Icons.more_horiz),
-                              color: ColorsUtil.hexColor(0x000000)
-                                  .withOpacity(0.8),
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  backgroundColor: Colors.transparent,
-                                  isScrollControlled: true,
-                                  isDismissible: true,
-                                  enableDrag: false,
-                                  builder: (contextPopup) {
-                                    return BrowserActionButton(
-                                      url: url,
-                                      isFav: isFav,
-                                      onClickFav: onClickFav,
-                                    );
-                                  },
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        child: SvgPicture.asset(
+                            'assets/images/webview/icon_back.svg',
+                            width: 30,
+                            height: 30,
+                            color:
+                                canGoback ? enableBtnColor : disableBtnColor),
+                        onTap: () async {
+                          if (await _controller.canGoBack()) {
+                            _controller.goBack();
+                          }
+                        },
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        child: SvgPicture.asset(
+                            'assets/images/webview/icon_pop.svg',
+                            width: 30,
+                            height: 30,
+                            color: canGoForward
+                                ? enableBtnColor
+                                : disableBtnColor),
+                        onTap: () async {
+                          if (await _controller.canGoForward()) {
+                            _controller.goForward();
+                          }
+                        },
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        child: SvgPicture.asset(
+                            'assets/images/webview/icon_refresh.svg',
+                            width: 24,
+                            height: 24,
+                            color:
+                                ColorsUtil.hexColor(0x000000).withOpacity(0.8)),
+                        onTap: () {
+                          _controller!.reload();
+                        },
+                      ),
+                      Observer(builder: (BuildContext context) {
+                        return IconButton(
+                          icon: Icon(Icons.more_horiz),
+                          color: ColorsUtil.hexColor(0x000000).withOpacity(0.8),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              backgroundColor: Colors.transparent,
+                              isScrollControlled: true,
+                              isDismissible: true,
+                              enableDrag: false,
+                              builder: (contextPopup) {
+                                return BrowserActionButton(
+                                  url: url,
+                                  isFav: isFav,
+                                  onClickFav: onClickFav,
                                 );
                               },
                             );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ],
+                          },
+                        );
+                      }),
+                    ],
+                  ),
                 ),
-              ))),
+              ],
+            ),
+          )),
       onWillPop: () async {
         final canGoBack = await _controller?.canGoBack();
         if (canGoBack ?? false) {
