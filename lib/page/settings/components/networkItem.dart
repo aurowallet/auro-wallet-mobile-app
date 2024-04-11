@@ -74,7 +74,7 @@ class NetworkItem extends StatelessWidget {
     String? iconUrl;
     if (endpoint.isDefaultNode == true) {
       if (endpoint.netType == NetworkTypes.mainnet) {
-        iconUrl = "assets/images/stake/icon_mina_color.png";
+        iconUrl = "assets/images/stake/icon_mina_color.svg";
       } else {
         iconUrl = 'assets/images/stake/icon_mina_gray.svg';
       }
@@ -225,19 +225,12 @@ class NetworkIcon extends StatelessWidget {
       return Container(
           margin: EdgeInsets.only(right: 10),
           child: ClipOval(
-            child: isSvg
-                ? SvgPicture.asset(
+            child: SvgPicture.asset(
                     iconUrl!,
                     width: 30,
                     height: 30,
                     fit: BoxFit.cover,
                   )
-                : Image.asset(
-                    iconUrl!,
-                    width: 30,
-                    height: 30,
-                    fit: BoxFit.cover,
-                  ),
           ));
     } else {
       return Container(
