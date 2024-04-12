@@ -19,7 +19,7 @@ const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 /// app versions
-const String app_version = 'v2.0.0(1143)';
+const String app_version = 'v2.0.1(1145)';
 
 final mainNetNode = CustomNode(
     name: 'Mainnet', url: GRAPH_QL_MAINNET_NODE_URL, networksType: '0');
