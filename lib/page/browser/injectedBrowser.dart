@@ -439,15 +439,12 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   }
 
   Future<Map<String, dynamic>> getWebInfoFromBridge(String url) async {
-    final webIconUrl =
-        await _controller.runJavaScript("getSiteIcon(window)") as String?;
     String? icon = websiteInitInfo['webIcon'] != null
-        ? websiteInitInfo['webIcon']
-        : webIconUrl;
+        ? websiteInitInfo['webIcon']:"";
     String? webTitle = await _controller.getTitle();
     String title = webTitle ?? url;
 
-    return {"webIconUrl": icon ?? "", "webTitle": title, url: url};
+    return {"webIconUrl": icon, "webTitle": title, url: url};
   }
 
   void onSaveHistory(String url) async {
