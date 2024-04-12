@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [2.0.1]
+- Enhancements
+    - Tx history sort
+    - Tx explorer display
+    - Remove unused libs (flutter_switch, flutter_rust_bridge, dio)
+- Fixed
+    - Crash of iOS version less than 17
+    - ZkApp without icon connect issue
+
 ## [2.0.0]
 - Add support for Berkeley network
 - Add support for zkApp

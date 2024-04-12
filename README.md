@@ -52,3 +52,6 @@ You can use weblate to add new translations to [Auro Wallet](https://hosted.webl
 
 ### For developer
 You need to pull the code from github first, and then switch to the `feature/translate` branch. If you need to update the existing translation, directly edit the content of the target file. If you need to add a new language file, please add a new language file according to the language encoding requirements, such as `app_tr.arb`. After completion, you need to submit a PR to the `feature/translate` branch for merging.
+
+## Sponsor
+This project is tested with BrowserStack
