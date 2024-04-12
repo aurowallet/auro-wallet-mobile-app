@@ -59,7 +59,7 @@ class SignTransactionDialog extends StatefulWidget {
   final Map<String, dynamic>? feePayer;
   final String url;
   final String? iconUrl;
-  int preNonce;
+  final int preNonce;
 
   final Function(String, int) onConfirm;
   final Function()? onCancel;
@@ -343,7 +343,10 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   }
 
   void onCancel() {
-    widget.onCancel!();
+    final onCancel = widget.onCancel;
+    if (onCancel != null) {
+      onCancel();
+    }
   }
 
   Widget _buildAccountRow() {
@@ -697,7 +700,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                                 children: [
                                   isRiskAddress ? _buildRiskTip() : Container(),
                                   ZkAppWebsite(
-                                      icon: widget.iconUrl!, url: widget.url),
+                                      icon: widget.iconUrl, url: widget.url),
                                   SizedBox(
                                     height: 20,
                                   ),

@@ -249,7 +249,9 @@ class UI {
               Navigator.of(context).pop();
             },
             onCancel: () {
-              onCancel!();
+              if(onCancel!=null){
+                onCancel();
+              }
             });
       },
     );
@@ -282,7 +284,9 @@ class UI {
               Navigator.of(context).pop();
             },
             onCancel: () {
-              onCancel!();
+              if(onCancel!=null){
+                onCancel();
+              }
             });
       },
     );
@@ -314,7 +318,9 @@ class UI {
               onConfirm();
             },
             onCancel: () {
-              onCancel!();
+              if (onCancel != null) {
+                  onCancel();
+                }
             });
       },
     );
@@ -346,7 +352,9 @@ class UI {
               onConfirm(data);
             },
             onCancel: () {
-              onCancel!();
+              if(onCancel!=null){
+                onCancel();
+              }
             });
       },
     );
@@ -391,7 +399,9 @@ class UI {
               Navigator.of(context).pop();
             },
             onCancel: () {
-              onCancel!();
+              if(onCancel!=null){
+                onCancel();
+              }
             });
       },
     );
@@ -422,8 +432,7 @@ class UI {
     required BuildContext context,
     required double fee,
     required int nonce,
-    Function(double, int)? onConfirm,
-    String? buttonText,
+    required Function(double, int) onConfirm,
   }) {
     return showDialog<void>(
       context: context,
@@ -433,7 +442,7 @@ class UI {
           nextStateFee: fee,
           nonce: nonce,
           onConfirm: (double fee, int nonce) {
-            onConfirm!(fee, nonce);
+            onConfirm(fee, nonce);
           },
         );
       },

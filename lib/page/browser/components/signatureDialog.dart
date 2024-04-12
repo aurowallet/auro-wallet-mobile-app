@@ -21,8 +21,8 @@ class SignatureDialog extends StatefulWidget {
     required this.method,
     required this.content,
     required this.url,
+    required this.onConfirm,
     this.iconUrl,
-    this.onConfirm,
     this.onCancel,
   });
 
@@ -30,7 +30,7 @@ class SignatureDialog extends StatefulWidget {
   final String method;
   final String url;
   final String? iconUrl;
-  final Function(Map)? onConfirm;
+  final Function(Map) onConfirm;
   final Function()? onCancel;
 
   @override
@@ -116,12 +116,15 @@ class _SignatureDialogState extends State<SignatureDialog> {
     setState(() {
       submitting = false;
     });
-    widget.onConfirm!(data);
+    widget.onConfirm(data);
     return true;
   }
 
   void onCancel() {
-    widget.onCancel!();
+    final onCancel = widget.onCancel;
+    if (onCancel != null) {
+      onCancel();
+    }
   }
 
   Widget _build() {
@@ -218,7 +221,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
+                          ZkAppWebsite(icon: widget.iconUrl, url: widget.url),
                           SizedBox(
                             height: 20,
                           ),

@@ -299,7 +299,9 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                             color:
                                 ColorsUtil.hexColor(0x000000).withOpacity(0.8)),
                         onTap: () {
-                          _controller!.reload();
+                          if(_controller != null){
+                            _controller.reload();
+                          }
                         },
                       ),
                       Observer(builder: (BuildContext context) {

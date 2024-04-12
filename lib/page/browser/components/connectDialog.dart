@@ -11,13 +11,13 @@ import 'package:flutter/material.dart';
 class ConnectDialog extends StatefulWidget {
   ConnectDialog({
     required this.url,
+    required this.onConfirm,
     this.iconUrl,
-    this.onConfirm,
     this.onCancel,
   });
 
   final String url;
-  final Function()? onConfirm;
+  final Function() onConfirm;
   final Function()? onCancel;
   final String? iconUrl;
 
@@ -35,12 +35,14 @@ class _ConnectDialogState extends State<ConnectDialog> {
 
   void onConfirm() {
     print(' ConnectDialog  onConfirm');
-    widget.onConfirm!();
+    widget.onConfirm();
   }
 
   void onCancel() {
-    print(' ConnectDialog  onCancel');
-    widget.onCancel!();
+    final onCancel = widget.onCancel;
+    if (onCancel != null) {
+      onCancel();
+    }
   }
 
   @override
@@ -66,7 +68,7 @@ class _ConnectDialogState extends State<ConnectDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
+                          ZkAppWebsite(icon: widget.iconUrl, url: widget.url),
                           Container(
                             margin: EdgeInsets.only(top: 20),
                             child: Text(dic.connectTip + ":",

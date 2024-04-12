@@ -17,8 +17,8 @@ class AddChainDialog extends StatefulWidget {
     required this.nodeUrl,
     required this.nodeName,
     required this.url,
+    required this.onConfirm,
     this.iconUrl,
-    this.onConfirm,
     this.onCancel,
   });
 
@@ -26,7 +26,7 @@ class AddChainDialog extends StatefulWidget {
   final String nodeName;
   final String url;
   final String? iconUrl;
-  final Function()? onConfirm;
+  final Function() onConfirm;
   final Function()? onCancel;
 
   @override
@@ -106,7 +106,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
     setState(() {
       submitting = false;
     });
-    widget.onConfirm!();
+    widget.onConfirm();
   }
 
   void onConfirm() {
@@ -114,7 +114,10 @@ class _AddChainDialogState extends State<AddChainDialog> {
   }
 
   void onCancel() {
-    widget.onCancel!();
+    final onCancel = widget.onCancel;
+    if (onCancel != null) {
+      onCancel();
+    }
   }
 
   @override
@@ -149,7 +152,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
+                          ZkAppWebsite(icon: widget.iconUrl, url: widget.url),
                           Container(
                             margin: EdgeInsets.only(top: 20),
                             child: Text(dic.allowSiteAddNode,

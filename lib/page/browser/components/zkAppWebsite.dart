@@ -68,7 +68,7 @@ class ItemLogoState extends State<ItemLogo> {
       onBackgroundImageError: !showHolderText ? onLoadError : null,
       backgroundImage: !showHolderText
           ? NetworkImage(
-              widget.icon!,
+              widget.icon??"",
             )
           : null,
       child: showHolderText

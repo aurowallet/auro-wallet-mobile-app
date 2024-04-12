@@ -1,6 +1,5 @@
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 
 class ZkAppBottomButton extends StatelessWidget {
@@ -11,7 +10,7 @@ class ZkAppBottomButton extends StatelessWidget {
       this.submitting});
 
   final Function()? onCancel;
-  final Function()? onConfirm;
+  final Function() onConfirm;
   final bool? hideCancel;
   final bool? submitting;
   @override
@@ -27,7 +26,9 @@ class ZkAppBottomButton extends StatelessWidget {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         onPressed: () {
-          onCancel!();
+          if (onCancel != null) {
+            onCancel!();
+          }
           Navigator.of(context).pop();
         },
         child: Text(dic.cancel,
@@ -52,7 +53,7 @@ class ZkAppBottomButton extends StatelessWidget {
                 submitting: submitting == true,
                 text: dic.confirm,
                 onPressed: () {
-                  onConfirm!();
+                  onConfirm();
                 },
                 textStyle:
                     TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),

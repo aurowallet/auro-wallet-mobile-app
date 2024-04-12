@@ -47,12 +47,12 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
   }
 
   List<WebConfig> _filter(String? key, List<WebConfig> list) {
-    if (key == null || key!.isEmpty) {
+    if (key == null || key.isEmpty) {
       return list;
     }
     var res = list.where((element) {
-      return (element.url.toLowerCase().contains(key!.toLowerCase())) ||
-          (element.title.toLowerCase().contains(key!.toLowerCase()));
+      return (element.url.toLowerCase().contains(key.toLowerCase())) ||
+          (element.title.toLowerCase().contains(key.toLowerCase()));
     }).toList();
     return res;
   }

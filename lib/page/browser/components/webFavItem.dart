@@ -31,7 +31,7 @@ class WebFavItem extends StatelessWidget {
             ),
             ItemLogo(
               name: data.title,
-              dataIcon:data.icon,
+              dataIcon: data.icon,
               width: 20,
             ),
             SizedBox(
@@ -90,7 +90,9 @@ class LongPressMenu extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(radius)),
       ),
       onTap: () {
-        onClickItem!(data);
+        if (onClickItem != null) {
+          onClickItem!(data);
+        }
       },
       child: childWidget,
     );
@@ -122,7 +124,8 @@ class ItemLogoState extends State<ItemLogo> {
 
     String logoUrl = "";
     if (widget.dataIcon != null && widget.dataIcon!.isNotEmpty) {
-      bool isFirstCharLetter = RegExp(r'^[a-zA-Z]').hasMatch(widget.dataIcon![0]);
+      bool isFirstCharLetter =
+          RegExp(r'^[a-zA-Z]').hasMatch(widget.dataIcon![0]);
 
       if (!isFirstCharLetter) {
         if (widget.dataIcon!.length >= 5) {

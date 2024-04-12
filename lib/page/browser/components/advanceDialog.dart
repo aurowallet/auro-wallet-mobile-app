@@ -47,7 +47,7 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
       fee = widget.nextStateFee as double;
     }
     int nonce = inputNonce.isNotEmpty ? int.parse(inputNonce) : inferredNonce;
-    widget.onConfirm!(fee, nonce);
+    widget.onConfirm(fee, nonce);
     Navigator.of(context).pop();
   }
 

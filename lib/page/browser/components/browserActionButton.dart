@@ -81,7 +81,9 @@ class BrowserActionButton extends StatelessWidget {
                     Navigator.pop(context);
                   }, context),
                   buildItem(favUrl, favTxt, () {
-                    onClickFav!();
+                    if(onClickFav != null){
+                      onClickFav!();
+                    }
                     Navigator.pop(context);
                   }, context),
                   buildItem(

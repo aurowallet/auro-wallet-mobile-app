@@ -119,7 +119,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     String toAddress = "";
 
     if (method != "mina_sendTransaction") {
-      toAddress = params!['to'];
+      toAddress = params?['to'];
     }
     if (signType != null) {
       await UI.showSignTransactionAction(
@@ -127,13 +127,13 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         signType: signType,
         to: toAddress,
         nonce: widget.onGetNewestNonce(),
-        amount: params!['amount'],
-        fee: params['fee'],
-        memo: params['memo'],
-        transaction: params['transaction'],
-        feePayer: params['feePayer'],
-        url: siteInfo!['origin'],
-        iconUrl: siteInfo!['webIcon'],
+        amount: params?['amount'],
+        fee: params?['fee'],
+        memo: params?['memo'],
+        transaction: params?['transaction'],
+        feePayer: params?['feePayer'],
+        url: siteInfo?['origin'],
+        iconUrl: siteInfo?['webIcon'],
         onConfirm: (String hash, int nonce) async {
           Map<String, dynamic> resData = {
             "result": {"hash": hash},
@@ -166,14 +166,14 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     Map? params = payload['params'];
     Map? siteInfo = payload['site'];
 
-    Object message = params!["message"];
+    Object message = params?["message"];
 
     await UI.showSignatureAction(
       method: method,
       context: context,
       content: message,
-      url: siteInfo!['origin'],
-      iconUrl: siteInfo!['webIcon'],
+      url: siteInfo?['origin'],
+      iconUrl: siteInfo?['webIcon'],
       onConfirm: (Map data) async {
         Map<String, dynamic> resData = {"result": data, "id": payload['id']};
         _responseToZkApp(method, resData);
@@ -191,14 +191,14 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     store.browser!.addConnectConfig(url, store.wallet!.currentAddress);
   }
 
-  Future<void> switchChainByUrl(String method, Map<dynamic, dynamic> siteInfo,
+  Future<void> switchChainByUrl(String method, Map<dynamic, dynamic> ?siteInfo,
       String id, String realUrl) async {
     _signing = true;
     await UI.showSwitchChainAction(
         context: context,
         chainId: "",
-        url: siteInfo!['origin'],
-        iconUrl: siteInfo!['webIcon'],
+        url: siteInfo?['origin'],
+        iconUrl: siteInfo?['webIcon'],
         gqlUrl: realUrl,
         onConfirm: (String networkName, String chainId) async {
           Map chainInfoArgs = {
@@ -290,7 +290,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           return;
         }
         _signing = true;
-        String uri = Uri.decodeComponent(params!['url']);
+        String uri = Uri.decodeComponent(params?['url']);
         Uri uriCheck = Uri.parse(uri);
 
         if (!(uriCheck.scheme == 'http' || uriCheck.scheme == 'https') ||
@@ -323,10 +323,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         }
         await UI.showAddChainAction(
           context: context,
-          nodeName: params!['name'],
+          nodeName: params?['name'],
           nodeUrl: realUrl,
-          url: siteInfo!['origin'],
-          iconUrl: siteInfo!['webIcon'],
+          url: siteInfo?['origin']?? "",
+          iconUrl: siteInfo?['webIcon'],
           onConfirm: () {
             Navigator.of(context).pop();
             switchChainByUrl(method, siteInfo, payload["id"], realUrl);
@@ -345,13 +345,13 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         _signing = true;
         List<String> currentSupportChainList =
             store.settings!.getSupportNetTypes();
-        if (!currentSupportChainList.contains(params!['chainId'])) {
+        if (!currentSupportChainList.contains(params?['chainId'])) {
           onHandleErrorReject(
               method, payload['id'], ErrorCodes.notSupportChain);
           return;
         }
-        String? currentChainId = store.settings!.currentNode?.netType!.name;
-        if (currentChainId == (params["chainId"]?.toLowerCase())) {
+        String? currentChainId = store.settings!.currentNode?.netType?.name;
+        if (currentChainId == (params?["chainId"]?.toLowerCase())) {
           var networkName =
               NetworkUtil.getNetworkName(store.settings!.currentNode);
           Map chainInfoArgs = {
@@ -367,9 +367,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         }
         await UI.showSwitchChainAction(
             context: context,
-            chainId: params!['chainId'],
-            url: siteInfo!['origin'],
-            iconUrl: siteInfo!['webIcon'],
+            chainId: params?['chainId'],
+            url: siteInfo?['origin'],
+            iconUrl: siteInfo?['webIcon'],
             onConfirm: (String networkName, String chainId) async {
               Map chainInfoArgs = {
                 "chainId": chainId,
@@ -523,7 +523,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           try {
             final msg = jsonDecode(message.message);
             Map? payload = msg["payload"];
-            String? id = payload!["id"];
+            String? id = payload?["id"];
 
             String? origin = payload?["site"]?['origin'];
 

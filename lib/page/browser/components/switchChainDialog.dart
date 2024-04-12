@@ -15,8 +15,8 @@ class SwitchChainDialog extends StatefulWidget {
   SwitchChainDialog({
     required this.chainId,
     required this.url,
+    required this.onConfirm,
     this.iconUrl,
-    this.onConfirm,
     this.onCancel,
     this.gqlUrl,
   });
@@ -24,7 +24,7 @@ class SwitchChainDialog extends StatefulWidget {
   final String chainId;
   final String url;
   final String? iconUrl;
-  final Function(String, String)? onConfirm;
+  final Function(String, String) onConfirm;
   final Function()? onCancel;
   final String? gqlUrl;
 
@@ -69,7 +69,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     bool changeByUrl = widget.gqlUrl != null;
 
     print(' ConnectDialog  onConfirm');
-    dynamic nodes = store.settings!.allNodes.where((element) {
+    store.settings!.allNodes.where((element) {
       if (!changeByUrl) {
         return element.netType!.name == widget.chainId.toLowerCase();
       } else {
@@ -87,12 +87,14 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     String networkName = showNode.name;
     String chainId = showNode.netType!.name;
 
-    widget.onConfirm!(networkName, chainId);
+    widget.onConfirm(networkName, chainId);
   }
 
   void onCancel() {
-    print(' ConnectDialog  onCancel');
-    widget.onCancel!();
+    final onCancel = widget.onCancel;
+    if (onCancel != null) {
+      onCancel();
+    }
   }
 
   @override
@@ -117,7 +119,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ZkAppWebsite(icon: widget.iconUrl!, url: widget.url),
+                          ZkAppWebsite(icon: widget.iconUrl, url: widget.url),
                           Container(
                               margin: EdgeInsets.only(top: 20, bottom: 20),
                               child: Observer(builder: (_) {
