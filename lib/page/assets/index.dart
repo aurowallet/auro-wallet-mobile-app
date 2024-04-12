@@ -3,12 +3,10 @@ import 'dart:ui' as ui;
 
 import 'package:auro_wallet/common/components/TxAction/TxActionRow.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
-import 'package:auro_wallet/common/components/nodeSelectionDropdown.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -531,7 +529,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     List<Widget> res = [];
     bool isTxsLoading = store.assets!.isTxsLoading;
     List<TransferData> txs = [
-      ...store.assets!.totalZkTxs,
+      ...store.assets!.totalPendingTxs,
       ...store.assets!.totalTxs
     ];
     if (store.settings!.isSupportedNode) {
@@ -546,7 +544,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           isOut: i.sender == store.wallet!.currentAddress,
         );
       }));
-      if (txs.length >= 15) {
+      if (txs.length > 0) {
         res.add(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -574,7 +572,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       builder: (_) {
         bool isTxsLoading = store.assets!.isTxsLoading;
         bool isEmpty = store.assets!.totalTxs.length == 0 &&
-            store.assets!.totalZkTxs.length == 0;
+            store.assets!.totalPendingTxs.length == 0;
         return RefreshIndicator(
           key: globalBalanceRefreshKey,
           onRefresh: _onRefresh,

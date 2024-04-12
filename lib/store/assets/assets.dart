@@ -110,7 +110,7 @@ abstract class _AssetsStore with Store {
       int? nonce1 = tx1.nonce;
       int? nonce2 = tx2.nonce;
       if (nonce1 != null && nonce2 != null) {
-        return nonce1.compareTo(nonce2);
+        return nonce2.compareTo(nonce1);
       }
       return 0;
     });
@@ -118,7 +118,7 @@ abstract class _AssetsStore with Store {
   }
 
   @computed
-  List<TransferData> get totalZkTxs {
+  List<TransferData> get totalPendingTxs {
     List<TransferData> totals = [];
     [...pendingTxs, ...pendingZkTxs].forEach((i) {
       if (rootStore.settings?.isMainnet == true) {
@@ -135,12 +135,12 @@ abstract class _AssetsStore with Store {
       int? nonce1 = tx1.nonce;
       int? nonce2 = tx2.nonce;
       if (nonce1 != null && nonce2 != null) {
-        return nonce1.compareTo(nonce2);
+        return nonce2.compareTo(nonce1);
       }
       return 0;
     });
         if(totals.isNotEmpty){
-      totals[0].showSpeedUp = true;
+      totals[totals.length-1].showSpeedUp = true;
     }
     return totals;
   }
