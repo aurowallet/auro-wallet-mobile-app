@@ -119,7 +119,7 @@ class Api {
   }
 
   Future<GqlResult> gqlRequest(dynamic options,
-      {required BuildContext context, int timeout = 20}) async {
+      {required BuildContext context, int timeout = 60}) async {
     QueryResult? result;
     Future<QueryResult> req;
     if (options is MutationOptions) {
