@@ -30,7 +30,6 @@ dependencies:
   convert: ^3.0.0
   http: ^1.2.0
   rxdart: ^0.27.7
-  dio: ^5.4.1
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -71,10 +70,8 @@ dependencies:
       url: https://github.com/PabloPessotto/qr_code_tools.git
       ref: 8f95dc999833961343c96cfe2e104ee4b650ebd9
   image_picker: ^1.0.7
-  flutter_switch: ^0.3.2
   webcrypto: ^0.5.2
   styled_text: ^8.1.0
-  flutter_rust_bridge: ^1.30.0
   dropdown_button2: ^2.3.9
   dotted_line: ^3.1.0
   ledger_flutter: ^1.0.1

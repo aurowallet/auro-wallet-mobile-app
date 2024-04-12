@@ -11,7 +11,6 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:biometric_storage/biometric_storage.dart';
-import 'package:flutter_switch/flutter_switch.dart';
 
 
 class SecurityPage extends StatefulWidget {
@@ -224,14 +223,13 @@ class SwitchItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(text, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
-            FlutterSwitch(
+            Switch(
               value: isOn,
-              width: 54,
-              height: 30,
-              onToggle: (value) {
-                onClick(value);
-              },
-              activeColor: Theme.of(context).primaryColor,
+              onChanged: onClick,
+              activeColor: Colors.white,
+              inactiveThumbColor: Colors.white,
+              activeTrackColor: Color(0xFF594AF1),
+              inactiveTrackColor: Color(0xFFE9E9E9),
             ),
           ],
         )

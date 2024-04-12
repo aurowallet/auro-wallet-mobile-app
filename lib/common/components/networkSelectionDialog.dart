@@ -9,7 +9,6 @@ import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_switch/flutter_switch.dart';
 
 class NetworkSelectionDialog extends StatefulWidget {
   NetworkSelectionDialog();
@@ -121,14 +120,13 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                               color: ColorsUtil.hexColor(0x808080),
                               fontWeight: FontWeight.w400)),
                     ),
-                    FlutterSwitch(
+                    Switch(
                       value: _isCheck,
-                      width: 54,
-                      height: 30,
-                      onToggle: (value) {
-                        _changed(value);
-                      },
-                      activeColor: Theme.of(context).primaryColor,
+                      onChanged: _changed,
+                      activeColor: Colors.white,
+                      inactiveThumbColor: Colors.white,
+                      activeTrackColor: Color(0xFF594AF1),
+                      inactiveTrackColor: Color(0xFFE9E9E9),
                     ),
                   ],
                 ),

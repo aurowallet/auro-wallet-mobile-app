@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
-import 'package:dio/dio.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/utils/format.dart';
