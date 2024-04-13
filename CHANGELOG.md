@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 - Enhancements
     - Website use URL as the default title
 - Fixed
-    - Nonce issue after zkApp switch chain
+    - Nonce issue after zkAsignJsonMessagepp switch chain
+    - Fortmat issue of signJsonMessage
 
 ## [2.0.1]
 - Enhancements

@@ -36,7 +36,11 @@ class ChildView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String showValue = (data?.value) ?? "";
+    dynamic showValue = "";
+    if (data.value != null) {
+      showValue = data.value.toString();
+    }
+
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,7 +66,7 @@ class ChildView extends StatelessWidget {
 
 class ContentRow extends StatelessWidget {
   final String title;
-  final String content;
+  final dynamic content;
   final int count;
   final bool showInLine;
   final bool withColon;
@@ -109,7 +113,7 @@ class ContentRow extends StatelessWidget {
 
     final contentText = Expanded(
       child: Text(
-        content,
+        content != null ? content.toString() : "",
         style: TextStyle(
             color: Color(0xFF000000).withOpacity(0.8),
             fontWeight: FontWeight.w400),
@@ -129,7 +133,7 @@ class ContentRow extends StatelessWidget {
     );
 
     final contentText = Text(
-      content,
+      content != null ? content.toString() : "",
       style: TextStyle(
           color: Color(0xFF000000).withOpacity(0.8),
           fontWeight: FontWeight.w400),
