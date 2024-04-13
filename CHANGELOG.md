@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+- Enhancements
+    - Website use URL as the default title
 
 ## [2.0.1]
 - Enhancements

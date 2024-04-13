@@ -9,7 +9,6 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
@@ -46,7 +45,6 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     required Widget body,
     required Function() actionOnPressed,
   }) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: false,
@@ -139,12 +137,12 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     if (isFav) {
       store.browser!.removeFavItem(loadUrl);
     } else {
-      final String title = websiteInitInfo['webTitle'] as String? ?? loadUrl;
-      final String icon = websiteInitInfo['webIconUrl'] as String? ?? '';
+      final String? title = websiteInitInfo['webTitle'];
+      final String? icon = websiteInitInfo['webIconUrl'];
       store.browser!.updateFavItem({
         "url": loadUrl,
-        "title": title,
-        "icon": icon,
+        "title": title != null && title.isNotEmpty ? title : loadUrl,
+        "icon": icon != null && icon.isNotEmpty ? icon : "",
         "time": DateTime.now().toString(),
       }, loadUrl);
     }
@@ -227,6 +225,10 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                           setState(() {
                             loadTitle = title;
                           });
+                        } else {
+                          setState(() {
+                            loadTitle = url;
+                          });
                         }
                         if (!mounted) return;
                         setState(() {
@@ -299,7 +301,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                             color:
                                 ColorsUtil.hexColor(0x000000).withOpacity(0.8)),
                         onTap: () {
-                          if(_controller != null){
+                          if (_controller != null) {
                             _controller.reload();
                           }
                         },

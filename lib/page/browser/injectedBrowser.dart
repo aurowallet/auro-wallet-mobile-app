@@ -191,7 +191,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     store.browser!.addConnectConfig(url, store.wallet!.currentAddress);
   }
 
-  Future<void> switchChainByUrl(String method, Map<dynamic, dynamic> ?siteInfo,
+  Future<void> switchChainByUrl(String method, Map<dynamic, dynamic>? siteInfo,
       String id, String realUrl) async {
     _signing = true;
     await UI.showSwitchChainAction(
@@ -325,7 +325,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           context: context,
           nodeName: params?['name'],
           nodeUrl: realUrl,
-          url: siteInfo?['origin']?? "",
+          url: siteInfo?['origin'] ?? "",
           iconUrl: siteInfo?['webIcon'],
           onConfirm: () {
             Navigator.of(context).pop();
@@ -439,10 +439,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   }
 
   Future<Map<String, dynamic>> getWebInfoFromBridge(String url) async {
-    String? icon = websiteInitInfo['webIcon'] != null
-        ? websiteInitInfo['webIcon']:"";
+    String? webIcon = websiteInitInfo['webIcon'];
+    String? icon = webIcon != null && webIcon.isNotEmpty ? webIcon : "";
     String? webTitle = await _controller.getTitle();
-    String title = webTitle ?? url;
+    String title = webTitle != null && webTitle.isNotEmpty ? webTitle : url;
 
     return {"webIconUrl": icon, "webTitle": title, url: url};
   }
