@@ -271,7 +271,7 @@ class UI {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      isDismissible: true,
+      isDismissible: false,
       enableDrag: false,
       builder: (BuildContext context) {
         return SwitchChainDialog(
@@ -280,7 +280,7 @@ class UI {
             iconUrl: iconUrl,
             gqlUrl: gqlUrl,
             onConfirm: (String networkName, String chainId) async {
-              onConfirm(networkName, chainId);
+              await onConfirm(networkName, chainId);
               Navigator.of(context).pop();
             },
             onCancel: () {

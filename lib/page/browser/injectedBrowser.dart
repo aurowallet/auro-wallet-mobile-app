@@ -21,6 +21,7 @@ class WebViewInjected extends StatefulWidget {
     this.initialUrl, {
     required this.onTxConfirmed,
     required this.onGetNewestNonce,
+    required this.onRefreshChain,
     this.onPageFinished,
     this.onWebViewCreated,
     this.onWebInfoBack,
@@ -33,6 +34,7 @@ class WebViewInjected extends StatefulWidget {
   final Function(int) onTxConfirmed;
   final int Function() onGetNewestNonce;
   final Function(Map)? onWebInfoBack;
+  final Function() onRefreshChain;
 
   @override
   _WebViewInjectedState createState() => _WebViewInjectedState();
@@ -201,6 +203,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         iconUrl: siteInfo?['webIcon'],
         gqlUrl: realUrl,
         onConfirm: (String networkName, String chainId) async {
+          await widget.onRefreshChain();
           Map chainInfoArgs = {
             "chainId": chainId,
             "name": networkName,
@@ -371,6 +374,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             url: siteInfo?['origin'],
             iconUrl: siteInfo?['webIcon'],
             onConfirm: (String networkName, String chainId) async {
+              await widget.onRefreshChain();
               Map chainInfoArgs = {
                 "chainId": chainId,
                 "name": networkName,

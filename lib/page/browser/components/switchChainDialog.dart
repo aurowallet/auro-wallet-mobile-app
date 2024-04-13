@@ -35,6 +35,7 @@ class SwitchChainDialog extends StatefulWidget {
 class _SwitchChainDialogState extends State<SwitchChainDialog> {
   AppStore store = globalAppStore;
   late CustomNodeV2 showNode;
+  bool submitting = false;
 
   @override
   void initState() {
@@ -66,6 +67,9 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
   }
 
   void onConfirm() async {
+    setState(() {
+      submitting = true;
+    });
     bool changeByUrl = widget.gqlUrl != null;
 
     print(' ConnectDialog  onConfirm');
@@ -156,6 +160,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                   ZkAppBottomButton(
                     onConfirm: onConfirm,
                     onCancel: onCancel,
+                    submitting: submitting,
                   )
                 ],
               ),

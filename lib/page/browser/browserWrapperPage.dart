@@ -248,7 +248,12 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                         setState(() {
                           websiteInitInfo = websiteInfo;
                         });
-                      }),
+                      },
+                      onRefreshChain: ()async{
+                        nextUseInferredNonce = 0 ;
+                        await _loadData();
+                      },
+                      ),
                 ),
                 Container(
                   decoration: BoxDecoration(
