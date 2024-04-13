@@ -358,7 +358,7 @@
   "@speedUp": {},
   "speedUpTitle": "加速交易",
   "@speedUpTitle": {},
-  "cancelTransaction": "取消",
+  "cancelTransaction": "取消交易",
   "@cancelTransaction": {},
   "speedUpTip": "通常情况下，一笔交易需要<light>3分钟</light>才能确认。 但是，当网络拥堵时，您的交易可能需要花费大于3分钟或者更久的时间，您可以通过提高交易费用来加快交易过程。",
   "@speedUpTip": {},
