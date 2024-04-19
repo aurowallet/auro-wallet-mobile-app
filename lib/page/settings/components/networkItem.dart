@@ -1,4 +1,4 @@
-import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/page/settings/components/networkIcon.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:auro_wallet/store/settings/types/networkType.dart';
@@ -70,18 +70,6 @@ class NetworkItem extends StatelessWidget {
     return tempChainId;
   }
 
-  String? getNetworkIcon() {
-    String? iconUrl;
-    if (endpoint.isDefaultNode == true) {
-      if (endpoint.netType == NetworkTypes.mainnet) {
-        iconUrl = "assets/images/stake/icon_mina_color.svg";
-      } else {
-        iconUrl = 'assets/images/stake/icon_mina_gray.svg';
-      }
-    }
-    return iconUrl;
-  }
-
   @override
   Widget build(BuildContext context) {
     bool editable = endpoint.isDefaultNode != true;
@@ -128,8 +116,10 @@ class NetworkItem extends StatelessWidget {
                   child: Row(
                     children: [
                       NetworkIcon(
-                        iconUrl: getNetworkIcon(),
-                        iconName: endpoint.name,
+                        endpoint: endpoint,
+                      ),
+                      SizedBox(
+                        width: 10,
                       ),
                       Expanded(
                           child: Column(
@@ -204,48 +194,5 @@ class NetworkItem extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class NetworkIcon extends StatelessWidget {
-  final String? iconUrl;
-  final String iconName;
-
-  const NetworkIcon({
-    Key? key,
-    this.iconUrl,
-    required this.iconName,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (iconUrl != null && iconUrl!.isNotEmpty) {
-      bool isSvg = iconUrl!.endsWith('.svg');
-
-      return Container(
-          margin: EdgeInsets.only(right: 10),
-          child: ClipOval(
-            child: SvgPicture.asset(
-                    iconUrl!,
-                    width: 30,
-                    height: 30,
-                    fit: BoxFit.cover,
-                  )
-          ));
-    } else {
-      return Container(
-          margin: EdgeInsets.only(right: 10),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: Colors.black.withOpacity(0.3),
-            child: Text(
-              iconName.isNotEmpty ? iconName[0].toUpperCase() : '',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400),
-            ),
-          ));
-    }
   }
 }
