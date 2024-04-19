@@ -7,12 +7,18 @@ class ZkAppBottomButton extends StatelessWidget {
       {required this.onConfirm,
       this.onCancel,
       this.hideCancel,
-      this.submitting});
+      this.submitting,
+      this.disabled = false,
+      this.confirmBtnText,
+      });
 
   final Function()? onCancel;
   final Function() onConfirm;
   final bool? hideCancel;
   final bool? submitting;
+  final bool disabled;
+  final String? confirmBtnText;
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -51,7 +57,8 @@ class ZkAppBottomButton extends StatelessWidget {
           Expanded(
             child: NormalButton(
                 submitting: submitting == true,
-                text: dic.confirm,
+                disabled: disabled,
+                text: confirmBtnText ?? dic.confirm,
                 onPressed: () {
                   onConfirm();
                 },
