@@ -36,6 +36,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
   AppStore store = globalAppStore;
   late CustomNodeV2 showNode;
   bool submitting = false;
+  String currentNetworkName = '';
 
   @override
   void initState() {
@@ -62,6 +63,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     }
     setState(() {
       showNode = nextNode;
+      currentNetworkName = store.settings!.currentNode?.netType!.name as String;
     });
     return nextNode;
   }
@@ -139,8 +141,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                               children: [
                                 ChainItem(
                                     title: dic.current,
-                                    chainId: store.settings!.currentNode
-                                        ?.netType!.name as String,
+                                    chainId: currentNetworkName,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start),
                                 SvgPicture.asset(
