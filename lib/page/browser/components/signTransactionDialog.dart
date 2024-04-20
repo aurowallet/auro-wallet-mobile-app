@@ -20,7 +20,6 @@ import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/network.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -83,14 +82,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   late String showToAddress = "";
   String sourceData = "";
   List<DataItem> rawData = [];
-  bool isLedger =false;
+  bool isLedger = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
-        isLedger = store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+        isLedger = store.wallet!.currentWallet.walletType ==
+            WalletStore.seedTypeLedger;
       });
       checkParams();
     });
@@ -257,6 +257,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             context: context,
             wallet: store.wallet!.currentWallet,
             inputPasswordRequired: false);
+        setState(() {
+          submitting = false;
+        });
         if (password == null) {
           return false;
         }
@@ -277,7 +280,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           "fromAddress": store.wallet!.currentAddress,
           "fee": lastFee,
           "nonce": inputNonce,
-          "memo": lastMemo !=null ? lastMemo : "",
+          "memo": lastMemo != null ? lastMemo : "",
           "transaction": zkCommandFormat(widget.transaction)
         };
       } else {
@@ -288,7 +291,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           "toAddress": widget.to,
           "fee": lastFee,
           "nonce": inputNonce,
-          "memo": lastMemo !=null ? lastMemo : "",
+          "memo": lastMemo != null ? lastMemo : "",
         };
         if (widget.signType == SignTxDialogType.Payment) {
           double amount = double.parse(Fmt.balance(
@@ -667,8 +670,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     if (containerMaxHeight <= minHeight) {
       containerMaxHeight = containerMaxHeight + 50;
     }
-    String networkName =
-        NetworkUtil.getNetworkName(store.settings!.currentNode);
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -684,8 +685,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                 children: [
                   BrowserDialogTitleRow(
                     title: dic.sendDetail,
-                    chainId: networkName,
-                    ledgerWidget:isLedger ? LedgerStatus() : Container(),
+                    showChainType: true,
+                    ledgerWidget: isLedger ? LedgerStatus() : Container(),
                   ),
                   Container(
                       constraints: BoxConstraints(

@@ -1,12 +1,13 @@
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/ledgerStatus.dart';
+import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
+import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
@@ -107,12 +108,12 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
         padding: EdgeInsets.only(top: 14, bottom: 60),
         child: Center(
           child: CustomStyledText(
-            text: dic.ledgerAddressTip3,
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 14,
-                height: 1.2,
-                fontWeight: FontWeight.w400)),
+              text: dic.ledgerAddressTip3,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                  height: 1.2,
+                  fontWeight: FontWeight.w400)),
         ),
       )
     ];
@@ -184,16 +185,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               widget.isLedger ? LedgerStatus() : Container(),
-                              GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                child: SvgPicture.asset(
-                                  'assets/images/public/icon_nav_close.svg',
-                                  width: 24,
-                                  height: 24,
-                                  color: Colors.black,
-                                ),
-                                onTap: () => Navigator.pop(context),
-                              )
+                              NetworkStatusView()
                             ],
                           ),
                         )
@@ -205,10 +197,10 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                     color: Color(0xFF000000).withOpacity(0.1),
                   ),
                   widget.headerLabel != null &&
-                      widget.headerValue != null &&
-                      !showLedgerConfirm
+                          widget.headerValue != null &&
+                          !showLedgerConfirm
                       ? this
-                      .renderHead(widget.headerLabel!, widget.headerValue!)
+                          .renderHead(widget.headerLabel!, widget.headerValue!)
                       : Container(),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
@@ -217,32 +209,28 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                         ...(showLedgerConfirm
                             ? this.renderLedgerConfirm()
                             : widget.items.map((e) {
-                          return TxConfirmItem(
-                            data: e,
-                          );
-                        }).toList()),
-                        Padding(
-                          padding:
-                          EdgeInsets.only(top: 40, left: 18, right: 18),
-                          child: NormalButton(
-                            disabled: widget.disabled,
-                            submitting: submitting,
-                            text: widget.buttonText ?? dic.confirm,
-                            onPressed: () async {
-                              if (widget.isLedger && !await _ledgerCheck()) {
-                                return;
-                              }
-                              setState(() {
-                                submitting = true;
-                              });
-                              if (widget.onConfirm != null) {
-                                widget.onConfirm!();
-                              }
-                            },
-                          ),
-                        ),
+                                return TxConfirmItem(
+                                  data: e,
+                                );
+                              }).toList()),
                       ],
                     ),
+                  ),
+                  ZkAppBottomButton(
+                    disabled: widget.disabled,
+                    confirmBtnText: widget.buttonText ?? dic.confirm,
+                    onConfirm: () async {
+                      if (widget.isLedger && !await _ledgerCheck()) {
+                        return;
+                      }
+                      setState(() {
+                        submitting = true;
+                      });
+                      if (widget.onConfirm != null) {
+                        widget.onConfirm!();
+                      }
+                    },
+                    submitting: submitting,
                   )
                 ],
               ),
@@ -259,23 +247,16 @@ class TxConfirmItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color valueColor;
     String text;
-    var theme = Theme
-        .of(context)
-        .textTheme;
     switch (data.type) {
       case TxItemTypes.amount:
         text = data.value;
-        // valueColor = Theme.of(context).primaryColor;
         break;
       case TxItemTypes.address:
         text = data.value;
-        // valueColor = ColorsUtil.hexColor(0x333333);
         break;
       default:
         text = data.value;
-        // valueColor = ColorsUtil.hexColor(0x333333);
         break;
     }
     return Padding(

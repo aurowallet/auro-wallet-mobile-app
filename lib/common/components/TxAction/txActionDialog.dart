@@ -1,9 +1,10 @@
 import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
 import 'package:auro_wallet/common/components/ledgerStatus.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
+import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
+import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
@@ -11,10 +12,10 @@ import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:decimal/decimal.dart';
 import 'package:styled_text/styled_text.dart';
 
 enum TxActionType { speedup, cancel }
@@ -200,7 +201,6 @@ class _TxActionDialogState extends State<TxActionDialog> {
         "memo": ""
       };
     } else {
-
       String? memo = widget.txData.memo;
       if (txType == 'zkapp') {
         txInfo = {
@@ -296,16 +296,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               isLedger ? LedgerStatus() : Container(),
-                              GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                child: SvgPicture.asset(
-                                  'assets/images/public/icon_nav_close.svg',
-                                  width: 24,
-                                  height: 24,
-                                  color: Colors.black,
-                                ),
-                                onTap: () => Navigator.pop(context),
-                              )
+                              NetworkStatusView()
                             ],
                           ),
                         )
@@ -412,31 +403,28 @@ class _TxActionDialogState extends State<TxActionDialog> {
                             ],
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, left: 18, right: 18),
-                    child: NormalButton(
-                      submitting: submitting,
-                      text: widget.buttonText ?? dic.confirm,
-                      onPressed: () async {
-                        if (isLedger &&
-                            widget.txData.type.toLowerCase() == "zkapp") {
-                          UI.toast(dic.notSupportNow);
-                          return;
-                        }
-                        if (isLedger && !await _ledgerCheck()) {
-                          return;
-                        }
-                        setState(() {
-                          submitting = true;
-                        });
-                        await onClickNextStep();
-                        submitting = false;
-                        if (widget.onConfirm != null) {
-                          widget.onConfirm!();
-                        }
-                      },
-                    ),
-                  ),
+                  ZkAppBottomButton(
+                    confirmBtnText: widget.buttonText ?? dic.confirm,
+                    onConfirm: () async {
+                      if (isLedger &&
+                          widget.txData.type.toLowerCase() == "zkapp") {
+                        UI.toast(dic.notSupportNow);
+                        return;
+                      }
+                      if (isLedger && !await _ledgerCheck()) {
+                        return;
+                      }
+                      setState(() {
+                        submitting = true;
+                      });
+                      await onClickNextStep();
+                      submitting = false;
+                      if (widget.onConfirm != null) {
+                        widget.onConfirm!();
+                      }
+                    },
+                    submitting: submitting,
+                  )
                 ],
               ),
             ],

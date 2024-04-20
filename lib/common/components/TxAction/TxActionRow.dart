@@ -41,6 +41,7 @@ class _TxActionRowState extends State<TxActionRow> {
   @override
   void dispose() {
     super.dispose();
+    _monitorFeeDisposer();
   }
 
   void onOpenModal(bool isSpeedUp) async {

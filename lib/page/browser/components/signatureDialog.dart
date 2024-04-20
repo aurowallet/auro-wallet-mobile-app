@@ -196,8 +196,6 @@ class _SignatureDialogState extends State<SignatureDialog> {
     BigInt balance =
         store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
             BigInt.from(0);
-    String networkName =
-        NetworkUtil.getNetworkName(store.settings!.currentNode);
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -213,7 +211,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                 children: [
                   BrowserDialogTitleRow(
                     title: dic.signatureRequest,
-                    chainId: networkName,
+                    showChainType:true,
                   ),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
