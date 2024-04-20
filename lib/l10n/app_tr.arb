@@ -519,5 +519,7 @@
   "createAccount": "Hesap Oluştur",
   "@createAccount": {},
   "hardwareWallet": "Donanım Cüzdanı",
-  "@hardwareWallet": {}
+  "@hardwareWallet": {},
+  "ledgerConnected": "Ledger bağlandı",
+  "ledgerNotConnected": "Ledger cihazı bağlı değil"
 }

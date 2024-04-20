@@ -519,5 +519,7 @@
   "hardwareWallet": "Hardware Wallet",
   "@hardwareWallet": {},
   "showTestnet": "Show Testnet",
-  "@showTestnet": {}
+  "@showTestnet": {},
+  "ledgerConnected":"Ledger Connected",
+  "ledgerNotConnected":"Ledger not Connected"
 }

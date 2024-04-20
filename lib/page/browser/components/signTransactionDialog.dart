@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:auro_wallet/common/components/ledgerStatus.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
@@ -684,10 +683,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
               Wrap(
                 children: [
                   BrowserDialogTitleRow(
-                    title: dic.sendDetail,
-                    showChainType: true,
-                    ledgerWidget: isLedger ? LedgerStatus() : Container(),
-                  ),
+                      title: dic.sendDetail,
+                      showChainType: true,
+                      showLedgerStatus: true),
                   Container(
                       constraints: BoxConstraints(
                           minHeight: minHeight, maxHeight: containerMaxHeight),

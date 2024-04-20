@@ -4,20 +4,20 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
-import 'package:auro_wallet/utils/ledgerInit.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:mobx/mobx.dart';
 
-class LedgerStatus extends StatefulWidget {
-  LedgerStatus();
+class LedgerStatusView extends StatefulWidget {
+  LedgerStatusView();
 
   @override
-  _LedgerStatusState createState() => new _LedgerStatusState();
+  _LedgerStatusViewState createState() => new _LedgerStatusViewState();
 }
 
-class _LedgerStatusState extends State<LedgerStatus> {
+class _LedgerStatusViewState extends State<LedgerStatusView> {
   final store = globalAppStore;
   bool ledgerStatus = false;
   bool isScaning = false;
@@ -115,42 +115,28 @@ class _LedgerStatusState extends State<LedgerStatus> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    return Container(
-      // height: 20,
-      margin: EdgeInsets.only(right: 20),
-      decoration: BoxDecoration(
-          color: Color(0x1A000000), borderRadius: BorderRadius.circular(20)),
-      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Observer(builder: (_) {
-            bool ledgerAvailable = false;
-            if (store.ledger!.ledgerStatus != LedgerStatusTypes.unknown) {
-              ledgerAvailable =
-                  store.ledger!.ledgerStatus == LedgerStatusTypes.available;
-            } else {
-              ledgerAvailable = ledgerStatus;
-            }
-            return Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                  color:
-                      ledgerAvailable ? Color(0xFF0DB27C) : Color(0xFFD65A5A),
-                  borderRadius: BorderRadius.circular(4)),
-            );
-          }),
-          Container(
-            width: 4,
-          ),
-          Text(
-            dic.ledgerStatus,
-            style: TextStyle(
-                fontWeight: FontWeight.w400, fontSize: 12, color: Colors.black),
-          )
-        ],
-      ),
-    );
+    return Observer(builder: (_) {
+      bool ledgerAvailable = true;
+      if (store.ledger!.ledgerStatus != LedgerStatusTypes.unknown) {
+        ledgerAvailable =
+            store.ledger!.ledgerStatus == LedgerStatusTypes.available;
+      } else {
+        ledgerAvailable = ledgerStatus;
+      }
+      return GestureDetector(
+          onTap: () {
+            UI.toast(
+                ledgerAvailable ? dic.ledgerConnected : dic.ledgerNotConnected);
+          },
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            child: SvgPicture.asset(
+              'assets/images/ledger/icon_legder_status.svg',
+              width: 28,
+              height: 30,
+              color: ledgerAvailable ? Color(0xFF0DB27C) : Color(0xFFD65A5A),
+            ),
+          ));
+    });
   }
 }

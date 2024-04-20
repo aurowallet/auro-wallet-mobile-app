@@ -519,5 +519,7 @@
   "createAccount": "Створити акаунт",
   "@createAccount": {},
   "hardwareWallet": "Апаратний гаманець",
-  "@hardwareWallet": {}
+  "@hardwareWallet": {},
+  "ledgerConnected": "Пристрій Ledger підключено",
+  "ledgerNotConnected": "Пристрій Ledger не підключено"
 }

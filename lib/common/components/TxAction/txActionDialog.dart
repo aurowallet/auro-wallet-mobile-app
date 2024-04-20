@@ -1,5 +1,5 @@
 import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
-import 'package:auro_wallet/common/components/ledgerStatus.dart';
+import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -295,7 +295,8 @@ class _TxActionDialogState extends State<TxActionDialog> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              isLedger ? LedgerStatus() : Container(),
+                              isLedger ? LedgerStatusView() : Container(),
+                              SizedBox(width: 4),
                               NetworkStatusView()
                             ],
                           ),

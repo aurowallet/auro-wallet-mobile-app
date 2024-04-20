@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,22 +7,18 @@ class BrowserDialogTitleRow extends StatelessWidget {
   BrowserDialogTitleRow(
       {required this.title,
       this.showChainType = false,
-      this.showCloseIcon,
-      this.ledgerWidget});
+      this.showCloseIcon = false,
+      this.showLedgerStatus = false});
 
   final String title;
-  final bool? showCloseIcon;
+  final bool showCloseIcon;
   final bool showChainType;
-  final Widget? ledgerWidget;
+  final bool showLedgerStatus;
 
   @override
   Widget build(BuildContext context) {
     List<Widget> closeWidget = [];
-    List<Widget> ledgerRow = [];
-    if (ledgerWidget != null) {
-      ledgerRow.add(ledgerWidget!);
-    }
-    if (showCloseIcon == true) {
+    if (showCloseIcon) {
       closeWidget.add(Container(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -54,19 +51,18 @@ class BrowserDialogTitleRow extends StatelessWidget {
                         color: Color(0xFF222222),
                         fontSize: 16,
                         fontWeight: FontWeight.w600)),
-                showChainType ? NetworkStatusView() : Container(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    showLedgerStatus ? LedgerStatusView() : Container(),
+                    SizedBox(width: 4),
+                    showChainType ? NetworkStatusView() : Container(),
+                  ],
+                ),
                 ...closeWidget,
               ],
             ),
           ),
-          ledgerRow.length > 0
-              ? Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [...ledgerRow]))
-              : Container(),
           Container(
             height: 0.5,
             color: Color(0xFF000000).withOpacity(0.1),

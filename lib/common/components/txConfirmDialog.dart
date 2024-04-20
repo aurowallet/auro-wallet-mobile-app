@@ -1,5 +1,5 @@
 import 'package:auro_wallet/common/components/customStyledText.dart';
-import 'package:auro_wallet/common/components/ledgerStatus.dart';
+import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
@@ -184,7 +184,8 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              widget.isLedger ? LedgerStatus() : Container(),
+                              widget.isLedger ? LedgerStatusView() : Container(),
+                              SizedBox(width: 4),
                               NetworkStatusView()
                             ],
                           ),

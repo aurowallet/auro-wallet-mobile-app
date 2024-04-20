@@ -521,5 +521,7 @@
   "createAccount": "Создать аккаунт",
   "@createAccount": {},
   "hardwareWallet": "Аппаратный кошелёк",
-  "@hardwareWallet": {}
+  "@hardwareWallet": {},
+  "ledgerConnected": "Устройство Ledger подключено",
+  "ledgerNotConnected": "Устройство Ledger не подключено"
 }
