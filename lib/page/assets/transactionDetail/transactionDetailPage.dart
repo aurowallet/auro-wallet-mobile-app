@@ -1,16 +1,15 @@
+import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/common/components/customDivider.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
-import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/common/components/customDivider.dart';
-import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class TransactionDetailPage extends StatelessWidget {
   TransactionDetailPage(this.store);
@@ -23,10 +22,16 @@ class TransactionDetailPage extends StatelessWidget {
         padding: EdgeInsets.only(left: 0),
         child: Text(name,
             style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.normal,
-              color: Colors.black.withOpacity(0.5),
-            )));
+                color: Color(0xFF808080),
+                fontWeight: FontWeight.w500,
+                fontSize: 12)));
+  }
+
+  String capitalize(String s) {
+    if (s.isNotEmpty && s.length > 1) {
+      return s[0].toUpperCase() + s.substring(1);
+    }
+    return s;
   }
 
   List<Widget> _buildListView(BuildContext context) {
@@ -43,20 +48,49 @@ class TransactionDetailPage extends StatelessWidget {
     String statusText;
     Color statusColor;
     if (pending) {
-      statusIcon = 'assets/images/public/pending_tip.svg';
       statusColor = ColorsUtil.hexColor(0xFFC633);
       statusText = dic.pending;
     } else if (success == true) {
-      statusIcon = 'assets/images/public/success_tip.svg';
       statusColor = ColorsUtil.hexColor(0x38d79f);
       statusText = dic.applied;
     } else {
-      statusIcon = 'assets/images/public/error_tip.svg';
       statusColor = ColorsUtil.hexColor(0xE84335);
       statusText = dic.failed;
     }
 
+    String typeCamelCase = tx.type.toLowerCase();
+    bool isCommonTx = typeCamelCase != "zkapp";
+
+    String txType = tx.type;
+    if (typeCamelCase == "stake_delegation") {
+      txType = "delegation";
+    }
+
+    if (isCommonTx) {
+      txType = capitalize(txType);
+    }
+    bool isOut = tx.sender == store.wallet!.currentAddress;
+    switch (tx.type.toLowerCase()) {
+      case 'delegation':
+      case 'stake_delegation':
+        {
+          statusIcon = 'record_stake';
+        }
+        break;
+      case "zkapp":
+        {
+          statusIcon = 'record_zkapp';
+        }
+        break;
+      default:
+        {
+          statusIcon = isOut ? 'record_out' : 'record_in';
+        }
+        break;
+    }
+
     final items = [
+      TxInfoItem(label: dic.txType, title: txType),
       TxInfoItem(
         label: dic.amount,
         title:
@@ -94,22 +128,30 @@ class TransactionDetailPage extends StatelessWidget {
         copyText: tx.hash,
       ),
     ];
-
     var list = <Widget>[
       Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(top: 30, bottom: 14),
-            child: SvgPicture.asset(statusIcon,
-                width: 71, height: 71, color: statusColor),
-          ),
-          Text(
-            statusText,
-            style: Theme.of(context).textTheme.headline4!.copyWith(
-                color: statusColor, fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          CustomDivider(margin: const EdgeInsets.only(top: 23)),
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(48.0)),
+                    color: statusColor),
+                child: SvgPicture.asset(
+                  'assets/images/assets/$statusIcon.svg',
+                  width: 48,
+                  height: 48,
+                ),
+              )),
+          Text(statusText,
+              style: TextStyle(
+                  color: statusColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600)),
+          CustomDivider(margin: const EdgeInsets.only(top: 20)),
         ],
       ),
     ];
@@ -118,7 +160,7 @@ class TransactionDetailPage extends StatelessWidget {
         return;
       }
       var baseCon = Container(
-          padding: EdgeInsets.only(top: 11),
+          padding: EdgeInsets.only(top: 10),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             _buildLabel(i.label),
@@ -126,16 +168,21 @@ class TransactionDetailPage extends StatelessWidget {
               child: RichText(
                   text: TextSpan(
                 text: i.title!,
-                style: Theme.of(context).textTheme.headline5!.copyWith(
-                    color: ColorsUtil.hexColor(0x333333),
-                    height: 1.2,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
                     fontSize: 14),
                 children: <WidgetSpan>[
-                  i.showScamTag == true
-                      ? WidgetSpan(
-                          child: ScamTag(),
-                        )
-                      : WidgetSpan(child: Container()),
+                  WidgetSpan(
+                      child: Container(
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.zero,
+                    child: i.showScamTag == true
+                        ? ScamTag()
+                        : SizedBox(
+                            height: 0,
+                          ),
+                  ))
                 ],
               )),
               text: i.copyText,
@@ -198,4 +245,3 @@ class TxInfoItem {
   final String? copyText;
   final bool? showScamTag;
 }
-

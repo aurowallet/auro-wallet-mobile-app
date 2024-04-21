@@ -758,7 +758,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     var data = TransferData()
       ..hash = paymentData["hash"]
       ..paymentId = paymentData["id"]
-      ..type = "ZKAPP"
+      ..type = "zkApp"
       ..fee = fee
       ..amount = "0"
       ..nonce = int.parse(feePayerBody['nonce'])

@@ -760,7 +760,7 @@ class TransferListItem extends StatelessWidget {
                                       ),
                                       data.isFromAddressScam == true
                                           ? ScamTag()
-                                          : Container(),
+                                          : SizedBox(height: 0),
                                     ]),
                                 Text(
                                   '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',

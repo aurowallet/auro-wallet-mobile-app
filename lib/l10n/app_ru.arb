@@ -523,5 +523,6 @@
   "hardwareWallet": "Аппаратный кошелёк",
   "@hardwareWallet": {},
   "ledgerConnected": "Устройство Ledger подключено",
-  "ledgerNotConnected": "Устройство Ledger не подключено"
+  "ledgerNotConnected": "Устройство Ledger не подключено",
+  "txType":"Тип транзакции"
 }

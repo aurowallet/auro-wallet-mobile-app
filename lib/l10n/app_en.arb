@@ -521,5 +521,6 @@
   "showTestnet": "Show Testnet",
   "@showTestnet": {},
   "ledgerConnected":"Ledger Connected",
-  "ledgerNotConnected":"Ledger not Connected"
+  "ledgerNotConnected":"Ledger not Connected",
+  "txType":"Transaction Type"
 }

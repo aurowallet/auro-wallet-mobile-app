@@ -163,6 +163,10 @@ flutter:
     - assets/images/public/search.svg
     - assets/images/public/icon_address.svg
     - assets/images/assets/icon_add_border.svg
+    - assets/images/assets/record_in.svg
+    - assets/images/assets/record_out.svg
+    - assets/images/assets/record_stake.svg
+    - assets/images/assets/record_zkapp.svg
 
     # ledger
     - assets/images/ledger/ledger_mina.svg

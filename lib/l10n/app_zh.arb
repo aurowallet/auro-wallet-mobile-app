@@ -521,5 +521,6 @@
   "hardwareWallet": "硬件钱包",
   "@hardwareWallet": {},
   "ledgerConnected": "Ledger 已连接",
-  "ledgerNotConnected": "Ledger 未连接"
+  "ledgerNotConnected": "Ledger 未连接",
+  "txType":"交易类型"
 }

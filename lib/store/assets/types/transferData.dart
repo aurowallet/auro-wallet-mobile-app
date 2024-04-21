@@ -58,7 +58,7 @@ class TransferData extends _TransferData {
     var feePayerBody = json['zkappCommand']['feePayer']['body'] as Map<String, dynamic>;
     var fee = feePayerBody['fee'].toString();
 
-    json['type'] = "ZKAPP";
+    json['type'] = "zkApp";
     json['time'] = json['dateTime'];
     json['sender'] = feePayerBody['publicKey'];
     json['amount'] = "0";
@@ -82,7 +82,7 @@ class TransferData extends _TransferData {
     var fee = feePayerBody['fee'].toString();
 
 
-    json['type'] = "ZKAPP";
+    json['type'] = "zkApp";
     json['sender'] = feePayerBody['publicKey'];
     json['nonce'] = int.parse(feePayerBody['nonce']); 
     json['receiver'] = receiver;

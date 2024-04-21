@@ -521,5 +521,6 @@
   "hardwareWallet": "Donanım Cüzdanı",
   "@hardwareWallet": {},
   "ledgerConnected": "Ledger bağlandı",
-  "ledgerNotConnected": "Ledger cihazı bağlı değil"
+  "ledgerNotConnected": "Ledger cihazı bağlı değil",
+  "txType":"İşlem Türü"
 }

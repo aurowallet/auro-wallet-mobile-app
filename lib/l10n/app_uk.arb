@@ -521,5 +521,6 @@
   "hardwareWallet": "Апаратний гаманець",
   "@hardwareWallet": {},
   "ledgerConnected": "Пристрій Ledger підключено",
-  "ledgerNotConnected": "Пристрій Ledger не підключено"
+  "ledgerNotConnected": "Пристрій Ledger не підключено",
+  "txType":"Тип транзакції"
 }
