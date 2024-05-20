@@ -7033,6 +7033,10 @@ function assert(stmt, message) {
     throw Error(message !== null && message !== void 0 ? message : 'Assertion failed');
   }
 }
+function assertPromise(value, message) {
+  assert(value instanceof Promise, message !== null && message !== void 0 ? message : 'Expected a promise');
+  return value;
+}
 // CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/bindings/crypto/bigint-helpers.js
 
 function bytesToBigint32(bytes) {
@@ -7576,7 +7580,7 @@ function computeFieldConstants(p) {
     twoadicity
   };
 }
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/errors.js
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/util/errors.js
 
 /**
  * A class decorator that applies the CatchAndPrettifyStacktrace decorator function
@@ -8532,6 +8536,16 @@ function affineScale(g, s, p) {
   let sgProj = projectiveScale(gProj, s, p);
   return projectiveToAffine(sgProj, p);
 }
+const PallasAffine = createCurveAffine({
+  name: 'Pallas',
+  modulus: finite_field_p,
+  order: finite_field_q,
+  generator: pallasGeneratorProjective,
+  b: elliptic_curve_b,
+  a: elliptic_curve_a,
+  endoBase: pallasEndoBase,
+  endoScalar: pallasEndoScalar
+});
 function createCurveAffine(_ref9) {
   let {
     name,
@@ -8634,10 +8648,11 @@ let prefixes = {
   "signatureMainnet": "MinaSignatureMainnet",
   "signatureTestnet": "CodaSignature*******",
   "zkappUri": "MinaZkappUri********",
-  "deriveTokenId": "MinaDeriveTokenId***"
+  "deriveTokenId": "MinaDeriveTokenId***",
+  "sideLoadedVK": "MinaSideLoadedVk****"
 };
 let prefixHashes = {
-  "MinaReceiptUC*******": ["17890046087060600378523962727948914890955845280331606421027576706277370812052", "2013454333407534591106411126192774509000627947643864003868625362325108814274", "11843535353803037930790320689348405921362689396018494249827525941843824404081"],
+  "CodaReceiptUC*******": ["2930292359494829300271368860633580634815819151887078160583250237349129726103", "15303314845540397914948764201521841781296890621466368017042313538410516382474", "8520568699315305732843613022173524514377597839978192694761879649747314556194"],
   "CodaReceiptZkapp****": ["10173709693039436418323173817852473796760618468635274081106091878172355412495", "8139892805413950771311540201181177376747817902069998595519899391903936767134", "13514876620613630149351219463845257700223634963001020028151406467995275024594"],
   "Coinbase************": ["16825847102297458526359719396083434368788313103713242309655412848174457920423", "21732702256017917816272795771734458959259892802453584375610183841451053027064", "20669950187190141732603807229833302926112666951294341954340514712643194206110"],
   "PendingCoinbases****": ["16730315671906078134534118281698719603694322959719576832314142406897554025946", "25168172107432119701402092802564698772609386283424806773354665411015030859956", "20203823516569384790863281992678977204769111540506990077513414850340465376267"],
@@ -8685,7 +8700,7 @@ let prefixHashes = {
   "PendingCoinbaseMerkleTree": ["21962074494103541153175746450273873003299668759086391980006382367241943398196", "2903435713642676558047328375873609628346075739786101737671585224825766548393", "25831764682100331646870313396659195191400312071282528592914032765816857800473"]
 };
 let prefixHashesLegacy = {
-  "MinaReceiptUC*******": ["20070382753578399401327804098717363060981792725858206382885984326454503485317", "9741317264439603248522437238966700420795613627770380489972854421227543398236", "7781138462994911643117614691750702461577493967611677045054456828859235572948"],
+  "CodaReceiptUC*******": ["17081977821176270994512651394491195177111442160604726653596300537904083542874", "22524836078442467808299966370016521142448937585030982609163888361124501146539", "12924279821307137198726349959646209575189430925513631516289320462608412110369"],
   "MinaSignatureMainnet": ["25220214331362653986409717908235786107802222826119905443072293294098933388948", "7563646774167489166725044360539949525624365058064455335567047240620397351731", "171774671134240704318655896509797243441784148630375331692878460323037832932"],
   "CodaSignature*******": ["28132119227444686413214523693400847740858213284875453355294308721084881982354", "24895072146662946646133617369498198544578131474807621989761680811592073367193", "3216013753133880902260672769141972972810073620591719805178695684388949134646"]
 };
@@ -8703,7 +8718,7 @@ let versionBytes = {
   "signedCommandV1": 19
 };
 let protocolVersions = {
-  "txnVersion": 2
+  "txnVersion": 3
 };
 let poseidonParamsKimchiFp = {
   "mds": [["12035446894107573964500871153637039653510326950134440362813193268448863222019", "25461374787957152039031444204194007219326765802730624564074257060397341542093", "27667907157110496066452777015908813333407980290333709698851344970789663080149"], ["4491931056866994439025447213644536587424785196363427220456343191847333476930", "14743631939509747387607291926699970421064627808101543132147270746750887019919", "9448400033389617131295304336481030167723486090288313334230651810071857784477"], ["10525578725509990281643336361904863911009900817790387635342941550657754064843", "27437632000253211280915908546961303399777448677029255413769125486614773776695", "27566319851776897085443681456689352477426926500749993803132851225169606086988"]],
@@ -9061,7 +9076,7 @@ function stringLengthInBytes(s) {
 // EXTERNAL MODULE: ./node_modules/js-sha256/src/sha256.js
 var sha256 = __webpack_require__(151);
 
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/base58.js
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/util/base58.js
 
 
 
@@ -9172,9 +9187,9 @@ function arrayEqual(a, b) {
 }
 // CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/bindings/lib/provable-generic.js
 
+let complexTypes = new Set(['object', 'function']);
+let primitives = new Set([Number, String, Boolean, BigInt, null, undefined]);
 function createDerivers() {
-  let complexTypes = new Set(['object', 'function']);
-  let primitives = new Set([Number, String, Boolean, BigInt, null, undefined]);
   const HashInput = createHashInput();
   function provable(typeObj, options) {
     let objectKeys = typeof typeObj === 'object' && typeObj !== null ? Object.keys(typeObj) : [];
@@ -9239,6 +9254,8 @@ function createDerivers() {
       if ('check' in typeObj) return typeObj.check(obj);
       return (isToplevel ? objectKeys : Object.keys(typeObj)).forEach(k => check(typeObj[k], obj[k]));
     }
+    const toValue = createMap('toValue');
+    const fromValue = createMap('fromValue');
     let {
       empty,
       fromJSON,
@@ -9251,10 +9268,16 @@ function createDerivers() {
         toFields: obj => toFields(typeObj, obj, true),
         toAuxiliary: () => [],
         fromFields: fields => fromFields(typeObj, fields, [], true),
+        check: obj => check(typeObj, obj, true),
+        toValue(x) {
+          return toValue(typeObj, x);
+        },
+        fromValue(v) {
+          return fromValue(typeObj, v);
+        },
         toInput: obj => toInput(obj),
         toJSON: obj => toJSON(obj),
         fromJSON: json => fromJSON(json),
-        check: obj => check(typeObj, obj, true),
         empty: () => empty()
       };
     }
@@ -9263,10 +9286,16 @@ function createDerivers() {
       toFields: obj => toFields(typeObj, obj, true),
       toAuxiliary: obj => toAuxiliary(typeObj, obj, true),
       fromFields: (fields, aux) => fromFields(typeObj, fields, aux, true),
+      check: obj => check(typeObj, obj, true),
+      toValue(x) {
+        return toValue(typeObj, x);
+      },
+      fromValue(v) {
+        return fromValue(typeObj, v);
+      },
       toInput: obj => toInput(obj),
       toJSON: obj => toJSON(obj),
       fromJSON: json => fromJSON(json),
-      check: obj => check(typeObj, obj, true),
       empty: () => empty()
     };
   }
@@ -9336,6 +9365,16 @@ function createDerivers() {
     signable
   };
 }
+function createMap(name) {
+  function map(typeObj, obj) {
+    if (primitives.has(typeObj)) return obj;
+    if (!complexTypes.has(typeof typeObj)) throw Error(`provable: unsupported type "${typeObj}"`);
+    if (Array.isArray(typeObj)) return typeObj.map((t, i) => map(t, obj[i]));
+    if (name in typeObj) return typeObj[name](obj);
+    return Object.fromEntries(Object.keys(typeObj).map(k => [k, map(typeObj[k], obj[k])]));
+  }
+  return map;
+}
 function createHashInput() {
   return {
     get empty() {
@@ -9350,15 +9389,15 @@ function createHashInput() {
     }
   };
 }
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/bindings/lib/provable-bigint.js
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/mina-signer/src/derivers-bigint.js
 
 
 
 
 let {
-  signable: provable_bigint_signable
+  signable: derivers_bigint_signable
 } = createDerivers();
-function ProvableBigint(check) {
+function SignableBigint(check) {
   return {
     toInput(x) {
       return {
@@ -9401,7 +9440,20 @@ function BinableBigint(sizeInBits, check) {
     }
   }), sizeInBits);
 }
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/provable/field-bigint.js
+function BinableBool(check) {
+  return withBits(defineBinable({
+    toBytes(x) {
+      return [x ? 1 : 0];
+    },
+    readBytes(bytes, start) {
+      let byte = bytes[start];
+      check(byte);
+      return [byte === 1, start + 1];
+    }
+  }), 1);
+}
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/mina-signer/src/field-bigint.js
+
 
 
 
@@ -9411,46 +9463,56 @@ const field_bigint_sizeInBits = finite_field_Fp.sizeInBits;
 const minusOne = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000n;
 const checkField = checkRange(0n, finite_field_Fp.modulus, 'Field');
 const checkBool = checkAllowList(new Set([0n, 1n]), 'Bool');
+const checkBoolBytes = checkAllowList(new Set([0, 1]), 'Bool');
 const checkSign = checkAllowList(new Set([1n, minusOne]), 'Sign');
+const BinableFp = BinableBigint(finite_field_Fp.sizeInBits, checkField);
+const SignableFp = SignableBigint(checkField);
 /**
  * The base field of the Pallas curve
  */
 const field_bigint_Field = pseudoClass(function Field(value) {
   return mod(BigInt(value), finite_field_Fp.modulus);
 }, {
-  ...ProvableBigint(checkField),
-  ...BinableBigint(finite_field_Fp.sizeInBits, checkField),
-  ...finite_field_Fp
+  ...SignableFp,
+  ...BinableFp,
+  ...finite_field_Fp,
+  toBigint: x => x
 });
 /**
  * A field element which is either 0 or 1
  */
 const field_bigint_Bool = pseudoClass(function Bool(value) {
-  return BigInt(value);
+  return value;
 }, {
-  ...ProvableBigint(checkBool),
-  ...BinableBigint(1, checkBool),
+  ...BinableBool(checkBoolBytes),
+  fromBigint(x) {
+    checkBool(x);
+    return x === 0n ? false : true;
+  },
+  toBigint(x) {
+    return x ? 1n : 0n;
+  },
   toInput(x) {
     return {
       fields: [],
-      packed: [[x, 1]]
+      packed: [[field_bigint_Bool.toBigint(x), 1]]
     };
   },
   toBoolean(x) {
-    return !!x;
+    return x;
   },
   toJSON(x) {
-    return !!x;
+    return x;
   },
   fromJSON(b) {
-    let x = BigInt(b);
-    checkBool(x);
-    return x;
+    return b;
+  },
+  empty() {
+    return false;
   },
   sizeInBytes: 1,
   fromField(x) {
-    checkBool(x);
-    return x;
+    return field_bigint_Bool.fromBigint(x);
   }
 });
 function Unsigned(bits) {
@@ -9463,7 +9525,7 @@ function Unsigned(bits) {
     checkUnsigned(x);
     return x;
   }, {
-    ...ProvableBigint(checkUnsigned),
+    ...SignableBigint(checkUnsigned),
     ...binable,
     toInput(x) {
       return {
@@ -9483,7 +9545,7 @@ const field_bigint_Sign = pseudoClass(function Sign(value) {
   if (value !== 1 && value !== -1) throw Error('Sign: input must be 1 or -1.');
   return mod(BigInt(value), finite_field_Fp.modulus);
 }, {
-  ...ProvableBigint(checkSign),
+  ...SignableBigint(checkSign),
   ...BinableBigint(1, checkSign),
   empty() {
     return 1n;
@@ -9526,7 +9588,7 @@ function checkAllowList(valid, name) {
     }
   };
 }
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/provable/curve-bigint.js
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/mina-signer/src/curve-bigint.js
 
 
 
@@ -9609,7 +9671,7 @@ let BinablePublicKey = withVersionNumber(withCheck(record({
  * A public key, represented by a non-zero point on the Pallas curve, in compressed form { x, isOdd }
  */
 const PublicKey = {
-  ...provable_bigint_signable({
+  ...derivers_bigint_signable({
     x: field_bigint_Field,
     isOdd: field_bigint_Bool
   }),
@@ -9634,7 +9696,7 @@ const PublicKey = {
     if (y === undefined) {
       throw Error('PublicKey.toGroup: not a valid group element');
     }
-    if (isOdd !== (y & 1n)) y = field_bigint_Field.negate(y);
+    if (isOdd !== !!(y & 1n)) y = field_bigint_Field.negate(y);
     return {
       x,
       y
@@ -9645,7 +9707,7 @@ const PublicKey = {
       x,
       y
     } = _ref5;
-    let isOdd = y & 1n;
+    let isOdd = !!(y & 1n);
     return {
       x,
       isOdd
@@ -9672,7 +9734,7 @@ const checkScalar = checkRange(0n, Fq.modulus, 'Scalar');
 const curve_bigint_Scalar = pseudoClass(function Scalar(value) {
   return mod(BigInt(value), Fq.modulus);
 }, {
-  ...ProvableBigint(checkScalar),
+  ...SignableBigint(checkScalar),
   ...BinableBigint(Fq.sizeInBits, checkScalar),
   ...Fq
 });
@@ -9683,13 +9745,23 @@ let Base58PrivateKey = base58_base58(BinablePrivateKey, versionBytes.privateKey)
  */
 const PrivateKey = {
   ...curve_bigint_Scalar,
-  ...provable_bigint_signable(curve_bigint_Scalar),
+  ...derivers_bigint_signable(curve_bigint_Scalar),
   ...Base58PrivateKey,
   ...BinablePrivateKey,
   toPublicKey(key) {
     return PublicKey.fromGroup(Group.scale(Group.generatorMina, key));
-  }
+  },
+  convertPrivateKeyToBase58WithMod
 };
+const Bigint256 = BinableBigint(256, () => {
+  // no check supplied, allows any string of 256 bits
+});
+const OutOfDomainKey = base58_base58(withVersionNumber(Bigint256, versionNumbers.scalar), versionBytes.privateKey);
+function convertPrivateKeyToBase58WithMod(keyBase58) {
+  let key = OutOfDomainKey.fromBase58(keyBase58);
+  key = mod(key, Fq.modulus);
+  return PrivateKey.toBase58(key);
+}
 // CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/mina-signer/src/utils.js
 function hasCommonProperties(data) {
   return data.hasOwnProperty('to') && data.hasOwnProperty('from') && data.hasOwnProperty('fee') && data.hasOwnProperty('nonce');
@@ -9718,7 +9790,7 @@ function isSignedDelegation(p) {
 function isSignedString(p) {
   return typeof p.data === 'string' && isLegacySignature(p.signature);
 }
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/events.js
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/mina/events.js
 
 
 
@@ -9768,6 +9840,12 @@ function createEvents(_ref) {
     ...Events,
     ...dataAsHash({
       empty: Events.empty,
+      toValue(data) {
+        return data.map(row => row.map(e => Field.toBigint(e)));
+      },
+      fromValue(value) {
+        return value.map(row => row.map(e => Field(e)));
+      },
       toJSON(data) {
         return data.map(row => row.map(e => Field.toJSON(e)));
       },
@@ -9778,7 +9856,8 @@ function createEvents(_ref) {
           data,
           hash
         };
-      }
+      },
+      Field
     })
   };
   const Actions = {
@@ -9812,10 +9891,16 @@ function createEvents(_ref) {
       return hashWithPrefix(prefixes.sequenceEvents, [state, sequenceEventsHash]);
     }
   };
-  const SequenceEventsProvable = {
+  const ActionsProvable = {
     ...Actions,
     ...dataAsHash({
       empty: Actions.empty,
+      toValue(data) {
+        return data.map(row => row.map(e => Field.toBigint(e)));
+      },
+      fromValue(value) {
+        return value.map(row => row.map(e => Field(e)));
+      },
       toJSON(data) {
         return data.map(row => row.map(e => Field.toJSON(e)));
       },
@@ -9826,19 +9911,23 @@ function createEvents(_ref) {
           data,
           hash
         };
-      }
+      },
+      Field
     })
   };
   return {
     Events: EventsProvable,
-    Actions: SequenceEventsProvable
+    Actions: ActionsProvable
   };
 }
 function dataAsHash(_ref2) {
   let {
     empty,
+    toValue,
+    fromValue,
     toJSON,
-    fromJSON
+    fromJSON,
+    Field
   } = _ref2;
   return {
     empty,
@@ -9863,20 +9952,40 @@ function dataAsHash(_ref2) {
         hash
       };
     },
-    toJSON(_ref6) {
+    toValue(_ref6) {
+      let {
+        data,
+        hash
+      } = _ref6;
+      return {
+        data: toValue(data),
+        hash: Field.toBigint(hash)
+      };
+    },
+    fromValue(_ref7) {
+      let {
+        data,
+        hash
+      } = _ref7;
+      return {
+        data: fromValue(data),
+        hash: Field(hash)
+      };
+    },
+    toJSON(_ref8) {
       let {
         data
-      } = _ref6;
+      } = _ref8;
       return toJSON(data);
     },
     fromJSON(json) {
       return fromJSON(json);
     },
     check() {},
-    toInput(_ref7) {
+    toInput(_ref9) {
       let {
         hash
-      } = _ref7;
+      } = _ref9;
       return {
         fields: [hash]
       };
@@ -9959,7 +10068,7 @@ function createEncodedField(base, encoding, empty) {
   };
 }
 function createTokenSymbol(base, Field) {
-  return {
+  let self = {
     ...base,
     toInput(_ref3) {
       let {
@@ -9984,6 +10093,7 @@ function createTokenSymbol(base, Field) {
       };
     }
   };
+  return self;
 }
 function createAuthRequired(base, Bool) {
   return {
@@ -10053,6 +10163,12 @@ function createZkappUri(Field, HashHelpers, packToFields) {
         hash
       };
     },
+    toValue(data) {
+      return data;
+    },
+    fromValue(value) {
+      return value;
+    },
     toJSON(data) {
       return data;
     },
@@ -10061,7 +10177,8 @@ function createZkappUri(Field, HashHelpers, packToFields) {
         data: json,
         hash: hashZkappUri(json)
       };
-    }
+    },
+    Field
   });
 }
 // CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/bindings/crypto/poseidon.js
@@ -10083,17 +10200,14 @@ function makeHashToGroup(hash) {
     let digest = hash(input);
     let g = fieldToGroup(digest);
     if (g === undefined) return undefined;
-    // we split the y coordinate into two elements, x0 = -sqrt(y^2) and x1 = sqrt(y^2)
-    // then put the even root into x0, and the odd one into x1 so APIs equal even tho the underlying algorithms to calculate the sqrt differ
-    // we do the same in-snark - so both APIs are deterministic
-    let isEven = g.y % 2n === 0n;
-    let gy_neg = finite_field_Fp.negate(g.y);
+    // the y coordinate is calculated using a square root, so it has two possible values
+    // to make the output deterministic, we negate y if it is odd
+    // we do the same in-snark, so both APIs match
+    let isOdd = (g.y & 1n) === 1n;
+    let y = isOdd ? finite_field_Fp.negate(g.y) : g.y;
     return {
       x: g.x,
-      y: {
-        x0: isEven ? g.y : gy_neg,
-        x1: isEven ? gy_neg : g.y
-      }
+      y
     };
   };
 }
@@ -10204,7 +10318,7 @@ function createPoseidon(Fp, _ref) {
     hash
   };
 }
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/hash-generic.js
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/lib/provable/crypto/hash-generic.js
 
 
 function createHashHelpers(Field, Hash) {
@@ -10224,7 +10338,7 @@ function createHashHelpers(Field, Hash) {
     hashWithPrefix
   };
 }
-// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/provable/poseidon-bigint.js
+// CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/mina-signer/src/poseidon-bigint.js
 
 
 
@@ -10363,14 +10477,18 @@ const emptyType = {
   toInput: () => ({}),
   toJSON: () => null,
   fromJSON: () => null,
-  empty: () => null
+  empty: () => null,
+  toValue: () => null,
+  fromValue: () => null
 };
 const undefinedType = {
   ...emptyType,
   fromFields: () => undefined,
   toJSON: () => null,
   fromJSON: () => undefined,
-  empty: () => undefined
+  empty: () => undefined,
+  toValue: () => undefined,
+  fromValue: () => undefined
 };
 let primitiveTypes = new Set(['number', 'string', 'null']);
 function EmptyNull() {
@@ -10395,7 +10513,9 @@ const primitiveTypeMap = {
       let [value] = _ref;
       return value;
     },
-    empty: () => 0
+    empty: () => 0,
+    toValue: value => value,
+    fromValue: value => value
   },
   string: {
     ...emptyType,
@@ -10409,7 +10529,9 @@ const primitiveTypeMap = {
       let [value] = _ref2;
       return value;
     },
-    empty: () => ''
+    empty: () => '',
+    toValue: value => value,
+    fromValue: value => value
   },
   null: emptyType
 };
@@ -10655,6 +10777,9 @@ function ProvableFromLayout(TypeMap, customTypes) {
   function layoutFold(spec, typeData, value) {
     return genericLayoutFold(TypeMap, customTypes, spec, typeData, value);
   }
+  function layoutMap(map, typeData, value) {
+    return genericLayoutMap(TypeMap, customTypes, map, typeData, value);
+  }
   function provableFromLayout(typeData) {
     return {
       sizeInFields() {
@@ -10683,6 +10808,12 @@ function ProvableFromLayout(TypeMap, customTypes) {
       },
       empty() {
         return empty(typeData);
+      },
+      toValue(value) {
+        return toValue(typeData, value);
+      },
+      fromValue(value) {
+        return fromValue(typeData, value);
       }
     };
   }
@@ -10835,6 +10966,12 @@ function ProvableFromLayout(TypeMap, customTypes) {
       reduceOrUndefined() {}
     }, typeData, value);
   }
+  function toValue(typeData, value) {
+    return layoutMap((type, value) => type.toValue(value), typeData, value);
+  }
+  function fromValue(typeData, value) {
+    return layoutMap((type, value) => type.fromValue(value), typeData, value);
+  }
   return {
     provableFromLayout,
     toJSONEssential,
@@ -10895,6 +11032,25 @@ function genericLayoutFold(TypeMap, customTypes, spec, typeData, value) {
     return spec.map(primitiveTypeMap[typeData.type], value, typeData.type);
   }
   return spec.map(TypeMap[typeData.type], value, typeData.type);
+}
+function genericLayoutMap(TypeMap, customTypes, map, typeData, value) {
+  return genericLayoutFold(TypeMap, customTypes, {
+    map(type, value) {
+      return map(type, value);
+    },
+    reduceArray(array) {
+      return array;
+    },
+    reduceObject(_, object) {
+      return object;
+    },
+    reduceFlaggedOption(option) {
+      return option;
+    },
+    reduceOrUndefined(value) {
+      return value;
+    }
+  }, typeData, value);
 }
 // CONCATENATED MODULE: ./node_modules/mina-signer/dist/node/bindings/mina-transaction/transaction-leaves-json.js
 
@@ -13558,12 +13714,12 @@ function signZkappCommand(zkappCommand_, privateKeyBase58, networkId) {
   zkappCommand.feePayer.authorization = Signature.toBase58(signature);
   // sign other updates with the same public key that require a signature
   for (let update of zkappCommand.accountUpdates) {
-    if (update.body.authorizationKind.isSigned === 0n) continue;
+    if (!update.body.authorizationKind.isSigned) continue;
     if (!PublicKey.equal(update.body.publicKey, publicKey)) continue;
     let {
       useFullCommitment
     } = update.body;
-    let usedCommitment = useFullCommitment === 1n ? fullCommitment : commitment;
+    let usedCommitment = useFullCommitment ? fullCommitment : commitment;
     let signature = signFieldElement(usedCommitment, privateKey, networkId);
     update.authorization = {
       signature: Signature.toBase58(signature)
@@ -13584,12 +13740,12 @@ function verifyZkappCommandSignature(zkappCommand_, publicKeyBase58, networkId) 
   if (!ok) return false;
   // verify other signatures for the same public key
   for (let update of zkappCommand.accountUpdates) {
-    if (update.body.authorizationKind.isSigned === 0n) continue;
+    if (!update.body.authorizationKind.isSigned) continue;
     if (!PublicKey.equal(update.body.publicKey, publicKey)) continue;
     let {
       useFullCommitment
     } = update.body;
-    let usedCommitment = useFullCommitment === 1n ? fullCommitment : commitment;
+    let usedCommitment = useFullCommitment ? fullCommitment : commitment;
     if (update.authorization.signature === undefined) return false;
     let signature = Signature.fromBase58(update.authorization.signature);
     ok = verifyFieldElement(signature, usedCommitment, publicKey, networkId);
@@ -13607,7 +13763,7 @@ function verifyAccountUpdateSignature(update, transactionCommitments, networkId)
     commitment,
     fullCommitment
   } = transactionCommitments;
-  let usedCommitment = useFullCommitment === 1n ? fullCommitment : commitment;
+  let usedCommitment = useFullCommitment ? fullCommitment : commitment;
   let signature = Signature.fromBase58(update.authorization.signature);
   return verifyFieldElement(signature, usedCommitment, publicKey, networkId);
 }
@@ -14162,6 +14318,8 @@ const SignedCommandV1 = withBase58(with1(with1(record({
 
 
 
+
+const defaultValidUntil = '4294967295';
 function publicKeyToHex(publicKey) {
   return fieldToHex(field_bigint_Field, publicKey.x, !!publicKey.isOdd);
 }
@@ -14174,24 +14332,119 @@ function signatureFromHex(signatureHex) {
     s: fieldFromHex(curve_bigint_Scalar, scalarHex)[0]
   };
 }
+function signatureJsonFromHex(signatureHex) {
+  return Signature.toJSON(signatureFromHex(signatureHex));
+}
+function signatureJsonToHex(signatureJson) {
+  return signatureToHex(Signature.fromJSON(signatureJson));
+}
+function signatureToHex(signature) {
+  let rHex = fieldToHex(field_bigint_Field, signature.r);
+  let sHex = fieldToHex(curve_bigint_Scalar, signature.s);
+  return `${rHex}${sHex}`;
+}
 function fieldToHex(binable, x) {
   let paddingBit = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   let bytes = binable.toBytes(x);
   // set highest bit (which is empty)
   bytes[bytes.length - 1] |= Number(paddingBit) << 7;
   // map each byte to a 0-padded hex string of length 2
-  return bytes.map(byte => byte.toString(16).padStart(2, '0').split('').reverse().join('')).join('');
+  return bytes.map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 function fieldFromHex(binable, hex) {
   let bytes = [];
   for (let i = 0; i < hex.length; i += 2) {
-    let byte = parseInt(hex[i + 1] + hex[i], 16);
+    let byte = parseInt(hex[i] + hex[i + 1], 16);
     bytes.push(byte);
   }
   // read highest bit
   let paddingBit = !!(bytes[bytes.length - 1] >> 7);
   bytes[bytes.length - 1] &= 0x7f;
   return [binable.fromBytes(bytes), paddingBit];
+}
+function signTransaction(transaction, privateKey, network) {
+  let signature;
+  if (transaction.payment !== null) {
+    let payment = paymentFromRosetta(transaction.payment);
+    signature = signPayment(payment, privateKey, network);
+  } else if (transaction.stakeDelegation !== null) {
+    let delegation = delegationFromRosetta(transaction.stakeDelegation);
+    signature = signStakeDelegation(delegation, privateKey, network);
+  } else {
+    throw Error('signTransaction: Unsupported transaction');
+  }
+  let publicKey = PublicKey.toBase58(PrivateKey.toPublicKey(PrivateKey.fromBase58(privateKey)));
+  return {
+    data: transaction,
+    signature: signatureJsonToHex(signature),
+    publicKey
+  };
+}
+function paymentFromRosetta(payment) {
+  var _payment$valid_until, _payment$memo;
+  return {
+    common: {
+      fee: payment.fee,
+      feePayer: payment.from,
+      nonce: payment.nonce,
+      validUntil: (_payment$valid_until = payment.valid_until) !== null && _payment$valid_until !== void 0 ? _payment$valid_until : defaultValidUntil,
+      memo: (_payment$memo = payment.memo) !== null && _payment$memo !== void 0 ? _payment$memo : ''
+    },
+    body: {
+      receiver: payment.to,
+      amount: payment.amount
+    }
+  };
+}
+function delegationFromRosetta(delegation) {
+  var _delegation$valid_unt, _delegation$memo;
+  return {
+    common: {
+      feePayer: delegation.delegator,
+      fee: delegation.fee,
+      validUntil: (_delegation$valid_unt = delegation.valid_until) !== null && _delegation$valid_unt !== void 0 ? _delegation$valid_unt : defaultValidUntil,
+      memo: (_delegation$memo = delegation.memo) !== null && _delegation$memo !== void 0 ? _delegation$memo : '',
+      nonce: delegation.nonce
+    },
+    body: {
+      newDelegate: delegation.new_delegate
+    }
+  };
+}
+function verifyTransaction(signedTransaction, network) {
+  if (signedTransaction.data.payment !== null) {
+    return verifyPayment(paymentFromRosetta(signedTransaction.data.payment), signatureJsonFromHex(signedTransaction.signature), signedTransaction.publicKey, network);
+  }
+  if (signedTransaction.data.stakeDelegation !== null) {
+    return verifyStakeDelegation(delegationFromRosetta(signedTransaction.data.stakeDelegation), signatureJsonFromHex(signedTransaction.signature), signedTransaction.publicKey, network);
+  }
+  throw Error('verifyTransaction: Unsupported transaction');
+}
+// create a signature for /construction/combine payload
+function rosettaCombineSignature(signature, signingPayload) {
+  let publicKey = PublicKey.fromBase58(signature.publicKey);
+  return {
+    hex_bytes: signature.signature,
+    public_key: {
+      hex_bytes: publicKeyToHex(publicKey),
+      curve_type: 'pallas'
+    },
+    signature_type: 'schnorr_poseidon',
+    signing_payload: signingPayload
+  };
+}
+// create a payload for /construction/combine
+function rosettaCombinePayload(unsignedPayload, privateKey, network) {
+  let signature = signTransaction(JSON.parse(unsignedPayload.unsigned_transaction), privateKey, network);
+  let signatures = [rosettaCombineSignature(signature, unsignedPayload.payloads[0])];
+  return {
+    network_identifier: {
+      blockchain: 'mina',
+      network
+    },
+    unsigned_transaction: unsignedPayload.unsigned_transaction,
+    signatures
+  };
 }
 // TODO: clean up this logic, was copied over from OCaml code
 function rosettaTransactionToSignedCommand(_ref) {
@@ -14288,12 +14541,8 @@ function createNullifier(message, sk) {
   const pk = PublicKey.toGroup(PrivateKey.toPublicKey(sk));
   const G = Group.generatorMina;
   const r = curve_bigint_Scalar.random();
-  const gm = Hash([...message, ...Group.toFields(pk)]);
-  if (!gm) throw Error('hashToGroup: Point is undefined');
-  const h_m_pk = {
-    x: gm.x,
-    y: gm.y.x0
-  };
+  const h_m_pk = Hash([...message, ...Group.toFields(pk)]);
+  if (!h_m_pk) throw Error('hashToGroup: Point is undefined');
   const nullifier = Group.scale(h_m_pk, sk);
   const h_m_pk_r = Group.scale(h_m_pk, r);
   const g_r = Group.scale(G, r);
@@ -14336,7 +14585,7 @@ function nullifier_toString(_ref) {
 
 
 
-const defaultValidUntil = '4294967295';
+const mina_signer_defaultValidUntil = '4294967295';
 class mina_signer_Client {
   constructor(_ref) {
     let {
@@ -14393,6 +14642,40 @@ class mina_signer_Client {
     let privateKey = PrivateKey.fromBase58(privateKeyBase58);
     let publicKey = PrivateKey.toPublicKey(privateKey);
     return PublicKey.toBase58(publicKey);
+  }
+  /**
+   * Derives the public key corresponding to a given private key. This function addresses compatibility with private keys generated by external tools that may produce keys outside the domain of the Pallas curve, that was previously accepted by the older [client_sdk](https://www.npmjs.com/package/@o1labs/client-sdk).
+   * The function first converts the input private key (in Base58 format) to a format that is compatible with the domain of the Pallas curve by applying a modulus operation. This step ensures backward compatibility with older keys that may not directly fit the Pallas curve's domain. Once the private key is in the correct domain, it is used to derive the corresponding public key.
+   * @param privateKeyBase58 - The private key (in Base58 format) used to derive the corresponding public key. The key is expected to be out of the domain of the Pallas curve and will be converted to fit within the domain as part of this process.
+   * @returns {Json.PublicKey} The derived public key in Base58 format, corresponding to the input private key, now within the domain of the Pallas curve.
+   * @remarks
+   * This function is labeled as "unsafe" due to the modulus operation applied to ensure backward compatibility, which might not adhere to strict security protocols expected in [mina-signer](https://www.npmjs.com/package/mina-signer). It is primarily intended for use cases requiring interoperability with keys managed by previous versions of the [client_sdk](https://www.npmjs.com/package/@o1labs/client-sdk) or other tools that may produce keys outside the Pallas curve's domain.
+   * It is an essential tool for migrating old keys for use with the current [mina-signer](https://www.npmjs.com/package/mina-signer) library, by allowing keys that would otherwise be rejected to be used effectively.
+   *
+   * @example
+   * ```ts
+   * // Assuming `oldPrivateKeyBase58` is a private key in Base58 format from an older client SDK
+   * const publicKeyBase58 = derivePublicKeyUnsafe(oldPrivateKeyBase58);
+   * console.log(publicKeyBase58); // Logs the derived public key in Base58 format
+   * ```
+   */
+  derivePublicKeyUnsafe(privateKeyBase58) {
+    let privateKey = PrivateKey.fromBase58(PrivateKey.convertPrivateKeyToBase58WithMod(privateKeyBase58));
+    let publicKey = PrivateKey.toPublicKey(privateKey);
+    return PublicKey.toBase58(publicKey);
+  }
+  /**
+   * Converts a private key that is out of the domain of the Pallas curve to a private key in base58 format that is in the domain by taking the modulus of the private key.
+   * This is done to keep backwards compatibility with the previous version of the [client_sdk](https://www.npmjs.com/package/@o1labs/client-sdk), which did the same thing when converting a private key to base58.
+   * @param keyBase58 - The private key that is out of the domain of the Pallas curve
+   * @returns The private key that is in the domain of the Pallas curve
+   * @remarks
+   * This function is particularly useful when migrating old keys to be used by the current [mina-signer](https://www.npmjs.com/package/mina-signer) library,
+   * which may reject keys that do not fit the domain of the Pallas curve, by performing a modulus operation on the key, it ensures that keys
+   * from the older client_sdk can be made compatible.
+   */
+  convertPrivateKeyToBase58WithMod(keyBase58) {
+    return PrivateKey.convertPrivateKeyToBase58WithMod(keyBase58);
   }
   /**
    * Signs an arbitrary list of field elements in a SNARK-compatible way.
@@ -14468,6 +14751,27 @@ class mina_signer_Client {
       publicKey
     } = _ref4;
     return verifyStringSignature(data, signature, publicKey, this.network);
+  }
+  /**
+   * Signs a Rosetta transaction
+   *
+   * @param transaction An object describing the transaction to be signed.
+   * @param privateKey The private key used to sign the transaction (in Base58
+   * format).
+   * @returns A signature of the transaction in Rosetta format.
+   */
+  signRosettaTransaction(transaction, privateKey) {
+    return signTransaction(transaction, privateKey, this.network);
+  }
+  /**
+   * Verifies a signature created by {@link signRosettaTransaction}.
+   *
+   * @param signedTransaction The signed transaction (in Rosetta format)
+   * @returns True if the `signedTransaction` contains a valid signature
+   * matching the transaction and publicKey.
+   */
+  verifyRosettaTransaction(signedTransaction) {
+    return verifyTransaction(signedTransaction, this.network);
   }
   /**
    * Signs a payment transaction using a private key.
@@ -14781,6 +15085,17 @@ class mina_signer_Client {
     });
   }
   /**
+   * Creates the payload for Rosetta /construction/combine using a response
+   * from /construction/payloads.
+   *
+   * @param signingPayload A payload resulting from /construction/payloads
+   * @param privateKey The private key used to sign the transaction
+   * @returns A string with the resulting payload for /construction/combine.
+   */
+  rosettaCombinePayload(signingPayload, privateKey) {
+    return rosettaCombinePayload(signingPayload, privateKey, this.network);
+  }
+  /**
    * Return the hex-encoded format of a valid public key. This will throw an exception if
    * the key is invalid or the conversion fails.
    *
@@ -14883,7 +15198,7 @@ function validCommon(common) {
     fee: validNonNegative(common.fee),
     nonce: validNonNegative(common.nonce),
     memo,
-    validUntil: validNonNegative((_common$validUntil = common.validUntil) !== null && _common$validUntil !== void 0 ? _common$validUntil : defaultValidUntil)
+    validUntil: validNonNegative((_common$validUntil = common.validUntil) !== null && _common$validUntil !== void 0 ? _common$validUntil : mina_signer_defaultValidUntil)
   };
 }
 function validFeePayer(feePayer, minimumFee) {
@@ -50722,7 +51037,7 @@ global.account = _account__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"];
 global.utils = _utils__WEBPACK_IMPORTED_MODULE_2__[/* default */ "a"];
 global.auroSignLib = _lib__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"];
 const minaSignerVersion = async () => {
-  return "3.0.4-1001";
+  return "3.0.7-1001";
 };
 global.minaSignerVersion = minaSignerVersion;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14)))
