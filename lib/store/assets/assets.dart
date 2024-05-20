@@ -353,7 +353,7 @@ abstract class _AssetsStore with Store {
     }
     if (cache[3] != null) {
       zkTxs = ObservableList.of(
-          List.of(cache[1]).map((i) => TransferData.fromJson(i)).toList());
+          List.of(cache[3]).map((i) => TransferData.fromJson(i)).toList());
     } else {
       zkTxs = ObservableList();
     }
