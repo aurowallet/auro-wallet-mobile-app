@@ -33,20 +33,20 @@ enum FeeTypeEnum {
 }
 
 class SignTransactionDialog extends StatefulWidget {
-  SignTransactionDialog({
-    required this.signType,
-    required this.to,
-    required this.onConfirm,
-    required this.url,
-    required this.preNonce,
-    this.amount,
-    this.fee,
-    this.memo,
-    this.transaction,
-    this.onCancel,
-    this.iconUrl,
-    this.feePayer,
-  });
+  SignTransactionDialog(
+      {required this.signType,
+      required this.to,
+      required this.onConfirm,
+      required this.url,
+      required this.preNonce,
+      this.amount,
+      this.fee,
+      this.memo,
+      this.transaction,
+      this.onCancel,
+      this.iconUrl,
+      this.feePayer,
+      this.onlySign});
 
   final SignTxDialogType signType;
   final String to;
@@ -58,6 +58,7 @@ class SignTransactionDialog extends StatefulWidget {
   final String url;
   final String? iconUrl;
   final int preNonce;
+  final bool? onlySign;
 
   final Function(String, int) onConfirm;
   final Function()? onCancel;
@@ -82,6 +83,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   String sourceData = "";
   List<DataItem> rawData = [];
   bool isLedger = false;
+  bool zkOnlySign = false;
 
   @override
   void initState() {
@@ -113,7 +115,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String? zkMemo;
     if (widget.signType == SignTxDialogType.zkApp) {
       String transaction = zkCommandFormat(widget.transaction);
-      toAddressTemp = getContractAddress(transaction);
+      toAddressTemp = getContractAddress(
+          transaction, store.wallet!.currentAddress);
       List<dynamic> zkFormatData =
           getZkInfo(transaction, store.wallet!.currentAddress);
       List<DataItem> dataItems = zkFormatData
@@ -122,12 +125,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
       zkFee = getZkFee(transaction);
       zkMemo = getZkMemo(transaction);
-      String zkSourceData =
-          const JsonEncoder.withIndent('  ').convert(jsonDecode(transaction));
+      bool zkOnlySignTemp = widget.onlySign ?? false;
       setState(() {
         showToAddress = toAddressTemp;
-        sourceData = zkSourceData;
+        sourceData = transaction;
         rawData = dataItems;
+        zkOnlySign = zkOnlySignTemp;
       });
     } else {
       setState(() {
@@ -256,10 +259,10 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             context: context,
             wallet: store.wallet!.currentWallet,
             inputPasswordRequired: false);
-        setState(() {
-          submitting = false;
-        });
         if (password == null) {
+          setState(() {
+            submitting = false;
+          });
           return false;
         }
         privateKey = await webApi.account.getPrivateKey(
@@ -267,6 +270,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             store.wallet!.currentWallet.currentAccountIndex,
             password);
         if (privateKey == null) {
+          setState(() {
+            submitting = false;
+          });
           UI.toast(dic.passwordError);
           return false;
         }
@@ -280,7 +286,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           "fee": lastFee,
           "nonce": inputNonce,
           "memo": lastMemo != null ? lastMemo : "",
-          "transaction": zkCommandFormat(widget.transaction)
+          "transaction":
+              widget.transaction,
+          "zkOnlySign": zkOnlySign
         };
       } else {
         txInfo = {
@@ -301,7 +309,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           isDelagetion = true;
         }
       }
-      TransferData? data;
+      dynamic data;
       if (isLedger) {
         print('start sign ledger');
         final tx = await webApi.account
@@ -325,19 +333,33 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           }
         }
       }
-      setState(() {
-        submitting = false;
-      });
-      if (data!.hash.isNotEmpty) {
+      String hash = "";
+      String signedData = "";
+      if (data.runtimeType == TransferData) {
+        hash = data.hash;
+      } else {
+        signedData = data["signedData"];
+      }
+      bool hashNotEmpty = hash.isNotEmpty;
+      bool signedDataNotEmpty = signedData.isNotEmpty;
+      if (hashNotEmpty || signedDataNotEmpty) {
         if (mounted && !exited) {
-          widget.onConfirm(data.hash, inputNonce);
-          globalBalanceRefreshKey.currentState!.show();
-
+          String responseData = hashNotEmpty ? hash : signedData;
+          await widget.onConfirm(responseData, inputNonce);
+          setState(() {
+            submitting = false;
+          });
+          if (globalBalanceRefreshKey.currentState != null) {
+            globalBalanceRefreshKey.currentState?.show();
+          }
           return true;
         }
       } else {
         UI.toast("service error");
       }
+      setState(() {
+        submitting = false;
+      });
       return false;
     }
     exited = true;
@@ -563,7 +585,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   Widget _buildZkTransactionContent() {
     if (showRawDataStatus) {
-      return Text(sourceData,
+      return Text(prettyPrintJson(jsonDecode(sourceData)),
           style: TextStyle(
               color: Colors.black.withOpacity(0.8),
               fontSize: 14,
@@ -683,9 +705,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
               Wrap(
                 children: [
                   BrowserDialogTitleRow(
-                      title: dic.sendDetail,
+                      title: zkOnlySign ? dic.signatureRequest : dic.sendDetail,
                       showChainType: true,
-                      showLedgerStatus: true),
+                      showLedgerStatus: isLedger),
                   Container(
                       constraints: BoxConstraints(
                           minHeight: minHeight, maxHeight: containerMaxHeight),

@@ -4,7 +4,6 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/page/test/testTransactionData.dart';
 import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/service/webview/bridgeService.dart';
 import 'package:flutter/material.dart';
 
 class WebviewBridgeTestPage extends StatefulWidget {
@@ -18,7 +17,6 @@ class WebviewBridgeTestPage extends StatefulWidget {
 
 class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   _WebviewBridgeTestPageState();
-  BridgeService _bridge = BridgeService();
   Map testAccount = {
     "mnemonic":
         "treat unique goddess bone spike inspire accident forum muffin boost drill draw",
@@ -36,7 +34,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initWebview();
     });
   }
 
@@ -45,9 +42,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     super.dispose();
   }
 
-  void _initWebview() async {
-    await _bridge.init();
-  }
 
   void showConfirmDialog(
     String content,
@@ -73,7 +67,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
   void getSdkVersion() async {
     // 1. get sdk version
-    var version = await _bridge.getCurrentSDKVersion();
+    var version = await webApi.bridge.getCurrentSDKVersion();
     print('sdk version = $version');
     showConfirmDialog("Version is: " + version);
   }
@@ -86,7 +80,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     Map seedType = {"mnemonic": "mnemonic", "priKey": "priKey"};
 
-    var createWalletMneRes = await _bridge.createWallet(
+    var createWalletMneRes = await webApi.bridge.createWallet(
         testAccount["mnemonic"], seedType["mnemonic"]);
 
     if (createWalletMneRes["pubKey"] != testAccount["account0"]["pubKey"]) {
@@ -96,7 +90,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     }
 
     var createWalletWithPrivateKey =
-        await _bridge.createWalletByMnemonic(testAccount["mnemonic"], 0, true);
+        await webApi.bridge.createWalletByMnemonic(testAccount["mnemonic"], 0, true);
 
     if (createWalletWithPrivateKey["priKey"] !=
         testAccount["account0"]["priKey"]) {
@@ -106,7 +100,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     }
 
     var createWalletPriRes =
-        await _bridge.createWallet(testAccount["account0"]["priKey"], "priKey");
+        await webApi.bridge.createWallet(testAccount["account0"]["priKey"], "priKey");
 
     if (createWalletPriRes["pubKey"] != testAccount["account0"]["pubKey"]) {
       checkFailedCount++;
@@ -114,7 +108,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
           '\u001b[31m createWalletPriRes failed: ${jsonEncode(createWalletPriRes)} \u001b[0m');
     }
 
-    var createAccountByPrivateKeyRes = await _bridge
+    var createAccountByPrivateKeyRes = await webApi.bridge
         .createAccountByPrivateKey(testAccount["account0"]["priKey"]);
 
     if (createAccountByPrivateKeyRes["pubKey"] !=
@@ -140,7 +134,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     /// mainnetTest
     Map signPaymentData = testTransactionData['signPayment'];
     var mainnetSignPaymentRes =
-        await _bridge.signPaymentTx(signPaymentData['mainnet']['signParams']);
+        await webApi.bridge.signPaymentTx(signPaymentData['mainnet']['signParams']);
 
     Map expectMainnetSignPaymentData = signPaymentData["mainnet"]["signResult"];
     if (mainnetSignPaymentRes["signature"]['field'] !=
@@ -155,7 +149,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     /// testnetTest
     var testnetSignPaymentRes =
-        await _bridge.signPaymentTx(signPaymentData['testnet']['signParams']);
+        await webApi.bridge.signPaymentTx(signPaymentData['testnet']['signParams']);
 
     Map expectTestnetSignPaymentData = signPaymentData["testnet"]["signResult"];
     if (testnetSignPaymentRes["signature"]['field'] !=
@@ -176,7 +170,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     /// mainnetTest
     Map signStakeTransactionData = testTransactionData['signStakeTransaction'];
-    var mainnetSignStakeTransactionRes = await _bridge.signStakeDelegationTx(
+    var mainnetSignStakeTransactionRes = await webApi.bridge.signStakeDelegationTx(
         signStakeTransactionData['mainnet']['signParams']);
     print('mainnetSignPaymentRes${jsonEncode(mainnetSignStakeTransactionRes)}');
 
@@ -193,7 +187,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     }
 
     /// testnetTest
-    var testnetSignStakeTransactionRes = await _bridge.signStakeDelegationTx(
+    var testnetSignStakeTransactionRes = await webApi.bridge.signStakeDelegationTx(
         signStakeTransactionData['testnet']['signParams']);
 
     Map expectTestnetSignStakeTransactionData =
@@ -215,7 +209,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     var checkFailedCount = 0;
     Map signZkTransactionData = testTransactionData['signZkTransaction'];
 
-    var testnetSignZkTransactionRes = await _bridge
+    var testnetSignZkTransactionRes = await webApi.bridge
         .signZkTransaction(signZkTransactionData['testnet']['signParams']);
 
     Map expectTestnetSignZkTransactionData =
@@ -237,7 +231,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     /// mainnetTest
     Map signData = testTransactionData['signMessageTransaction'];
     var mainnetSignRes =
-        await _bridge.signMessage(signData['mainnet']['signParams']);
+        await webApi.bridge.signMessage(signData['mainnet']['signParams']);
     print('mainnetSignRes${jsonEncode(mainnetSignRes)}');
 
     Map expectMainnetSignData = signData["mainnet"]["signResult"];
@@ -259,7 +253,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
       "verifyMessage": mainnetSignRes["data"],
     };
 
-    var mainnetVerifyRes = await _bridge.verifyMessage(mainnetVerifyData);
+    var mainnetVerifyRes = await webApi.bridge.verifyMessage(mainnetVerifyData);
     print('mainnetVerifyRes${jsonEncode(mainnetVerifyRes)}');
     if (!mainnetVerifyRes) {
       checkFailedCount++;
@@ -270,7 +264,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     /// testnetTest
     var testnetSignRes =
-        await _bridge.signMessage(signData['testnet']['signParams']);
+        await webApi.bridge.signMessage(signData['testnet']['signParams']);
     print('testnetSignRes, ${jsonEncode(testnetSignRes)}');
 
     Map expectTestnetSignData = signData["testnet"]["signResult"];
@@ -292,7 +286,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
       "verifyMessage": testnetSignRes["data"],
     };
 
-    var testnetVerifyRes = await _bridge.verifyMessage(testnetVerifyData);
+    var testnetVerifyRes = await webApi.bridge.verifyMessage(testnetVerifyData);
     print('testnetVerifyRes, ${jsonEncode(testnetVerifyRes)}');
     if (!testnetVerifyRes) {
       checkFailedCount++;
@@ -310,7 +304,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     /// mainnetTest
     Map signData = testTransactionData['signFiledsData'];
     var mainnetSignRes =
-        await _bridge.signFields(signData['mainnet']['signParams']);
+        await webApi.bridge.signFields(signData['mainnet']['signParams']);
     print('mainnetSignRes${jsonEncode(mainnetSignRes)}');
 
     Map expectMainnetSignData = signData["mainnet"]["signResult"];
@@ -329,7 +323,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
       "fields": mainnetSignRes["data"],
     };
 
-    var mainnetVerifyRes = await _bridge.verifyFields(mainnetVerifyData);
+    var mainnetVerifyRes = await webApi.bridge.verifyFields(mainnetVerifyData);
     print('mainnetVerifyRes, ${jsonEncode(mainnetVerifyRes)}');
     if (!mainnetVerifyRes) {
       checkFailedCount++;
@@ -340,7 +334,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     /// testnetTest
     var testnetSignRes =
-        await _bridge.signFields(signData['testnet']['signParams']);
+        await webApi.bridge.signFields(signData['testnet']['signParams']);
     print('testnetSignRes${jsonEncode(testnetSignRes)}');
 
     Map expectTestnetSignData = signData["testnet"]["signResult"];
@@ -359,7 +353,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
       "fields": testnetSignRes["data"],
     };
 
-    var testnetVerifyRes = await _bridge.verifyFields(testnetVerifyData);
+    var testnetVerifyRes = await webApi.bridge.verifyFields(testnetVerifyData);
     print('testnetVerifyRes, ${jsonEncode(testnetVerifyRes)}');
     if (!testnetVerifyRes) {
       checkFailedCount++;
@@ -376,7 +370,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     Map nullifierData = testTransactionData['nullifierData'];
 
     var mainnetNullifierRes =
-        await _bridge.createNullifier(nullifierData['mainnet']['signParams']);
+        await webApi.bridge.createNullifier(nullifierData['mainnet']['signParams']);
 
     if (mainnetNullifierRes["private"].isEmpty) {
       checkFailedCount++;
@@ -386,7 +380,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     }
 
     var testnetNullifierRes =
-        await _bridge.createNullifier(nullifierData['testnet']['signParams']);
+        await webApi.bridge.createNullifier(nullifierData['testnet']['signParams']);
 
     if (testnetNullifierRes["private"].isEmpty) {
       checkFailedCount++;

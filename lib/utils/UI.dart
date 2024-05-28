@@ -369,6 +369,7 @@ class UI {
     String? fee,
     String? memo,
     Object? transaction,
+    bool? onlySign,
     Map<String, dynamic>? feePayer,
     required String url,
     String? iconUrl,
@@ -391,11 +392,12 @@ class UI {
             memo: memo,
             feePayer: feePayer,
             transaction: transaction,
+            onlySign:onlySign,
             url: url,
             iconUrl: iconUrl,
             preNonce: nonce,
             onConfirm: (String hash, int nonce) async {
-              onConfirm(hash, nonce);
+              await onConfirm(hash, nonce);
               Navigator.of(context).pop();
             },
             onCancel: () {

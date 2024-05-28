@@ -37,23 +37,21 @@ class BridgeWebView {
       await LocalWebviewServer.getInstance().startLocalServer();
       _web = new HeadlessInAppWebView(
         windowId: 2,
-        initialOptions: InAppWebViewGroupOptions(
-          crossPlatform: InAppWebViewOptions(clearCache: true),
-          android: AndroidInAppWebViewOptions(useOnRenderProcessGone: true),
-        ),
-        androidOnRenderProcessGone: (webView, detail) async {
+        initialSettings: InAppWebViewSettings(
+            clearCache: true, useOnRenderProcessGone: true),
+        onRenderProcessGone: (webView, detail) async {
           if (_web?.webViewController == webView) {
             webViewLoaded = false;
-            await _web?.webViewController.clearCache();
-            await _web?.webViewController.reload();
+            await InAppWebViewController.clearAllCache();
+            await _web?.webViewController?.reload();
           }
         },
         initialUrlRequest: URLRequest(
-            url: Uri.parse("http://localhost:8080/assets/webview/bridge.html")),
+            url: WebUri("http://localhost:8080/assets/webview/bridge.html")),
         onWebViewCreated: (controller) async {
           controller.loadUrl(
               urlRequest: URLRequest(
-                  url: Uri.parse(
+                  url: WebUri(
                       "http://localhost:8080/assets/webview/bridge.html")));
         },
         onConsoleMessage: (controller, message) {
@@ -116,7 +114,7 @@ class BridgeWebView {
 
   void _tryReload() {
     if (!webViewLoaded) {
-      _web?.webViewController.reload();
+      _web?.webViewController?.reload();
     }
   }
 
@@ -128,7 +126,7 @@ class BridgeWebView {
   Future<void> _startJSCode() async {
     // inject js file to webView
     if (_jsCode != null) {
-      await _web!.webViewController.evaluateJavascript(source: _jsCode!);
+      await _web!.webViewController?.evaluateJavascript(source: _jsCode!);
     }
 
     _onLaunched!();
@@ -158,7 +156,7 @@ class BridgeWebView {
 
     if (!wrapPromise) {
       final res =
-          await _web!.webViewController.evaluateJavascript(source: code);
+          await _web!.webViewController?.evaluateJavascript(source: code);
       return res;
     }
 
@@ -173,15 +171,15 @@ class BridgeWebView {
         '}).catch(function(err) {'
         '  console.log(JSON.stringify({ path: "log", data: {call: "$method", error: err.message} }));'
         '});';
-    _web!.webViewController.evaluateJavascript(source: script);
+    _web!.webViewController?.evaluateJavascript(source: script);
 
     return c.future;
   }
 
   Future<void> reload() async {
     webViewLoaded = false;
-    await _web?.webViewController.clearCache();
-    return _web?.webViewController.reload();
+    await InAppWebViewController.clearAllCache();
+    return _web?.webViewController?.reload();
   }
 
   Future<void>? dispose() async {

@@ -10,9 +10,9 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class BrowserWrapperPage extends StatefulWidget {
   BrowserWrapperPage(this.store);
@@ -30,7 +30,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
   _BrowserWrapperPageState(this.store);
   final AppStore store;
 
-  late WebViewController _controller;
+  late InAppWebViewController _controller;
   bool canGoback = false;
   bool canGoForward = false;
   bool isFav = false;
@@ -175,8 +175,8 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
 
   void onSelectAccount(String address) async {
     if (address.isNotEmpty) {
-      String? currentUrl = await _controller.currentUrl();
-      String origin = getOrigin(currentUrl!);
+      WebUri? currentUrl = await _controller.getUrl();
+      String origin = getOrigin(currentUrl.toString());
 
       bool isNewAccountConnect =
           (store.browser!.browserConnectingList[address]?.contains(origin) ??
@@ -186,7 +186,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
         "result": isNewAccountConnect ? [address] : [],
         "action": "accountsChanged"
       };
-      _controller.runJavaScript("onAppResponse(${jsonEncode(resData)})");
+      _controller.evaluateJavascript(source:"onAppResponse(${jsonEncode(resData)})");
       _controller.reload();
     }
     Navigator.of(context).pop();
@@ -201,7 +201,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     return WillPopScope(
       child: _buildScaffold(
           onBack: () async {
-            bool? canGoBack = await _controller?.canGoBack();
+            bool? canGoBack = await _controller.canGoBack();
             print('canGoBack,${canGoBack}');
             Navigator.of(context).pop();
           },
@@ -306,11 +306,9 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                             color:
                                 ColorsUtil.hexColor(0x000000).withOpacity(0.8)),
                         onTap: () {
-                          if (_controller != null) {
-                            _controller.reload();
-                          }
+                          _controller.reload();
                         },
-                      ),
+                      ), 
                       Observer(builder: (BuildContext context) {
                         return IconButton(
                           icon: Icon(Icons.more_horiz),
@@ -340,9 +338,9 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
             ),
           )),
       onWillPop: () async {
-        final canGoBack = await _controller?.canGoBack();
+        final canGoBack = await _controller.canGoBack();
         if (canGoBack ?? false) {
-          _controller?.goBack();
+          _controller.goBack();
           return false;
         } else {
           return true;

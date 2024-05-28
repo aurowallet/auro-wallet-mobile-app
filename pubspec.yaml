@@ -76,8 +76,7 @@ dependencies:
   dotted_line: ^3.1.0
   ledger_flutter: ^1.0.1
   decimal: ^2.3.3
-  flutter_inappwebview: ^5.8.0
-  webview_flutter: ^4.0.7
+  flutter_inappwebview: ^6.0.0
   cached_network_image: ^3.3.0
 
 dependency_overrides:

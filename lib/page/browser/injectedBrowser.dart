@@ -14,7 +14,7 @@ import 'package:auro_wallet/utils/network.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class WebViewInjected extends StatefulWidget {
   WebViewInjected(
@@ -30,7 +30,7 @@ class WebViewInjected extends StatefulWidget {
   final String initialUrl;
 
   final Function(bool, bool)? onPageFinished;
-  final Function(WebViewController)? onWebViewCreated;
+  final Function(InAppWebViewController)? onWebViewCreated;
   final Function(int) onTxConfirmed;
   final int Function() onGetNewestNonce;
   final Function(Map)? onWebInfoBack;
@@ -44,7 +44,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   _WebViewInjectedState();
   final store = globalAppStore;
 
-  late WebViewController _controller;
+  late InAppWebViewController _controller;
   bool _signing = false;
   double loadProcess = 0.0;
   bool isSaveUrlHistory = false;
@@ -54,7 +54,8 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     print('respond ${method} to zkApp:');
     print(resData);
     _signing = false;
-    return _controller.runJavaScript("onAppResponse(${jsonEncode(resData)})");
+    return _controller.evaluateJavascript(
+        source: "onAppResponse(${jsonEncode(resData)})");
   }
 
   void onHandleErrorReject(String method, String id, int code) {
@@ -134,14 +135,24 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         memo: params?['memo'],
         transaction: params?['transaction'],
         feePayer: params?['feePayer'],
+        onlySign: params?['onlySign'],
         url: siteInfo?['origin'],
         iconUrl: siteInfo?['webIcon'],
-        onConfirm: (String hash, int nonce) async {
-          Map<String, dynamic> resData = {
-            "result": {"hash": hash},
-            "id": payload['id']
-          };
-          if (hash.isNotEmpty) {
+        onConfirm: (String responseData, int nonce) async {
+          Map<String, dynamic> resData;
+          if (params?['onlySign'].runtimeType == bool && params?['onlySign']) {
+            resData = {
+              "result": {"signedData": responseData},
+              "id": payload['id']
+            };
+          } else {
+            resData = {
+              "result": {"hash": responseData},
+              "id": payload['id']
+            };
+          }
+
+          if (responseData.isNotEmpty) {
             widget.onTxConfirmed(nonce);
           }
           _responseToZkApp(method, resData);
@@ -193,6 +204,15 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     store.browser!.addConnectConfig(url, store.wallet!.currentAddress);
   }
 
+  void notifyChainChange(Map chainInfoArgs) {
+    Map<String, dynamic> resData = {
+      "result": chainInfoArgs,
+      "action": "chainChanged"
+    };
+    _controller.evaluateJavascript(
+        source: "onAppResponse(${jsonEncode(resData)})");
+  }
+
   Future<void> switchChainByUrl(String method, Map<dynamic, dynamic>? siteInfo,
       String id, String realUrl) async {
     _signing = true;
@@ -208,6 +228,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             "chainId": chainId,
             "name": networkName,
           };
+          notifyChainChange(chainInfoArgs);
           Map<String, dynamic> resData = {"result": chainInfoArgs, "id": id};
           _responseToZkApp(method, resData);
           return;
@@ -383,6 +404,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
                 "result": chainInfoArgs,
                 "id": payload['id']
               };
+              notifyChainChange(chainInfoArgs);
               _responseToZkApp(method, resData);
               return;
             },
@@ -466,7 +488,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     print('Inject mina provider js code...');
     final minaJsProvider =
         await rootBundle.loadString('assets/webview/provider.js');
-    await _controller.runJavaScript(minaJsProvider);
+    await _controller.evaluateJavascript(source: minaJsProvider);
     print('mina provider js code injected');
 
     if (widget.onPageFinished != null) {
@@ -491,66 +513,71 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   @override
   void initState() {
     super.initState();
-
-    final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(
-            const PlatformWebViewControllerCreationParams());
-
-    controller
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) {
-            _onFinishLoad(url);
-            if (!mounted) return;
-            setState(() {
-              loadProcess = 1;
-            });
-          },
-          onProgress: (progress) {
-            if (progress >= 99) {
-              _onGetPageActionStatus();
-            }
-            if (!mounted) return;
-            setState(() {
-              loadProcess = progress / 100;
-            });
-          },
-        ),
-      )
-      ..addJavaScriptChannel(
-        'AppProvider',
-        onMessageReceived: (JavaScriptMessage message) async {
-          try {
-            final msg = jsonDecode(message.message);
-            Map? payload = msg["payload"];
-            String? id = payload?["id"];
-
-            String? origin = payload?["site"]?['origin'];
-
-            if (id != null && origin != null) {
-              _msgHandler(msg);
-            }
-            if (id == null && origin != null) {
-              if (payload?["site"]?['webIcon'] != null) {
-                websiteInitInfo = payload?["site"];
-              }
-            }
-          } catch (e) {
-            print('msg from error: ${e}');
-          }
-        },
-      )
-      ..loadRequest(Uri.parse(widget.initialUrl));
-
-    _controller = controller;
-    widget.onWebViewCreated!(_controller);
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      WebViewWidget(controller: _controller),
+      InAppWebView(
+        initialUrlRequest: URLRequest(
+          url: WebUri(widget.initialUrl),
+        ),
+        onWebViewCreated: (controller) {
+          print('onWebViewCreated,');
+          _controller = controller;
+          controller.addWebMessageListener(WebMessageListener(
+            jsObjectName: "AppProvider",
+            onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
+              try {
+                final msg = jsonDecode(message?.data);
+                Map? payload = msg["payload"];
+                String? id = payload?["id"];
+
+                String? origin = payload?["site"]?['origin'];
+
+                if (id != null && origin != null) {
+                  _msgHandler(msg);
+                }
+                if (id == null && origin != null) {
+                  if (payload?["site"]?['webIcon'] != null) {
+                    websiteInitInfo = payload?["site"];
+                  }
+                }
+              } catch (e) {
+                print('msg from error: ${e}');
+              }
+            },
+          ));
+          widget.onWebViewCreated!(controller);
+        },
+        onLoadStop: (controller, url) async {
+          _onFinishLoad(url.toString());
+        },
+        onConsoleMessage: (controller, consoleMessage) {
+          print("Console message: ${consoleMessage.message}");
+        },
+        onReceivedError: (controller, request, error) {
+          print("Load error: $error");
+        },
+        onProgressChanged: (controller, progress) {
+          if (progress >= 99) {
+            _onGetPageActionStatus();
+          }
+          if (!mounted) return;
+          setState(() {
+            loadProcess = progress / 100;
+          });
+        },
+        initialSettings: InAppWebViewSettings(
+            javaScriptEnabled: true,
+            javaScriptCanOpenWindowsAutomatically: true,
+            isInspectable: true,
+            transparentBackground: true),
+        onJsAlert: (controller, jsAlertRequest) async {
+          print("JS Alert: ${jsAlertRequest.message}");
+          return JsAlertResponse(handledByClient: true);
+        },
+      ),
       if (loadProcess < 1)
         LinearProgressIndicator(
           value: loadProcess,

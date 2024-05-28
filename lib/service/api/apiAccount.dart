@@ -769,7 +769,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return data;
   }
 
-  Future<TransferData?> signAndSendZkTx(Map txInfo,
+  FutureOr<dynamic> signAndSendZkTx(Map txInfo,
       {required BuildContext context}) async {
     String network = store.settings!.isMainnet ? "mainnet" : "testnet";
     final signedTx = await apiRoot.bridge.signZkTransaction({
@@ -783,6 +783,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       "transaction": txInfo["transaction"]
     });
     final signedData = signedTx['data'];
+    bool zkOnlySign = txInfo["zkOnlySign"]??false;
+    if(zkOnlySign){
+      return {"signedData":jsonEncode(signedData)};
+    }
     TransferData? transferData =
         await sendZkTx(signedData['zkappCommand'], context: context);
     return transferData;

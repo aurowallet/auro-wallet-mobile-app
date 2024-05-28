@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 - Enhancements
     - Website use URL as the default title
     - Upgrade mina-signer to 3.0.7
+    - Remove webview_flutter
+    - Add support to return signed zk.
 - Fixed
     - Nonce issue after zkAsignJsonMessagepp switch chain
     - Fortmat issue of signJsonMessage
