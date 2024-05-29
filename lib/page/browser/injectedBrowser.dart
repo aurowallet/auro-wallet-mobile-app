@@ -201,7 +201,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   }
 
   void saveConnectStatus(url) {
-    store.browser!.addConnectConfig(url, store.wallet!.currentAddress);
+    store.browser!.addZkAppConnect(store.wallet!.currentAddress, url);
   }
 
   void notifyChainChange(Map chainInfoArgs) {
@@ -245,10 +245,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     Map? params = payload['params'];
 
     String currentAccountAddress = store.wallet!.currentAddress;
-    bool isConnect = (store
-            .browser!.browserConnectingList[currentAccountAddress]
-            ?.contains(siteInfo?['origin']) ??
-        false);
+    bool isConnect =
+        store.browser?.zkAppConnectingList.contains(siteInfo?['origin']) ??
+            false;
     String network = store.settings!.isMainnet ? "mainnet" : "testnet";
     switch (method) {
       case "mina_requestAccounts":
@@ -272,7 +271,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
               "id": payload['id']
             };
             store.browser!
-                .addConnectConfig(siteInfo?['origin'], currentAccountAddress);
+                .addZkAppConnect(currentAccountAddress, siteInfo?['origin']);
             _responseToZkApp(method, resData);
           },
           onCancel: () {
@@ -485,11 +484,17 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   }
 
   Future<void> _onFinishLoad(String url) async {
-    print('Inject mina provider js code...');
-    final minaJsProvider =
-        await rootBundle.loadString('assets/webview/provider.js');
-    await _controller.evaluateJavascript(source: minaJsProvider);
-    print('mina provider js code injected');
+    dynamic minaConfig =
+        await _controller.evaluateJavascript(source: "window.mina?.isAuro");
+    if (minaConfig.runtimeType == bool && minaConfig) {
+      print('mina provider injected success, $minaConfig');
+    } else {
+      print('mina provider injected failed,$minaConfig');
+      final minaJsProvider =
+          await rootBundle.loadString('assets/webview/provider.js');
+      await _controller.evaluateJavascript(source: minaJsProvider);
+      print('mina provider js code injected');
+    }
 
     if (widget.onPageFinished != null) {
       _onGetPageActionStatus();
@@ -550,8 +555,15 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           ));
           widget.onWebViewCreated!(controller);
         },
+        onPageCommitVisible: (controller, url) async {
+          print('onPageCommitVisible Inject mina provider js code...');
+          final minaJsProvider =
+              await rootBundle.loadString('assets/webview/provider.js');
+          await controller.evaluateJavascript(source: minaJsProvider);
+          print('onPageCommitVisible mina provider js code injected ');
+        },
         onLoadStop: (controller, url) async {
-          _onFinishLoad(url.toString());
+          await _onFinishLoad(url.toString());
         },
         onConsoleMessage: (controller, consoleMessage) {
           print("Console message: ${consoleMessage.message}");

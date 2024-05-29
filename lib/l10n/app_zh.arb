@@ -522,5 +522,7 @@
   "@hardwareWallet": {},
   "ledgerConnected": "Ledger 已连接",
   "ledgerNotConnected": "Ledger 未连接",
-  "txType":"交易类型"
+  "txType":"交易类型",
+  "appConnection": "已连接应用",
+  "noConnectedApps": "没有已连接的应用"
 }

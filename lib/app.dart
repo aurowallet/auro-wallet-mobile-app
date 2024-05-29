@@ -7,6 +7,7 @@ import 'package:auro_wallet/page/browser/browserSearchPage.dart';
 import 'package:auro_wallet/page/browser/browserWrapperPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
+import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
@@ -229,6 +230,7 @@ class _WalletAppState extends State<WalletApp> {
         WebviewBridgeTestPage.route: (_) => WebviewBridgeTestPage(),
         BrowserWrapperPage.route: (_) => BrowserWrapperPage(_appStore!),
         BrowserSearchPage.route: (_) => BrowserSearchPage(_appStore!),
+        ZkAppConnectPage.route: (_) => ZkAppConnectPage(_appStore!),
       },
     );
   }

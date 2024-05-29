@@ -524,5 +524,7 @@
   "@hardwareWallet": {},
   "ledgerConnected": "Устройство Ledger подключено",
   "ledgerNotConnected": "Устройство Ledger не подключено",
-  "txType":"Тип транзакции"
+  "txType":"Тип транзакции",
+  "appConnection": "Подключения приложений",
+  "noConnectedApps": "Нет подключенных приложений"
 }

@@ -51,6 +51,8 @@ class ApiAccount {
     await store.assets!.clearTxs();
     await store.staking!.clearDelegatedValidator();
     await store.assets!.loadAccountCache();
+    // refresh zkConnect
+    await store.browser!.loadZkAppConnect(current);
     if (fetchData) {
       globalBalanceRefreshKey.currentState!.show();
     }

@@ -189,6 +189,8 @@ flutter:
     - assets/images/setting/empty_contact.svg
     - assets/images/setting/2.0x/setting_logo.png
     - assets/images/setting/setting_logo.png
+    - assets/images/setting/icon_delete.svg
+    - assets/images/setting/icon_connect.svg
 
     ## stake
     - assets/images/stake/icon_delegation.svg

@@ -9,8 +9,9 @@ class LocalStorage {
   final contactsKey = 'wallet_contact_list';
   final seedKey = 'wallet_seed';
   final customKVKey = 'wallet_kv';
-  final webview_fav_kv = 'webview_fav_kv';
-  final webview_history_kv = 'webview_history_kv';
+  final webviewFavKv = 'webview_fav_kv';
+  final webviewHistoryKv = 'webview_history_kv';
+  final webConnectList = 'web_connect_list';
 
   _LocalStorage storage = _LocalStorage();
 
@@ -110,32 +111,70 @@ class LocalStorage {
   }
 
   Future<List<Map<String, dynamic>>> getWebviewFavList() async {
-    return storage.getList(webview_fav_kv);
+    return storage.getList(webviewFavKv);
   }
 
   Future<void> removeWebviewFav(String url) async {
-    return storage.removeItemFromList(webview_fav_kv, 'url', url);
+    return storage.removeItemFromList(webviewFavKv, 'url', url);
   }
 
   Future<void> updateWebviewFav(Map<String, dynamic> con, String oldUrl) async {
-    return storage.updateOrAddItemInList(webview_fav_kv, 'url', oldUrl, con);
+    return storage.updateOrAddItemInList(webviewFavKv, 'url', oldUrl, con);
   }
-  
+
   Future<List<Map<String, dynamic>>> getWebHistoryList() async {
-    return storage.getList(webview_history_kv);
+    return storage.getList(webviewHistoryKv);
   }
 
   Future<void> removeWebHistory(String url) async {
-    return storage.removeItemFromList(webview_history_kv, 'url', url);
+    return storage.removeItemFromList(webviewHistoryKv, 'url', url);
   }
 
   Future<void> updateWebHistoryList(
       Map<String, dynamic> con, String oldUrl) async {
-    return storage.updateOrAddItemInList(webview_history_kv, 'url', oldUrl, con);
+    return storage.updateOrAddItemInList(webviewHistoryKv, 'url', oldUrl, con);
   }
 
   Future<void> clearWebHistoryList() async {
-    return storage.clearList(webview_history_kv);
+    return storage.clearList(webviewHistoryKv);
+  }
+
+  Future<List<String>> getZkAppConnectList(String address) async {
+    String connectKey = '${webConnectList}_$address';
+    String? connectString = await storage.getKV(connectKey);
+    if (connectString != null && connectString.isNotEmpty) {
+      var connectListTemp = await jsonDecode(connectString);
+      List<String> connectList = List<String>.from(connectListTemp);
+      return connectList;
+    }
+    return [];
+  }
+
+  Future<bool> updateZkAppConnectList(String address, String url) async {
+    String connectKey = '${webConnectList}_$address';
+    List<String> connectList = await getZkAppConnectList(address);
+    if (!connectList.contains(url)) {
+      connectList.insert(0,url);
+      await storage.setKV(connectKey, jsonEncode(connectList));
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> removeZkAppConnectItem(String address, String url) async {
+    String connectKey = '${webConnectList}_$address';
+    List<String> connectList = await getZkAppConnectList(address);
+    if (connectList.contains(url)) {
+      connectList.remove(url);
+      await storage.setKV(connectKey, jsonEncode(connectList));
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> removeZkAppAllConnect(String address) async {
+    String connectKey = '${webConnectList}_$address';
+    await storage.setKV(connectKey, '[]');
   }
 }
 

@@ -9319,7 +9319,7 @@ function getSiteIcon(windowObject) {
         var biggerIcon = getMaxSizeIcon(list);
         return biggerIcon.href;
     }
-    return null;
+    return "";
 }
 function getIconSize(sizes) {
     var size = 0;
@@ -9626,12 +9626,16 @@ var provider_MinaProvider = /** @class */ (function (_super) {
 // CONCATENATED MODULE: ./node_modules/@aurowallet/mina-provider/dist/TSTypes.js
 
 
+// CONCATENATED MODULE: ./node_modules/@aurowallet/mina-provider/dist/zkTypes.js
+
+
 // CONCATENATED MODULE: ./node_modules/@aurowallet/mina-provider/dist/index.js
 
 
 
 
 /* harmony default export */ var dist = (provider);
+
 
 
 

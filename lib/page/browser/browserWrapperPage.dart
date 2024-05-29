@@ -179,14 +179,14 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
       String origin = getOrigin(currentUrl.toString());
 
       bool isNewAccountConnect =
-          (store.browser!.browserConnectingList[address]?.contains(origin) ??
-              false);
+          store.browser?.zkAppConnectingList.contains(origin) ?? false;
 
       Map<String, dynamic> resData = {
         "result": isNewAccountConnect ? [address] : [],
         "action": "accountsChanged"
       };
-      _controller.evaluateJavascript(source:"onAppResponse(${jsonEncode(resData)})");
+      _controller.evaluateJavascript(
+          source: "onAppResponse(${jsonEncode(resData)})");
       _controller.reload();
     }
     Navigator.of(context).pop();
@@ -213,47 +213,48 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
             child: Column(
               children: [
                 Expanded(
-                  child: WebViewInjected(url,
-                      onGetNewestNonce: () => nextUseInferredNonce,
-                      onWebViewCreated: (controller) {
-                        _controller = controller;
-                      },
-                      onPageFinished: (gobackStatus, goForwardStatus) async {
-                        String title = await _controller.getTitle() ?? "";
-                        if (title.isNotEmpty) {
-                          if (!mounted) return;
-                          setState(() {
-                            loadTitle = title;
-                          });
-                        } else {
-                          setState(() {
-                            loadTitle = url;
-                          });
-                        }
+                  child: WebViewInjected(
+                    url,
+                    onGetNewestNonce: () => nextUseInferredNonce,
+                    onWebViewCreated: (controller) {
+                      _controller = controller;
+                    },
+                    onPageFinished: (gobackStatus, goForwardStatus) async {
+                      String title = await _controller.getTitle() ?? "";
+                      if (title.isNotEmpty) {
                         if (!mounted) return;
                         setState(() {
-                          canGoback = gobackStatus;
-                          canGoForward = goForwardStatus;
+                          loadTitle = title;
                         });
-                      },
-                      onTxConfirmed: (int nonce) {
-                        if (nonce == nextUseInferredNonce) {
-                          nextUseInferredNonce = nextUseInferredNonce + 1;
-                        } else {
-                          _loadData();
-                        }
-                      },
-                      onWebInfoBack: (Map websiteInfo) {
-                        if (!mounted) return;
+                      } else {
                         setState(() {
-                          websiteInitInfo = websiteInfo;
+                          loadTitle = url;
                         });
-                      },
-                      onRefreshChain: ()async{
-                        nextUseInferredNonce = 0 ;
-                        await _loadData();
-                      },
-                      ),
+                      }
+                      if (!mounted) return;
+                      setState(() {
+                        canGoback = gobackStatus;
+                        canGoForward = goForwardStatus;
+                      });
+                    },
+                    onTxConfirmed: (int nonce) {
+                      if (nonce == nextUseInferredNonce) {
+                        nextUseInferredNonce = nextUseInferredNonce + 1;
+                      } else {
+                        _loadData();
+                      }
+                    },
+                    onWebInfoBack: (Map websiteInfo) {
+                      if (!mounted) return;
+                      setState(() {
+                        websiteInitInfo = websiteInfo;
+                      });
+                    },
+                    onRefreshChain: () async {
+                      nextUseInferredNonce = 0;
+                      await _loadData();
+                    },
+                  ),
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -308,7 +309,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                         onTap: () {
                           _controller.reload();
                         },
-                      ), 
+                      ),
                       Observer(builder: (BuildContext context) {
                         return IconButton(
                           icon: Icon(Icons.more_horiz),

@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/page/test/testTransactionData.dart';
 import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class WebviewBridgeTestPage extends StatefulWidget {
   WebviewBridgeTestPage();
@@ -17,6 +20,8 @@ class WebviewBridgeTestPage extends StatefulWidget {
 
 class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   _WebviewBridgeTestPageState();
+  AppStore store = globalAppStore;
+
   Map testAccount = {
     "mnemonic":
         "treat unique goddess bone spike inspire accident forum muffin boost drill draw",
@@ -30,18 +35,19 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   bool signTransactionStatus = false;
   bool pageCreateWalletStatus = false;
 
+  String accountA = "B62qpjxUpgdjzwQfd8q2gzxi99wN7SCgmofpvw27MBkfNHfHoY2VH32";
+  String accountB = "B62qr2zNMypNKXmzMYSVotChTBRfXzHRtshvbuEjAQZLq6aEa8RxLyD";
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override
   void dispose() {
     super.dispose();
   }
-
 
   void showConfirmDialog(
     String content,
@@ -80,8 +86,8 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     Map seedType = {"mnemonic": "mnemonic", "priKey": "priKey"};
 
-    var createWalletMneRes = await webApi.bridge.createWallet(
-        testAccount["mnemonic"], seedType["mnemonic"]);
+    var createWalletMneRes = await webApi.bridge
+        .createWallet(testAccount["mnemonic"], seedType["mnemonic"]);
 
     if (createWalletMneRes["pubKey"] != testAccount["account0"]["pubKey"]) {
       checkFailedCount++;
@@ -89,8 +95,8 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
           '\u001b[31m createWalletMneRes failed: ${jsonEncode(createWalletMneRes)} \u001b[0m');
     }
 
-    var createWalletWithPrivateKey =
-        await webApi.bridge.createWalletByMnemonic(testAccount["mnemonic"], 0, true);
+    var createWalletWithPrivateKey = await webApi.bridge
+        .createWalletByMnemonic(testAccount["mnemonic"], 0, true);
 
     if (createWalletWithPrivateKey["priKey"] !=
         testAccount["account0"]["priKey"]) {
@@ -99,8 +105,8 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
           '\u001b[31m createWalletWithPrivateKey failed: ${jsonEncode(createWalletWithPrivateKey)} \u001b[0m');
     }
 
-    var createWalletPriRes =
-        await webApi.bridge.createWallet(testAccount["account0"]["priKey"], "priKey");
+    var createWalletPriRes = await webApi.bridge
+        .createWallet(testAccount["account0"]["priKey"], "priKey");
 
     if (createWalletPriRes["pubKey"] != testAccount["account0"]["pubKey"]) {
       checkFailedCount++;
@@ -133,8 +139,8 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     /// mainnetTest
     Map signPaymentData = testTransactionData['signPayment'];
-    var mainnetSignPaymentRes =
-        await webApi.bridge.signPaymentTx(signPaymentData['mainnet']['signParams']);
+    var mainnetSignPaymentRes = await webApi.bridge
+        .signPaymentTx(signPaymentData['mainnet']['signParams']);
 
     Map expectMainnetSignPaymentData = signPaymentData["mainnet"]["signResult"];
     if (mainnetSignPaymentRes["signature"]['field'] !=
@@ -148,8 +154,8 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     }
 
     /// testnetTest
-    var testnetSignPaymentRes =
-        await webApi.bridge.signPaymentTx(signPaymentData['testnet']['signParams']);
+    var testnetSignPaymentRes = await webApi.bridge
+        .signPaymentTx(signPaymentData['testnet']['signParams']);
 
     Map expectTestnetSignPaymentData = signPaymentData["testnet"]["signResult"];
     if (testnetSignPaymentRes["signature"]['field'] !=
@@ -170,8 +176,9 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     /// mainnetTest
     Map signStakeTransactionData = testTransactionData['signStakeTransaction'];
-    var mainnetSignStakeTransactionRes = await webApi.bridge.signStakeDelegationTx(
-        signStakeTransactionData['mainnet']['signParams']);
+    var mainnetSignStakeTransactionRes = await webApi.bridge
+        .signStakeDelegationTx(
+            signStakeTransactionData['mainnet']['signParams']);
     print('mainnetSignPaymentRes${jsonEncode(mainnetSignStakeTransactionRes)}');
 
     Map expectMainnetSignStakeTransactionData =
@@ -187,8 +194,9 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     }
 
     /// testnetTest
-    var testnetSignStakeTransactionRes = await webApi.bridge.signStakeDelegationTx(
-        signStakeTransactionData['testnet']['signParams']);
+    var testnetSignStakeTransactionRes = await webApi.bridge
+        .signStakeDelegationTx(
+            signStakeTransactionData['testnet']['signParams']);
 
     Map expectTestnetSignStakeTransactionData =
         signStakeTransactionData["testnet"]["signResult"];
@@ -369,8 +377,8 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     var checkFailedCount = 0;
     Map nullifierData = testTransactionData['nullifierData'];
 
-    var mainnetNullifierRes =
-        await webApi.bridge.createNullifier(nullifierData['mainnet']['signParams']);
+    var mainnetNullifierRes = await webApi.bridge
+        .createNullifier(nullifierData['mainnet']['signParams']);
 
     if (mainnetNullifierRes["private"].isEmpty) {
       checkFailedCount++;
@@ -379,8 +387,8 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
           '\u001b[31m mainnetNullifierRes failed: ${jsonEncode(mainnetNullifierRes)} \u001b[0m');
     }
 
-    var testnetNullifierRes =
-        await webApi.bridge.createNullifier(nullifierData['testnet']['signParams']);
+    var testnetNullifierRes = await webApi.bridge
+        .createNullifier(nullifierData['testnet']['signParams']);
 
     if (testnetNullifierRes["private"].isEmpty) {
       checkFailedCount++;
@@ -442,46 +450,206 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     }
   }
 
+  // 获取dapp链接
+  Future<void> getConnect() async {
+    // 获取当前本地存储的 授权链接
+    List<String>? list = store.browser?.zkAppConnectingList;
+    print('list===list=${list}');
+  }
+
+  String generateRandomString(int length) {
+    const characters =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    Random random = Random();
+
+    return String.fromCharCodes(Iterable.generate(
+      length,
+      (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+    ));
+  }
+
+  // 设置dapp 链接
+  Future<void> setConnect() async {
+    print('add connect');
+    String address = store.wallet!.currentAddress;
+    print('setConnect===setConnect__==,${address}');
+
+    String url = "https://test.com/" +
+        generateRandomString(5) +
+        "_" +
+        address.substring(address.length - 5);
+    // 添加本地存储的授权链接，如果有就添加
+    await store.browser?.addZkAppConnect(store.wallet!.currentAddress, url);
+    print('add connect end');
+  }
+
+  int generateRandomInt(int max) {
+    Random random = Random();
+    return random.nextInt(max);
+  }
+
+  // 移除dapp链接
+  Future<void> removeConnect() async {
+    // 按照地址 + 账户移除授权链接 ，先找到当前地址
+    // 获取 某一个
+    String address = store.wallet!.currentAddress;
+    int listLength = store.browser!.zkAppConnectingList.length;
+    print('listLength,${listLength}');
+    int removeNumber = generateRandomInt(listLength);
+    print('removeNumber,${removeNumber}');
+    String removeItem = store.browser!.zkAppConnectingList[removeNumber];
+    print('removeItem,${removeItem}');
+    await store.browser?.removeZkAppConnect(address, removeItem);
+    print('remove connect end');
+  }
+
+  // 清空dapp链接
+  Future<void> clearConnect() async {
+    // 清除当前账户所有链接
+    // 清除所有账户的所有链接
+    String address = store.wallet!.currentAddress;
+    await store.browser?.clearZkAppConnect(address);
+  }
+
+  // 还有切换账户后的展示
+  Future<void> switchAccount() async {
+    // 尝试切换账户。看看账户管理的账户，随机切换，并且显示出来
+    // B62qpjxUpgdjzwQfd8q2gzxi99wN7SCgmofpvw27MBkfNHfHoY2VH32
+// B62qkVs6zgN84e1KjFxurigqTQ57FqV3KnWubV3t77E9R6uBm4DmkPi
+// 当前有这两个账户， 随机时候把这两个的后缀加上
+    print('switchAccount===0,${store.wallet!.currentAddress}');
+    String nextAddress =
+        store.wallet!.currentAddress == accountA ? accountB : accountA;
+    print('switchAccount===1,${nextAddress}');
+    // 获取账户列表
+    // 随机切换到 另一个账户，看看是否展示已添加数据
+    // 这里就给2个账户，随机切换
+    // 获取账户列表
+    // webApi.assets.fetchBatchAccountsInfo(
+    //       store.wallet!.accountListAll.map((acc) => acc.pubKey).toList());
+    // _changeCurrentAccount(account.address != store.wallet!.currentAddress);
+    await webApi.account
+        .changeCurrentAccount(pubKey: nextAddress, fetchData: true);
+    print('switchAccount===2,${store.wallet!.currentAddress}');
+    await store.browser?.loadZkAppConnect(nextAddress);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF594AF1),
-        title: Text("Webview Bridge Test",
-            style: TextStyle(
-              color: Colors.white,
-            )),
+        title: Text(
+          "Webview Bridge Test",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                child: NormalButton(
-                  text: "Get Version",
-                  onPressed: getSdkVersion,
-                )),
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: NormalButton(
+                text: "Get Version",
+                onPressed: getSdkVersion,
+              ),
+            ),
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                child: NormalButton(
-                  text: "Create Wallet",
-                  onPressed: createWallet,
-                  submitting: createWalletStatus,
-                )),
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: NormalButton(
+                text: "Create Wallet",
+                onPressed: createWallet,
+                submitting: createWalletStatus,
+              ),
+            ),
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                child: NormalButton(
-                    text: "Sign Transaction",
-                    onPressed: signTransaction,
-                    submitting: signTransactionStatus)),
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: NormalButton(
+                text: "Sign Transaction",
+                onPressed: signTransaction,
+                submitting: signTransactionStatus,
+              ),
+            ),
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                child: NormalButton(
-                  text: "Page test create wallet",
-                  onPressed: createWalletInDev,
-                  submitting: pageCreateWalletStatus,
-                ))
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: NormalButton(
+                text: "Page test create wallet",
+                onPressed: createWalletInDev,
+                submitting: pageCreateWalletStatus,
+              ),
+            ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            //   child: NormalButton(
+            //     text: "GetConnect",
+            //     onPressed: getConnect,
+            //   ),
+            // ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            //   child: NormalButton(
+            //     text: "AddConnect",
+            //     onPressed: setConnect,
+            //   ),
+            // ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            //   child: NormalButton(
+            //     text: "RemoveConnect",
+            //     onPressed: removeConnect,
+            //   ),
+            // ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            //   child: NormalButton(
+            //     text: "ClearConnect",
+            //     onPressed: clearConnect,
+            //   ),
+            // ),
+            // // Switch Account Button
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            //   child: NormalButton(
+            //     text: "SwitchAccount",
+            //     onPressed: switchAccount,
+            //   ),
+            // ),
+            // Observer to show the current account connections
+
+            // Center(
+            //   child: Container(
+            //     constraints: BoxConstraints(
+            //       minHeight: 200.0,
+            //       maxHeight: 300.0,
+            //     ),
+            //     decoration: BoxDecoration(
+            //       border: Border.all(color: Colors.blue, width: 2.0),
+            //       borderRadius: BorderRadius.circular(8.0),
+            //     ),
+            //     child: Expanded(
+            //       child: Observer(
+            //         builder: (BuildContext context) {
+            //           print(
+            //               'test zk length=== ${store.browser?.zkAppConnectingList.length}');
+            //           return ListView.builder(
+            //             shrinkWrap: true,
+            //             itemCount:
+            //                 store.browser?.zkAppConnectingList.length ?? 0,
+            //             itemBuilder: (context, index) {
+            //               return Text((index + 1).toString() +
+            //                   " : " +
+            //                   (store.browser?.zkAppConnectingList[index] ??
+            //                       ""));
+            //             },
+            //           );
+            //         },
+            //       ),
+            //     ),
+            //   ),
+            // )
           ],
         ),
       ),

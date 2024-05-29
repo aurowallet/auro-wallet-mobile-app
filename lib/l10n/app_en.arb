@@ -522,5 +522,7 @@
   "@showTestnet": {},
   "ledgerConnected":"Ledger Connected",
   "ledgerNotConnected":"Ledger not Connected",
-  "txType":"Transaction Type"
+  "txType":"Transaction Type",
+  "appConnection": "App Connections",
+  "noConnectedApps": "No connected Apps"
 }

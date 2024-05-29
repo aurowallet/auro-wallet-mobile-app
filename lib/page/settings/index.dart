@@ -2,6 +2,7 @@ import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/components/settingItem.dart';
+import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/network.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +56,12 @@ class Profile extends StatelessWidget {
                         title: dic.security,
                         onTap: () =>
                             Navigator.of(context).pushNamed(SecurityPage.route),
+                      ),
+                      SettingItem(
+                        icon: 'assets/images/setting/icon_connect.svg',
+                        title: dic.appConnection,
+                        onTap: () => Navigator.of(context)
+                            .pushNamed(ZkAppConnectPage.route),
                       ),
                       SettingItem(
                         icon: 'assets/images/setting/network.svg',

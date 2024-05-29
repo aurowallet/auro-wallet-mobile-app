@@ -522,5 +522,7 @@
   "@hardwareWallet": {},
   "ledgerConnected": "Ledger bağlandı",
   "ledgerNotConnected": "Ledger cihazı bağlı değil",
-  "txType":"İşlem Türü"
+  "txType":"İşlem Türü",
+  "appConnection": "Uygulama Bağlantıları",
+  "noConnectedApps": "Bağlı uygulama yok"
 }

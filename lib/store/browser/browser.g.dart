@@ -41,20 +41,19 @@ mixin _$BrowserStore on _BrowserStore, Store {
     });
   }
 
-  late final _$browserConnectingListAtom =
-      Atom(name: '_BrowserStore.browserConnectingList', context: context);
+  late final _$zkAppConnectingListAtom =
+      Atom(name: '_BrowserStore.zkAppConnectingList', context: context);
 
   @override
-  Map<String, List<String>> get browserConnectingList {
-    _$browserConnectingListAtom.reportRead();
-    return super.browserConnectingList;
+  List<String> get zkAppConnectingList {
+    _$zkAppConnectingListAtom.reportRead();
+    return super.zkAppConnectingList;
   }
 
   @override
-  set browserConnectingList(Map<String, List<String>> value) {
-    _$browserConnectingListAtom.reportWrite(value, super.browserConnectingList,
-        () {
-      super.browserConnectingList = value;
+  set zkAppConnectingList(List<String> value) {
+    _$zkAppConnectingListAtom.reportWrite(value, super.zkAppConnectingList, () {
+      super.zkAppConnectingList = value;
     });
   }
 
@@ -66,13 +65,40 @@ mixin _$BrowserStore on _BrowserStore, Store {
     return _$initAsyncAction.run(() => super.init());
   }
 
-  late final _$addConnectConfigAsyncAction =
-      AsyncAction('_BrowserStore.addConnectConfig', context: context);
+  late final _$addZkAppConnectAsyncAction =
+      AsyncAction('_BrowserStore.addZkAppConnect', context: context);
 
   @override
-  Future<void> addConnectConfig(String url, String address) {
-    return _$addConnectConfigAsyncAction
-        .run(() => super.addConnectConfig(url, address));
+  Future<void> addZkAppConnect(String address, String url) {
+    return _$addZkAppConnectAsyncAction
+        .run(() => super.addZkAppConnect(address, url));
+  }
+
+  late final _$removeZkAppConnectAsyncAction =
+      AsyncAction('_BrowserStore.removeZkAppConnect', context: context);
+
+  @override
+  Future<void> removeZkAppConnect(String address, String url) {
+    return _$removeZkAppConnectAsyncAction
+        .run(() => super.removeZkAppConnect(address, url));
+  }
+
+  late final _$clearZkAppConnectAsyncAction =
+      AsyncAction('_BrowserStore.clearZkAppConnect', context: context);
+
+  @override
+  Future<void> clearZkAppConnect(String address) {
+    return _$clearZkAppConnectAsyncAction
+        .run(() => super.clearZkAppConnect(address));
+  }
+
+  late final _$loadZkAppConnectAsyncAction =
+      AsyncAction('_BrowserStore.loadZkAppConnect', context: context);
+
+  @override
+  Future<void> loadZkAppConnect(String address) {
+    return _$loadZkAppConnectAsyncAction
+        .run(() => super.loadZkAppConnect(address));
   }
 
   late final _$updateFavItemAsyncAction =
@@ -140,7 +166,7 @@ mixin _$BrowserStore on _BrowserStore, Store {
     return '''
 webFavList: ${webFavList},
 webHistoryList: ${webHistoryList},
-browserConnectingList: ${browserConnectingList}
+zkAppConnectingList: ${zkAppConnectingList}
     ''';
   }
 }
