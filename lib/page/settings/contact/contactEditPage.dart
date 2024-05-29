@@ -108,6 +108,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
       return;
     }
     await widget.store.removeContact(new ContactData(name: name, address: address));
+    Navigator.of(context).pop();
   }
 
   @override
