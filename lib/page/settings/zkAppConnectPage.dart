@@ -6,15 +6,29 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ZkAppConnectPage extends StatefulWidget {
+  ZkAppConnectPage(this.store);
+
   final AppStore store;
   static final String route = '/profile/zkAppConnect';
-  ZkAppConnectPage(this.store);
+
   @override
-  _ZkAppConnectPageState createState() => _ZkAppConnectPageState();
+  _ZkAppConnectPageState createState() => _ZkAppConnectPageState(store);
 }
 
-class _ZkAppConnectPageState extends State<ZkAppConnectPage> {
+class _ZkAppConnectPageState extends State<ZkAppConnectPage> with WidgetsBindingObserver{
+  _ZkAppConnectPageState(this.store);
+  
+  final AppStore store;
   final Api api = webApi;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addObserver(this);
+      store.browser!.loadZkAppConnect(store.wallet!.currentAddress);
+    });
+    super.initState();
+  }
 
   Widget _renderEmpty() {
     AppLocalizations dic = AppLocalizations.of(context)!;

@@ -34,6 +34,8 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WidgetsBinding.instance.addObserver(this);
+      // refresh zkConnect
+      store.browser!.loadZkAppConnect(store.wallet!.currentAddress);
     });
     super.initState();
   }
