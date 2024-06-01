@@ -1,23 +1,16 @@
-import 'dart:convert';
-
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
-import 'package:auro_wallet/common/consts/apiConfig.dart';
-import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/store/settings/types/contactData.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
-import 'package:auro_wallet/store/settings/types/networkType.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
 
 class NodeEditPage extends StatefulWidget {
-  final SettingsStore store;
+  final AppStore store;
   static final String route = '/profile/edit_nodes';
 
   NodeEditPage(this.store);
@@ -92,15 +85,6 @@ class _NodeEditPageState extends State<NodeEditPage> {
     }
   }
 
-  CustomNodeV2 findCustomNodeV2ById(String id) {
-    for (var entry in netConfigMap.entries) {
-      if (entry.value.id == id) {
-        return entry.value;
-      }
-    }
-    return netConfigMap[NetworkTypes.unknown]!;
-  }
-
   void _confirm() async {
     _addressFocus.unfocus();
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -114,13 +98,12 @@ class _NodeEditPageState extends State<NodeEditPage> {
     if (!valid) {
       return null;
     }
-    CustomNodeV2 endpoint = CustomNodeV2(name: name, url: address);
     setState(() {
       submitting = true;
     });
-    String? chainId = await webApi.setting.fetchChainId(endpoint.url);
+    String? networkID = await webApi.setting.fetchNetworkId(address);
 
-    if (chainId == null) {
+    if (networkID == null) {
       setState(() {
         errorText = dic.urlError_1;
         addressError = true;
@@ -128,57 +111,49 @@ class _NodeEditPageState extends State<NodeEditPage> {
       });
       return;
     }
-    endpoint.chainId = chainId;
-    List<NetworkType> fetchNetworkTypes =
-        await webApi.setting.fetchNetworkTypes();
-    final targetNetworks = fetchNetworkTypes
-        .where((element) => element.chainId == endpoint.chainId);
-    if (targetNetworks.isEmpty ||
-        (targetNetworks.first.type != '0' &&
-            targetNetworks.first.type != '1' &&
-            targetNetworks.first.type != '11')) {
-      setState(() {
-        errorText = dic.urlError_1;
-        addressError = true;
-        submitting = false;
-      });
-      return;
+    CustomNode endpoint =
+        CustomNode(name: name, url: address, networkID: networkID);
+    CustomNode? matchingNode;
+    try {
+      matchingNode = defaultNetworkList.firstWhere(
+        (node) => node.networkID == endpoint.networkID,
+        orElse: () => throw Exception('No matching networkID found'),
+      );
+    } catch (e) {
+      matchingNode = null;
     }
-    CustomNodeV2 tempConfig = findCustomNodeV2ById(targetNetworks.first.type);
-    if (tempConfig.netType != NetworkTypes.unknown) {
-      endpoint.url = address;
-      endpoint.name = name;
-      endpoint.isDefaultNode = false;
-      endpoint.chainId = chainId;
 
-      endpoint.netType = tempConfig.netType;
-      endpoint.explorerUrl = tempConfig.explorerUrl;
-      endpoint.txUrl = tempConfig.txUrl;
-      endpoint.id = tempConfig.id;
-    } else {
-      UI.toast("can not find support config");
-      return;
+    print("back endpoint=3 ${matchingNode.toString()}");
+    if (matchingNode != null) {
+      endpoint.txUrl = matchingNode.txUrl;
+      endpoint.explorerUrl = matchingNode.explorerUrl;
     }
-    List<CustomNodeV2> endpoints =
-        List<CustomNodeV2>.of(widget.store.customNodeListV2);
+    List<CustomNode> endpoints =
+        List<CustomNode>.of(widget.store.settings!.customNodeList);
     if (isEdit) {
       final Map args = ModalRoute.of(context)!.settings.arguments as Map;
       final initName = args['name'] as String;
       final initAddress = args['address'] as String;
-      var originEndpoint = new CustomNodeV2(name: initName, url: initAddress);
-      widget.store.updateCustomNode(endpoint, originEndpoint);
-      if (widget.store.currentNode?.url == originEndpoint.url) {
+      final initNetworkID = args['networkID'] as String;
+      var originEndpoint = new CustomNode(
+          name: initName, url: initAddress, networkID: initNetworkID);
+      widget.store.settings!.updateCustomNode(endpoint, originEndpoint);
+      if (widget.store.settings!.currentNode?.url == originEndpoint.url) {
         if (originEndpoint.url != endpoint.url ||
-            originEndpoint.chainId != endpoint.chainId) {
-          await widget.store.setCurrentNode(endpoint);
+            originEndpoint.networkID != endpoint.networkID) {
+          await widget.store.assets!.clearAllTxs(); 
+          widget.store.assets!.setTxsLoading(true);
+          await widget.store.settings!.setCurrentNode(endpoint);
           webApi.updateGqlClient(endpoint.url);
           webApi.refreshNetwork();
         }
       }
     } else {
       endpoints.add(endpoint);
-      await widget.store.setCurrentNode(endpoint);
-      await widget.store.setCustomNodeList(endpoints);
+      await widget.store.assets!.clearAllTxs(); 
+      widget.store.assets!.setTxsLoading(true);
+      await widget.store.settings!.setCurrentNode(endpoint);
+      await widget.store.settings!.setCustomNodeList(endpoints);
       webApi.updateGqlClient(endpoint.url);
       webApi.refreshNetwork();
     }
@@ -197,10 +172,10 @@ class _NodeEditPageState extends State<NodeEditPage> {
     if (uri == null || !uri.isAbsolute) {
       error = dic.urlError_1;
     }
-    List<CustomNodeV2> endpoints =
-        List<CustomNodeV2>.of(widget.store.customNodeListV2);
+    List<CustomNode> endpoints =
+        List<CustomNode>.of(widget.store.settings!.customNodeList);
     if (endpoints.any((element) => element.url == address) ||
-        netConfigMap.values.any((node) => node.url == address)) {
+        defaultNetworkList.any((node) => node.url == address)) {
       if (!(isEdit && address == originEndpoint)) {
         error = dic.urlError_3;
       }

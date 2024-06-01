@@ -7,16 +7,20 @@ part of 'customNode.dart';
 // **************************************************************************
 
 CustomNode _$CustomNodeFromJson(Map<String, dynamic> json) => CustomNode(
-      name: json['name'] as String,
       url: json['url'] as String,
-      networksType: json['networksType'] as String?,
-      chainId: json['chainId'] as String?,
+      name: json['name'] as String,
+      networkID: json['networkID'] as String,
+      isDefaultNode: json['isDefaultNode'] as bool? ?? false,
+      explorerUrl: json['explorerUrl'] as String?,
+      txUrl: json['txUrl'] as String?,
     );
 
 Map<String, dynamic> _$CustomNodeToJson(CustomNode instance) =>
     <String, dynamic>{
-      'name': instance.name,
       'url': instance.url,
-      'networksType': instance.networksType,
-      'chainId': instance.chainId,
+      'name': instance.name,
+      'networkID': instance.networkID,
+      'isDefaultNode': instance.isDefaultNode,
+      'explorerUrl': instance.explorerUrl,
+      'txUrl': instance.txUrl,
     };

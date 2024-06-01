@@ -9608,7 +9608,7 @@ var provider_MinaProvider = /** @class */ (function (_super) {
     };
     MinaProvider.prototype.onChainChanged = function (chainInfo) {
         var _a;
-        if (chainInfo.chainId !== ((_a = this.chainInfo) === null || _a === void 0 ? void 0 : _a.chainId)) {
+        if (chainInfo.networkID !== ((_a = this.chainInfo) === null || _a === void 0 ? void 0 : _a.networkID)) {
             this.chainInfo = chainInfo;
             this.emit("chainChanged", chainInfo);
         }

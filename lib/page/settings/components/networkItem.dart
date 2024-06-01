@@ -1,7 +1,6 @@
 import 'package:auro_wallet/page/settings/components/networkIcon.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
-import 'package:auro_wallet/store/settings/types/networkType.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
@@ -19,9 +18,9 @@ class NetworkItem extends StatelessWidget {
   final store = globalAppStore;
 
   final bool? isEditing;
-  final CustomNodeV2 endpoint;
+  final CustomNode endpoint;
   final void Function(bool, String) onChecked;
-  final void Function(CustomNodeV2)? onEdit;
+  final void Function(CustomNode)? onEdit;
   final EdgeInsetsGeometry margin;
 
   onPressed() {
@@ -52,24 +51,6 @@ class NetworkItem extends StatelessWidget {
     return store.settings!.currentNode?.url == endpoint.url;
   }
 
-  String? getChainIdFromStore(String id) {
-    final networks = store.settings!.networks;
-    final NetworkType? types = networks
-        .map((e) => e as NetworkType?)
-        .firstWhere((element) => element?.type == id, orElse: () => null);
-    return types?.chainId;
-  }
-
-  String? getNetworkChainId() {
-    String? tempChainId = "";
-    if (endpoint.isDefaultNode == true) {
-      tempChainId = getChainIdFromStore(endpoint.id as String);
-    } else {
-      tempChainId = endpoint.chainId;
-    }
-    return tempChainId;
-  }
-
   @override
   Widget build(BuildContext context) {
     bool editable = endpoint.isDefaultNode != true;
@@ -77,21 +58,10 @@ class NetworkItem extends StatelessWidget {
     bool checked = getNetworkCheckStatus();
     bool editing = isEditing == true;
     Color chainNameColor = getChainNameColor(checked, editing, editable);
-    Color chainIdColor = getChainIdColor(checked, editing);
-
-    final networks = store.settings!.networks;
-    final filterNetworks =
-        networks.where((element) => element.chainId == endpoint.chainId);
-    NetworkType? networkType;
-    if (filterNetworks.isNotEmpty) {
-      networkType = filterNetworks.first;
-    }
     String? tagStr;
     if (editable) {
-      tagStr = networkType != null ? networkType.name : "Unknown";
+      tagStr = endpoint.networkID;
     }
-
-    String? showChainId = getNetworkChainId();
 
     return Padding(
       padding: margin,
@@ -160,19 +130,6 @@ class NetworkItem extends StatelessWidget {
                               )),
                             ],
                           ),
-                          showChainId != null
-                              ? Container(
-                                  margin: EdgeInsets.only(top: 4),
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                      Fmt.address(showChainId,
-                                          pad: 6, padSame: true),
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: chainIdColor,
-                                          fontWeight: FontWeight.w400)),
-                                )
-                              : Container()
                         ],
                       )),
                       editing

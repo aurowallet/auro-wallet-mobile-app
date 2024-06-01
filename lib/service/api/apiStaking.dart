@@ -26,7 +26,7 @@ class ApiStaking {
       store.staking!.setValidatorsInfo([]);
       return;
     }
-    String txUrl =  "$MAINNET_TRANSACTION_URL/validators";
+    String txUrl =  "$BASE_INFO_URL/validators";
     var response = await http.get(Uri.parse(txUrl), headers: {'Content-Type': 'application/json; charset=utf-8'});
     if (response.statusCode == 200) {
       List list = convert.jsonDecode(utf8.decode(response.bodyBytes));

@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
     - Remove webview_flutter
     - Add support to return signed zk.
     - ZkApp approve
+    - Upgrade network config
 - Fixed
     - Nonce issue after zkAsignJsonMessagepp switch chain
     - Fortmat issue of signJsonMessage

@@ -213,7 +213,7 @@ class _WalletAppState extends State<WalletApp> {
         ChangePasswordPage.route: (_) => ChangePasswordPage(_appStore!.wallet!),
         ExportResultPage.route: (_) => ExportResultPage(),
         RemoteNodeListPage.route: (_) => RemoteNodeListPage(_appStore!),
-        NodeEditPage.route: (_) => NodeEditPage(_appStore!.settings!),
+        NodeEditPage.route: (_) => NodeEditPage(_appStore!),
         AboutPage.route: (_) => AboutPage(_appStore!),
         LocalesPage.route: (_) =>
             LocalesPage(_appStore!.settings!, _changeLang),

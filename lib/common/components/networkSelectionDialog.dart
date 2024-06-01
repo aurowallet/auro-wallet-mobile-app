@@ -1,11 +1,10 @@
-import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/settings/components/networkItem.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,7 @@ class NetworkSelectionDialog extends StatefulWidget {
 class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
   final store = globalAppStore;
   bool _isCheck = false;
-  List<CustomNodeV2> topList = [];
+  List<CustomNode> topList = [];
 
   @override
   void initState() {
@@ -37,9 +36,11 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
   }
 
   void initShowList() {
-    List<CustomNodeV2> topListTemp = [];
-    topListTemp.add(netConfigMap[NetworkTypes.mainnet]!);
-    topListTemp.addAll(store.settings!.customNodeListV2);
+    List<CustomNode> topListTemp = [];
+    CustomNode mainnetConfig = defaultNetworkList
+        .firstWhere((network) => network.networkID == networkIDMap.mainnet);
+    topListTemp.add(mainnetConfig);
+    topListTemp.addAll(store.settings!.customNodeList);
     setState(() {
       topList = topListTemp;
     });
@@ -52,13 +53,13 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
     store.settings!.setTestnetShowStatus(isCheck);
   }
 
-  void onSelectNode(bool checkStatus, String checkedUrl) async {
+  void onSelectNode(bool checkStatus, String checkedUrl) async { 
     if (checkStatus) {
       final nodes = store.settings!.allNodes
           .where((element) => element.url == checkedUrl);
       if (nodes.length > 0) {
         final node = nodes.first;
-        await store.assets!.clearAllTxs();
+        await store.assets!.clearAllTxs(); 
         store.assets!.setTxsLoading(true);
         await store.settings!.setCurrentNode(node);
         webApi.updateGqlClient(checkedUrl);
@@ -136,14 +137,17 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                       padding: EdgeInsets.only(left: 20, right: 20, top: 10),
                       child: Column(children: [
                         NetworkItem(
-                          endpoint: netConfigMap[NetworkTypes.devnet]!,
+                          endpoint: defaultNetworkList.firstWhere((network) =>
+                              network.networkID == networkIDMap.testnet),
                           onChecked: onSelectNode,
                         ),
                         SizedBox(
                           height: 10,
                         ),
                         NetworkItem(
-                          endpoint: netConfigMap[NetworkTypes.berkeley]!,
+                          endpoint: defaultNetworkList.firstWhere((network) =>
+                              network.networkID ==
+                              networkIDMap.berkeley),
                           onChecked: onSelectNode,
                         )
                       ]),

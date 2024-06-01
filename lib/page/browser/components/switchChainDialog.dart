@@ -4,7 +4,7 @@ import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class SwitchChainDialog extends StatefulWidget {
   SwitchChainDialog({
-    required this.chainId,
+    required this.networkID,
     required this.url,
     required this.onConfirm,
     this.iconUrl,
@@ -21,7 +21,7 @@ class SwitchChainDialog extends StatefulWidget {
     this.gqlUrl,
   });
 
-  final String chainId;
+  final String networkID;
   final String url;
   final String? iconUrl;
   final Function(String, String) onConfirm;
@@ -34,7 +34,7 @@ class SwitchChainDialog extends StatefulWidget {
 
 class _SwitchChainDialogState extends State<SwitchChainDialog> {
   AppStore store = globalAppStore;
-  late CustomNodeV2 showNode;
+  late CustomNode showNode;
   bool submitting = false;
   String currentNetworkName = '';
 
@@ -44,12 +44,12 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     setNextChainConfig();
   }
 
-  CustomNodeV2 setNextChainConfig() {
+  void setNextChainConfig() {
     bool changeByUrl = widget.gqlUrl != null;
-    CustomNodeV2 nextNode;
-    dynamic nodes = store.settings!.allNodes.where((element) {
+    CustomNode nextNode;
+    dynamic nodes = store.settings!.allNodes.where((CustomNode element) {
       if (!changeByUrl) {
-        return element.netType!.name == widget.chainId.toLowerCase();
+        return element.networkID == widget.networkID.toLowerCase();
       } else {
         return element.url.toLowerCase() == widget.gqlUrl?.toLowerCase();
       }
@@ -63,9 +63,8 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     }
     setState(() {
       showNode = nextNode;
-      currentNetworkName = store.settings!.currentNode?.netType!.name as String;
+      currentNetworkName = store.settings!.currentNode?.networkID ?? "";
     });
-    return nextNode;
   }
 
   void onConfirm() async {
@@ -77,7 +76,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     print(' ConnectDialog  onConfirm');
     store.settings!.allNodes.where((element) {
       if (!changeByUrl) {
-        return element.netType!.name == widget.chainId.toLowerCase();
+        return element.networkID == widget.networkID.toLowerCase();
       } else {
         return element.url.toLowerCase() == widget.gqlUrl?.toLowerCase();
       }
@@ -91,9 +90,8 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     globalBalanceRefreshKey.currentState?.show();
 
     String networkName = showNode.name;
-    String chainId = showNode.netType!.name;
 
-    widget.onConfirm(networkName, chainId);
+    widget.onConfirm(networkName, showNode.networkID);
   }
 
   void onCancel() {
@@ -141,7 +139,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                               children: [
                                 ChainItem(
                                     title: dic.current,
-                                    chainId: currentNetworkName,
+                                    networkID: currentNetworkName,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start),
                                 SvgPicture.asset(
@@ -151,9 +149,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                                 ),
                                 ChainItem(
                                     title: dic.target,
-                                    chainId:
-                                        showNode?.netType!.name.toLowerCase() ??
-                                            "",
+                                    networkID: showNode.networkID,
                                     crossAxisAlignment: CrossAxisAlignment.end),
                               ])
                         ],
@@ -174,11 +170,11 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
 class ChainItem extends StatelessWidget {
   ChainItem({
     required this.title,
-    required this.chainId,
+    required this.networkID,
     required this.crossAxisAlignment,
   });
 
-  final String chainId;
+  final String networkID;
   final String title;
   final CrossAxisAlignment crossAxisAlignment;
 
@@ -194,7 +190,7 @@ class ChainItem extends StatelessWidget {
                   color: ColorsUtil.hexColor(0x808080),
                   fontWeight: FontWeight.w400)),
           SizedBox(width: 4),
-          Text(chainId,
+          Text(networkID,
               style: TextStyle(
                   fontSize: 16,
                   color: Colors.black,

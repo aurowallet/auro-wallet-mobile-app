@@ -1,20 +1,19 @@
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/settings/aboutPage.dart';
 import 'package:auro_wallet/page/settings/components/settingItem.dart';
+import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
+import 'package:auro_wallet/page/settings/currenciesPage.dart';
+import 'package:auro_wallet/page/settings/localesPage.dart';
+import 'package:auro_wallet/page/settings/nodes/RemoteNodeListPage.dart';
+import 'package:auro_wallet/page/settings/security/securityPage.dart';
 import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/network.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/page/settings/aboutPage.dart';
-import 'package:auro_wallet/page/settings/localesPage.dart';
-import 'package:auro_wallet/page/settings/currenciesPage.dart';
-import 'package:auro_wallet/page/settings/nodes/RemoteNodeListPage.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/page/settings/security/securityPage.dart';
-import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 
 class Profile extends StatelessWidget {
   Profile(this.store);
@@ -29,7 +28,6 @@ class Profile extends StatelessWidget {
           ? store.settings!.localeCode
           : dic.localeName.toLowerCase();
       var aboutUsData = store.settings!.aboutus;
-      var networkName = NetworkUtil.getNetworkName(store.settings!.currentNode);
       return Scaffold(
         appBar: AppBar(
           leading: null,
@@ -66,8 +64,9 @@ class Profile extends StatelessWidget {
                       SettingItem(
                         icon: 'assets/images/setting/network.svg',
                         title: dic.network,
-                        value:
-                            Fmt.stringSlice(networkName, 8, withEllipsis: true),
+                        value: Fmt.stringSlice(
+                            store.settings!.currentNode!.name, 8,
+                            withEllipsis: true),
                         onTap: () => Navigator.of(context)
                             .pushNamed(RemoteNodeListPage.route),
                       ),

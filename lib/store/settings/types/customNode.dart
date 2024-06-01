@@ -1,20 +1,27 @@
-import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
 
 part 'customNode.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class CustomNode {
-  CustomNode(
-      {required this.name, required this.url, this.networksType, this.chainId});
+  String url; 
+  String name;
+  String networkID; 
+  bool isDefaultNode;
+  String? explorerUrl;
+  String? txUrl;
 
+  CustomNode({
+    required this.url,
+    required this.name,
+    required this.networkID,
+    this.isDefaultNode=false,
+    this.explorerUrl,
+    this.txUrl,
+  });
   factory CustomNode.fromJson(Map<String, dynamic> json) =>
       _$CustomNodeFromJson(json);
 
   Map<String, dynamic> toJson() => _$CustomNodeToJson(this);
-
-  String name;
-  String url;
-  String? networksType;
-  String? chainId;
 }

@@ -1,35 +1,41 @@
 import 'package:auro_wallet/common/consts/apiConfig.dart';
-import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 
-Map<NetworkTypes, CustomNodeV2> netConfigMap = {
-  NetworkTypes.mainnet: CustomNodeV2(
-    netType: NetworkTypes.mainnet,
+Map<String, String> networkIDMap = {
+  "mainnet": "mina:mainnet",
+  "testnet": "mina:testnet",
+  "berkeley": "mina:berkeley",
+};
+
+extension NetworkIDMapExtension on Map<String, String> {
+  String get mainnet => this["mainnet"]!;
+  String get testnet => this["testnet"]!;
+  String get berkeley => this["berkeley"]!;
+}
+
+final List<CustomNode> defaultNetworkList = [
+  CustomNode(
     explorerUrl: MAINNET_TRANSACTIONS_EXPLORER_URL,
     txUrl: MAIN_TX_RECORDS_GQL_URL,
     url: GRAPH_QL_MAINNET_NODE_URL,
     name: "Mainnet",
-    id: "0",
-    isDefaultNode: true
+    isDefaultNode: true,
+    networkID: networkIDMap.mainnet,
   ),
-  NetworkTypes.devnet: CustomNodeV2(
-    netType: NetworkTypes.devnet,
+  CustomNode(
     explorerUrl: TESTNET_TRANSACTIONS_EXPLORER_URL,
     txUrl: TEST_TX_RECORDS_GQL_URL,
     url: GRAPH_QL_TESTNET_NODE_URL,
     name: "Devnet",
-    id: "1",
-    isDefaultNode: true
+    isDefaultNode: true,
+    networkID: networkIDMap.testnet,
   ),
-  NetworkTypes.berkeley: CustomNodeV2(
-    netType: NetworkTypes.berkeley,
+  CustomNode(
     explorerUrl: BERKELEY_TRANSACTIONS_EXPLORER_URL,
     txUrl: BERKELEY_TX_RECORDS_GQL_URL,
     url: GRAPH_QL_BERKELEY_NODE_URL,
     name: "Berkeley",
-    id: "11",
-    isDefaultNode: true
+    isDefaultNode: true,
+    networkID: networkIDMap.berkeley,
   ),
-  NetworkTypes.unknown:
-      CustomNodeV2(netType: NetworkTypes.unknown, name: "Unknown", url: ""),
-};
+];

@@ -12,7 +12,6 @@ import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
 import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
@@ -259,7 +258,7 @@ class UI {
 
   static Future<void> showSwitchChainAction({
     required BuildContext context,
-    required String chainId,
+    required String networkID,
     required String url,
     String? iconUrl,
     String? gqlUrl,
@@ -275,12 +274,12 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return SwitchChainDialog(
-            chainId: chainId,
+            networkID: networkID,
             url: url,
             iconUrl: iconUrl,
             gqlUrl: gqlUrl,
-            onConfirm: (String networkName, String chainId) async {
-              await onConfirm(networkName, chainId);
+            onConfirm: (String networkName, String networkID) async {
+              await onConfirm(networkName, networkID);
               Navigator.of(context).pop();
             },
             onCancel: () {

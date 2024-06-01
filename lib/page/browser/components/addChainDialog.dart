@@ -1,4 +1,3 @@
-import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
@@ -6,8 +5,7 @@ import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
-import 'package:auro_wallet/store/settings/types/networkType.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
@@ -42,65 +40,39 @@ class _AddChainDialogState extends State<AddChainDialog> {
     super.initState();
   }
 
-  CustomNodeV2 findCustomNodeV2ById(String id) {
-    for (var entry in netConfigMap.entries) {
-      if (entry.value.id == id) {
-        return entry.value;
-      }
-    }
-    return netConfigMap[NetworkTypes.unknown]!;
-  }
-
   void _confirm() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
     final name = widget.nodeName;
     final address = widget.nodeUrl;
-    CustomNodeV2 endpoint = CustomNodeV2(name: name, url: address);
     setState(() {
       submitting = true;
     });
-    String? chainId = await webApi.setting.fetchChainId(endpoint.url);
+    String? networkID = await webApi.setting.fetchNetworkId(widget.nodeUrl);
 
-    if (chainId == null) {
+    if (networkID == null) {
       setState(() {
         submitting = false;
       });
       UI.toast(dic.urlError_1);
       return;
     }
-    endpoint.chainId = chainId;
-    List<NetworkType> fetchNetworkTypes =
-        await webApi.setting.fetchNetworkTypes();
-    final targetNetworks = fetchNetworkTypes
-        .where((element) => element.chainId == endpoint.chainId);
-    if (targetNetworks.isEmpty ||
-        (targetNetworks.first.type != '0' &&
-            targetNetworks.first.type != '1' &&
-            targetNetworks.first.type != '11')) {
-      setState(() {
-        submitting = false;
-      });
-      UI.toast(dic.urlError_1);
-      return;
+    CustomNode endpoint =
+        CustomNode(name: name, url: address, networkID: networkID);
+    List<CustomNode> endpoints =
+        List<CustomNode>.of(store.settings!.customNodeList);
+    CustomNode? matchingNode;
+    try {
+      matchingNode = defaultNetworkList.firstWhere(
+        (node) => node.networkID == endpoint.networkID,
+        orElse: () => throw Exception('No matching networkID found'),
+      );
+    } catch (e) {
+      matchingNode = null;
     }
-    CustomNodeV2 tempConfig = findCustomNodeV2ById(targetNetworks.first.type);
-    if (tempConfig.netType != NetworkTypes.unknown) {
-      endpoint.url = address;
-      endpoint.name = name;
-      endpoint.isDefaultNode = false;
-      endpoint.chainId = chainId;
-
-      endpoint.netType = tempConfig.netType;
-      endpoint.explorerUrl = tempConfig.explorerUrl;
-      endpoint.txUrl = tempConfig.txUrl;
-      endpoint.id = tempConfig.id;
-    } else {
-      UI.toast("can not find support config");
-      return;
+    if (matchingNode != null) {
+      endpoint.txUrl = matchingNode.txUrl;
+      endpoint.explorerUrl = matchingNode.explorerUrl;
     }
-    List<CustomNodeV2> endpoints =
-        List<CustomNodeV2>.of(store.settings!.customNodeListV2);
-
     endpoints.add(endpoint);
     await store.settings!.setCustomNodeList(endpoints);
     setState(() {

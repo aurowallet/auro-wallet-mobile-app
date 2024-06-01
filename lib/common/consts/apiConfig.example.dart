@@ -4,9 +4,6 @@ const String GRAPH_QL_MAINNET_NODE_URL =
 const String GRAPH_QL_TESTNET_NODE_URL =
     'https://mina-devnet-graphql.xxx.xyz/graphql';
 
-/// api for transacions prices and validators
-const String MAINNET_TRANSACTION_URL = "https://api.xxx.xyz";
-const String TESTNET_TRANSACTION_URL = "https://mina-devnet-indexer.xxx.xyz";
 
 const String MAIN_TX_RECORDS_GQL_URL = 'https://graphql.yyy.xyz';
 const String TEST_TX_RECORDS_GQL_URL = 'https://devnet.graphql.yyy.xyz';

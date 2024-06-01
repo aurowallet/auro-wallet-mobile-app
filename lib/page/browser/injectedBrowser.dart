@@ -6,11 +6,10 @@ import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
-import 'package:auro_wallet/utils/network.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -218,15 +217,14 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     _signing = true;
     await UI.showSwitchChainAction(
         context: context,
-        chainId: "",
+        networkID: "",
         url: siteInfo?['origin'],
         iconUrl: siteInfo?['webIcon'],
         gqlUrl: realUrl,
-        onConfirm: (String networkName, String chainId) async {
+        onConfirm: (String networkName, String networkID) async {
           await widget.onRefreshChain();
           Map chainInfoArgs = {
-            "chainId": chainId,
-            "name": networkName,
+            "networkID": networkID,
           };
           notifyChainChange(chainInfoArgs);
           Map<String, dynamic> resData = {"result": chainInfoArgs, "id": id};
@@ -321,16 +319,15 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
           return;
         }
-        List<CustomNodeV2> endpoints =
-            List<CustomNodeV2>.of(store.settings!.customNodeListV2);
+        List<CustomNode> endpoints =
+            List<CustomNode>.of(store.settings!.customNodeList);
         String realUrl = uri.toString();
         if (endpoints.any((element) => element.url == realUrl) ||
-            netConfigMap.values.any((node) => node.url == realUrl)) {
-          CustomNodeV2? currentNode = store.settings?.currentNode;
+            defaultNetworkList.any((node) => node.url == realUrl)) {
+          CustomNode? currentNode = store.settings?.currentNode;
           if (realUrl.toLowerCase() == currentNode?.url) {
             Map chainInfoArgs = {
-              "chainId": currentNode?.netType!.name,
-              "name": NetworkUtil.getNetworkName(store.settings!.currentNode),
+              "networkID": currentNode?.networkID,
             };
             Map<String, dynamic> resData = {
               "result": chainInfoArgs,
@@ -367,19 +364,16 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         }
         _signing = true;
         List<String> currentSupportChainList =
-            store.settings!.getSupportNetTypes();
-        if (!currentSupportChainList.contains(params?['chainId'])) {
+            store.settings!.getSupportNetworkIDs();
+        if (!currentSupportChainList.contains(params?['networkID'])) {
           onHandleErrorReject(
               method, payload['id'], ErrorCodes.notSupportChain);
           return;
         }
-        String? currentChainId = store.settings!.currentNode?.netType?.name;
-        if (currentChainId == (params?["chainId"]?.toLowerCase())) {
-          var networkName =
-              NetworkUtil.getNetworkName(store.settings!.currentNode);
+        String? currentNetworkID = store.settings!.currentNode?.networkID;
+        if (currentNetworkID == (params?["networkID"]?.toLowerCase())) {
           Map chainInfoArgs = {
-            "chainId": currentChainId,
-            "name": networkName,
+            "networkID": currentNetworkID,
           };
           Map<String, dynamic> resData = {
             "result": chainInfoArgs,
@@ -390,14 +384,13 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         }
         await UI.showSwitchChainAction(
             context: context,
-            chainId: params?['chainId'],
+            networkID: params?['networkID'],
             url: siteInfo?['origin'],
             iconUrl: siteInfo?['webIcon'],
-            onConfirm: (String networkName, String chainId) async {
+            onConfirm: (String networkName, String networkID) async {
               await widget.onRefreshChain();
               Map chainInfoArgs = {
-                "chainId": chainId,
-                "name": networkName,
+                "networkID": networkID,
               };
               Map<String, dynamic> resData = {
                 "result": chainInfoArgs,
@@ -443,11 +436,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         _responseToZkApp(method, resData);
         return;
       case "mina_requestNetwork":
-        CustomNodeV2? currentNode = store.settings!.currentNode;
-        var networkName = NetworkUtil.getNetworkName(currentNode);
+        CustomNode? currentNode = store.settings!.currentNode;
         Map chainInfoArgs = {
-          "chainId": currentNode?.netType!.name,
-          "name": networkName,
+          "networkID": currentNode?.networkID,
         };
         Map<String, dynamic> resData = {
           "result": chainInfoArgs,

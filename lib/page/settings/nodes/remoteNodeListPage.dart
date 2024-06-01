@@ -1,16 +1,13 @@
 import 'package:auro_wallet/common/components/Separator.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/components/networkItem.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
-import 'package:auro_wallet/store/settings/types/networkType.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -31,10 +28,11 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
   bool isEditing = false;
 
-  void _addCustomNode(CustomNodeV2? originEndpoint) async {
+  void _addCustomNode(CustomNode? originEndpoint) async {
     await Navigator.of(context).pushNamed(NodeEditPage.route, arguments: {
       "name": originEndpoint?.name,
       "address": originEndpoint?.url,
+      "networkID": originEndpoint?.networkID,
       "removeNode": originEndpoint != null ? _removeNode : null
     });
     setState(() {
@@ -42,18 +40,19 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     });
   }
 
-  void _editNode(CustomNodeV2 endpoint) async {
+  void _editNode(CustomNode endpoint) async {
     this._addCustomNode(endpoint);
   }
 
   void _removeNode(String url) async {
-    List<CustomNodeV2> endpoints =
-        List<CustomNodeV2>.of(widget.settingStore.customNodeListV2);
+    List<CustomNode> endpoints =
+        List<CustomNode>.of(widget.settingStore.customNodeList);
     endpoints.removeWhere((endpointItem) => endpointItem.url == url);
     if (widget.settingStore.currentNode?.url == url) {
-      await widget.settingStore
-          .setCurrentNode(netConfigMap[NetworkTypes.mainnet]!);
-      webApi.updateGqlClient(GRAPH_QL_MAINNET_NODE_URL);
+      CustomNode mainnetEndpoint = defaultNetworkList
+          .firstWhere((network) => network.networkID == networkIDMap.mainnet);
+      await widget.settingStore.setCurrentNode(mainnetEndpoint);
+      webApi.updateGqlClient(mainnetEndpoint.url);
       webApi.refreshNetwork();
     }
     widget.settingStore.setCustomNodeList(endpoints);
@@ -66,6 +65,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       if (nodes.length > 0) {
         final node = nodes.first;
         await widget.store.assets!.clearAllTxs();
+        widget.store.assets!.setTxsLoading(true);
         await widget.settingStore.setCurrentNode(node);
         webApi.updateGqlClient(key);
         webApi.refreshNetwork();
@@ -75,21 +75,12 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   }
 
   Widget _renderCustomNodeList(BuildContext context, bool isEditing) {
-    final theme = Theme.of(context).textTheme;
-    List<CustomNodeV2> endpoints =
-        List<CustomNodeV2>.of(widget.settingStore.customNodeListV2);
+    List<CustomNode> endpoints =
+        List<CustomNode>.of(widget.settingStore.customNodeList);
     if (endpoints.length == 0) {
       return Container();
     }
-    final networks = widget.settingStore.networks;
     List<Widget> list = endpoints.map((endpoint) {
-      final filterNetworks =
-          networks.where((element) => element.chainId == endpoint.chainId);
-      NetworkType? networkType;
-      if (filterNetworks.isNotEmpty) {
-        networkType = filterNetworks.first;
-      }
-      final tagStr = networkType != null ? networkType.name : "Unknown";
       return Padding(
           key: Key(endpoint.url),
           padding: EdgeInsets.only(top: 10, left: 20, right: 20),
@@ -113,14 +104,6 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     });
   }
 
-  String? getChainIdFromStore(String id) {
-    final networks = widget.settingStore.networks;
-    final NetworkType? types = networks
-        .map((e) => e as NetworkType?)
-        .firstWhere((element) => element?.type == id, orElse: () => null);
-    return types?.chainId;
-  }
-
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -132,8 +115,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         centerTitle: true,
         actions: [
           Observer(builder: (_) {
-            List<CustomNodeV2> endpoints =
-                List<CustomNodeV2>.of(widget.settingStore.customNodeListV2);
+            List<CustomNode> endpoints =
+                List<CustomNode>.of(widget.settingStore.customNodeList);
             return endpoints.length > 0
                 ? TextButton(
                     child: Text(
@@ -153,9 +136,12 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Observer(builder: (_) {
-          CustomNodeV2 mainnetConfig = netConfigMap[NetworkTypes.mainnet]!;
-          CustomNodeV2 devnetConfig = netConfigMap[NetworkTypes.devnet]!;
-          CustomNodeV2 berkeleyConfig = netConfigMap[NetworkTypes.berkeley]!;
+          CustomNode mainnetConfig = defaultNetworkList.firstWhere(
+              (network) => network.networkID == networkIDMap.mainnet);
+          CustomNode devnetConfig = defaultNetworkList.firstWhere(
+              (network) => network.networkID == networkIDMap.testnet);
+          CustomNode berkeleyConfig = defaultNetworkList.firstWhere(
+              (network) => network.networkID == networkIDMap.berkeley);
           return Column(
             children: [
               Expanded(

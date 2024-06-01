@@ -16,6 +16,13 @@ mixin _$AssetsStore on _AssetsStore, Store {
       (_$totalTxsComputed ??= Computed<List<TransferData>>(() => super.totalTxs,
               name: '_AssetsStore.totalTxs'))
           .value;
+  Computed<List<TransferData>>? _$totalPendingTxsComputed;
+
+  @override
+  List<TransferData> get totalPendingTxs => (_$totalPendingTxsComputed ??=
+          Computed<List<TransferData>>(() => super.totalPendingTxs,
+              name: '_AssetsStore.totalPendingTxs'))
+      .value;
 
   late final _$isTxsLoadingAtom =
       Atom(name: '_AssetsStore.isTxsLoading', context: context);
@@ -191,6 +198,37 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  late final _$pendingZkTxsAtom =
+      Atom(name: '_AssetsStore.pendingZkTxs', context: context);
+
+  @override
+  ObservableList<TransferData> get pendingZkTxs {
+    _$pendingZkTxsAtom.reportRead();
+    return super.pendingZkTxs;
+  }
+
+  @override
+  set pendingZkTxs(ObservableList<TransferData> value) {
+    _$pendingZkTxsAtom.reportWrite(value, super.pendingZkTxs, () {
+      super.pendingZkTxs = value;
+    });
+  }
+
+  late final _$zkTxsAtom = Atom(name: '_AssetsStore.zkTxs', context: context);
+
+  @override
+  ObservableList<TransferData> get zkTxs {
+    _$zkTxsAtom.reportRead();
+    return super.zkTxs;
+  }
+
+  @override
+  set zkTxs(ObservableList<TransferData> value) {
+    _$zkTxsAtom.reportWrite(value, super.zkTxs, () {
+      super.zkTxs = value;
+    });
+  }
+
   late final _$txsFilterAtom =
       Atom(name: '_AssetsStore.txsFilter', context: context);
 
@@ -241,6 +279,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$clearTxsAsyncAction.run(() => super.clearTxs());
   }
 
+  late final _$clearZkTxsAsyncAction =
+      AsyncAction('_AssetsStore.clearZkTxs', context: context);
+
+  @override
+  Future<void> clearZkTxs() {
+    return _$clearZkTxsAsyncAction.run(() => super.clearZkTxs());
+  }
+
   late final _$clearFeeTxsAsyncAction =
       AsyncAction('_AssetsStore.clearFeeTxs', context: context);
 
@@ -255,6 +301,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
   @override
   Future<void> clearPendingTxs() {
     return _$clearPendingTxsAsyncAction.run(() => super.clearPendingTxs());
+  }
+
+  late final _$clearPendingZkTxsAsyncAction =
+      AsyncAction('_AssetsStore.clearPendingZkTxs', context: context);
+
+  @override
+  Future<void> clearPendingZkTxs() {
+    return _$clearPendingZkTxsAsyncAction.run(() => super.clearPendingZkTxs());
   }
 
   late final _$clearAllTxsAsyncAction =
@@ -272,6 +326,15 @@ mixin _$AssetsStore on _AssetsStore, Store {
   Future<void> addPendingTxs(List<dynamic>? ls, String address) {
     return _$addPendingTxsAsyncAction
         .run(() => super.addPendingTxs(ls, address));
+  }
+
+  late final _$addPendingZkTxsAsyncAction =
+      AsyncAction('_AssetsStore.addPendingZkTxs', context: context);
+
+  @override
+  Future<void> addPendingZkTxs(List<dynamic>? ls, String address) {
+    return _$addPendingZkTxsAsyncAction
+        .run(() => super.addPendingZkTxs(ls, address));
   }
 
   late final _$addFeeTxsAsyncAction =
@@ -292,6 +355,16 @@ mixin _$AssetsStore on _AssetsStore, Store {
       {bool shouldCache = false}) {
     return _$addTxsAsyncAction
         .run(() => super.addTxs(ls, address, shouldCache: shouldCache));
+  }
+
+  late final _$addZkTxsAsyncAction =
+      AsyncAction('_AssetsStore.addZkTxs', context: context);
+
+  @override
+  Future<void> addZkTxs(List<dynamic> ls, String address,
+      {bool shouldCache = false}) {
+    return _$addZkTxsAsyncAction
+        .run(() => super.addZkTxs(ls, address, shouldCache: shouldCache));
   }
 
   late final _$setFeesMapAsyncAction =
@@ -421,9 +494,12 @@ txs: ${txs},
 feeTxs: ${feeTxs},
 scamList: ${scamList},
 scamAddressStr: ${scamAddressStr},
+pendingZkTxs: ${pendingZkTxs},
+zkTxs: ${zkTxs},
 txsFilter: ${txsFilter},
 marketPrices: ${marketPrices},
-totalTxs: ${totalTxs}
+totalTxs: ${totalTxs},
+totalPendingTxs: ${totalPendingTxs}
     ''';
   }
 }

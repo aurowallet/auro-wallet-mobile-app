@@ -1,22 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/service/webview/bridgeService.dart';
-import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/store/settings/types/networkType.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/service/api/apiAccount.dart';
 import 'package:auro_wallet/service/api/apiAssets.dart';
-import 'package:auro_wallet/service/api/apiStaking.dart';
 import 'package:auro_wallet/service/api/apiSetting.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/service/api/apiStaking.dart';
 import 'package:auro_wallet/service/graphql.dart';
+import 'package:auro_wallet/service/webview/bridgeService.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 // global api instance
 late Api webApi;
@@ -38,7 +33,6 @@ class Api {
   late BridgeService bridge;
 
   void init() async {
-
     account = ApiAccount(this);
     assets = ApiAssets(this);
     staking = ApiStaking(this);
@@ -64,7 +58,6 @@ class Api {
 
   Future<void> fetchInitialInfo() async {
     setting.fetchAboutUs();
-    setting.fetchNetworkTypes();
     assets.fetchScamInfo();
     assets.queryTxFees();
     if (store.wallet!.walletListAll.length > 0) {
@@ -75,35 +68,9 @@ class Api {
     staking.fetchStakingOverview();
   }
 
-  bool getIsMainApi() {
-    return store.settings!.isMainnet;
-    // List<NetworkType> networks = store.settings!.networks;
-    // List<CustomNode> customNodes = store.settings!.customNodeListV2;
-    // if (store.settings!.endpoint == GRAPH_QL_TESTNET_NODE_URL) {
-    //   return false;
-    // } else if(store.settings!.endpoint == GRAPH_QL_MAINNET_NODE_URL){
-    //   return true;
-    // } else { // custom node
-    //   final targetNets = customNodes.where((customNode) => customNode.url == currentUrl);
-    //   if (targetNets.isNotEmpty) {
-    //     CustomNode targetNet = targetNets.first;
-    //     if (targetNet.networksType == '0') { // mainnet
-    //       return true;
-    //     } else if (targetNet.networksType == '1') { // testnet
-    //       return false;
-    //     } else {
-    //       return true;
-    //     }
-    //   } else {
-    //     return true;
-    //   }
-    // }
-  }
-
-
   String getTxRecordsApiUrl() {
     String? txUrl = store.settings!.currentNode?.txUrl;
-    if(txUrl!=null){
+    if (txUrl != null) {
       return txUrl;
     }
     return MAIN_TX_RECORDS_GQL_URL;

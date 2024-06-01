@@ -107,13 +107,13 @@ mixin _$SettingsStore on _SettingsStore, Store {
       Atom(name: '_SettingsStore.currentNode', context: context);
 
   @override
-  CustomNodeV2? get currentNode {
+  CustomNode? get currentNode {
     _$currentNodeAtom.reportRead();
     return super.currentNode;
   }
 
   @override
-  set currentNode(CustomNodeV2? value) {
+  set currentNode(CustomNode? value) {
     _$currentNodeAtom.reportWrite(value, super.currentNode, () {
       super.currentNode = value;
     });
@@ -155,47 +155,15 @@ mixin _$SettingsStore on _SettingsStore, Store {
       Atom(name: '_SettingsStore.customNodeList', context: context);
 
   @override
-  List<String> get customNodeList {
+  List<CustomNode> get customNodeList {
     _$customNodeListAtom.reportRead();
     return super.customNodeList;
   }
 
   @override
-  set customNodeList(List<String> value) {
+  set customNodeList(List<CustomNode> value) {
     _$customNodeListAtom.reportWrite(value, super.customNodeList, () {
       super.customNodeList = value;
-    });
-  }
-
-  late final _$customNodeListV2Atom =
-      Atom(name: '_SettingsStore.customNodeListV2', context: context);
-
-  @override
-  List<CustomNodeV2> get customNodeListV2 {
-    _$customNodeListV2Atom.reportRead();
-    return super.customNodeListV2;
-  }
-
-  @override
-  set customNodeListV2(List<CustomNodeV2> value) {
-    _$customNodeListV2Atom.reportWrite(value, super.customNodeListV2, () {
-      super.customNodeListV2 = value;
-    });
-  }
-
-  late final _$networksAtom =
-      Atom(name: '_SettingsStore.networks', context: context);
-
-  @override
-  List<NetworkType> get networks {
-    _$networksAtom.reportRead();
-    return super.networks;
-  }
-
-  @override
-  set networks(List<NetworkType> value) {
-    _$networksAtom.reportWrite(value, super.networks, () {
-      super.networks = value;
     });
   }
 
@@ -271,24 +239,6 @@ mixin _$SettingsStore on _SettingsStore, Store {
     return _$setCurrencyCodeAsyncAction.run(() => super.setCurrencyCode(code));
   }
 
-  late final _$setNetworkTypesAsyncAction =
-      AsyncAction('_SettingsStore.setNetworkTypes', context: context);
-
-  @override
-  Future<void> setNetworkTypes(List<NetworkType> networkTypes,
-      {dynamic shouldCache = false}) {
-    return _$setNetworkTypesAsyncAction.run(
-        () => super.setNetworkTypes(networkTypes, shouldCache: shouldCache));
-  }
-
-  late final _$loadNetworkTypesAsyncAction =
-      AsyncAction('_SettingsStore.loadNetworkTypes', context: context);
-
-  @override
-  Future<void> loadNetworkTypes() {
-    return _$loadNetworkTypesAsyncAction.run(() => super.loadNetworkTypes());
-  }
-
   late final _$loadLocalCodeAsyncAction =
       AsyncAction('_SettingsStore.loadLocalCode', context: context);
 
@@ -309,7 +259,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.updateCustomNode', context: context);
 
   @override
-  Future<void> updateCustomNode(CustomNodeV2 newNode, CustomNodeV2 oldNode) {
+  Future<void> updateCustomNode(CustomNode newNode, CustomNode oldNode) {
     return _$updateCustomNodeAsyncAction
         .run(() => super.updateCustomNode(newNode, oldNode));
   }
@@ -318,7 +268,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.setCustomNodeList', context: context);
 
   @override
-  Future<void> setCustomNodeList(List<CustomNodeV2> nodeList) {
+  Future<void> setCustomNodeList(List<CustomNode> nodeList) {
     return _$setCustomNodeListAsyncAction
         .run(() => super.setCustomNodeList(nodeList));
   }
@@ -336,7 +286,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
       AsyncAction('_SettingsStore.setCurrentNode', context: context);
 
   @override
-  Future<void> setCurrentNode(CustomNodeV2 value) {
+  Future<void> setCurrentNode(CustomNode value) {
     return _$setCurrentNodeAsyncAction.run(() => super.setCurrentNode(value));
   }
 
@@ -434,8 +384,6 @@ currentNode: ${currentNode},
 testnetShowStatus: ${testnetShowStatus},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
-customNodeListV2: ${customNodeListV2},
-networks: ${networks},
 networkName: ${networkName},
 networkConst: ${networkConst},
 contactList: ${contactList}

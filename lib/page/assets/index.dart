@@ -1,36 +1,33 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:auro_wallet/common/components/TxAction/TxActionRow.dart';
+import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/common/components/homeListTip.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/page/account/accountManagePage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
-import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
+import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
+import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/common/components/roundedCard.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/store/assets/types/transferData.dart';
-import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
-import 'package:auro_wallet/common/components/homeListTip.dart';
-import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:auro_wallet/common/components/browserLink.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/page/account/accountManagePage.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class Assets extends StatefulWidget {
   Assets(this.store);
@@ -130,8 +127,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   Future<void> _fetchTransactions() async {
-    print('start fetch tx list=0${store.settings!.currentNode?.id}');
-    if (!store.settings!.isSupportedNode) {
+    print('start fetch tx list=0${store.settings!.currentNode?.networkID}');
+    if (!store.settings!.isSupportTxHistory) {
       print('start fetch tx list=1');
       return;
     }
@@ -532,11 +529,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       ...store.assets!.totalPendingTxs,
       ...store.assets!.totalTxs
     ];
-    if (store.settings!.isSupportedNode) {
+    if (store.settings!.isSupportTxHistory) {
       String? browserLink = store.settings!.currentNode?.explorerUrl;
-      if (browserLink == null) {
-        browserLink = MAINNET_TRANSACTIONS_EXPLORER_URL;
-      }
       res.addAll(txs.map((i) {
         return TransferListItem(
           store: store,
@@ -560,7 +554,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
     res.add(HomeListTip(
         isLoading: isTxsLoading && txs.length == 0,
-        isSupportedNode: store.settings!.isSupportedNode));
+        isSupportTxHistory: store.settings!.isSupportTxHistory));
     return res;
   }
 

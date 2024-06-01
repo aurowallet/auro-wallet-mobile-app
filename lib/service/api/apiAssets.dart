@@ -432,7 +432,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (!store.settings!.isMainnet) {
       return;
     }
-    String txUrl = "$MAINNET_TRANSACTION_URL/prices?currency=" +
+    String txUrl = "$BASE_INFO_URL/prices?currency=" +
         store.settings!.currencyCode;
     var response = await http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {

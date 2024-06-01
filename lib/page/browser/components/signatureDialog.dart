@@ -13,7 +13,6 @@ import 'package:auro_wallet/store/browser/types/zkApp.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/network.dart';
 import 'package:flutter/material.dart';
 
 class SignatureDialog extends StatefulWidget {

@@ -1,10 +1,10 @@
-import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:auro_wallet/store/settings/types/customNodeV2.dart';
+import 'package:auro_wallet/common/consts/network.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class NetworkIcon extends StatelessWidget {
-  final CustomNodeV2 endpoint;
+  final CustomNode endpoint;
   final double size;
 
   const NetworkIcon({
@@ -16,7 +16,7 @@ class NetworkIcon extends StatelessWidget {
   String? getNetworkIcon() {
     String? iconUrl;
     if (endpoint.isDefaultNode == true) {
-      if (endpoint.netType == NetworkTypes.mainnet) {
+      if (endpoint.networkID == networkIDMap.mainnet) {
         iconUrl = "assets/images/stake/icon_mina_color.svg";
       } else {
         iconUrl = 'assets/images/stake/icon_mina_gray.svg';
