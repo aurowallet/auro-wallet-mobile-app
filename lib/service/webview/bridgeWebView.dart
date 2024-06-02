@@ -34,7 +34,9 @@ class BridgeWebView {
     _jsCode = jsCode;
 
     if (_web == null) {
-      await LocalWebviewServer.getInstance().startLocalServer();
+      String localServerUrl =
+          await LocalWebviewServer.getInstance().startLocalServer();
+
       _web = new HeadlessInAppWebView(
         windowId: 2,
         initialSettings: InAppWebViewSettings(
@@ -47,12 +49,11 @@ class BridgeWebView {
           }
         },
         initialUrlRequest: URLRequest(
-            url: WebUri("http://localhost:8080/assets/webview/bridge.html")),
+            url: WebUri(localServerUrl + "assets/webview/bridge.html")),
         onWebViewCreated: (controller) async {
           controller.loadUrl(
               urlRequest: URLRequest(
-                  url: WebUri(
-                      "http://localhost:8080/assets/webview/bridge.html")));
+                  url: WebUri(localServerUrl + "assets/webview/bridge.html")));
         },
         onConsoleMessage: (controller, message) {
           if (jsCodeStarted < 0) {
