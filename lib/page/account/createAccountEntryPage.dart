@@ -72,10 +72,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                             Container(
                               width: MediaQuery.of(context).size.width - 40,
                               margin: EdgeInsets.only(left: 20),
-                              child: FittedBox(
-                                child: SvgPicture.asset("assets/images/entry/desc.svg",fit: BoxFit.contain),
-                                fit: BoxFit.fill,
-                              ),
+                              child: SvgPicture.asset("assets/images/entry/desc.svg",fit: BoxFit.contain)
                             ),
                           ],
                         ),)
