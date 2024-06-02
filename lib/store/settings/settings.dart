@@ -21,6 +21,7 @@ abstract class _SettingsStore with Store {
   final String localStorageCurrencyKey = 'currency';
   final String localStorageAboutUsKey = 'about_us';
   final String localStorageCustomNodeList = 'custom_node_list';
+  final String localStorageCurrentNodeKey = 'current_node';
 
   final String cacheTestnetShowStatusKey = 'network_testnet_status';
 
@@ -150,7 +151,7 @@ abstract class _SettingsStore with Store {
   @action
   Future<void> setCurrentNode(CustomNode value) async {
     currentNode = value;
-    await rootStore.localStorage.setObject(localStorageCustomNodeList, value);
+    await rootStore.localStorage.setObject(localStorageCurrentNodeKey, value);
   }
 
   @action
@@ -169,7 +170,7 @@ abstract class _SettingsStore with Store {
   @action
   Future<void> loadCurrentNode() async {
     Map<String, dynamic>? cacheNode = await rootStore.localStorage
-        .getObject(localStorageCustomNodeList) as Map<String, dynamic>?;
+        .getObject(localStorageCurrentNodeKey) as Map<String, dynamic>?;
     CustomNode mainnetConfig = defaultNetworkList
         .firstWhere((network) => network.networkID == networkIDMap.mainnet);
     if (cacheNode == null) {
