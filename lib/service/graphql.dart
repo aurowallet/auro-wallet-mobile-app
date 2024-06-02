@@ -18,7 +18,6 @@ ValueNotifier<GraphQLClient> clientFor({
   required String uri,
   String? subscriptionUri,
 }) {
-  print('endpoint:' + uri);
   Link link = HttpLink(uri);
   final GraphQLCache cache = GraphQLCache(
       dataIdFromObject: uuidFromObject,
