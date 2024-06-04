@@ -573,7 +573,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         },
         initialSettings: InAppWebViewSettings(
             javaScriptEnabled: true,
-            javaScriptCanOpenWindowsAutomatically: true,
+            javaScriptCanOpenWindowsAutomatically: false,
             isInspectable: true,
             transparentBackground: true),
         onJsAlert: (controller, jsAlertRequest) async {
