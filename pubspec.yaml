@@ -105,7 +105,7 @@ flutter_native_splash:
   #  branding: "assets/images/public/splash_screen.png"
   android_12:
     color: "#ffffff"
-    image: "assets/images/public/app.png"
+    image: "assets/images/public/splash_screen_android.png"
   #    branding: "assets/images/public/splash_screen.png"
   android_gravity: center
   ios_content_mode: center
@@ -232,6 +232,7 @@ flutter:
     - assets/images/public/no.svg
     - assets/images/public/icon_nav_close.svg
     - assets/images/public/error.svg
+    - assets/images/public/splash_screen_android.png
 
     # - assets/images/assets/logo.png unuse
     - assets/images/assets/assets_send.png
