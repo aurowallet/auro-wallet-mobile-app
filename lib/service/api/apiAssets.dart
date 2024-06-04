@@ -287,8 +287,7 @@ class ApiAssets {
     await store.assets!.addPendingZkTxs(list, publicKey);
   }
 
-
-Future<void> fetchZkTransactions(publicKey) async { 
+  Future<void> fetchZkTransactions(publicKey) async {
     final client = GraphQLClient(
       link: HttpLink(apiRoot.getTxRecordsApiUrl()),
       cache: GraphQLCache(),
@@ -338,7 +337,7 @@ Future<void> fetchZkTransactions(publicKey) async {
     }
     List<dynamic> list = result.data!['zkapps'];
     print('zk transactions');
-    store.assets!.clearZkTxs(); 
+    store.assets!.clearZkTxs();
     await store.assets!.addZkTxs(list, publicKey, shouldCache: true);
   }
 
@@ -358,8 +357,13 @@ Future<void> fetchZkTransactions(publicKey) async {
         });
       }
     } else {
-      store.assets!.setFeesMap(
-          {'slow': 0.001, 'medium': 0.01, 'fast': 0.1, 'cap': 10.0, 'speedup':0.5});
+      store.assets!.setFeesMap({
+        'slow': 0.001,
+        'medium': 0.01,
+        'fast': 0.1,
+        'cap': 10.0,
+        'speedup': 0.5
+      });
     }
   }
 
@@ -377,7 +381,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
    inferredNonce
    publicKey
 }
-''';}).join(',')}
+''';
+    }).join(',')}
 }
       ''';
     Map<String, dynamic> variables = {};
@@ -432,8 +437,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (!store.settings!.isMainnet) {
       return;
     }
-    String txUrl = "$BASE_INFO_URL/prices?currency=" +
-        store.settings!.currencyCode;
+    String txUrl =
+        "$BASE_INFO_URL/prices?currency=" + store.settings!.currencyCode;
     var response = await http.get(Uri.parse(txUrl));
     if (response.statusCode == 200) {
       Map priceRes =
@@ -472,5 +477,35 @@ ${List<String>.generate(pubkeys.length, (int index) {
     } else {
       print('Request scam failed with status: ${response.statusCode}.');
     }
+  }
+
+  Future<int> fetchAccountNonce(String publicKey) async {
+    const String fetchNonceQuery =
+        r'''query accountNonce($publicKey: PublicKey!) {
+    account(publicKey: $publicKey) {
+      inferredNonce
+    }
+  }
+        ''';
+    Map<String, dynamic> variables = {
+      'publicKey': publicKey,
+    };
+
+    final QueryOptions _options = QueryOptions(
+      document: gql(fetchNonceQuery),
+      variables: variables,
+      fetchPolicy: FetchPolicy.noCache,
+    );
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (result.hasException) {
+      print('fetch nonce error');
+      print(result.exception.toString());
+      return -1;
+    }
+
+    /// -1 is null account
+    String nonce = result.data?['account']?['inferredNonce'] ?? "-1";
+    print("nonce $nonce");
+    return int.parse(nonce);
   }
 }

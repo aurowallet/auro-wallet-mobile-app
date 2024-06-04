@@ -84,6 +84,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   List<DataItem> rawData = [];
   bool isLedger = false;
   bool zkOnlySign = false;
+  bool isManualNonce = false;
 
   @override
   void initState() {
@@ -115,8 +116,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String? zkMemo;
     if (widget.signType == SignTxDialogType.zkApp) {
       String transaction = zkCommandFormat(widget.transaction);
-      toAddressTemp = getContractAddress(
-          transaction, store.wallet!.currentAddress);
+      toAddressTemp =
+          getContractAddress(transaction, store.wallet!.currentAddress);
       List<dynamic> zkFormatData =
           getZkInfo(transaction, store.wallet!.currentAddress);
       List<DataItem> dataItems = zkFormatData
@@ -277,6 +278,14 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           return false;
         }
       }
+      int nextNonce = inputNonce;
+      if (!isManualNonce) {
+        int tempNonce =
+            await webApi.assets.fetchAccountNonce(store.wallet!.currentAddress);
+        if (tempNonce != -1) {
+          nextNonce = tempNonce;
+        }
+      }
       Map txInfo;
       bool isDelagetion = false;
       if (widget.signType == SignTxDialogType.zkApp) {
@@ -284,10 +293,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           "privateKey": privateKey,
           "fromAddress": store.wallet!.currentAddress,
           "fee": lastFee,
-          "nonce": inputNonce,
+          "nonce": nextNonce,
           "memo": lastMemo != null ? lastMemo : "",
-          "transaction":
-              widget.transaction,
+          "transaction": widget.transaction,
           "zkOnlySign": zkOnlySign
         };
       } else {
@@ -297,7 +305,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           "fromAddress": store.wallet!.currentAddress,
           "toAddress": widget.to,
           "fee": lastFee,
-          "nonce": inputNonce,
+          "nonce": nextNonce,
           "memo": lastMemo != null ? lastMemo : "",
         };
         if (widget.signType == SignTxDialogType.Payment) {
@@ -476,6 +484,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           setState(() {
             lastFee = fee;
             inputNonce = nonce;
+            isManualNonce = true;
             showFeeErrorTip = fee >= store.assets!.transferFees.cap;
             feeType = FeeTypeEnum.fee_recommed_custom;
           });

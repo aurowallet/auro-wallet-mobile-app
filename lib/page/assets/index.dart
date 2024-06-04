@@ -127,7 +127,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   Future<void> _fetchTransactions() async {
-    print('start fetch tx list=0${store.settings!.currentNode?.networkID}');
     if (!store.settings!.isSupportTxHistory) {
       print('start fetch tx list=1');
       return;
