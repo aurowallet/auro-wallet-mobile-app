@@ -58,6 +58,7 @@ class Profile extends StatelessWidget {
                       SettingItem(
                         icon: 'assets/images/setting/icon_connect.svg',
                         title: dic.appConnection,
+                        value: (store.browser?.zkAppConnectingList.length ?? 0).toString(),
                         onTap: () => Navigator.of(context)
                             .pushNamed(ZkAppConnectPage.route),
                       ),
