@@ -202,18 +202,19 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(dic.confirm,
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600)),
                         _submitting
                             ? Padding(
                                 padding: EdgeInsets.only(left: 5),
                                 child: CupertinoTheme(
                                   data: CupertinoTheme.of(context)
                                       .copyWith(brightness: Brightness.dark),
-                                  child: CupertinoActivityIndicator(),
+                                  child: CupertinoActivityIndicator(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
                                 ))
-                            : Container(),
+                            : Text(dic.confirm,
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w600)),
                       ],
                     ),
                     onPressed: !_isConfirmButtonEnabled
