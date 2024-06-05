@@ -129,6 +129,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   Future<void> _fetchTransactions() async {
     if (!store.settings!.isSupportTxHistory) {
       print('start fetch tx list=1');
+      store.assets!.setTxsLoading(false);
       return;
     }
     print('start fetch tx list=2');
@@ -520,41 +521,82 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     );
   }
 
-  List<Widget> _buildTxList() {
+  Widget _buildTxList(List<TransferData> txs) {
     AppLocalizations dic = AppLocalizations.of(context)!;
+    String currentAddress = store.wallet!.currentAddress;
     List<Widget> res = [];
-    bool isTxsLoading = store.assets!.isTxsLoading;
+    
+    res.addAll(txs.map((i) {
+      return TransferListItem(
+        store: store,
+        data: i,
+        isOut: i.sender == currentAddress,
+      );
+    }));
+    String? browserLink = store.settings!.currentNode?.explorerUrl;
+    res.add(Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: BrowserLink(
+              '$browserLink/account/$currentAddress/txs',
+              text: dic.goToExplorer,
+            ))
+      ],
+    ));
+    return Ink(
+        color: Color(0xFFFFFFFF),
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 0),
+          children: res,
+        ));
+  }
+
+  Widget _buildBottomView() {
+    Widget nextWidget = SizedBox(
+      height: 0,
+    );
+    String currentAddress = store.wallet!.currentAddress;
     List<TransferData> txs = [
       ...store.assets!.totalPendingTxs,
       ...store.assets!.totalTxs
     ];
-    if (store.settings!.isSupportTxHistory) {
-      String? browserLink = store.settings!.currentNode?.explorerUrl;
-      res.addAll(txs.map((i) {
-        return TransferListItem(
-          store: store,
-          data: i,
-          isOut: i.sender == store.wallet!.currentAddress,
-        );
-      }));
+
+    if (store.assets!.isTxsLoading) {
       if (txs.length > 0) {
-        res.add(Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                child: BrowserLink(
-                  '$browserLink/account/${store.wallet!.currentAddress}/txs',
-                  text: dic.goToExplorer,
-                ))
-          ],
-        ));
+        nextWidget = _buildTxList(txs);
+      } else {
+        nextWidget = Ink(
+            color: Color(0xFFFFFFFF),
+            child: Container(
+              child: Center(
+                child: LoadingCircle(),
+              ),
+            ));
+      }
+    } else {
+      if (!store.settings!.isSupportTxHistory) {
+        nextWidget = HomeListTip();
+      } else {
+        if (txs.length > 0) {
+          nextWidget = _buildTxList(txs);
+        } else {
+          AccountInfo? balancesInfo =
+              store.assets!.accountsInfo[currentAddress];
+          bool isAccountExist = balancesInfo != null;
+          if (isAccountExist) {
+            nextWidget = HomeListTip();
+          } else {
+            nextWidget = Wrap(
+              children: [EmptyTxListTip()],
+            );
+          }
+        }
       }
     }
-    res.add(HomeListTip(
-        isLoading: isTxsLoading && txs.length == 0,
-        isSupportTxHistory: store.settings!.isSupportTxHistory));
-    return res;
+
+    return Expanded(child: nextWidget);
   }
 
   @override
@@ -606,25 +648,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         ],
                       )
                     : Container(),
-                Expanded(
-                  child: isEmpty && !isTxsLoading
-                      ? Wrap(
-                          children: [EmptyTxListTip()],
-                        )
-                      : Ink(
-                          color: Color(0xFFFFFFFF),
-                          child: isEmpty && isTxsLoading
-                              ? Container(
-                                  child: Center(
-                                    child: LoadingCircle(),
-                                  ),
-                                )
-                              : ListView(
-                                  padding: EdgeInsets.symmetric(horizontal: 0),
-                                  children: _buildTxList(),
-                                ),
-                        ),
-                )
+                _buildBottomView(),
               ],
             ),
           ),

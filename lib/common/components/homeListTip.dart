@@ -1,47 +1,36 @@
-import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeListTip extends StatelessWidget {
-  HomeListTip({required this.isLoading, required this.isSupportTxHistory});
-  final bool isLoading;
-  final bool isSupportTxHistory;
+  HomeListTip();
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
-    if (!isSupportTxHistory) {
-      return Container(
-        margin: EdgeInsets.only(top: 20),
-        padding: EdgeInsets.only(top: 60, bottom: 60, left: 20, right: 20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-        child: Row(
-          children: [
-            SvgPicture.asset('assets/images/public/no.svg',
-                width: 14, height: 14),
-            Expanded(
-              child: Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Text(
-                    dic.homeNoTx,
-                    style: theme.headline5!
-                        .copyWith(color: ColorsUtil.hexColor(0x666666)),
-                  )),
-            )
-          ],
-        ),
-      );
-    }
-    if (isLoading) {
-      return Center(
-        child: LoadingCircle(),
-      );
-    }
-    return Container();
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(top: 60, bottom: 60, left: 20, right: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      child: Row(
+        children: [
+          SvgPicture.asset('assets/images/public/no.svg',
+              width: 14, height: 14),
+          Expanded(
+            child: Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  dic.homeNoTx,
+                  style: theme.headline5!
+                      .copyWith(color: ColorsUtil.hexColor(0x666666)),
+                )),
+          )
+        ],
+      ),
+    );
   }
 }
 

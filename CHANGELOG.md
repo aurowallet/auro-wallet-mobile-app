@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
     - Add support to return signed zk.
     - ZkApp approve
     - Upgrade network config
+    - Transaction history
 - Fixed
     - Nonce issue after zkAsignJsonMessagepp switch chain
     - Fortmat issue of signJsonMessage
