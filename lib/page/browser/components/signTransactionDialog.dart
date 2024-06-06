@@ -113,7 +113,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String toAddressTemp = widget.to;
     String? memoTemp = widget.memo;
     String? zkFee;
-    String? zkMemo;
     Map<String, dynamic>? feePayer = widget.feePayer;
     if (widget.signType == SignTxDialogType.zkApp) {
       String transaction = zkCommandFormat(widget.transaction);
@@ -130,7 +129,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       } else {
         zkFee = getZkFee(transaction);
       }
-      zkMemo = getZkMemo(transaction);
       bool zkOnlySignTemp = widget.onlySign ?? false;
       setState(() {
         showToAddress = toAddressTemp;
@@ -146,14 +144,10 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
     FeeTypeEnum tempFeeType;
     String? webFee = zkFee ?? widget.fee;
-    if (zkMemo != null && zkMemo.isNotEmpty) {
-      memoTemp = zkMemo;
+    if (feePayer?['memo'] != null && feePayer?['memo'].isNotEmpty) {
+      memoTemp = feePayer?['memo'];
     } else {
-      if (feePayer?['memo'] != null && feePayer?['memo'].isNotEmpty) {
-        memoTemp = feePayer?['memo'];
-      } else {
-        memoTemp = widget.memo;
-      }
+      memoTemp = widget.memo;
     }
 
     setState(() {
@@ -345,10 +339,10 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           }
         }
       }
-      if(data == null){
+      if (data == null) {
         setState(() {
-            submitting = false;
-          });
+          submitting = false;
+        });
         return false;
       }
       String hash = "";
@@ -595,7 +589,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   }
 
   Widget _buildMemoContent() {
-    return Text(lastMemo!,
+    String memo = widget.memo ?? widget.feePayer?["memo"] ?? "";
+    return Text(memo,
         style: TextStyle(
             color: Colors.black.withOpacity(0.8),
             fontSize: 14,
@@ -649,7 +644,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         );
       }
     }
-    if (lastMemo != null && lastMemo!.isNotEmpty) {
+    if ((widget.memo != null && widget.memo!.isNotEmpty) ||
+        (widget.feePayer?["memo"] != null &&
+            widget.feePayer?["memo"]!.isNotEmpty)) {
       tabTitleList.add('Memo');
       tabContengList.add(TabBorderContent(tabContent: _buildMemoContent()));
     }
