@@ -303,6 +303,9 @@ class _TransferPageState extends State<TransferPage> {
               data =
                   await webApi.account.signAndSendTx(txInfo, context: context);
             }
+            if(data == null){
+              return false;
+            }
             if (mounted && !exited) {
               // if(data != null) {
               //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);

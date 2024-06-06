@@ -115,6 +115,10 @@ class _SignatureDialogState extends State<SignatureDialog> {
     setState(() {
       submitting = false;
     });
+    if(data['error']!=null){
+      UI.toast(data['error']['message']);
+      return false;
+    }
     widget.onConfirm(data);
     return true;
   }

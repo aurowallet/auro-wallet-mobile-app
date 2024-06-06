@@ -96,6 +96,13 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
       submitting = true;
     });
     var acc = await webApi.account.importWalletByWalletParams();
+    if(acc['error']!=null){
+    UI.toast(acc['error']['message']);
+       setState(() {
+        submitting = false;
+      });
+      return ;
+    }
     await webApi.account.saveWallet(acc,
         context: context,
         seedType: WalletStore.seedTypeMnemonic,

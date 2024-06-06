@@ -336,7 +336,11 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       "nonce": txInfo['nonce'],
       "memo": txInfo['memo']
     });
-
+    dynamic errorData = signedTx['error'];
+    if (errorData != null) {
+      UI.toast(errorData['message']);
+      return null; 
+    }
     final signedData = signedTx['data'];
     final broadcastBody = prepareBroadcastBody(
         field: signedTx['signature']["field"],
@@ -369,6 +373,11 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       "nonce": txInfo['nonce'],
       "memo": txInfo['memo']
     });
+    dynamic errorData = signedTx['error'];
+    if (errorData != null) {
+      UI.toast(errorData['message']);
+      return null; 
+    }
     final signedData = signedTx['data'];
     final broadcastBody = prepareBroadcastBody(
         field: signedTx['signature']["field"],
@@ -465,6 +474,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       String source = WalletSource.outside}) async {
     Map<String, dynamic> acc =
         await apiRoot.bridge.createAccountByPrivateKey(privateKey);
+    if(acc['error']!=null){
+      UI.toast(acc['error']['message']);
+      return false;
+    } 
     acc['name'] = accountName;
     return await _addWalletBgPrivateKey(acc, password, context, source);
   }
@@ -784,10 +797,15 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       "memo": "",
       "transaction": txInfo["transaction"]
     });
+    final errorData = signedTx['error'];
+    if (errorData != null) {
+      UI.toast(errorData['message']);
+      return null; 
+    }
     final signedData = signedTx['data'];
-    bool zkOnlySign = txInfo["zkOnlySign"]??false;
-    if(zkOnlySign){
-      return {"signedData":jsonEncode(signedData)};
+    bool zkOnlySign = txInfo["zkOnlySign"] ?? false;
+    if (zkOnlySign) {
+      return {"signedData": jsonEncode(signedData)};
     }
     TransferData? transferData =
         await sendZkTx(signedData['zkappCommand'], context: context);

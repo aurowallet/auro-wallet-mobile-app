@@ -51,6 +51,10 @@ class _AddAccountPageState extends State<AddAccountPage> {
     if (wallet != null) {
       final accountData = await webApi.account
           .createAccountByAccountIndex(wallet, accountName, password);
+      if (accountData?['error'] != null) {
+        UI.toast(accountData?['error']['message']);
+        return false;
+      }
       AppLocalizations dic = AppLocalizations.of(context)!;
       if (accountData == null) {
         UI.toast(dic.passwordError);

@@ -50613,27 +50613,35 @@ function reverse(bytes) {
       needPrivateKey = false
     } = _ref;
     return new Promise(resolve => {
-      const seed = bip39__WEBPACK_IMPORTED_MODULE_1__["mnemonicToSeedSync"](mnemonic);
-      const masterNode = bip32__WEBPACK_IMPORTED_MODULE_0__["fromSeed"](seed);
-      let hdPath = "m/44'/12586'/" + accountIndex + "'/0/0";
-      const child0 = masterNode.derivePath(hdPath);
-      child0.privateKey[0] &= 0x3f;
-      const childPrivateKey = reverse(child0.privateKey);
-      const minaPrivateKeyHex = `5a01${childPrivateKey.toString("hex")}`;
-      const minaPrivateKey = bs58check__WEBPACK_IMPORTED_MODULE_2___default.a.encode(safe_buffer__WEBPACK_IMPORTED_MODULE_4__["Buffer"].from(minaPrivateKeyHex, "hex"));
-      const client = new mina_signer__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"]({
-        network: "mainnet"
-      });
-      const minaPublicKey = client.derivePublicKey(minaPrivateKey);
-      let res = {
-        mnemonic: mnemonic,
-        pubKey: minaPublicKey,
-        hdIndex: accountIndex
-      };
-      if (needPrivateKey) {
-        res.priKey = minaPrivateKey;
+      try {
+        const seed = bip39__WEBPACK_IMPORTED_MODULE_1__["mnemonicToSeedSync"](mnemonic);
+        const masterNode = bip32__WEBPACK_IMPORTED_MODULE_0__["fromSeed"](seed);
+        let hdPath = "m/44'/12586'/" + accountIndex + "'/0/0";
+        const child0 = masterNode.derivePath(hdPath);
+        child0.privateKey[0] &= 0x3f;
+        const childPrivateKey = reverse(child0.privateKey);
+        const minaPrivateKeyHex = `5a01${childPrivateKey.toString("hex")}`;
+        const minaPrivateKey = bs58check__WEBPACK_IMPORTED_MODULE_2___default.a.encode(safe_buffer__WEBPACK_IMPORTED_MODULE_4__["Buffer"].from(minaPrivateKeyHex, "hex"));
+        const client = new mina_signer__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"]({
+          network: "mainnet"
+        });
+        const minaPublicKey = client.derivePublicKey(minaPrivateKey);
+        let res = {
+          mnemonic: mnemonic,
+          pubKey: minaPublicKey,
+          hdIndex: accountIndex
+        };
+        if (needPrivateKey) {
+          res.priKey = minaPrivateKey;
+        }
+        resolve(res);
+      } catch (error) {
+        resolve({
+          error: {
+            message: String(error)
+          }
+        });
       }
-      resolve(res);
     });
   },
   importWalletByPrivateKey(_ref2) {
@@ -50641,14 +50649,22 @@ function reverse(bytes) {
       privateKey
     } = _ref2;
     return new Promise(resolve => {
-      const client = new mina_signer__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"]({
-        network: "mainnet"
-      });
-      const minaPublicKey = client.derivePublicKey(privateKey);
-      resolve({
-        priKey: privateKey,
-        pubKey: minaPublicKey
-      });
+      try {
+        const client = new mina_signer__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"]({
+          network: "mainnet"
+        });
+        const minaPublicKey = client.derivePublicKey(privateKey);
+        resolve({
+          priKey: privateKey,
+          pubKey: minaPublicKey
+        });
+      } catch (error) {
+        resolve({
+          error: {
+            message: String(error)
+          }
+        });
+      }
     });
   },
   async importWallet(_ref3) {
@@ -51037,7 +51053,7 @@ global.account = _account__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"];
 global.utils = _utils__WEBPACK_IMPORTED_MODULE_2__[/* default */ "a"];
 global.auroSignLib = _lib__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"];
 const minaSignerVersion = async () => {
-  return "3.0.7-1001";
+  return "3.0.7-1003";
 };
 global.minaSignerVersion = minaSignerVersion;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14)))

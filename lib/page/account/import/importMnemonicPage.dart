@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -104,6 +105,14 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     });
     widget.store.wallet!.setNewWalletSeed(mnemonic, WalletStore.seedTypeMnemonic);
     var acc = await webApi.account.importWalletByWalletParams();
+    if(acc['error']!=null){
+      UI.toast(acc['error']['message']);
+       setState(() {
+        submitting = false;
+      });
+      return ;
+    }
+
     final duplicated = await _checkAccountDuplicate(acc);
     if (duplicated) {
       return;

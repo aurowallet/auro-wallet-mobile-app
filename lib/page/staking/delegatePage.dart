@@ -326,6 +326,9 @@ class _DelegatePageState extends State<DelegatePage>
               data = await webApi.account
                   .signAndSendDelegationTx(txInfo, context: context);
             }
+            if(data == null){
+              return false;
+            }
             if (mounted) {
               // if (data != null) {
               //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);

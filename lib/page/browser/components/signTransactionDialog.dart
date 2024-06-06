@@ -341,6 +341,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           }
         }
       }
+      if(data == null){
+        setState(() {
+            submitting = false;
+          });
+        return false;
+      }
       String hash = "";
       String signedData = "";
       if (data.runtimeType == TransferData) {
