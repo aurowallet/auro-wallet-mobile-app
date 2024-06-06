@@ -524,5 +524,6 @@
   "ledgerNotConnected":"Ledger not Connected",
   "txType":"Transaction Type",
   "appConnection": "App Connections",
-  "noConnectedApps": "No connected Apps"
+  "noConnectedApps": "No connected Apps",
+  "txHistoryTip": "Unable to provide transaction history"
 }

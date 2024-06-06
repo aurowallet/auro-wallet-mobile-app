@@ -524,5 +524,6 @@
   "ledgerNotConnected": "Ledger cihazı bağlı değil",
   "txType":"İşlem Türü",
   "appConnection": "Uygulama Bağlantıları",
-  "noConnectedApps": "Bağlı uygulama yok"
+  "noConnectedApps": "Bağlı uygulama yok",
+  "txHistoryTip": "İşlem geçmişi sağlanamıyor"
 }

@@ -1,7 +1,6 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeListTip extends StatelessWidget {
   HomeListTip();
@@ -17,13 +16,10 @@ class HomeListTip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SvgPicture.asset('assets/images/public/no.svg',
-              width: 14, height: 14),
           Expanded(
-            child: Padding(
-                padding: EdgeInsets.only(left: 10),
+            child: Center(
                 child: Text(
-                  dic.homeNoTx,
+                  dic.txHistoryTip,
                   style: theme.headline5!
                       .copyWith(color: ColorsUtil.hexColor(0x666666)),
                 )),

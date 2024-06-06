@@ -524,5 +524,6 @@
   "ledgerNotConnected": "Ledger 未连接",
   "txType":"交易类型",
   "appConnection": "已连接应用",
-  "noConnectedApps": "没有已连接的应用"
+  "noConnectedApps": "没有已连接的应用",
+  "txHistoryTip": "无法提供交易记录"
 }
