@@ -114,6 +114,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String? memoTemp = widget.memo;
     String? zkFee;
     String? zkMemo;
+    Map<String, dynamic>? feePayer = widget.feePayer;
     if (widget.signType == SignTxDialogType.zkApp) {
       String transaction = zkCommandFormat(widget.transaction);
       toAddressTemp =
@@ -124,7 +125,11 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           .map<DataItem>((item) => DataItem.fromJson(item))
           .toList();
 
-      zkFee = getZkFee(transaction);
+      if (feePayer?['fee'] != null && feePayer?['fee'].isNotEmpty) {
+        zkFee = feePayer?['fee'];
+      } else {
+        zkFee = getZkFee(transaction);
+      }
       zkMemo = getZkMemo(transaction);
       bool zkOnlySignTemp = widget.onlySign ?? false;
       setState(() {
@@ -144,7 +149,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     if (zkMemo != null && zkMemo.isNotEmpty) {
       memoTemp = zkMemo;
     } else {
-      Map<String, dynamic>? feePayer = widget.feePayer;
       if (feePayer?['memo'] != null && feePayer?['memo'].isNotEmpty) {
         memoTemp = feePayer?['memo'];
       } else {

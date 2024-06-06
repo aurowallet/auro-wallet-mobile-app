@@ -794,7 +794,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       "fromAddress": txInfo['fromAddress'],
       "fee": txInfo['fee'],
       "nonce": txInfo['nonce'],
-      "memo": "",
+      "memo": txInfo['memo'],
       "transaction": txInfo["transaction"]
     });
     final errorData = signedTx['error'];
