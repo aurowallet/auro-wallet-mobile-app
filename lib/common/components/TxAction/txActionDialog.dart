@@ -244,7 +244,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
             .sendTxBody(tx, context: context, isDelegation: isDelagetion);
       }
     } else {
-      if (txType == 'zkapp') {
+      if (txType == 'zkapp' && widget.modalType == TxActionType.speedup) {
         data = await webApi.account.signAndSendZkTx(txInfo, context: context);
       } else {
         if (isDelagetion) {

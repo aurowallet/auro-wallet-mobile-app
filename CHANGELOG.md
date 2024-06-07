@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
     - Nonce issue after zkAsignJsonMessagepp switch chain
     - Fortmat issue of signJsonMessage
     - Cache load slow
+    - ZkApp transaction cancel
 
 ## [2.0.1]
 - Enhancements
