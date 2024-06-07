@@ -56,9 +56,7 @@ class BrowserActionButton extends StatelessWidget {
         ? "assets/images/webview/icon_fav.svg"
         : "assets/images/webview/icon_unfav.svg";
     String favTxt = isFav == true ? dic.removeFavorites : dic.addFavorites;
-    return SingleChildScrollView(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Container(
+    return Container(
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -83,7 +81,7 @@ class BrowserActionButton extends StatelessWidget {
                     Navigator.pop(context);
                   }, context),
                   buildItem(favUrl, favTxt, () {
-                    if(onClickFav != null){
+                    if (onClickFav != null) {
                       onClickFav!();
                     }
                     Navigator.pop(context);
@@ -100,6 +98,6 @@ class BrowserActionButton extends StatelessWidget {
           ],
         ),
       )),
-    ));
+    );
   }
 }

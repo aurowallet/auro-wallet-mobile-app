@@ -48,6 +48,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: false,
+      resizeToAvoidBottomInset: false,
       body: body,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(42.0),
