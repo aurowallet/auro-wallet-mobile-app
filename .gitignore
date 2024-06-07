@@ -41,3 +41,6 @@ apiConfig.dart
 .cxx
 /rust/target/
 /rust/build/
+
+# output
+release-package
