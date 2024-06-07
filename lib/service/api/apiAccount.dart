@@ -45,7 +45,7 @@ class ApiAccount {
         current = '';
       }
     }
-    store.wallet!.setCurrentAccount(current!);
+    await store.wallet!.setCurrentAccount(current!);
 
     // refresh balance
     await store.assets!.clearTxs();
@@ -459,8 +459,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchAccountInfo();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
-      webApi.assets.fetchPendingZkTransactions(store.wallet!.currentAddress);
-      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress);
+      webApi.assets.fetchPendingZkTransactions(pubKey);
+      webApi.assets.fetchZkTransactions(pubKey);
       return true;
     } catch (e) {
       return false;
@@ -504,8 +504,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchAccountInfo();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
-      webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress);
-      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress);
+      webApi.assets.fetchPendingTransactions(pubKey);
+      webApi.assets.fetchZkTransactions(pubKey);
       return true;
     } catch (e) {
       return false;

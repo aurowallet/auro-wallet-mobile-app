@@ -415,7 +415,9 @@ ${List<String>.generate(pubkeys.length, (int index) {
           "publicKey": publicKey,
         };
         print('balance:' + balance);
-        store.assets!.setAccountInfo(pubKey, accountInfo);
+        store.assets!.setAccountInfo(pubKey, accountInfo); 
+      }else{
+        store.assets!.setAccountInfo(pubKey, null);
       }
     });
   }

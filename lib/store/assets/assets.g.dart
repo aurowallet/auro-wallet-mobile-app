@@ -265,7 +265,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
       AsyncAction('_AssetsStore.setAccountInfo', context: context);
 
   @override
-  Future<void> setAccountInfo(String pubKey, Map<dynamic, dynamic> amt,
+  Future<void> setAccountInfo(String pubKey, dynamic amt,
       {bool needCache = true}) {
     return _$setAccountInfoAsyncAction
         .run(() => super.setAccountInfo(pubKey, amt, needCache: needCache));

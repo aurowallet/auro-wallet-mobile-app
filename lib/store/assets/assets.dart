@@ -78,7 +78,6 @@ abstract class _AssetsStore with Store {
   @observable
   ObservableList<TransferData> zkTxs = ObservableList<TransferData>();
 
-
   @computed
   List<TransferData> get totalTxs {
     var gettime = (TransferData tx) {
@@ -139,8 +138,8 @@ abstract class _AssetsStore with Store {
       }
       return 0;
     });
-        if(totals.isNotEmpty){
-      totals[totals.length-1].showSpeedUp = true;
+    if (totals.isNotEmpty) {
+      totals[totals.length - 1].showSpeedUp = true;
     }
     return totals;
   }
@@ -152,11 +151,14 @@ abstract class _AssetsStore with Store {
   ObservableMap<String, double> marketPrices = ObservableMap<String, double>();
 
   @action
-  Future<void> setAccountInfo(String pubKey, Map amt,
+  Future<void> setAccountInfo(String pubKey, dynamic amt,
       {bool needCache = true}) async {
     // if (rootStore.wallet!.currentWallet.pubKey != pubKey) return;
-
-    accountsInfo[pubKey] = AccountInfo.fromJson(amt as Map<String, dynamic>);
+    if (amt == null) {
+      accountsInfo.remove(pubKey);
+    } else {
+      accountsInfo[pubKey] = AccountInfo.fromJson(amt as Map<String, dynamic>);
+    }
 
     if (!needCache) return;
     // Map? cache = await rootStore.localStorage.getAccountCache(

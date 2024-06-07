@@ -85,7 +85,7 @@ class LocalStorage {
   }
 
   Future<void> setAccountCache(
-      String accPubKey, String key, Object value) async {
+      String accPubKey, String key, dynamic value) async {
     Map? data = await getObject(key) as Map?;
     if (data == null) {
       data = {};

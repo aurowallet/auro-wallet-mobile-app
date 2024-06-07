@@ -97,6 +97,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      webApi.assets.fetchAccountInfo(showIndicator: true);
       _fetchTransactions();
       _checkWatchMode();
       WidgetsBinding.instance.addObserver(this);
