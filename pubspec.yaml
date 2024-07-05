@@ -54,7 +54,6 @@ dependencies:
   # GraphQL
   graphql_flutter: ^5.0.0-nullsafety.2
   flutter_easyloading: ^3.0.0
-  # flutter_sodium: ^0.2.0
   bs58check: ^1.0.2
   percent_indicator: ^4.2.3
   flutter_secure_storage: ^8.1.0
