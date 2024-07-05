@@ -140,8 +140,6 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
               (network) => network.networkID == networkIDMap.mainnet);
           CustomNode devnetConfig = defaultNetworkList.firstWhere(
               (network) => network.networkID == networkIDMap.testnet);
-          CustomNode berkeleyConfig = defaultNetworkList.firstWhere(
-              (network) => network.networkID == networkIDMap.berkeley);
           return Column(
             children: [
               Expanded(
@@ -193,14 +191,6 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           onChecked: onChangeEndpoint,
                           isEditing: isEditing,
                           endpoint: devnetConfig,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        NetworkItem(
-                          onChecked: onChangeEndpoint,
-                          isEditing: isEditing,
-                          endpoint: berkeleyConfig,
                         ),
                       ],
                     ),

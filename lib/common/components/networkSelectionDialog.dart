@@ -144,12 +144,6 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                         SizedBox(
                           height: 10,
                         ),
-                        NetworkItem(
-                          endpoint: defaultNetworkList.firstWhere((network) =>
-                              network.networkID ==
-                              networkIDMap.berkeley),
-                          onChecked: onSelectNode,
-                        )
                       ]),
                     )
                   : Container()
