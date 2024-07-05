@@ -54,7 +54,7 @@ dependencies:
   # GraphQL
   graphql_flutter: ^5.0.0-nullsafety.2
   flutter_easyloading: ^3.0.0
-  flutter_sodium: ^0.2.0
+  # flutter_sodium: ^0.2.0
   bs58check: ^1.0.2
   percent_indicator: ^4.2.3
   flutter_secure_storage: ^8.1.0
@@ -70,7 +70,7 @@ dependencies:
       url: https://github.com/PabloPessotto/qr_code_tools.git
       ref: 8f95dc999833961343c96cfe2e104ee4b650ebd9
   image_picker: ^1.0.7
-  webcrypto: ^0.5.2
+  webcrypto: "0.5.3" # upgrade after flutter upgrade
   styled_text: ^8.1.0
   dropdown_button2: ^2.3.9
   dotted_line: ^3.1.0
@@ -78,6 +78,7 @@ dependencies:
   decimal: ^2.3.3
   flutter_inappwebview: ^6.0.0
   cached_network_image: ^3.3.0
+  sodium_libs: ^2.2.0+11
 
 dependency_overrides:
   connectivity_plus: '1.4.0'

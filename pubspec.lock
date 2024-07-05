@@ -318,10 +318,10 @@ packages:
     dependency: transitive
     description:
       name: dbus
-      sha256: "253bfaa3d340778d8bc755e89c3af38e85ef95e65fd5d5670aa3167f8d4f6577"
+      sha256: "365c771ac3b0e58845f39ec6deebc76e3276aa9922b0cc60840712094d9047ac"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.7.4"
+    version: "0.7.10"
   decimal:
     dependency: "direct main"
     description:
@@ -366,10 +366,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "13a6ccf6a459a125b3fcdb6ec73bd5ff90822e071207c663bfd1f70062d51d18"
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.2.1"
+    version: "2.1.0"
   file:
     dependency: transitive
     description:
@@ -604,14 +604,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
-  flutter_sodium:
-    dependency: "direct main"
-    description:
-      name: flutter_sodium
-      sha256: "0e8c475088f8c9a60fda0ef19ee42cdcb574f8549c8ea809f736ef60e8ad51a6"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.2.0"
   flutter_spinkit:
     dependency: transitive
     description:
@@ -1114,10 +1106,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_windows
-      sha256: a34ecd7fb548f8e57321fd8e50d865d266941b54e6c3b7758cf8f37c24116905
+      sha256: "1cb68ba4cd3a795033de62ba1b7b4564dace301f952de6bfb3cd91b202b6ee96"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.7"
+    version: "2.1.7"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -1420,6 +1412,22 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sodium:
+    dependency: transitive
+    description:
+      name: sodium
+      sha256: ad436bdd889ec5b0a86e1a0b49a1c714b94c87c08c759defab10717239f39879
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.0+2"
+  sodium_libs:
+    dependency: "direct main"
+    description:
+      name: sodium_libs
+      sha256: a3399776deac73767bff9dd3da041b9553dce2da432912a6134b8441995df285
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.0+11"
   source_gen:
     dependency: transitive
     description:
@@ -1696,18 +1704,18 @@ packages:
     dependency: "direct main"
     description:
       name: webcrypto
-      sha256: cf1398ce33bad1e0a81d865989fa39dbbe7c0821c94e5c9c6b3ad1e1b9998b56
+      sha256: a3cc45ce5efa053435505a958d32785f7497a684a859e6910d805ddf094f903f
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.5.2"
+    version: "0.5.3"
   win32:
     dependency: transitive
     description:
       name: win32
-      sha256: c0e3a4f7be7dae51d8f152230b86627e3397c1ba8c3fa58e63d44a9f3edc9cef
+      sha256: a6f0236dbda0f63aa9a25ad1ff9a9d8a4eaaa5012da0dc59d21afdb1dc361ca4
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.6.1"
+    version: "3.1.4"
   xdg_directories:
     dependency: transitive
     description:

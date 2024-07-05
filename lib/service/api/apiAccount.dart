@@ -17,11 +17,11 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:flutter_sodium/flutter_sodium.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:convert/convert.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:sodium_libs/sodium_libs_sumo.dart';
 
 class ApiAccount {
   ApiAccount(this.apiRoot);
@@ -395,32 +395,36 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return transferData;
   }
 
-  Uint8List _getUint8ListFromString(String str) {
+  Int8List _getUint8ListFromString(String str) {
     List<int> list = str.codeUnits;
-    Uint8List bytes = Uint8List.fromList(list);
+    Int8List bytes = Int8List.fromList(list);
     return bytes;
   }
 
   Future<String?> getPrivateKeyFromKeyStore(
-      String keyStore, String keyStorePassword,
+      String keyStore,
+      String keyStorePassword,
       {required BuildContext context}) async {
     try {
-      Sodium.init();
+      Sodium sodium = await SodiumSumoInit.init(); 
       Map keystoreMap = jsonDecode(keyStore);
       var salt = bs58check.decode(keystoreMap['pwsalt']).sublist(1);
-      Uint8List key = Sodium.cryptoPwhash(
-          32,
-          _getUint8ListFromString(keyStorePassword),
-          salt,
-          keystoreMap['pwdiff'][1],
-          keystoreMap['pwdiff'][0],
-          Sodium.cryptoPwhashAlgArgon2i13);
-      Uint8List privateKey = Sodium.cryptoSecretboxOpenEasy(
-          bs58check.decode(keystoreMap['ciphertext']).sublist(1),
-          bs58check.decode(keystoreMap['nonce']).sublist(1),
-          key);
+      SecureKey key = sodium.crypto.pwhash(
+        outLen: 32,
+        password: _getUint8ListFromString(keyStorePassword),
+        salt: salt,
+        opsLimit: keystoreMap['pwdiff'][1],
+        memLimit: keystoreMap['pwdiff'][0],
+        alg: CryptoPwhashAlgorithm.argon2i13,
+      );
+      Uint8List privateKey = sodium.crypto.secretBox.openEasy(
+        cipherText: bs58check.decode(keystoreMap['ciphertext']).sublist(1),
+        nonce: bs58check.decode(keystoreMap['nonce']).sublist(1),
+        key: key,
+      );
       var privateKeStr = bs58check
           .encode(hex.decode('5a' + hex.encode(privateKey)) as Uint8List);
+      key.dispose();
       return privateKeStr;
     } catch (e) {
       AppLocalizations dic = AppLocalizations.of(context)!;

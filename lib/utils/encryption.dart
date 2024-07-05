@@ -1,15 +1,22 @@
-import 'package:auro_wallet/store/wallet/types/seedData.dart';
 import 'dart:convert' as convert;
-import 'package:flutter/foundation.dart';
-import 'package:encrypt/encrypt.dart' as encryptLibs;
-import 'dart:io' show Platform;
-import 'package:flutter_sodium/flutter_sodium.dart';
 import 'dart:typed_data';
+
+import 'package:auro_wallet/store/wallet/types/seedData.dart';
+import 'package:encrypt/encrypt.dart' as encryptLibs;
+import 'package:sodium_libs/sodium_libs_sumo.dart';
 import 'package:webcrypto/webcrypto.dart' as webcrypto;
 
-bool _inited = false;
-
 class Encryption {
+  static late final Sodium sodium;
+  static bool _inited = false;
+
+  static Future<void> initializeSodium() async {
+    if (!_inited) {
+      sodium = await SodiumSumoInit.init();
+      _inited = true;
+    }
+  }
+
   static encryptLibs.Key generateSecret() {
     return encryptLibs.Key.fromSecureRandom(32);
   }
@@ -18,24 +25,26 @@ class Encryption {
     return encryptLibs.IV.fromSecureRandom(16);
   }
 
-  Future<Map<String, dynamic>> encrypt({required String password,required String content}) async {
+  Future<Map<String, dynamic>> encrypt(
+      {required String password, required String content}) async {
     var encryptedMap =
         await _encrypt({"password": password, "content": content});
     return encryptedMap;
   }
 
-  static Uint8List password2Hash(String pwd, Uint8List salt) {
-    if (!_inited) {
-      Sodium.init();
-      _inited = true;
-    }
-    Uint8List key = Sodium.cryptoPwhash(32,
-        Uint8List.fromList(pwd.codeUnits),
-        salt,
-        3,
-        Sodium.cryptoPwhashMemlimitInteractive,
-        Sodium.cryptoPwhashAlgArgon2id13);
-    return key;
+  static Future<Uint8List> password2Hash(String pwd, Uint8List salt) async {
+    await initializeSodium();
+    SecureKey secureKey = sodium.crypto.pwhash(
+      outLen: 32,
+      password: Int8List.fromList(pwd.codeUnits),
+      salt: salt,
+      opsLimit: 3,
+      memLimit: sodium.crypto.pwhash.memLimitInteractive,
+      alg: CryptoPwhashAlgorithm.argon2id13,
+    );
+    final keyBytes = secureKey.extractBytes();
+    secureKey.dispose();
+    return keyBytes;
   }
 
   static Future<Map<String, dynamic>> _encrypt(Map<String, String> msg) async {
@@ -44,9 +53,8 @@ class Encryption {
     encryptLibs.IV iv = generateIV();
     encryptLibs.Key secret = generateSecret();
     encryptLibs.Key salt = encryptLibs.Key.fromSecureRandom(16);
-
-    final aesGcmPwdKey = await webcrypto.AesGcmSecretKey.importRawKey(
-        password2Hash(password, salt.bytes));
+    Uint8List rawKey = await password2Hash(password, salt.bytes);
+    final aesGcmPwdKey = await webcrypto.AesGcmSecretKey.importRawKey(rawKey);// 这里看一下能否替换掉，使用 sodium_libs
     final encryptedSecretBytes =
         await aesGcmPwdKey.encryptBytes(secret.bytes, iv.bytes, tagLength: 128);
 
@@ -73,14 +81,15 @@ class Encryption {
     return convert.base64.encode(encryptedBytes);
   }
 
-  Future<String?> decrypt(
-      {required Map<String, dynamic> data, required String password}) async {
-    String? encryptedStr =
-        await compute(_decrypt, {"data": data, "password": password});
+  Future<String?> decrypt({
+    required Map<String, dynamic> data,
+    required String password,
+  }) async {
+    String? encryptedStr = await _decrypt({"data": data, "password": password});
     return encryptedStr;
   }
 
-  static Future<String?> _decrypt(msg) async {
+  Future<String?> _decrypt(msg) async {
     Map<String, dynamic> data = msg["data"]!;
     String password = msg["password"]!;
     var seedData = SeedData.fromJson(data);
@@ -89,8 +98,9 @@ class Encryption {
     encryptLibs.Key? pwdKey;
     try {
       if (seedData.version == 3) {
-        final aesGcmPwdKey = await webcrypto.AesGcmSecretKey.importRawKey(
-            password2Hash(password, salt.bytes));
+        Uint8List rawKey = await password2Hash(password, salt.bytes);
+        final aesGcmPwdKey =
+            await webcrypto.AesGcmSecretKey.importRawKey(rawKey);
         final decryptedSecretBytes = await aesGcmPwdKey.decryptBytes(
             convert.base64.decode(seedData.encryptedSecret), iv.bytes,
             tagLength: 128);
@@ -103,7 +113,8 @@ class Encryption {
         return decryptedString;
       } else {
         if (seedData.version == 2) {
-          pwdKey = encryptLibs.Key(password2Hash(password, salt.bytes));
+          Uint8List keyV2 = await password2Hash(password, salt.bytes);
+          pwdKey = encryptLibs.Key(keyV2);
         } else {
           pwdKey =
               encryptLibs.Key.fromUtf8(password).stretch(32, salt: salt.bytes);
