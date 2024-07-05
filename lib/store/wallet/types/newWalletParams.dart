@@ -1,4 +1,3 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'package:mobx/mobx.dart';
 part 'newWalletParams.g.dart';
 

@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:mobx/mobx.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'browser.g.dart';
 
@@ -118,7 +115,6 @@ abstract class _BrowserStore with Store {
   Future<void> loadWebHistoryList() async {
     List<Map<String, dynamic>> ls =
         await rootStore.localStorage.getWebHistoryList();
-
     try {
       webHistoryList = ObservableList.of(ls.map((i) => WebConfig.fromJson(i)));
       webHistoryList.sort((a, b) => b.time.compareTo(a.time));

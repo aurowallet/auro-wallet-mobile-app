@@ -1,9 +1,9 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/iconBrowserLink.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';

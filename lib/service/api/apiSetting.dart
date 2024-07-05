@@ -3,7 +3,7 @@ import 'dart:convert' as convert;
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/settings.dart';
+import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 

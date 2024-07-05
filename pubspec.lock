@@ -994,10 +994,18 @@ packages:
     dependency: "direct main"
     description:
       name: mobx
-      sha256: "87bb7bede1ecfc309fa37e0e4075bc7553d0a0240211f4bf07c7b455be7223aa"
+      sha256: "63920b27b32ad1910adfe767ab1750e4c212e8923232a1f891597b362074ea5e"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.1"
+    version: "2.3.3+2"
+  mobx_codegen:
+    dependency: "direct dev"
+    description:
+      name: mobx_codegen
+      sha256: "8e0d8653a0c720ad933cd8358f6f89f740ce89203657c13f25bea772ef1fff7c"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.6.1"
   mockito:
     dependency: "direct dev"
     description:

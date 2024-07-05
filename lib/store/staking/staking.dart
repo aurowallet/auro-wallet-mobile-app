@@ -1,14 +1,8 @@
-import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
-import 'package:mobx/mobx.dart';
-
-import 'package:json_annotation/json_annotation.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/staking/types/validatorData.dart';
-import 'package:auro_wallet/store/staking/types/overviewData.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'dart:convert';
-import 'package:auro_wallet/utils/localStorage.dart';
+import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
+import 'package:auro_wallet/store/staking/types/overviewData.dart';
+import 'package:auro_wallet/store/staking/types/validatorData.dart';
+import 'package:mobx/mobx.dart';
 
 part 'staking.g.dart';
 

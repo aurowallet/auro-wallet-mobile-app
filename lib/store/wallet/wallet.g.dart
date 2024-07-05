@@ -124,10 +124,15 @@ mixin _$WalletStore on _WalletStore, Store {
     return super.currentWalletId;
   }
 
+  bool _currentWalletIdIsInitialized = false;
+
   @override
   set currentWalletId(String value) {
-    _$currentWalletIdAtom.reportWrite(value, super.currentWalletId, () {
+    _$currentWalletIdAtom.reportWrite(
+        value, _currentWalletIdIsInitialized ? super.currentWalletId : null,
+        () {
       super.currentWalletId = value;
+      _currentWalletIdIsInitialized = true;
     });
   }
 
