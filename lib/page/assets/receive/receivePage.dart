@@ -61,7 +61,7 @@ class ReceivePage extends StatelessWidget {
             systemOverlayStyle: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.light,
-              statusBarBrightness:Brightness.dark, 
+              statusBarBrightness: Brightness.dark,
             ),
           ),
           body: SafeArea(
@@ -267,10 +267,9 @@ class ReceivePage extends StatelessWidget {
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 33),
-                            child: Image.asset(
-                              'assets/images/assets/card_logo.png',
+                            child: SvgPicture.asset(
+                              'assets/images/assets/icon_mina.svg',
                               width: 119,
-                              height: 107,
                             ),
                           ),
                         ],

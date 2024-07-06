@@ -136,8 +136,6 @@ flutter:
     - assets/images/assets/wallet_manage.svg
     - assets/images/assets/send.svg
     - assets/images/assets/receive.svg
-    - assets/images/assets/card_mask.png
-    - assets/images/assets/card_logo.png
     - assets/images/assets/2x/round_checked@2x.png
     - assets/images/assets/tx_in.svg
     - assets/images/assets/tx_out.svg
@@ -167,6 +165,8 @@ flutter:
     - assets/images/assets/record_out.svg
     - assets/images/assets/record_stake.svg
     - assets/images/assets/record_zkapp.svg
+    - assets/images/assets/icon_mina.svg
+    - assets/images/assets/icon_zeko.svg
 
     # ledger
     - assets/images/ledger/ledger_mina.svg

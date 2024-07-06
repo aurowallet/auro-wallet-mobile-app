@@ -300,6 +300,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     final priceColor = (store.assets!.isBalanceLoading)
         ? Color(0xFFDDDDDD)
         : Color(0x99FFFFFF);
+    
+    bool isZekoNet = store.settings!.isZekoNet;
+    bool isMinaNet = store.settings!.isMinaNet;
+    String nextNetIcon = isZekoNet
+        ? "assets/images/assets/icon_zeko.svg"
+        : "assets/images/assets/icon_mina.svg";
+    
+    int chainColor = store.settings!.isMainnet ? 0xFF594AF1:0x4C000000;
+
     final currencyStyle = TextStyle(
         fontSize: 16,
         color: priceColor,
@@ -307,7 +316,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
         fontWeight: FontWeight.w600);
     final buttonTextStyle = TextStyle(
         fontSize: 16,
-        color: Color(0xFF594AF1),
+        color: Color(chainColor),
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3);
@@ -316,17 +325,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
-          color: Color(0xFF594AF1)),
+          color: Color(chainColor)),
       child: Stack(children: [
         Positioned(
-          right: 20,
-          top: 60,
-          child: Image.asset(
-            'assets/images/assets/card_logo.png',
-            width: 99,
-            height: 90,
-          ),
-        ),
+            right: 20,
+            top: 60,
+            child: SvgPicture.asset(
+              nextNetIcon,
+              width: 99,
+            )),
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -346,7 +353,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-                    Container(
+                    isMinaNet ? Container(
                         alignment: Alignment.center,
                         child: Center(
                           child: Text(
@@ -375,7 +382,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                               ? Color(0x33FFFFFF)
                               : Color(0x33FFFFFF),
                           borderRadius: BorderRadius.circular(29),
-                        ))
+                        )):Container()
                   ],
                 ),
                 Row(
@@ -467,8 +474,10 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       text: dic.send,
                       textStyle: buttonTextStyle,
                       onPressed: _onTransfer,
-                      icon: SvgPicture.asset('assets/images/assets/send.svg',
-                          width: 10),
+                      icon: 
+                      SvgPicture.asset('assets/images/assets/send.svg',
+                          width: 10,
+                          color: Color(chainColor),),
                       padding: EdgeInsets.zero,
                       radius: 24,
                     ),
@@ -488,6 +497,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                             icon: SvgPicture.asset(
                               'assets/images/assets/receive.svg',
                               width: 10,
+                              color: Color(chainColor),
                             ),
                             padding: EdgeInsets.zero,
                             radius: 24,
@@ -526,7 +536,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     AppLocalizations dic = AppLocalizations.of(context)!;
     String currentAddress = store.wallet!.currentAddress;
     List<Widget> res = [];
-    
+
     res.addAll(txs.map((i) {
       return TransferListItem(
         store: store,

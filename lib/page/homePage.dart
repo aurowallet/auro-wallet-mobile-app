@@ -1,11 +1,12 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/browser/index.dart';
-import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/assets/index.dart';
+import 'package:auro_wallet/page/browser/index.dart';
 import 'package:auro_wallet/page/settings/index.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatefulWidget {
@@ -51,12 +52,26 @@ class _HomePageState extends State<HomePage> {
       'browser': AppLocalizations.of(context)!.browser,
       'setting': AppLocalizations.of(context)!.setting
     };
-    return _tabList.asMap().keys.map((index) {
-      String label = _tabList[index];
+    // Filter the tab list and icons based on showBrowser
+    bool showStaking = !store.settings!.isZekoNet;
+    List<String> filteredTabList = showStaking
+        ? _tabList
+        : _tabList.where((tab) => tab != 'staking').toList();
+    List<String> filteredTabIconsSelected = showStaking
+        ? _tabIconsSelected
+        : _tabIconsSelected
+            .where((icon) => icon != "tab_stake_active")
+            .toList();
+    List<String> filteredTabIconsUnSelected = showStaking
+        ? _tabIconsUnSelected
+        : _tabIconsUnSelected.where((icon) => icon != "tab_stake").toList();
+
+    return filteredTabList.asMap().keys.map((index) {
+      String label = filteredTabList[index];
       String showLabel = tabI10n[label]!;
-      bool isActive = _tabList[activeItem] == label;
+      bool isActive = filteredTabList[activeItem] == label;
       List<String> nextList =
-          isActive ? _tabIconsSelected : _tabIconsUnSelected;
+          isActive ? filteredTabIconsSelected : filteredTabIconsUnSelected;
       String icon = 'assets/images/public/tab/${nextList[index]}.svg';
 
       return BottomNavigationBarItem(
@@ -73,6 +88,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _getPage(i) {
+    if (store.settings!.isZekoNet) {
+      switch (i) {
+        case 0:
+          return Assets(store);
+        case 1:
+          return Browser(store);
+        case 2:
+          return Profile(store);
+        default:
+          return Profile(store);
+      }
+    }
     switch (i) {
       case 0:
         return Assets(store);
@@ -105,7 +132,6 @@ class _HomePageState extends State<HomePage> {
             statusBarIconBrightness: Brightness.dark,
             statusBarColor: Colors.transparent,
             statusBarBrightness: Brightness.light,
-            
             systemNavigationBarColor: Colors.white,
             systemNavigationBarDividerColor: Colors.white,
           ),
@@ -139,32 +165,37 @@ class _HomePageState extends State<HomePage> {
     final textStyle = TextStyle(
       fontSize: 12,
     );
-    return Scaffold(
-      body: _buildPage(_tabIndex),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(
-                top: BorderSide(
-                    color: Colors.black.withOpacity(0.1), width: 0.5))),
-        child: BottomNavigationBar(
-          currentIndex: _tabIndex,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconSize: 24,
-          onTap: (index) {
-            setState(() {
-              _tabIndex = index;
-            });
-          },
-          unselectedLabelStyle: textStyle,
-          selectedLabelStyle: textStyle.copyWith(color: Colors.black),
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.black.withOpacity(0.5),
-          type: BottomNavigationBarType.fixed,
-          items: _navBarItems(_tabIndex),
-        ),
-      ),
-    );
+    int maxIndex =
+        !store.settings!.isZekoNet ? _tabList.length - 1 : _tabList.length - 2;
+    if (_tabIndex > maxIndex) _tabIndex = maxIndex;
+
+    return Observer(builder: (_) {
+      return Scaffold(
+        body: _buildPage(_tabIndex),
+        bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                    top: BorderSide(
+                        color: Colors.black.withOpacity(0.1), width: 0.5))),
+            child: BottomNavigationBar(
+              currentIndex: _tabIndex,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              iconSize: 24,
+              onTap: (index) {
+                setState(() {
+                  _tabIndex = index;
+                });
+              },
+              unselectedLabelStyle: textStyle,
+              selectedLabelStyle: textStyle.copyWith(color: Colors.black),
+              selectedItemColor: Colors.black,
+              unselectedItemColor: Colors.black.withOpacity(0.5),
+              type: BottomNavigationBarType.fixed,
+              items: _navBarItems(_tabIndex),
+            )),
+      );
+    });
   }
 }

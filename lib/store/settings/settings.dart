@@ -50,6 +50,14 @@ abstract class _SettingsStore with Store {
   bool get isMainnet {
     return currentNode?.networkID == networkIDMap.mainnet;
   }
+  
+  bool get isMinaNet {
+    return currentNode?.networkID.startsWith("mina") ?? false;
+  }
+
+  bool get isZekoNet {
+    return currentNode?.networkID.startsWith("zeko") ?? false;
+  }
 
   @observable
   AboutUsData? aboutus;

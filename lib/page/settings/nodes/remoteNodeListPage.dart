@@ -140,6 +140,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
               (network) => network.networkID == networkIDMap.mainnet);
           CustomNode devnetConfig = defaultNetworkList.firstWhere(
               (network) => network.networkID == networkIDMap.testnet);
+          CustomNode zekotestnetConfig = defaultNetworkList.firstWhere(
+              (network) => network.networkID == networkIDMap.zekotestnet);
           return Column(
             children: [
               Expanded(
@@ -191,6 +193,14 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                           onChecked: onChangeEndpoint,
                           isEditing: isEditing,
                           endpoint: devnetConfig,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        NetworkItem(
+                          onChecked: onChangeEndpoint,
+                          isEditing: isEditing,
+                          endpoint: zekotestnetConfig,
                         ),
                       ],
                     ),
