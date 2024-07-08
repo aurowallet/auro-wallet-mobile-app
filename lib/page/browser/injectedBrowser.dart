@@ -575,7 +575,8 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             javaScriptEnabled: true,
             javaScriptCanOpenWindowsAutomatically: false,
             isInspectable: true,
-            transparentBackground: true),
+            transparentBackground: true,
+            allowsBackForwardNavigationGestures: true),
         onJsAlert: (controller, jsAlertRequest) async {
           print("JS Alert: ${jsAlertRequest.message}");
           return JsAlertResponse(handledByClient: true);
