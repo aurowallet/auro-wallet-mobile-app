@@ -167,6 +167,8 @@ flutter:
     - assets/images/assets/record_zkapp.svg
     - assets/images/assets/icon_mina.svg
     - assets/images/assets/icon_zeko.svg
+    - assets/images/assets/icon_add.svg
+    - assets/images/assets/icon_hide.svg
 
     # ledger
     - assets/images/ledger/ledger_mina.svg
