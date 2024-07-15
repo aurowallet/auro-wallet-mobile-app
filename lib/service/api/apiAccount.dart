@@ -22,6 +22,7 @@ import 'package:convert/convert.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:sodium_libs/sodium_libs_sumo.dart';
+import 'package:http/http.dart' as http;
 
 class ApiAccount {
   ApiAccount(this.apiRoot);
@@ -478,10 +479,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       String source = WalletSource.outside}) async {
     Map<String, dynamic> acc =
         await apiRoot.bridge.createAccountByPrivateKey(privateKey);
-    if(acc['error']!=null){
+    if (acc['error'] != null) {
       UI.toast(acc['error']['message']);
       return false;
-    } 
+    }
     acc['name'] = accountName;
     return await _addWalletBgPrivateKey(acc, password, context, source);
   }
@@ -814,5 +815,27 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     TransferData? transferData =
         await sendZkTx(signedData['zkappCommand'], context: context);
     return transferData;
+  }
+
+  Future<dynamic> buildTokenBody(Map prepareBody) async {
+    String requestUrl = TokenBuildUrl;
+
+    try {
+      var response = await http.post(
+        Uri.parse(requestUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(prepareBody),
+      );
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('buildTokenBody Exception: $e');
+      return null;
+    }
   }
 }

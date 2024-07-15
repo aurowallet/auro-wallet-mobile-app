@@ -9,6 +9,20 @@ part of 'assets.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AssetsStore on _AssetsStore, Store {
+  Computed<Token>? _$mainTokenNetInfoComputed;
+
+  @override
+  Token get mainTokenNetInfo => (_$mainTokenNetInfoComputed ??= Computed<Token>(
+          () => super.mainTokenNetInfo,
+          name: '_AssetsStore.mainTokenNetInfo'))
+      .value;
+  Computed<List<Token>>? _$tokenShowListComputed;
+
+  @override
+  List<Token> get tokenShowList => (_$tokenShowListComputed ??=
+          Computed<List<Token>>(() => super.tokenShowList,
+              name: '_AssetsStore.tokenShowList'))
+      .value;
   Computed<List<TransferData>>? _$totalTxsComputed;
 
   @override
@@ -245,6 +259,54 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  late final _$tokenListAtom =
+      Atom(name: '_AssetsStore.tokenList', context: context);
+
+  @override
+  ObservableList<Token> get tokenList {
+    _$tokenListAtom.reportRead();
+    return super.tokenList;
+  }
+
+  @override
+  set tokenList(ObservableList<Token> value) {
+    _$tokenListAtom.reportWrite(value, super.tokenList, () {
+      super.tokenList = value;
+    });
+  }
+
+  late final _$tokenTotalAmountAtom =
+      Atom(name: '_AssetsStore.tokenTotalAmount', context: context);
+
+  @override
+  double get tokenTotalAmount {
+    _$tokenTotalAmountAtom.reportRead();
+    return super.tokenTotalAmount;
+  }
+
+  @override
+  set tokenTotalAmount(double value) {
+    _$tokenTotalAmountAtom.reportWrite(value, super.tokenTotalAmount, () {
+      super.tokenTotalAmount = value;
+    });
+  }
+
+  late final _$newTokenCountAtom =
+      Atom(name: '_AssetsStore.newTokenCount', context: context);
+
+  @override
+  int get newTokenCount {
+    _$newTokenCountAtom.reportRead();
+    return super.newTokenCount;
+  }
+
+  @override
+  set newTokenCount(int value) {
+    _$newTokenCountAtom.reportWrite(value, super.newTokenCount, () {
+      super.newTokenCount = value;
+    });
+  }
+
   late final _$marketPricesAtom =
       Atom(name: '_AssetsStore.marketPrices', context: context);
 
@@ -258,6 +320,38 @@ mixin _$AssetsStore on _AssetsStore, Store {
   set marketPrices(ObservableMap<String, double> value) {
     _$marketPricesAtom.reportWrite(value, super.marketPrices, () {
       super.marketPrices = value;
+    });
+  }
+
+  late final _$localTokenConfigAtom =
+      Atom(name: '_AssetsStore.localTokenConfig', context: context);
+
+  @override
+  Map<String, dynamic> get localTokenConfig {
+    _$localTokenConfigAtom.reportRead();
+    return super.localTokenConfig;
+  }
+
+  @override
+  set localTokenConfig(Map<String, dynamic> value) {
+    _$localTokenConfigAtom.reportWrite(value, super.localTokenConfig, () {
+      super.localTokenConfig = value;
+    });
+  }
+
+  late final _$localShowedTokenIdsAtom =
+      Atom(name: '_AssetsStore.localShowedTokenIds', context: context);
+
+  @override
+  List<String> get localShowedTokenIds {
+    _$localShowedTokenIdsAtom.reportRead();
+    return super.localShowedTokenIds;
+  }
+
+  @override
+  set localShowedTokenIds(List<String> value) {
+    _$localShowedTokenIdsAtom.reportWrite(value, super.localShowedTokenIds, () {
+      super.localShowedTokenIds = value;
     });
   }
 
@@ -433,6 +527,16 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$loadLocalScamListAsyncAction.run(() => super.loadLocalScamList());
   }
 
+  late final _$updateTokenAssetsAsyncAction =
+      AsyncAction('_AssetsStore.updateTokenAssets', context: context);
+
+  @override
+  Future<void> updateTokenAssets(List<Token> ls, String address,
+      {bool shouldCache = false}) {
+    return _$updateTokenAssetsAsyncAction.run(
+        () => super.updateTokenAssets(ls, address, shouldCache: shouldCache));
+  }
+
   late final _$_AssetsStoreActionController =
       ActionController(name: '_AssetsStore', context: context);
 
@@ -459,11 +563,11 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
-  void setMarketPrices(String token, double price) {
+  void setMarketPrices(String tokenId, double price) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.setMarketPrices');
     try {
-      return super.setMarketPrices(token, price);
+      return super.setMarketPrices(tokenId, price);
     } finally {
       _$_AssetsStoreActionController.endAction(_$actionInfo);
     }
@@ -497,7 +601,14 @@ scamAddressStr: ${scamAddressStr},
 pendingZkTxs: ${pendingZkTxs},
 zkTxs: ${zkTxs},
 txsFilter: ${txsFilter},
+tokenList: ${tokenList},
+tokenTotalAmount: ${tokenTotalAmount},
+newTokenCount: ${newTokenCount},
 marketPrices: ${marketPrices},
+localTokenConfig: ${localTokenConfig},
+localShowedTokenIds: ${localShowedTokenIds},
+mainTokenNetInfo: ${mainTokenNetInfo},
+tokenShowList: ${tokenShowList},
 totalTxs: ${totalTxs},
 totalPendingTxs: ${totalPendingTxs}
     ''';

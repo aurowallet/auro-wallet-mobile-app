@@ -1,25 +1,16 @@
 import 'dart:async';
 
-import 'package:auro_wallet/common/components/TxAction/TxActionRow.dart';
-import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:auro_wallet/common/components/homeListTip.dart';
-import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
-import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
-import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
+import 'package:auro_wallet/page/assets/token/component/TokenListView.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
-import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -120,14 +111,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _onRefresh({showIndicator = false}) async {
+  Future<void> _onRefresh({showIndicator = false}) async { // todo remove to tokenDetail
     await Future.wait([
       _fetchTransactions(),
       webApi.assets.fetchAccountInfo(showIndicator: showIndicator)
     ]);
   }
 
-  Future<void> _fetchTransactions() async {
+  Future<void> _fetchTransactions() async {// todo remove to tokenDetail
     if (!store.settings!.isSupportTxHistory) {
       print('start fetch tx list=1');
       store.assets!.setTxsLoading(false);
@@ -150,12 +141,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   void _onTransfer() {
-    // ledgerSetup();
-    // return;
-    Navigator.pushNamed(
-      context,
-      TransferPage.route,
-    );
+    UI.showTokenSelectDialog(context: context);
   }
 
   void _onConfirmDeleteWatchWallet() async {
@@ -282,44 +268,26 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   Widget _buildTopCard(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var theme = Theme.of(context).textTheme;
     WalletData acc = store.wallet!.currentWallet;
-    AccountInfo? balancesInfo = store.assets!.accountsInfo[acc.pubKey];
-    BigInt total = balancesInfo != null ? balancesInfo.total : BigInt.from(0);
-    bool isDelegated = balancesInfo != null ? balancesInfo.isDelegated : false;
-    String? coinPrice;
-    var symbol = COIN.coinSymbol.toLowerCase();
-    if (store.assets!.marketPrices[symbol] != null && balancesInfo != null) {
-      coinPrice = Fmt.priceCeil(store.assets!.marketPrices[symbol]! *
-          Fmt.bigIntToDouble(balancesInfo.total, COIN.decimals));
-    }
     var currency = currencyConfig
         .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
-    final amountColor = (store.assets!.isBalanceLoading) ? 0xDDDDDD : 0xFFFFFF;
-    final priceColor = (store.assets!.isBalanceLoading)
-        ? Color(0xFFDDDDDD)
-        : Color(0x99FFFFFF);
-    
+    Color amountColor = (store.assets!.isBalanceLoading) ? Color(0xFFDDDDDD) : Color(0xFFFFFFFF);
     bool isZekoNet = store.settings!.isZekoNet;
-    bool isMinaNet = store.settings!.isMinaNet;
     String nextNetIcon = isZekoNet
         ? "assets/images/assets/icon_zeko.svg"
         : "assets/images/assets/icon_mina.svg";
     
     int chainColor = store.settings!.isMainnet ? 0xFF594AF1:0x4C000000;
 
-    final currencyStyle = TextStyle(
-        fontSize: 16,
-        color: priceColor,
-        fontStyle: FontStyle.normal,
-        fontWeight: FontWeight.w600);
     final buttonTextStyle = TextStyle(
         fontSize: 16,
         color: Color(chainColor),
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3);
+    double totalAmount = store.assets!.tokenTotalAmount;
+    String showAmount = currencySymbol + " " + totalAmount.toString();
     return Container(
       margin: EdgeInsets.fromLTRB(20, 4, 20, 0),
       padding: EdgeInsets.all(0),
@@ -329,7 +297,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       child: Stack(children: [
         Positioned(
             right: 20,
-            top: 60,
+            top: 50,
             child: SvgPicture.asset(
               nextNetIcon,
               width: 99,
@@ -353,36 +321,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-                    isMinaNet ? Container(
-                        alignment: Alignment.center,
-                        child: Center(
-                          child: Text(
-                            isDelegated
-                                ? dic.stakingStatus_1
-                                : dic.stakingStatus_2,
-                            strutStyle: StrutStyle(
-                              fontSize: 12,
-                              leading: 0,
-                              height: 1.1,
-                              forceStrutHeight: true,
-                            ),
-                            style: TextStyle(
-                                color: Colors.white,
-                                backgroundColor: Colors.transparent,
-                                height: 1.1,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        margin: EdgeInsets.only(left: 5),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: isDelegated
-                              ? Color(0x33FFFFFF)
-                              : Color(0x33FFFFFF),
-                          borderRadius: BorderRadius.circular(29),
-                        )):Container()
                   ],
                 ),
                 Row(
@@ -408,56 +346,24 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                 ),
                 Padding(
                   padding: EdgeInsets.only(
-                    top: 27,
+                    top: 20,
+                    bottom: 20
                   ),
                   child: Row(
                     textBaseline: TextBaseline.alphabetic,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
                       Text(
-                        Fmt.balance(total.toString(), COIN.decimals),
+                        showAmount,
                         style: TextStyle(
                             fontSize: 32,
-                            color: ColorsUtil.hexColor(amountColor),
+                            color: amountColor,
                             fontStyle: FontStyle.normal,
                             fontWeight: FontWeight.w700),
                       ),
-                      Container(width: 4),
-                      Text(
-                        COIN.coinSymbol.toUpperCase(),
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: ColorsUtil.hexColor(amountColor),
-                            fontStyle: FontStyle.normal,
-                            fontWeight: FontWeight.w600),
-                      )
                     ],
                   ),
                 ),
-                store.settings!.isMainnet
-                    ? Padding(
-                        padding: EdgeInsets.only(
-                          top: 8,
-                          bottom: 24,
-                        ),
-                        child: Row(
-                          textBaseline: TextBaseline.alphabetic,
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          children: [
-                            Text(
-                              currencySymbol,
-                              style: currencyStyle,
-                            ),
-                            Text(
-                              coinPrice ?? '0',
-                              style: currencyStyle,
-                            )
-                          ],
-                        ),
-                      )
-                    : Container(
-                        height: 23,
-                      ),
               ]),
             ),
             Padding(
@@ -532,82 +438,9 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildTxList(List<TransferData> txs) {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    String currentAddress = store.wallet!.currentAddress;
-    List<Widget> res = [];
 
-    res.addAll(txs.map((i) {
-      return TransferListItem(
-        store: store,
-        data: i,
-        isOut: i.sender == currentAddress,
-      );
-    }));
-    String? browserLink = store.settings!.currentNode?.explorerUrl;
-    res.add(Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: BrowserLink(
-              '$browserLink/account/$currentAddress/txs',
-              text: dic.goToExplorer,
-            ))
-      ],
-    ));
-    return Ink(
-        color: Color(0xFFFFFFFF),
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 0),
-          children: res,
-        ));
-  }
-
-  Widget _buildBottomView() {
-    Widget nextWidget = SizedBox(
-      height: 0,
-    );
-    String currentAddress = store.wallet!.currentAddress;
-    List<TransferData> txs = [
-      ...store.assets!.totalPendingTxs,
-      ...store.assets!.totalTxs
-    ];
-
-    if (store.assets!.isTxsLoading) {
-      if (txs.length > 0) {
-        nextWidget = _buildTxList(txs);
-      } else {
-        nextWidget = Ink(
-            color: Color(0xFFFFFFFF),
-            child: Container(
-              child: Center(
-                child: LoadingCircle(),
-              ),
-            ));
-      }
-    } else {
-      if (!store.settings!.isSupportTxHistory) {
-        nextWidget = HomeListTip();
-      } else {
-        if (txs.length > 0) {
-          nextWidget = _buildTxList(txs);
-        } else {
-          AccountInfo? balancesInfo =
-              store.assets!.accountsInfo[currentAddress];
-          bool isAccountExist = balancesInfo != null;
-          if (isAccountExist) {
-            nextWidget = HomeListTip();
-          } else {
-            nextWidget = Wrap(
-              children: [EmptyTxListTip()],
-            );
-          }
-        }
-      }
-    }
-
-    return Expanded(child: nextWidget);
+  Widget _buildTokenListView(){
+    return TokenListView(store);
   }
 
   @override
@@ -628,222 +461,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
               children: <Widget>[
                 _buildTopBar(context),
                 _buildTopCard(context),
-                !isEmpty || isTxsLoading
-                    ? Row(
-                        children: [
-                          Flexible(
-                              flex: 1,
-                              child: Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 20),
-                                margin: EdgeInsets.only(top: 30),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border(
-                                        bottom: BorderSide(
-                                      color: Colors.black.withOpacity(0.1),
-                                      width: 0.5,
-                                    ))),
-                                child: Text(
-                                  dic.history,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                    letterSpacing: -0.3,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  textAlign: TextAlign.left,
-                                ),
-                              ))
-                        ],
-                      )
-                    : Container(),
-                _buildBottomView(),
+                _buildTokenListView(),
               ],
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class TransferListItem extends StatelessWidget {
-  TransferListItem({
-    required this.store,
-    required this.data,
-    required this.isOut,
-  });
-
-  final AppStore store;
-  final TransferData data;
-  final bool isOut;
-  BuildContext? _ctx;
-
-  void _viewRecordDetail() {
-    Navigator.pushNamed(_ctx!, TransactionDetailPage.route, arguments: data);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _ctx = context;
-    String? address = isOut ? data.receiver : data.sender;
-    String title = '';
-    if (address == null) {
-      title = data.type.toUpperCase();
-    } else {
-      title = Fmt.address(address, pad: 8);
-    }
-    var theme = Theme.of(context).textTheme;
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    String icon = '';
-    Color statusColor;
-    switch (data.type.toLowerCase()) {
-      case 'delegation':
-      case 'stake_delegation':
-        {
-          icon = 'tx_stake';
-        }
-        break;
-      case "zkapp":
-        {
-          icon = 'tx_zkapp';
-        }
-        break;
-      default:
-        {
-          icon = isOut ? 'tx_out' : 'tx_in';
-        }
-        break;
-    }
-    String statusText;
-    switch (data.status) {
-      case 'applied':
-        statusText = dic.applied;
-        break;
-      case 'failed':
-        statusText = dic.failed;
-        break;
-      case 'pending':
-        statusText = dic.pending;
-        break;
-      default:
-        statusText = data.status.toUpperCase();
-        break;
-    }
-    switch (data.status) {
-      case 'applied':
-        statusColor = ColorsUtil.hexColor(0x00C89C);
-        break;
-      case 'failed':
-        statusColor = ColorsUtil.hexColor(0xE84335);
-        break;
-      default:
-        statusColor = ColorsUtil.hexColor(0xFFC633);
-        break;
-    }
-    Color bgColor =
-        data.status != 'pending' ? Colors.transparent : Color(0xFFF9FAFC);
-    return new Material(
-      color: bgColor,
-      child: InkWell(
-          onTap: _viewRecordDetail,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(
-                  color: Colors.black.withOpacity(0.1),
-                  width: 0.5,
-                ))),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                            width: 28,
-                            margin: EdgeInsets.only(right: 8),
-                            child: SvgPicture.asset(
-                              'assets/images/assets/$icon.svg',
-                              width: 28,
-                            )),
-                        Expanded(
-                          flex: 1,
-                          child: Column(children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '$title',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black),
-                                      ),
-                                      data.isFromAddressScam == true
-                                          ? ScamTag()
-                                          : SizedBox(height: 0),
-                                    ]),
-                                Text(
-                                  '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                )
-                              ],
-                            ),
-                            Padding(padding: EdgeInsets.only(top: 4)),
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    data.isPending
-                                        ? 'Nonce ' + data.nonce.toString()
-                                        : Fmt.dateTimeFromUTC(data.time),
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: ColorsUtil.hexColor(0x96969A)),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        color: statusColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(4)),
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 3, horizontal: 5),
-                                    child: Center(
-                                      child: Text(
-                                        statusText,
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                            color: statusColor),
-                                      ),
-                                    ),
-                                  ),
-                                ]),
-                          ]),
-                        )
-                      ],
-                    ),
-                    data.status == 'pending'
-                        ? Container(
-                            margin: EdgeInsets.only(left: 36),
-                            child: Column(children: [
-                              Padding(padding: EdgeInsets.only(top: 6)),
-                              TxActionRow(store: store, data: data)
-                            ]))
-                        : Container()
-                  ],
-                )),
-          )),
     );
   }
 }

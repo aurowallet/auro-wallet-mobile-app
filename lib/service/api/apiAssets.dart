@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'dart:convert' as convert;
 
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/assets/types/tokenAssetInfo.dart';
+import 'package:auro_wallet/store/assets/types/tokenNetInfo.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -287,16 +291,16 @@ class ApiAssets {
     await store.assets!.addPendingZkTxs(list, publicKey);
   }
 
-  Future<void> fetchZkTransactions(publicKey) async {
+  Future<void> fetchZkTransactions(publicKey,
+      {tokenId = ZK_DEFAULT_TOKEN_ID}) async {
     final client = GraphQLClient(
       link: HttpLink(apiRoot.getTxRecordsApiUrl()),
       cache: GraphQLCache(),
     );
     const String query = r'''
-      query zkApps($publicKey: String) {
+      query zkApps($publicKey: String,$tokenId: String) {
     zkapps(limit: 15, query: {
-      zkappCommand: {feePayer: 
-      {body: {publicKey: $publicKey}}}}, sortBy: DATETIME_DESC) {
+      publicKey: $publicKey,tokenId:$tokenId}, sortBy: DATETIME_DESC) {
         hash
     dateTime
     failureReason {
@@ -316,18 +320,27 @@ class ApiAssets {
         body {
           publicKey
           
+         	tokenId 
+          balanceChange{
+            magnitude
+            sgn
+          }
+          update{
+            appState
+            tokenSymbol
+            zkappUri
+          }
         }
       }
     }
     }
   }
     ''';
+    String nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
     final QueryOptions _options = QueryOptions(
       document: gql(query),
       fetchPolicy: FetchPolicy.noCache,
-      variables: {
-        'publicKey': publicKey,
-      },
+      variables: {'publicKey': publicKey, 'tokenId': nextTokenId},
     );
     final QueryResult result = await client.query(_options);
     if (result.hasException) {
@@ -415,8 +428,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
           "publicKey": publicKey,
         };
         print('balance:' + balance);
-        store.assets!.setAccountInfo(pubKey, accountInfo); 
-      }else{
+        store.assets!.setAccountInfo(pubKey, accountInfo);
+      } else {
         store.assets!.setAccountInfo(pubKey, null);
       }
     });
@@ -452,7 +465,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
         } else {
           price = priceRes["data"];
         }
-        store.assets!.setMarketPrices(COIN.coinSymbol.toLowerCase(), price);
+        store.assets!.setMarketPrices(ZK_DEFAULT_TOKEN_ID, price);
       }
     } else {
       print('Request price failed with status: ${response.statusCode}.');
@@ -509,5 +522,145 @@ ${List<String>.generate(pubkeys.length, (int index) {
     String nonce = result.data?['account']?['inferredNonce'] ?? "-1";
     print("nonce $nonce");
     return int.parse(nonce);
+  }
+
+  Future<List<TokenAssetInfo>> fetchTokenAssets(
+    String pubKey,
+  ) async {
+    const String query = r'''
+  query tokenQueryBody($publicKey: PublicKey!) {
+    accounts(publicKey: $publicKey) {
+      balance {
+        total
+        liquid
+      }
+      inferredNonce
+      delegateAccount {
+        publicKey
+      }
+      tokenId
+      publicKey
+      zkappUri
+    }
+  }
+    ''';
+    final QueryOptions _options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {
+        'publicKey': pubKey,
+      },
+    );
+
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (result.hasException) {
+      print('request all token assets failed');
+      print(result.exception.toString());
+      return [];
+    }
+    List<dynamic> list = result.data!['accounts'];
+    List<TokenAssetInfo> tokenAssets = list.map((item) {
+      return TokenAssetInfo.fromJson(item);
+    }).toList();
+    return tokenAssets;
+  }
+
+  String generateTokenInfoQuery(List<String> tokenIds) {
+    String queryFields = tokenIds.map((tokenId) {
+      return '''
+      $tokenId: tokenOwner(tokenId: "$tokenId") {
+        publicKey
+        tokenSymbol
+        zkappState
+      }
+    ''';
+    }).join('\n');
+
+    return '''
+    query {
+      $queryFields
+    }
+  ''';
+  }
+
+  Future<dynamic> fetchAllTokenInfo(
+    List<String> tokenIds,
+  ) async {
+    String queryFields = generateTokenInfoQuery(tokenIds);
+
+    final QueryOptions _options = QueryOptions(
+      document: gql(queryFields),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {
+      },
+    );
+
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (result.hasException) {
+      print('request all token info failed');
+      print(result.exception.toString());
+      return [];
+    }
+    return result.data;
+  }
+
+  /// get balance and delegate info
+  Future<void> fetchAllTokenAssets({bool showIndicator = false}) async {
+    String pubKey = store.wallet!.currentWallet.pubKey;
+    if (showIndicator) {
+      store.assets!.setBalanceLoading(true);
+    }
+    if (pubKey.isNotEmpty) {
+      List<TokenAssetInfo> tokenAssets =
+          await fetchTokenAssets(pubKey);
+      List<String> tokenIds =
+          tokenAssets.map((token) => token.tokenId).toList();
+      if (tokenIds.length > 0) {
+        dynamic tokenNetInfos =
+            await fetchAllTokenInfo(tokenIds);
+
+
+        List<Token> tokens = tokenAssets.map((assetInfo) {
+          TokenNetInfo? netInfo = tokenNetInfos[assetInfo.tokenId] != null
+              ? TokenNetInfo.fromJson(tokenNetInfos[assetInfo.tokenId])
+              : null;
+
+          return Token(
+            tokenAssestInfo: assetInfo,
+            tokenNetInfo: netInfo,
+          );
+        }).toList();
+        store.assets!.updateTokenAssets(tokens, pubKey);
+      } else {
+        store.assets!.updateTokenAssets([], pubKey);
+      }
+    }
+    store.assets!.setBalanceLoading(false);
+  }
+
+  Future<dynamic> getTokenState(String pubKey, String tokenId) async {
+    const String query = r'''
+  query tokenState($publicKey: PublicKey!,$tokenId: TokenId!) {
+    account(publicKey: $publicKey, token: $tokenId) {
+      balance {
+        total
+      }
+    }
+  }
+    ''';
+    final QueryOptions _options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {'publicKey': pubKey, 'tokenId': tokenId},
+    );
+
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (result.hasException) {
+      print('get token state failed');
+      print(result.exception.toString());
+      return null;
+    }
+    Map tokenAccount = result.data!['account'];
+    return tokenAccount;
   }
 }

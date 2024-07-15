@@ -1,15 +1,18 @@
-import 'dart:convert';
-
-import 'package:auro_wallet/store/assets/types/feeTransferData.dart';
-import 'package:auro_wallet/store/assets/types/scamInfo.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/walletSdk/minaSDK.dart';
-import 'package:flutter/foundation.dart';
-import 'package:mobx/mobx.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:auro_wallet/store/assets/types/feeTransferData.dart';
+import 'package:auro_wallet/store/assets/types/fees.dart';
+import 'package:auro_wallet/store/assets/types/scamInfo.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/assets/types/tokenBaseInfo.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/index.dart';
+import 'package:auro_wallet/walletSdk/minaSDK.dart';
+import 'package:decimal/decimal.dart';
+import 'package:mobx/mobx.dart';
 
 part 'assets.g.dart';
 
@@ -26,7 +29,7 @@ abstract class _AssetsStore with Store {
 
   final String localStorageFeesKey = 'fees';
   final String cacheBalanceKey = 'balance';
-  final String cachePriceKey = 'coin_price';
+  final String cachePriceKey = 'coin_price_v2';
   final String cacheTxsKey = 'txs';
   final String cacheFeeTxsKey = 'fee_txs';
   final String cacheScamListKey = 'scam_list';
@@ -77,6 +80,52 @@ abstract class _AssetsStore with Store {
 
   @observable
   ObservableList<TransferData> zkTxs = ObservableList<TransferData>();
+
+  @observable
+  int txsFilter = 0;
+
+  @observable
+  ObservableList<Token> tokenList = ObservableList<Token>();
+
+  @observable
+  double tokenTotalAmount = 0;
+
+  @observable
+  int newTokenCount = 0;
+
+  @observable
+  ObservableMap<String, double> marketPrices = ObservableMap<String, double>();
+
+  @observable
+  Map<String, dynamic> localTokenConfig = {};
+
+  @observable
+  List<String> localShowedTokenIds = [];
+
+  @computed
+  Token get mainTokenNetInfo {
+    Token token;
+    try {
+      token = tokenList.firstWhere(
+          (token) => token.tokenAssestInfo?.tokenId == ZK_DEFAULT_TOKEN_ID);
+      print('Found Token ID: ${token.tokenAssestInfo?.tokenId}');
+      print('Token Public Key: ${token.tokenAssestInfo?.publicKey}');
+    } catch (e) {
+      print('Token with ID $ZK_DEFAULT_TOKEN_ID not found.');
+      token = Token.fromJson(defaultMINAAssets);
+    }
+    return token;
+  }
+
+  @computed
+  List<Token> get tokenShowList {
+    List<Token> tokenShowList = tokenList
+        .where(
+          (tokenItem) => !(tokenItem.localConfig?.hideToken ?? false),
+        )
+        .toList();
+    return tokenShowList;
+  }
 
   @computed
   List<TransferData> get totalTxs {
@@ -143,12 +192,6 @@ abstract class _AssetsStore with Store {
     }
     return totals;
   }
-
-  @observable
-  int txsFilter = 0;
-
-  @observable
-  ObservableMap<String, double> marketPrices = ObservableMap<String, double>();
 
   @action
   Future<void> setAccountInfo(String pubKey, dynamic amt,
@@ -307,8 +350,8 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  void setMarketPrices(String token, double price) {
-    marketPrices[token] = price;
+  void setMarketPrices(String tokenId, double price) {
+    marketPrices[tokenId] = price;
     rootStore.localStorage.setObject(
         cachePriceKey, marketPrices.map((key, value) => MapEntry(key, value)));
   }
@@ -438,5 +481,119 @@ abstract class _AssetsStore with Store {
     });
     scamAddressStrCache = scamAddressStrCache.toLowerCase();
     scamAddressStr = scamAddressStrCache;
+  }
+
+  @action
+  Future<void> updateTokenAssets(List<Token> ls, String address,
+      {bool shouldCache = false}) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+
+    Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
+    int newTokenCountTemp = 0;
+    double totalShowAmount = 0;
+
+    if (ls.isEmpty) {
+      tokenList.add(mainTokenDefaultConfig);
+    } else {
+      List<Token> nextTokenList = ls.map((tokenItem) {
+        TokenLocalConfig sourceLocalConfig =
+            tokenItem.localConfig ?? TokenLocalConfig();
+        TokenBaseInfo sourceBaseInfo =
+            tokenItem.tokenBaseInfo ?? TokenBaseInfo();
+
+        String tokenId = tokenItem.tokenAssestInfo?.tokenId ?? "";
+
+        TokenLocalConfig localConfig = TokenLocalConfig.fromJson({
+          ...sourceLocalConfig.toJson(),
+          "hideToken": localTokenConfig[tokenId] ?? false
+        });
+
+        TokenBaseInfo tokenBaseInfo = TokenBaseInfo.fromJson({
+          ...sourceBaseInfo.toJson(),
+        });
+
+        tokenBaseInfo.isScam = false;
+
+        String decimals = "0";
+        String? sourceTotalBalance = tokenItem.tokenAssestInfo?.balance.total;
+        BigInt totalBalance = sourceTotalBalance != null
+            ? BigInt.parse(sourceTotalBalance)
+            : BigInt.from(0);
+
+        String? tokenNetPublicKey = tokenItem.tokenNetInfo?.publicKey ?? "";
+        if (tokenNetPublicKey.isNotEmpty) {
+          List<String> zkappState = tokenItem.tokenNetInfo?.zkappState ?? [];
+          try {
+            if (zkappState.isNotEmpty) {
+              decimals = zkappState[0];
+            }
+            tokenBaseInfo.decimals = decimals;
+            tokenBaseInfo.showBalance =
+                Fmt.bigIntToDouble(totalBalance, int.parse(decimals));
+          } catch (e) {
+            tokenBaseInfo.decimals = decimals;
+            tokenBaseInfo.showBalance = totalBalance.toDouble();
+          }
+        } else {
+          if (tokenId == ZK_DEFAULT_TOKEN_ID) {
+            tokenBaseInfo.isMainToken = true;
+            String? delegateAccount =
+                tokenItem.tokenAssestInfo?.delegateAccount?.publicKey;
+            tokenBaseInfo.isDelegation = delegateAccount != null &&
+                delegateAccount != tokenItem.tokenAssestInfo?.publicKey;
+            tokenBaseInfo.decimals = COIN.decimals.toString();
+            tokenBaseInfo.showBalance =
+                Fmt.bigIntToDouble(totalBalance, COIN.decimals);
+          } else {
+            tokenBaseInfo.decimals = decimals;
+            tokenBaseInfo.showBalance =
+                Fmt.bigIntToDouble(totalBalance, int.parse(decimals));
+          }
+        }
+
+        double? tokenPrice = marketPrices[tokenId];
+        if (tokenPrice != null) {
+          tokenBaseInfo.showAmount = double.parse(
+              Fmt.priceCeil(tokenBaseInfo.showBalance! * tokenPrice));
+          if (localConfig.hideToken != true) {
+            totalShowAmount = (Decimal.parse(totalShowAmount.toString()) +
+                    Decimal.parse(tokenBaseInfo.showAmount.toString()))
+                .toDouble();
+          }
+        }
+
+        tokenBaseInfo.tokenShowed = localShowedTokenIds.contains(tokenId);
+
+        if (tokenBaseInfo.tokenShowed != true &&
+            tokenBaseInfo.isMainToken != true) {
+          newTokenCountTemp = newTokenCountTemp + 1;
+        }
+
+        Token updatedTokenItem = Token(
+          tokenAssestInfo: tokenItem.tokenAssestInfo,
+          tokenNetInfo: tokenItem.tokenNetInfo,
+          localConfig: localConfig,
+          tokenBaseInfo: tokenBaseInfo,
+        );
+        return updatedTokenItem;
+      }).toList();
+
+      tokenTotalAmount = totalShowAmount;
+      newTokenCount = newTokenCountTemp;
+
+      nextTokenList.sort(compareTokens);
+
+      int index = nextTokenList.indexWhere(
+          (token) => token.tokenAssestInfo?.tokenId == ZK_DEFAULT_TOKEN_ID);
+      if (index != -1) {
+        Token token = nextTokenList.removeAt(index);
+        nextTokenList.insert(0, token);
+      } else {
+        nextTokenList.insert(0, Token.fromJson(defaultMINAAssets));
+      }
+
+      tokenList.clear();
+      tokenList = ObservableList.of(nextTokenList);
+    }
   }
 }

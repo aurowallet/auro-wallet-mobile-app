@@ -16,7 +16,7 @@ class Staking extends StatefulWidget {
   Staking(this.store);
 
   final AppStore store;
-
+  static final String route = '/assets/staking';
   @override
   _StakingState createState() => _StakingState(store);
 }
@@ -59,7 +59,7 @@ class _StakingState extends State<Staking> {
     Navigator.pushNamed(context, ValidatorsPage.route,);
   }
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {// todo need update page title
     AppLocalizations dic = AppLocalizations.of(context)!;
     Color primaryColor = Theme.of(context).primaryColor;
     AccountInfo? acc = store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];

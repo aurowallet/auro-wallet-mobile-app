@@ -1,30 +1,36 @@
+import 'dart:convert';
 import 'dart:math';
+
 import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
 import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
-import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/store/settings/types/contactData.dart';
-import 'package:auro_wallet/utils/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auro_wallet/common/components/txConfirmDialog.dart';
+import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:auro_wallet/common/components/feeSelector.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
+import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/fees.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/assets/types/tokenAssetInfo.dart';
+import 'package:auro_wallet/store/assets/types/tokenBaseInfo.dart';
+import 'package:auro_wallet/store/assets/types/tokenNetInfo.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
+import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/camera.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:mobx/mobx.dart';
-import 'package:auro_wallet/store/assets/types/fees.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobx/mobx.dart';
 
 class TransferPage extends StatefulWidget {
   const TransferPage(this.store);
@@ -59,6 +65,16 @@ class _TransferPageState extends State<TransferPage> {
   List<DropdownAddressItem> addressList = [];
 
   var _loading = Observable(true);
+  late Token token;
+
+  String tokenSymbol = '';
+  bool isSendMainToken = false;
+  double? availableBalance;
+  double? mainTokenBalance;
+  String? availableDecimals;
+  String? tokenPublicKey;
+  late Token mainTokenNetInfo;
+  String tokenId = "";
 
   @override
   void initState() {
@@ -71,6 +87,31 @@ class _TransferPageState extends State<TransferPage> {
       _toAddressCtrl.addListener(_monitorSummitStatus);
       _toAddressCtrl.addListener(_onAddressChange);
       _feeCtrl.addListener(_onFeeInputChange);
+
+      Map<dynamic, dynamic> params =
+          ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
+
+      token = params['token'] as Token;
+
+      TokenAssetInfo? tokenAssestInfo = token.tokenAssestInfo;
+
+      TokenNetInfo? tokenNetInfo = token.tokenNetInfo;
+      TokenBaseInfo? tokenBaseInfo = token.tokenBaseInfo;
+
+      bool isSendMainToken = tokenBaseInfo?.isMainToken ?? false;
+      if (isSendMainToken) {
+        tokenSymbol = COIN.coinSymbol;
+        availableDecimals = COIN.decimals.toString();
+      } else {
+        tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+        availableDecimals = tokenBaseInfo?.decimals;
+        tokenPublicKey = tokenNetInfo?.publicKey;
+      }
+      availableBalance = tokenBaseInfo?.showBalance;
+      mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+      mainTokenBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance;
+      tokenId = tokenAssestInfo?.tokenId ?? "";
+
       _loadData();
       _loadAddressData();
     });
@@ -157,14 +198,41 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   bool _isAllTransfer() {
-    var accountInfo = store.assets!.accountsInfo[store.wallet!.currentAddress];
-    if (accountInfo != null) {
+    if (availableBalance != null) {
       double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
-      if (amount == Fmt.bigIntToDouble(accountInfo.total, COIN.decimals)) {
+      if (amount == availableBalance) {
         return true;
       }
     }
     return false;
+  }
+
+  Future<String?> getTokenBody(Map txInfo1) async {
+    dynamic res =
+        await webApi.assets.getTokenState(txInfo1['toAddress'], tokenId);
+
+    bool fundNewAccountStatus = res == null;
+
+    Map buildInfo = {
+      "sender": txInfo1['fromAddress'],
+      "receiver": txInfo1['toAddress'],
+      "tokenAddress": tokenPublicKey,
+      "amount": txInfo1['amount'],
+      "isNewAccount": fundNewAccountStatus.toString(),
+      "gqlUrl": store.settings!.currentNode!.url
+    };
+
+    dynamic data = await webApi.account.buildTokenBody(buildInfo);
+
+    /// todo add verify and encrypto
+    /// todo add error
+    Map transaction = jsonDecode(data);
+    if (transaction['unSignTx'] != null) {
+      return transaction['unSignTx'];
+    } else {
+      UI.toast(data['error']);
+      return "";
+    }
   }
 
   void _handleSubmit() async {
@@ -192,8 +260,8 @@ class _TransferPageState extends State<TransferPage> {
         shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        inferredNonce = store
-            .assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
+        inferredNonce =
+            int.parse(mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
       }
       fee = _feeCtrl.text.isNotEmpty
           ? double.parse(Fmt.parseNumber(_feeCtrl.text))
@@ -227,10 +295,14 @@ class _TransferPageState extends State<TransferPage> {
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
       final isLedger =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+      if (isLedger && !isSendMainToken) {
+        UI.toast(dic.notSupportNow);
+        return;
+      }
       bool exited = false;
       await UI.showTxConfirm(
           context: context,
-          title: dic.sendDetail, 
+          title: dic.sendDetail,
           isLedger: isLedger,
           items: txItems,
           disabled: isWatchMode,
@@ -243,14 +315,15 @@ class _TransferPageState extends State<TransferPage> {
             children: [
               Text(
                 Fmt.priceFloor(amountToTransfer,
-                    lengthFixed: 2, lengthMax: COIN.decimals),
+                    lengthFixed: 2,
+                    lengthMax: int.parse(availableDecimals ?? "0")),
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 22,
                     fontWeight: FontWeight.bold),
               ),
               Text(
-                COIN.coinSymbol,
+                tokenSymbol,
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 12,
@@ -300,10 +373,32 @@ class _TransferPageState extends State<TransferPage> {
                     .sendTxBody(tx, context: context, isDelegation: false);
               }
             } else {
-              data =
-                  await webApi.account.signAndSendTx(txInfo, context: context);
+              if (isSendMainToken) {
+                data = await webApi.account
+                    .signAndSendTx(txInfo, context: context);
+              } else {
+                String? zkCommand = await getTokenBody(txInfo);
+                if (zkCommand == null) {
+                  setState(() {
+                    submitting = false;
+                  });
+                  return false;
+                }
+
+                /// todo push to record page
+                Map tokenTxInfo = {
+                  "privateKey": txInfo['privateKey'],
+                  "fromAddress": txInfo['fromAddress'],
+                  "fee": txInfo['fee'],
+                  "nonce": txInfo['nonce'],
+                  "memo": txInfo['txInfo'],
+                  "transaction": zkCommand
+                };
+                data = await webApi.account
+                    .signAndSendZkTx(tokenTxInfo, context: context);
+              }
             }
-            if(data == null){
+            if (data == null) {
               return false;
             }
             if (mounted && !exited) {
@@ -409,10 +504,10 @@ class _TransferPageState extends State<TransferPage> {
   String? _validateAmount() {
     bool isAllTransferFlag = _isAllTransfer();
     AppLocalizations dic = AppLocalizations.of(context)!;
-    BigInt available =
-        store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
-            BigInt.from(0);
-    final int decimals = COIN.decimals;
+    double availableBalanceStr =
+        (availableBalance != null ? availableBalance : 0) as double;
+    BigInt available = BigInt.from(availableBalanceStr);
+    final int decimals = int.parse(availableDecimals ?? "0");
     double fee = _feeCtrl.text.isNotEmpty
         ? double.parse(Fmt.parseNumber(_feeCtrl.text))
         : currentFee!;
@@ -453,8 +548,7 @@ class _TransferPageState extends State<TransferPage> {
   void _onAllClick() {
     var accountInfo = store.assets!.accountsInfo[store.wallet!.currentAddress];
     if (accountInfo != null) {
-      _amountCtrl.text =
-          Fmt.bigIntToDouble(accountInfo.total, COIN.decimals).toString();
+      _amountCtrl.text = availableBalance.toString();
     }
   }
 
@@ -462,19 +556,16 @@ class _TransferPageState extends State<TransferPage> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        var theme = Theme.of(context).textTheme;
         AppLocalizations dic = AppLocalizations.of(context)!;
         final int decimals = COIN.decimals;
-        BigInt available =
-            store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
-                BigInt.from(0);
         final fees = store.assets!.transferFees;
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;
         nextBottom = nextBottom.isNegative ? 0 : nextBottom;
+        String pageTitle = dic.send + " " + tokenSymbol;
         return Scaffold(
           appBar: AppBar(
-            title: Text(dic.send),
+            title: Text(pageTitle),
             shadowColor: Colors.transparent,
             centerTitle: true,
             actions: <Widget>[
@@ -548,9 +639,9 @@ class _TransferPageState extends State<TransferPage> {
                                         TextInputType.numberWithOptions(
                                             decimal: true),
                                     rightWidget: Text(
-                                      '${Fmt.priceFloorBigInt(available, COIN.decimals, lengthMax: COIN.decimals)}' +
+                                      availableBalance.toString() +
                                           " " +
-                                          COIN.coinSymbol,
+                                          tokenSymbol,
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontSize: 12,

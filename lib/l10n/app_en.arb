@@ -525,5 +525,20 @@
   "txType":"Transaction Type",
   "appConnection": "App Connections",
   "noConnectedApps": "No connected Apps",
-  "txHistoryTip": "Unable to provide transaction history"
+  "txHistoryTip": "Unable to provide transaction history",
+  "tokens":"TOKENS",
+  "assetManagement":"Asset Management",
+  "newTokenFound": "{count} new tokens found",
+  "@newTokenFound": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "ignore":"Ignore",
+  "balance":"Balance",
+  "updateTokenInfo":"Update your token information?",
+  "noTxHistory":"No transaction history"
 }

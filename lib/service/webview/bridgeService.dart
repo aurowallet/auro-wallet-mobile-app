@@ -144,6 +144,31 @@ class BridgeService {
     return res;
   }
 
+  Future<Map<String, dynamic>> encryptData(String info, String pubKey) async {
+    assert(_runner != null, 'bridge not init');
+    Map<String, dynamic> res = await _runner?.evalJavascript(
+        'webEncryption.encryptData(${jsonEncode({
+              "targetData": info,
+              "pubKey": pubKey
+            })})',
+        allowRepeat: true);
+    return res;
+  }
+
+  Future<Map<String, dynamic>> decryptData(
+      Map info, String privateKey) async {
+    assert(_runner != null, 'bridge not init');
+    Map<String, dynamic> res = await _runner?.evalJavascript(
+        'webEncryption.decryptData(${
+          jsonEncode({
+              "targetData": info,
+              "privateKey": privateKey
+            })
+        })',
+        allowRepeat: true);
+    return res;
+  }
+
   int getEvalJavascriptUID() {
     return _runner?.getEvalJavascriptUID() ?? 0;
   }

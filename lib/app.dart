@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/page/browser/browserSearchPage.dart';
 import 'package:auro_wallet/page/browser/browserWrapperPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
+import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
@@ -207,6 +209,7 @@ class _WalletAppState extends State<WalletApp> {
         TransferPage.route: (_) => TransferPage(_appStore!),
         ReceivePage.route: (_) => ReceivePage(_appStore!),
         TransactionDetailPage.route: (_) => TransactionDetailPage(_appStore!),
+        TokenDetailPage.route: (_) => TokenDetailPage(_appStore!),
 
         // setting
         AccountManagePage.route: (_) => AccountManagePage(_appStore!),
@@ -225,6 +228,7 @@ class _WalletAppState extends State<WalletApp> {
         // staking
         DelegatePage.route: (_) => DelegatePage(_appStore!),
         ValidatorsPage.route: (_) => ValidatorsPage(_appStore!),
+        Staking.route: (_) => Staking(_appStore!),
 
         // webview bridge test page
         WebviewBridgeTestPage.route: (_) => WebviewBridgeTestPage(),

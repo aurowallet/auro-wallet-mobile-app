@@ -4,6 +4,8 @@ import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/assets/token/component/tokenManageDialog.dart';
+import 'package:auro_wallet/page/assets/token/component/tokenSelectDialog.dart';
 import 'package:auro_wallet/page/browser/components/accountSelectDialog.dart';
 import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
 import 'package:auro_wallet/page/browser/components/advanceDialog.dart';
@@ -461,6 +463,36 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return NetworkSelectionDialog();
+      },
+    );
+  }
+
+  static Future<void> showTokenSelectDialog({
+    required BuildContext context,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return TokenSelectionDialog();
+      },
+    );
+  }
+
+  static Future<void> showTokenManageDialog({
+    required BuildContext context,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: false,
+      builder: (BuildContext context) {
+        return TokenManageDialog();
       },
     );
   }
