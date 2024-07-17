@@ -11,6 +11,7 @@ import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
+import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -75,6 +76,7 @@ class _TransferPageState extends State<TransferPage> {
   String? tokenPublicKey;
   late Token mainTokenNetInfo;
   String tokenId = "";
+  bool isFromModal = false;
 
   @override
   void initState() {
@@ -92,6 +94,7 @@ class _TransferPageState extends State<TransferPage> {
           ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
 
       token = params['token'] as Token;
+      isFromModal = params['isFromModal'] as bool;
 
       TokenAssetInfo? tokenAssestInfo = token.tokenAssestInfo;
 
@@ -232,6 +235,15 @@ class _TransferPageState extends State<TransferPage> {
     } else {
       UI.toast(data['error']);
       return "";
+    }
+  }
+
+  void navigatoreTest() {
+    if (isFromModal) {
+      Navigator.pushReplacementNamed(context, TokenDetailPage.route,
+          arguments: {"token": token});
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -709,6 +721,15 @@ class _TransferPageState extends State<TransferPage> {
                         submitting: submitting,
                         disabled: submitDisabled,
                         onPressed: _handleSubmit,
+                      ),
+                    ),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 38, vertical: 30),
+                      child: NormalButton(
+                        color: ColorsUtil.hexColor(0x6D5FFE),
+                        text: dic.next,
+                        onPressed: navigatoreTest,
                       ),
                     )
                   ],

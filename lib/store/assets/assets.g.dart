@@ -9,6 +9,20 @@ part of 'assets.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AssetsStore on _AssetsStore, Store {
+  Computed<int>? _$newTokenCountComputed;
+
+  @override
+  int get newTokenCount =>
+      (_$newTokenCountComputed ??= Computed<int>(() => super.newTokenCount,
+              name: '_AssetsStore.newTokenCount'))
+          .value;
+  Computed<String>? _$tokenTotalAmountComputed;
+
+  @override
+  String get tokenTotalAmount => (_$tokenTotalAmountComputed ??=
+          Computed<String>(() => super.tokenTotalAmount,
+              name: '_AssetsStore.tokenTotalAmount'))
+      .value;
   Computed<Token>? _$mainTokenNetInfoComputed;
 
   @override
@@ -38,19 +52,19 @@ mixin _$AssetsStore on _AssetsStore, Store {
               name: '_AssetsStore.totalPendingTxs'))
       .value;
 
-  late final _$isTxsLoadingAtom =
-      Atom(name: '_AssetsStore.isTxsLoading', context: context);
+  late final _$isAssetsLoadingAtom =
+      Atom(name: '_AssetsStore.isAssetsLoading', context: context);
 
   @override
-  bool get isTxsLoading {
-    _$isTxsLoadingAtom.reportRead();
-    return super.isTxsLoading;
+  bool get isAssetsLoading {
+    _$isAssetsLoadingAtom.reportRead();
+    return super.isAssetsLoading;
   }
 
   @override
-  set isTxsLoading(bool value) {
-    _$isTxsLoadingAtom.reportWrite(value, super.isTxsLoading, () {
-      super.isTxsLoading = value;
+  set isAssetsLoading(bool value) {
+    _$isAssetsLoadingAtom.reportWrite(value, super.isAssetsLoading, () {
+      super.isAssetsLoading = value;
     });
   }
 
@@ -275,38 +289,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  late final _$tokenTotalAmountAtom =
-      Atom(name: '_AssetsStore.tokenTotalAmount', context: context);
-
-  @override
-  double get tokenTotalAmount {
-    _$tokenTotalAmountAtom.reportRead();
-    return super.tokenTotalAmount;
-  }
-
-  @override
-  set tokenTotalAmount(double value) {
-    _$tokenTotalAmountAtom.reportWrite(value, super.tokenTotalAmount, () {
-      super.tokenTotalAmount = value;
-    });
-  }
-
-  late final _$newTokenCountAtom =
-      Atom(name: '_AssetsStore.newTokenCount', context: context);
-
-  @override
-  int get newTokenCount {
-    _$newTokenCountAtom.reportRead();
-    return super.newTokenCount;
-  }
-
-  @override
-  set newTokenCount(int value) {
-    _$newTokenCountAtom.reportWrite(value, super.newTokenCount, () {
-      super.newTokenCount = value;
-    });
-  }
-
   late final _$marketPricesAtom =
       Atom(name: '_AssetsStore.marketPrices', context: context);
 
@@ -323,19 +305,19 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  late final _$localTokenConfigAtom =
-      Atom(name: '_AssetsStore.localTokenConfig', context: context);
+  late final _$localHideTokenListAtom =
+      Atom(name: '_AssetsStore.localHideTokenList', context: context);
 
   @override
-  Map<String, dynamic> get localTokenConfig {
-    _$localTokenConfigAtom.reportRead();
-    return super.localTokenConfig;
+  List<String> get localHideTokenList {
+    _$localHideTokenListAtom.reportRead();
+    return super.localHideTokenList;
   }
 
   @override
-  set localTokenConfig(Map<String, dynamic> value) {
-    _$localTokenConfigAtom.reportWrite(value, super.localTokenConfig, () {
-      super.localTokenConfig = value;
+  set localHideTokenList(List<String> value) {
+    _$localHideTokenListAtom.reportWrite(value, super.localHideTokenList, () {
+      super.localHideTokenList = value;
     });
   }
 
@@ -469,6 +451,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$setFeesMapAsyncAction.run(() => super.setFeesMap(fees));
   }
 
+  late final _$clearMarketPricesAsyncAction =
+      AsyncAction('_AssetsStore.clearMarketPrices', context: context);
+
+  @override
+  Future<void> clearMarketPrices() {
+    return _$clearMarketPricesAsyncAction.run(() => super.clearMarketPrices());
+  }
+
   late final _$loadMultiAccountCacheAsyncAction =
       AsyncAction('_AssetsStore.loadMultiAccountCache', context: context);
 
@@ -527,6 +517,40 @@ mixin _$AssetsStore on _AssetsStore, Store {
     return _$loadLocalScamListAsyncAction.run(() => super.loadLocalScamList());
   }
 
+  late final _$updateTokenShowStatusAsyncAction =
+      AsyncAction('_AssetsStore.updateTokenShowStatus', context: context);
+
+  @override
+  Future<void> updateTokenShowStatus(String address,
+      {required String tokenId}) {
+    return _$updateTokenShowStatusAsyncAction
+        .run(() => super.updateTokenShowStatus(address, tokenId: tokenId));
+  }
+
+  late final _$updateNewTokenConfigAsyncAction =
+      AsyncAction('_AssetsStore.updateNewTokenConfig', context: context);
+
+  @override
+  Future<void> updateNewTokenConfig(String address) {
+    return _$updateNewTokenConfigAsyncAction
+        .run(() => super.updateNewTokenConfig(address));
+  }
+
+  late final _$updateTokenLocalConfigAsyncAction =
+      AsyncAction('_AssetsStore.updateTokenLocalConfig', context: context);
+
+  @override
+  Future<void> updateTokenLocalConfig(String address,
+      {bool shouldCache = false,
+      required List<String> tokenShowedList,
+      required List<String> hideTokenList}) {
+    return _$updateTokenLocalConfigAsyncAction.run(() => super
+        .updateTokenLocalConfig(address,
+            shouldCache: shouldCache,
+            tokenShowedList: tokenShowedList,
+            hideTokenList: hideTokenList));
+  }
+
   late final _$updateTokenAssetsAsyncAction =
       AsyncAction('_AssetsStore.updateTokenAssets', context: context);
 
@@ -537,15 +561,50 @@ mixin _$AssetsStore on _AssetsStore, Store {
         () => super.updateTokenAssets(ls, address, shouldCache: shouldCache));
   }
 
+  late final _$clearRuntimeTokensAsyncAction =
+      AsyncAction('_AssetsStore.clearRuntimeTokens', context: context);
+
+  @override
+  Future<void> clearRuntimeTokens() {
+    return _$clearRuntimeTokensAsyncAction
+        .run(() => super.clearRuntimeTokens());
+  }
+
+  late final _$clearAllTokensAsyncAction =
+      AsyncAction('_AssetsStore.clearAllTokens', context: context);
+
+  @override
+  Future<void> clearAllTokens() {
+    return _$clearAllTokensAsyncAction.run(() => super.clearAllTokens());
+  }
+
+  late final _$clearAssestNodeCacheAsyncAction =
+      AsyncAction('_AssetsStore.clearAssestNodeCache', context: context);
+
+  @override
+  Future<void> clearAssestNodeCache() {
+    return _$clearAssestNodeCacheAsyncAction
+        .run(() => super.clearAssestNodeCache());
+  }
+
+  late final _$clearAccountAssestCacheAsyncAction =
+      AsyncAction('_AssetsStore.clearAccountAssestCache', context: context);
+
+  @override
+  Future<void> clearAccountAssestCache() {
+    return _$clearAccountAssestCacheAsyncAction
+        .run(() => super.clearAccountAssestCache());
+  }
+
   late final _$_AssetsStoreActionController =
       ActionController(name: '_AssetsStore', context: context);
 
   @override
-  void setTxsLoading(bool isLoading) {
+  void setAssetsLoading(bool isLoading) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
-        name: '_AssetsStore.setTxsLoading');
+        name: '_AssetsStore.setAssetsLoading');
     try {
-      return super.setTxsLoading(isLoading);
+      return super.setAssetsLoading(isLoading);
     } finally {
       _$_AssetsStoreActionController.endAction(_$actionInfo);
     }
@@ -587,7 +646,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   @override
   String toString() {
     return '''
-isTxsLoading: ${isTxsLoading},
+isAssetsLoading: ${isAssetsLoading},
 isBalanceLoading: ${isBalanceLoading},
 accountsInfo: ${accountsInfo},
 tokenBalances: ${tokenBalances},
@@ -602,11 +661,11 @@ pendingZkTxs: ${pendingZkTxs},
 zkTxs: ${zkTxs},
 txsFilter: ${txsFilter},
 tokenList: ${tokenList},
-tokenTotalAmount: ${tokenTotalAmount},
-newTokenCount: ${newTokenCount},
 marketPrices: ${marketPrices},
-localTokenConfig: ${localTokenConfig},
+localHideTokenList: ${localHideTokenList},
 localShowedTokenIds: ${localShowedTokenIds},
+newTokenCount: ${newTokenCount},
+tokenTotalAmount: ${tokenTotalAmount},
 mainTokenNetInfo: ${mainTokenNetInfo},
 tokenShowList: ${tokenShowList},
 totalTxs: ${totalTxs},

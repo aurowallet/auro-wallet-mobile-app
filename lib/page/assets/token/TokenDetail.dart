@@ -58,7 +58,10 @@ class _TokenDetail extends State<TokenDetailPage> {
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
 
-    displayBalance = Fmt.balance(tokenBaseInfo?.showBalance.toString(), 0) +
+displayBalance = tokenBaseInfo?.showBalance != null 
+        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!) 
+        : "0.0";
+    displayBalance = displayBalance +
         " " +
         tokenSymbol;
 
@@ -233,12 +236,12 @@ class TokenActionItem extends StatelessWidget {
       case TokenActionType.delegation:
         title = dic.staking;
         nextRouter = Staking.route;
-        actionIconUrl = "assets/images/assets/tx_stake.svg";
+        actionIconUrl = "assets/images/assets/delegation.svg";
         break;
       default:
     }
 
-    return InkWell(
+    return GestureDetector(
         onTap: () {
           onClickItem(context, type, nextRouter!);
         },
@@ -249,12 +252,13 @@ class TokenActionItem extends StatelessWidget {
               height: 48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Color.fromRGBO(89, 74, 241, 0.1),
+                color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(48),
               ),
               child: SvgPicture.asset(
                 actionIconUrl!,
-                width: 28,
+                width: 14,
+                color: Colors.white,
               ),
             ),
             SizedBox(height: 4),
@@ -263,8 +267,8 @@ class TokenActionItem extends StatelessWidget {
               style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
-                  color: Color.fromRGBO(128, 128, 128, 1),
-                  height: 1.4),
+                  color: Theme.of(context).primaryColor,
+                  ),
             )
           ],
         ));

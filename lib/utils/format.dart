@@ -255,16 +255,25 @@ class Fmt {
             int.parse(hexString.substring(i * 2, (i * 2) + 2), radix: 16)),
       ).join();
 
-  static bool isNumber(String value){
-      try {
-        double.parse(value);
-        return true;
-      } catch (e) {
-        return false;
-      }
+  static bool isNumber(String value) {
+    try {
+      double.parse(value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static String parseShowBalance(double balance, {int showLength = 4}) {
+    String formatted = balance.toStringAsFixed(showLength);
+    formatted = formatted.contains('.')
+        ? formatted
+            .replaceFirst(RegExp(r'0*$'), '')
+            .replaceFirst(RegExp(r'\.$'), '')
+        : formatted;
+    return formatted;
   }
 }
-
 
 String prettyPrintJson(jsonString) {
   var jsonObject = jsonDecode(jsonString);

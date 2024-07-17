@@ -1,7 +1,7 @@
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenItem.dart';
-import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/utils/UI.dart';
@@ -10,10 +10,13 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
 class TokenListView extends StatefulWidget {
-  TokenListView(this.store, {this.isInModal});
+  TokenListView(this.store, {this.isInModal,
+  this.onClickItem
+  });
 
   final bool? isInModal;
   final AppStore store;
+  final Function(Token)? onClickItem;
 
   @override
   _TokenListViewState createState() => _TokenListViewState(store, isInModal);
@@ -25,24 +28,25 @@ class _TokenListViewState extends State<TokenListView>
   final bool? isInModal;
   final AppStore store;
 
-  bool showTokenTip = true;
-  String showCount = "99+";
-
   void onClickTokenItem(Token tokenItem) {
-    if(isInModal ==true){
-      Navigator.of(context).pushNamed(TransferPage.route);
-    }else{
-      Navigator.of(context).pushNamed(TokenDetailPage.route,arguments: {"token": tokenItem});
+    if (isInModal == true) {
+      if(widget.onClickItem!=null){
+        widget.onClickItem!(tokenItem);
+        }
+    } else {
+      Navigator.of(context)
+          .pushNamed(TokenDetailPage.route, arguments: {"token": tokenItem});
     }
   }
 
   void onClickManage() {
-    UI.showTokenManageDialog(context: context);
+    UI.showTokenManageDialog(context: context); 
   }
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
+
     return Expanded(
       child: Column(
         children: [
@@ -72,23 +76,45 @@ class _TokenListViewState extends State<TokenListView>
                         ),
                         textAlign: TextAlign.left,
                       ),
-                      TokenManageIcon(
-                        onClickManage: onClickManage,
-                        showTokenTip: showTokenTip,
-                        showCount: showCount,
-                      )
+                      Observer(builder: (BuildContext context) {
+                        bool isLoading = store.assets!.isAssetsLoading;
+                        int count = store.assets!.newTokenCount;
+                        String showCount = count.toString();
+                        bool showTokenTip = count > 0;
+                        if (count > 99) {
+                          showCount = "99+";
+                        }
+                        if (store.assets!.tokenList.length <= 1 || isLoading) {
+                          return Container();
+                        }
+                        return TokenManageIcon(
+                          onClickManage: onClickManage,
+                          showTokenTip: showTokenTip,
+                          showCount: showCount,
+                        );
+                      })
                     ],
                   ),
                 ),
           Observer(builder: (BuildContext context) {
-            // todo , add loading
+            bool isLoading = store.assets!.isAssetsLoading;
+            if (isLoading) {
+              return Expanded(
+                  child: Ink(
+                      color: Color(0xFFFFFFFF),
+                      child: Container(
+                        child: Center(
+                          child: LoadingCircle(),
+                        ),
+                      )));
+            }
             return Expanded(
                 child: ListView.builder(
-                    itemCount: store.assets!.tokenList.length,
+                    itemCount: store.assets!.tokenShowList.length,
                     itemBuilder: (context, index) {
                       return Container(
                           child: TokenItemView(
-                        tokenItem: store.assets!.tokenList[index],
+                        tokenItem: store.assets!.tokenShowList[index],
                         store: store,
                         onClickTokenItem: onClickTokenItem,
                       ));
@@ -102,53 +128,56 @@ class _TokenListViewState extends State<TokenListView>
 
 class TokenManageIcon extends StatelessWidget {
   TokenManageIcon({
-    this.showCount,
-    this.showTokenTip,
+    required this.showCount,
+    required this.showTokenTip,
     required this.onClickManage,
   });
-  final String? showCount;
-  final bool? showTokenTip;
+  final String showCount;
+  final bool showTokenTip;
   final Function onClickManage;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: <Widget>[
-            SvgPicture.asset('assets/images/assets/icon_add.svg'),
-            if (showTokenTip == true)
-              Positioned(
-                right: -15,
-                top: -10,
-                child: Container(
-                  padding: EdgeInsets.all(1),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  constraints: BoxConstraints(
-                    minWidth: 20,
-                    minHeight: 20,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '$showCount',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+    return Container(
+      color: Colors.amber,
+      child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              SvgPicture.asset('assets/images/assets/icon_add.svg'),
+              if (showTokenTip)
+                Positioned(
+                  right: -12,
+                  top: -10,
+                  child: Container(
+                    padding: EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$showCount',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
-              ),
-          ],
-        ),
-        onTap: () {
-          onClickManage();
-        });
+            ],
+          ),
+          onTap: () {
+            onClickManage();
+          }),
+    );
   }
 }

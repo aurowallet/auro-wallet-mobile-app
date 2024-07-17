@@ -64,8 +64,8 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
           widget.settingStore.allNodes.where((element) => element.url == key);
       if (nodes.length > 0) {
         final node = nodes.first;
-        await widget.store.assets!.clearAllTxs();
-        widget.store.assets!.setTxsLoading(true);
+        await widget.store.assets!.clearAssestNodeCache();
+        widget.store.assets!.setAssetsLoading(true);
         await widget.settingStore.setCurrentNode(node);
         webApi.updateGqlClient(key);
         webApi.refreshNetwork();

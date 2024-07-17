@@ -141,8 +141,8 @@ class _NodeEditPageState extends State<NodeEditPage> {
       if (widget.store.settings!.currentNode?.url == originEndpoint.url) {
         if (originEndpoint.url != endpoint.url ||
             originEndpoint.networkID != endpoint.networkID) {
-          await widget.store.assets!.clearAllTxs(); 
-          widget.store.assets!.setTxsLoading(true);
+          await widget.store.assets!.clearAssestNodeCache();
+          widget.store.assets!.setAssetsLoading(true);
           await widget.store.settings!.setCurrentNode(endpoint);
           webApi.updateGqlClient(endpoint.url);
           webApi.refreshNetwork();
@@ -150,8 +150,8 @@ class _NodeEditPageState extends State<NodeEditPage> {
       }
     } else {
       endpoints.add(endpoint);
-      await widget.store.assets!.clearAllTxs(); 
-      widget.store.assets!.setTxsLoading(true);
+      await widget.store.assets!.clearAssestNodeCache();
+      widget.store.assets!.setAssetsLoading(true);
       await widget.store.settings!.setCurrentNode(endpoint);
       await widget.store.settings!.setCustomNodeList(endpoints);
       webApi.updateGqlClient(endpoint.url);

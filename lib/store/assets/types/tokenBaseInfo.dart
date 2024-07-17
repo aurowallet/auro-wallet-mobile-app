@@ -10,7 +10,6 @@ class TokenBaseInfo {
   String? decimals;
   double? showBalance;
   double? showAmount;
-  bool? tokenShowed;
 
   TokenBaseInfo({
     this.isScam,
@@ -19,7 +18,6 @@ class TokenBaseInfo {
     this.decimals,
     this.showBalance,
     this.showAmount,
-    this.tokenShowed,
   });
 
   factory TokenBaseInfo.fromJson(Map<String, dynamic> json) => _$TokenBaseInfoFromJson(json);

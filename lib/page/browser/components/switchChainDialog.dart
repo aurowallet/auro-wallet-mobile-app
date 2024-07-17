@@ -82,8 +82,8 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
       }
     });
 
-    await store.assets!.clearAllTxs();
-    store.assets!.setTxsLoading(true);
+    await store.assets!.clearAssestNodeCache();
+    store.assets!.setAssetsLoading(true);
     await store.settings!.setCurrentNode(showNode);
     webApi.updateGqlClient(showNode.url);
     webApi.staking.refreshStaking();

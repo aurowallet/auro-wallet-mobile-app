@@ -6,6 +6,7 @@ import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenManageDialog.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenSelectDialog.dart';
+import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
 import 'package:auro_wallet/page/browser/components/accountSelectDialog.dart';
 import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
 import 'package:auro_wallet/page/browser/components/advanceDialog.dart';
@@ -13,6 +14,7 @@ import 'package:auro_wallet/page/browser/components/connectDialog.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
 import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -250,7 +252,7 @@ class UI {
               Navigator.of(context).pop();
             },
             onCancel: () {
-              if(onCancel!=null){
+              if (onCancel != null) {
                 onCancel();
               }
             });
@@ -285,7 +287,7 @@ class UI {
               Navigator.of(context).pop();
             },
             onCancel: () {
-              if(onCancel!=null){
+              if (onCancel != null) {
                 onCancel();
               }
             });
@@ -320,8 +322,8 @@ class UI {
             },
             onCancel: () {
               if (onCancel != null) {
-                  onCancel();
-                }
+                onCancel();
+              }
             });
       },
     );
@@ -353,7 +355,7 @@ class UI {
               onConfirm(data);
             },
             onCancel: () {
-              if(onCancel!=null){
+              if (onCancel != null) {
                 onCancel();
               }
             });
@@ -393,7 +395,7 @@ class UI {
             memo: memo,
             feePayer: feePayer,
             transaction: transaction,
-            onlySign:onlySign,
+            onlySign: onlySign,
             url: url,
             iconUrl: iconUrl,
             preNonce: nonce,
@@ -402,7 +404,7 @@ class UI {
               Navigator.of(context).pop();
             },
             onCancel: () {
-              if(onCancel!=null){
+              if (onCancel != null) {
                 onCancel();
               }
             });
@@ -477,7 +479,12 @@ class UI {
       isDismissible: true,
       enableDrag: false,
       builder: (BuildContext context) {
-        return TokenSelectionDialog();
+        return TokenSelectionDialog(
+          tokenSelected: (Token token) {
+            Navigator.of(context).pushNamed(TransferPage.route,
+                arguments: {"token": token, "isFromModal": true});
+          },
+        );
       },
     );
   }

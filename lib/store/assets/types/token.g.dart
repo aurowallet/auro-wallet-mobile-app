@@ -34,9 +34,11 @@ Map<String, dynamic> _$TokenToJson(Token instance) => <String, dynamic>{
 TokenLocalConfig _$TokenLocalConfigFromJson(Map<String, dynamic> json) =>
     TokenLocalConfig(
       hideToken: json['hideToken'] as bool?,
+      tokenShowed: json['tokenShowed'] as bool?,
     );
 
 Map<String, dynamic> _$TokenLocalConfigToJson(TokenLocalConfig instance) =>
     <String, dynamic>{
       'hideToken': instance.hideToken,
+      'tokenShowed': instance.tokenShowed,
     };

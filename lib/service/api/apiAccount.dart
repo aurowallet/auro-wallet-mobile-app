@@ -49,7 +49,7 @@ class ApiAccount {
     await store.wallet!.setCurrentAccount(current!);
 
     // refresh balance
-    await store.assets!.clearTxs();
+    await store.assets!.clearAccountAssestCache();
     await store.staking!.clearDelegatedValidator();
     await store.assets!.loadAccountCache();
     // refresh zkConnect
@@ -461,7 +461,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
-      webApi.assets.fetchAccountInfo();
+      webApi.assets.fetchAccountInfo(); // todo
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
       webApi.assets.fetchPendingZkTransactions(pubKey);
@@ -506,7 +506,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
-      webApi.assets.fetchAccountInfo();
+      webApi.assets.fetchAccountInfo(); // todo
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
@@ -596,7 +596,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
     try {
       String pubKey = acc['pubKey'];
-      webApi.assets.fetchAccountInfo();
+      webApi.assets.fetchAccountInfo(); // todo
     } catch (e) {
       print('network may not connected');
     }

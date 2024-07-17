@@ -630,9 +630,9 @@ ${List<String>.generate(pubkeys.length, (int index) {
             tokenNetInfo: netInfo,
           );
         }).toList();
-        store.assets!.updateTokenAssets(tokens, pubKey);
+        store.assets!.updateTokenAssets(tokens, pubKey,shouldCache: true);
       } else {
-        store.assets!.updateTokenAssets([], pubKey);
+        store.assets!.updateTokenAssets([], pubKey,shouldCache: true);
       }
     }
     store.assets!.setBalanceLoading(false);

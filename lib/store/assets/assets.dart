@@ -37,8 +37,12 @@ abstract class _AssetsStore with Store {
 
   final String cacheZkTxsKey = 'zk_txs';
 
+  final String cacheTokensKey = 'account_token';
+
+  final String cacheTokenConfigKey = 'account_token_config';
+
   @observable
-  bool isTxsLoading = true;
+  bool isAssetsLoading = true;
 
   @observable
   bool isBalanceLoading = false;
@@ -88,19 +92,46 @@ abstract class _AssetsStore with Store {
   ObservableList<Token> tokenList = ObservableList<Token>();
 
   @observable
-  double tokenTotalAmount = 0;
-
-  @observable
-  int newTokenCount = 0;
-
-  @observable
   ObservableMap<String, double> marketPrices = ObservableMap<String, double>();
 
   @observable
-  Map<String, dynamic> localTokenConfig = {};
+  List<String> localHideTokenList = ObservableList<String>();
 
   @observable
-  List<String> localShowedTokenIds = [];
+  List<String> localShowedTokenIds = ObservableList<String>();
+
+  @computed
+  int get newTokenCount {
+    int count = 0;
+    try {
+      for (var token in tokenList) {
+        if (token.localConfig == null ||
+            token.localConfig!.tokenShowed != true) {
+          if (token.tokenAssestInfo != null &&
+              token.tokenAssestInfo!.tokenId != ZK_DEFAULT_TOKEN_ID) {
+            count++;
+          }
+        }
+      }
+    } catch (e) {
+      print('newTokenCount calc error ${e.toString()}.');
+    }
+    return count;
+  }
+
+  @computed
+  String get tokenTotalAmount {
+    double totalShowAmount = 0;
+    double tokenAmount;
+    for (var token in tokenList) {
+      if (token.localConfig == null || token.localConfig!.hideToken != true) {
+        tokenAmount = token.tokenBaseInfo?.showAmount ?? 0;
+        totalShowAmount += tokenAmount;
+      }
+    }
+
+    return totalShowAmount.toString();
+  }
 
   @computed
   Token get mainTokenNetInfo {
@@ -217,8 +248,8 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  void setTxsLoading(bool isLoading) {
-    isTxsLoading = isLoading;
+  void setAssetsLoading(bool isLoading) {
+    isAssetsLoading = isLoading;
   }
 
   @action
@@ -357,6 +388,12 @@ abstract class _AssetsStore with Store {
   }
 
   @action
+  Future<void> clearMarketPrices() async {
+    marketPrices.clear();
+    await rootStore.localStorage.setObject(cachePriceKey, {});
+  }
+
+  @action
   Future<void> loadMultiAccountCache() async {
     for (var account in rootStore.wallet!.accountListAll) {
       Map? cache = await rootStore.localStorage
@@ -369,16 +406,19 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadAccountCache() async {
-    // return if currentAccount not exist
     String pubKey = rootStore.wallet!.currentAccountPubKey;
     if (pubKey.isEmpty) {
       return;
     }
+    String? networkId = rootStore.settings!.currentNode?.networkID;
+    String configKey = '${pubKey}_${networkId}_$cacheTokenConfigKey';
     List cache = await Future.wait([
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheFeeTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheZkTxsKey),
+      rootStore.localStorage.getAccountCache(pubKey, configKey),
+      rootStore.localStorage.getAccountCache(pubKey, cacheTokensKey),
     ]);
 
     if (cache[0] != null) {
@@ -401,6 +441,19 @@ abstract class _AssetsStore with Store {
           List.of(cache[3]).map((i) => TransferData.fromJson(i)).toList());
     } else {
       zkTxs = ObservableList();
+    }
+    if (cache[4] != null) {
+      localShowedTokenIds = ObservableList<String>.of(
+          List<String>.from(cache[4]['localShowedTokenIds']));
+      localHideTokenList = ObservableList<String>.of(
+          List<String>.from(cache[4]['localHideTokenList']));
+    }
+
+    if (cache[5] != null) {
+      tokenList = ObservableList.of(
+          List.of(cache[5]).map((i) => Token.fromJson(i)).toList());
+    } else {
+      tokenList = ObservableList();
     }
   }
 
@@ -484,14 +537,109 @@ abstract class _AssetsStore with Store {
   }
 
   @action
+  Future<void> updateTokenShowStatus(
+    String address, {
+    required String tokenId,
+  }) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+
+    List<String> tokenHideList = [];
+    List<Token> tempTokenList = [];
+
+    for (Token token in tokenList) {
+      if (token.tokenAssestInfo != null &&
+          token.tokenAssestInfo?.tokenId != null) {
+        String itemTokenId = token.tokenAssestInfo?.tokenId ?? "";
+        if (itemTokenId == tokenId) {
+          if (token.localConfig != null) {
+            token.localConfig?.hideToken =
+                !(token.localConfig?.hideToken ?? false);
+          } else {
+            token.localConfig = TokenLocalConfig(hideToken: true);
+          }
+        }
+
+        if (token.localConfig?.hideToken == true &&
+            token.tokenAssestInfo != null) {
+          tokenHideList.add(itemTokenId);
+        } else {
+          tokenHideList.remove(itemTokenId);
+        }
+        tempTokenList.add(token);
+      }
+    }
+    tokenList.clear();
+    tokenList = ObservableList.of(tempTokenList);
+
+    updateTokenLocalConfig(address,
+        tokenShowedList: localShowedTokenIds,
+        hideTokenList: tokenHideList,
+        shouldCache: true);
+  }
+
+  @action
+  Future<void> updateNewTokenConfig(
+    String address,
+  ) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+
+    List<String> tokenShowedList = [];
+    List<Token> tempTokenList = [];
+
+    for (Token token in tokenList) {
+      if (token.localConfig != null) {
+        token.localConfig?.tokenShowed = true;
+      } else {
+        token.localConfig = TokenLocalConfig(tokenShowed: true);
+      }
+
+      if (token.localConfig?.tokenShowed == true &&
+          token.tokenAssestInfo != null) {
+        tokenShowedList.add(token.tokenAssestInfo!.tokenId);
+      }
+      tempTokenList.add(token);
+    }
+    tokenList.clear();
+    tokenList = ObservableList.of(tempTokenList);
+
+    updateTokenLocalConfig(address,
+        tokenShowedList: tokenShowedList,
+        hideTokenList: localHideTokenList,
+        shouldCache: true);
+  }
+
+  @action
+  Future<void> updateTokenLocalConfig(
+    String address, {
+    bool shouldCache = false,
+    required List<String> tokenShowedList,
+    required List<String> hideTokenList,
+  }) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+    String? networkId =
+        rootStore.settings!.currentNode?.networkID; // 没有找到则不处理本次
+
+    Map<String, List<String>> localConfig = {
+      "localShowedTokenIds": tokenShowedList,
+      "localHideTokenList": hideTokenList
+    };
+
+    String keys =
+        '${rootStore.wallet!.currentWallet.pubKey}_${networkId}_$cacheTokenConfigKey';
+    if (shouldCache) {
+      rootStore.localStorage.setAccountCache(
+          rootStore.wallet!.currentWallet.pubKey,
+          keys,
+          localConfig);
+    }
+  }
+
+  @action
   Future<void> updateTokenAssets(List<Token> ls, String address,
       {bool shouldCache = false}) async {
     if (rootStore.wallet!.currentAddress != address) return;
 
     Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
-    int newTokenCountTemp = 0;
-    double totalShowAmount = 0;
-
     if (ls.isEmpty) {
       tokenList.add(mainTokenDefaultConfig);
     } else {
@@ -505,7 +653,7 @@ abstract class _AssetsStore with Store {
 
         TokenLocalConfig localConfig = TokenLocalConfig.fromJson({
           ...sourceLocalConfig.toJson(),
-          "hideToken": localTokenConfig[tokenId] ?? false
+          "hideToken": localHideTokenList.contains(tokenId)
         });
 
         TokenBaseInfo tokenBaseInfo = TokenBaseInfo.fromJson({
@@ -528,8 +676,10 @@ abstract class _AssetsStore with Store {
               decimals = zkappState[0];
             }
             tokenBaseInfo.decimals = decimals;
-            tokenBaseInfo.showBalance =
-                Fmt.bigIntToDouble(totalBalance, int.parse(decimals));
+            tokenBaseInfo.showBalance = 
+                double.parse(Fmt.balance(
+                    totalBalance.toString(), int.parse(decimals),
+                    maxLength: int.parse(decimals)));
           } catch (e) {
             tokenBaseInfo.decimals = decimals;
             tokenBaseInfo.showBalance = totalBalance.toDouble();
@@ -542,12 +692,14 @@ abstract class _AssetsStore with Store {
             tokenBaseInfo.isDelegation = delegateAccount != null &&
                 delegateAccount != tokenItem.tokenAssestInfo?.publicKey;
             tokenBaseInfo.decimals = COIN.decimals.toString();
-            tokenBaseInfo.showBalance =
-                Fmt.bigIntToDouble(totalBalance, COIN.decimals);
+            tokenBaseInfo.showBalance = double.parse(Fmt.balance(
+                totalBalance.toString(), COIN.decimals,
+                maxLength: COIN.decimals));
           } else {
             tokenBaseInfo.decimals = decimals;
-            tokenBaseInfo.showBalance =
-                Fmt.bigIntToDouble(totalBalance, int.parse(decimals));
+            tokenBaseInfo.showBalance = double.parse(Fmt.balance(
+                totalBalance.toString(), int.parse(decimals),
+                maxLength: int.parse(decimals)));
           }
         }
 
@@ -555,19 +707,11 @@ abstract class _AssetsStore with Store {
         if (tokenPrice != null) {
           tokenBaseInfo.showAmount = double.parse(
               Fmt.priceCeil(tokenBaseInfo.showBalance! * tokenPrice));
-          if (localConfig.hideToken != true) {
-            totalShowAmount = (Decimal.parse(totalShowAmount.toString()) +
-                    Decimal.parse(tokenBaseInfo.showAmount.toString()))
-                .toDouble();
-          }
         }
+                localConfig.tokenShowed =
+            localShowedTokenIds.contains(tokenId);
 
-        tokenBaseInfo.tokenShowed = localShowedTokenIds.contains(tokenId);
-
-        if (tokenBaseInfo.tokenShowed != true &&
-            tokenBaseInfo.isMainToken != true) {
-          newTokenCountTemp = newTokenCountTemp + 1;
-        }
+        
 
         Token updatedTokenItem = Token(
           tokenAssestInfo: tokenItem.tokenAssestInfo,
@@ -578,8 +722,6 @@ abstract class _AssetsStore with Store {
         return updatedTokenItem;
       }).toList();
 
-      tokenTotalAmount = totalShowAmount;
-      newTokenCount = newTokenCountTemp;
 
       nextTokenList.sort(compareTokens);
 
@@ -595,5 +737,38 @@ abstract class _AssetsStore with Store {
       tokenList.clear();
       tokenList = ObservableList.of(nextTokenList);
     }
+    if (shouldCache) {
+      rootStore.localStorage.setAccountCache(
+          rootStore.wallet!.currentWallet.pubKey, cacheTokensKey, tokenList);
+    }
+  }
+
+
+  @action
+  Future<void> clearRuntimeTokens() async {
+    tokenList.clear();
+  }
+
+  @action
+  Future<void> clearAllTokens() async {
+    clearRuntimeTokens();
+    rootStore.localStorage.setAccountCache(
+        rootStore.wallet!.currentWallet.pubKey, cacheTokensKey, []);
+  }
+
+  @action
+  Future<void> clearAssestNodeCache() async {
+    clearAllTxs();
+    clearMarketPrices();
+    clearAllTokens();
+  }
+
+  @action
+  Future<void> clearAccountAssestCache() async {
+    clearTxs();
+    clearZkTxs();
+    clearPendingTxs();
+    clearPendingZkTxs();
+    clearRuntimeTokens();
   }
 }

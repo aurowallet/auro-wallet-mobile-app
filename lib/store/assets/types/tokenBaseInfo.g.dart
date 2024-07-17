@@ -14,7 +14,6 @@ TokenBaseInfo _$TokenBaseInfoFromJson(Map<String, dynamic> json) =>
       decimals: json['decimals'] as String?,
       showBalance: (json['showBalance'] as num?)?.toDouble(),
       showAmount: (json['showAmount'] as num?)?.toDouble(),
-      tokenShowed: json['tokenShowed'] as bool?,
     );
 
 Map<String, dynamic> _$TokenBaseInfoToJson(TokenBaseInfo instance) =>
@@ -25,5 +24,4 @@ Map<String, dynamic> _$TokenBaseInfoToJson(TokenBaseInfo instance) =>
       'decimals': instance.decimals,
       'showBalance': instance.showBalance,
       'showAmount': instance.showAmount,
-      'tokenShowed': instance.tokenShowed,
     };

@@ -1,4 +1,3 @@
-import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenIcon.dart';
@@ -12,7 +11,7 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class TokenManagaItem extends StatefulWidget {
+class TokenManagaItem extends StatelessWidget {
   TokenManagaItem({
     required this.tokenItem,
     required this.store,
@@ -20,78 +19,44 @@ class TokenManagaItem extends StatefulWidget {
   final Token tokenItem;
   final AppStore store;
 
-  @override
-  _TokenManagaItemState createState() =>
-      _TokenManagaItemState(tokenItem, store);
-}
-
-class _TokenManagaItemState extends State<TokenManagaItem>
-    with WidgetsBindingObserver {
-  _TokenManagaItemState(this.tokenItem, this.store);
-
-  final Token tokenItem;
-  final AppStore store;
-
-  String tokenIconUrl = "";
-  String tokenSymbol = "Xxxxx"; // todo need update to fast
-  String tokenName = "";
-  String displayBalance = "";
-  String? displayAmount;
-  String? delegationText;
-  bool isDelegation = false;
-  bool isMinaNet = false;
-  bool tokenShowed = true;
-  bool hideToken = false;
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppLocalizations dic = AppLocalizations.of(context)!;
-
-      TokenAssetInfo? tokenAssestInfo = tokenItem.tokenAssestInfo;
-
-      TokenNetInfo? tokenNetInfo = tokenItem.tokenNetInfo;
-      TokenLocalConfig? localConfig = tokenItem.localConfig;
-      TokenBaseInfo? tokenBaseInfo = tokenItem.tokenBaseInfo;
-
-      bool isMainToken = tokenBaseInfo?.isMainToken ?? false;
-      bool isFungibleToken = !isMainToken;
-      if (isMainToken) {
-        tokenIconUrl = "assets/images/stake/icon_mina_color.svg";
-        tokenSymbol = COIN.coinSymbol;
-        tokenName = COIN.name;
-      } else {
-        tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
-        tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
-      }
-
-      isDelegation = tokenBaseInfo?.isDelegation ?? false;
-      displayBalance = Fmt.balance(tokenBaseInfo?.showBalance.toString(), 0);
-
-      var currency = currencyConfig
-          .firstWhere((element) => element.key == store.settings!.currencyCode);
-      var currencySymbol = currency.symbol;
-
-      if (tokenBaseInfo?.showAmount != null) {
-        displayAmount =
-            currencySymbol + " " + tokenBaseInfo!.showAmount.toString();
-      }
-      isMinaNet = store.settings!.isMinaNet;
-      if (isMinaNet && isMainToken) {
-        delegationText = tokenBaseInfo?.isDelegation == true
-            ? dic.stakingStatus_1
-            : dic.stakingStatus_2;
-      }
-
-      tokenShowed = tokenBaseInfo?.tokenShowed ?? false;
-      hideToken = localConfig?.hideToken ?? false;
-    });
-    super.initState();
+  onPressed() async {
+    await store.assets!.updateTokenShowStatus(store.wallet!.currentAddress,
+        tokenId: tokenItem.tokenAssestInfo?.tokenId ?? "");
   }
 
   @override
   Widget build(BuildContext context) {
+    String tokenIconUrl = "";
+    String tokenSymbol = "";
+    String tokenName = "";
+    String displayBalance = "";
+    bool tokenShowed = true;
+    bool hideToken = false;
+
     AppLocalizations dic = AppLocalizations.of(context)!;
+
+    TokenAssetInfo? tokenAssestInfo = tokenItem.tokenAssestInfo;
+
+    TokenNetInfo? tokenNetInfo = tokenItem.tokenNetInfo;
+    TokenLocalConfig? localConfig = tokenItem.localConfig;
+    TokenBaseInfo? tokenBaseInfo = tokenItem.tokenBaseInfo;
+
+    bool isMainToken = tokenBaseInfo?.isMainToken ?? false;
+    if (isMainToken) {
+      tokenIconUrl = "assets/images/stake/icon_mina_color.svg";
+      tokenSymbol = COIN.coinSymbol;
+      tokenName = COIN.name;
+    } else {
+      tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+      tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
+    }
+    displayBalance = tokenBaseInfo?.showBalance != null
+        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
+        : "0.0";
+
+    tokenShowed = localConfig?.tokenShowed ?? false;
+    hideToken = localConfig?.hideToken ?? false;
+
     return new Material(
       color: Colors.white,
       child: Container(
@@ -101,7 +66,8 @@ class _TokenManagaItemState extends State<TokenManagaItem>
             decoration: BoxDecoration(
                 border: Border(
                     bottom: BorderSide(
-              color: Colors.black.withOpacity(0.1),
+              color:
+                  tokenShowed ? Colors.white : Colors.black.withOpacity(0.05),
               width: 0.5,
             ))),
             child: Row(
@@ -155,12 +121,15 @@ class _TokenManagaItemState extends State<TokenManagaItem>
                     ),
                   ],
                 ),
-                SvgPicture.asset(
-                  hideToken
-                      ? "assets/images/assets/icon_add.svg"
-                      : "assets/images/assets/icon_hide.svg",
-                  fit: BoxFit.cover,
-                ),
+                InkWell(
+                  onTap: onPressed,
+                  child: SvgPicture.asset(
+                    hideToken
+                        ? "assets/images/assets/icon_add.svg"
+                        : "assets/images/assets/icon_hide.svg",
+                    fit: BoxFit.cover,
+                  ),
+                )
               ],
             )),
         // )

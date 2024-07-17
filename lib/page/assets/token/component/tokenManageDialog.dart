@@ -21,6 +21,10 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
     super.initState();
   }
 
+  Future<void> onClickIgnore() async {
+    await store.assets!.updateNewTokenConfig(store.wallet!.currentAddress);
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -41,10 +45,50 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
                 title: dic.assetManagement,
                 showCloseIcon: true,
               ),
+              Observer(builder: (_) {
+                if (store.assets!.newTokenCount <= 0) {
+                  return Container();
+                }
+                return Container(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                            color: Colors.black.withOpacity(0.1), width: 0.5),
+                      ),
+                      color: Color(0xFFF9FAFC),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          dic.newTokenFound(
+                              store.assets!.newTokenCount.toString()),
+                          style: TextStyle(
+                            color: Color(0xFF808080),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: onClickIgnore,
+                          child: Text(
+                            dic.ignore,
+                            style: TextStyle(
+                              color: Color(0xFF808080),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ));
+              }),
               Container(
                   padding: EdgeInsets.only(top: 10, bottom: 10),
                   constraints: BoxConstraints(
-                    maxHeight: height * 0.3,
+                    maxHeight: height * 0.6,
                   ),
                   child: Observer(builder: (BuildContext context) {
                     // todo when init,  add loading
@@ -55,16 +99,15 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
                         )
                         .toList();
 
-                    return Expanded(
-                        child: ListView.builder(
-                            itemCount: manageList.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                  child: TokenManagaItem(
-                                tokenItem: manageList[index],
-                                store: store,
-                              ));
-                            }));
+                    return ListView.builder(
+                        itemCount: manageList.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                              child: TokenManagaItem(
+                            tokenItem: manageList[index],
+                            store: store,
+                          ));
+                        });
                   })),
             ],
           ),

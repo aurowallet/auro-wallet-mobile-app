@@ -11,7 +11,7 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 
-class TokenItemView extends StatefulWidget {
+class TokenItemView extends StatelessWidget {
   TokenItemView(
       {required this.tokenItem,
       required this.store,
@@ -21,70 +21,50 @@ class TokenItemView extends StatefulWidget {
   final Function onClickTokenItem;
 
   @override
-  _TokenItemState createState() =>
-      _TokenItemState(tokenItem, store, onClickTokenItem);
-}
-
-class _TokenItemState extends State<TokenItemView> with WidgetsBindingObserver {
-  _TokenItemState(this.tokenItem, this.store, this.onClickTokenItem);
-
-  final Token tokenItem;
-  final AppStore store;
-  final Function onClickTokenItem;
-
-  String tokenIconUrl = "";
-  String tokenSymbol = "Xxxxx"; // todo need update to fast
-  String tokenName = "";
-  String displayBalance = "";
-  String? displayAmount;
-  String? delegationText;
-  bool isDelegation = false;
-  bool isMinaNet = false;
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppLocalizations dic = AppLocalizations.of(context)!;
-
-      TokenAssetInfo? tokenAssestInfo = tokenItem.tokenAssestInfo;
-
-      TokenNetInfo? tokenNetInfo = tokenItem.tokenNetInfo;
-      TokenBaseInfo? tokenBaseInfo = tokenItem.tokenBaseInfo;
-
-      bool isMainToken = tokenBaseInfo?.isMainToken ?? false;
-
-      if (isMainToken) {
-        tokenIconUrl = "assets/images/stake/icon_mina_color.svg";
-        tokenSymbol = COIN.coinSymbol;
-        tokenName = COIN.name;
-      } else {
-        tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
-        tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
-      }
-
-      isDelegation = tokenBaseInfo?.isDelegation ?? false;
-      displayBalance = Fmt.balance(tokenBaseInfo?.showBalance.toString(), 0);
-
-      var currency = currencyConfig
-          .firstWhere((element) => element.key == store.settings!.currencyCode);
-      var currencySymbol = currency.symbol;
-
-      if (tokenBaseInfo?.showAmount != null) {
-        displayAmount =
-            currencySymbol + " " + tokenBaseInfo!.showAmount.toString();
-      }
-      isMinaNet = store.settings!.isMinaNet;
-      if (isMinaNet && isMainToken) {
-        delegationText = tokenBaseInfo?.isDelegation == true
-            ? dic.stakingStatus_1
-            : dic.stakingStatus_2;
-      }
-    });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    String tokenIconUrl = "";
+    String tokenSymbol = "";
+    String tokenName = "";
+    String displayBalance = "";
+    String? displayAmount;
+    String? delegationText;
+    bool isDelegation = false;
+    bool isMinaNet = false;
+    AppLocalizations dic = AppLocalizations.of(context)!;
+
+    TokenAssetInfo? tokenAssestInfo = tokenItem.tokenAssestInfo;
+
+    TokenNetInfo? tokenNetInfo = tokenItem.tokenNetInfo;
+    TokenBaseInfo? tokenBaseInfo = tokenItem.tokenBaseInfo;
+    bool isMainToken = tokenBaseInfo?.isMainToken ?? false;
+    if (isMainToken) {
+      tokenIconUrl = "assets/images/stake/icon_mina_color.svg";
+      tokenSymbol = COIN.coinSymbol;
+      tokenName = COIN.name;
+    } else {
+      tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+      tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
+    }
+    isDelegation = tokenBaseInfo?.isDelegation ?? false;
+
+    displayBalance = tokenBaseInfo?.showBalance != null 
+        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!) 
+        : "0.0";
+        
+    var currency = currencyConfig
+        .firstWhere((element) => element.key == store.settings!.currencyCode);
+    var currencySymbol = currency.symbol;
+
+    if (tokenBaseInfo?.showAmount != null) {
+      displayAmount =
+          currencySymbol + " " + tokenBaseInfo!.showAmount.toString();
+    }
+    isMinaNet = store.settings!.isMinaNet;
+    if (isMinaNet && isMainToken) {
+      delegationText = tokenBaseInfo?.isDelegation == true
+          ? dic.stakingStatus_1
+          : dic.stakingStatus_2;
+    }
     return new Material(
       color: Colors.white,
       child: InkWell(

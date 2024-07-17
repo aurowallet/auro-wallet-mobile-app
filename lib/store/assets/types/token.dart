@@ -6,10 +6,10 @@ part 'token.g.dart';
 
 @JsonSerializable()
 class Token {
-  final TokenAssetInfo? tokenAssestInfo;
-  final TokenNetInfo? tokenNetInfo;
-  final TokenLocalConfig? localConfig;
-  final TokenBaseInfo? tokenBaseInfo;
+  TokenAssetInfo? tokenAssestInfo;
+  TokenNetInfo? tokenNetInfo;
+  TokenLocalConfig? localConfig;
+  TokenBaseInfo? tokenBaseInfo;
 
   Token({
     this.tokenAssestInfo,
@@ -24,10 +24,15 @@ class Token {
 
 @JsonSerializable()
 class TokenLocalConfig {
-  final bool? hideToken;
+  bool? hideToken;
+  bool? tokenShowed;
 
-  TokenLocalConfig({this.hideToken});
+  TokenLocalConfig({
+    this.hideToken,
+    this.tokenShowed,
+  });
 
-  factory TokenLocalConfig.fromJson(Map<String, dynamic> json) => _$TokenLocalConfigFromJson(json);
+  factory TokenLocalConfig.fromJson(Map<String, dynamic> json) =>
+      _$TokenLocalConfigFromJson(json);
   Map<String, dynamic> toJson() => _$TokenLocalConfigToJson(this);
 }

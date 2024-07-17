@@ -88,8 +88,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      webApi.assets.fetchAccountInfo(showIndicator: true);
-      _fetchTransactions();
+      this._onRefresh(showIndicator: true);
       _checkWatchMode();
       WidgetsBinding.instance.addObserver(this);
     });
@@ -111,29 +110,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _onRefresh({showIndicator = false}) async { // todo remove to tokenDetail
-    await Future.wait([
-      _fetchTransactions(),
-      webApi.assets.fetchAccountInfo(showIndicator: showIndicator)
-    ]);
-  }
-
-  Future<void> _fetchTransactions() async {// todo remove to tokenDetail
-    if (!store.settings!.isSupportTxHistory) {
-      print('start fetch tx list=1');
-      store.assets!.setTxsLoading(false);
-      return;
+  Future<void> _onRefresh({showIndicator = false}) async {
+    // todo remove to tokenDetail
+    if (showIndicator || store.assets!.tokenList.length == 0) {
+      store.assets!.setAssetsLoading(true);
     }
-    print('start fetch tx list=2');
-    store.assets!.setTxsLoading(true);
     await Future.wait([
-      webApi.assets.fetchPendingTransactions(store.wallet!.currentAddress),
-      webApi.assets.fetchTransactions(store.wallet!.currentAddress),
-      webApi.assets.fetchPendingZkTransactions(store.wallet!.currentAddress),
-      webApi.assets.fetchZkTransactions(store.wallet!.currentAddress)
+      webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
     ]);
-    store.assets!.setTxsLoading(false);
-    print('finish fetch tx list');
+    store.assets!.setAssetsLoading(false);
   }
 
   void _onReceive() {
@@ -272,13 +257,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var currency = currencyConfig
         .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
-    Color amountColor = (store.assets!.isBalanceLoading) ? Color(0xFFDDDDDD) : Color(0xFFFFFFFF);
+    Color amountColor = (store.assets!.isBalanceLoading)
+        ? Color(0xFFDDDDDD)
+        : Color(0xFFFFFFFF);
     bool isZekoNet = store.settings!.isZekoNet;
     String nextNetIcon = isZekoNet
         ? "assets/images/assets/icon_zeko.svg"
         : "assets/images/assets/icon_mina.svg";
-    
-    int chainColor = store.settings!.isMainnet ? 0xFF594AF1:0x4C000000;
+
+    int chainColor = store.settings!.isMainnet ? 0xFF594AF1 : 0x4C000000;
 
     final buttonTextStyle = TextStyle(
         fontSize: 16,
@@ -286,7 +273,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3);
-    double totalAmount = store.assets!.tokenTotalAmount;
+    String totalAmount = store.assets!.tokenTotalAmount;
     String showAmount = currencySymbol + " " + totalAmount.toString();
     return Container(
       margin: EdgeInsets.fromLTRB(20, 4, 20, 0),
@@ -345,10 +332,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                   ],
                 ),
                 Padding(
-                  padding: EdgeInsets.only(
-                    top: 20,
-                    bottom: 20
-                  ),
+                  padding: EdgeInsets.only(top: 20, bottom: 20),
                   child: Row(
                     textBaseline: TextBaseline.alphabetic,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -380,10 +364,11 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       text: dic.send,
                       textStyle: buttonTextStyle,
                       onPressed: _onTransfer,
-                      icon: 
-                      SvgPicture.asset('assets/images/assets/send.svg',
-                          width: 10,
-                          color: Color(chainColor),),
+                      icon: SvgPicture.asset(
+                        'assets/images/assets/send.svg',
+                        width: 10,
+                        color: Color(chainColor),
+                      ),
                       padding: EdgeInsets.zero,
                       radius: 24,
                     ),
@@ -438,20 +423,14 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     );
   }
 
-
-  Widget _buildTokenListView(){
+  Widget _buildTokenListView() {
     return TokenListView(store);
   }
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
-    AppLocalizations dic = AppLocalizations.of(context)!;
     return Observer(
       builder: (_) {
-        bool isTxsLoading = store.assets!.isTxsLoading;
-        bool isEmpty = store.assets!.totalTxs.length == 0 &&
-            store.assets!.totalPendingTxs.length == 0;
         return RefreshIndicator(
           key: globalBalanceRefreshKey,
           onRefresh: _onRefresh,
