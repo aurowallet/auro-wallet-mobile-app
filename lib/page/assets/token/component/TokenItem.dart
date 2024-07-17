@@ -15,10 +15,10 @@ class TokenItemView extends StatelessWidget {
   TokenItemView(
       {required this.tokenItem,
       required this.store,
-      required this.onClickTokenItem});
+      this.onClickTokenItem});
   final Token tokenItem;
   final AppStore store;
-  final Function onClickTokenItem;
+  final Function? onClickTokenItem;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,9 @@ class TokenItemView extends StatelessWidget {
       color: Colors.white,
       child: InkWell(
           onTap: () {
-            onClickTokenItem(tokenItem);
+            if(onClickTokenItem!=null){
+                onClickTokenItem!(tokenItem);
+            }
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20),

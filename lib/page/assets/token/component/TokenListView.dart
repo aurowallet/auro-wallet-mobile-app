@@ -10,33 +10,27 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
 class TokenListView extends StatefulWidget {
-  TokenListView(this.store, {this.isInModal, this.onClickItem});
+  TokenListView(this.store, {this.onClickItem});
 
-  final bool? isInModal;
   final AppStore store;
   final Function()? onClickItem;
 
   @override
-  _TokenListViewState createState() => _TokenListViewState(store, isInModal);
+  _TokenListViewState createState() => _TokenListViewState(store);
 }
 
 class _TokenListViewState extends State<TokenListView>
     with WidgetsBindingObserver {
-  _TokenListViewState(this.store, this.isInModal);
-  final bool? isInModal;
+  _TokenListViewState(
+    this.store,
+  );
   final AppStore store;
 
   Future<void> onClickTokenItem(Token tokenItem) async {
     await store.assets!.setNextToken(tokenItem);
-    if (isInModal == true) {
-      if (widget.onClickItem != null) {
-        widget.onClickItem!();
-      }
-    } else {
-      Navigator.of(context).pushNamed(
-        TokenDetailPage.route,
-      );
-    }
+    Navigator.of(context).pushNamed(
+      TokenDetailPage.route,
+    );
   }
 
   void onClickManage() {
@@ -50,52 +44,50 @@ class _TokenListViewState extends State<TokenListView>
     return Expanded(
       child: Column(
         children: [
-          isInModal == true
-              ? Container()
-              : Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                  margin: EdgeInsets.only(top: 30),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                          bottom: BorderSide(
-                        color: Colors.black.withOpacity(0.1),
-                        width: 0.5,
-                      ))),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        dic.tokens,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          letterSpacing: -0.3,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.left,
-                      ),
-                      Observer(builder: (BuildContext context) {
-                        bool isLoading = store.assets!.isAssetsLoading;
-                        int count = store.assets!.newTokenCount;
-                        String showCount = count.toString();
-                        bool showTokenTip = count > 0;
-                        if (count > 99) {
-                          showCount = "99+";
-                        }
-                        if (store.assets!.tokenList.length <= 1 || isLoading) {
-                          return Container();
-                        }
-                        return TokenManageIcon(
-                          onClickManage: onClickManage,
-                          showTokenTip: showTokenTip,
-                          showCount: showCount,
-                        );
-                      })
-                    ],
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+            margin: EdgeInsets.only(top: 30),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                    bottom: BorderSide(
+                  color: Colors.black.withOpacity(0.1),
+                  width: 0.5,
+                ))),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  dic.tokens,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    letterSpacing: -0.3,
+                    fontWeight: FontWeight.w600,
                   ),
+                  textAlign: TextAlign.left,
                 ),
+                Observer(builder: (BuildContext context) {
+                  bool isLoading = store.assets!.isAssetsLoading;
+                  int count = store.assets!.newTokenCount;
+                  String showCount = count.toString();
+                  bool showTokenTip = count > 0;
+                  if (count > 99) {
+                    showCount = "99+";
+                  }
+                  if (store.assets!.tokenList.length <= 1 || isLoading) {
+                    return Container();
+                  }
+                  return TokenManageIcon(
+                    onClickManage: onClickManage,
+                    showTokenTip: showTokenTip,
+                    showCount: showCount,
+                  );
+                })
+              ],
+            ),
+          ),
           Observer(builder: (BuildContext context) {
             bool isLoading = store.assets!.isAssetsLoading;
             if (isLoading) {

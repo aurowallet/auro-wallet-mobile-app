@@ -1,15 +1,15 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/assets/token/component/TokenListView.dart';
+import 'package:auro_wallet/page/assets/token/component/TokenItem.dart';
+import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TokenSelectionDialog extends StatefulWidget {
-  TokenSelectionDialog({
-    required this.tokenSelected,
-  });
+  TokenSelectionDialog();
 
-  final Function() tokenSelected;
   @override
   _TokenSelectDialogState createState() => new _TokenSelectDialogState();
 }
@@ -20,6 +20,13 @@ class _TokenSelectDialogState extends State<TokenSelectionDialog> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> onClickTokenItem(Token tokenItem) async {
+    await store.assets!.setNextToken(tokenItem);
+    Navigator.of(context).pop();
+    Navigator.of(context)
+        .pushNamed(TransferPage.route, arguments: {"isFromModal": true});
   }
 
   @override
@@ -47,11 +54,18 @@ class _TokenSelectDialogState extends State<TokenSelectionDialog> {
                   constraints: BoxConstraints(
                     maxHeight: height * 0.6,
                   ),
-                  child: TokenListView(
-                    store,
-                    isInModal: true,
-                    onClickItem: widget.tokenSelected,
-                  )),
+                  child: Observer(builder: (BuildContext context) {
+                    return ListView.builder(
+                        itemCount: store.assets!.tokenShowList.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                              child: TokenItemView(
+                            tokenItem: store.assets!.tokenShowList[index],
+                            store: store,
+                            onClickTokenItem: onClickTokenItem,
+                          ));
+                        });
+                  })),
             ],
           ),
         ));

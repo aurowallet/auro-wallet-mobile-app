@@ -479,13 +479,7 @@ class UI {
       isDismissible: true,
       enableDrag: false,
       builder: (BuildContext context) {
-        return TokenSelectionDialog(
-          tokenSelected: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pushNamed(TransferPage.route,
-                arguments: {"isFromModal": true});
-          },
-        );
+        return TokenSelectionDialog();
       },
     );
   }
@@ -511,7 +505,6 @@ final GlobalKey<RefreshIndicatorState> globalBalanceRefreshKey =
 
 final GlobalKey<RefreshIndicatorState> globalStakingRefreshKey =
     new GlobalKey<RefreshIndicatorState>();
-
 
 final GlobalKey<RefreshIndicatorState> globalTokenRefreshKey =
     new GlobalKey<RefreshIndicatorState>();
