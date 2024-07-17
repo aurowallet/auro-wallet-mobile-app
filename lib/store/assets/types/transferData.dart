@@ -65,7 +65,7 @@ class TransferData extends _TransferData {
     json['fee'] = fee;
     json['receiver'] = receiver;
     json['nonce'] = feePayerBody['nonce'];
-
+    json['transaction'] = jsonEncode(json['zkappCommand']);
     bool isFailed = json['failureReason'] != null && (json['failureReason'] as List<dynamic>).isNotEmpty;
     json['status'] = isFailed ? 'failed' : 'applied';
     json['success'] = !isFailed;

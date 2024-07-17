@@ -511,3 +511,7 @@ final GlobalKey<RefreshIndicatorState> globalBalanceRefreshKey =
 
 final GlobalKey<RefreshIndicatorState> globalStakingRefreshKey =
     new GlobalKey<RefreshIndicatorState>();
+
+
+final GlobalKey<RefreshIndicatorState> globalTokenRefreshKey =
+    new GlobalKey<RefreshIndicatorState>();

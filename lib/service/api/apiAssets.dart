@@ -351,7 +351,7 @@ class ApiAssets {
     List<dynamic> list = result.data!['zkapps'];
     print('zk transactions');
     store.assets!.clearZkTxs();
-    await store.assets!.addZkTxs(list, publicKey, shouldCache: true);
+    await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
   }
 
   Future<void> queryTxFees() async {

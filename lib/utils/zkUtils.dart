@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
+import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
@@ -84,7 +85,8 @@ AccountUpdateInfo getUpdateBody(Map<String, dynamic> zkappCommand) {
     var balanceChange = balanceChangeOperator +
         Fmt.balance(balanceChangeBody['magnitude'].toString(), COIN.decimals,
             maxLength: COIN.decimals);
-    var tokenSymbol = tokenId == ZK_DEFAULT_TOKEN_ID ? COIN.coinSymbol : "UNKNOWN";
+    var tokenSymbol =
+        tokenId == ZK_DEFAULT_TOKEN_ID ? COIN.coinSymbol : "UNKNOWN";
 
     if (tokenId != ZK_DEFAULT_TOKEN_ID &&
         accountItemBody.containsKey('update') &&
@@ -92,15 +94,16 @@ AccountUpdateInfo getUpdateBody(Map<String, dynamic> zkappCommand) {
       tokenSymbol = accountItemBody['update']['tokenSymbol'];
     }
     List<Detail> tempDetail = [];
-    tempDetail.add(Detail(label: "publicKey", value: Fmt.address(publicKey, pad: 10)));
-    if(tokenId != ZK_DEFAULT_TOKEN_ID){
-      tempDetail.add(Detail(label: "tokenId", value: Fmt.address(tokenId, pad: 10)));
+    tempDetail.add(
+        Detail(label: "publicKey", value: Fmt.address(publicKey, pad: 10)));
+    if (tokenId != ZK_DEFAULT_TOKEN_ID) {
+      tempDetail
+          .add(Detail(label: "tokenId", value: Fmt.address(tokenId, pad: 10)));
     }
-    tempDetail.add(Detail(label: "balanceChange", value: "$balanceChange $tokenSymbol"));
-    children.add(AccountDetail(
-      label: "Account #${index + 1}",
-      children: tempDetail
-    ));
+    tempDetail.add(
+        Detail(label: "balanceChange", value: "$balanceChange $tokenSymbol"));
+    children.add(
+        AccountDetail(label: "Account #${index + 1}", children: tempDetail));
   }
 
   return AccountUpdateInfo(label: "accountUpdates", children: children);
@@ -140,4 +143,77 @@ String getContractAddress(String tx, String currentAccount) {
     print("Error parsing transaction: $error");
   }
   return "";
+}
+
+List<TransferData> tokenHistoryFilter(List<TransferData> list, String tokenId) {
+  if (tokenId.isEmpty) {
+    return list;
+  }
+  List<TransferData> newList = [];
+  for (var txItem in list) {
+    if (txItem.transaction != null) {
+      Map nextTransaction = jsonDecode(txItem.transaction!);
+
+      if (nextTransaction['accountUpdates'] != null) {
+        var accountUpdates = nextTransaction['accountUpdates'];
+        var targetIndex = accountUpdates.indexWhere(
+            (updateItem) => updateItem['body']['tokenId'] == tokenId);
+        if (targetIndex != -1) {
+          newList.add(txItem);
+        }
+      }
+    }
+  }
+  return newList;
+}
+
+Map<String, dynamic> getTokenZkTxItemInfo(
+  TransferData txSource,
+  String tokenId,
+  int tokenDecimal,
+  String currentPubKey,
+) {
+  Map txData = jsonDecode(txSource.transaction!);
+  String? showAddress;
+  String amount = "0";
+  bool isZkReceive = false;
+  String? showToAddress;
+
+  var accountUpdates = txData['accountUpdates'];
+  var positiveUpdate = accountUpdates.where((item) {
+    var updateBody = item['body'];
+    return updateBody['tokenId'] == tokenId &&
+        updateBody['balanceChange']['sgn'] == "Positive";
+  }).toList();
+
+  var negativeUpdate = accountUpdates.where((item) {
+    var updateBody = item['body'];
+    return updateBody['tokenId'] == tokenId &&
+        updateBody['balanceChange']['sgn'] == "Negative";
+  }).toList();
+
+  if (positiveUpdate.isNotEmpty && negativeUpdate.isNotEmpty) {
+    var positiveItem = positiveUpdate[0];
+    var negativeItem = negativeUpdate[0];
+    var balance = positiveItem['body']['balanceChange']['magnitude'];
+    isZkReceive = positiveItem['body']['publicKey'] == currentPubKey;
+    showToAddress = positiveItem['body']['publicKey'];
+    showAddress = isZkReceive
+        ? negativeItem['body']['publicKey']
+        : positiveItem['body']['publicKey'];
+
+    amount = Fmt.balance(balance, tokenDecimal);
+  }
+
+  bool isReceive = txSource.sender == currentPubKey;
+
+  if (showAddress == null) {
+    showAddress = isReceive ? txSource.sender : txSource.receiver;
+  }
+  return {
+    "showAddress": showAddress,
+    "amount": amount,
+    "isZkReceive": isZkReceive,
+    "showToAddress": showToAddress
+  };
 }

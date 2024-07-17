@@ -4,6 +4,7 @@ import 'package:auro_wallet/common/components/homeListTip.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -11,14 +12,26 @@ import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TxListView extends StatefulWidget {
-  TxListView(this.store, {this.isInModal});
+  TxListView(this.store,
+      {this.isInModal,
+      required this.txList,
+      required this.isLoading,
+      required this.tokenId,
+      required this.tokenDecimal,
+      required this.tokenSymbol});
 
   final bool? isInModal;
   final AppStore store;
+  final List<TransferData> txList;
+  final bool isLoading;
+  final String tokenId;
+  final int tokenDecimal;
+  final String tokenSymbol;
 
   @override
   _TxListViewState createState() => _TxListViewState(store, isInModal);
@@ -29,7 +42,7 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
   final bool? isInModal;
   final AppStore store;
 
-  Widget _buildTxList(List<TransferData> txs) {
+  Widget _buildTxList(List<TransferData> txs,BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     String currentAddress = store.wallet!.currentAddress;
     List<Widget> res = [];
@@ -38,7 +51,10 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
       return TransferListItem(
         store: store,
         data: i,
-        isOut: i.sender == currentAddress,
+        currentAddress: currentAddress,
+        tokenId: widget.tokenId,
+        tokenDecimal: widget.tokenDecimal,
+        tokenSymbol: widget.tokenSymbol,
       );
     }));
     String? browserLink = store.settings!.currentNode?.explorerUrl;
@@ -69,14 +85,10 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
       height: 0,
     );
     String currentAddress = store.wallet!.currentAddress;
-    List<TransferData> txs = [
-      ...store.assets!.totalPendingTxs,
-      ...store.assets!.totalTxs
-    ];
 
-    if (store.assets!.isTxsLoading) {
-      if (txs.length > 0) {
-        nextWidget = _buildTxList(txs);
+    if (widget.isLoading) {
+      if (widget.txList.length > 0) {
+        nextWidget = _buildTxList(widget.txList,context);
       } else {
         nextWidget = Ink(
             color: Color(0xFFFFFFFF),
@@ -87,22 +99,17 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
             ));
       }
     } else {
-      if (!store.settings!.isSupportTxHistory) {
-        nextWidget = HomeListTip();
+      if (widget.txList.length > 0) {
+        nextWidget = _buildTxList(widget.txList,context);
       } else {
-        if (txs.length > 0) {
-          nextWidget = _buildTxList(txs);
+        AccountInfo? balancesInfo = store.assets!.accountsInfo[currentAddress];
+        bool isAccountExist = balancesInfo != null;
+        if (isAccountExist) {
+          nextWidget = HomeListTip();
         } else {
-          AccountInfo? balancesInfo =
-              store.assets!.accountsInfo[currentAddress];
-          bool isAccountExist = balancesInfo != null;
-          if (isAccountExist) {
-            nextWidget = HomeListTip();
-          } else {
-            nextWidget = Wrap(
-              children: [EmptyTxListTip()],
-            );
-          }
+          nextWidget = Wrap(
+            children: [EmptyTxListTip()],
+          );
         }
       }
     }
@@ -137,27 +144,54 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
   }
 }
 
-
 class TransferListItem extends StatelessWidget {
-  TransferListItem({
-    required this.store,
-    required this.data,
-    required this.isOut,
-  });
+  TransferListItem(
+      {required this.store,
+      required this.data,
+      required this.tokenId,
+      required this.currentAddress,
+      required this.tokenSymbol,
+      required this.tokenDecimal});
 
   final AppStore store;
   final TransferData data;
-  final bool isOut;
-  BuildContext? _ctx;
+  final String tokenId;
+  final String currentAddress;
+  final int tokenDecimal;
+  final String tokenSymbol;
 
-  void _viewRecordDetail() {
-    Navigator.pushNamed(_ctx!, TransactionDetailPage.route, arguments: data);
+  void _viewRecordDetail(BuildContext context) {
+    Navigator.pushNamed(context, TransactionDetailPage.route, arguments: {
+      "data": data,
+      "tokenId": tokenId,
+      "tokenDecimal": tokenDecimal,
+      "tokenSymbol": tokenSymbol
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    _ctx = context;
-    String? address = isOut ? data.receiver : data.sender;
+    bool isOut = data.sender == currentAddress;
+    bool isMainToken = tokenId == ZK_DEFAULT_TOKEN_ID;
+    Map? tokenTxData;
+    if (!isMainToken) {
+      tokenTxData =
+          getTokenZkTxItemInfo(data, tokenId, tokenDecimal, currentAddress);
+    }
+
+    String? address;
+    String showAmount = "";
+
+    if (!isMainToken) {
+      address = tokenTxData?['showAddress'];
+      showAmount = (tokenTxData?['isZkReceive'] == true ? '-' : '+') +
+          tokenTxData?['amount'];
+    } else {
+      address = isOut ? data.receiver : data.sender;
+      showAmount =
+          (isOut ? '-' : '+') + Fmt.balance(data.amount, COIN.decimals);
+    }
+
     String title = '';
     if (address == null) {
       title = data.type.toUpperCase();
@@ -176,7 +210,9 @@ class TransferListItem extends StatelessWidget {
         }
         break;
       case "zkapp":
-        {
+        if (!isMainToken) {
+          icon = tokenTxData?['isZkReceive'] == true ? 'tx_in' : 'tx_out';
+        } else {
           icon = 'tx_zkapp';
         }
         break;
@@ -214,10 +250,13 @@ class TransferListItem extends StatelessWidget {
     }
     Color bgColor =
         data.status != 'pending' ? Colors.transparent : Color(0xFFF9FAFC);
+
     return new Material(
       color: bgColor,
       child: InkWell(
-          onTap: _viewRecordDetail,
+          onTap: () {
+            _viewRecordDetail(context);
+          },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -260,7 +299,7 @@ class TransferListItem extends StatelessWidget {
                                           : SizedBox(height: 0),
                                     ]),
                                 Text(
-                                  '${isOut ? '-' : '+'}${Fmt.balance(data.amount, COIN.decimals)}',
+                                  '$showAmount',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16,

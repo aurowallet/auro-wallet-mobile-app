@@ -423,7 +423,7 @@ class _TransferPageState extends State<TransferPage> {
                 Navigator.popUntil(
                     context, ModalRoute.withName(TokenDetailPage.route));
               }
-              globalBalanceRefreshKey.currentState!.show();
+              globalTokenRefreshKey.currentState!.show();
               return true;
             }
             return false;

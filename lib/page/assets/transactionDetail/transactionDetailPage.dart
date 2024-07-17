@@ -3,11 +3,13 @@ import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/customDivider.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -36,14 +38,37 @@ class TransactionDetailPage extends StatelessWidget {
 
   List<Widget> _buildListView(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final TransferData tx =
-        ModalRoute.of(context)!.settings.arguments as TransferData;
+    Map params = ModalRoute.of(context)!.settings.arguments as Map;
+
+    TransferData tx = params['data'];
+
+    String tokenId = params['tokenId'];
+    int tokenDecimal = params['tokenDecimal'];
+    String tokenSymbol = params['tokenSymbol'];
+
+    bool isMainToken = tokenId == ZK_DEFAULT_TOKEN_ID;
+
     final success = tx.success;
     final pending = tx.isPending;
 
-    final String symbol = COIN.coinSymbol;
-    final int decimals = COIN.decimals;
+    String symbol = isMainToken ? COIN.coinSymbol : tokenSymbol;
+    int decimals = isMainToken ? COIN.decimals : tokenDecimal;
+    Map? tokenTxData;
+    if (!isMainToken) {
+      tokenTxData = getTokenZkTxItemInfo(
+          tx, tokenId, tokenDecimal, store.wallet!.currentAddress);
+    }
 
+    String? showToAddress = "";
+    String showAmount;
+    if (!isMainToken) {
+      showToAddress = tokenTxData?['showToAddress'];
+      showAmount = tokenTxData?['amount'] + " " + tokenSymbol;
+    } else {
+      showToAddress = tx.receiver;
+      showAmount =
+          '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
+    }
     String statusIcon;
     String statusText;
     Color statusColor;
@@ -78,8 +103,10 @@ class TransactionDetailPage extends StatelessWidget {
         }
         break;
       case "zkapp":
-        {
-          statusIcon = 'record_zkapp';
+        if (!isMainToken) {
+          statusIcon = tokenTxData?['isZkReceive'] == true ? 'tx_in' : 'tx_out';
+        } else {
+          statusIcon = 'tx_zkapp';
         }
         break;
       default:
@@ -91,11 +118,7 @@ class TransactionDetailPage extends StatelessWidget {
 
     final items = [
       TxInfoItem(label: dic.txType, title: txType),
-      TxInfoItem(
-        label: dic.amount,
-        title:
-            '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol',
-      ),
+      TxInfoItem(label: dic.amount, title: showAmount),
       TxInfoItem(
           label: dic.fromAddress,
           title: tx.sender,
@@ -103,8 +126,8 @@ class TransactionDetailPage extends StatelessWidget {
           showScamTag: tx.isFromAddressScam == true),
       TxInfoItem(
         label: dic.toAddress,
-        title: tx.receiver,
-        copyText: tx.receiver,
+        title: showToAddress,
+        copyText: showToAddress,
       ),
       TxInfoItem(label: dic.memo2, title: tx.memo, copyText: tx.memo),
       TxInfoItem(
@@ -119,7 +142,7 @@ class TransactionDetailPage extends StatelessWidget {
           ? TxInfoItem(
               label: dic.fee,
               title:
-                  '${Fmt.balance(tx.fee!, decimals, maxLength: decimals)} $symbol',
+                  '${Fmt.balance(tx.fee!, COIN.decimals, maxLength: COIN.decimals)} ${COIN.coinSymbol}',
             )
           : null,
       TxInfoItem(
@@ -144,6 +167,7 @@ class TransactionDetailPage extends StatelessWidget {
                   'assets/images/assets/$statusIcon.svg',
                   width: 48,
                   height: 48,
+                  color: Colors.white,
                 ),
               )),
           Text(statusText,
@@ -198,8 +222,9 @@ class TransactionDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
 
-    final TransferData tx =
-        ModalRoute.of(context)!.settings.arguments as TransferData;
+    Map params = ModalRoute.of(context)!.settings.arguments as Map;
+
+    TransferData tx = params['data'];
     return Scaffold(
       appBar: AppBar(
         title: Text('${dic.details}'),
