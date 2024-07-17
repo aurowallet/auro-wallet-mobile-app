@@ -42,9 +42,7 @@ class _TokenDetail extends State<TokenDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Map<String, dynamic> params =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    token = params['token'] as Token;
+    token = widget.store.assets!.nextToken;
     TokenAssetInfo? tokenAssestInfo = token.tokenAssestInfo;
     TokenNetInfo? tokenNetInfo = token.tokenNetInfo;
     TokenBaseInfo? tokenBaseInfo = token.tokenBaseInfo;
@@ -58,12 +56,10 @@ class _TokenDetail extends State<TokenDetailPage> {
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
 
-displayBalance = tokenBaseInfo?.showBalance != null 
-        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!) 
+    displayBalance = tokenBaseInfo?.showBalance != null
+        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
         : "0.0";
-    displayBalance = displayBalance +
-        " " +
-        tokenSymbol;
+    displayBalance = displayBalance + " " + tokenSymbol;
 
     double? tokenAmount = tokenBaseInfo?.showAmount;
 
@@ -169,12 +165,14 @@ displayBalance = tokenBaseInfo?.showBalance != null
                           TokenActionItem(
                             type: TokenActionType.send,
                             token: token,
+                            store: widget.store,
                           ),
                           SizedBox(
                             width: 20,
                           ),
                           TokenActionItem(
                             type: TokenActionType.receive,
+                            store: widget.store,
                           ),
                           SizedBox(
                             width: showStakingEntry ? 20 : 0,
@@ -182,6 +180,7 @@ displayBalance = tokenBaseInfo?.showBalance != null
                           showStakingEntry
                               ? TokenActionItem(
                                   type: TokenActionType.delegation,
+                                  store: widget.store,
                                 )
                               : Container()
                         ],
@@ -202,18 +201,18 @@ displayBalance = tokenBaseInfo?.showBalance != null
 enum TokenActionType { send, receive, delegation }
 
 class TokenActionItem extends StatelessWidget {
-  TokenActionItem({required this.type, this.token});
+  TokenActionItem({required this.type, this.token, required this.store});
 
   final TokenActionType type;
   final Token? token;
+  final AppStore store;
 
-  void onClickItem(
-      BuildContext context, TokenActionType type, String nextRouter) {
-    Map nextArguments = {};
+  Future<void> onClickItem(
+      BuildContext context, TokenActionType type, String nextRouter) async {
     if (type == TokenActionType.send) {
-      nextArguments = {"token": token};
+      await store.assets!.setNextToken(token!);
     }
-    Navigator.of(context).pushNamed(nextRouter, arguments: nextArguments);
+    Navigator.of(context).pushNamed(nextRouter);
   }
 
   @override
@@ -265,10 +264,10 @@ class TokenActionItem extends StatelessWidget {
             Text(
               title!,
               style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).primaryColor,
-                  ),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Theme.of(context).primaryColor,
+              ),
             )
           ],
         ));

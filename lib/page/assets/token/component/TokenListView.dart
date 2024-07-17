@@ -10,13 +10,11 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
 class TokenListView extends StatefulWidget {
-  TokenListView(this.store, {this.isInModal,
-  this.onClickItem
-  });
+  TokenListView(this.store, {this.isInModal, this.onClickItem});
 
   final bool? isInModal;
   final AppStore store;
-  final Function(Token)? onClickItem;
+  final Function()? onClickItem;
 
   @override
   _TokenListViewState createState() => _TokenListViewState(store, isInModal);
@@ -28,19 +26,21 @@ class _TokenListViewState extends State<TokenListView>
   final bool? isInModal;
   final AppStore store;
 
-  void onClickTokenItem(Token tokenItem) {
+  Future<void> onClickTokenItem(Token tokenItem) async {
+    await store.assets!.setNextToken(tokenItem);
     if (isInModal == true) {
-      if(widget.onClickItem!=null){
-        widget.onClickItem!(tokenItem);
-        }
+      if (widget.onClickItem != null) {
+        widget.onClickItem!();
+      }
     } else {
-      Navigator.of(context)
-          .pushNamed(TokenDetailPage.route, arguments: {"token": tokenItem});
+      Navigator.of(context).pushNamed(
+        TokenDetailPage.route,
+      );
     }
   }
 
   void onClickManage() {
-    UI.showTokenManageDialog(context: context); 
+    UI.showTokenManageDialog(context: context);
   }
 
   @override
@@ -138,46 +138,43 @@ class TokenManageIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.amber,
-      child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: <Widget>[
-              SvgPicture.asset('assets/images/assets/icon_add.svg'),
-              if (showTokenTip)
-                Positioned(
-                  right: -12,
-                  top: -10,
-                  child: Container(
-                    padding: EdgeInsets.all(1),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: BoxConstraints(
-                      minWidth: 20,
-                      minHeight: 20,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$showCount',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
+    return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: <Widget>[
+            SvgPicture.asset('assets/images/assets/icon_add.svg'),
+            if (showTokenTip)
+              Positioned(
+                right: -12,
+                top: -10,
+                child: Container(
+                  padding: EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: BoxConstraints(
+                    minWidth: 20,
+                    minHeight: 20,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$showCount',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
-            ],
-          ),
-          onTap: () {
-            onClickManage();
-          }),
-    );
+              ),
+          ],
+        ),
+        onTap: () {
+          onClickManage();
+        });
   }
 }

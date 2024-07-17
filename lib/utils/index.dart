@@ -45,7 +45,9 @@ int compareTokens(Token a, Token b) {
 bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId, Map<String, dynamic> buildZkCommand) {
   final String sender = sourceData['sender'];
   final String receiver = sourceData['receiver'];
-  final int amount = sourceData['amount'];
+  final num amount = sourceData['amount'];
+  final double sourceAmount = amount.toDouble();
+  
 
   bool senderVerified = false;
   bool receiverVerified = false;
@@ -56,18 +58,19 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId, Map
     final Map<String, dynamic> body = accountUpdate['body'];
     final String publicKey = body['publicKey'];
     final String balanceChangeMagnitude = body['balanceChange']['magnitude'];
+    final double changeBalance = double.parse(balanceChangeMagnitude);
     final String balanceChangeSgn = body['balanceChange']['sgn'];
     final String tokenId = body['tokenId'];
 
     if (tokenId == sendTokenId) {
       if (publicKey == sender) {
-        if (balanceChangeMagnitude == amount.toString() && balanceChangeSgn == 'Negative') {
+        if (changeBalance ==  sourceAmount && balanceChangeSgn == 'Negative') {
           senderVerified = true;
         }
       }
 
       if (publicKey == receiver) {
-        if (balanceChangeMagnitude == amount.toString() && balanceChangeSgn == 'Positive') {
+        if (changeBalance == sourceAmount && balanceChangeSgn == 'Positive') {
           receiverVerified = true;
         }
       }

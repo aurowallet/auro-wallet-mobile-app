@@ -8,6 +8,7 @@ import 'package:auro_wallet/common/components/feeSelector.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
+import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
@@ -27,6 +28,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -90,11 +92,9 @@ class _TransferPageState extends State<TransferPage> {
       _toAddressCtrl.addListener(_onAddressChange);
       _feeCtrl.addListener(_onFeeInputChange);
 
-      Map<dynamic, dynamic> params =
-          ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
-
-      token = params['token'] as Token;
-      isFromModal = params['isFromModal'] as bool;
+      dynamic params = ModalRoute.of(context)!.settings.arguments;
+      token = store.assets!.nextToken;
+      isFromModal = params?['isFromModal'] ?? false;
 
       TokenAssetInfo? tokenAssestInfo = token.tokenAssestInfo;
 
@@ -211,12 +211,13 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<String?> getTokenBody(Map txInfo1) async {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     dynamic res =
         await webApi.assets.getTokenState(txInfo1['toAddress'], tokenId);
 
     bool fundNewAccountStatus = res == null;
 
-    Map buildInfo = {
+    Map<String, dynamic> buildInfo = {
       "sender": txInfo1['fromAddress'],
       "receiver": txInfo1['toAddress'],
       "tokenAddress": tokenPublicKey,
@@ -224,28 +225,26 @@ class _TransferPageState extends State<TransferPage> {
       "isNewAccount": fundNewAccountStatus.toString(),
       "gqlUrl": store.settings!.currentNode!.url
     };
+    Map<String, dynamic> encrypRes = await webApi.bridge
+        .encryptData(jsonEncode(buildInfo), node_public_keys);
+    dynamic data = await webApi.account.buildTokenBody(encrypRes);
 
-    dynamic data = await webApi.account.buildTokenBody(buildInfo);
-
-    /// todo add verify and encrypto
-    /// todo add error
     Map transaction = jsonDecode(data);
-    if (transaction['unSignTx'] != null) {
-      return transaction['unSignTx'];
+    if (data != null && transaction['unSignTx'] != null) {
+      Map<String, dynamic> realUnSignTxStr = await webApi.bridge
+          .decryptData(transaction['unSignTx'], react_private_keys); // 这个要更新
+      bool checkRes = verifyTokenCommand(buildInfo, tokenId, realUnSignTxStr);
+      if (!checkRes) {
+        UI.toast(dic.buildFailed);
+        return null;
+      }
+      return jsonEncode(realUnSignTxStr);
     } else {
-      UI.toast(data['error']);
-      return "";
+      UI.toast(data.toString());
+      return null;
     }
   }
 
-  void navigatoreTest() {
-    if (isFromModal) {
-      Navigator.pushReplacementNamed(context, TokenDetailPage.route,
-          arguments: {"token": token});
-    } else {
-      Navigator.pop(context);
-    }
-  }
 
   void _handleSubmit() async {
     _unFocus();
@@ -414,12 +413,16 @@ class _TransferPageState extends State<TransferPage> {
               return false;
             }
             if (mounted && !exited) {
-              // if(data != null) {
-              //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
-              // } else {
-              //   Navigator.popUntil(context, ModalRoute.withName('/'));
-              // }
-              Navigator.popUntil(context, ModalRoute.withName('/'));
+              if (isFromModal) {
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(
+                  context,
+                  TokenDetailPage.route,
+                );
+              } else {
+                Navigator.popUntil(
+                    context, ModalRoute.withName(TokenDetailPage.route));
+              }
               globalBalanceRefreshKey.currentState!.show();
               return true;
             }
@@ -563,6 +566,16 @@ class _TransferPageState extends State<TransferPage> {
       _amountCtrl.text = availableBalance.toString();
     }
   }
+  String getTokenSymbol(Token token) {
+    bool isSendMainToken = token.tokenBaseInfo?.isMainToken ?? false;
+    String tokenSymbol = "";
+    if (isSendMainToken) {
+      tokenSymbol = COIN.coinSymbol;
+    } else {
+      tokenSymbol = token.tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+    }
+    return tokenSymbol;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -574,7 +587,10 @@ class _TransferPageState extends State<TransferPage> {
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;
         nextBottom = nextBottom.isNegative ? 0 : nextBottom;
-        String pageTitle = dic.send + " " + tokenSymbol;
+        String symbol = getTokenSymbol(store.assets!.nextToken);
+        String pageTitle = dic.send + " " + symbol;
+        String showBalance =
+            store.assets!.nextToken.tokenBaseInfo?.showBalance.toString() ?? "";
         return Scaffold(
           appBar: AppBar(
             title: Text(pageTitle),
@@ -651,9 +667,7 @@ class _TransferPageState extends State<TransferPage> {
                                         TextInputType.numberWithOptions(
                                             decimal: true),
                                     rightWidget: Text(
-                                      availableBalance.toString() +
-                                          " " +
-                                          tokenSymbol,
+                                      showBalance + " " + symbol,
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontSize: 12,
@@ -723,15 +737,6 @@ class _TransferPageState extends State<TransferPage> {
                         onPressed: _handleSubmit,
                       ),
                     ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 38, vertical: 30),
-                      child: NormalButton(
-                        color: ColorsUtil.hexColor(0x6D5FFE),
-                        text: dic.next,
-                        onPressed: navigatoreTest,
-                      ),
-                    )
                   ],
                 );
               },

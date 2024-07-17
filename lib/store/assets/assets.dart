@@ -100,6 +100,14 @@ abstract class _AssetsStore with Store {
   @observable
   List<String> localShowedTokenIds = ObservableList<String>();
 
+  @observable
+  Token nextToken = Token();
+
+  @action
+  Future<void> setNextToken(Token token) async {
+    nextToken = token;
+  }
+
   @computed
   int get newTokenCount {
     int count = 0;
@@ -123,6 +131,7 @@ abstract class _AssetsStore with Store {
   String get tokenTotalAmount {
     double totalShowAmount = 0;
     double tokenAmount;
+
     for (var token in tokenList) {
       if (token.localConfig == null || token.localConfig!.hideToken != true) {
         tokenAmount = token.tokenBaseInfo?.showAmount ?? 0;
@@ -617,7 +626,7 @@ abstract class _AssetsStore with Store {
   }) async {
     if (rootStore.wallet!.currentAddress != address) return;
     String? networkId =
-        rootStore.settings!.currentNode?.networkID; // 没有找到则不处理本次
+        rootStore.settings!.currentNode?.networkID;
 
     Map<String, List<String>> localConfig = {
       "localShowedTokenIds": tokenShowedList,
@@ -669,6 +678,7 @@ abstract class _AssetsStore with Store {
             : BigInt.from(0);
 
         String? tokenNetPublicKey = tokenItem.tokenNetInfo?.publicKey ?? "";
+        String? tokenNetSymbol = tokenItem.tokenNetInfo?.tokenSymbol ?? "";
         if (tokenNetPublicKey.isNotEmpty) {
           List<String> zkappState = tokenItem.tokenNetInfo?.zkappState ?? [];
           try {
@@ -676,10 +686,10 @@ abstract class _AssetsStore with Store {
               decimals = zkappState[0];
             }
             tokenBaseInfo.decimals = decimals;
-            tokenBaseInfo.showBalance = 
-                double.parse(Fmt.balance(
-                    totalBalance.toString(), int.parse(decimals),
-                    maxLength: int.parse(decimals)));
+            tokenBaseInfo.showBalance = double.parse(Fmt.amountDecimals(
+              totalBalance.toString(),
+              decimal: int.parse(decimals),
+            ));
           } catch (e) {
             tokenBaseInfo.decimals = decimals;
             tokenBaseInfo.showBalance = totalBalance.toDouble();
@@ -692,14 +702,16 @@ abstract class _AssetsStore with Store {
             tokenBaseInfo.isDelegation = delegateAccount != null &&
                 delegateAccount != tokenItem.tokenAssestInfo?.publicKey;
             tokenBaseInfo.decimals = COIN.decimals.toString();
-            tokenBaseInfo.showBalance = double.parse(Fmt.balance(
-                totalBalance.toString(), COIN.decimals,
-                maxLength: COIN.decimals));
+            tokenBaseInfo.showBalance = double.parse(Fmt.amountDecimals(
+              totalBalance.toString(),
+              decimal: COIN.decimals,
+            ));
           } else {
             tokenBaseInfo.decimals = decimals;
-            tokenBaseInfo.showBalance = double.parse(Fmt.balance(
-                totalBalance.toString(), int.parse(decimals),
-                maxLength: int.parse(decimals)));
+            tokenBaseInfo.showBalance = double.parse(Fmt.amountDecimals(
+              totalBalance.toString(),
+              decimal: int.parse(decimals),
+            ));
           }
         }
 
@@ -708,10 +720,9 @@ abstract class _AssetsStore with Store {
           tokenBaseInfo.showAmount = double.parse(
               Fmt.priceCeil(tokenBaseInfo.showBalance! * tokenPrice));
         }
-                localConfig.tokenShowed =
+        localConfig.tokenShowed =
             localShowedTokenIds.contains(tokenId);
 
-        
 
         Token updatedTokenItem = Token(
           tokenAssestInfo: tokenItem.tokenAssestInfo,

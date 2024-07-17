@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:convert/convert.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -263,6 +264,17 @@ class Fmt {
       return false;
     }
   }
+static String amountDecimals(String amount, {int decimal = 0}) {// 解决精度问题
+  // If decimal is bigger than 100, use 0
+  int nextDecimals = decimal;
+  if (BigInt.parse(nextDecimals.toString()) > BigInt.from(100)) {
+    nextDecimals = 0;
+  }
+   Decimal amout1 = Decimal.parse(amount);
+   Decimal amout2 = Decimal.fromBigInt(BigInt.from(10).pow(nextDecimals));
+  double realBalance = (amout1 / amout2).toDouble();
+  return realBalance.toString();
+}
 
   static String parseShowBalance(double balance, {int showLength = 4}) {
     String formatted = balance.toStringAsFixed(showLength);

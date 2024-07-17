@@ -480,9 +480,10 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return TokenSelectionDialog(
-          tokenSelected: (Token token) {
+          tokenSelected: () {
+            Navigator.of(context).pop();
             Navigator.of(context).pushNamed(TransferPage.route,
-                arguments: {"token": token, "isFromModal": true});
+                arguments: {"isFromModal": true});
           },
         );
       },

@@ -337,6 +337,30 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  late final _$nextTokenAtom =
+      Atom(name: '_AssetsStore.nextToken', context: context);
+
+  @override
+  Token get nextToken {
+    _$nextTokenAtom.reportRead();
+    return super.nextToken;
+  }
+
+  @override
+  set nextToken(Token value) {
+    _$nextTokenAtom.reportWrite(value, super.nextToken, () {
+      super.nextToken = value;
+    });
+  }
+
+  late final _$setNextTokenAsyncAction =
+      AsyncAction('_AssetsStore.setNextToken', context: context);
+
+  @override
+  Future<void> setNextToken(Token token) {
+    return _$setNextTokenAsyncAction.run(() => super.setNextToken(token));
+  }
+
   late final _$setAccountInfoAsyncAction =
       AsyncAction('_AssetsStore.setAccountInfo', context: context);
 
@@ -664,6 +688,7 @@ tokenList: ${tokenList},
 marketPrices: ${marketPrices},
 localHideTokenList: ${localHideTokenList},
 localShowedTokenIds: ${localShowedTokenIds},
+nextToken: ${nextToken},
 newTokenCount: ${newTokenCount},
 tokenTotalAmount: ${tokenTotalAmount},
 mainTokenNetInfo: ${mainTokenNetInfo},

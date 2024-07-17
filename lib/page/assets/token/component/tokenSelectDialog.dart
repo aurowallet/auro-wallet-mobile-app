@@ -2,7 +2,6 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenListView.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:flutter/material.dart';
 
 class TokenSelectionDialog extends StatefulWidget {
@@ -10,7 +9,7 @@ class TokenSelectionDialog extends StatefulWidget {
     required this.tokenSelected,
   });
 
-  final Function(Token) tokenSelected;
+  final Function() tokenSelected;
   @override
   _TokenSelectDialogState createState() => new _TokenSelectDialogState();
 }

@@ -540,5 +540,6 @@
   "ignore":"Ignore",
   "balance":"Balance",
   "updateTokenInfo":"Update your token information?",
-  "noTxHistory":"No transaction history"
+  "noTxHistory":"No transaction history",
+  "buildFailed": "Packaging failed"
 }
