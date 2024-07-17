@@ -553,40 +553,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
         .run(() => super.updateTokenShowStatus(address, tokenId: tokenId));
   }
 
-  late final _$updateNewTokenConfigAsyncAction =
-      AsyncAction('_AssetsStore.updateNewTokenConfig', context: context);
-
-  @override
-  Future<void> updateNewTokenConfig(String address) {
-    return _$updateNewTokenConfigAsyncAction
-        .run(() => super.updateNewTokenConfig(address));
-  }
-
-  late final _$updateTokenLocalConfigAsyncAction =
-      AsyncAction('_AssetsStore.updateTokenLocalConfig', context: context);
-
-  @override
-  Future<void> updateTokenLocalConfig(String address,
-      {bool shouldCache = false,
-      required List<String> tokenShowedList,
-      required List<String> hideTokenList}) {
-    return _$updateTokenLocalConfigAsyncAction.run(() => super
-        .updateTokenLocalConfig(address,
-            shouldCache: shouldCache,
-            tokenShowedList: tokenShowedList,
-            hideTokenList: hideTokenList));
-  }
-
-  late final _$updateTokenAssetsAsyncAction =
-      AsyncAction('_AssetsStore.updateTokenAssets', context: context);
-
-  @override
-  Future<void> updateTokenAssets(List<Token> ls, String address,
-      {bool shouldCache = false}) {
-    return _$updateTokenAssetsAsyncAction.run(
-        () => super.updateTokenAssets(ls, address, shouldCache: shouldCache));
-  }
-
   late final _$clearRuntimeTokensAsyncAction =
       AsyncAction('_AssetsStore.clearRuntimeTokens', context: context);
 
@@ -686,6 +652,46 @@ mixin _$AssetsStore on _AssetsStore, Store {
         name: '_AssetsStore.setLocalScamList');
     try {
       return super.setLocalScamList(ls);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void updateNewTokenConfig(String address) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction(
+        name: '_AssetsStore.updateNewTokenConfig');
+    try {
+      return super.updateNewTokenConfig(address);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void updateTokenLocalConfig(String address,
+      {bool shouldCache = false,
+      required List<String> tokenShowedList,
+      required List<String> hideTokenList}) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction(
+        name: '_AssetsStore.updateTokenLocalConfig');
+    try {
+      return super.updateTokenLocalConfig(address,
+          shouldCache: shouldCache,
+          tokenShowedList: tokenShowedList,
+          hideTokenList: hideTokenList);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void updateTokenAssets(List<Token> ls, String address,
+      {bool shouldCache = false}) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction(
+        name: '_AssetsStore.updateTokenAssets');
+    try {
+      return super.updateTokenAssets(ls, address, shouldCache: shouldCache);
     } finally {
       _$_AssetsStoreActionController.endAction(_$actionInfo);
     }

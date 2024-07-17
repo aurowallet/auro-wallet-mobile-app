@@ -21,8 +21,8 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
     super.initState();
   }
 
-  Future<void> onClickIgnore() async {
-    await store.assets!.updateNewTokenConfig(store.wallet!.currentAddress);
+  void onClickIgnore() {
+    store.assets!.updateNewTokenConfig(store.wallet!.currentAddress);
   }
 
   @override

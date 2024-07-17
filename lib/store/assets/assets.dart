@@ -163,12 +163,9 @@ abstract class _AssetsStore with Store {
 
   @computed
   List<Token> get tokenShowList {
-    List<Token> tokenShowList = tokenList
-        .where(
-          (tokenItem) => !(tokenItem.localConfig?.hideToken ?? false),
-        )
+    return tokenList
+        .where((tokenItem) => !(tokenItem.localConfig?.hideToken ?? false))
         .toList();
-    return tokenShowList;
   }
 
   @action
@@ -399,9 +396,7 @@ abstract class _AssetsStore with Store {
               .toList();
         });
         rootStore.localStorage.setAccountCache(
-            rootStore.wallet!.currentWallet.pubKey,
-            cacheZkTxsKey,
-            jsonMap);
+            rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, jsonMap);
       }
     } catch (e) {
       print("addZkTxs===11=${e.toString()}");
@@ -455,8 +450,7 @@ abstract class _AssetsStore with Store {
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheFeeTxsKey),
-      rootStore.localStorage
-          .getAccountCache(pubKey, cacheZkTxsKey),
+      rootStore.localStorage.getAccountCache(pubKey, cacheZkTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, configKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTokensKey),
     ]);
@@ -478,7 +472,8 @@ abstract class _AssetsStore with Store {
     }
     if (cache[3] != null) {
       Map<String, dynamic> jsonMap = cache[3];
-      ObservableMap<String, List<TransferData>> tempTokenZkTx = ObservableMap<String, List<TransferData>>();
+      ObservableMap<String, List<TransferData>> tempTokenZkTx =
+          ObservableMap<String, List<TransferData>>();
       jsonMap.forEach((key, value) {
         List<TransferData> transferDataList = (value as List<dynamic>)
             .map((item) => TransferData.fromJson(item))
@@ -625,9 +620,9 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> updateNewTokenConfig(
+  void updateNewTokenConfig(
     String address,
-  ) async {
+  ) {
     if (rootStore.wallet!.currentAddress != address) return;
 
     List<String> tokenShowedList = [];
@@ -656,15 +651,14 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> updateTokenLocalConfig(
+  void updateTokenLocalConfig(
     String address, {
     bool shouldCache = false,
     required List<String> tokenShowedList,
     required List<String> hideTokenList,
-  }) async {
+  }) {
     if (rootStore.wallet!.currentAddress != address) return;
-    String? networkId =
-        rootStore.settings!.currentNode?.networkID;
+    String? networkId = rootStore.settings!.currentNode?.networkID;
 
     Map<String, List<String>> localConfig = {
       "localShowedTokenIds": tokenShowedList,
@@ -675,15 +669,13 @@ abstract class _AssetsStore with Store {
         '${rootStore.wallet!.currentWallet.pubKey}_${networkId}_$cacheTokenConfigKey';
     if (shouldCache) {
       rootStore.localStorage.setAccountCache(
-          rootStore.wallet!.currentWallet.pubKey,
-          keys,
-          localConfig);
+          rootStore.wallet!.currentWallet.pubKey, keys, localConfig);
     }
   }
 
   @action
-  Future<void> updateTokenAssets(List<Token> ls, String address,
-      {bool shouldCache = false}) async {
+  void updateTokenAssets(List<Token> ls, String address,
+      {bool shouldCache = false}) {
     if (rootStore.wallet!.currentAddress != address) return;
 
     Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
