@@ -88,8 +88,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       ];
 
       bool showIndicator = txs.length == 0;
-      _onRefresh(
-          showIndicator: showIndicator);
+      _onRefresh(showIndicator: showIndicator);
       WidgetsBinding.instance.addObserver(this);
     });
     super.initState();
@@ -276,10 +275,13 @@ class TokenActionItem extends StatelessWidget {
 
   Future<void> onClickItem(
       BuildContext context, TokenActionType type, String nextRouter) async {
+    Map nextArguments = {};
     if (type == TokenActionType.send) {
       await store.assets!.setNextToken(token!);
+    } else if (type == TokenActionType.delegation) {
+      nextArguments = {"isFromRoute": true};
     }
-    Navigator.of(context).pushNamed(nextRouter);
+    Navigator.of(context).pushNamed(nextRouter,arguments:nextArguments);
   }
 
   @override

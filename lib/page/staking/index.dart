@@ -66,12 +66,17 @@ class _StakingState extends State<Staking> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
     bool isDelegated = mainTokenNetInfo.tokenBaseInfo?.isDelegation ?? false;
+    bool isFromRoute = false;
+    dynamic args = ModalRoute.of(context)!.settings.arguments;
+    if (args != null && args['isFromRoute'] == true) {
+      isFromRoute = true;
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: null,
-        title: null,
-        toolbarHeight: 0,
+        title: isFromRoute ? Text(dic.staking) : null,
+        toolbarHeight: isFromRoute ? null : 0,
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -82,7 +87,11 @@ class _StakingState extends State<Staking> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TabPageTitle(title: dic.staking),
+                isFromRoute
+                    ? SizedBox(
+                        height: 0,
+                      )
+                    : TabPageTitle(title: dic.staking),
                 Expanded(
                     child: ListView(
                   children: [
