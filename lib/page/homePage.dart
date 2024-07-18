@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
       'browser': AppLocalizations.of(context)!.browser,
       'setting': AppLocalizations.of(context)!.setting
     };
-    // Filter the tab list and icons based on showBrowser
+
     bool showStaking = !store.settings!.isZekoNet;
     List<String> filteredTabList = showStaking
         ? _tabList
@@ -87,15 +87,13 @@ class _HomePageState extends State<HomePage> {
     }).toList();
   }
 
-  Widget _getPage(i) {
+  Widget _getPage(int i) {
     if (store.settings!.isZekoNet) {
       switch (i) {
         case 0:
           return Assets(store);
         case 1:
           return Browser(store);
-        case 2:
-          return Profile(store);
         default:
           return Profile(store);
       }
@@ -112,10 +110,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildPage(i) {
+  Widget _buildPage(int i) {
     if (i == 0) {
       double statusBarHeight = MediaQuery.of(context).padding.top;
-      // return assets page
       return Scaffold(
         backgroundColor: Color(0xFFEDEFF2),
         appBar: AppBar(
@@ -140,7 +137,6 @@ class _HomePageState extends State<HomePage> {
         body: _getPage(0),
       );
     }
-    // return staking page
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
@@ -165,19 +161,24 @@ class _HomePageState extends State<HomePage> {
     final textStyle = TextStyle(
       fontSize: 12,
     );
-    int maxIndex =
-        !store.settings!.isZekoNet ? _tabList.length - 1 : _tabList.length - 2;
-    if (_tabIndex > maxIndex) _tabIndex = maxIndex;
-
     return Observer(builder: (_) {
+      int maxIndex = !store.settings!.isZekoNet
+          ? _tabList.length - 1
+          : _tabList.length - 2;
+      if (_tabIndex > maxIndex) _tabIndex = maxIndex;
+
       return Scaffold(
         body: _buildPage(_tabIndex),
         bottomNavigationBar: Container(
             decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                    top: BorderSide(
-                        color: Colors.black.withOpacity(0.1), width: 0.5))),
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(
+                  color: Colors.black.withOpacity(0.1),
+                  width: 0.5,
+                ),
+              ),
+            ),
             child: BottomNavigationBar(
               currentIndex: _tabIndex,
               backgroundColor: Colors.white,
@@ -185,7 +186,10 @@ class _HomePageState extends State<HomePage> {
               iconSize: 24,
               onTap: (index) {
                 setState(() {
-                  _tabIndex = index;
+                  int newMaxIndex = !store.settings!.isZekoNet
+                      ? _tabList.length - 1
+                      : _tabList.length - 2;
+                  _tabIndex = index <= newMaxIndex ? index : newMaxIndex;
                 });
               },
               unselectedLabelStyle: textStyle,
@@ -194,7 +198,8 @@ class _HomePageState extends State<HomePage> {
               unselectedItemColor: Colors.black.withOpacity(0.5),
               type: BottomNavigationBarType.fixed,
               items: _navBarItems(_tabIndex),
-            )),
+            ),
+          ),
       );
     });
   }

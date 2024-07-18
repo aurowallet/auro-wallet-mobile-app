@@ -175,7 +175,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                Fmt.stringSlice(networkName, 8, withEllipsis: true),
+                Fmt.stringSlice(networkName, 12, withEllipsis: true),
                 style: TextStyle(
                     fontSize: 14,
                     height: 1,

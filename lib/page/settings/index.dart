@@ -66,7 +66,7 @@ class Profile extends StatelessWidget {
                         icon: 'assets/images/setting/network.svg',
                         title: dic.network,
                         value: Fmt.stringSlice(
-                            store.settings!.currentNode!.name, 8,
+                            store.settings!.currentNode!.name, 12,
                             withEllipsis: true),
                         onTap: () => Navigator.of(context)
                             .pushNamed(RemoteNodeListPage.route),
