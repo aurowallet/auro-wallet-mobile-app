@@ -102,7 +102,7 @@ class ApiAssets {
       return;
     }
     List<dynamic> list = result.data!['pooledUserCommands'];
-    print('pendg list length:${list.length}');
+    print('pending list length:${list.length}');
     store.assets!.clearPendingTxs();
     await store.assets!.addPendingTxs(list, pubKey);
   }

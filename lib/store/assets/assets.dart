@@ -131,8 +131,7 @@ abstract class _AssetsStore with Store {
     return count;
   }
 
-  @computed
-  String get tokenTotalAmount {
+  String getTokenTotalAmount() {
     double totalShowAmount = 0;
     double tokenAmount;
 
@@ -161,8 +160,7 @@ abstract class _AssetsStore with Store {
     return token;
   }
 
-  @computed
-  List<Token> get tokenShowList {
+  List<Token> getTokenShowList() {
     return tokenList
         .where((tokenItem) => !(tokenItem.localConfig?.hideToken ?? false))
         .toList();
@@ -685,6 +683,7 @@ abstract class _AssetsStore with Store {
 
     Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
     if (ls.isEmpty) {
+      tokenList.clear();
       tokenList.add(mainTokenDefaultConfig);
     } else {
       List<Token> nextTokenList = ls.map((tokenItem) {

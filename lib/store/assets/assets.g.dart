@@ -16,26 +16,12 @@ mixin _$AssetsStore on _AssetsStore, Store {
       (_$newTokenCountComputed ??= Computed<int>(() => super.newTokenCount,
               name: '_AssetsStore.newTokenCount'))
           .value;
-  Computed<String>? _$tokenTotalAmountComputed;
-
-  @override
-  String get tokenTotalAmount => (_$tokenTotalAmountComputed ??=
-          Computed<String>(() => super.tokenTotalAmount,
-              name: '_AssetsStore.tokenTotalAmount'))
-      .value;
   Computed<Token>? _$mainTokenNetInfoComputed;
 
   @override
   Token get mainTokenNetInfo => (_$mainTokenNetInfoComputed ??= Computed<Token>(
           () => super.mainTokenNetInfo,
           name: '_AssetsStore.mainTokenNetInfo'))
-      .value;
-  Computed<List<Token>>? _$tokenShowListComputed;
-
-  @override
-  List<Token> get tokenShowList => (_$tokenShowListComputed ??=
-          Computed<List<Token>>(() => super.tokenShowList,
-              name: '_AssetsStore.tokenShowList'))
       .value;
 
   late final _$isAssetsLoadingAtom =
@@ -721,9 +707,7 @@ localHideTokenList: ${localHideTokenList},
 localShowedTokenIds: ${localShowedTokenIds},
 nextToken: ${nextToken},
 newTokenCount: ${newTokenCount},
-tokenTotalAmount: ${tokenTotalAmount},
-mainTokenNetInfo: ${mainTokenNetInfo},
-tokenShowList: ${tokenShowList}
+mainTokenNetInfo: ${mainTokenNetInfo}
     ''';
   }
 }

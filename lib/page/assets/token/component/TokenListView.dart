@@ -102,11 +102,11 @@ class _TokenListViewState extends State<TokenListView>
             }
             return Expanded(
                 child: ListView.builder(
-                    itemCount: store.assets!.tokenShowList.length,
+                    itemCount: store.assets!.getTokenShowList().length,
                     itemBuilder: (context, index) {
                       return Container(
                           child: TokenItemView(
-                        tokenItem: store.assets!.tokenShowList[index],
+                        tokenItem: store.assets!.getTokenShowList()[index],
                         store: store,
                         onClickTokenItem: onClickTokenItem,
                       ));

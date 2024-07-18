@@ -274,7 +274,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3);
-    String totalAmount = store.assets!.tokenTotalAmount;
+    String totalAmount = store.assets!.getTokenTotalAmount();
     String showAmount = currencySymbol + " " + totalAmount;
     return Container(
       margin: EdgeInsets.fromLTRB(20, 4, 20, 0),

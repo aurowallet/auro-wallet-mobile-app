@@ -56,11 +56,11 @@ class _TokenSelectDialogState extends State<TokenSelectionDialog> {
                   ),
                   child: Observer(builder: (BuildContext context) {
                     return ListView.builder(
-                        itemCount: store.assets!.tokenShowList.length,
+                        itemCount: store.assets!.getTokenShowList().length,
                         itemBuilder: (context, index) {
                           return Container(
                               child: TokenItemView(
-                                  tokenItem: store.assets!.tokenShowList[index],
+                                  tokenItem: store.assets!.getTokenShowList()[index],
                                   store: store,
                                   onClickTokenItem: onClickTokenItem,
                                   isInModal: true));
