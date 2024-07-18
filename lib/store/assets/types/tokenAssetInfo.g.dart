@@ -9,7 +9,7 @@ part of 'tokenAssetInfo.dart';
 TokenAssetInfo _$TokenAssetInfoFromJson(Map<String, dynamic> json) =>
     TokenAssetInfo(
       balance: Balance.fromJson(json['balance'] as Map<String, dynamic>),
-      inferredNonce: json['inferredNonce'] as String,
+      inferredNonce: json['inferredNonce'] as String?,
       delegateAccount: json['delegateAccount'] == null
           ? null
           : DelegateAccount.fromJson(

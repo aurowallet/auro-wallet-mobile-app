@@ -36,7 +36,6 @@ class EmptyTxListTip extends StatelessWidget {
     AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     return Container(
-      margin: EdgeInsets.only(top: 20, right: 20, left: 20),
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),

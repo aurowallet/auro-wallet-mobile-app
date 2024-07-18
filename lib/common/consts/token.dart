@@ -9,7 +9,6 @@ Map<String, dynamic> defaultMINAAssets = {
       "total": "0",
       "liquid": "0",
     },
-    "inferredNonce": 0,
     "delegateAccount": null,
     "tokenId": ZK_DEFAULT_TOKEN_ID,
     "publicKey": "",

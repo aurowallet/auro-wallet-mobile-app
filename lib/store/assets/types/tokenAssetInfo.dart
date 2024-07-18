@@ -5,7 +5,7 @@ part 'tokenAssetInfo.g.dart';
 @JsonSerializable()
 class TokenAssetInfo {
   final Balance balance;
-  final String inferredNonce;
+  String? inferredNonce;
   final DelegateAccount? delegateAccount;
   final String tokenId;
   final String publicKey;
@@ -13,7 +13,7 @@ class TokenAssetInfo {
 
   TokenAssetInfo({
     required this.balance,
-    required this.inferredNonce,
+    this.inferredNonce,
     this.delegateAccount,
     required this.tokenId,
     required this.publicKey,

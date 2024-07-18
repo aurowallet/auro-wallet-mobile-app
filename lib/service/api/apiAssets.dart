@@ -387,7 +387,9 @@ class ApiAssets {
     String fetchBalanceQuery = '''query fetchBalanceQuery($variablesStr) {
 ${List<String>.generate(pubkeys.length, (int index) {
       return '''account$index: account (publicKey: \$account$index) {
-    delegate
+    delegateAccount {
+        publicKey
+      }
     balance {
        total
     }
@@ -417,7 +419,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
     pubkeys.asMap().forEach((index, pubKey) {
       var accountData = result.data?['account$index'];
       if (accountData != null) {
-        final String delegate = accountData['delegate'] as String;
+        String? delegate;
+        if(accountData['delegateAccount']!=null){
+          delegate = accountData['delegateAccount']['publicKey'] as String;
+        }
         final String balance = accountData['balance']['total'] as String;
         final String inferredNonce = accountData['inferredNonce'] as String;
         final String publicKey = accountData['publicKey'] as String;
@@ -433,19 +438,6 @@ ${List<String>.generate(pubkeys.length, (int index) {
         store.assets!.setAccountInfo(pubKey, null);
       }
     });
-  }
-
-  /// get balance and delegate info
-  Future<void> fetchAccountInfo({bool showIndicator = false}) async {
-    String pubKey = store.wallet!.currentWallet.pubKey;
-    if (showIndicator) {
-      store.assets!.setBalanceLoading(true);
-    }
-    _fetchMarketPrice();
-    if (pubKey.isNotEmpty) {
-      await fetchBatchAccountsInfo([pubKey]);
-    }
-    store.assets!.setBalanceLoading(false);
   }
 
   Future<void> _fetchMarketPrice() async {

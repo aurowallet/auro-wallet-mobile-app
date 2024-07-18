@@ -9,6 +9,7 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -102,8 +103,8 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
       if (widget.txList.length > 0) {
         nextWidget = _buildTxList(widget.txList,context);
       } else {
-        AccountInfo? balancesInfo = store.assets!.accountsInfo[currentAddress];
-        bool isAccountExist = balancesInfo != null;
+        Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+        bool isAccountExist = int.parse(mainTokenNetInfo.tokenAssestInfo?.inferredNonce??"-1") >= 0; 
         if (isAccountExist) {
           nextWidget = HomeListTip();
         } else {
