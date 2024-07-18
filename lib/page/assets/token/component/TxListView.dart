@@ -43,7 +43,7 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
   final bool? isInModal;
   final AppStore store;
 
-  Widget _buildTxList(List<TransferData> txs,BuildContext context) {
+  Widget _buildTxList(List<TransferData> txs, BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     String currentAddress = store.wallet!.currentAddress;
     List<Widget> res = [];
@@ -89,7 +89,7 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
 
     if (widget.isLoading) {
       if (widget.txList.length > 0) {
-        nextWidget = _buildTxList(widget.txList,context);
+        nextWidget = _buildTxList(widget.txList, context);
       } else {
         nextWidget = Ink(
             color: Color(0xFFFFFFFF),
@@ -101,10 +101,12 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
       }
     } else {
       if (widget.txList.length > 0) {
-        nextWidget = _buildTxList(widget.txList,context);
+        nextWidget = _buildTxList(widget.txList, context);
       } else {
         Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
-        bool isAccountExist = int.parse(mainTokenNetInfo.tokenAssestInfo?.inferredNonce??"-1") >= 0; 
+        bool isAccountExist = int.parse(
+                mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "-1") >=
+            0;
         if (isAccountExist) {
           nextWidget = HomeListTip();
         } else {
@@ -299,13 +301,16 @@ class TransferListItem extends StatelessWidget {
                                           ? ScamTag()
                                           : SizedBox(height: 0),
                                     ]),
-                                Text(
-                                  '$showAmount',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                )
+                                Flexible(
+                                    flex: 1,
+                                    child: Text(
+                                      '$showAmount',
+                                      softWrap: true,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
+                                    ))
                               ],
                             ),
                             Padding(padding: EdgeInsets.only(top: 4)),

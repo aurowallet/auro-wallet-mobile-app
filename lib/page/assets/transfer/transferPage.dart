@@ -216,15 +216,19 @@ class _TransferPageState extends State<TransferPage> {
         await webApi.assets.getTokenState(txInfo1['toAddress'], tokenId);
 
     bool fundNewAccountStatus = res == null;
+    final amountLarge = BigInt.from(
+            pow(10, int.parse(availableDecimals ?? "0")) * txInfo1['amount'])
+        .toInt();
 
     Map<String, dynamic> buildInfo = {
       "sender": txInfo1['fromAddress'],
       "receiver": txInfo1['toAddress'],
       "tokenAddress": tokenPublicKey,
-      "amount": txInfo1['amount'],
+      "amount": amountLarge,
       "isNewAccount": fundNewAccountStatus.toString(),
       "gqlUrl": store.settings!.currentNode!.url
     };
+
     Map<String, dynamic> encrypRes = await webApi.bridge
         .encryptData(jsonEncode(buildInfo), node_public_keys);
     dynamic data = await webApi.account.buildTokenBody(encrypRes);
@@ -260,7 +264,8 @@ class _TransferPageState extends State<TransferPage> {
       }
     }
     if (await _validate()) {
-      double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
+      double amount =
+          double.parse(Fmt.parseNumber(_amountCtrl.text));
       String toAddress = _toAddressCtrl.text.trim();
       String memo = _memoCtrl.text.trim();
       double fee;
