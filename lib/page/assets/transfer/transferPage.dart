@@ -101,7 +101,7 @@ class _TransferPageState extends State<TransferPage> {
       TokenNetInfo? tokenNetInfo = token.tokenNetInfo;
       TokenBaseInfo? tokenBaseInfo = token.tokenBaseInfo;
 
-      bool isSendMainToken = tokenBaseInfo?.isMainToken ?? false;
+      isSendMainToken = tokenBaseInfo?.isMainToken ?? false;
       if (isSendMainToken) {
         tokenSymbol = COIN.coinSymbol;
         availableDecimals = COIN.decimals.toString();
@@ -264,8 +264,7 @@ class _TransferPageState extends State<TransferPage> {
       }
     }
     if (await _validate()) {
-      double amount =
-          double.parse(Fmt.parseNumber(_amountCtrl.text));
+      double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
       String toAddress = _toAddressCtrl.text.trim();
       String memo = _memoCtrl.text.trim();
       double fee;
@@ -524,7 +523,8 @@ class _TransferPageState extends State<TransferPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     double availableBalanceStr =
         (availableBalance != null ? availableBalance : 0) as double;
-    BigInt available = BigInt.from(availableBalanceStr);
+    BigInt available = BigInt.from(
+        pow(10, int.parse(availableDecimals ?? "0")) * availableBalanceStr);
     final int decimals = int.parse(availableDecimals ?? "0");
     double fee = _feeCtrl.text.isNotEmpty
         ? double.parse(Fmt.parseNumber(_feeCtrl.text))

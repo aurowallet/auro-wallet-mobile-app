@@ -144,7 +144,10 @@ class _DelegatePageState extends State<DelegatePage>
     AppLocalizations dic = AppLocalizations.of(context)!;
     double? showBalance =
         store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
-    BigInt available = BigInt.from(showBalance ?? 0);
+    double availableBalanceStr =
+        (showBalance != null ? showBalance : 0) as double;
+    BigInt available =
+        BigInt.from(pow(10, COIN.decimals) * availableBalanceStr);
     final int decimals = COIN.decimals;
     double fee = _feeCtrl.text.isNotEmpty
         ? double.parse(Fmt.parseNumber(_feeCtrl.text))

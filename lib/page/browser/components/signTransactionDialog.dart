@@ -182,7 +182,10 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     double? showBalance =
         store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
-    BigInt available = BigInt.from(showBalance ?? 0);
+    double availableBalanceStr =
+        (showBalance != null ? showBalance : 0) as double;
+    BigInt available =
+        BigInt.from(pow(10, COIN.decimals) * availableBalanceStr);
     final int decimals = COIN.decimals;
     double fee = lastFee;
     if (double.parse(Fmt.parseNumber(widget.amount as String)) >=
