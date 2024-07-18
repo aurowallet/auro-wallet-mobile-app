@@ -2,15 +2,15 @@ import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
 import 'package:auro_wallet/page/staking/components/delegationInfo.dart';
 import 'package:auro_wallet/page/staking/components/stakingOverview.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
-import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 
 class Staking extends StatefulWidget {
   Staking(this.store);
@@ -36,35 +36,36 @@ class _StakingState extends State<Staking> {
   }
 
   bool _haveCacheData() {
-    AccountInfo? acc = store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
-    print(store.staking!.delegatedValidator?.publicKey);
+    Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
     print(store.wallet!.currentAccountPubKey);
-    return acc != null && store.staking!.delegatedValidator != null && store.staking!.delegatedValidator?.countDelegates != null && acc.delegate == store.staking!.delegatedValidator?.publicKey;
+    return mainTokenNetInfo.tokenBaseInfo != null;
   }
 
   Future<void> _fetchData() async {
     await Future.wait([
       webApi.staking.fetchValidators(),
-      webApi.assets.fetchAccountInfo(),
+      webApi.assets.fetchAllTokenAssets(),
       webApi.staking.fetchStakingOverview(),
     ]);
     if (mounted) {
-      setState((){
+      setState(() {
         loading = false;
       });
     }
   }
 
-  void _onPress () {
-    Navigator.pushNamed(context, ValidatorsPage.route,);
+  void _onPress() {
+    Navigator.pushNamed(
+      context,
+      ValidatorsPage.route,
+    );
   }
+
   @override
-  Widget build(BuildContext context) {// todo need update page title
+  Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    Color primaryColor = Theme.of(context).primaryColor;
-    AccountInfo? acc = store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
-    bool isDelegated = acc != null ? acc.isDelegated : false;
-    var theme = Theme.of(context).textTheme;
+    Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+    bool isDelegated = mainTokenNetInfo.tokenBaseInfo?.isDelegation ?? false;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -76,47 +77,55 @@ class _StakingState extends State<Staking> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: RefreshIndicator(
-          key: globalStakingRefreshKey,
+            key: globalStakingRefreshKey,
             onRefresh: _fetchData,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TabPageTitle(title: dic.staking),
-                Expanded(child:  ListView(
+                Expanded(
+                    child: ListView(
                   children: [
-                    StakingOverview(store: store,),
-                    !loading ? Wrap(
-                      children: [
-                        !isDelegated ? EmptyInfo(store: store) : DelegationInfo(store: store, loading: loading),
-                        !isDelegated ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            NormalButton(
-                              text: dic.goStake,
-                              textStyle: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600
-                              ),
-                              disabled: false,
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              onPressed: _onPress,
-                              shrink: true,
-                              height: 32,
-                            ),
-                          ],
-                        ) : Container()
-                      ],
-                    ): Container(
-                      padding: EdgeInsets.only(top: 167),
-                      child: LoadingCircle(),
-                    )
+                    StakingOverview(
+                      store: store,
+                    ),
+                    !loading
+                        ? Wrap(
+                            children: [
+                              !isDelegated
+                                  ? EmptyInfo(store: store)
+                                  : DelegationInfo(
+                                      store: store, loading: loading),
+                              !isDelegated
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        NormalButton(
+                                          text: dic.goStake,
+                                          textStyle: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600),
+                                          disabled: false,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16),
+                                          onPressed: _onPress,
+                                          shrink: true,
+                                          height: 32,
+                                        ),
+                                      ],
+                                    )
+                                  : Container()
+                            ],
+                          )
+                        : Container(
+                            padding: EdgeInsets.only(top: 167),
+                            child: LoadingCircle(),
+                          )
                   ],
-                )
-                )
-
+                ))
               ],
-            )
-        ),
+            )),
       ),
     );
   }

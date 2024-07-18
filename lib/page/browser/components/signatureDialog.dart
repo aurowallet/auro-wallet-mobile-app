@@ -85,7 +85,9 @@ class _SignatureDialogState extends State<SignatureDialog> {
       "privateKey": privateKey,
       "type": "message",
       "publicKey": store.wallet!.currentAddress,
-      "message": widget.method == 'mina_sign_JsonMessage' ? jsonEncode(widget.content) :widget.content
+      "message": widget.method == 'mina_sign_JsonMessage'
+          ? jsonEncode(widget.content)
+          : widget.content
     };
     late Map data;
     if (widget.method == 'mina_signMessage' ||
@@ -115,7 +117,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
     setState(() {
       submitting = false;
     });
-    if(data['error']!=null){
+    if (data['error'] != null) {
       UI.toast(data['error']['message']);
       return false;
     }
@@ -196,9 +198,9 @@ class _SignatureDialogState extends State<SignatureDialog> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    BigInt balance =
-        store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
-            BigInt.from(0);
+    double? showBalance =
+        store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
+    BigInt balance = BigInt.from(showBalance ?? 0);
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -214,7 +216,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                 children: [
                   BrowserDialogTitleRow(
                     title: dic.signatureRequest,
-                    showChainType:true,
+                    showChainType: true,
                   ),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),

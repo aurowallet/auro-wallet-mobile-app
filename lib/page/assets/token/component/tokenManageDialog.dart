@@ -91,7 +91,6 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
                     maxHeight: height * 0.6,
                   ),
                   child: Observer(builder: (BuildContext context) {
-                    // todo when init,  add loading
                     List<Token> manageList = store.assets!.tokenList
                         .where(
                           (tokenItem) =>

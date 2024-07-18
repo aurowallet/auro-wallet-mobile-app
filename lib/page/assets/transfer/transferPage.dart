@@ -245,7 +245,6 @@ class _TransferPageState extends State<TransferPage> {
     }
   }
 
-
   void _handleSubmit() async {
     _unFocus();
     if (_nonceCtrl.text.isEmpty && currentFee == null) {
@@ -396,7 +395,6 @@ class _TransferPageState extends State<TransferPage> {
                   return false;
                 }
 
-                /// todo push to record page
                 Map tokenTxInfo = {
                   "privateKey": txInfo['privateKey'],
                   "fromAddress": txInfo['fromAddress'],
@@ -435,7 +433,7 @@ class _TransferPageState extends State<TransferPage> {
 
   Future<void> _loadData() async {
     await Future.wait([
-      webApi.assets.fetchAccountInfo(),
+      webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
     ]);
     runInAction(() {
@@ -561,11 +559,9 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   void _onAllClick() {
-    var accountInfo = store.assets!.accountsInfo[store.wallet!.currentAddress];
-    if (accountInfo != null) {
-      _amountCtrl.text = availableBalance.toString();
-    }
+    _amountCtrl.text = availableBalance.toString();
   }
+
   String getTokenSymbol(Token token) {
     bool isSendMainToken = token.tokenBaseInfo?.isMainToken ?? false;
     String tokenSymbol = "";
@@ -714,10 +710,12 @@ class _TransferPageState extends State<TransferPage> {
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
-                            noncePlaceHolder: store
-                                .assets!
-                                .accountsInfo[store.wallet!.currentAddress]
-                                ?.inferredNonce,
+                            noncePlaceHolder: int.parse(store
+                                    .assets!
+                                    .mainTokenNetInfo
+                                    .tokenAssestInfo
+                                    ?.inferredNonce ??
+                                "0"),
                             cap: fees.cap,
                           )
                         ],

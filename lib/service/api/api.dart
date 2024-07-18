@@ -62,7 +62,7 @@ class Api {
     assets.queryTxFees();
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
-        assets.fetchAccountInfo(showIndicator: true),// todo
+        assets.fetchAllTokenAssets(showIndicator: true),
       ]);
     }
     staking.fetchStakingOverview();
@@ -77,7 +77,7 @@ class Api {
   }
 
   Future<void> refreshNetwork() async {
-    assets.fetchAccountInfo(); // todo
+    assets.fetchAllTokenAssets();
     staking.refreshStaking();
     assets.fetchPendingTransactions(store.wallet!.currentAddress);
     assets.fetchTransactions(store.wallet!.currentAddress);

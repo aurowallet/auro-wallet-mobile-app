@@ -1,18 +1,12 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
-import 'package:flutter/material.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/staking/types/validatorData.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
-import 'package:mobx/mobx.dart';
-import 'package:collection/collection.dart';
 import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
-import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/page/staking/delegatePage.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:math' as math;
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/staking/types/validatorData.dart';
+import 'package:flutter/material.dart';
+import 'package:mobx/mobx.dart';
 
 import '../../common/components/browserLink.dart';
 import '../../service/api/api.dart';
@@ -98,10 +92,11 @@ class _ValidatorsPageState extends State<ValidatorsPage>
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    AccountInfo? acc =
-        store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
-    bool isDelegated = acc != null ? acc.isDelegated : false;
-    String? delegate = isDelegated ? acc.delegate : null;
+    Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+    bool isDelegated = mainTokenNetInfo.tokenBaseInfo?.isDelegation ?? false;
+    String? delegate = isDelegated
+        ? mainTokenNetInfo.tokenAssestInfo?.delegateAccount?.publicKey
+        : null;
     return RefreshIndicator(
         onRefresh: onRefresh,
         child: Scaffold(

@@ -41,37 +41,12 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
-  late final _$delegatedValidatorAtom =
-      Atom(name: '_StakingStore.delegatedValidator', context: context);
-
-  @override
-  DelegatedValidator? get delegatedValidator {
-    _$delegatedValidatorAtom.reportRead();
-    return super.delegatedValidator;
-  }
-
-  @override
-  set delegatedValidator(DelegatedValidator? value) {
-    _$delegatedValidatorAtom.reportWrite(value, super.delegatedValidator, () {
-      super.delegatedValidator = value;
-    });
-  }
-
   late final _$initAsyncAction =
       AsyncAction('_StakingStore.init', context: context);
 
   @override
   Future<void> init() {
     return _$initAsyncAction.run(() => super.init());
-  }
-
-  late final _$clearDelegatedValidatorAsyncAction =
-      AsyncAction('_StakingStore.clearDelegatedValidator', context: context);
-
-  @override
-  Future<void> clearDelegatedValidator() {
-    return _$clearDelegatedValidatorAsyncAction
-        .run(() => super.clearDelegatedValidator());
   }
 
   late final _$loadCacheAsyncAction =
@@ -97,17 +72,6 @@ mixin _$StakingStore on _StakingStore, Store {
   }
 
   @override
-  void setDelegatedInfo(Map<String, dynamic> data, {bool shouldCache = true}) {
-    final _$actionInfo = _$_StakingStoreActionController.startAction(
-        name: '_StakingStore.setDelegatedInfo');
-    try {
-      return super.setDelegatedInfo(data, shouldCache: shouldCache);
-    } finally {
-      _$_StakingStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setValidatorsInfo(List<Map<String, dynamic>> data,
       {bool shouldCache = true}) {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
@@ -123,8 +87,7 @@ mixin _$StakingStore on _StakingStore, Store {
   String toString() {
     return '''
 validatorsInfo: ${validatorsInfo},
-overviewData: ${overviewData},
-delegatedValidator: ${delegatedValidator}
+overviewData: ${overviewData}
     ''';
   }
 }

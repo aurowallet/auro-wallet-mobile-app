@@ -109,8 +109,8 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      nextUseInferredNonce = store
-          .assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
+      nextUseInferredNonce = int.parse(
+          store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
       _loadData();
       onCheckFav();
     });
@@ -118,11 +118,11 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
 
   Future<void> _loadData() async {
     await Future.wait([
-      webApi.assets.fetchAccountInfo(),
+      webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
     ]);
-    nextUseInferredNonce =
-        store.assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
+    nextUseInferredNonce = int.parse(
+        store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
   }
 
   void onCheckFav() async {

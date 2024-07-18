@@ -1,24 +1,19 @@
+import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/staking/staking.dart';
-import 'package:auro_wallet/store/staking/types/validatorData.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/common/components/loadingPanel.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
-import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/staking/types/validatorData.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:collection/collection.dart';
 
 class DelegationInfo extends StatelessWidget {
   DelegationInfo({required this.store, required this.loading});
@@ -29,10 +24,11 @@ class DelegationInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    AccountInfo? acc =
-        store.assets!.accountsInfo[store.wallet!.currentAccountPubKey];
-    bool isDelegated = acc != null ? acc.isDelegated : false;
-    String? delegate = isDelegated ? acc.delegate : null;
+    Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+    bool isDelegated = mainTokenNetInfo.tokenBaseInfo?.isDelegation ?? false;
+    String? delegate = isDelegated
+        ? mainTokenNetInfo.tokenAssestInfo?.delegateAccount?.publicKey
+        : null;
     var theme = Theme.of(context).textTheme;
     var languageCode = store.settings!.localeCode.isNotEmpty
         ? store.settings!.localeCode
@@ -108,13 +104,6 @@ class DelegateInfo extends StatelessWidget {
 
   Widget _buildDelegateInfo(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final DelegatedValidator? delegatedValidator =
-        store.staking!.delegatedValidator;
-    DelegatedValidator? validatorInfo;
-    if (delegatedValidator != null &&
-        delegatedValidator.publicKey == delegate) {
-      validatorInfo = delegatedValidator;
-    }
     final ValidatorData? validatorItem = store.staking!.validatorsInfo
         .firstWhereOrNull((e) => e.address == delegate);
     String? validatorName = validatorItem?.name;
@@ -133,10 +122,9 @@ class DelegateInfo extends StatelessWidget {
             ],
           ));
     } else {
-      
-      WalletData acc = store.wallet!.currentWallet;
-      AccountInfo? balancesInfo = store.assets!.accountsInfo[acc.pubKey];
-      BigInt total = balancesInfo != null ? balancesInfo.total : BigInt.from(0);
+      Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+      double? showBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance;
+      BigInt total = BigInt.from(showBalance ?? 0);
 
       return Container(
           child: Column(
@@ -146,8 +134,7 @@ class DelegateInfo extends StatelessWidget {
                 child: Container(
               margin: EdgeInsets.only(right: 100),
               child: DelegateInfoItem(
-                  labelText: dic.blockProducerName,
-                  value: validatorName),
+                  labelText: dic.blockProducerName, value: validatorName),
             ))
           ]),
           Row(children: [
@@ -160,10 +147,7 @@ class DelegateInfo extends StatelessWidget {
           Row(children: [
             DelegateInfoItem(
                 labelText: dic.stakedBalance,
-                value: Fmt.balance(total.toString(), COIN.decimals,
-                        maxLength: COIN.decimals) +
-                    ' ' +
-                    COIN.coinSymbol)
+                value: total.toString() + ' ' + COIN.coinSymbol)
           ]),
         ],
       ));

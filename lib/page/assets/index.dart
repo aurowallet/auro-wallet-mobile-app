@@ -88,7 +88,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      this._onRefresh(showIndicator: true);
+      bool showIndicator = store.assets!.tokenList.length == 0;
+      this._onRefresh(showIndicator: showIndicator);// 
       _checkWatchMode();
       WidgetsBinding.instance.addObserver(this);
     });
@@ -106,12 +107,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     var isInForeground = state == AppLifecycleState.resumed;
     if (isInForeground) {
-      this._onRefresh(showIndicator: true);
+      bool showIndicator = store.assets!.tokenList.length == 0;
+      this._onRefresh(showIndicator: showIndicator);
     }
   }
 
   Future<void> _onRefresh({showIndicator = false}) async {
-    // todo remove to tokenDetail
     if (showIndicator || store.assets!.tokenList.length == 0) {
       store.assets!.setAssetsLoading(true);
     }

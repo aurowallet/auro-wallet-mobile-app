@@ -50,7 +50,6 @@ class ApiAccount {
 
     // refresh balance
     await store.assets!.clearAccountAssestCache();
-    await store.staking!.clearDelegatedValidator();
     await store.assets!.loadAccountCache();
     // refresh zkConnect
     await store.browser!.loadZkAppConnect(current);
@@ -461,7 +460,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
-      webApi.assets.fetchAccountInfo(); // todo
+      webApi.assets.fetchAllTokenAssets();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
       webApi.assets.fetchPendingZkTransactions(pubKey);
@@ -506,7 +505,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
-      webApi.assets.fetchAccountInfo(); // todo
+      webApi.assets.fetchAllTokenAssets();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
@@ -596,7 +595,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
     try {
       String pubKey = acc['pubKey'];
-      webApi.assets.fetchAccountInfo(); // todo
+      webApi.assets.fetchAllTokenAssets();
     } catch (e) {
       print('network may not connected');
     }
@@ -818,7 +817,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<dynamic> buildTokenBody(Map prepareBody) async {
-    String requestUrl = TokenBuildUrl;
+    String requestUrl = TokenBuildUrl+"/tokenbuild";;
 
     try {
       var response = await http.post(

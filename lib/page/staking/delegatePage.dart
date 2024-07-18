@@ -125,7 +125,7 @@ class _DelegatePageState extends State<DelegatePage>
 
   Future<void> _loadData() async {
     await Future.wait([
-      webApi.assets.fetchAccountInfo(),
+      webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
     ]);
     runInAction(() {
@@ -142,9 +142,9 @@ class _DelegatePageState extends State<DelegatePage>
 
   String? _validateBalance() {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    BigInt available =
-        store.assets!.accountsInfo[store.wallet!.currentAddress]?.total ??
-            BigInt.from(0);
+    double? showBalance =
+        store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
+    BigInt available = BigInt.from(showBalance ?? 0);
     final int decimals = COIN.decimals;
     double fee = _feeCtrl.text.isNotEmpty
         ? double.parse(Fmt.parseNumber(_feeCtrl.text))
@@ -217,8 +217,9 @@ class _DelegatePageState extends State<DelegatePage>
         shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        inferredNonce = store
-            .assets!.accountsInfo[store.wallet!.currentAddress]!.inferredNonce;
+        inferredNonce = int.parse(
+            store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ??
+                "0");
       }
       fee = _feeCtrl.text.isNotEmpty
           ? double.parse(Fmt.parseNumber(_feeCtrl.text))
@@ -252,8 +253,8 @@ class _DelegatePageState extends State<DelegatePage>
             label: "Nonce ", value: '$inferredNonce', type: TxItemTypes.text));
       }
       if (memo.isNotEmpty) {
-        txItems.add(
-            TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
+        txItems
+            .add(TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
       }
       bool isWatchMode =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
@@ -326,7 +327,7 @@ class _DelegatePageState extends State<DelegatePage>
               data = await webApi.account
                   .signAndSendDelegationTx(txInfo, context: context);
             }
-            if(data == null){
+            if (data == null) {
               return false;
             }
             if (mounted) {
@@ -360,7 +361,7 @@ class _DelegatePageState extends State<DelegatePage>
 
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 102 : realBottom;
-        nextBottom = nextBottom.isNegative ? 0 : nextBottom ;
+        nextBottom = nextBottom.isNegative ? 0 : nextBottom;
         return Scaffold(
           appBar: AppBar(
             title: Text(dic.staking),
@@ -412,10 +413,12 @@ class _DelegatePageState extends State<DelegatePage>
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
-                            noncePlaceHolder: store
-                                .assets!
-                                .accountsInfo[store.wallet!.currentAddress]
-                                ?.inferredNonce,
+                            noncePlaceHolder: int.parse(store
+                                    .assets!
+                                    .mainTokenNetInfo
+                                    .tokenAssestInfo
+                                    ?.inferredNonce ??
+                                "0"),
                             cap: fees.cap,
                           )
                         ],

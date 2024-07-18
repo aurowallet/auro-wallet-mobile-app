@@ -1,5 +1,4 @@
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/staking/types/delegatedValidator.dart';
 import 'package:auro_wallet/store/staking/types/overviewData.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:mobx/mobx.dart';
@@ -17,15 +16,12 @@ abstract class _StakingStore with Store {
 
   final String localStorageValidatorsKey = 'validator_list';
   final String localStorageOverviewKey = 'staking_overview';
-  final String localStorageDelegatedValidatorKey = 'delegated_validator_detail';
 
   @observable
   List<ValidatorData> validatorsInfo = [];
 
   @observable
   OverviewData overviewData = OverviewData();
-  @observable
-  DelegatedValidator? delegatedValidator;
 
   @action
   Future<void> init() async {
@@ -39,18 +35,6 @@ abstract class _StakingStore with Store {
       rootStore.localStorage.setObject(localStorageOverviewKey, data);
     }
   }
-
-  @action
-  void setDelegatedInfo(Map<String, dynamic> data, {bool shouldCache = true}) {
-    print('Delegated data');
-    print(data);
-    delegatedValidator = DelegatedValidator.fromJson(data);
-    // cache data
-    if (shouldCache) {
-      rootStore.localStorage.setObject(localStorageDelegatedValidatorKey, data);
-    }
-  }
-
   @action
   void setValidatorsInfo(List<Map<String, dynamic>> data, {bool shouldCache = true}) {
     List<ValidatorData> ls = [];
@@ -66,17 +50,10 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  Future<void> clearDelegatedValidator() async {
-    delegatedValidator = null;
-    rootStore.localStorage.removeKey(localStorageDelegatedValidatorKey);
-  }
-
-  @action
   Future<void> loadCache() async {
     List cacheOverview = await Future.wait([
       rootStore.localStorage.getObject(localStorageValidatorsKey),
       rootStore.localStorage.getObject(localStorageOverviewKey),
-      rootStore.localStorage.getObject(localStorageDelegatedValidatorKey),
     ]);
     if (cacheOverview[0] != null) {
       List<dynamic> accList = cacheOverview[0];
@@ -84,9 +61,6 @@ abstract class _StakingStore with Store {
     }
     if (cacheOverview[1] != null) {
       setOverviewInfo(cacheOverview[1], shouldCache: false);
-    }
-    if (cacheOverview[2] != null) {
-      setDelegatedInfo(cacheOverview[2], shouldCache: false);
     }
   }
 }

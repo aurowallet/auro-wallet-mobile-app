@@ -23,7 +23,7 @@ class _Currencies extends State<CurrenciesPage> {
     if (isChecked && code != store.currencyCode) {
       await store.setCurrencyCode(code);
       print(store.currencyCode);
-      webApi.assets.fetchAccountInfo();
+      webApi.assets.fetchAllTokenAssets();
       Navigator.of(context).pop();
     }
   }
