@@ -819,7 +819,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<dynamic> buildTokenBody(Map prepareBody) async {
-    String requestUrl = TokenBuildUrl+"/tokenbuild";;
+    String requestUrl = TokenBuildUrl+"/tokenbuild";
 
     try {
       var response = await http.post(

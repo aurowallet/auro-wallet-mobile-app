@@ -583,7 +583,7 @@ class _TransferPageState extends State<TransferPage> {
     return Observer(
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;
-        final int decimals = COIN.decimals;
+        final int decimals = int.parse(availableDecimals??"0") ;
         final fees = store.assets!.transferFees;
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;

@@ -137,6 +137,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       appBar: AppBar(
+        centerTitle: true,
         title: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

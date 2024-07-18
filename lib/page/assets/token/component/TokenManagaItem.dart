@@ -128,8 +128,9 @@ class TokenManagaItem extends StatelessWidget {
                         ? "assets/images/assets/icon_add.svg"
                         : "assets/images/assets/icon_hide.svg",
                     fit: BoxFit.cover,
+                    width: 26,
                   ),
-                )
+                ),
               ],
             )),
         // )
