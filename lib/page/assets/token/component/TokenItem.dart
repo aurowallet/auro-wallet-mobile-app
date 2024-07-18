@@ -15,10 +15,12 @@ class TokenItemView extends StatelessWidget {
   TokenItemView(
       {required this.tokenItem,
       required this.store,
-      this.onClickTokenItem});
+      this.onClickTokenItem,
+      this.isInModal});
   final Token tokenItem;
   final AppStore store;
   final Function? onClickTokenItem;
+  final bool? isInModal;
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +49,10 @@ class TokenItemView extends StatelessWidget {
     }
     isDelegation = tokenBaseInfo?.isDelegation ?? false;
 
-    displayBalance = tokenBaseInfo?.showBalance != null 
-        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!) 
+    displayBalance = tokenBaseInfo?.showBalance != null
+        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
         : "0.0";
-        
+
     var currency = currencyConfig
         .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
@@ -60,7 +62,7 @@ class TokenItemView extends StatelessWidget {
           currencySymbol + " " + tokenBaseInfo!.showAmount.toString();
     }
     isMinaNet = store.settings!.isMinaNet;
-    if (isMinaNet && isMainToken) {
+    if (isMinaNet && isMainToken && isInModal != true) {
       delegationText = tokenBaseInfo?.isDelegation == true
           ? dic.stakingStatus_1
           : dic.stakingStatus_2;
@@ -69,8 +71,8 @@ class TokenItemView extends StatelessWidget {
       color: Colors.white,
       child: InkWell(
           onTap: () {
-            if(onClickTokenItem!=null){
-                onClickTokenItem!(tokenItem);
+            if (onClickTokenItem != null) {
+              onClickTokenItem!(tokenItem);
             }
           },
           child: Container(
@@ -113,7 +115,7 @@ class TokenItemView extends StatelessWidget {
                                         alignment: Alignment.center,
                                         child: Center(
                                           child: Text(
-                                            delegationText!,
+                                            delegationText,
                                             strutStyle: StrutStyle(
                                               fontSize: 12,
                                               leading: 0,

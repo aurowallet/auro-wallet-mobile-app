@@ -60,10 +60,10 @@ class _TokenSelectDialogState extends State<TokenSelectionDialog> {
                         itemBuilder: (context, index) {
                           return Container(
                               child: TokenItemView(
-                            tokenItem: store.assets!.tokenShowList[index],
-                            store: store,
-                            onClickTokenItem: onClickTokenItem,
-                          ));
+                                  tokenItem: store.assets!.tokenShowList[index],
+                                  store: store,
+                                  onClickTokenItem: onClickTokenItem,
+                                  isInModal: true));
                         });
                   })),
             ],
