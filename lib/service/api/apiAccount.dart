@@ -339,7 +339,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     dynamic errorData = signedTx['error'];
     if (errorData != null) {
       UI.toast(errorData['message']);
-      return null; 
+      return null;
     }
     final signedData = signedTx['data'];
     final broadcastBody = prepareBroadcastBody(
@@ -376,7 +376,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     dynamic errorData = signedTx['error'];
     if (errorData != null) {
       UI.toast(errorData['message']);
-      return null; 
+      return null;
     }
     final signedData = signedTx['data'];
     final broadcastBody = prepareBroadcastBody(
@@ -402,11 +402,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<String?> getPrivateKeyFromKeyStore(
-      String keyStore,
-      String keyStorePassword,
+      String keyStore, String keyStorePassword,
       {required BuildContext context}) async {
     try {
-      Sodium sodium = await SodiumSumoInit.init(); 
+      Sodium sodium = await SodiumSumoInit.init();
       Map keystoreMap = jsonDecode(keyStore);
       var salt = bs58check.decode(keystoreMap['pwsalt']).sublist(1);
       SecureKey key = sodium.crypto.pwhash(
@@ -458,6 +457,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     store.assets!.loadAccountCache();
 
     try {
+      store.assets!.setAssetsLoading(true);
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
       webApi.assets.fetchAllTokenAssets();
@@ -505,6 +505,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
+      store.assets!.setAssetsLoading(true);
       webApi.assets.fetchAllTokenAssets();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
@@ -595,6 +596,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
     try {
       String pubKey = acc['pubKey'];
+      store.assets!.setAssetsLoading(true);
       webApi.assets.fetchAllTokenAssets();
     } catch (e) {
       print('network may not connected');
@@ -804,7 +806,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     final errorData = signedTx['error'];
     if (errorData != null) {
       UI.toast(errorData['message']);
-      return null; 
+      return null;
     }
     final signedData = signedTx['data'];
     bool zkOnlySign = txInfo["zkOnlySign"] ?? false;

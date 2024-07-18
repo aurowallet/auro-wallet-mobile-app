@@ -169,7 +169,7 @@ class TokenItemView extends StatelessWidget {
                         ),
                         displayAmount != null
                             ? Text(
-                                displayAmount!,
+                                displayAmount,
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: ColorsUtil.hexColor(0x808080),

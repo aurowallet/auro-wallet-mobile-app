@@ -602,6 +602,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (showIndicator) {
       store.assets!.setBalanceLoading(true);
     }
+    _fetchMarketPrice();
     if (pubKey.isNotEmpty) {
       List<TokenAssetInfo> tokenAssets =
           await fetchTokenAssets(pubKey);
@@ -628,6 +629,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
       }
     }
     store.assets!.setBalanceLoading(false);
+    store.assets!.setAssetsLoading(false);
   }
 
   Future<dynamic> getTokenState(String pubKey, String tokenId) async {

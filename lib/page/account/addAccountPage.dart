@@ -78,6 +78,8 @@ class _AddAccountPageState extends State<AddAccountPage> {
         } else {
           await store.wallet!.addAccount(accountData, accountName, wallet);
           store.assets!.loadAccountCache();
+          store.assets!.setAssetsLoading(true);
+          webApi.assets.fetchAllTokenAssets();
           return true;
         }
       }
