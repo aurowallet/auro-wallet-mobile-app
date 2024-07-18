@@ -178,10 +178,12 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
             maintainBottomViewPadding: true,
             child: Observer(
               builder: (_) {
-                List<TransferData> txs = [
-                  ...widget.store.assets!.getTotalPendingTxs(tokenId!),
-                  ...widget.store.assets!.getTotalTxs(tokenId!)
-                ];
+                List<TransferData> pendingTx =
+                    widget.store.assets!.getTotalPendingTxs(tokenId!);
+                List<TransferData> tx =
+                    widget.store.assets!.getTotalTxs(tokenId!);
+
+                List<TransferData> txs = [...pendingTx, ...tx];
                 return Container(
                   width: MediaQuery.of(context).size.width,
                   child: Column(
@@ -281,7 +283,7 @@ class TokenActionItem extends StatelessWidget {
     } else if (type == TokenActionType.delegation) {
       nextArguments = {"isFromRoute": true};
     }
-    Navigator.of(context).pushNamed(nextRouter,arguments:nextArguments);
+    Navigator.of(context).pushNamed(nextRouter, arguments: nextArguments);
   }
 
   @override

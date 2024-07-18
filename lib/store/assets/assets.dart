@@ -238,7 +238,12 @@ abstract class _AssetsStore with Store {
     if (totals.isNotEmpty) {
       totals[totals.length - 1].showSpeedUp = true;
     }
-    List<TransferData> nextTotals = tokenHistoryFilter(totals, tokenId);
+    List<TransferData> nextTotals;
+    if (tokenId == ZK_DEFAULT_TOKEN_ID) {
+      nextTotals = totals;
+    } else {
+      nextTotals = tokenHistoryFilter(totals, tokenId);
+    }
     return nextTotals;
   }
 
