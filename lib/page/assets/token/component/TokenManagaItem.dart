@@ -125,10 +125,9 @@ class TokenManagaItem extends StatelessWidget {
                   onTap: onPressed,
                   child: SvgPicture.asset(
                     hideToken
-                        ? "assets/images/assets/icon_add.svg"
-                        : "assets/images/assets/icon_hide.svg",
+                        ? "assets/images/assets/icon_token_show.svg"
+                        : "assets/images/assets/icon_token_hide.svg",
                     fit: BoxFit.cover,
-                    width: 26,
                   ),
                 ),
               ],

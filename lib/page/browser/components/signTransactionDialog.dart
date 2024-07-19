@@ -33,6 +33,7 @@ enum FeeTypeEnum {
 }
 
 class SignTransactionDialog extends StatefulWidget {
+  // 推荐多少手续费
   SignTransactionDialog(
       {required this.signType,
       required this.to,
@@ -114,8 +115,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String? memoTemp = widget.memo;
     String? zkFee;
     Map<String, dynamic>? feePayer = widget.feePayer;
+    String? transaction;
     if (widget.signType == SignTxDialogType.zkApp) {
-      String transaction = zkCommandFormat(widget.transaction);
+      transaction = zkCommandFormat(widget.transaction);
       toAddressTemp =
           getContractAddress(transaction, store.wallet!.currentAddress);
       List<dynamic> zkFormatData =
@@ -132,7 +134,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       bool zkOnlySignTemp = widget.onlySign ?? false;
       setState(() {
         showToAddress = toAddressTemp;
-        sourceData = transaction;
+        sourceData = transaction ?? "";
         rawData = dataItems;
         zkOnlySign = zkOnlySignTemp;
       });
@@ -155,7 +157,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     });
 
     if (webFee != null && webFee.isNotEmpty && Fmt.isNumber(webFee)) {
-      lastFee = double.parse(webFee as String);
+      lastFee = double.parse(webFee);
       tempFeeType = FeeTypeEnum.fee_recommed_site;
       showFeeErrorTip = lastFee >= store.assets!.transferFees.cap;
       setState(() {
@@ -164,7 +166,13 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         showFeeErrorTip = showFeeErrorTip;
       });
     } else {
-      lastFee = store.assets!.transferFees.medium;
+      double zkAdditionFee = 0;
+      if (widget.signType == SignTxDialogType.zkApp && transaction != null) {
+        int zkUpdateCount = getAccountUpdateCount(transaction);
+        zkAdditionFee =
+            store.assets!.transferFees.accountupdate * zkUpdateCount;
+      }
+      lastFee = store.assets!.transferFees.medium + zkAdditionFee;
       tempFeeType = FeeTypeEnum.fee_recommed_default;
       setState(() {
         lastFee = lastFee;

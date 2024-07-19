@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -55,11 +56,7 @@ abstract class _AssetsStore with Store {
   Map<String, String> tokenBalances = Map<String, String>();
 
   @observable
-  Fees transferFees = new Fees()
-    ..slow = 0.001
-    ..medium = 0.0101
-    ..fast = 0.1
-    ..cap = 10;
+  Fees transferFees = defaultTxFees;
 
   @observable
   int txsCount = 0;

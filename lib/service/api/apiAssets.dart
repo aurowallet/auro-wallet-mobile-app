@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:convert' as convert;
 
+import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -360,23 +361,18 @@ class ApiAssets {
     print('fee response' + response.statusCode.toString());
     if (response.statusCode == 200) {
       var feeList = convert.jsonDecode(response.body);
-      if (feeList.length >= 5) {
+      if (feeList.length >= 6) {
         store.assets!.setFeesMap({
           'slow': double.parse(feeList[0]['value']),
           'medium': double.parse(feeList[1]['value']),
           'fast': double.parse(feeList[2]['value']),
           'cap': double.parse(feeList[3]['value']),
           'speedup': double.parse(feeList[4]['value']),
+          'accountupdate': double.parse(feeList[5]['value']),
         });
       }
     } else {
-      store.assets!.setFeesMap({
-        'slow': 0.001,
-        'medium': 0.01,
-        'fast': 0.1,
-        'cap': 10.0,
-        'speedup': 0.5
-      });
+      store.assets!.setFeesMap(defaultTxFeesMap);
     }
   }
 
@@ -420,7 +416,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
       var accountData = result.data?['account$index'];
       if (accountData != null) {
         String? delegate;
-        if(accountData['delegateAccount']!=null){
+        if (accountData['delegateAccount'] != null) {
           delegate = accountData['delegateAccount']['publicKey'] as String;
         }
         final String balance = accountData['balance']['total'] as String;
@@ -583,8 +579,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
     final QueryOptions _options = QueryOptions(
       document: gql(queryFields),
       fetchPolicy: FetchPolicy.noCache,
-      variables: {
-      },
+      variables: {},
     );
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
@@ -604,14 +599,11 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
     _fetchMarketPrice();
     if (pubKey.isNotEmpty) {
-      List<TokenAssetInfo> tokenAssets =
-          await fetchTokenAssets(pubKey);
+      List<TokenAssetInfo> tokenAssets = await fetchTokenAssets(pubKey);
       List<String> tokenIds =
           tokenAssets.map((token) => token.tokenId).toList();
       if (tokenIds.length > 0) {
-        dynamic tokenNetInfos =
-            await fetchAllTokenInfo(tokenIds);
-
+        dynamic tokenNetInfos = await fetchAllTokenInfo(tokenIds);
 
         List<Token> tokens = tokenAssets.map((assetInfo) {
           TokenNetInfo? netInfo = tokenNetInfos[assetInfo.tokenId] != null
@@ -623,9 +615,9 @@ ${List<String>.generate(pubkeys.length, (int index) {
             tokenNetInfo: netInfo,
           );
         }).toList();
-        store.assets!.updateTokenAssets(tokens, pubKey,shouldCache: true);
+        store.assets!.updateTokenAssets(tokens, pubKey, shouldCache: true);
       } else {
-        store.assets!.updateTokenAssets([], pubKey,shouldCache: true);
+        store.assets!.updateTokenAssets([], pubKey, shouldCache: true);
       }
     }
     store.assets!.setBalanceLoading(false);

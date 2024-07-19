@@ -217,3 +217,10 @@ Map<String, dynamic> getTokenZkTxItemInfo(
     "showToAddress": showToAddress
   };
 }
+/// get accoutUpdate count to calc zk tx fee
+int getAccountUpdateCount(String zkappCommand) {
+  dynamic nextZkCommand = jsonDecode(zkappCommand);
+  nextZkCommand = jsonDecode(nextZkCommand);
+  List<dynamic> accountUpdates = nextZkCommand['accountUpdates'];
+  return accountUpdates.length;
+}
