@@ -9,9 +9,6 @@ import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
-import 'package:auro_wallet/store/assets/types/tokenAssetInfo.dart';
-import 'package:auro_wallet/store/assets/types/tokenBaseInfo.dart';
-import 'package:auro_wallet/store/assets/types/tokenNetInfo.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -53,7 +50,6 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
 
     tokenId = tokenAssestInfo?.tokenId ?? "";
     if (isMainToken) {
-      tokenIconUrl = "assets/images/stake/icon_mina_color.svg";
       tokenSymbol = COIN.coinSymbol;
       tokenName = COIN.name;
     } else {
@@ -62,6 +58,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       tokenDecimal = int.parse(tokenBaseInfo?.decimals ?? "0");
     }
 
+    tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
     displayBalance = tokenBaseInfo?.showBalance != null
         ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
         : "0.0";
@@ -197,6 +194,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                         iconUrl: tokenIconUrl,
                         tokenSymbol: tokenSymbol,
                         size: 60,
+                        isMainToken: isMainToken,
                       ),
                       Container(
                           margin: EdgeInsets.only(top: 10),

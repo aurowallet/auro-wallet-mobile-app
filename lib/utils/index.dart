@@ -10,7 +10,6 @@ String getMessageFromCode(int code,
   return message ?? fallbackMessage;
 }
 
-
 int compareTokens(Token a, Token b) {
   double? amountA = a.tokenBaseInfo?.showAmount;
   double? amountB = b.tokenBaseInfo?.showAmount;
@@ -41,13 +40,13 @@ int compareTokens(Token a, Token b) {
   }
 }
 
-/// check token build body 
-bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId, Map<String, dynamic> buildZkCommand) {
+/// check token build body
+bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId,
+    Map<String, dynamic> buildZkCommand) {
   final String sender = sourceData['sender'];
   final String receiver = sourceData['receiver'];
   final num amount = sourceData['amount'];
   final double sourceAmount = amount.toDouble();
-  
 
   bool senderVerified = false;
   bool receiverVerified = false;
@@ -64,7 +63,7 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId, Map
 
     if (tokenId == sendTokenId) {
       if (publicKey == sender) {
-        if (changeBalance ==  sourceAmount && balanceChangeSgn == 'Negative') {
+        if (changeBalance == sourceAmount && balanceChangeSgn == 'Negative') {
           senderVerified = true;
         }
       }
@@ -78,4 +77,8 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId, Map
   }
 
   return senderVerified && receiverVerified;
+}
+
+String getReadableNetworkId(String networkId) {
+  return networkId.replaceAll(':', '_');
 }

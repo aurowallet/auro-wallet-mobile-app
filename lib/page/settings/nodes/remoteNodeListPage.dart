@@ -54,6 +54,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       await widget.settingStore.setCurrentNode(mainnetEndpoint);
       webApi.updateGqlClient(mainnetEndpoint.url);
       webApi.refreshNetwork();
+      await widget.store.assets!.loadTokenLocalConfigCache();
     }
     widget.settingStore.setCustomNodeList(endpoints);
   }
@@ -69,6 +70,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         await widget.settingStore.setCurrentNode(node);
         webApi.updateGqlClient(key);
         webApi.refreshNetwork();
+        await widget.store.assets!.loadTokenLocalConfigCache();
         Navigator.of(context).pop();
       }
     }

@@ -293,19 +293,19 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  late final _$localHideTokenListAtom =
-      Atom(name: '_AssetsStore.localHideTokenList', context: context);
+  late final _$localHideTokenMapAtom =
+      Atom(name: '_AssetsStore.localHideTokenMap', context: context);
 
   @override
-  List<String> get localHideTokenList {
-    _$localHideTokenListAtom.reportRead();
-    return super.localHideTokenList;
+  ObservableMap<String, dynamic> get localHideTokenMap {
+    _$localHideTokenMapAtom.reportRead();
+    return super.localHideTokenMap;
   }
 
   @override
-  set localHideTokenList(List<String> value) {
-    _$localHideTokenListAtom.reportWrite(value, super.localHideTokenList, () {
-      super.localHideTokenList = value;
+  set localHideTokenMap(ObservableMap<String, dynamic> value) {
+    _$localHideTokenMapAtom.reportWrite(value, super.localHideTokenMap, () {
+      super.localHideTokenMap = value;
     });
   }
 
@@ -338,6 +338,22 @@ mixin _$AssetsStore on _AssetsStore, Store {
   set nextToken(Token value) {
     _$nextTokenAtom.reportWrite(value, super.nextToken, () {
       super.nextToken = value;
+    });
+  }
+
+  late final _$tokenInfoListAtom =
+      Atom(name: '_AssetsStore.tokenInfoList', context: context);
+
+  @override
+  List<TokenInfoData> get tokenInfoList {
+    _$tokenInfoListAtom.reportRead();
+    return super.tokenInfoList;
+  }
+
+  @override
+  set tokenInfoList(List<TokenInfoData> value) {
+    _$tokenInfoListAtom.reportWrite(value, super.tokenInfoList, () {
+      super.tokenInfoList = value;
     });
   }
 
@@ -574,6 +590,33 @@ mixin _$AssetsStore on _AssetsStore, Store {
         .run(() => super.clearAccountAssestCache());
   }
 
+  late final _$loadTokenInfoCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadTokenInfoCache', context: context);
+
+  @override
+  Future<void> loadTokenInfoCache() {
+    return _$loadTokenInfoCacheAsyncAction
+        .run(() => super.loadTokenInfoCache());
+  }
+
+  late final _$loadTokenLocalConfigCacheAsyncAction =
+      AsyncAction('_AssetsStore.loadTokenLocalConfigCache', context: context);
+
+  @override
+  Future<void> loadTokenLocalConfigCache() {
+    return _$loadTokenLocalConfigCacheAsyncAction
+        .run(() => super.loadTokenLocalConfigCache());
+  }
+
+  late final _$clearTokenLocalConfigCacheAsyncAction =
+      AsyncAction('_AssetsStore.clearTokenLocalConfigCache', context: context);
+
+  @override
+  Future<void> clearTokenLocalConfigCache() {
+    return _$clearTokenLocalConfigCacheAsyncAction
+        .run(() => super.clearTokenLocalConfigCache());
+  }
+
   late final _$_AssetsStoreActionController =
       ActionController(name: '_AssetsStore', context: context);
 
@@ -658,7 +701,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   void updateTokenLocalConfig(String address,
       {bool shouldCache = false,
       required List<String> tokenShowedList,
-      required List<String> hideTokenList}) {
+      required Map<String, dynamic> hideTokenList}) {
     final _$actionInfo = _$_AssetsStoreActionController.startAction(
         name: '_AssetsStore.updateTokenLocalConfig');
     try {
@@ -684,6 +727,17 @@ mixin _$AssetsStore on _AssetsStore, Store {
   }
 
   @override
+  void setTokenInfoData(List<TokenInfoData> ls, {bool shouldCache = true}) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction(
+        name: '_AssetsStore.setTokenInfoData');
+    try {
+      return super.setTokenInfoData(ls, shouldCache: shouldCache);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isAssetsLoading: ${isAssetsLoading},
@@ -703,9 +757,10 @@ tokenZkTxs: ${tokenZkTxs},
 txsFilter: ${txsFilter},
 tokenList: ${tokenList},
 marketPrices: ${marketPrices},
-localHideTokenList: ${localHideTokenList},
+localHideTokenMap: ${localHideTokenMap},
 localShowedTokenIds: ${localShowedTokenIds},
 nextToken: ${nextToken},
+tokenInfoList: ${tokenInfoList},
 newTokenCount: ${newTokenCount},
 mainTokenNetInfo: ${mainTokenNetInfo}
     ''';

@@ -56,7 +56,7 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
   void onSelectNode(bool checkStatus, String checkedUrl) async { 
     if (checkStatus) {
       final nodes = store.settings!.allNodes
-          .where((element) => element.url == checkedUrl);
+          .where((element) => element.url == checkedUrl); 
       if (nodes.length > 0) {
         final node = nodes.first;
         await store.assets!.clearAssestNodeCache();
@@ -64,6 +64,8 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
         await store.settings!.setCurrentNode(node); 
         webApi.updateGqlClient(checkedUrl);
         webApi.staking.refreshStaking();
+        await store.assets!.loadTokenLocalConfigCache();
+        webApi.assets.fetchTokenInfo();
         globalBalanceRefreshKey.currentState!.show();
       }
     }

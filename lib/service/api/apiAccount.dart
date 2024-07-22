@@ -595,7 +595,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     store.assets!.loadAccountCache();
 
     try {
-      String pubKey = acc['pubKey'];
       store.assets!.setAssetsLoading(true);
       webApi.assets.fetchAllTokenAssets();
     } catch (e) {

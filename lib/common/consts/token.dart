@@ -20,6 +20,7 @@ Map<String, dynamic> defaultMINAAssets = {
     "isMainToken": true,
     "showBalance": 0,
     "showAmount": 0,
+    "iconUrl":"assets/images/stake/icon_mina_color.svg",
   },
   "localConfig": {
     "hideToken": false,

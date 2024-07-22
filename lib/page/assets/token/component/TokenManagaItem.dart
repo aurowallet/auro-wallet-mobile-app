@@ -3,9 +3,6 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenIcon.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
-import 'package:auro_wallet/store/assets/types/tokenAssetInfo.dart';
-import 'package:auro_wallet/store/assets/types/tokenBaseInfo.dart';
-import 'package:auro_wallet/store/assets/types/tokenNetInfo.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
@@ -43,13 +40,13 @@ class TokenManagaItem extends StatelessWidget {
 
     bool isMainToken = tokenBaseInfo?.isMainToken ?? false;
     if (isMainToken) {
-      tokenIconUrl = "assets/images/stake/icon_mina_color.svg";
       tokenSymbol = COIN.coinSymbol;
       tokenName = COIN.name;
     } else {
       tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
+    tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
     displayBalance = tokenBaseInfo?.showBalance != null
         ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
         : "0.0";
@@ -78,6 +75,7 @@ class TokenManagaItem extends StatelessWidget {
                     TokenIcon(
                       iconUrl: tokenIconUrl,
                       tokenSymbol: tokenSymbol,
+                      isMainToken: isMainToken,
                     ),
                     SizedBox(
                       width: 16,

@@ -8,8 +8,8 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
-import 'package:auro_wallet/store/assets/types/tokenAssetInfo.dart';
-import 'package:auro_wallet/store/assets/types/tokenNetInfo.dart';
+import 'package:auro_wallet/store/assets/types/tokenInfoData.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -648,5 +648,23 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
     Map tokenAccount = result.data!['account'];
     return tokenAccount;
+  }
+
+  Future<void> fetchTokenInfo() async {
+    String networkId = store.settings?.currentNode?.networkID ?? "";
+    String tokenUrl =
+        "$BASE_INFO_URL/tokenInfo?networkId=" + getReadableNetworkId(networkId);
+    var response = await http.get(Uri.parse(tokenUrl));
+
+    if (response.statusCode == 200) {
+      List<dynamic> sourceList = convert.jsonDecode(response.body);
+      print('fetchTokenInfo===1,${sourceList.toString()}');
+      List<TokenInfoData> tokenInfoList = sourceList.map((item) {
+        return TokenInfoData.fromJson(item);
+      }).toList();
+      store.assets?.setTokenInfoData(tokenInfoList, shouldCache: true);
+    } else {
+      print('Request token Info failed with status: ${response.statusCode}.');
+    }
   }
 }

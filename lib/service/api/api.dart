@@ -59,6 +59,7 @@ class Api {
   Future<void> fetchInitialInfo() async {
     setting.fetchAboutUs();
     assets.fetchScamInfo();
+    assets.fetchTokenInfo();
     assets.queryTxFees();
     if (store.wallet!.walletListAll.length > 0) {
       await Future.wait([
