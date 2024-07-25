@@ -76,5 +76,9 @@
 		<string>YES</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
+		<key>com.apple.developer.associated-domains</key>
+		<array>
+			<string>applinks:www.aurowallet.com</string>
+		</array>
 	</dict>
 </plist>

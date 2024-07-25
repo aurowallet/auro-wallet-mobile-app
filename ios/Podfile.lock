@@ -1,4 +1,6 @@
 PODS:
+  - app_links (0.0.1):
+    - Flutter
   - biometric_storage (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -59,6 +61,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - app_links (from `.symlinks/plugins/app_links/ios`)
   - biometric_storage (from `.symlinks/plugins/biometric_storage/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - Flutter (from `Flutter`)
@@ -91,6 +94,8 @@ SPEC REPOS:
     - Toast
 
 EXTERNAL SOURCES:
+  app_links:
+    :path: ".symlinks/plugins/app_links/ios"
   biometric_storage:
     :path: ".symlinks/plugins/biometric_storage/ios"
   connectivity_plus:
@@ -133,6 +138,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webcrypto/ios"
 
 SPEC CHECKSUMS:
+  app_links: e70ca16b4b0f88253b3b3660200d4a10b4ea9795
   biometric_storage: 1400f1382af3a4cc2bf05340e13c3d8de873ceb9
   connectivity_plus: 5f0eb61093bec56935f21a1699dd2758bc895587
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71

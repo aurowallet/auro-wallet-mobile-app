@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -35,7 +36,6 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/common/theme.dart';
 
-
 import 'package:auro_wallet/page/homePage.dart';
 import 'package:auro_wallet/page/account/setNewWalletPasswordPage.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicPage.dart';
@@ -53,6 +53,7 @@ import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
+import 'package:app_links/app_links.dart';
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
@@ -61,7 +62,7 @@ class WalletApp extends StatefulWidget {
   _WalletAppState createState() => _WalletAppState();
 }
 
-class _WalletAppState extends State<WalletApp> {
+class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   _WalletAppState();
 
   AppStore? _appStore;
@@ -69,13 +70,29 @@ class _WalletAppState extends State<WalletApp> {
 
   ThemeData _theme = appTheme;
   bool _isDangerous = false;
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
 
   @override
   void initState() {
+    initDeepLinks();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _detectDanger();
     });
     super.initState();
+  }
+
+  Future<void> initDeepLinks() async {
+    _appLinks = AppLinks();
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      debugPrint('onAppLink: $uri');
+      openAppLink(uri);
+    });
+  }
+
+  void openAppLink(Uri uri) {
+    // _navigatorKey.currentState?.pushNamed(uri.fragment);
+    print('openAppLink===0,${uri}');
   }
 
   void _detectDanger() async {
@@ -128,6 +145,7 @@ class _WalletAppState extends State<WalletApp> {
   @override
   void dispose() {
     webApi.dispose();
+    _linkSubscription?.cancel();
     super.dispose();
   }
 
