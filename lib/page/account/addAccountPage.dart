@@ -43,7 +43,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
     String? password = await UI.showPasswordDialog(
         context: context,
         wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: false);
+        inputPasswordRequired: true);
     if (password == null) {
       return false;
     }

@@ -52,7 +52,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
           context: context,
           wallet: store.wallet!.currentWallet,
           validate: true,
-          inputPasswordRequired: false
+          inputPasswordRequired: true
       );
       if (password == null) {
         return;

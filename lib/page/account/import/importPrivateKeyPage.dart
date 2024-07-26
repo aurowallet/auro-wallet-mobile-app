@@ -57,7 +57,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
         context: context,
         wallet: store.wallet!.currentWallet,
         validate: true,
-        inputPasswordRequired: false
+        inputPasswordRequired: true
     );
     if (password == null) {
       return;
