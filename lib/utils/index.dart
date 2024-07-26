@@ -82,3 +82,26 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId,
 String getReadableNetworkId(String networkId) {
   return networkId.replaceAll(':', '_');
 }
+
+bool isValidHttpUrl(String? url) {
+  try {
+    if (url == null || url.isEmpty) {
+      return false;
+    }
+    if (url.endsWith('.')) {
+      return false;
+    }
+    List<String> parts = url.split('.');
+    if (parts.length < 2) {
+      return false;
+    }
+    for (int i = 0; i < parts.length - 1; i++) {
+      if (parts[i].isNotEmpty && parts[i + 1].isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
+  } catch (e) {
+    return true;
+  }
+}

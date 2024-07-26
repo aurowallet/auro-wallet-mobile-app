@@ -12,6 +12,8 @@ import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
+import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/foundation.dart' as Foundation;
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -72,6 +74,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   bool _isDangerous = false;
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
+  late BuildContext _homePageContext;
+  Map? appLinkRouteParams;
 
   @override
   void initState() {
@@ -90,9 +94,46 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     });
   }
 
-  void openAppLink(Uri uri) {
-    // _navigatorKey.currentState?.pushNamed(uri.fragment);
-    print('openAppLink===0,${uri}');
+  Map? extractParameters(Uri initialUri) {
+    try {
+      String? action = initialUri.queryParameters['action'];
+      if (action != 'openurl') {
+        print('Not support action');
+        return null;
+      }
+      String? encodedUrl = initialUri.queryParameters['url'];
+      if (!isValidHttpUrl(encodedUrl)) {
+        print('Not valid url');
+        return null;
+      }
+      String? nextNetworkId;
+      String? networkId = initialUri.queryParameters['networkid'];
+      List<String> currentSupportChainList =
+          _appStore!.settings!.getSupportNetworkIDs();
+      if (currentSupportChainList.contains(networkId)) {
+        String? currentNetworkID = _appStore!.settings!.currentNode?.networkID;
+        if (currentNetworkID != networkId) {
+          nextNetworkId = networkId;
+        }
+      }
+      return {"action": action, "url": encodedUrl, "networkId": nextNetworkId};
+    } catch (e) {
+      print('parameter parse error,${e.toString()}');
+      return null;
+    }
+  }
+
+  Future<void> openAppLink(Uri uri) async {
+    if (!mounted) return;
+    print(uri.toString());
+    print(uri.query.substring(4));
+
+    Map? res = extractParameters(uri);
+    if (res != null) {
+      setState(() {
+        appLinkRouteParams = res;
+      });
+    }
   }
 
   void _detectDanger() async {
@@ -149,8 +190,34 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  Future<void> _doAutoRouting() async {
+    if (appLinkRouteParams != null) {
+      Navigator.of(_homePageContext).pushNamed(
+        BrowserWrapperPage.route,
+        arguments: {"url": appLinkRouteParams!['url']},
+      );
+      if (appLinkRouteParams!['networkId'] != null) {
+        await UI.showSwitchChainAction(
+            context: _homePageContext,
+            networkID: appLinkRouteParams!['networkId'],
+            url: appLinkRouteParams!['url'],
+            iconUrl: null,
+            onConfirm: (String networkName, String networkID) async {
+              await Future.wait([
+                webApi.assets.fetchAllTokenAssets(),
+                webApi.assets.queryTxFees(),
+              ]);
+              return;
+            },
+            onCancel: () {});
+      }
+      appLinkRouteParams = null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _doAutoRouting());
     return MaterialApp(
       title: 'Auro Wallet',
       locale: _locale,
@@ -189,6 +256,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
               child: FutureBuilder<int>(
                 future: _initStore(context),
                 builder: (_, AsyncSnapshot<int> snapshot) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _homePageContext = context;
+                  });
                   if (snapshot.hasData) {
                     FlutterNativeSplash.remove();
                     return snapshot.data! > 0

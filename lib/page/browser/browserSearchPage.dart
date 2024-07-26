@@ -5,6 +5,7 @@ import 'package:auro_wallet/page/browser/index.dart';
 import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -72,25 +73,6 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     editingController.dispose();
   }
 
-  bool isValidHttpUrl(String url) {
-    try {
-      if (url.endsWith('.')) {
-        return false;
-      }
-      List<String> parts = url.split('.');
-      if (parts.length < 2) {
-        return false;
-      }
-      for (int i = 0; i < parts.length - 1; i++) {
-        if (parts[i].isNotEmpty && parts[i + 1].isNotEmpty) {
-          return true;
-        }
-      }
-      return false;
-    } catch (e) {
-      return true;
-    }
-  }
 
   String formatUrl(String url) {
     if (url.startsWith("http") || url.startsWith("https")) {
@@ -99,8 +81,8 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     return "https://" + url;
   }
 
-  void _onLoadUrl(String url) async {
-    if (url.isEmpty || !isValidHttpUrl(url)) {
+  void _onLoadUrl(String url) async { 
+    if (!isValidHttpUrl(url)) {
       print("error url, please input");
       return;
     }
