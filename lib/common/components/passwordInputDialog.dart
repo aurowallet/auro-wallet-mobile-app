@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart'
     show CupertinoActivityIndicator, CupertinoTheme;
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
+import 'package:flutter_svg/svg.dart';
 
 class PasswordInputDialog extends StatefulWidget {
   PasswordInputDialog({
@@ -31,13 +32,15 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   bool _isBiometricAuthorized = false; // if user authorized biometric usage
   bool _isCheckingBiometric = true;
   bool _isConfirmButtonEnabled = false;
+  bool _supportBiometric = false;
+  bool isUseBiometric = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!widget.inputPasswordRequired) {
-        _checkBiometricAuthenticate();
+        _checkBiometricStatus();
       }
     });
   }
@@ -79,7 +82,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     Navigator.of(context).pop(password);
   }
 
-  Future<CanAuthenticateResponse> _checkBiometricAuthenticate() async {
+  Future<void> _checkBiometricStatus() async {
     final response = await BiometricStorage().canAuthenticate();
 
     final supportBiometric = response == CanAuthenticateResponse.success;
@@ -87,29 +90,28 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     setState(() {
       _isBiometricAuthorized = isBiometricAuthorized;
       _isCheckingBiometric = false;
+      _supportBiometric = supportBiometric;
     });
-    if (supportBiometric) {
-      // we prompt biometric auth here if device supported
-      // and user authorized to use biometric.
-      if (isBiometricAuthorized) {
-        try {
-          final authStorage =
-              await webApi.account.getBiometricPassStoreFile(context);
-          final result = await authStorage.read();
-          if (result != null) {
-            await _onOk(result);
-          } else {
-            print('biometric read null');
-            Navigator.of(context).pop();
-          }
-        } catch (err) {
-          print('biometric error');
-          print(err);
+  }
+
+  Future<void> _checkBiometricAuthenticate() async {
+    if (_supportBiometric) {
+      try {
+        final authStorage =
+            await webApi.account.getBiometricPassStoreFile(context);
+        final result = await authStorage.read();
+        if (result != null) {
+          await _onOk(result);
+        } else {
+          print('biometric read null');
           Navigator.of(context).pop();
         }
+      } catch (err) {
+        print('biometric error');
+        print(err);
+        Navigator.of(context).pop();
       }
     }
-    return response;
   }
 
   @override
@@ -121,9 +123,10 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
+    bool showBioWidget = false;
     if ((_isBiometricAuthorized || _isCheckingBiometric) &&
         !widget.inputPasswordRequired) {
-      return Container();
+      showBioWidget = true;
     }
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -136,96 +139,196 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 0),
-              child: Text(dic.password,
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black)),
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 0),
+                    child: Text(
+                        showBioWidget ? dic.biometricAuth : dic.password,
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black)),
+                  ),
+                ),
+                showBioWidget
+                    ? Positioned(
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                            child: Container(
+                          margin: EdgeInsets.only(right: 20),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                isUseBiometric = !isUseBiometric;
+                              });
+                            },
+                            child: isUseBiometric
+                                ? Text(
+                                    dic.password,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  )
+                                : Container(
+                                    padding: EdgeInsets.all(2),
+                                    child: SvgPicture.asset(
+                                      "assets/images/public/icon_biometric.svg",
+                                      fit: BoxFit.contain,
+                                      width: 24,
+                                    )),
+                          ),
+                        )))
+                    : Container(),
+              ],
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 20, left: 30, right: 30),
-              child: InputItem(
-                autoFocus: true,
-                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                controller: _passCtrl,
-                isPassword: true,
-                onChanged: (value) {
-                  setState(() {
-                    _isConfirmButtonEnabled = value.isNotEmpty;
-                  });
-                },
-                // clearButtonMode: OverlayVisibilityMode.editing,
-              ),
-            ),
+            showBioWidget && isUseBiometric
+                ? Container()
+                : Padding(
+                    padding: EdgeInsets.only(top: 20, left: 30, right: 30),
+                    child: InputItem(
+                      autoFocus: true,
+                      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                      controller: _passCtrl,
+                      isPassword: true,
+                      onChanged: (value) {
+                        setState(() {
+                          _isConfirmButtonEnabled = value.isNotEmpty;
+                        });
+                      },
+                      // clearButtonMode: OverlayVisibilityMode.editing,
+                    ),
+                  ),
             Container(
-              margin: EdgeInsets.only(top: 30),
+              margin: showBioWidget && isUseBiometric
+                  ? EdgeInsets.only(top: 20)
+                  : EdgeInsets.only(top: 30),
               height: 1,
               color: Colors.black.withOpacity(0.05),
             ),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Expanded(
-                  child: SizedBox(
-                height: 48,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
+            showBioWidget && isUseBiometric
+                ? Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        child: InkWell(
+                          onTap: _checkBiometricAuthenticate,
+                          child: Column(
+                            children: [
+                              Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  child: SvgPicture.asset(
+                                    "assets/images/public/icon_biometric.svg",
+                                    fit: BoxFit.contain,
+                                    width: 58,
+                                  )),
+                              Text(dic.tapToVerify,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF808080)))
+                            ],
+                          ),
+                        ),
                       ),
-                      textStyle: TextStyle(color: Colors.black)),
-                  child: Text(dic.cancel,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600)),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              )),
-              Container(
-                width: 0.5,
-                height: 48,
-                color: Colors.black.withOpacity(0.1),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 48,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        )),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _submitting
-                            ? Padding(
-                                padding: EdgeInsets.only(left: 5),
-                                child: CupertinoTheme(
-                                  data: CupertinoTheme.of(context)
-                                      .copyWith(brightness: Brightness.dark),
-                                  child: CupertinoActivityIndicator(
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ))
-                            : Text(dic.confirm,
+                      Container(
+                        margin: EdgeInsets.only(top: 20),
+                        height: 1,
+                        color: Colors.black.withOpacity(0.05),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                            foregroundColor: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                            textStyle: TextStyle(color: Colors.black)),
+                        child: Text(dic.cancel,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600)),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                        Expanded(
+                            child: SizedBox(
+                          height: 48,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                                foregroundColor: Theme.of(context).primaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                                textStyle: TextStyle(color: Colors.black)),
+                            child: Text(dic.cancel,
                                 style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                    onPressed: !_isConfirmButtonEnabled
-                        ? null
-                        : _submitting
-                            ? () {}
-                            : () => _onOk(_passCtrl.text.trim()),
-                  ),
-                ),
-              )
-            ]),
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600)),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        )),
+                        Container(
+                          width: 0.5,
+                          height: 48,
+                          color: Colors.black.withOpacity(0.1),
+                        ),
+                        Expanded(
+                          child: SizedBox(
+                            height: 48,
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).primaryColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                  )),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _submitting
+                                      ? Padding(
+                                          padding: EdgeInsets.only(left: 5),
+                                          child: CupertinoTheme(
+                                            data: CupertinoTheme.of(context)
+                                                .copyWith(
+                                                    brightness:
+                                                        Brightness.dark),
+                                            child: CupertinoActivityIndicator(
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                          ))
+                                      : Text(dic.confirm,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                              onPressed: !_isConfirmButtonEnabled
+                                  ? null
+                                  : _submitting
+                                      ? () {}
+                                      : () => _onOk(_passCtrl.text.trim()),
+                            ),
+                          ),
+                        )
+                      ]),
           ],
         ),
       ),
