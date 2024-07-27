@@ -541,5 +541,12 @@
   "balance":"Balance",
   "updateTokenInfo":"Update your token information?",
   "noTxHistory":"No transaction history",
-  "buildFailed": "Packaging failed"
+  "buildFailed": "Packaging failed",
+  "appAccess":"App Access",
+  "transactions":"Transactions",
+  "unlock":"Unlock",
+  "useBiometricAuthentication":"Use Biometric Authentication",
+  "loginWithPassword":"Login with Password",
+  "clickToVerification":"Click to start verification",
+  "resetWallet":"Reset wallet"
 }

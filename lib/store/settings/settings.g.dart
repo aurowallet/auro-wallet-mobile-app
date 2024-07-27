@@ -89,6 +89,22 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
+  late final _$lockWalletStatusAtom =
+      Atom(name: '_SettingsStore.lockWalletStatus', context: context);
+
+  @override
+  bool get lockWalletStatus {
+    _$lockWalletStatusAtom.reportRead();
+    return super.lockWalletStatus;
+  }
+
+  @override
+  set lockWalletStatus(bool value) {
+    _$lockWalletStatusAtom.reportWrite(value, super.lockWalletStatus, () {
+      super.lockWalletStatus = value;
+    });
+  }
+
   late final _$aboutusAtom =
       Atom(name: '_SettingsStore.aboutus', context: context);
 
@@ -303,6 +319,15 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.updateContact(contact, address));
   }
 
+  late final _$setLockWalletStatusAsyncAction =
+      AsyncAction('_SettingsStore.setLockWalletStatus', context: context);
+
+  @override
+  Future<void> setLockWalletStatus(bool status) {
+    return _$setLockWalletStatusAsyncAction
+        .run(() => super.setLockWalletStatus(status));
+  }
+
   late final _$_SettingsStoreActionController =
       ActionController(name: '_SettingsStore', context: context);
 
@@ -336,6 +361,7 @@ localeCode: ${localeCode},
 currencyCode: ${currencyCode},
 currentNode: ${currentNode},
 testnetShowStatus: ${testnetShowStatus},
+lockWalletStatus: ${lockWalletStatus},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
 networkName: ${networkName},

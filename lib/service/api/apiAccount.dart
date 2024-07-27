@@ -31,6 +31,7 @@ class ApiAccount {
   final store = globalAppStore;
 
   final _biometricEnabledKey = 'biometric_enabled_';
+  final _biometricAppAccessEnabledKey = 'biometric_enabled_appaccess';
   final _biometricPasswordKey = 'biometric_password_';
   final _watchModeWarnedKey = 'watch_mode_warned';
 
@@ -622,6 +623,25 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   bool getBiometricEnabled() {
     final timestamp = apiRoot.configStorage.read('$_biometricEnabledKey');
     // we cache user's password with biometric for 7 days.
+    if (timestamp != null &&
+        timestamp + SECONDS_OF_DAY * 7000 >
+            DateTime.now().millisecondsSinceEpoch) {
+      return true;
+    }
+    return false;
+  }
+  void setBiometricAppAccessEnabled() {
+    apiRoot.configStorage
+        .write('$_biometricAppAccessEnabledKey', DateTime.now().millisecondsSinceEpoch);
+  }
+
+  void setBiometricAppAccessDisabled() {
+    apiRoot.configStorage.write('$_biometricAppAccessEnabledKey',
+        DateTime.now().millisecondsSinceEpoch - SECONDS_OF_DAY * 7000);
+  }
+ 
+  bool getBiometricAppAccessEnabled() {
+    final timestamp = apiRoot.configStorage.read('$_biometricAppAccessEnabledKey');
     if (timestamp != null &&
         timestamp + SECONDS_OF_DAY * 7000 >
             DateTime.now().millisecondsSinceEpoch) {

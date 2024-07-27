@@ -138,6 +138,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
       store.wallet!.clearWallets();
       store.assets!.clearAccountCache();
       webApi.account.setBiometricDisabled();
+      webApi.account.setBiometricAppAccessDisabled();
       Phoenix.rebirth(context);
     }
   }

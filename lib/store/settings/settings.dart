@@ -39,6 +39,9 @@ abstract class _SettingsStore with Store {
   @observable
   bool testnetShowStatus = false;
 
+  @observable
+  bool lockWalletStatus = true;
+
   bool get isSupportTxHistory {
     return currentNode?.txUrl != null && currentNode!.txUrl!.isNotEmpty;
   }
@@ -239,5 +242,10 @@ abstract class _SettingsStore with Store {
   Future<void> updateContact(ContactData contact, String address) async {
     await rootStore.localStorage.updateContact(contact.toJson(), address);
     loadContacts();
+  }
+
+  @action
+  Future<void> setLockWalletStatus(bool status) async {
+    lockWalletStatus = status;
   }
 }

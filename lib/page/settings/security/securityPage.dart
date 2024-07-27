@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/settings/security/BiometricPage.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -27,7 +28,6 @@ class _SecurityPageState extends State<SecurityPage> {
   _SecurityPageState(this.store);
 
   final AppStore store;
-  bool _isBiometricAuthorized = false;
   bool _supportBiometric = false;
 
   @override
@@ -90,54 +90,15 @@ class _SecurityPageState extends State<SecurityPage> {
     setState(() {
       _supportBiometric = supportBiometric;
     });
-    final isBiometricAuthorized = webApi.account.getBiometricEnabled();
-    setState(() {
-      _isBiometricAuthorized = isBiometricAuthorized;
-    });
-  }
-
-  Future<void> _authBiometric() async {
-    String? password = await UI.showPasswordDialog(
-        context: context,
-        wallet: store.wallet!.currentWallet,
-        validate: true,
-        inputPasswordRequired: true
-    );
-
-    bool success = false;
-    try {
-      if (password != null) {
-        await webApi.account.saveBiometricPass(context, password);
-        success = true;
-        print('save bio success');
-      }
-    } catch (err) {
-      print('save bio failed');
-      print(err);
-      // ignore
-    }
-    if (success) {
-      webApi.account.setBiometricEnabled();
-      setState(() {
-        _isBiometricAuthorized = true;
-      });
-    }
   }
 
   void _onChangePassword() {
     Navigator.pushNamed(context, ChangePasswordPage.route);
   }
-
-  void _onToggleBiometric(bool isOn) {
-    if (isOn) {
-      _authBiometric();
-    } else {
-      webApi.account.setBiometricDisabled();
-      this.setState(() {
-        this._isBiometricAuthorized = false;
-      });
-    }
+  void _onToBiometric() {
+    Navigator.pushNamed(context, BiometricPage.route);
   }
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -156,9 +117,7 @@ class _SecurityPageState extends State<SecurityPage> {
               children: <Widget>[
                 MenuItem(text: dic.restoreSeed, onClick: _onBackup,),
                 MenuItem(text: dic.changePassword, onClick: _onChangePassword,),
-                _supportBiometric ?
-                SwitchItem(text: dic.unlockBioEnable, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
-                    : Container()
+                _supportBiometric ? MenuItem(text: dic.unlockBioEnable, onClick: _onToBiometric,): Container(),
               ],
             )
         ),

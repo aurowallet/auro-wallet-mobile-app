@@ -4,11 +4,13 @@ import 'dart:math';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/account/LockWalletPage.dart';
 import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/page/browser/browserSearchPage.dart';
 import 'package:auro_wallet/page/browser/browserWrapperPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
+import 'package:auro_wallet/page/settings/security/BiometricPage.dart';
 import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
@@ -215,6 +217,12 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     }
   }
 
+  bool initLockCheck() {
+    final isBiometricAppAccessOpen =
+        webApi.account.getBiometricAppAccessEnabled();
+    return isBiometricAppAccessOpen && _appStore!.settings!.lockWalletStatus;
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _doAutoRouting());
@@ -261,10 +269,17 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                   });
                   if (snapshot.hasData) {
                     FlutterNativeSplash.remove();
-                    return snapshot.data! > 0
-                        ? HomePage(_appStore!)
-                        : CreateAccountEntryPage(
-                            _appStore!.settings!, _changeLang);
+                    if (snapshot.data! > 0) {
+                      bool isOpen = initLockCheck();
+                      if (isOpen) {
+                        return LockWalletPage(_appStore!);
+                      } else {
+                        return HomePage(_appStore!);
+                      }
+                    } else {
+                      return CreateAccountEntryPage(
+                          _appStore!.settings!, _changeLang);
+                    }
                   } else {
                     return Container();
                     // return SplashScreen();
@@ -292,6 +307,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
             ImportWatchedAccountPage(_appStore!),
         LedgerAccountNamePage.route: (_) => LedgerAccountNamePage(_appStore!),
         AddAccountPage.route: (_) => AddAccountPage(_appStore!),
+        LockWalletPage.route: (_) => LockWalletPage(_appStore!),
 
         // assets
         TransferPage.route: (_) => TransferPage(_appStore!),
@@ -313,6 +329,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         ContactEditPage.route: (_) => ContactEditPage(_appStore!.settings!),
         SecurityPage.route: (_) => SecurityPage(_appStore!),
         ExportMnemonicResultPage.route: (_) => ExportMnemonicResultPage(),
+        BiometricPage.route: (_) => BiometricPage(_appStore!),
+
         // staking
         DelegatePage.route: (_) => DelegatePage(_appStore!),
         ValidatorsPage.route: (_) => ValidatorsPage(_appStore!),
