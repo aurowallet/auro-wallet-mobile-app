@@ -52,7 +52,6 @@ class _BiometricPageState extends State<BiometricPage> {
     String? password = await UI.showPasswordDialog(
         context: context,
         wallet: store.wallet!.currentWallet,
-        validate: true,
         inputPasswordRequired: true);
 
     bool success = false;

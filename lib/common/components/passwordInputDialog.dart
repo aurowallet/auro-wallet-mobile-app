@@ -12,12 +12,10 @@ import 'package:flutter_svg/svg.dart';
 class PasswordInputDialog extends StatefulWidget {
   PasswordInputDialog({
     required this.wallet,
-    this.validate = false,
     this.inputPasswordRequired = false,
   });
 
   final WalletData wallet;
-  final bool validate;
   final bool inputPasswordRequired;
 
   @override
@@ -51,20 +49,17 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       UI.toast(dic.inputPassword);
       return;
     }
-    if (widget.validate) {
-      setState(() {
-        _submitting = true;
-      });
-      bool isCorrect =
-          await webApi.account.checkAccountPassword(widget.wallet, password);
-      setState(() {
-        _submitting = false;
-      });
-      if (!isCorrect) {
-        UI.toast(dic.passwordError);
-        Navigator.of(context).pop();
-        return;
-      }
+    setState(() {
+      _submitting = true;
+    });
+    bool isCorrect =
+        await webApi.account.checkAccountPassword(widget.wallet, password);
+    setState(() {
+      _submitting = false;
+    });
+    if (!isCorrect) {
+      UI.toast(dic.passwordError);
+      return;
     }
     // bool isCorrect = await webApi.account.checkAccountPassword(widget.wallet, password);
     // Tuple2 result = await widget.onOk(password);
@@ -104,12 +99,15 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
           await _onOk(result);
         } else {
           print('biometric read null');
-          Navigator.of(context).pop();
         }
       } catch (err) {
+        if (err is AuthException) {
+          UI.toast(err.message);
+        } else {
+          UI.toast('Unknown error: ${err.toString()}');
+        }
         print('biometric error');
         print(err);
-        Navigator.of(context).pop();
       }
     }
   }

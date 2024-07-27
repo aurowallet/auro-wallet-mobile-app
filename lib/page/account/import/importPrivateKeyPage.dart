@@ -56,7 +56,6 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
     String? password = await UI.showPasswordDialog(
         context: context,
         wallet: store.wallet!.currentWallet,
-        validate: true,
         inputPasswordRequired: true
     );
     if (password == null) {

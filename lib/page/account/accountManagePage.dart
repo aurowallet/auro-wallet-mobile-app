@@ -121,7 +121,6 @@ class _AccountManagePageState extends State<AccountManagePage> {
       String? password = await UI.showPasswordDialog(
           context: context,
           wallet: wallet,
-          validate: true,
           inputPasswordRequired: true);
       if (password == null) {
         return;
