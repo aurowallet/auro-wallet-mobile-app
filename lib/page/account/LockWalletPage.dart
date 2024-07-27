@@ -11,8 +11,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class LockWalletPage extends StatefulWidget {
-  const LockWalletPage(this.store);
+  const LockWalletPage(this.store, {this.unLockCallBack});
 
+  final Function? unLockCallBack;
   static final String route = '/account/lockpage';
   final AppStore store;
 
@@ -51,8 +52,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
       UI.toast(dic.passwordError);
       return;
     }
-    widget.store.settings!.setLockWalletStatus(false);
-    Navigator.of(context).pushReplacementNamed('/');
+    onCheckSuccess();
   }
 
   void _unFocus() {
@@ -63,6 +63,14 @@ class _LockWalletPageState extends State<LockWalletPage> {
     setState(() {
       isUseBiometric = !isUseBiometric;
     });
+  }
+
+  void onCheckSuccess() {
+    widget.store.settings!.setLockWalletStatus(false);
+    Navigator.of(context).pushReplacementNamed('/');
+    if (widget.unLockCallBack != null) {
+      widget.unLockCallBack!(context, true);
+    }
   }
 
   Future<void> _onOk(String password) async {
@@ -76,11 +84,9 @@ class _LockWalletPageState extends State<LockWalletPage> {
         .checkAccountPassword(widget.store.wallet!.currentWallet, password);
     if (!isCorrect) {
       UI.toast(dic.passwordError);
-      Navigator.of(context).pop();
       return;
     }
-    widget.store.settings!.setLockWalletStatus(false);
-    Navigator.of(context).pushReplacementNamed('/');
+    onCheckSuccess();
   }
 
   Future<void> _checkBiometricAuthenticate() async {

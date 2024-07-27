@@ -66,6 +66,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                   ? Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: widget.contents
                             .map((content) => Text(
                                   content,

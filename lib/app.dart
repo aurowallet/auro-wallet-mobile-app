@@ -192,12 +192,46 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<void> _doAutoRouting() async {
+  Future<void> _doAutoRouting(BuildContext context, bool isFromLockPage) async {
     if (appLinkRouteParams != null) {
-      Navigator.of(_homePageContext).pushNamed(
-        BrowserWrapperPage.route,
-        arguments: {"url": appLinkRouteParams!['url']},
-      );
+      int walletLength = _appStore!.wallet!.walletListAll.length;
+      if (walletLength == 0) {
+        return;
+      }
+      if (!isFromLockPage) {
+        bool isOpen = initLockCheck();
+        if (isOpen) {
+          return;
+        }
+      }
+      AppLocalizations dic = AppLocalizations.of(_homePageContext)!;
+      bool? rejected = await UI.showConfirmDialog(
+          context: _homePageContext,
+          title: dic.zkAppTipTitle,
+          contents: [appLinkRouteParams!['url'] + '\n', dic.zkAppTipContent],
+          okText: dic.isee,
+          cancelText: dic.cancel);
+      if (rejected != true) {
+        return;
+      }
+      bool isBrowserWrapperPageOpened = false;
+      Navigator.of(_homePageContext).popUntil((route) {
+        if (route.settings.name == BrowserWrapperPage.route) {
+          isBrowserWrapperPageOpened = true;
+        }
+        return true;
+      });
+      if (isBrowserWrapperPageOpened) {
+        Navigator.of(_homePageContext).pushReplacementNamed(
+          BrowserWrapperPage.route,
+          arguments: {"url": appLinkRouteParams!['url']},
+        );
+      } else {
+        Navigator.of(_homePageContext).pushNamed(
+          BrowserWrapperPage.route,
+          arguments: {"url": appLinkRouteParams!['url']},
+        );
+      }
       if (appLinkRouteParams!['networkId'] != null) {
         await UI.showSwitchChainAction(
             context: _homePageContext,
@@ -225,7 +259,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _doAutoRouting());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _doAutoRouting(context, false));
     return MaterialApp(
       title: 'Auro Wallet',
       locale: _locale,
@@ -272,7 +307,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                     if (snapshot.data! > 0) {
                       bool isOpen = initLockCheck();
                       if (isOpen) {
-                        return LockWalletPage(_appStore!);
+                        return LockWalletPage(_appStore!,
+                            unLockCallBack: _doAutoRouting);
                       } else {
                         return HomePage(_appStore!);
                       }
