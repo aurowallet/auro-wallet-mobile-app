@@ -132,7 +132,8 @@ class UI {
       {required BuildContext context,
       bool generateAddress = false,
       int? accountIndex,
-      String? accountName}) {
+      String? accountName,
+      String password = ""}) {
     return showModalBottomSheet<bool?>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -143,7 +144,9 @@ class UI {
         return ImportLedger(
             generateAddress: generateAddress,
             accountIndex: accountIndex,
-            accountName: accountName);
+            accountName: accountName,
+            password:password
+            );
       },
     );
   }
