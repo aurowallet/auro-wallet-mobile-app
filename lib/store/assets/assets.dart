@@ -391,6 +391,7 @@ abstract class _AssetsStore with Store {
       txs = ObservableList();
     }
     if (cache[2] != null) {
+      tokenZkTxs.clear();
       Map<String, dynamic> jsonMap = cache[2];
       ObservableMap<String, List<TransferData>> tempTokenZkTx =
           ObservableMap<String, List<TransferData>>();
@@ -729,7 +730,7 @@ abstract class _AssetsStore with Store {
     rootStore.localStorage.setAccountCache(
         rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, []);
     rootStore.localStorage.setAccountCache(
-        rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, []);
+        rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, {});
     rootStore.localStorage.setAccountCache(
         rootStore.wallet!.currentWallet.pubKey, cacheTokensKey, []);
   }

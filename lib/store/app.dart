@@ -50,8 +50,8 @@ abstract class _AppStore with Store {
       print(e);
     }
 
-    staking = StakingStore(this as AppStore);
     try {
+      staking = StakingStore(this as AppStore);
       await staking!.init();
     } catch (e) {
       print(e);
