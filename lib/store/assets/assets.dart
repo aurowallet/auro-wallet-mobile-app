@@ -3,7 +3,6 @@ import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
-import 'package:auro_wallet/store/assets/types/feeTransferData.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
@@ -32,45 +31,31 @@ abstract class _AssetsStore with Store {
   final String cacheBalanceKey = 'balance';
   final String cachePriceKey = 'coin_price_v2';
   final String cacheTxsKey = 'txs';
-  final String cacheFeeTxsKey = 'fee_txs';
-  final String cacheScamListKey = 'scam_list';
-  final scamKey = 'wallet_sacm_list';
 
+  final String cacheScamListKey = 'wallet_sacm_list';
   final String cacheZkTxsKey = 'zk_txs_v2';
 
-  final String cacheTokensKey = 'account_token_v10';
+  final String cacheTokensKey = 'account_token_v1';
 
-  final String cacheTokenConfigKey = 'account_token_config_v10';
+  final String cacheTokenConfigKey = 'account_token_config_v1';
 
-  final String cacheTokenInfoKey = 'token_info_v10';
+  final String cacheTokenInfoKey = 'token_info_v1';
 
   @observable
   bool isAssetsLoading = true;
-
-  @observable
-  bool isBalanceLoading = false;
 
   @observable
   ObservableMap<String, AccountInfo> accountsInfo =
       ObservableMap<String, AccountInfo>();
 
   @observable
-  Map<String, String> tokenBalances = Map<String, String>();
-
-  @observable
   Fees transferFees = defaultTxFees;
-
-  @observable
-  int txsCount = 0;
 
   @observable
   ObservableList<TransferData> pendingTxs = ObservableList<TransferData>();
 
   @observable
   ObservableList<TransferData> txs = ObservableList<TransferData>();
-
-  @observable
-  ObservableList<FeeTransferData> feeTxs = ObservableList<FeeTransferData>();
 
   @observable
   ObservableList<ScamItem> scamList = ObservableList<ScamItem>();
@@ -87,9 +72,6 @@ abstract class _AssetsStore with Store {
   @observable
   ObservableMap<String, List<TransferData>> tokenZkTxs =
       ObservableMap<String, List<TransferData>>();
-
-  @observable
-  int txsFilter = 0;
 
   @observable
   ObservableList<Token> tokenList = ObservableList<Token>();
@@ -277,43 +259,8 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> clearTxs() async {
-    txs.clear();
-  }
-
-  @action
-  Future<void> clearZkTxs() async {
-    zkTxs.clear();
-    tokenZkTxs.clear();
-  }
-
-  @action
-  Future<void> clearFeeTxs() async {
-    feeTxs.clear();
-  }
-
-  @action
-  Future<void> clearPendingTxs() async {
-    pendingTxs.clear();
-  }
-
-  @action
-  Future<void> clearPendingZkTxs() async {
-    pendingZkTxs.clear();
-  }
-
-  @action
-  Future<void> clearAllTxs() async {
-    txs.clear();
-    zkTxs.clear();
-    pendingTxs.clear();
-    pendingZkTxs.clear();
-    await rootStore.localStorage.setAccountCache(
-        rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, []);
-  }
-
-  @action
   Future<void> addPendingTxs(List<dynamic>? ls, String address) async {
+    pendingTxs.clear();
     if (rootStore.wallet!.currentAddress != address) return;
     if (ls == null) return;
     ls.forEach((i) {
@@ -326,6 +273,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> addPendingZkTxs(List<dynamic>? ls, String address) async {
+    pendingZkTxs.clear();
     if (rootStore.wallet!.currentAddress != address) return;
     if (ls == null) return;
     ls.forEach((i) {
@@ -337,28 +285,10 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> addFeeTxs(List<dynamic> ls, String address,
-      {bool shouldCache = false}) async {
-    if (rootStore.wallet!.currentAddress != address) return;
-
-    if (ls == null) return;
-
-    ls.forEach((i) {
-      FeeTransferData tx = FeeTransferData.fromJson(i);
-      feeTxs.add(tx);
-    });
-
-    if (shouldCache) {
-      rootStore.localStorage.setAccountCache(
-          rootStore.wallet!.currentWallet.pubKey, cacheFeeTxsKey, ls);
-    }
-  }
-
-  @action
   Future<void> addTxs(List<dynamic> ls, String address,
       {bool shouldCache = false}) async {
+    txs.clear();
     if (rootStore.wallet!.currentAddress != address) return;
-
     if (ls == null) return;
 
     ls.forEach((i) {
@@ -379,6 +309,7 @@ abstract class _AssetsStore with Store {
   Future<void> addZkTxs(List<dynamic> ls, String address, String tokenId,
       {bool shouldCache = false}) async {
     try {
+      zkTxs.clear();
       if (rootStore.wallet!.currentAddress != address) return;
       if (ls.isEmpty) return;
       List<TransferData> tempZkTxList = [];
@@ -390,10 +321,7 @@ abstract class _AssetsStore with Store {
         tempZkTxList.add(tx);
       });
 
-      Map<String, List<TransferData>> tempTokenTx = Map.from(tokenZkTxs);
-      tempTokenTx[tokenId] = tempZkTxList;
-      tokenZkTxs.clear();
-      tokenZkTxs.addAll(tempTokenTx);
+      tokenZkTxs[tokenId] = tempZkTxList;
       if (shouldCache) {
         Map<String, List<Map<String, dynamic>>> jsonMap = {};
         tokenZkTxs.forEach((key, value) {
@@ -405,7 +333,7 @@ abstract class _AssetsStore with Store {
             rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, jsonMap);
       }
     } catch (e) {
-      print("addZkTxs===11=${e.toString()}");
+      print("addZkTxs===e=${e.toString()}");
     }
   }
 
@@ -413,11 +341,6 @@ abstract class _AssetsStore with Store {
   Future<void> setFeesMap(Map<String, double> fees) async {
     transferFees = Fees.fromJson(fees);
     rootStore.localStorage.setObject(localStorageFeesKey, transferFees);
-  }
-
-  @action
-  void setBalanceLoading(bool isLoading) {
-    isBalanceLoading = isLoading;
   }
 
   @action
@@ -454,7 +377,6 @@ abstract class _AssetsStore with Store {
     List cache = await Future.wait([
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsKey),
-      rootStore.localStorage.getAccountCache(pubKey, cacheFeeTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheZkTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTokensKey),
     ]);
@@ -469,13 +391,7 @@ abstract class _AssetsStore with Store {
       txs = ObservableList();
     }
     if (cache[2] != null) {
-      feeTxs = ObservableList.of(
-          List.of(cache[2]).map((i) => FeeTransferData.fromJson(i)).toList());
-    } else {
-      feeTxs = ObservableList();
-    }
-    if (cache[3] != null) {
-      Map<String, dynamic> jsonMap = cache[3];
+      Map<String, dynamic> jsonMap = cache[2];
       ObservableMap<String, List<TransferData>> tempTokenZkTx =
           ObservableMap<String, List<TransferData>>();
       jsonMap.forEach((key, value) {
@@ -488,9 +404,10 @@ abstract class _AssetsStore with Store {
     } else {
       tokenZkTxs = ObservableMap<String, List<TransferData>>();
     }
-    if (cache[4] != null) {
-      tokenList = ObservableList.of(
-          List.of(cache[4]).map((i) => Token.fromJson(i)).toList());
+    if (cache[3] != null) {
+      tokenList.clear();
+      List<Token> ls = List.of(cache[3]).map((i) => Token.fromJson(i)).toList();
+      updateTokenAssets(ls, pubKey);
     } else {
       tokenList = ObservableList();
     }
@@ -520,12 +437,10 @@ abstract class _AssetsStore with Store {
   @action
   Future<void> clearAccountCache() async {
     rootStore.localStorage.clearAccountsCache(cacheTxsKey);
-    rootStore.localStorage.clearAccountsCache(cacheFeeTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
     rootStore.localStorage.clearAccountsCache(cacheZkTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheTokensKey);
     txs = ObservableList();
-    feeTxs = ObservableList();
     accountsInfo = ObservableMap<String, AccountInfo>();
     zkTxs = ObservableList();
     tokenList = ObservableList();
@@ -545,6 +460,9 @@ abstract class _AssetsStore with Store {
 
   @action
   void setLocalScamList(List<ScamItem> ls) {
+    scamList.clear();
+    scamAddressStr = "";
+
     scamList.addAll(ls);
 
     var scamAddressStrCache = "";
@@ -554,17 +472,13 @@ abstract class _AssetsStore with Store {
     scamAddressStrCache = scamAddressStrCache.toLowerCase();
 
     scamAddressStr = scamAddressStrCache;
-    rootStore.localStorage.setObject(scamKey, ls);
-  }
-
-  void clearScamList() {
-    scamList = ObservableList<ScamItem>();
+    rootStore.localStorage.setObject(cacheScamListKey, ls);
   }
 
   @action
   Future<void> loadLocalScamList() async {
-    List<dynamic>? scamCacheList =
-        await rootStore.localStorage.getObject(scamKey) as List<dynamic>?;
+    List<dynamic>? scamCacheList = await rootStore.localStorage
+        .getObject(cacheScamListKey) as List<dynamic>?;
     if (scamCacheList == null) {
       scamCacheList = [];
     }
@@ -670,11 +584,11 @@ abstract class _AssetsStore with Store {
   @action
   void updateTokenAssets(List<Token> ls, String address,
       {bool shouldCache = false}) {
+    tokenList.clear();
     if (rootStore.wallet!.currentAddress != address) return;
 
     Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
     if (ls.isEmpty) {
-      tokenList.clear();
       tokenList.add(mainTokenDefaultConfig);
     } else {
       List<Token> nextTokenList = ls.map((tokenItem) {
@@ -786,7 +700,6 @@ abstract class _AssetsStore with Store {
         nextTokenList.insert(0, Token.fromJson(defaultMINAAssets));
       }
 
-      tokenList.clear();
       tokenList = ObservableList.of(nextTokenList);
     }
     if (shouldCache) {
@@ -796,31 +709,47 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> clearRuntimeTokens() async {
-    tokenList.clear();
-  }
+  Future<void> clearAssestNodeCache() async {
+    accountsInfo.clear();
 
-  @action
-  Future<void> clearAllTokens() async {
-    clearRuntimeTokens();
+    txs.clear();
+    zkTxs.clear();
+    pendingTxs.clear();
+    pendingZkTxs.clear();
+    tokenZkTxs.clear();
+
+    clearMarketPrices();
+
+    tokenList.clear();
+
+    localHideTokenMap.clear();
+    localShowedTokenIds.clear();
+    tokenInfoList.clear();
+
+    rootStore.localStorage.setAccountCache(
+        rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, []);
+    rootStore.localStorage.setAccountCache(
+        rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, []);
     rootStore.localStorage.setAccountCache(
         rootStore.wallet!.currentWallet.pubKey, cacheTokensKey, []);
   }
 
   @action
-  Future<void> clearAssestNodeCache() async {
-    clearAllTxs();
-    clearMarketPrices();
-    clearAllTokens();
-  }
-
-  @action
   Future<void> clearAccountAssestCache() async {
-    clearTxs();
-    clearZkTxs();
-    clearPendingTxs();
-    clearPendingZkTxs();
-    clearRuntimeTokens();
+    txs.clear();
+
+    zkTxs.clear();
+
+    pendingTxs.clear();
+
+    pendingZkTxs.clear();
+
+    tokenZkTxs.clear();
+
+    tokenList.clear();
+
+    localHideTokenMap.clear();
+    localShowedTokenIds.clear();
   }
 
   @action

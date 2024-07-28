@@ -17,6 +17,11 @@ class Token {
 
   factory Token.fromJson(Map<String, dynamic> json) => _$TokenFromJson(json);
   Map<String, dynamic> toJson() => _$TokenToJson(this);
+
+  @override
+  String toString() {
+    return 'Token(tokenAssestInfo: $tokenAssestInfo, tokenNetInfo: $tokenNetInfo, localConfig: $localConfig, tokenBaseInfo: $tokenBaseInfo)';
+  }
 }
 
 @JsonSerializable()
@@ -32,6 +37,11 @@ class TokenLocalConfig {
   factory TokenLocalConfig.fromJson(Map<String, dynamic> json) =>
       _$TokenLocalConfigFromJson(json);
   Map<String, dynamic> toJson() => _$TokenLocalConfigToJson(this);
+
+  @override
+  String toString() {
+    return 'TokenLocalConfig(hideToken: $hideToken, tokenShowed: $tokenShowed)';
+  }
 }
 
 /// ===  TokenAssetInfo
@@ -57,6 +67,11 @@ class TokenAssetInfo {
       _$TokenAssetInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$TokenAssetInfoToJson(this);
+
+  @override
+  String toString() {
+    return 'TokenAssetInfo(balance: $balance, inferredNonce: $inferredNonce, delegateAccount: $delegateAccount, tokenId: $tokenId, publicKey: $publicKey, zkappUri: $zkappUri)';
+  }
 }
 
 @JsonSerializable()
@@ -73,6 +88,11 @@ class Balance {
       _$BalanceFromJson(json);
 
   Map<String, dynamic> toJson() => _$BalanceToJson(this);
+
+  @override
+  String toString() {
+    return 'Balance(total: $total, liquid: $liquid)';
+  }
 }
 
 @JsonSerializable()
@@ -87,6 +107,11 @@ class DelegateAccount {
       _$DelegateAccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$DelegateAccountToJson(this);
+
+  @override
+  String toString() {
+    return 'DelegateAccount(publicKey: $publicKey)';
+  }
 }
 
 /// ===  TokenBaseInfo
@@ -113,6 +138,11 @@ class TokenBaseInfo {
       _$TokenBaseInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$TokenBaseInfoToJson(this);
+
+  @override
+  String toString() {
+    return 'TokenBaseInfo(isScam: $isScam, isMainToken: $isMainToken, isDelegation: $isDelegation, decimals: $decimals, showBalance: $showBalance, showAmount: $showAmount, iconUrl: $iconUrl)';
+  }
 }
 
 /// ===  TokenNetInfo
@@ -131,4 +161,9 @@ class TokenNetInfo {
   factory TokenNetInfo.fromJson(Map<String, dynamic> json) =>
       _$TokenNetInfoFromJson(json);
   Map<String, dynamic> toJson() => _$TokenNetInfoToJson(this);
+
+  @override
+  String toString() {
+    return 'TokenNetInfo(publicKey: $publicKey, tokenSymbol: $tokenSymbol, zkappState: $zkappState)';
+  }
 }

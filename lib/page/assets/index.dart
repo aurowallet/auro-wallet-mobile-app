@@ -89,7 +89,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bool showIndicator = store.assets!.tokenList.length == 0;
-      this._onRefresh(showIndicator: showIndicator);// 
+      this._onRefresh(showIndicator: showIndicator);
       _checkWatchMode();
       WidgetsBinding.instance.addObserver(this);
     });
@@ -258,7 +258,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var currency = currencyConfig
         .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
-    Color amountColor = (store.assets!.isBalanceLoading)
+    Color amountColor = (store.assets!.isAssetsLoading)
         ? Color(0xFFDDDDDD)
         : Color(0xFFFFFFFF);
     bool isZekoNet = store.settings!.isZekoNet;

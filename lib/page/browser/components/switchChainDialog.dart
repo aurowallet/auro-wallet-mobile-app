@@ -88,6 +88,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     webApi.updateGqlClient(showNode.url);
     webApi.staking.refreshStaking();
     await store.assets!.loadTokenLocalConfigCache();
+    await store.assets!.loadTokenInfoCache();
     webApi.assets.fetchTokenInfo();
     globalBalanceRefreshKey.currentState?.show();
 

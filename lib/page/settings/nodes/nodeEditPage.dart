@@ -145,8 +145,10 @@ class _NodeEditPageState extends State<NodeEditPage> {
           widget.store.assets!.setAssetsLoading(true);
           await widget.store.settings!.setCurrentNode(endpoint);
           webApi.updateGqlClient(endpoint.url);
-          webApi.refreshNetwork();
           await widget.store.assets!.loadTokenLocalConfigCache();
+          await widget.store.assets!.loadTokenInfoCache();
+          webApi.assets.fetchTokenInfo();
+          globalBalanceRefreshKey.currentState!.show();
         }
       }
     } else {
@@ -156,9 +158,10 @@ class _NodeEditPageState extends State<NodeEditPage> {
       await widget.store.settings!.setCurrentNode(endpoint);
       await widget.store.settings!.setCustomNodeList(endpoints);
       webApi.updateGqlClient(endpoint.url);
-      webApi.refreshNetwork();
-      webApi.assets.fetchTokenInfo();
       await widget.store.assets!.loadTokenLocalConfigCache();
+      await widget.store.assets!.loadTokenInfoCache();
+      webApi.assets.fetchTokenInfo();
+      globalBalanceRefreshKey.currentState!.show();
     }
     setState(() {
       submitting = false;

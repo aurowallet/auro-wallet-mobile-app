@@ -8,6 +8,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -51,10 +52,17 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     if (widget.settingStore.currentNode?.url == url) {
       CustomNode mainnetEndpoint = defaultNetworkList
           .firstWhere((network) => network.networkID == networkIDMap.mainnet);
+
+      await widget.store.assets!.clearAssestNodeCache();
+      widget.store.assets!.setAssetsLoading(true);
+
       await widget.settingStore.setCurrentNode(mainnetEndpoint);
       webApi.updateGqlClient(mainnetEndpoint.url);
-      webApi.refreshNetwork();
+
       await widget.store.assets!.loadTokenLocalConfigCache();
+      await widget.store.assets!.loadTokenInfoCache();
+      webApi.assets.fetchTokenInfo();
+      globalBalanceRefreshKey.currentState!.show();
     }
     widget.settingStore.setCustomNodeList(endpoints);
   }
@@ -69,8 +77,11 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         widget.store.assets!.setAssetsLoading(true);
         await widget.settingStore.setCurrentNode(node);
         webApi.updateGqlClient(key);
-        webApi.refreshNetwork();
-        await widget.store.assets!.loadTokenLocalConfigCache();
+        await widget.store.assets!
+            .loadTokenLocalConfigCache();
+        await widget.store.assets!.loadTokenInfoCache();
+        webApi.assets.fetchTokenInfo();
+        globalBalanceRefreshKey.currentState!.show();
         Navigator.of(context).pop();
       }
     }

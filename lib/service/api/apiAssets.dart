@@ -59,7 +59,6 @@ class ApiAssets {
     List<dynamic> list = result.data!['transactions'];
     print('transactions');
     print(list.length);
-    store.assets!.clearTxs();
     await store.assets!.addTxs(list, pubKey, shouldCache: true);
 
     // List<dynamic> feeTransferList = result.data!['feetransfers'];
@@ -104,7 +103,6 @@ class ApiAssets {
     }
     List<dynamic> list = result.data!['pooledUserCommands'];
     print('pending list length:${list.length}');
-    store.assets!.clearPendingTxs();
     await store.assets!.addPendingTxs(list, pubKey);
   }
 
@@ -288,7 +286,6 @@ class ApiAssets {
     List<dynamic> list = result.data!['pooledZkappCommands'];
     print('zk pending list length:${list.length}');
     print('zk pending list length=2:${jsonEncode(list)}');
-    store.assets!.clearPendingZkTxs();
     await store.assets!.addPendingZkTxs(list, publicKey);
   }
 
@@ -351,7 +348,6 @@ class ApiAssets {
     }
     List<dynamic> list = result.data!['zkapps'];
     print('zk transactions');
-    store.assets!.clearZkTxs();
     await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
   }
 
@@ -474,7 +470,6 @@ ${List<String>.generate(pubkeys.length, (int index) {
       }).toList();
 
       if (scamItemList.length > 0) {
-        store.assets!.clearScamList();
         store.assets!.setLocalScamList(scamItemList);
       }
     } else {
@@ -595,7 +590,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
   Future<void> fetchAllTokenAssets({bool showIndicator = false}) async {
     String pubKey = store.wallet!.currentWallet.pubKey;
     if (showIndicator) {
-      store.assets!.setBalanceLoading(true);
+      store.assets!.setAssetsLoading(true);
     }
     _fetchMarketPrice();
     if (pubKey.isNotEmpty) {
@@ -620,7 +615,6 @@ ${List<String>.generate(pubkeys.length, (int index) {
         store.assets!.updateTokenAssets([], pubKey, shouldCache: true);
       }
     }
-    store.assets!.setBalanceLoading(false);
     store.assets!.setAssetsLoading(false);
   }
 
@@ -655,10 +649,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
     String tokenUrl =
         "$BASE_INFO_URL/tokenInfo?networkId=" + getReadableNetworkId(networkId);
     var response = await http.get(Uri.parse(tokenUrl));
-
     if (response.statusCode == 200) {
       List<dynamic> sourceList = convert.jsonDecode(response.body);
-      print('fetchTokenInfo===1,${sourceList.toString()}');
       List<TokenInfoData> tokenInfoList = sourceList.map((item) {
         return TokenInfoData.fromJson(item);
       }).toList();

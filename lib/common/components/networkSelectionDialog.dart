@@ -65,6 +65,7 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
         webApi.updateGqlClient(checkedUrl);
         webApi.staking.refreshStaking();
         await store.assets!.loadTokenLocalConfigCache();
+        await store.assets!.loadTokenInfoCache();
         webApi.assets.fetchTokenInfo();
         globalBalanceRefreshKey.currentState!.show();
       }
