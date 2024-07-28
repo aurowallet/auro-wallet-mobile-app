@@ -12,17 +12,20 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/ledgerInit.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
 class ImportLedger extends StatefulWidget {
   ImportLedger(
-      {this.generateAddress = false, this.accountIndex, this.accountName});
+      {this.generateAddress = false,
+      this.accountIndex,
+      this.accountName,
+      this.password = ""});
 
   final bool generateAddress;
   final int? accountIndex;
   final String? accountName;
+  final String password;
 
   @override
   _ImportLedgerState createState() => new _ImportLedgerState();
@@ -119,7 +122,8 @@ class _ImportLedgerState extends State<ImportLedger> {
           context: context,
           source: WalletSource.outside,
           seedType: WalletStore.seedTypeLedger,
-          hdIndex: accountIndex);
+          hdIndex: accountIndex,
+          password: widget.password);
       if (isSuccess == true) {
         Navigator.of(context).pop(true);
       } else {
@@ -407,9 +411,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
     return Wrap(
       children: [
         LedgerTipItem(
-            num: '1',
-            text: dic.ledgerTip1,
-            descText: dic.ledgerSupport),
+            num: '1', text: dic.ledgerTip1, descText: dic.ledgerSupport),
         LedgerTipItem(
           num: '2',
           text: dic.ledgerTip2,

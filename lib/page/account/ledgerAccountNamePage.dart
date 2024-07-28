@@ -69,13 +69,23 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
     setState(() {
       importing = true;
     });
-    bool? generated = await UI.showImportLedgerDialog(
+    String? password = await UI.showPasswordDialog(
         context: context,
-        accountIndex: accountIndex,
-        generateAddress: true,
-        accountName: accountName);
+        wallet: store.wallet!.currentWallet,
+        inputPasswordRequired: true);
+    if (password == null) {
+      return;
+    }
+    bool? generated = await UI.showImportLedgerDialog(
+      context: context,
+      accountIndex: accountIndex,
+      generateAddress: true,
+      accountName: accountName,
+      password: password,
+    );
     if (generated == true) {
-      Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+      Navigator.popUntil(
+          context, (route) => route.settings.name == WalletManagePage.route);
     }
     setState(() {
       importing = false;

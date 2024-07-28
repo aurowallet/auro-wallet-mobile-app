@@ -255,6 +255,12 @@ abstract class _WalletStore with Store {
       await saveSeed(WalletStore.seedTypeMnemonic);
     } else if (seedType == WalletStore.seedTypePrivateKey) {
       await saveSeed(WalletStore.seedTypePrivateKey);
+    } else if (seedType == WalletStore.seedTypeLedger) {
+      String ledgerContent = jsonEncode({
+        "pubKey": pubKey,
+        "hdIndex": hdIndex,
+      });
+      await encryptSeed(pubKey, ledgerContent, seedType, password!);
     }
     walletInfo.remove(WalletStore.seedTypeMnemonic);
     walletInfo.remove(WalletStore.seedTypePrivateKey);

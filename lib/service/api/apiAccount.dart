@@ -433,17 +433,21 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     }
   }
 
-  Future<bool> createExternalWallet(String accountName, String address,
-      {required BuildContext context,
-      String source = WalletSource.outside,
-      String seedType = WalletStore.seedTypeNone,
-      int hdIndex = 0}) async {
+  Future<bool> createExternalWallet(
+    String accountName,
+    String address, {
+    required BuildContext context,
+    String source = WalletSource.outside,
+    String seedType = WalletStore.seedTypeNone,
+    int hdIndex = 0,
+    String password = "",
+  }) async {
     Map<String, dynamic> acc = {
       "name": accountName,
       "pubKey": address,
       "hdIndex": hdIndex
     };
-    WalletResult res = await store.wallet!.addWallet(acc, null,
+    WalletResult res = await store.wallet!.addWallet(acc, password,
         seedType: seedType,
         context: context,
         walletSource: WalletSource.outside);
@@ -630,18 +634,20 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     }
     return false;
   }
+
   void setBiometricAppAccessEnabled() {
-    apiRoot.configStorage
-        .write('$_biometricAppAccessEnabledKey', DateTime.now().millisecondsSinceEpoch);
+    apiRoot.configStorage.write('$_biometricAppAccessEnabledKey',
+        DateTime.now().millisecondsSinceEpoch);
   }
 
   void setBiometricAppAccessDisabled() {
     apiRoot.configStorage.write('$_biometricAppAccessEnabledKey',
         DateTime.now().millisecondsSinceEpoch - SECONDS_OF_DAY * 7000);
   }
- 
+
   bool getBiometricAppAccessEnabled() {
-    final timestamp = apiRoot.configStorage.read('$_biometricAppAccessEnabledKey');
+    final timestamp =
+        apiRoot.configStorage.read('$_biometricAppAccessEnabledKey');
     if (timestamp != null &&
         timestamp + SECONDS_OF_DAY * 7000 >
             DateTime.now().millisecondsSinceEpoch) {
@@ -838,7 +844,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<dynamic> buildTokenBody(Map prepareBody) async {
-    String requestUrl = TokenBuildUrl+"/tokenbuild";
+    String requestUrl = TokenBuildUrl + "/tokenbuild";
 
     try {
       var response = await http.post(
