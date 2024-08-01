@@ -237,7 +237,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
                                         Text(dic.clickToVerification,
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                fontWeight: FontWeight.w600,
+                                                fontWeight: FontWeight.w400,
                                                 color: Color(0xFF808080)))
                                       ],
                                     ),

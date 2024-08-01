@@ -203,13 +203,15 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                       // clearButtonMode: OverlayVisibilityMode.editing,
                     ),
                   ),
-            Container(
-              margin: showBioWidget && isUseBiometric
-                  ? EdgeInsets.only(top: 20)
-                  : EdgeInsets.only(top: 30),
-              height: 1,
-              color: Colors.black.withOpacity(0.05),
-            ),
+            showBioWidget && isUseBiometric
+                ? SizedBox(
+                    height: 20,
+                  )
+                : Container(
+                    margin: EdgeInsets.only(top: 30),
+                    height: 1,
+                    color: Colors.black.withOpacity(0.05),
+                  ),
             showBioWidget && isUseBiometric
                 ? Column(
                     children: [
@@ -228,8 +230,8 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                                   )),
                               Text(dic.tapToVerify,
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
                                       color: Color(0xFF808080)))
                             ],
                           ),
