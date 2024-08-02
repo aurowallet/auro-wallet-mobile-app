@@ -14,6 +14,8 @@ import 'package:auro_wallet/page/browser/components/connectDialog.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
 import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:flutter/material.dart';
@@ -145,8 +147,7 @@ class UI {
             generateAddress: generateAddress,
             accountIndex: accountIndex,
             accountName: accountName,
-            password:password
-            );
+            password: password);
       },
     );
   }
@@ -175,18 +176,30 @@ class UI {
     );
   }
 
-  static Future<String?> showPasswordDialog(
-      {required BuildContext context,
-      required WalletData wallet,
-      bool inputPasswordRequired = false}) {
+  static Future<String?> showPasswordDialog({
+    required BuildContext context,
+    required WalletData wallet,
+    bool inputPasswordRequired = false,
+    bool isTransaction = false,
+    AppStore? store,
+  }) {
+    if (isTransaction) {
+      final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
+      if (!isTransactionEnable && store != null) {
+        String pwd = store.wallet!.runtimePwd;
+        if (pwd.isNotEmpty) {
+          return Future.value(pwd);
+        }
+      }
+    }
+
     return showDialog(
       context: context,
       barrierDismissible: false,
       useRootNavigator: false,
       builder: (_) {
         return PasswordInputDialog(
-            wallet: wallet,
-            inputPasswordRequired: inputPasswordRequired);
+            wallet: wallet, inputPasswordRequired: inputPasswordRequired);
       },
     );
   }

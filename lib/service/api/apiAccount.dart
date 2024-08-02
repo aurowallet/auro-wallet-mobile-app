@@ -31,9 +31,11 @@ class ApiAccount {
   final store = globalAppStore;
 
   final _biometricEnabledKey = 'biometric_enabled_';
-  final _biometricAppAccessEnabledKey = 'biometric_enabled_appaccess';
   final _biometricPasswordKey = 'biometric_password_';
   final _watchModeWarnedKey = 'watch_mode_warned';
+
+  final _appAccessPasswordKey = 'app_access_password_';
+  final _transactionsPasswordKey = 'transaction_password_';
 
   Future<void> changeCurrentAccount({
     String? pubKey,
@@ -635,25 +637,37 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return false;
   }
 
-  void setBiometricAppAccessEnabled() {
-    apiRoot.configStorage.write('$_biometricAppAccessEnabledKey',
-        DateTime.now().millisecondsSinceEpoch);
+  void setAppAccessEnabled() {
+    apiRoot.configStorage.write('$_appAccessPasswordKey', "enable");
   }
 
-  void setBiometricAppAccessDisabled() {
-    apiRoot.configStorage.write('$_biometricAppAccessEnabledKey',
-        DateTime.now().millisecondsSinceEpoch - SECONDS_OF_DAY * 7000);
+  void setAppAccessDisabled() {
+    apiRoot.configStorage.write('$_appAccessPasswordKey', "disable");
   }
 
-  bool getBiometricAppAccessEnabled() {
-    final timestamp =
-        apiRoot.configStorage.read('$_biometricAppAccessEnabledKey');
-    if (timestamp != null &&
-        timestamp + SECONDS_OF_DAY * 7000 >
-            DateTime.now().millisecondsSinceEpoch) {
-      return true;
+  bool getAppAccessEnabled() {
+    final enableStatus = apiRoot.configStorage.read('$_appAccessPasswordKey');
+    if (enableStatus != null) {
+      return enableStatus == "enable";
     }
     return false;
+  }
+
+  void setTransactionPwdEnabled() {
+    apiRoot.configStorage.write('$_transactionsPasswordKey', "enable");
+  }
+
+  void setTransactionPwdDisabled() {
+    apiRoot.configStorage.write('$_transactionsPasswordKey', "disable");
+  }
+
+  bool getTransactionPwdEnabled() {
+    final enableStatus =
+        apiRoot.configStorage.read('$_transactionsPasswordKey');
+    if (enableStatus != null) {
+      return enableStatus == "enable";
+    }
+    return true; // default ture
   }
 
   void setWatchModeWarned() {

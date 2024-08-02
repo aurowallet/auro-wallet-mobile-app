@@ -10,7 +10,7 @@ import 'package:auro_wallet/page/browser/browserSearchPage.dart';
 import 'package:auro_wallet/page/browser/browserWrapperPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
-import 'package:auro_wallet/page/settings/security/BiometricPage.dart';
+import 'package:auro_wallet/page/settings/security/PasswordVerificationPage.dart';
 import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
@@ -262,9 +262,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   }
 
   bool initLockCheck() {
-    final isBiometricAppAccessOpen =
-        webApi.account.getBiometricAppAccessEnabled();
-    return isBiometricAppAccessOpen && _appStore!.settings!.lockWalletStatus;
+    final isAppAccessOpen = webApi.account.getAppAccessEnabled();
+    return isAppAccessOpen && _appStore!.settings!.lockWalletStatus;
   }
 
   @override
@@ -375,7 +374,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         ContactEditPage.route: (_) => ContactEditPage(_appStore!.settings!),
         SecurityPage.route: (_) => SecurityPage(_appStore!),
         ExportMnemonicResultPage.route: (_) => ExportMnemonicResultPage(),
-        BiometricPage.route: (_) => BiometricPage(_appStore!),
+        PasswordVerificationPage.route: (_) =>
+            PasswordVerificationPage(_appStore!),
 
         // staking
         DelegatePage.route: (_) => DelegatePage(_appStore!),

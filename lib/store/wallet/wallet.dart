@@ -43,6 +43,9 @@ abstract class _WalletStore with Store {
   @observable
   ObservableList<WalletData> walletList = ObservableList<WalletData>();
 
+  @observable
+  String runtimePwd = "";
+
   @computed
   WalletData get currentWallet {
     int i = walletList.indexWhere((i) => i.id == currentWalletId);
@@ -222,10 +225,12 @@ abstract class _WalletStore with Store {
   bool isPubKeyExist(String pubKey) {
     int index = walletList.indexWhere((item) {
       List<AccountData> accountList = item.accounts;
-      return accountList.indexWhere((account) => account.pubKey == pubKey) != -1;
+      return accountList.indexWhere((account) => account.pubKey == pubKey) !=
+          -1;
     });
     return index != -1;
   }
+
   @action
   Future<WalletResult> addWallet(
     Map<String, dynamic> walletInfo,
@@ -454,5 +459,15 @@ abstract class _WalletStore with Store {
       }
       await loadWallet();
     }
+  }
+
+  @action
+  void setRuntimePwd(String pwd) {
+    runtimePwd = pwd;
+  }
+
+  @action
+  void clearRuntimePwd() {
+    runtimePwd = "";
   }
 }

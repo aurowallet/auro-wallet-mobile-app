@@ -552,5 +552,7 @@
   "biometricAuth": "Biometric Auth",
   "tapToVerify": "Tap to verify",
   "zkAppTipTitle": "You are visiting a third-party zkApp",
-  "zkAppTipContent": "You are a subiect to third-party zkApp‘s User Agreement when entering this zkApp."
+  "zkAppTipContent": "You are a subiect to third-party zkApp‘s User Agreement when entering this zkApp.",
+  "passwordVerification":"Password Verification",
+  "pwdVerificationTip":"At least one option must be selected."
 }

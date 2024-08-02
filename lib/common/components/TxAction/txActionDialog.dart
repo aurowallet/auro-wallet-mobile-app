@@ -174,7 +174,10 @@ class _TxActionDialogState extends State<TxActionDialog> {
       String? password = await UI.showPasswordDialog(
           context: context,
           wallet: widget.store.wallet!.currentWallet,
-          inputPasswordRequired: false);
+          inputPasswordRequired: false,
+          isTransaction: true,
+          store: widget.store
+      );
       if (password == null) {
         return false;
       }

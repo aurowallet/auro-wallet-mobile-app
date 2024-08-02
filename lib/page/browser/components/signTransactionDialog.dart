@@ -268,7 +268,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         String? password = await UI.showPasswordDialog(
             context: context,
             wallet: store.wallet!.currentWallet,
-            inputPasswordRequired: false);
+            inputPasswordRequired: false,
+            isTransaction: true,
+            store: store);
         if (password == null) {
           setState(() {
             submitting = false;

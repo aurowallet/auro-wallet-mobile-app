@@ -85,6 +85,11 @@ class _ChangePassword extends State<ChangePasswordPage> {
         }
       }
     }
+    final isTransactionEnable =
+                  webApi.account.getTransactionPwdEnabled();
+    if(!isTransactionEnable){
+        store.setRuntimePwd(passNew);
+    }
     if (!biometricFail) {
       await store.updateAllWalletSeed(passOld, passNew);
       UI.toast(dic.pwdChangeSuccess);

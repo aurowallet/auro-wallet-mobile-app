@@ -152,6 +152,22 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
+  late final _$runtimePwdAtom =
+      Atom(name: '_WalletStore.runtimePwd', context: context);
+
+  @override
+  String get runtimePwd {
+    _$runtimePwdAtom.reportRead();
+    return super.runtimePwd;
+  }
+
+  @override
+  set runtimePwd(String value) {
+    _$runtimePwdAtom.reportWrite(value, super.runtimePwd, () {
+      super.runtimePwd = value;
+    });
+  }
+
   late final _$setCurrentAccountAsyncAction =
       AsyncAction('_WalletStore.setCurrentAccount', context: context);
 
@@ -318,6 +334,28 @@ mixin _$WalletStore on _WalletStore, Store {
   }
 
   @override
+  void setRuntimePwd(String pwd) {
+    final _$actionInfo = _$_WalletStoreActionController.startAction(
+        name: '_WalletStore.setRuntimePwd');
+    try {
+      return super.setRuntimePwd(pwd);
+    } finally {
+      _$_WalletStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearRuntimePwd() {
+    final _$actionInfo = _$_WalletStoreActionController.startAction(
+        name: '_WalletStore.clearRuntimePwd');
+    try {
+      return super.clearRuntimePwd();
+    } finally {
+      _$_WalletStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 loading: ${loading},
@@ -325,6 +363,7 @@ txStatus: ${txStatus},
 newWalletParams: ${newWalletParams},
 currentWalletId: ${currentWalletId},
 walletList: ${walletList},
+runtimePwd: ${runtimePwd},
 currentWallet: ${currentWallet},
 walletsMap: ${walletsMap},
 accountListAll: ${accountListAll},

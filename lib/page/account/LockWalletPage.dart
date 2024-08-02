@@ -24,11 +24,17 @@ class LockWalletPage extends StatefulWidget {
 class _LockWalletPageState extends State<LockWalletPage> {
   final TextEditingController _passCtrl = new TextEditingController();
   FocusNode _pass2Focus = new FocusNode();
-  bool isUseBiometric = true;
+  bool isUseBiometric = false;
+  bool canUseBiometric = false;
 
   @override
   void initState() {
     super.initState();
+    final isBiometricAuthorized = webApi.account.getBiometricEnabled();
+    setState(() {
+      isUseBiometric = isBiometricAuthorized;
+      canUseBiometric = isBiometricAuthorized;
+    });
   }
 
   @override
@@ -52,6 +58,11 @@ class _LockWalletPageState extends State<LockWalletPage> {
       UI.toast(dic.passwordError);
       return;
     }
+    final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
+    if (!isTransactionEnable) {
+      widget.store.wallet!.setRuntimePwd(passStr);
+    }
+
     onCheckSuccess();
   }
 
@@ -67,6 +78,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
 
   void onCheckSuccess() {
     widget.store.settings!.setLockWalletStatus(false);
+
     Navigator.of(context).pushReplacementNamed('/');
     if (widget.unLockCallBack != null) {
       widget.unLockCallBack!(context, true);
@@ -150,7 +162,12 @@ class _LockWalletPageState extends State<LockWalletPage> {
       widget.store.wallet!.clearWallets();
       widget.store.assets!.clearAccountCache();
       webApi.account.setBiometricDisabled();
-      webApi.account.setBiometricAppAccessDisabled();
+
+      // reset pwd verification
+      webApi.account.setAppAccessDisabled();
+      webApi.account.setTransactionPwdEnabled();
+      widget.store.wallet!.clearRuntimePwd();
+
       Phoenix.rebirth(context);
     }
   }
@@ -268,21 +285,23 @@ class _LockWalletPageState extends State<LockWalletPage> {
                           ],
                         ),
                       ),
-                      Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 38, vertical: 30),
-                          child: InkWell(
-                            onTap: onChangeVerifyMethod,
-                            child: Text(
-                              isUseBiometric
-                                  ? dic.loginWithPassword
-                                  : dic.useBiometricAuthentication,
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryColor),
-                            ),
-                          )),
+                      canUseBiometric
+                          ? Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 38, vertical: 30),
+                              child: InkWell(
+                                onTap: onChangeVerifyMethod,
+                                child: Text(
+                                  isUseBiometric
+                                      ? dic.loginWithPassword
+                                      : dic.useBiometricAuthentication,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).primaryColor),
+                                ),
+                              ))
+                          : Container(),
                     ])))));
   }
 }

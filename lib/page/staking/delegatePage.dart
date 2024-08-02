@@ -290,7 +290,9 @@ class _DelegatePageState extends State<DelegatePage>
               String? password = await UI.showPasswordDialog(
                   context: context,
                   wallet: store.wallet!.currentWallet,
-                  inputPasswordRequired: false);
+                  inputPasswordRequired: false,
+                  isTransaction: true,
+                  store: store);
               if (password == null) {
                 return false;
               }

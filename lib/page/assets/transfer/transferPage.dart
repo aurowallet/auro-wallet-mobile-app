@@ -348,7 +348,9 @@ class _TransferPageState extends State<TransferPage> {
               String? password = await UI.showPasswordDialog(
                   context: context,
                   wallet: store.wallet!.currentWallet,
-                  inputPasswordRequired: false);
+                  inputPasswordRequired: false,
+                  isTransaction: true,
+                  store: store);
               if (password == null) {
                 return false;
               }
@@ -580,7 +582,7 @@ class _TransferPageState extends State<TransferPage> {
     return Observer(
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;
-        final int decimals = int.parse(availableDecimals??"0") ;
+        final int decimals = int.parse(availableDecimals ?? "0");
         final fees = store.assets!.transferFees;
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;
