@@ -103,6 +103,10 @@ class _LockWalletPageState extends State<LockWalletPage> {
       UI.toast(dic.passwordError);
       return;
     }
+    final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
+    if (!isTransactionEnable) {
+      widget.store.wallet!.setRuntimePwd(password);
+    }
     onCheckSuccess();
   }
 
