@@ -35,6 +35,11 @@ class _LockWalletPageState extends State<LockWalletPage> {
       isUseBiometric = isBiometricAuthorized;
       canUseBiometric = isBiometricAuthorized;
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isBiometricAuthorized) {
+        _checkBiometricAuthenticate();
+      }
+    });
   }
 
   @override
