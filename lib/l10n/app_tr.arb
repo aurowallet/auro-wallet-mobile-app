@@ -522,8 +522,37 @@
   "@hardwareWallet": {},
   "ledgerConnected": "Ledger bağlandı",
   "ledgerNotConnected": "Ledger cihazı bağlı değil",
-  "txType":"İşlem Türü",
+  "txType": "İşlem Türü",
   "appConnection": "Uygulama Bağlantıları",
   "noConnectedApps": "Bağlı uygulama yok",
-  "txHistoryTip": "İşlem geçmişi sağlanamıyor"
+  "txHistoryTip": "İşlem geçmişi sağlanamıyor",
+  "tokens": "TOKENS",
+  "assetManagement": "Varlık Yönetimi",
+  "newTokenFound": "{count} yeni jeton bulundu",
+  "@newTokenFound": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "ignore": "Yoksay",
+  "balance": "Bakiye",
+  "updateTokenInfo": "Jeton bilgilerinizi güncellemek ister misiniz?",
+  "noTxHistory": "İşlem geçmişi yok",
+  "buildFailed": "Paketleme başarısız oldu",
+  "appAccess": "APP Erişimi",
+  "transactions": "İşlemler",
+  "unlock": "Kilidi Aç",
+  "useBiometricAuthentication": "Biyometrik Kimlik Doğrulama Kullan",
+  "loginWithPassword": "Şifre ile Giriş Yap",
+  "clickToVerification": "Doğrulamayı başlatmak için tıklayın",
+  "resetWallet": "Cüzdanı sıfırla",
+  "biometricAuth": "Biyometrik Kimlik Doğrulama",
+  "tapToVerify": "Doğrulamak için dokunun",
+  "zkAppTipTitle": "Üçüncü taraf bir zkApp'i ziyaret ediyorsunuz",
+  "zkAppTipContent": "Bu zkApp'e girerken üçüncü taraf zkApp Kullanıcı Sözleşmesine tabisiniz.",
+  "passwordVerification": "Şifre Doğrulama",
+  "pwdVerificationTip": "En az bir seçenek seçilmelidir."
 }

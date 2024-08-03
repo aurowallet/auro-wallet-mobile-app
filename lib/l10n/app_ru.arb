@@ -524,8 +524,37 @@
   "@hardwareWallet": {},
   "ledgerConnected": "Устройство Ledger подключено",
   "ledgerNotConnected": "Устройство Ledger не подключено",
-  "txType":"Тип транзакции",
+  "txType": "Тип транзакции",
   "appConnection": "Подключения приложений",
   "noConnectedApps": "Нет подключенных приложений",
-  "txHistoryTip": "Невозможно предоставить историю транзакций"
+  "txHistoryTip": "Невозможно предоставить историю транзакций",
+  "tokens": "TOKENS",
+  "assetManagement": "Управление активами",
+  "newTokenFound": "Найдено {count} новых токенов",
+  "@newTokenFound": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "ignore": "Игнорировать",
+  "balance": "Баланс",
+  "updateTokenInfo": "Обновить информацию о токенах?",
+  "noTxHistory": "История транзакций отсутствует",
+  "buildFailed": "Сборка не удалась",
+  "appAccess": "APP Доступ",
+  "transactions": "Транзакции",
+  "unlock": "Разблокировать",
+  "useBiometricAuthentication": "Использовать биометрическую аутентификацию",
+  "loginWithPassword": "Войти с паролем",
+  "clickToVerification": "Нажмите, чтобы начать проверку",
+  "resetWallet": "Сбросить кошелек",
+  "biometricAuth": "Биометрическая аутентификация",
+  "tapToVerify": "Нажмите, чтобы подтвердить",
+  "zkAppTipTitle": "Вы посещаете стороннее zkApp",
+  "zkAppTipContent": "При входе в это zkApp вы подчиняетесь Пользовательскому соглашению стороннего zkApp.",
+  "passwordVerification": "Проверка пароля",
+  "pwdVerificationTip": "Необходимо выбрать хотя бы один вариант."
 }

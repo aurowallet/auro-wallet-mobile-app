@@ -542,7 +542,7 @@
   "updateTokenInfo": "Update your token information?",
   "noTxHistory": "No transaction history",
   "buildFailed": "Packaging failed",
-  "appAccess": "App Access",
+  "appAccess": "APP Access",
   "transactions": "Transactions",
   "unlock": "Unlock",
   "useBiometricAuthentication": "Use Biometric Authentication",

@@ -522,8 +522,37 @@
   "@hardwareWallet": {},
   "ledgerConnected": "Пристрій Ledger підключено",
   "ledgerNotConnected": "Пристрій Ledger не підключено",
-  "txType":"Тип транзакції",
+  "txType": "Тип транзакції",
   "appConnection": "Підключення програми",
   "noConnectedApps": "Немає підключених програм",
-  "txHistoryTip": "Не вдалося надати історію транзакцій"
+  "txHistoryTip": "Не вдалося надати історію транзакцій",
+  "tokens": "TOKENS",
+  "assetManagement": "Управління активами",
+  "newTokenFound": "Знайдено {count} нових токенів",
+  "@newTokenFound": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "ignore": "Ігнорувати",
+  "balance": "Баланс",
+  "updateTokenInfo": "Оновити інформацію про токен?",
+  "noTxHistory": "Історія транзакцій відсутня",
+  "buildFailed": "Пакування не вдалося",
+  "appAccess": "APP доступ",
+  "transactions": "Транзакції",
+  "unlock": "Розблокувати",
+  "useBiometricAuthentication": "Використовувати біометричну автентифікацію",
+  "loginWithPassword": "Увійти за допомогою пароля",
+  "clickToVerification": "Натисніть, щоб розпочати перевірку",
+  "resetWallet": "Скинути гаманець",
+  "biometricAuth": "Біометрична автентифікація",
+  "tapToVerify": "Натисніть, щоб підтвердити",
+  "zkAppTipTitle": "Ви відвідуєте сторонній zkApp",
+  "zkAppTipContent": "Входячи до цього zkApp, ви підпорядковуєтесь Угоді користувача стороннього zkApp.",
+  "passwordVerification": "Перевірка пароля",
+  "pwdVerificationTip": "Необхідно вибрати щонайменше одну опцію."
 }

@@ -522,8 +522,37 @@
   "@hardwareWallet": {},
   "ledgerConnected": "Ledger 已连接",
   "ledgerNotConnected": "Ledger 未连接",
-  "txType":"交易类型",
+  "txType": "交易类型",
   "appConnection": "已连接应用",
   "noConnectedApps": "没有已连接的应用",
-  "txHistoryTip": "无法提供交易记录"
+  "txHistoryTip": "无法提供交易记录",
+  "tokens": "TOKENS",
+  "assetManagement": "资产管理",
+  "newTokenFound": "发现了{count}个新代币",
+  "@newTokenFound": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "ignore": "忽略",
+  "balance": "余额",
+  "updateTokenInfo": "更新您的代币信息？",
+  "noTxHistory": "没有交易历史",
+  "buildFailed": "打包失败",
+  "appAccess": "APP 访问",
+  "transactions": "交易",
+  "unlock": "解锁",
+  "useBiometricAuthentication": "使用生物识别",
+  "loginWithPassword": "使用密码登录",
+  "clickToVerification": "点击开始验证",
+  "resetWallet": "重置钱包",
+  "biometricAuth": "生物识别认证",
+  "tapToVerify": "点击验证",
+  "zkAppTipTitle": "您正在访问第三方zkApp",
+  "zkAppTipContent": "进入此zkApp时，您需遵守第三方zkApp的用户协议。",
+  "passwordVerification": "密码验证",
+  "pwdVerificationTip": "必须选择至少一个选项。"
 }
