@@ -63,8 +63,7 @@ class _PasswordVerificationState extends State<PasswordVerificationPage>
 
   Future<void> _checkPwdAuth() async {
     final isAppAccessEnable = webApi.account.getAppAccessEnabled();
-    final isTransactionEnable =
-        webApi.account.getTransactionPwdEnabled();
+    final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
 
     setState(() {
       _isAppAccessEnable = isAppAccessEnable;
@@ -102,15 +101,18 @@ class _PasswordVerificationState extends State<PasswordVerificationPage>
             inputPasswordRequired: true);
         if (password != null) {
           store.wallet!.setRuntimePwd(password);
+          setState(() {
+            _isTransactionEnable = isOn;
+          });
+          webApi.account.setTransactionPwdDisabled();
         }
-        webApi.account.setTransactionPwdDisabled();
       } else {
         store.wallet!.clearRuntimePwd();
         webApi.account.setTransactionPwdEnabled();
+        setState(() {
+          _isTransactionEnable = isOn;
+        });
       }
-      setState(() {
-        _isTransactionEnable = isOn;
-      });
     }
   }
 
