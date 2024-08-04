@@ -542,7 +542,7 @@
   "updateTokenInfo": "Оновити інформацію про токен?",
   "noTxHistory": "Історія транзакцій відсутня",
   "buildFailed": "Пакування не вдалося",
-  "appAccess": "APP доступ",
+  "appAccess": "App доступ",
   "transactions": "Транзакції",
   "unlock": "Розблокувати",
   "useBiometricAuthentication": "Використовувати біометричну автентифікацію",

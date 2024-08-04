@@ -542,7 +542,7 @@
   "updateTokenInfo": "更新您的代币信息？",
   "noTxHistory": "没有交易历史",
   "buildFailed": "打包失败",
-  "appAccess": "APP 访问",
+  "appAccess": "App 访问",
   "transactions": "交易",
   "unlock": "解锁",
   "useBiometricAuthentication": "使用生物识别",
@@ -554,5 +554,5 @@
   "zkAppTipTitle": "您正在访问第三方zkApp",
   "zkAppTipContent": "进入此zkApp时，您需遵守第三方zkApp的用户协议。",
   "passwordVerification": "密码验证",
-  "pwdVerificationTip": "必须选择至少一个选项。"
+  "pwdVerificationTip": "至少选择一个选项。"
 }

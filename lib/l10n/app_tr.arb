@@ -542,7 +542,7 @@
   "updateTokenInfo": "Jeton bilgilerinizi güncellemek ister misiniz?",
   "noTxHistory": "İşlem geçmişi yok",
   "buildFailed": "Paketleme başarısız oldu",
-  "appAccess": "APP Erişimi",
+  "appAccess": "App Erişimi",
   "transactions": "İşlemler",
   "unlock": "Kilidi Aç",
   "useBiometricAuthentication": "Biyometrik Kimlik Doğrulama Kullan",

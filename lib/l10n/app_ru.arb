@@ -544,7 +544,7 @@
   "updateTokenInfo": "Обновить информацию о токенах?",
   "noTxHistory": "История транзакций отсутствует",
   "buildFailed": "Сборка не удалась",
-  "appAccess": "APP Доступ",
+  "appAccess": "App Доступ",
   "transactions": "Транзакции",
   "unlock": "Разблокировать",
   "useBiometricAuthentication": "Использовать биометрическую аутентификацию",
