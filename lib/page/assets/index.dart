@@ -197,50 +197,53 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   Widget _buildTopBar(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     AppLocalizations dic = AppLocalizations.of(context)!;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Container(
-          //   width: 10,
-          // ),
-          Text(
-            dic.myWallet,
-            style: theme.headline1!.copyWith(
-              color: ColorsUtil.hexColor(0x020028),
-              fontWeight: FontWeight.bold,
+    return Container(
+      color: Color(0xFFEDEFF2),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Container(
+            //   width: 10,
+            // ),
+            Text(
+              dic.myWallet,
+              style: theme.headline1!.copyWith(
+                color: ColorsUtil.hexColor(0x020028),
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.left,
             ),
-            textAlign: TextAlign.left,
-          ),
-          Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // Flexible(child: Container(),),
-                Container(child: _buildNetworkEntry(context)),
-                Container(
-                  width: 12,
-                ),
-                IconButton(
-                    iconSize: 30,
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
-                    icon: SvgPicture.asset(
-                        'assets/images/assets/wallet_manage.svg',
-                        width: 30,
-                        height: 30),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(WalletManagePage.route);
-                    }
-                    // ,
-                    ),
-              ],
-            ),
-          )
-        ],
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Flexible(child: Container(),),
+                  Container(child: _buildNetworkEntry(context)),
+                  Container(
+                    width: 12,
+                  ),
+                  IconButton(
+                      iconSize: 30,
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                      icon: SvgPicture.asset(
+                          'assets/images/assets/wallet_manage.svg',
+                          width: 30,
+                          height: 30),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(WalletManagePage.route);
+                      }
+                      // ,
+                      ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -258,9 +261,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var currency = currencyConfig
         .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
-    Color amountColor = (store.assets!.isAssetsLoading)
-        ? Color(0xFFDDDDDD)
-        : Color(0xFFFFFFFF);
+    Color amountColor =
+        (store.assets!.isAssetsLoading) ? Color(0xFFDDDDDD) : Color(0xFFFFFFFF);
     bool isZekoNet = store.settings!.isZekoNet;
     String nextNetIcon = isZekoNet
         ? "assets/images/assets/icon_zeko.svg"
@@ -277,150 +279,154 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     String totalAmount = store.assets!.getTokenTotalAmount();
     String showAmount = currencySymbol + " " + totalAmount;
     return Container(
-      margin: EdgeInsets.fromLTRB(20, 4, 20, 0),
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          color: Color(chainColor)),
-      child: Stack(children: [
-        Positioned(
-            right: 20,
-            top: 50,
-            child: SvgPicture.asset(
-              nextNetIcon,
-              width: 99,
-            )),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(top: 15, right: 20, left: 20),
-              child: Column(children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 3),
-                      child: new Text(
-                        Fmt.accountName(acc.currentAccount),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 7),
-                      child: CopyContainer(
-                          iconColor: const Color(0x80FFFFFF),
-                          child: Container(
-                            child: Text(
-                              Fmt.address(store.wallet!.currentAddress,
-                                  pad: 10),
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  color: const Color(0x80FFFFFF),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          text: store.wallet!.currentAddress),
-                    )
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20, bottom: 20),
-                  child: Row(
-                    textBaseline: TextBaseline.alphabetic,
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
+      color: Color(0xFFEDEFF2),
+      padding: EdgeInsets.only(bottom: 30, right: 20),
+      child: Container(
+        margin: EdgeInsets.fromLTRB(20, 4, 0, 0),
+        padding: EdgeInsets.all(0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            color: Color(chainColor)),
+        child: Stack(children: [
+          Positioned(
+              right: 20,
+              top: 50,
+              child: SvgPicture.asset(
+                nextNetIcon,
+                width: 99,
+              )),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: 15, right: 20, left: 20),
+                child: Column(children: [
+                  Row(
                     children: [
-                      Text(
-                        showAmount,
-                        style: TextStyle(
-                            fontSize: 32,
-                            color: amountColor,
-                            fontStyle: FontStyle.normal,
-                            fontWeight: FontWeight.w700),
+                      Padding(
+                        padding: EdgeInsets.only(right: 3),
+                        child: new Text(
+                          Fmt.accountName(acc.currentAccount),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ]),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                      child: Container(
-                    height: 40.0,
-                    // constraints: BoxConstraints(maxWidth: 140),
-                    child: NormalButton(
-                      color: Colors.white,
-                      text: dic.send,
-                      textStyle: buttonTextStyle,
-                      onPressed: _onTransfer,
-                      icon: SvgPicture.asset(
-                        'assets/images/assets/send.svg',
-                        width: 10,
-                        color: Color(chainColor),
-                      ),
-                      padding: EdgeInsets.zero,
-                      radius: 24,
-                    ),
-                  )),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  Flexible(
-                      child: Container(
-                          height: 40,
-                          // constraints: BoxConstraints(maxWidth: 140),
-                          child: NormalButton(
-                            color: Colors.white,
-                            text: dic.receive,
-                            textStyle: buttonTextStyle,
-                            onPressed: _onReceive,
-                            icon: SvgPicture.asset(
-                              'assets/images/assets/receive.svg',
-                              width: 10,
-                              color: Color(chainColor),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 7),
+                        child: CopyContainer(
+                            iconColor: const Color(0x80FFFFFF),
+                            child: Container(
+                              child: Text(
+                                Fmt.address(store.wallet!.currentAddress,
+                                    pad: 10),
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    color: const Color(0x80FFFFFF),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400),
+                              ),
                             ),
-                            padding: EdgeInsets.zero,
-                            radius: 24,
-                          ))),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Positioned(
-            right: 10,
-            top: 10,
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                  color: Color(0x1A000000),
-                  borderRadius: BorderRadius.circular(10)),
-              child: IconButton(
-                  iconSize: 28,
-                  color: Colors.red,
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(minHeight: 0, minWidth: 0),
-                  icon: Icon(
-                    Icons.more_horiz,
-                    color: Colors.white,
-                    size: 18,
+                            text: store.wallet!.currentAddress),
+                      )
+                    ],
                   ),
-                  onPressed: _viewAccountDetail),
-            )),
-      ]),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20, bottom: 20),
+                    child: Row(
+                      textBaseline: TextBaseline.alphabetic,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      children: [
+                        Text(
+                          showAmount,
+                          style: TextStyle(
+                              fontSize: 32,
+                              color: amountColor,
+                              fontStyle: FontStyle.normal,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  ),
+                ]),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                        child: Container(
+                      height: 40.0,
+                      // constraints: BoxConstraints(maxWidth: 140),
+                      child: NormalButton(
+                        color: Colors.white,
+                        text: dic.send,
+                        textStyle: buttonTextStyle,
+                        onPressed: _onTransfer,
+                        icon: SvgPicture.asset(
+                          'assets/images/assets/send.svg',
+                          width: 10,
+                          color: Color(chainColor),
+                        ),
+                        padding: EdgeInsets.zero,
+                        radius: 24,
+                      ),
+                    )),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Flexible(
+                        child: Container(
+                            height: 40,
+                            // constraints: BoxConstraints(maxWidth: 140),
+                            child: NormalButton(
+                              color: Colors.white,
+                              text: dic.receive,
+                              textStyle: buttonTextStyle,
+                              onPressed: _onReceive,
+                              icon: SvgPicture.asset(
+                                'assets/images/assets/receive.svg',
+                                width: 10,
+                                color: Color(chainColor),
+                              ),
+                              padding: EdgeInsets.zero,
+                              radius: 24,
+                            ))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Positioned(
+              right: 10,
+              top: 10,
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                    color: Color(0x1A000000),
+                    borderRadius: BorderRadius.circular(10)),
+                child: IconButton(
+                    iconSize: 28,
+                    color: Colors.red,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(minHeight: 0, minWidth: 0),
+                    icon: Icon(
+                      Icons.more_horiz,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    onPressed: _viewAccountDetail),
+              )),
+        ]),
+      ),
     );
   }
 
@@ -437,13 +443,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           onRefresh: _onRefresh,
           child: SafeArea(
             maintainBottomViewPadding: true,
-            child: Column(
-              children: <Widget>[
-                _buildTopBar(context),
-                _buildTopCard(context),
-                _buildTokenListView(),
-              ],
-            ),
+            child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: <Widget>[
+                    _buildTopBar(context),
+                    _buildTopCard(context),
+                    _buildTokenListView(),
+                  ],
+                )),
           ),
         );
       },
