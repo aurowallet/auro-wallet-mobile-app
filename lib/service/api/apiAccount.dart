@@ -2,33 +2,39 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
-import 'package:auro_wallet/walletSdk/types.dart';
-import 'package:biometric_storage/biometric_storage.dart';
-import 'package:flutter/material.dart';
+
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/store/assets/types/transferData.dart';
-import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/transferData.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:convert/convert.dart';
-import 'package:auro_wallet/walletSdk/minaSDK.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:sodium_libs/sodium_libs_sumo.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
+import 'package:sodium_libs/sodium_libs_sumo.dart';
 
 class ApiAccount {
   ApiAccount(this.apiRoot);
 
   final Api apiRoot;
   final store = globalAppStore;
+
+  final LocalAuthentication auth = LocalAuthentication();
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   final _biometricEnabledKey = 'biometric_enabled_';
   final _biometricPasswordKey = 'biometric_password_';
@@ -682,31 +688,66 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return false;
   }
 
-  Future saveBiometricPass(BuildContext context, String password) async {
-    final storeFile = await webApi.account.getBiometricPassStoreFile(
-      context,
-    );
-    await storeFile.write(password);
+  Future<bool> saveBiometricPass(BuildContext context, String password) async {
+    try {
+      bool isAuth = await authenticate();
+      if (isAuth) {
+        await secureStorage.write(
+            key: '$_biometricPasswordKey', value: password);
+      
+      }
+      return isAuth;
+    } catch (e) {
+      print('saveBiometricPass==err,${e.toString()}');
+      return false;
+    }
   }
 
-  Future<BiometricStorageFile> getBiometricPassStoreFile(
+  Future<String?> getBiometricPassStoreFile(
     BuildContext context,
   ) async {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    return BiometricStorage().getStorage(
-      '$_biometricPasswordKey',
-      options:
-          StorageFileInitOptions(authenticationValidityDurationSeconds: -1),
-      promptInfo: PromptInfo(
-          androidPromptInfo: AndroidPromptInfo(
-            title: dic.unlockBio,
-            negativeButton: dic.cancel,
+    try {
+      bool isAuth = await authenticate();
+      if (isAuth) {
+        final data = await secureStorage.read(key: '$_biometricPasswordKey');
+        return data;
+      }
+    } catch (e) {
+      print("getBiometricPassStoreFile===${e.toString()}");
+    }
+  }
+
+  Future<bool> canAuthenticateWithBiometrics() async {
+    final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+    return canAuthenticateWithBiometrics;
+  }
+
+  Future<void> replaceBiometricData(String newValue) async {
+    await secureStorage.write(
+        key: '$_biometricPasswordKey', value: newValue);
+    print('Data replaced successfully');
+  }
+  
+  Future<bool> authenticate() async {
+    try {
+      return await auth.authenticate(
+        localizedReason: " ",
+        authMessages: [
+          const AndroidAuthMessages(
+            biometricHint: "Auro Wallet",
           ),
-          iosPromptInfo: IosPromptInfo(
-            saveTitle: dic.unlockBio,
-            accessTitle: dic.unlockBio,
-          )),
-    );
+        ],
+        options: AuthenticationOptions(
+          biometricOnly: true,
+          stickyAuth: true,
+        ),
+      );
+    } on PlatformException catch (e) {
+      print("authenticate==failed=${e.toString()}");
+      String? showMsg = e.message != null ? e.message : e.toString();
+      UI.toast(showMsg ?? "Verify Failed");
+      return false;
+    }
   }
 
   Future<Map<String, dynamic>> signMessage(Map signInfo,

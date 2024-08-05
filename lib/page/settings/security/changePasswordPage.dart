@@ -1,5 +1,4 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
@@ -71,14 +70,13 @@ class _ChangePassword extends State<ChangePasswordPage> {
       });
       return;
     }
-    final response = await BiometricStorage().canAuthenticate();
     bool biometricFail = false;
-    final supportBiometric = response == CanAuthenticateResponse.success;
+    final supportBiometric = await webApi.account.canAuthenticateWithBiometrics();
     if (supportBiometric) {
-      final isBiometricAuthorized = webApi.account.getBiometricEnabled();
+      final isBiometricAuthorized = webApi.account.getBiometricEnabled(); 
       if (isBiometricAuthorized) {
         try {
-          await webApi.account.saveBiometricPass(context, passNew);
+          await webApi.account.replaceBiometricData(passNew);
         } catch(e) {
           biometricFail = true;
           print('biometric fail' + e.toString());

@@ -11,7 +11,7 @@ description: MinaWallet made with Flutter.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.1.0+1155
+version: 2.1.0+1156
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -35,10 +35,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   #  device_info: ^0.4.2
-  biometric_storage:
-    git:
-      url: https://github.com/authpass/biometric_storage.git
-      ref: f5146678a4b23e0475bde17421e3fbffa7db2649
   fluttertoast: ^8.1.1
   bip39: 1.0.6
   roundcheckbox: ^2.0.4+1
@@ -79,6 +75,9 @@ dependencies:
   cached_network_image: ^3.3.0
   sodium_libs: ^2.2.0+11
   app_links: ^6.1.4
+  local_auth: ^2.2.0
+  local_auth_android: ^1.0.38
+
 
 dependency_overrides:
   connectivity_plus: '1.4.0'

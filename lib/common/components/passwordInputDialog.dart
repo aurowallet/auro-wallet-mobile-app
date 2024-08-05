@@ -1,12 +1,11 @@
+import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:biometric_storage/biometric_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/cupertino.dart'
     show CupertinoActivityIndicator, CupertinoTheme;
-import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/common/components/inputItem.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class PasswordInputDialog extends StatefulWidget {
@@ -78,9 +77,8 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   }
 
   Future<void> _checkBiometricStatus() async {
-    final response = await BiometricStorage().canAuthenticate();
-
-    final supportBiometric = response == CanAuthenticateResponse.success;
+    final supportBiometric =
+        await webApi.account.canAuthenticateWithBiometrics();
     final isBiometricAuthorized = webApi.account.getBiometricEnabled();
     setState(() {
       _isBiometricAuthorized = isBiometricAuthorized;
@@ -91,23 +89,11 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
 
   Future<void> _checkBiometricAuthenticate() async {
     if (_supportBiometric) {
-      try {
-        final authStorage =
-            await webApi.account.getBiometricPassStoreFile(context);
-        final result = await authStorage.read();
-        if (result != null) {
-          await _onOk(result);
-        } else {
-          print('biometric read null');
-        }
-      } catch (err) {
-        if (err is AuthException) {
-          UI.toast(err.message);
-        } else {
-          UI.toast('Unknown error: ${err.toString()}');
-        }
-        print('biometric error');
-        print(err);
+      final result = await webApi.account.getBiometricPassStoreFile(context);
+      if (result != null) {
+        await _onOk(result);
+      } else {
+        print('biometric read null');
       }
     }
   }

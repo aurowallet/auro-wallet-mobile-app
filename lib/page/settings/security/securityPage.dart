@@ -1,18 +1,17 @@
 import 'dart:async';
+
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/security/PasswordVerificationPage.dart';
+import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
+import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
+import 'package:auro_wallet/service/api/api.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
-import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
-import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:biometric_storage/biometric_storage.dart';
-
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage(this.store);
@@ -35,8 +34,8 @@ class _SecurityPageState extends State<SecurityPage> {
   void initState() {
     super.initState();
     _checkBiometricAuth();
-
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -47,7 +46,7 @@ class _SecurityPageState extends State<SecurityPage> {
     await UI.showAlertDialog(
       context: context,
       crossAxisAlignment: CrossAxisAlignment.start,
-      contents:[
+      contents: [
         dic.backTips_1,
         '',
         dic.backTips_2,
@@ -55,15 +54,15 @@ class _SecurityPageState extends State<SecurityPage> {
         dic.backTips_3,
       ],
     );
-    WalletData? wallet = store.wallet!.walletList.firstWhereOrNull((wallet) => wallet.walletType == WalletStore.seedTypeMnemonic);
+    WalletData? wallet = store.wallet!.walletList.firstWhereOrNull(
+        (wallet) => wallet.walletType == WalletStore.seedTypeMnemonic);
     if (wallet == null) {
       return;
     }
     String? password = await UI.showPasswordDialog(
         context: context,
         wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: true
-    );
+        inputPasswordRequired: true);
     if (password == null) {
       return;
     }
@@ -73,9 +72,8 @@ class _SecurityPageState extends State<SecurityPage> {
       return;
     }
     if (mounted) {
-      await Navigator.pushNamed(context, ExportMnemonicResultPage.route, arguments: {
-        "key": mnemonic
-      });
+      await Navigator.pushNamed(context, ExportMnemonicResultPage.route,
+          arguments: {"key": mnemonic});
     }
     // Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
     //   redirect: ImportPrivateKeyPage.route
@@ -83,8 +81,8 @@ class _SecurityPageState extends State<SecurityPage> {
   }
 
   Future<void> _checkBiometricAuth() async {
-    final response = await BiometricStorage().canAuthenticate();
-    final supportBiometric = response == CanAuthenticateResponse.success;
+    final supportBiometric =
+        await webApi.account.canAuthenticateWithBiometrics();
     if (!supportBiometric) {
       return;
     }
@@ -101,22 +99,20 @@ class _SecurityPageState extends State<SecurityPage> {
     String? password = await UI.showPasswordDialog(
         context: context,
         wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: true
-    );
-
-    bool success = false;
+        inputPasswordRequired: true);
+    bool status = false;
     try {
       if (password != null) {
-        await webApi.account.saveBiometricPass(context, password);
-        success = true;
-        print('save bio success');
+        status = await webApi.account
+            .saveBiometricPass(context, password);
+        print('save bio ${status}');
       }
     } catch (err) {
       print('save bio failed');
       print(err);
       // ignore
     }
-    if (success) {
+    if (status) {
       webApi.account.setBiometricEnabled();
       setState(() {
         _isBiometricAuthorized = true;
@@ -128,9 +124,10 @@ class _SecurityPageState extends State<SecurityPage> {
     Navigator.pushNamed(context, ChangePasswordPage.route);
   }
 
-void _onSetPwdVerification(){
-  Navigator.pushNamed(context, PasswordVerificationPage.route);
-}
+  void _onSetPwdVerification() {
+    Navigator.pushNamed(context, PasswordVerificationPage.route);
+  }
+
   void _onToggleBiometric(bool isOn) {
     if (isOn) {
       _authBiometric();
@@ -141,6 +138,7 @@ void _onSetPwdVerification(){
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -157,25 +155,34 @@ void _onSetPwdVerification(){
             padding: EdgeInsets.only(top: 20),
             child: Column(
               children: <Widget>[
-                MenuItem(text: dic.restoreSeed, onClick: _onBackup,),
-                MenuItem(text: dic.changePassword, onClick: _onChangePassword,),
-                MenuItem(text: dic.passwordVerification, onClick: _onSetPwdVerification,),
-                _supportBiometric ?
-                SwitchItem(text: dic.unlockBioEnable, onClick: _onToggleBiometric, isOn: this._isBiometricAuthorized,)
+                MenuItem(
+                  text: dic.restoreSeed,
+                  onClick: _onBackup,
+                ),
+                MenuItem(
+                  text: dic.changePassword,
+                  onClick: _onChangePassword,
+                ),
+                MenuItem(
+                  text: dic.passwordVerification,
+                  onClick: _onSetPwdVerification,
+                ),
+                _supportBiometric
+                    ? SwitchItem(
+                        text: dic.unlockBioEnable,
+                        onClick: _onToggleBiometric,
+                        isOn: this._isBiometricAuthorized,
+                      )
                     : Container()
               ],
-            )
-        ),
+            )),
       ),
     );
   }
 }
 
 class MenuItem extends StatelessWidget {
-  MenuItem({
-    required this.text,
-    required this.onClick
-  });
+  MenuItem({required this.text, required this.onClick});
 
   final String text;
   final void Function() onClick;
@@ -190,29 +197,27 @@ class MenuItem extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(text, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+                Text(text,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600)),
                 Container(
                     width: 6,
-                    margin: EdgeInsets.only(left: 14,),
+                    margin: EdgeInsets.only(
+                      left: 14,
+                    ),
                     child: SvgPicture.asset(
                         'assets/images/assets/right_arrow.svg',
                         width: 6,
-                        height: 12
-                    )
-                ),
+                        height: 12)),
               ],
-            )
-        )
-    );
+            )));
   }
 }
 
 class SwitchItem extends StatelessWidget {
-  SwitchItem({
-    required this.text,
-    required this.isOn,
-    required this.onClick
-  });
+  SwitchItem({required this.text, required this.isOn, required this.onClick});
 
   final String text;
   final bool isOn;
@@ -226,7 +231,11 @@ class SwitchItem extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(text, style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600)),
+            Text(text,
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600)),
             Switch(
               value: isOn,
               onChanged: onClick,
@@ -236,7 +245,6 @@ class SwitchItem extends StatelessWidget {
               inactiveTrackColor: Color(0xFFE9E9E9),
             ),
           ],
-        )
-    );
+        ));
   }
 }

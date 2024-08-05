@@ -5,10 +5,9 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:flutter_svg/svg.dart';
 
 class LockWalletPage extends StatefulWidget {
   const LockWalletPage(this.store, {this.unLockCallBack});
@@ -111,22 +110,12 @@ class _LockWalletPageState extends State<LockWalletPage> {
   }
 
   Future<void> _checkBiometricAuthenticate() async {
-    try {
-      final authStorage =
-          await webApi.account.getBiometricPassStoreFile(context);
-      final result = await authStorage.read();
-      if (result != null) {
-        await _onOk(result);
-      } else {
-        print('biometric read null');
-        Navigator.of(context).pop();
-      }
-    } catch (err) {
-      if (err is AuthException) {
-        UI.toast(err.message);
-      } else {
-        UI.toast('Unknown error: ${err.toString()}');
-      }
+    final result =
+        await webApi.account.getBiometricPassStoreFile(context);
+    if (result != null) {
+      await _onOk(result);
+    } else {
+      print('biometric read null');
     }
   }
 
