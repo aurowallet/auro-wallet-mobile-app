@@ -36,7 +36,7 @@ class ApiAccount {
   final LocalAuthentication auth = LocalAuthentication();
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
-  final _biometricEnabledKey = 'biometric_enabled_';
+  final _biometricEnabledKey = 'biometric_enabled_v1';
   final _biometricPasswordKey = 'biometric_password_';
   final _watchModeWarnedKey = 'watch_mode_warned';
 
