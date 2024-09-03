@@ -554,5 +554,6 @@
   "zkAppTipTitle": "Ви відвідуєте сторонній zkApp",
   "zkAppTipContent": "Входячи до цього zkApp, ви підпорядковуєтесь Угоді користувача стороннього zkApp.",
   "passwordVerification": "Перевірка пароля",
-  "pwdVerificationTip": "Необхідно вибрати щонайменше одну опцію."
+  "pwdVerificationTip": "Необхідно вибрати щонайменше одну опцію.",
+  "selectAsset": "Вибрати актив"
 }

@@ -554,5 +554,6 @@
   "zkAppTipTitle": "Üçüncü taraf bir zkApp'i ziyaret ediyorsunuz",
   "zkAppTipContent": "Bu zkApp'e girerken üçüncü taraf zkApp Kullanıcı Sözleşmesine tabisiniz.",
   "passwordVerification": "Şifre Doğrulama",
-  "pwdVerificationTip": "En az bir seçenek seçilmelidir."
+  "pwdVerificationTip": "En az bir seçenek seçilmelidir.",
+  "selectAsset": "Varlık Seç"
 }

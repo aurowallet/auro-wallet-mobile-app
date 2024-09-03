@@ -42,7 +42,7 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
           child: Wrap(
             children: [
               BrowserDialogTitleRow(
-                title: dic.assetManagement,
+                title: dic.selectAsset,
                 showCloseIcon: true,
               ),
               Observer(builder: (_) {

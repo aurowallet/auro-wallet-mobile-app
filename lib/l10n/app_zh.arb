@@ -554,5 +554,6 @@
   "zkAppTipTitle": "您正在访问第三方zkApp",
   "zkAppTipContent": "进入此zkApp时，您需遵守第三方zkApp的用户协议。",
   "passwordVerification": "密码验证",
-  "pwdVerificationTip": "至少选择一个选项。"
+  "pwdVerificationTip": "至少选择一个选项。",
+  "selectAsset": "选择资产"
 }
