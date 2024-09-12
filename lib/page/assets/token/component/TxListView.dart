@@ -122,7 +122,6 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-          margin: EdgeInsets.only(top: 30),
           decoration: BoxDecoration(
               color: Colors.white,
               border: Border(

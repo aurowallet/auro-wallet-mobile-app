@@ -182,81 +182,87 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                     widget.store.assets!.getTotalTxs(tokenId!);
 
                 List<TransferData> txs = [...pendingTx, ...tx];
-                return Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(
-                        height: 20,
-                      ),
-                      TokenIcon(
-                        iconUrl: tokenIconUrl,
-                        tokenSymbol: tokenSymbol,
-                        size: 60,
-                        isMainToken: isMainToken,
-                      ),
-                      Container(
-                          margin: EdgeInsets.only(top: 10),
-                          child: Text(
-                            displayBalance,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF000000),
-                            ),
-                          )),
-                      displayAmount != null
-                          ? Container(
-                              child: Text(
-                                displayAmount!,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  color: Color(0xFF000000).withOpacity(0.5),
-                                ),
-                              ),
-                            )
-                          : Container(),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                return Column(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      color: Color(0xFFF9FAFC),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
+                          SizedBox(
+                            height: 20,
+                          ),
+                          TokenIcon(
+                            iconUrl: tokenIconUrl,
+                            tokenSymbol: tokenSymbol,
+                            size: 60,
+                            isMainToken: isMainToken,
+                          ),
+                          Container(
+                              margin: EdgeInsets.only(top: 10),
+                              child: Text(
+                                displayBalance,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF000000),
+                                ),
+                              )),
+                          displayAmount != null
+                              ? Container(
+                                  child: Text(
+                                    displayAmount!,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xFF000000).withOpacity(0.5),
+                                    ),
+                                  ),
+                                )
+                              : Container(),
+                          SizedBox(height: 20),
                           Row(
-                            children: [
-                              TokenActionItem(
-                                type: TokenActionType.send,
-                                token: token,
-                                store: widget.store,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Row(
+                                children: [
+                                  TokenActionItem(
+                                    type: TokenActionType.send,
+                                    token: token,
+                                    store: widget.store,
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  TokenActionItem(
+                                    type: TokenActionType.receive,
+                                    store: widget.store,
+                                  ),
+                                  SizedBox(
+                                    width: showStakingEntry ? 20 : 0,
+                                  ),
+                                  showStakingEntry
+                                      ? TokenActionItem(
+                                          type: TokenActionType.delegation,
+                                          store: widget.store,
+                                        )
+                                      : Container()
+                                ],
                               ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              TokenActionItem(
-                                type: TokenActionType.receive,
-                                store: widget.store,
-                              ),
-                              SizedBox(
-                                width: showStakingEntry ? 20 : 0,
-                              ),
-                              showStakingEntry
-                                  ? TokenActionItem(
-                                      type: TokenActionType.delegation,
-                                      store: widget.store,
-                                    )
-                                  : Container()
                             ],
                           ),
+                          SizedBox(height: 30),
                         ],
                       ),
-                      TxListView(widget.store,
-                          txList: txs,
-                          isLoading: isLoading,
-                          tokenId: tokenId!,
-                          tokenDecimal: tokenDecimal,
-                          tokenSymbol: tokenSymbol)
-                    ],
-                  ),
+                    ),
+                    TxListView(widget.store,
+                        txList: txs,
+                        isLoading: isLoading,
+                        tokenId: tokenId!,
+                        tokenDecimal: tokenDecimal,
+                        tokenSymbol: tokenSymbol)
+                  ],
                 );
               },
             ),
