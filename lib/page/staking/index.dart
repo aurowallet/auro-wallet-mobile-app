@@ -77,6 +77,7 @@ class _StakingState extends State<Staking> {
         leading: null,
         title: isFromRoute ? Text(dic.staking) : null,
         toolbarHeight: isFromRoute ? null : 0,
+        centerTitle: true, 
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
