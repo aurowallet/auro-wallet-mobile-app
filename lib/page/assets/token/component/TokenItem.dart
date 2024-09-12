@@ -26,8 +26,8 @@ class TokenItemView extends StatelessWidget {
     String tokenName = "";
     String displayBalance = "";
     String? displayAmount;
-    String? delegationText;
-    bool isDelegation = false;
+    // String? delegationText;
+    // bool isDelegation = false;
     bool isMinaNet = false;
     AppLocalizations dic = AppLocalizations.of(context)!;
 
@@ -43,7 +43,7 @@ class TokenItemView extends StatelessWidget {
       tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
-    isDelegation = tokenBaseInfo?.isDelegation ?? false;
+    // isDelegation = tokenBaseInfo?.isDelegation ?? false;
       tokenIconUrl  = tokenBaseInfo?.iconUrl ?? "";
     displayBalance = tokenBaseInfo?.showBalance != null
         ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
@@ -59,9 +59,9 @@ class TokenItemView extends StatelessWidget {
     }
     isMinaNet = store.settings!.isMinaNet;
     if (isMinaNet && isMainToken && isInModal != true) {
-      delegationText = tokenBaseInfo?.isDelegation == true
-          ? dic.stakingStatus_1
-          : dic.stakingStatus_2;
+      // delegationText = tokenBaseInfo?.isDelegation == true
+      //     ? dic.stakingStatus_1
+      //     : dic.stakingStatus_2;
     }
     return new Material(
       color: Colors.white,
@@ -107,36 +107,36 @@ class TokenItemView extends StatelessWidget {
                                     color: Color(0xFF000000).withOpacity(0.8),
                                   ),
                                 ),
-                                delegationText != null
-                                    ? Container(
-                                        alignment: Alignment.center,
-                                        child: Center(
-                                          child: Text(
-                                            delegationText,
-                                            strutStyle: StrutStyle(
-                                              fontSize: 12,
-                                              leading: 0,
-                                              height: 1.1,
-                                              forceStrutHeight: true,
-                                            ),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                height: 1.1,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ),
-                                        margin: EdgeInsets.only(left: 5),
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: isDelegation
-                                              ? Color(0xFF594AF1)
-                                              : Colors.black.withOpacity(0.3),
-                                          borderRadius:
-                                              BorderRadius.circular(29),
-                                        ))
-                                    : Container()
+                                // delegationText != null
+                                //     ? Container(
+                                //         alignment: Alignment.center,
+                                //         child: Center(
+                                //           child: Text(
+                                //             delegationText,
+                                //             strutStyle: StrutStyle(
+                                //               fontSize: 12,
+                                //               leading: 0,
+                                //               height: 1.1,
+                                //               forceStrutHeight: true,
+                                //             ),
+                                //             style: TextStyle(
+                                //                 color: Colors.white,
+                                //                 height: 1.1,
+                                //                 fontSize: 12,
+                                //                 fontWeight: FontWeight.w500),
+                                //           ),
+                                //         ),
+                                //         margin: EdgeInsets.only(left: 5),
+                                //         padding: EdgeInsets.symmetric(
+                                //             horizontal: 8, vertical: 5),
+                                //         decoration: BoxDecoration(
+                                //           color: isDelegation
+                                //               ? Color(0xFF594AF1)
+                                //               : Colors.black.withOpacity(0.3),
+                                //           borderRadius:
+                                //               BorderRadius.circular(29),
+                                //         ))
+                                //     : Container()
                               ],
                             ),
                             SizedBox(
