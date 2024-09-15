@@ -223,7 +223,8 @@ class _TransferPageState extends State<TransferPage> {
       "tokenAddress": tokenPublicKey,
       "amount": amountLarge,
       "isNewAccount": fundNewAccountStatus.toString(),
-      "gqlUrl": store.settings!.currentNode!.url
+      "gqlUrl": store.settings!.currentNode!.url,
+      "networkID":store.settings!.currentNode!.networkID
     };
 
     Map<String, dynamic> encrypRes = await webApi.bridge
@@ -233,7 +234,7 @@ class _TransferPageState extends State<TransferPage> {
     Map transaction = jsonDecode(data);
     if (data != null && transaction['unSignTx'] != null) {
       Map<String, dynamic> realUnSignTxStr = await webApi.bridge
-          .decryptData(transaction['unSignTx'], react_private_keys); // 这个要更新
+          .decryptData(transaction['unSignTx'], react_private_keys);
       bool checkRes = verifyTokenCommand(buildInfo, tokenId, realUnSignTxStr);
       if (!checkRes) {
         UI.toast(dic.buildFailed);
