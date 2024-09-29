@@ -104,17 +104,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         return null;
       }
       String? encodedUrl = initialUri.queryParameters['url'];
-
-      String urlString = initialUri.toString();
-      int urlIndex = urlString.indexOf('url=');
-      if (isValidHttpUrl(encodedUrl) && urlIndex != -1) {
-        String extractedUrl = urlString.substring(urlIndex + 4);
-        encodedUrl = extractedUrl;
-      } else {
-        print('No "url=" parameter found in the initial URL');
-      }
-
-      if (!isValidHttpUrl(encodedUrl)) {
+      String decodedURL = Uri.decodeComponent(encodedUrl??"");
+      if (!isValidHttpUrl(decodedURL)) {
         print('Not valid url');
         return null;
       }
@@ -128,7 +119,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           nextNetworkId = networkId;
         }
       }
-      return {"action": action, "url": encodedUrl, "networkId": nextNetworkId};
+      return {"action": action, "url": decodedURL, "networkId": nextNetworkId};
     } catch (e) {
       print('parameter parse error,${e.toString()}');
       return null;
