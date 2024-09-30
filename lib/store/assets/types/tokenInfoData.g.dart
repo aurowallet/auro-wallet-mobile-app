@@ -12,7 +12,7 @@ TokenInfoData _$TokenInfoDataFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       symbol: json['symbol'] as String,
       decimal: json['decimal'] as String,
-      sourceUrl: json['sourceUrl'] as String,
+      address: json['address'] as String,
       iconUrl: json['iconUrl'] as String,
     );
 
@@ -22,6 +22,6 @@ Map<String, dynamic> _$TokenInfoDataToJson(TokenInfoData instance) =>
       'name': instance.name,
       'symbol': instance.symbol,
       'decimal': instance.decimal,
-      'sourceUrl': instance.sourceUrl,
+      'address': instance.address,
       'iconUrl': instance.iconUrl,
     };

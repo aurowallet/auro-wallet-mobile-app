@@ -8,7 +8,7 @@ class TokenInfoData {
   final String name;
   final String symbol;
   final String decimal;
-  final String sourceUrl;
+  final String address;
   final String iconUrl;
 
   TokenInfoData({
@@ -16,7 +16,7 @@ class TokenInfoData {
     required this.name,
     required this.symbol,
     required this.decimal,
-    required this.sourceUrl,
+    required this.address,
     required this.iconUrl,
   });
 
