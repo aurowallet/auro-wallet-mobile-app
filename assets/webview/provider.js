@@ -9124,10 +9124,11 @@ var DAppActions = {
     mina_verify_JsonMessage: "mina_verify_JsonMessage",
     mina_switchChain: "mina_switchChain",
     mina_createNullifier: "mina_createNullifier",
-    mina_addChain: "mina_addChain"
+    mina_addChain: "mina_addChain",
+    mina_requestDisconnect: "mina_requestDisconnect",
 };
 
-// EXTERNAL MODULE: ./node_modules/eventemitter3/index.js
+// EXTERNAL MODULE: ./node_modules/@aurowallet/mina-provider/node_modules/eventemitter3/index.js
 var eventemitter3 = __webpack_require__(60);
 var eventemitter3_default = /*#__PURE__*/__webpack_require__.n(eventemitter3);
 
@@ -9601,6 +9602,13 @@ var provider_MinaProvider = /** @class */ (function (_super) {
             });
         });
     };
+    MinaProvider.prototype.requestDisconnect = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.request({ method: DAppActions.mina_requestDisconnect })];
+            });
+        });
+    };
     MinaProvider.prototype.initEvents = function () {
         this.channel.on("chainChanged", this.onChainChanged.bind(this));
         this.channel.on("networkChanged", this.onNetworkChanged.bind(this));
@@ -9676,8 +9684,28 @@ contentScript.init();
 
 
 
-window.mina = new dist();
 window.getSiteIcon = getSiteIcon;
+const src_provider = new dist();
+window.mina = src_provider;
+const info = {
+  slug: "aurowallet",
+  name: "Auro Wallet",
+  icon: "https://www.aurowallet.com/imgs/auro.png",
+  rdns: "com.aurowallet"
+};
+const announceProvider = () => {
+  window.dispatchEvent(new CustomEvent("mina:announceProvider", {
+    detail: Object.freeze({
+      info,
+      provider: src_provider
+    })
+  }));
+};
+window.addEventListener("mina:requestProvider", event => {
+  announceProvider();
+});
+console.log('Auro Wallet initialized.');
+announceProvider();
 function initWebInfo() {
   try {
     let messageBody = {
