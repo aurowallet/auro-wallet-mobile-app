@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:auro_wallet/service/webview/localWebviewServer.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class BridgeWebView {
@@ -34,9 +33,6 @@ class BridgeWebView {
     _jsCode = jsCode;
 
     if (_web == null) {
-      String localServerUrl =
-          await LocalWebviewServer.getInstance().startLocalServer();
-
       _web = new HeadlessInAppWebView(
         windowId: 2,
         initialSettings: InAppWebViewSettings(
@@ -48,14 +44,14 @@ class BridgeWebView {
             await _web?.webViewController?.reload();
           }
         },
-        initialUrlRequest: URLRequest(
-            url: WebUri(localServerUrl + "assets/webview/bridge.html")),
+        initialUrlRequest: URLRequest(url: WebUri("about:blank")),
         onWebViewCreated: (controller) async {
-          controller.loadUrl(
-              urlRequest: URLRequest(
-                  url: WebUri(localServerUrl + "assets/webview/bridge.html")));
+          // https://github.com/pichillilorenzo/flutter_inappwebview/issues/586
+          await controller.loadFile(
+              assetFilePath: "assets/webview/bridge.html");
         },
         onConsoleMessage: (controller, message) {
+          print("Console Message: ${message.message}");
           if (jsCodeStarted < 0) {
             try {
               final msg = jsonDecode(message.message);
