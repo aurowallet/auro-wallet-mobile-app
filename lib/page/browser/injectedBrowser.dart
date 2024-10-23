@@ -534,6 +534,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             jsObjectName: "AppProvider",
             onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
               try {
+                if(!isMainFrame){
+                  print('msg is not from MainFrame');
+                  return;
+                }
                 final msg = jsonDecode(message?.data);
                 Map? payload = msg["payload"];
                 String? id = payload?["id"];
