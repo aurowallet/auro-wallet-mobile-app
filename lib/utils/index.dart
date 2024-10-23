@@ -88,6 +88,9 @@ bool isValidHttpUrl(String? url) {
     if (url == null || url.isEmpty) {
       return false;
     }
+    if (!url.startsWith('http')||!url.startsWith('https')) {
+      return false;
+    }
     if (url.endsWith('.')) {
       return false;
     }
