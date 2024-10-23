@@ -85,6 +85,9 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       _isCheckingBiometric = false;
       _supportBiometric = supportBiometric;
     });
+    if(supportBiometric){
+      await _checkBiometricAuthenticate();
+    }
   }
 
   Future<void> _checkBiometricAuthenticate() async {
