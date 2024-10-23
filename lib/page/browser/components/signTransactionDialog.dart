@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -20,6 +19,7 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
@@ -192,12 +192,10 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
     double availableBalanceStr =
         (showBalance != null ? showBalance : 0) as double;
-    BigInt available =
-        BigInt.from(pow(10, COIN.decimals) * availableBalanceStr);
-    final int decimals = COIN.decimals;
-    double fee = lastFee;
-    if (double.parse(Fmt.parseNumber(widget.amount as String)) >=
-        available / BigInt.from(pow(10, decimals)) - fee) {
+    Decimal available = Decimal.parse(availableBalanceStr.toString());
+    Decimal transferAmount = Decimal.parse(Fmt.parseNumber(widget.amount as String));
+    Decimal transferFee = Decimal.parse(lastFee.toString());
+    if (transferAmount > (available - transferFee)) {
       return dic.balanceNotEnough;
     }
     return null;

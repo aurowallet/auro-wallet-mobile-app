@@ -26,6 +26,7 @@ import 'package:auro_wallet/utils/camera.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -280,7 +281,9 @@ class _TransferPageState extends State<TransferPage> {
           : currentFee!;
       double amountToTransfer = amount;
       if (_isAllTransfer()) {
-        amountToTransfer = amount - fee;
+        amountToTransfer =
+            (Decimal.parse(amount.toString()) - Decimal.parse(fee.toString()))
+                .toDouble();
       }
       AppLocalizations dic = AppLocalizations.of(context)!;
       var txItems = [
@@ -523,22 +526,23 @@ class _TransferPageState extends State<TransferPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     double availableBalanceStr =
         (availableBalance != null ? availableBalance : 0) as double;
-    BigInt available = BigInt.from(
-        pow(10, int.parse(availableDecimals ?? "0")) * availableBalanceStr);
-    final int decimals = int.parse(availableDecimals ?? "0");
+    Decimal available = Decimal.parse(availableBalanceStr.toString());
     double fee = _feeCtrl.text.isNotEmpty
         ? double.parse(Fmt.parseNumber(_feeCtrl.text))
         : currentFee!;
+    Decimal transferFee = Decimal.parse(fee.toString());
     if (_amountCtrl.text.isEmpty) {
       return dic.amountError;
     }
+    Decimal transferAmount = Decimal.parse(Fmt.parseNumber(_amountCtrl.text));
     if (isAllTransferFlag) {
-      if (double.parse(Fmt.parseNumber(_amountCtrl.text)) - fee <= 0) {
+      if ((transferAmount - transferFee) < Decimal.zero) {
         return dic.balanceNotEnough;
       }
-    } else if (double.parse(Fmt.parseNumber(_amountCtrl.text)) >=
-        available / BigInt.from(pow(10, decimals)) - fee) {
-      return dic.balanceNotEnough;
+    } else {
+      if (transferAmount > (available - transferFee)) {
+        return dic.balanceNotEnough;
+      }
     }
     return null;
   }
