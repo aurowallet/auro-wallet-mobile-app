@@ -148,7 +148,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
           await widget.store.assets!.loadTokenLocalConfigCache();
           await widget.store.assets!.loadTokenInfoCache();
           webApi.assets.fetchTokenInfo();
-          globalBalanceRefreshKey.currentState!.show();
+          globalBalanceRefreshKey.currentState?.show();
         }
       }
     } else {
@@ -161,7 +161,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
       await widget.store.assets!.loadTokenLocalConfigCache();
       await widget.store.assets!.loadTokenInfoCache();
       webApi.assets.fetchTokenInfo();
-      globalBalanceRefreshKey.currentState!.show();
+      globalBalanceRefreshKey.currentState?.show();
     }
     setState(() {
       submitting = false;

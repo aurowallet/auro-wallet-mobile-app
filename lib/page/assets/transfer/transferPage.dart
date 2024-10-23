@@ -425,7 +425,7 @@ class _TransferPageState extends State<TransferPage> {
                 Navigator.popUntil(
                     context, ModalRoute.withName(TokenDetailPage.route));
               }
-              globalTokenRefreshKey.currentState!.show();
+              globalTokenRefreshKey.currentState?.show();
               return true;
             }
             return false;

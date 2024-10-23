@@ -262,7 +262,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       return false;
     }
     if (mounted && !exited) {
-      globalBalanceRefreshKey.currentState!.show();
+      globalBalanceRefreshKey.currentState?.show();
       return true;
     }
     exited = true;

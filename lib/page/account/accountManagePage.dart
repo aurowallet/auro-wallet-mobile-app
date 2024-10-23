@@ -127,7 +127,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
       }
       await store.wallet!.removeAccount(account);
       await store.assets!.loadAccountCache();
-      globalBalanceRefreshKey.currentState!.show();
+      globalBalanceRefreshKey.currentState?.show();
       print('account removed');
       Navigator.of(context).pop();
     }

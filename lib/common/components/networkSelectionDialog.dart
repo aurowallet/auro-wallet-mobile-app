@@ -67,7 +67,7 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
         await store.assets!.loadTokenLocalConfigCache();
         await store.assets!.loadTokenInfoCache();
         webApi.assets.fetchTokenInfo();
-        globalBalanceRefreshKey.currentState!.show();
+        globalBalanceRefreshKey.currentState?.show();
       }
     }
     Navigator.of(context).pop();
