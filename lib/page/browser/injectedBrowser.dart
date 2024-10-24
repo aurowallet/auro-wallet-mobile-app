@@ -236,10 +236,19 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         });
   }
 
-  Future<dynamic> _msgHandler(Map msg) async {
+  Future<dynamic> _msgHandler(Map msg, String origin) async {
     final String method = msg['action'];
     Map payload = msg['payload'];
     Map? siteInfo = payload['site'];
+    if (siteInfo != null) {
+      siteInfo['origin'] = origin;
+      payload['site'] = siteInfo;
+    } else {
+      payload['site'] = {
+        "origin": origin
+      };
+    }
+
     Map? params = payload['params'];
 
     String currentAccountAddress = store.wallet!.currentAddress;
@@ -525,18 +534,23 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             jsObjectName: "AppProvider",
             onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
               try {
+                if(!isMainFrame){
+                  print('msg is not from MainFrame');
+                  return;
+                }
                 final msg = jsonDecode(message?.data);
                 Map? payload = msg["payload"];
                 String? id = payload?["id"];
 
-                String? origin = payload?["site"]?['origin'];
+                String origin = sourceOrigin.toString();
 
-                if (id != null && origin != null) {
-                  _msgHandler(msg);
-                }
-                if (id == null && origin != null) {
-                  if (payload?["site"]?['webIcon'] != null) {
-                    websiteInitInfo = payload?["site"];
+                if (origin.isNotEmpty) {
+                  if (id != null) {
+                    _msgHandler(msg, origin);
+                  } else {
+                    if (payload?["site"]?['webIcon'] != null) {
+                      websiteInitInfo = payload?["site"];
+                    }
                   }
                 }
               } catch (e) {
