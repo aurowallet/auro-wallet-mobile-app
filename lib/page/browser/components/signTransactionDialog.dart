@@ -33,7 +33,6 @@ enum FeeTypeEnum {
 }
 
 class SignTransactionDialog extends StatefulWidget {
-  // 推荐多少手续费
   SignTransactionDialog(
       {required this.signType,
       required this.to,
@@ -113,11 +112,11 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
     String toAddressTemp = widget.to;
     String? memoTemp = widget.memo;
-    String? zkFee;
+    dynamic zkFee;
     Map<String, dynamic>? feePayer = widget.feePayer;
     String? transaction;
     if (widget.signType == SignTxDialogType.zkApp) {
-      transaction = zkCommandFormat(widget.transaction);
+      transaction = zkCommandFormat(widget.transaction); 
       toAddressTemp =
           getContractAddress(transaction, store.wallet!.currentAddress);
       List<dynamic> zkFormatData =
@@ -126,10 +125,11 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           .map<DataItem>((item) => DataItem.fromJson(item))
           .toList();
 
-      if (feePayer?['fee'] != null && feePayer?['fee'].isNotEmpty) {
-        zkFee = feePayer?['fee'];
+    String zkBodyFee = getZkFee(transaction);
+      if (zkBodyFee.isNotEmpty) {
+        zkFee = zkBodyFee;
       } else {
-        zkFee = getZkFee(transaction);
+        zkFee = feePayer?['fee'];
       }
       bool zkOnlySignTemp = widget.onlySign ?? false;
       setState(() {
@@ -145,7 +145,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     }
 
     FeeTypeEnum tempFeeType;
-    String? webFee = zkFee ?? widget.fee;
+    dynamic webFee = zkFee ?? widget.fee;
     if (feePayer?['memo'] != null && feePayer?['memo'].isNotEmpty) {
       memoTemp = feePayer?['memo'];
     } else {
@@ -156,8 +156,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       lastMemo = memoTemp;
     });
 
-    if (webFee != null && webFee.isNotEmpty && Fmt.isNumber(webFee)) {
-      lastFee = double.parse(webFee);
+    if (webFee != null && Fmt.isNumber(webFee)) { 
+      lastFee = double.parse(webFee.toString());
       tempFeeType = FeeTypeEnum.fee_recommed_site;
       showFeeErrorTip = lastFee >= store.assets!.transferFees.cap;
       setState(() {

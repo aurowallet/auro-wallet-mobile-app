@@ -256,25 +256,36 @@ class Fmt {
             int.parse(hexString.substring(i * 2, (i * 2) + 2), radix: 16)),
       ).join();
 
-  static bool isNumber(String value) {
+  static bool isNumber(dynamic value) {
     try {
-      double.parse(value);
-      return true;
+      if (value == null) {
+        return false;
+      }
+      if (value is int || value is double) {
+        return true; // It's a numeric type (int or double)
+      }
+      // Check if it's a String that can be parsed to a number
+      if (value is String) {
+        return double.tryParse(value) != null;
+      }
+      return false; // It's neither int, double, nor a string that can be parsed to a number
     } catch (e) {
       return false;
     }
   }
-static String amountDecimals(String amount, {int decimal = 0}) {// 解决精度问题
-  // If decimal is bigger than 100, use 0
-  int nextDecimals = decimal;
-  if (BigInt.parse(nextDecimals.toString()) > BigInt.from(100)) {
-    nextDecimals = 0;
+
+  static String amountDecimals(String amount, {int decimal = 0}) {
+    // 解决精度问题
+    // If decimal is bigger than 100, use 0
+    int nextDecimals = decimal;
+    if (BigInt.parse(nextDecimals.toString()) > BigInt.from(100)) {
+      nextDecimals = 0;
+    }
+    Decimal amout1 = Decimal.parse(amount);
+    Decimal amout2 = Decimal.fromBigInt(BigInt.from(10).pow(nextDecimals));
+    double realBalance = (amout1 / amout2).toDouble();
+    return realBalance.toString();
   }
-   Decimal amout1 = Decimal.parse(amount);
-   Decimal amout2 = Decimal.fromBigInt(BigInt.from(10).pow(nextDecimals));
-  double realBalance = (amout1 / amout2).toDouble();
-  return realBalance.toString();
-}
 
   static String parseShowBalance(double balance, {int showLength = 4}) {
     String formatted = balance.toStringAsFixed(showLength);

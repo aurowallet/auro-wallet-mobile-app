@@ -6,6 +6,7 @@ import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
+import 'package:decimal/decimal.dart';
 
 const String zkEmptyPublicKey =
     "B62qiTKpEPjGTSHZrtM8uXiKgn8So916pLmNJKDhKeyBQL9TDb3nvBG";
@@ -48,10 +49,15 @@ String zkCommandFormat(dynamic zkAppCommand) {
 
 String getZkFee(String zkappCommand) {
   try {
-    Map<dynamic, dynamic> nextZkCommand = jsonDecode(zkappCommand);
+    dynamic nextZkCommand = jsonDecode(zkappCommand);
+    nextZkCommand = jsonDecode(nextZkCommand);
     var feePayer = nextZkCommand['feePayer'];
     var fee = feePayer['body']['fee'].toString();
-    return Fmt.balance(fee.toString(), COIN.decimals, maxLength: COIN.decimals);
+    Decimal nextFee = Decimal.parse(fee);
+    if(nextFee <= Decimal.zero){
+      return "";
+    }
+    return Fmt.balance(fee, COIN.decimals, maxLength: COIN.decimals);
   } catch (error) {
     return "";
   }
