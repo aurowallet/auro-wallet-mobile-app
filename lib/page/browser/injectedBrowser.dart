@@ -129,8 +129,8 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         signType: signType,
         to: toAddress,
         nonce: widget.onGetNewestNonce(),
-        amount: params?['amount'],
-        fee: params?['fee'],
+        amount: Fmt.isNumber(params?['amount'])? (params?['amount'].toString()):"" ,// 这个不对,这个如果不等于null 的话，直接改为字符串 
+        fee: Fmt.isNumber(params?['fee'])? (params?['fee'].toString()):"",
         memo: params?['memo'],
         transaction: params?['transaction'],
         feePayer: params?['feePayer'],
