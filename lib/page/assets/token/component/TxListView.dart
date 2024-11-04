@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:auro_wallet/common/components/TxAction/TxActionRow.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/homeListTip.dart';
@@ -175,23 +177,34 @@ class TransferListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isOut = data.sender == currentAddress;
     bool isMainToken = tokenId == ZK_DEFAULT_TOKEN_ID;
+    String txKindLow = data.type.toLowerCase();
+
     Map? tokenTxData;
-    if (!isMainToken) {
-      tokenTxData =
-          getTokenZkTxItemInfo(data, tokenId, tokenDecimal, currentAddress);
-    }
 
     String? address;
     String showAmount = "";
 
     if (!isMainToken) {
-      address = tokenTxData?['showAddress'];
-      showAmount = (tokenTxData?['isZkReceive'] == true ? '-' : '+') +
-          tokenTxData?['amount'];
+      Map txData = jsonDecode(data.transaction!);
+      List<dynamic> accountUpdates = txData['accountUpdates'];
+      Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,currentAddress,tokenId);
+      tokenTxData = updateInfo;
+      address = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
+      String amount = Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
+      showAmount = updateInfo['symbol'] + amount;
     } else {
-      address = isOut ? data.receiver : data.sender;
-      showAmount =
+      if (txKindLow == "zkapp") {
+        Map txData = jsonDecode(data.transaction!);
+        List<dynamic> accountUpdates = txData['accountUpdates'];
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,currentAddress,tokenId);
+        address = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
+        String amount = Fmt.balance(updateInfo['totalBalanceChange'], COIN.decimals);
+        showAmount = updateInfo['symbol'] + amount;
+      }else{
+        address = isOut ? data.receiver : data.sender;
+        showAmount =
           (isOut ? '-' : '+') + Fmt.balance(data.amount, COIN.decimals);
+      }
     }
 
     String title = '';
@@ -200,11 +213,10 @@ class TransferListItem extends StatelessWidget {
     } else {
       title = Fmt.address(address, pad: 8);
     }
-    var theme = Theme.of(context).textTheme;
     AppLocalizations dic = AppLocalizations.of(context)!;
     String icon = '';
     Color statusColor;
-    switch (data.type.toLowerCase()) {
+    switch (txKindLow) {
       case 'delegation':
       case 'stake_delegation':
         {
@@ -213,7 +225,7 @@ class TransferListItem extends StatelessWidget {
         break;
       case "zkapp":
         if (!isMainToken) {
-          icon = tokenTxData?['isZkReceive'] == true ? 'tx_in' : 'tx_out';
+          icon = tokenTxData?['isZkReceive'] ? 'tx_in' : 'tx_out';
         } else {
           icon = 'tx_zkapp';
         }

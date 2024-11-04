@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:auro_wallet/common/components/browserLink.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/customDivider.dart';
@@ -39,8 +41,8 @@ class TransactionDetailPage extends StatelessWidget {
   List<Widget> _buildListView(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
-
     TransferData tx = params['data'];
+    String txKindLow = tx.type.toLowerCase();
 
     String tokenId = params['tokenId'];
     int tokenDecimal = params['tokenDecimal'];
@@ -54,20 +56,30 @@ class TransactionDetailPage extends StatelessWidget {
     String symbol = isMainToken ? COIN.coinSymbol : tokenSymbol;
     int decimals = isMainToken ? COIN.decimals : tokenDecimal;
     Map? tokenTxData;
-    if (!isMainToken) {
-      tokenTxData = getTokenZkTxItemInfo(
-          tx, tokenId, tokenDecimal, store.wallet!.currentAddress);
-    }
 
     String? showToAddress = "";
     String showAmount;
     if (!isMainToken) {
-      showToAddress = tokenTxData?['showToAddress'];
-      showAmount = tokenTxData?['amount'] + " " + tokenSymbol;
+      Map txData = jsonDecode(tx.transaction!);
+      List<dynamic> accountUpdates = txData['accountUpdates'];
+      Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,store.wallet!.currentAddress,tokenId);
+      tokenTxData = updateInfo;
+      showToAddress = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
+      String amount = Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
+      showAmount = amount + " " + tokenSymbol;
     } else {
-      showToAddress = tx.receiver;
-      showAmount =
+      if (txKindLow == "zkapp") {
+        Map txData = jsonDecode(tx.transaction!);
+        List<dynamic> accountUpdates = txData['accountUpdates'];
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,store.wallet!.currentAddress,tokenId);
+        showToAddress = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
+        String amount = Fmt.balance(updateInfo['totalBalanceChange'], decimals);
+        showAmount =  '${Fmt.balance(amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
+      }else{
+        showToAddress = tx.receiver;
+        showAmount =
           '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
+      }
     }
     String statusIcon;
     String statusText;
@@ -83,11 +95,10 @@ class TransactionDetailPage extends StatelessWidget {
       statusText = dic.failed;
     }
 
-    String typeCamelCase = tx.type.toLowerCase();
-    bool isCommonTx = typeCamelCase != "zkapp";
+    bool isCommonTx = txKindLow != "zkapp";
 
     String txType = tx.type;
-    if (typeCamelCase == "stake_delegation") {
+    if (txKindLow == "stake_delegation") {
       txType = "delegation";
     }
 
@@ -95,7 +106,7 @@ class TransactionDetailPage extends StatelessWidget {
       txType = capitalize(txType);
     }
     bool isOut = tx.sender == store.wallet!.currentAddress;
-    switch (tx.type.toLowerCase()) {
+    switch (txKindLow) {
       case 'delegation':
       case 'stake_delegation':
         {
