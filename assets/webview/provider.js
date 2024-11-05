@@ -9124,11 +9124,10 @@ var DAppActions = {
     mina_verify_JsonMessage: "mina_verify_JsonMessage",
     mina_switchChain: "mina_switchChain",
     mina_createNullifier: "mina_createNullifier",
-    mina_addChain: "mina_addChain",
-    mina_requestDisconnect: "mina_requestDisconnect",
+    mina_addChain: "mina_addChain"
 };
 
-// EXTERNAL MODULE: ./node_modules/@aurowallet/mina-provider/node_modules/eventemitter3/index.js
+// EXTERNAL MODULE: ./node_modules/eventemitter3/index.js
 var eventemitter3 = __webpack_require__(60);
 var eventemitter3_default = /*#__PURE__*/__webpack_require__.n(eventemitter3);
 
@@ -9599,13 +9598,6 @@ var provider_MinaProvider = /** @class */ (function (_super) {
                         method: DAppActions.mina_createNullifier,
                         params: args,
                     })];
-            });
-        });
-    };
-    MinaProvider.prototype.requestDisconnect = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.request({ method: DAppActions.mina_requestDisconnect })];
             });
         });
     };

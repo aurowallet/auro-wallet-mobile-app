@@ -13,6 +13,7 @@ import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bs58check/bs58check.dart' as bs58check;
@@ -150,7 +151,9 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
     GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
     if (gqlResult.error) {
       print('转账广播出错了：');
-      UI.toast(gqlResult.errorMessage);
+      String msg = getRealErrorMsg(gqlResult.errorMessage);
+      String nextMsg = msg.isEmpty ? gqlResult.errorMessage:msg;
+      UI.toast(nextMsg);
       return null;
     }
     Map paymentData = gqlResult.result!.data!['sendPayment']['payment'];
@@ -248,7 +251,9 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
     if (gqlResult.error) {
       print('质押广播出错了');
-      UI.toast(gqlResult.errorMessage);
+      String msg = getRealErrorMsg(gqlResult.errorMessage);
+      String nextMsg = msg.isEmpty ? gqlResult.errorMessage:msg;
+      UI.toast(nextMsg);
       return null;
     }
     Map paymentData = gqlResult.result!.data!['sendDelegation']['delegation'];
@@ -841,7 +846,9 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
     if (gqlResult.error) {
       print('zk broadcaset error：');
-      UI.toast(gqlResult.errorMessage);
+      String msg = getRealErrorMsg(gqlResult.errorMessage);
+      String nextMsg = msg.isEmpty ? gqlResult.errorMessage:msg;
+      UI.toast(nextMsg);
       return null;
     }
     Map paymentData = gqlResult.result!.data!['sendZkapp']['zkapp'];

@@ -26,10 +26,10 @@ import 'package:ledger_flutter/ledger_flutter.dart';
 
 enum SignTxDialogType { Payment, Delegation, zkApp }
 
-enum FeeTypeEnum {
-  fee_recommed_site,
-  fee_recommed_default,
-  fee_recommed_custom,
+enum ZkAppValueEnum {
+  recommed_site,
+  recommed_default,
+  recommed_custom,
 }
 
 class SignTransactionDialog extends StatefulWidget {
@@ -39,6 +39,7 @@ class SignTransactionDialog extends StatefulWidget {
       required this.onConfirm,
       required this.url,
       required this.preNonce,
+      this.zkNonce = "",
       this.amount,
       this.fee,
       this.memo,
@@ -50,6 +51,7 @@ class SignTransactionDialog extends StatefulWidget {
 
   final SignTxDialogType signType;
   final String to;
+  final String? zkNonce;
   final String? amount;
   final String? fee;
   final String? memo;
@@ -76,7 +78,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   double lastFee = 0.0101;
   late String? lastMemo = "";
   late int inputNonce;
-  FeeTypeEnum feeType = FeeTypeEnum.fee_recommed_default;
+  ZkAppValueEnum feeType = ZkAppValueEnum.recommed_default;
+  ZkAppValueEnum zkNonceType = ZkAppValueEnum.recommed_default;
   bool showFeeErrorTip = false;
   bool submitting = false;
   late String showToAddress = "";
@@ -85,6 +88,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   bool isLedger = false;
   bool zkOnlySign = false;
   bool isManualNonce = false;
+  bool showNonceRow = false;
 
   @override
   void initState() {
@@ -102,12 +106,17 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String toAddress = widget.to.toLowerCase();
     bool isScam = toAddress.isNotEmpty &&
         store.assets!.scamAddressStr.indexOf(toAddress) != -1;
+    bool isZkNonce = widget.zkNonce != null && widget.zkNonce!.isNotEmpty;
+    ZkAppValueEnum nextZkNonceType = isZkNonce
+        ? ZkAppValueEnum.recommed_site
+        : ZkAppValueEnum.recommed_default;
     setState(() {
       isRiskAddress = isScam;
-    });
-
-    setState(() {
-      inputNonce = widget.preNonce;
+      inputNonce = isZkNonce
+          ? int.parse(widget.zkNonce ?? widget.preNonce.toString())
+          : widget.preNonce;
+      zkNonceType = nextZkNonceType;
+      showNonceRow = isZkNonce;
     });
 
     String toAddressTemp = widget.to;
@@ -116,7 +125,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     Map<String, dynamic>? feePayer = widget.feePayer;
     String? transaction;
     if (widget.signType == SignTxDialogType.zkApp) {
-      transaction = zkCommandFormat(widget.transaction); 
+      transaction = zkCommandFormat(widget.transaction);
       toAddressTemp =
           getContractAddress(transaction, store.wallet!.currentAddress);
       List<dynamic> zkFormatData =
@@ -125,7 +134,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           .map<DataItem>((item) => DataItem.fromJson(item))
           .toList();
 
-    String zkBodyFee = getZkFee(transaction);
+      String zkBodyFee = getZkFee(transaction);
       if (zkBodyFee.isNotEmpty) {
         zkFee = zkBodyFee;
       } else {
@@ -144,7 +153,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       });
     }
 
-    FeeTypeEnum tempFeeType;
+    ZkAppValueEnum tempFeeType;
     dynamic webFee = zkFee ?? widget.fee;
     if (feePayer?['memo'] != null && feePayer?['memo'].isNotEmpty) {
       memoTemp = feePayer?['memo'];
@@ -156,9 +165,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       lastMemo = memoTemp;
     });
 
-    if (webFee != null && Fmt.isNumber(webFee)) { 
+    if (webFee != null && Fmt.isNumber(webFee)) {
       lastFee = double.parse(webFee.toString());
-      tempFeeType = FeeTypeEnum.fee_recommed_site;
+      tempFeeType = ZkAppValueEnum.recommed_site;
       showFeeErrorTip = lastFee >= store.assets!.transferFees.cap;
       setState(() {
         lastFee = lastFee;
@@ -173,7 +182,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             store.assets!.transferFees.accountupdate * zkUpdateCount;
       }
       lastFee = store.assets!.transferFees.medium + zkAdditionFee;
-      tempFeeType = FeeTypeEnum.fee_recommed_default;
+      tempFeeType = ZkAppValueEnum.recommed_default;
       setState(() {
         lastFee = lastFee;
         feeType = tempFeeType;
@@ -193,7 +202,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     double availableBalanceStr =
         (showBalance != null ? showBalance : 0) as double;
     Decimal available = Decimal.parse(availableBalanceStr.toString());
-    Decimal transferAmount = Decimal.parse(Fmt.parseNumber(widget.amount as String));
+    Decimal transferAmount =
+        Decimal.parse(Fmt.parseNumber(widget.amount as String));
     Decimal transferFee = Decimal.parse(lastFee.toString());
     if (transferAmount > (available - transferFee)) {
       return dic.balanceNotEnough;
@@ -288,7 +298,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         }
       }
       int nextNonce = inputNonce;
-      if (!isManualNonce) {
+      if (!isManualNonce && zkNonceType != ZkAppValueEnum.recommed_site) {
         int tempNonce =
             await webApi.assets.fetchAccountNonce(store.wallet!.currentAddress);
         if (tempNonce != -1) {
@@ -368,7 +378,11 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       if (hashNotEmpty || signedDataNotEmpty) {
         if (mounted && !exited) {
           String responseData = hashNotEmpty ? hash : signedData;
-          await widget.onConfirm(responseData, inputNonce);
+          int finalNonce = zkNonceType == ZkAppValueEnum.recommed_site
+              ? inputNonce + 10 // +10 for force refresh nonce
+              : nextNonce;
+          await widget.onConfirm(
+              responseData, finalNonce);
           setState(() {
             submitting = false;
           });
@@ -463,7 +477,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   Widget _buildAmountRow() {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    return widget.amount != null
+    return widget.amount != null && widget.amount!.isNotEmpty
         ? Container(
             margin: EdgeInsets.only(top: 20),
             child:
@@ -499,16 +513,24 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             inputNonce = nonce;
             isManualNonce = true;
             showFeeErrorTip = fee >= store.assets!.transferFees.cap;
-            feeType = FeeTypeEnum.fee_recommed_custom;
+            feeType = ZkAppValueEnum.recommed_custom;
+            zkNonceType = ZkAppValueEnum.recommed_custom;
           });
         });
   }
 
-  Widget _buildFeeTip() {
+  void resetZkNonce() async {
+    setState(() {
+      zkNonceType = ZkAppValueEnum.recommed_default;
+      inputNonce = widget.preNonce;
+    });
+  }
+
+  Widget _buildZkTip(ZkAppValueEnum nextType) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     Widget feeTip = Container();
-    if (feeType != FeeTypeEnum.fee_recommed_custom) {
-      bool isFeeDefault = feeType == FeeTypeEnum.fee_recommed_default;
+    if (nextType != ZkAppValueEnum.recommed_custom) {
+      bool isFeeDefault = nextType == ZkAppValueEnum.recommed_default;
       String feeContent = isFeeDefault ? dic.fee_default : dic.siteSuggested;
       Color feeTipBg = isFeeDefault
           ? Color(0xFF808080).withOpacity(0.1)
@@ -530,6 +552,69 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       );
     }
     return feeTip;
+  }
+
+  Widget _buildNonceRow() {
+    if (!showNonceRow) {
+      return Container();
+    }
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  child: Text('Nonce',
+                      style: TextStyle(
+                          color: Colors.black.withOpacity(0.5),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500)),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 4),
+                  child: Row(
+                    children: [
+                      Text(inputNonce.toString(),
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500)),
+                      _buildZkTip(zkNonceType),
+                    ],
+                  ),
+                )
+              ]),
+              zkNonceType == ZkAppValueEnum.recommed_site
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                          SizedBox(
+                            height: 15,
+                          ),
+                          GestureDetector(
+                              onTap: () => resetZkNonce(),
+                              child: Container(
+                                margin: EdgeInsets.only(top: 4),
+                                child: Text(dic.reset,
+                                    style: TextStyle(
+                                        color: Color(0xFF594AF1),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500)),
+                              ))
+                        ])
+                  : SizedBox(
+                      width: 0,
+                    ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildFeeRow() {
@@ -560,7 +645,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                               color: Colors.black,
                               fontSize: 14,
                               fontWeight: FontWeight.w500)),
-                      _buildFeeTip(),
+                      _buildZkTip(feeType),
                     ],
                   ),
                 )
@@ -752,6 +837,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                                   ),
                                   _buildAccountRow(),
                                   _buildAmountRow(),
+                                  _buildNonceRow(),
                                   _buildFeeRow(),
                                   _buildTabRow()
                                 ],

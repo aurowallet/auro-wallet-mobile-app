@@ -108,3 +108,35 @@ bool isValidHttpUrl(String? url) {
     return true;
   }
 }
+
+String getRealErrorMsg(dynamic error) {
+  String errorMessage = '';
+
+  try {
+    if (error is Error) {
+      errorMessage = error.toString();
+    } else if (error is Map && error['message'] != null) {
+      errorMessage = error['message'];
+    } else if (error is List && error.isNotEmpty) {
+      // PostError handling
+      if (error[0] is Map && error[0]['message'] != null) {
+        errorMessage = error[0]['message'];
+      }
+      // BuildError handling
+      if (errorMessage.isEmpty && error.length > 1 && error[1] is Map && error[1]['c'] != null) {
+        errorMessage = error[1]['c'];
+      }
+    } else if (error is String) {
+      int lastErrorIndex = error.lastIndexOf('Error:');
+      if (lastErrorIndex != -1) {
+        errorMessage = error.substring(lastErrorIndex);
+      } else {
+        errorMessage = error;
+      }
+    }
+  } catch (e) {
+    // Catching any unexpected errors
+  }
+
+  return errorMessage;
+}
