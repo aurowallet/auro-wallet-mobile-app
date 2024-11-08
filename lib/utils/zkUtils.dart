@@ -54,7 +54,7 @@ String getZkFee(String zkappCommand) {
     var feePayer = nextZkCommand['feePayer'];
     var fee = feePayer['body']['fee'].toString();
     Decimal nextFee = Decimal.parse(fee);
-    if(nextFee <= Decimal.zero){
+    if (nextFee <= Decimal.zero) {
       return "";
     }
     return Fmt.balance(fee, COIN.decimals, maxLength: COIN.decimals);
@@ -181,7 +181,8 @@ int getAccountUpdateCount(String zkappCommand) {
   return accountUpdates.length;
 }
 
-Map<String, dynamic> getZkAppUpdateInfo(List<dynamic> accountUpdates, String publicKey, String tokenId) {
+Map<String, dynamic> getZkAppUpdateInfo(
+    List<dynamic> accountUpdates, String publicKey, String tokenId) {
   try {
     if (accountUpdates.isEmpty) {
       return {
@@ -190,66 +191,79 @@ Map<String, dynamic> getZkAppUpdateInfo(List<dynamic> accountUpdates, String pub
         'updateCount': '-',
         'from': '-',
         'to': '-',
-        "isZkReceive":true
+        "isZkReceive": true
       };
     }
     String totalBalanceChange = '0';
     List<Map<String, String>> updateList = [];
-    List<String> otherList = [];
-    bool isZkReceive = true;
+    List<Map<String, String>> otherList = [];
 
     for (var update in accountUpdates) {
       var body = update['body'];
+      String magnitude =
+          Decimal.parse(body['balanceChange']['magnitude']).abs().toString();
       if (body['tokenId'] == tokenId) {
-        String magnitude = Decimal.parse(body['balanceChange']['magnitude'])
-            .abs()
-            .toString();
-
         if (body['publicKey'] == publicKey) {
           if (body['balanceChange']['sgn'] == 'Negative') {
-            totalBalanceChange = (Decimal.parse(totalBalanceChange)
-                    - Decimal.parse(magnitude))
-                .toString();
+            totalBalanceChange =
+                (Decimal.parse(totalBalanceChange) - Decimal.parse(magnitude))
+                    .toString();
           } else if (body['balanceChange']['sgn'] == 'Positive') {
-            totalBalanceChange = (Decimal.parse(totalBalanceChange)
-                    + Decimal.parse(magnitude))
-                .toString();
+            totalBalanceChange =
+                (Decimal.parse(totalBalanceChange) + Decimal.parse(magnitude))
+                    .toString();
           }
         } else {
-          updateList.add({
-            'address': body['publicKey'],
-            'amount': magnitude,
-          });
+          if (double.parse(magnitude) != 0) {
+            updateList.add({
+              'address': body['publicKey'],
+              'amount': magnitude,
+            });
+          }
         }
       }
 
       if (body['publicKey'] != publicKey) {
-        otherList.add(body['publicKey']);
+        otherList.add({
+          'address': body['publicKey'],
+          'amount': magnitude,
+        });
       }
     }
 
     if (updateList.isNotEmpty) {
-      updateList.sort((a, b) => Decimal.parse(b['amount']!)
-          .compareTo(Decimal.parse(a['amount']!)));
+      updateList.sort((a, b) =>
+          Decimal.parse(b['amount']!).compareTo(Decimal.parse(a['amount']!)));
+    }
+    if (otherList.isNotEmpty) {
+      otherList.sort((a, b) =>
+          Decimal.parse(b['amount']!).compareTo(Decimal.parse(a['amount']!)));
     }
 
-    String symbol = '-';
+    String symbol = '';
     String from = '';
     String to = '';
+    bool isZkReceive = false;
     if (Decimal.parse(totalBalanceChange) > Decimal.zero) {
       symbol = '+';
-      from = updateList.isNotEmpty ? updateList[0]['address']! : otherList[0];
+      from = updateList.isNotEmpty
+          ? updateList[0]['address']!
+          : otherList[0]['address']!;
       to = publicKey;
       isZkReceive = true;
     } else if (Decimal.parse(totalBalanceChange) < Decimal.zero) {
       symbol = '-';
       totalBalanceChange = Decimal.parse(totalBalanceChange).abs().toString();
       from = publicKey;
-      to = updateList.isNotEmpty ? updateList[0]['address']! : otherList[0];
+      to = updateList.isNotEmpty
+          ? updateList[0]['address']!
+          : otherList[0]['address']!;
       isZkReceive = false;
-    }else{
-      from = updateList.isNotEmpty ? updateList[0]['address']! : otherList[0];
-      to = publicKey;
+    } else {
+      to = updateList.isNotEmpty
+          ? updateList[0]['address']!
+          : otherList[0]['address']!;
+      from = publicKey;
     }
 
     return {
@@ -258,7 +272,7 @@ Map<String, dynamic> getZkAppUpdateInfo(List<dynamic> accountUpdates, String pub
       'updateCount': accountUpdates.length.toString(),
       'from': from,
       'to': to,
-      "isZkReceive":isZkReceive
+      "isZkReceive": isZkReceive
     };
   } catch (e) {
     return {
@@ -267,7 +281,7 @@ Map<String, dynamic> getZkAppUpdateInfo(List<dynamic> accountUpdates, String pub
       'updateCount': '-',
       'from': '-',
       'to': '-',
-      "isZkReceive":true
+      "isZkReceive": true
     };
   }
 }
