@@ -69,6 +69,7 @@ class TransferData extends _TransferData {
     bool isFailed = json['failureReason'] != null && (json['failureReason'] as List<dynamic>).isNotEmpty;
     json['status'] = isFailed ? 'failed' : 'applied';
     json['success'] = !isFailed;
+    json['failureReason'] = json['failureReason']!=null? json['failureReason'].toString():"";
     var data = fromJson(json);
     return data;
   }
@@ -113,6 +114,7 @@ abstract class _TransferData {
   bool? isFromAddressScam = false;
   bool? showSpeedUp = false;
   String? transaction = "";
+  String? failureReason = "";
   bool get isPending {
     return status == 'pending';
   }

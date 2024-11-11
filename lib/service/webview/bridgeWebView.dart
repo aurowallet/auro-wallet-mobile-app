@@ -51,7 +51,6 @@ class BridgeWebView {
               assetFilePath: "assets/webview/bridge.html");
         },
         onConsoleMessage: (controller, message) {
-          print("Console Message: ${message.message}");
           if (jsCodeStarted < 0) {
             try {
               final msg = jsonDecode(message.message);

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -39,6 +41,8 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   bool isMainToken = false;
   bool isLoading = false;
   int tokenDecimal = COIN.decimals;
+  String? tokenPublicKey;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -56,6 +60,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
       tokenName = Fmt.address(tokenId, pad: 6);
       tokenDecimal = int.parse(tokenBaseInfo?.decimals ?? "0");
+      tokenPublicKey = tokenNetInfo?.publicKey;
     }
 
     tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
@@ -88,7 +93,19 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       _onRefresh(showIndicator: showIndicator);
       WidgetsBinding.instance.addObserver(this);
     });
+
+    _refreshTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+      _onRefresh();
+    });
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<void> _onRefresh({showIndicator = false}) async {
@@ -123,7 +140,9 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
         webApi.assets
             .fetchPendingZkTransactions(widget.store.wallet!.currentAddress),
         webApi.assets.fetchZkTransactions(widget.store.wallet!.currentAddress,
-            tokenId: tokenId)
+            tokenId: tokenId),
+        webApi.assets.fetchTokenTransactions(
+            widget.store.wallet!.currentAddress, tokenPublicKey)
       ]);
     }
     print('finish fetch tx list');
@@ -180,8 +199,17 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                     widget.store.assets!.getTotalPendingTxs(tokenId!);
                 List<TransferData> tx =
                     widget.store.assets!.getTotalTxs(tokenId!);
-
-                List<TransferData> txs = [...pendingTx, ...tx];
+                List<TransferData> pendingBuildTx = [];
+                if (tokenPublicKey != null) {
+                  pendingBuildTx =
+                      widget.store.assets!.tokenBuildTxList[tokenPublicKey] ??
+                          [];
+                }
+                List<TransferData> txs = [
+                  ...pendingBuildTx,
+                  ...pendingTx,
+                  ...tx
+                ];
                 return Column(
                   children: [
                     Container(

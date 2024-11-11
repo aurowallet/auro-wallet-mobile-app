@@ -185,13 +185,21 @@ class TransferListItem extends StatelessWidget {
     String showAmount = "";
 
     if (!isMainToken) {
-      Map txData = jsonDecode(data.transaction!);
-      List<dynamic> accountUpdates = txData['accountUpdates'];
-      Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,currentAddress,tokenId);
-      tokenTxData = updateInfo;
-      address = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
-      String amount = Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
-      showAmount = updateInfo['symbol'] + amount;
+      if(txKindLow == "zkapp_token"){
+         address = data.receiver;
+         showAmount = Fmt.balance(data.amount, tokenDecimal);
+        tokenTxData = {
+          "isZkReceive":false
+        };
+      }else{
+        Map txData = jsonDecode(data.transaction!);
+        List<dynamic> accountUpdates = txData['accountUpdates'];
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,currentAddress,tokenId);
+        tokenTxData = updateInfo;
+        address = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
+        String amount = Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
+        showAmount = updateInfo['symbol'] + amount;
+      }
     } else {
       if (txKindLow == "zkapp") {
         Map txData = jsonDecode(data.transaction!);
@@ -228,6 +236,7 @@ class TransferListItem extends StatelessWidget {
           icon = 'tx_stake';
         }
         break;
+      case "zkapp_token":
       case "zkapp":
         if (!isMainToken) {
           icon = tokenTxData?['isZkReceive'] ? 'tx_in' : 'tx_out';
@@ -270,6 +279,7 @@ class TransferListItem extends StatelessWidget {
     Color bgColor =
         data.status != 'pending' ? Colors.transparent : Color(0xFFF9FAFC);
 
+    bool tokenSendPending = data.type.toLowerCase() == "zkapp_token";
     return new Material(
       color: bgColor,
       child: InkWell(
@@ -335,7 +345,7 @@ class TransferListItem extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    data.isPending
+                                    (data.isPending ||tokenSendPending)
                                         ? 'Nonce ' + data.nonce.toString()
                                         : Fmt.dateTimeFromUTC(data.time),
                                     style: TextStyle(
@@ -363,7 +373,7 @@ class TransferListItem extends StatelessWidget {
                         )
                       ],
                     ),
-                    data.status == 'pending'
+                    data.status == 'pending' && data.type != 'zkapp_token'
                         ? Container(
                             margin: EdgeInsets.only(left: 36),
                             child: Column(children: [

@@ -60,25 +60,37 @@ class TransactionDetailPage extends StatelessWidget {
     String? showToAddress = "";
     String showAmount;
     if (!isMainToken) {
-      Map txData = jsonDecode(tx.transaction!);
-      List<dynamic> accountUpdates = txData['accountUpdates'];
-      Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,store.wallet!.currentAddress,tokenId);
-      tokenTxData = updateInfo;
-      showToAddress = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
-      String amount = Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
-      showAmount = amount + " " + tokenSymbol;
+      if (txKindLow == "zkapp_token") {
+        showToAddress = tx.receiver;
+        showAmount = Fmt.balance(tx.amount, tokenDecimal) + " " + tokenSymbol;
+        tokenTxData = {"isZkReceive": false};
+      } else {
+        Map txData = jsonDecode(tx.transaction!);
+        List<dynamic> accountUpdates = txData['accountUpdates'];
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
+            accountUpdates, store.wallet!.currentAddress, tokenId);
+        tokenTxData = updateInfo;
+        showToAddress =
+            updateInfo['isZkReceive'] ? updateInfo['from'] : updateInfo['to'];
+        String amount =
+            Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
+        showAmount = amount + " " + tokenSymbol;
+      }
     } else {
       if (txKindLow == "zkapp") {
         Map txData = jsonDecode(tx.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
-        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,store.wallet!.currentAddress,tokenId);
-        showToAddress = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
+            accountUpdates, store.wallet!.currentAddress, tokenId);
+        showToAddress =
+            updateInfo['isZkReceive'] ? updateInfo['from'] : updateInfo['to'];
         String amount = Fmt.balance(updateInfo['totalBalanceChange'], decimals);
-        showAmount =  '${Fmt.balance(amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
-      }else{
+        showAmount =
+            '${Fmt.balance(amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
+      } else {
         showToAddress = tx.receiver;
         showAmount =
-          '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
+            '${Fmt.balance(tx.amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
       }
     }
     String statusIcon;
@@ -143,7 +155,7 @@ class TransactionDetailPage extends StatelessWidget {
       TxInfoItem(label: dic.memo2, title: tx.memo, copyText: tx.memo),
       TxInfoItem(
         label: dic.time,
-        title: Fmt.dateTimeWithTimeZone(tx.time),
+        title: txKindLow == "zkapp_token" ? Fmt.dateTimeWithTimeZoneFromTimestamp(int.parse(tx.time??"0")):Fmt.dateTimeWithTimeZone(tx.time),
       ),
       TxInfoItem(
         label: 'Nonce',
@@ -161,6 +173,12 @@ class TransactionDetailPage extends StatelessWidget {
         title: tx.hash,
         copyText: tx.hash,
       ),
+      txKindLow == "zkapp_token"  && tx.failureReason != null 
+          ? TxInfoItem(
+              label: dic.buildFailed,
+              title: tx.failureReason,
+            )
+          : null,
     ];
     var list = <Widget>[
       Column(
@@ -236,6 +254,7 @@ class TransactionDetailPage extends StatelessWidget {
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
 
     TransferData tx = params['data'];
+    bool showExplorer = tx.type != "zkapp_token";
     return Scaffold(
       appBar: AppBar(
         title: Text('${dic.details}'),
@@ -252,7 +271,7 @@ class TransactionDetailPage extends StatelessWidget {
                 children: _buildListView(context),
               ),
             ),
-            Row(
+             showExplorer ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 tx.hash.isNotEmpty
@@ -265,7 +284,7 @@ class TransactionDetailPage extends StatelessWidget {
                         ))
                     : Container()
               ],
-            )
+            ):SizedBox(height: 0,)
           ],
         ),
       ),

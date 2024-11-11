@@ -278,6 +278,22 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  late final _$tokenBuildTxListAtom =
+      Atom(name: '_AssetsStore.tokenBuildTxList', context: context);
+
+  @override
+  ObservableMap<String, List<TransferData>> get tokenBuildTxList {
+    _$tokenBuildTxListAtom.reportRead();
+    return super.tokenBuildTxList;
+  }
+
+  @override
+  set tokenBuildTxList(ObservableMap<String, List<TransferData>> value) {
+    _$tokenBuildTxListAtom.reportWrite(value, super.tokenBuildTxList, () {
+      super.tokenBuildTxList = value;
+    });
+  }
+
   late final _$setNextTokenAsyncAction =
       AsyncAction('_AssetsStore.setNextToken', context: context);
 
@@ -312,6 +328,16 @@ mixin _$AssetsStore on _AssetsStore, Store {
   Future<void> addPendingZkTxs(List<dynamic>? ls, String address) {
     return _$addPendingZkTxsAsyncAction
         .run(() => super.addPendingZkTxs(ls, address));
+  }
+
+  late final _$addTokenBuildTxsAsyncAction =
+      AsyncAction('_AssetsStore.addTokenBuildTxs', context: context);
+
+  @override
+  Future<void> addTokenBuildTxs(
+      List<dynamic> ls, String address, String tokenAddress) {
+    return _$addTokenBuildTxsAsyncAction
+        .run(() => super.addTokenBuildTxs(ls, address, tokenAddress));
   }
 
   late final _$addTxsAsyncAction =
@@ -591,6 +617,7 @@ localHideTokenMap: ${localHideTokenMap},
 localShowedTokenIds: ${localShowedTokenIds},
 nextToken: ${nextToken},
 tokenInfoList: ${tokenInfoList},
+tokenBuildTxList: ${tokenBuildTxList},
 newTokenCount: ${newTokenCount},
 mainTokenNetInfo: ${mainTokenNetInfo}
     ''';

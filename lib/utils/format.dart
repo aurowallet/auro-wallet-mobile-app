@@ -51,6 +51,17 @@ class Fmt {
         timeZone[0].padLeft(2, '0') +
         timeZone[1].padLeft(2, '0');
   }
+  static String dateTimeWithTimeZoneFromTimestamp(int? timestamp) {
+    if (timestamp == null) {
+      return "";
+    }
+    var dateValue = DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true).toLocal();
+    var str = DateFormat("yyyy-MM-dd HH:mm:ss").format(dateValue);
+    var timeZone = dateValue.timeZoneOffset.toString().split(':');
+    var timeZoneOffset = '${dateValue.timeZoneOffset.isNegative ? '-' : '+'}'
+        '${timeZone[0].padLeft(2, '0')}${timeZone[1].padLeft(2, '0')}';
+    return '$str GMT$timeZoneOffset';
+  }
 
   /// number transform 1:
   /// from raw <String> of Api data to <BigInt>

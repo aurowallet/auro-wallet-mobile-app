@@ -926,4 +926,46 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       return null;
     }
   }
+  Future<dynamic> buildTokenBodyV2(Map prepareBody) async {
+    String requestUrl = TokenBuildUrlv2 + "/buildzkv2";
+    try {
+      var response = await http.post(
+        Uri.parse(requestUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(prepareBody),
+      );
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('buildTokenBody Exception: $e');
+      return null;
+    }
+  }
+  Future<dynamic> postTokenResult(Map prepareBody) async {
+    String requestUrl = TokenBuildUrlv2 + "/sendzkv2";
+    try {
+      var response = await http.post(
+        Uri.parse(requestUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(prepareBody),
+      );
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('buildTokenBody Exception: $e');
+      return null;
+    }
+  }
 }

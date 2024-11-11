@@ -33,6 +33,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   _AssetsState(this.store);
 
   final AppStore store;
+  Timer? _refreshTimer;
 
   @override
   void ledgerSetup() async {
@@ -93,11 +94,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
       _checkWatchMode();
       WidgetsBinding.instance.addObserver(this);
     });
+    _refreshTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+      _onRefresh();
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

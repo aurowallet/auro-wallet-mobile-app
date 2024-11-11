@@ -14,12 +14,12 @@ const String TESTNET_TRANSACTIONS_EXPLORER_URL = "";
 /// fee, networks and about us info
 const BASE_INFO_URL = "https://api.xxx.xyz";
 
-String react_private_keys = """
+String app_private_keys = """
 -----BEGIN PRIVATE KEY-----
 -----END PRIVATE KEY-----
 """;
 
-String node_public_keys = """
+String center_public_keys = """
 -----BEGIN PUBLIC KEY-----
 -----END PUBLIC KEY-----
 """;

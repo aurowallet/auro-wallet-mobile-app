@@ -208,40 +208,52 @@ class _TransferPageState extends State<TransferPage> {
     return false;
   }
 
-  Future<String?> getTokenBody(Map txInfo1) async {
+  Future<Map<String, dynamic>?> getTokenBuildBody(
+      Map txInfo, String privateKey) async {
     AppLocalizations dic = AppLocalizations.of(context)!;
     dynamic res =
-        await webApi.assets.getTokenState(txInfo1['toAddress'], tokenId);
+        await webApi.assets.getTokenState(txInfo['toAddress'], tokenId);
 
     bool fundNewAccountStatus = res == null;
     final amountLarge = BigInt.from(
-            pow(10, int.parse(availableDecimals ?? "0")) * txInfo1['amount'])
+            pow(10, int.parse(availableDecimals ?? "0")) * txInfo['amount'])
         .toInt();
-
     Map<String, dynamic> buildInfo = {
-      "sender": txInfo1['fromAddress'],
-      "receiver": txInfo1['toAddress'],
+      "sender": txInfo['fromAddress'],
+      "receiver": txInfo['toAddress'],
       "tokenAddress": tokenPublicKey,
       "amount": amountLarge,
       "isNewAccount": fundNewAccountStatus.toString(),
       "gqlUrl": store.settings!.currentNode!.url,
-      "networkID":store.settings!.currentNode!.networkID
+      "networkID": store.settings!.currentNode!.networkID,
+      "nonce": txInfo['nonce'],
+      "memo": txInfo['memo'],
     };
-
     Map<String, dynamic> encrypRes = await webApi.bridge
-        .encryptData(jsonEncode(buildInfo), node_public_keys);
-    dynamic data = await webApi.account.buildTokenBody(encrypRes);
+        .encryptData(jsonEncode(buildInfo), center_public_keys);
+    dynamic data = await webApi.account.buildTokenBodyV2(encrypRes);
+    Map nextData = jsonDecode(data);
+    if (nextData['data'] == null) {
+      UI.toast(nextData['message'] ?? nextData.toString());
+      return null;
+    }
+    Map<String, dynamic> realUnSignTxStr =
+        await webApi.bridge.decryptData(nextData['data'], app_private_keys);
 
-    Map transaction = jsonDecode(data);
-    if (data != null && transaction['unSignTx'] != null) {
-      Map<String, dynamic> realUnSignTxStr = await webApi.bridge
-          .decryptData(transaction['unSignTx'], react_private_keys);
-      bool checkRes = verifyTokenCommand(buildInfo, tokenId, realUnSignTxStr);
+    Map transaction = realUnSignTxStr['decryptedData'];
+    if (transaction['transaction'] != null &&
+        transaction['buildHash'] != null) {
+      Map<String, dynamic> transactionBody =
+          jsonDecode(transaction['transaction']);
+      bool checkRes = verifyTokenCommand(buildInfo, tokenId, transactionBody);
       if (!checkRes) {
         UI.toast(dic.buildFailed);
         return null;
       }
-      return jsonEncode(realUnSignTxStr);
+      return {
+        "zkCommand": transaction['transaction'],
+        "buildHash": transaction['buildHash']
+      };
     } else {
       UI.toast(data.toString());
       return null;
@@ -377,7 +389,7 @@ class _TransferPageState extends State<TransferPage> {
               "nonce": inferredNonce,
               "memo": memo,
             };
-            TransferData? data;
+            dynamic data;
             if (isLedger) {
               print('start sign ledger');
               final tx = await webApi.account
@@ -394,24 +406,35 @@ class _TransferPageState extends State<TransferPage> {
                 data = await webApi.account
                     .signAndSendTx(txInfo, context: context);
               } else {
-                String? zkCommand = await getTokenBody(txInfo);
-                if (zkCommand == null) {
-                  setState(() {
-                    submitting = false;
-                  });
+                Map<String, dynamic>? buildBody =
+                    await getTokenBuildBody(txInfo, privateKey ?? "");
+                if (buildBody == null) {
                   return false;
                 }
-
-                Map tokenTxInfo = {
-                  "privateKey": txInfo['privateKey'],
-                  "fromAddress": txInfo['fromAddress'],
-                  "fee": txInfo['fee'],
-                  "nonce": txInfo['nonce'],
-                  "memo": txInfo['txInfo'],
-                  "transaction": zkCommand
+                txInfo["transaction"] = buildBody['zkCommand'];
+                txInfo["zkOnlySign"] = true;
+                dynamic signedRes = await webApi.account
+                    .signAndSendZkTx(txInfo, context: context);
+                dynamic signedData = signedRes["signedData"];
+                Map<String, dynamic> nextData = {
+                  "buildHash": buildBody['buildHash'],
+                  "signedData": signedData,
+                  'sender': txInfo['fromAddress'],
+                  'receiver': txInfo['toAddress'],
+                  'tokenAddress': tokenPublicKey,
+                  'networkID': store.settings!.currentNode!.networkID,
                 };
-                data = await webApi.account
-                    .signAndSendZkTx(tokenTxInfo, context: context);
+                Map<String, dynamic> realUnSignTxStr = await webApi.bridge
+                    .encryptData(jsonEncode(nextData), center_public_keys);
+                data = await webApi.account.postTokenResult(realUnSignTxStr);
+                dynamic parsedData = jsonDecode(data);
+                if (parsedData['error'] != null) {
+                  String msg = parsedData['error'] != null
+                      ? parsedData['error'].toString()
+                      : data;
+                  UI.toast(msg);
+                  return false;
+                }
               }
             }
             if (data == null) {

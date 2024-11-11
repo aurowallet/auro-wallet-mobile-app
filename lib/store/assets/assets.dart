@@ -92,6 +92,10 @@ abstract class _AssetsStore with Store {
   @observable
   List<TokenInfoData> tokenInfoList = [];
 
+  @observable
+  ObservableMap<String, List<TransferData>> tokenBuildTxList =
+      ObservableMap<String, List<TransferData>>();
+
   @action
   Future<void> setNextToken(Token token) async {
     nextToken = token;
@@ -282,6 +286,25 @@ abstract class _AssetsStore with Store {
       pendingZkTxs.add(tx);
     });
     pendingZkTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
+  }
+
+  @action
+  Future<void> addTokenBuildTxs(List<dynamic> ls, String address,String tokenAddress) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+     List<TransferData> tempZkTxList = [];
+      ls.forEach((i) {
+        i['memo'] = i['memo'] != null ? i['memo'] : '';
+        TransferData tx = TransferData.fromJson(i);
+        i['status'] = "pending";
+        tx.success = tx.status != 'failed';
+        if(i['zk_failure']!=null){
+          tx.failureReason = i['zk_failure'];
+        }
+        tx.time = i['timestamp']; 
+        i['success'] = tx.success;
+        tempZkTxList.add(tx);
+      });
+      tokenBuildTxList[tokenAddress] = tempZkTxList;
   }
 
   @action
@@ -717,6 +740,7 @@ abstract class _AssetsStore with Store {
     pendingTxs.clear();
     pendingZkTxs.clear();
     tokenZkTxs.clear();
+    tokenBuildTxList.clear();
 
     clearMarketPrices();
 
@@ -745,6 +769,7 @@ abstract class _AssetsStore with Store {
     pendingZkTxs.clear();
 
     tokenZkTxs.clear();
+    tokenBuildTxList.clear();
 
     tokenList.clear();
 

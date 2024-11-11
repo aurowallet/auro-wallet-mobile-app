@@ -640,7 +640,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
       print(result.exception.toString());
       return null;
     }
-    Map tokenAccount = result.data!['account'];
+    dynamic tokenAccount = result.data!['account'];
     return tokenAccount;
   }
 
@@ -657,6 +657,40 @@ ${List<String>.generate(pubkeys.length, (int index) {
       store.assets?.setTokenInfoData(tokenInfoList, shouldCache: true);
     } else {
       print('Request token Info failed with status: ${response.statusCode}.');
+    }
+  }
+
+  Future<dynamic> fetchTokenTransactions(
+      String pubKey, String? tokenPublicKey) async {
+    String networkId = store.settings?.currentNode?.networkID ?? "";
+    if (tokenPublicKey == null) {
+      return null;
+    }
+    Map params = {
+      "sender": pubKey,
+      "tokenAddress": tokenPublicKey,
+      "networkID": networkId
+    };
+    String requestUrl = TokenBuildUrlv2 + "/buildlist";
+    try {
+      var response = await http.post(
+        Uri.parse(requestUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(params),
+      );
+      if (response.statusCode == 200) {
+        dynamic buildListData = convert.jsonDecode(response.body);
+        List<dynamic> responseList = buildListData["list"] ?? [];
+        store.assets!.addTokenBuildTxs(responseList, pubKey, tokenPublicKey);
+        return response.body;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('buildTokenBody Exception: $e');
+      return null;
     }
   }
 }
