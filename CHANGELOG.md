@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 - Enhancements
+    - Add token support
+    - Add App Links(iOS/Android)
+    - Add support for Zeko Testnet
+    - Upgrade biometric authentication
+    - Update transaction history
+    - ZkApp recommends fee/nonce
+    - Remove support for Berkeley network
+
+- Fixed
+    - Transfer all balance
+    - Webview localServer
+    - Origin of postMessage
+
+
+## [2.0.2]    
+- Enhancements
     - Website use URL as the default title
     - Upgrade mina-signer to 3.0.7
     - Remove webview_flutter

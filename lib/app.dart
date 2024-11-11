@@ -104,7 +104,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         return null;
       }
       String? encodedUrl = initialUri.queryParameters['url'];
-      String decodedURL = Uri.decodeComponent(encodedUrl??"");
+      String decodedURL = Uri.decodeComponent(encodedUrl ?? "");
       if (!isValidHttpUrl(decodedURL)) {
         print('Not valid url');
         return null;
@@ -233,7 +233,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           arguments: {"url": appLinkRouteParams!['url']},
         );
       }
-      if (appLinkRouteParams!['networkId'] != null) {
+      String? currentNetworkID = _appStore!.settings!.currentNode?.networkID;
+      if (appLinkRouteParams!['networkId'] != null &&
+          currentNetworkID != appLinkRouteParams!['networkId']) {
         await UI.showSwitchChainAction(
             context: _homePageContext,
             networkID: appLinkRouteParams!['networkId'],
