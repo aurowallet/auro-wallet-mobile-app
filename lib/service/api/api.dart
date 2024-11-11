@@ -32,7 +32,7 @@ class Api {
 
   late BridgeService bridge;
 
-  void init() async {
+  Future<void> init() async {
     account = ApiAccount(this);
     assets = ApiAssets(this);
     staking = ApiStaking(this);

@@ -257,7 +257,6 @@ class Fmt {
         return str.substring(0, i + 1);
       }
     }
-    print('herer');
     return str.substring(0, str.length);
   }
 
