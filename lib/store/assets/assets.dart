@@ -140,10 +140,7 @@ abstract class _AssetsStore with Store {
     try {
       token = tokenList.firstWhere(
           (token) => token.tokenAssestInfo?.tokenId == ZK_DEFAULT_TOKEN_ID);
-      print('Found Token ID: ${token.tokenAssestInfo?.tokenId}');
-      print('Token Public Key: ${token.tokenAssestInfo?.publicKey}');
     } catch (e) {
-      print('Token with ID $ZK_DEFAULT_TOKEN_ID not found.');
       token = Token.fromJson(defaultMINAAssets);
     }
     return token;

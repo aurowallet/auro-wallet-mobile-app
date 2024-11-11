@@ -96,21 +96,21 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     });
   }
 
-  Map? extractParameters(Uri initialUri) {
+  Map? extractParameters(Uri uri) {
     try {
-      String? action = initialUri.queryParameters['action'];
+      String? action = uri.queryParameters['action'];
       if (action != 'openurl') {
         print('Not support action');
         return null;
       }
-      String? encodedUrl = initialUri.queryParameters['url'];
+      String? encodedUrl = uri.queryParameters['url'];
       String decodedURL = Uri.decodeComponent(encodedUrl ?? "");
       if (!isValidHttpUrl(decodedURL)) {
-        print('Not valid url');
+        print('Not valid URL');
         return null;
       }
       String? nextNetworkId;
-      String? networkId = initialUri.queryParameters['networkid'];
+      String? networkId = uri.queryParameters['networkid'];
       List<String> currentSupportChainList =
           _appStore!.settings!.getSupportNetworkIDs();
       if (currentSupportChainList.contains(networkId)) {
@@ -121,7 +121,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       }
       return {"action": action, "url": decodedURL, "networkId": nextNetworkId};
     } catch (e) {
-      print('parameter parse error,${e.toString()}');
+      print('Parameter parse error: ${e.toString()}');
       return null;
     }
   }
@@ -129,7 +129,6 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   Future<void> openAppLink(Uri uri) async {
     if (!mounted) return;
     print(uri.toString());
-    print(uri.query.substring(4));
 
     Map? res = extractParameters(uri);
     if (res != null) {
@@ -180,7 +179,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       await _appStore!.init(Localizations.localeOf(context).toString());
       // init webApi after store initiated
       webApi = Api(context, _appStore!);
-      webApi.init();
+      await webApi.init();
       _changeLang(context, _appStore!.settings!.localeCode);
     }
     return _appStore!.wallet!.walletListAll.length;
