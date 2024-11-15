@@ -1,8 +1,10 @@
+import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
+import 'package:basic_utils/basic_utils.dart';
 import 'package:mobx/mobx.dart';
 
 part 'settings.g.dart';
@@ -23,6 +25,8 @@ abstract class _SettingsStore with Store {
   final String localStorageCurrentNodeKey = 'current_node';
 
   final String cacheTestnetShowStatusKey = 'network_testnet_status';
+
+  final String localStorageCertificateKey = 'certificate_key';
 
   @observable
   bool loading = true;
@@ -53,7 +57,7 @@ abstract class _SettingsStore with Store {
   bool get isMainnet {
     return currentNode?.networkID == networkIDMap.mainnet;
   }
-  
+
   bool get isMinaNet {
     return currentNode?.networkID.startsWith("mina") ?? false;
   }
@@ -61,6 +65,12 @@ abstract class _SettingsStore with Store {
   bool get isZekoNet {
     return currentNode?.networkID.startsWith("zeko") ?? false;
   }
+
+  @observable
+  Map<String, bool> certExpiredCheckStatus = ObservableMap<String, bool>();
+
+  @observable
+  Map<String, dynamic> certificateKeyData = ObservableMap<String, dynamic>();
 
   @observable
   AboutUsData? aboutus;
@@ -83,6 +93,7 @@ abstract class _SettingsStore with Store {
 
   @action
   Future<void> init() async {
+    await loadCertificatesKeys();
     await loadLocalCode();
     await loadCurrencyCode();
     await loadCustomNodeList();
@@ -90,6 +101,41 @@ abstract class _SettingsStore with Store {
     await loadTestnetShowStatus();
     await loadAboutUs();
     await loadContacts();
+  }
+
+  @action
+  Future<void> setCertificatesKeys(
+    CertificateKeys certType,
+    String key,
+  ) async {
+    try {
+      if (key.isNotEmpty) {
+        X509CertificateData certData = X509Utils.x509CertificateFromPem(key);
+        DateTime? expirationDate = certData.tbsCertificate?.validity.notAfter;
+        if (expirationDate != null) {
+          Map<String, dynamic>? certificateKeyMap = await rootStore.localStorage
+              .getObject(localStorageCertificateKey) as Map<String, dynamic>?;
+          Map<String, dynamic> nextKeys = {};
+          if (certificateKeyMap == null) {
+            nextKeys[certType.name] = key;
+          } else {
+            nextKeys = certificateKeyMap;
+            nextKeys[certType.name] = key;
+          }
+          await rootStore.localStorage
+              .setObject(localStorageCertificateKey, nextKeys);
+        }
+      }
+    } catch (e) {
+      print('setCertificatesKeys error ,${e.toString()}');
+    }
+  }
+
+  @action
+  Future<void> loadCertificatesKeys() async {
+    Map<String, dynamic>? certificateKeyMap = await rootStore.localStorage
+        .getObject(localStorageCertificateKey) as Map<String, dynamic>?;
+    certificateKeyData = certificateKeyMap != null ? certificateKeyMap : {};
   }
 
   @action

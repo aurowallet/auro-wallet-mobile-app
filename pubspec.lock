@@ -81,6 +81,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.11.0"
+  basic_utils:
+    dependency: "direct main"
+    description:
+      name: basic_utils
+      sha256: "2064b21d3c41ed7654bc82cc476fd65542e04d60059b74d5eed490a4da08fc6c"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "5.7.0"
   bip32:
     dependency: "direct main"
     description:
@@ -1022,7 +1030,7 @@ packages:
     source: hosted
     version: "1.0.11"
   logging:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: logging
       sha256: c0bbfe94d46aedf9b8b3e695cf3bd48c8e14b35e3b2c639e0aa7755d589ba946
@@ -1273,10 +1281,10 @@ packages:
     dependency: transitive
     description:
       name: pointycastle
-      sha256: db7306cf0249f838d1a24af52b5a5887c5bf7f31d8bb4e827d071dc0939ad346
+      sha256: "4be0097fcf3fd3e8449e53730c631200ebc7b88016acecab2b0da2f0149222fe"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.6.2"
+    version: "3.9.1"
   pool:
     dependency: transitive
     description:

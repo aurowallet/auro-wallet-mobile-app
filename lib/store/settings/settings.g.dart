@@ -105,6 +105,39 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
+  late final _$certExpiredCheckStatusAtom =
+      Atom(name: '_SettingsStore.certExpiredCheckStatus', context: context);
+
+  @override
+  Map<String, bool> get certExpiredCheckStatus {
+    _$certExpiredCheckStatusAtom.reportRead();
+    return super.certExpiredCheckStatus;
+  }
+
+  @override
+  set certExpiredCheckStatus(Map<String, bool> value) {
+    _$certExpiredCheckStatusAtom
+        .reportWrite(value, super.certExpiredCheckStatus, () {
+      super.certExpiredCheckStatus = value;
+    });
+  }
+
+  late final _$certificateKeyDataAtom =
+      Atom(name: '_SettingsStore.certificateKeyData', context: context);
+
+  @override
+  Map<String, dynamic> get certificateKeyData {
+    _$certificateKeyDataAtom.reportRead();
+    return super.certificateKeyData;
+  }
+
+  @override
+  set certificateKeyData(Map<String, dynamic> value) {
+    _$certificateKeyDataAtom.reportWrite(value, super.certificateKeyData, () {
+      super.certificateKeyData = value;
+    });
+  }
+
   late final _$aboutusAtom =
       Atom(name: '_SettingsStore.aboutus', context: context);
 
@@ -191,6 +224,24 @@ mixin _$SettingsStore on _SettingsStore, Store {
   @override
   Future<void> init() {
     return _$initAsyncAction.run(() => super.init());
+  }
+
+  late final _$setCertificatesKeysAsyncAction =
+      AsyncAction('_SettingsStore.setCertificatesKeys', context: context);
+
+  @override
+  Future<void> setCertificatesKeys(CertificateKeys certType, String key) {
+    return _$setCertificatesKeysAsyncAction
+        .run(() => super.setCertificatesKeys(certType, key));
+  }
+
+  late final _$loadCertificatesKeysAsyncAction =
+      AsyncAction('_SettingsStore.loadCertificatesKeys', context: context);
+
+  @override
+  Future<void> loadCertificatesKeys() {
+    return _$loadCertificatesKeysAsyncAction
+        .run(() => super.loadCertificatesKeys());
   }
 
   late final _$setLocalCodeAsyncAction =
@@ -362,6 +413,8 @@ currencyCode: ${currencyCode},
 currentNode: ${currentNode},
 testnetShowStatus: ${testnetShowStatus},
 lockWalletStatus: ${lockWalletStatus},
+certExpiredCheckStatus: ${certExpiredCheckStatus},
+certificateKeyData: ${certificateKeyData},
 aboutus: ${aboutus},
 customNodeList: ${customNodeList},
 networkName: ${networkName},

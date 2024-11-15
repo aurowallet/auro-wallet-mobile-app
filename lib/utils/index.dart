@@ -140,3 +140,8 @@ String getRealErrorMsg(dynamic error) {
 
   return errorMessage;
 }
+
+String getOrigin(String url) {
+  final uri = Uri.parse(url);
+  return '${uri.scheme}://${uri.host}';
+}
