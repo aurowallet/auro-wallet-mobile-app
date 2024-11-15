@@ -285,20 +285,22 @@ abstract class _AssetsStore with Store {
     pendingZkTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
   }
 
-  @action
+  @action 
   Future<void> addTokenBuildTxs(List<dynamic> ls, String address,String tokenAddress) async {
     if (rootStore.wallet!.currentAddress != address) return;
      List<TransferData> tempZkTxList = [];
       ls.forEach((i) {
         i['memo'] = i['memo'] != null ? i['memo'] : '';
+        if(i['status'] == 'signed'){
+          i['status'] = 'pending';
+        }
         TransferData tx = TransferData.fromJson(i);
         i['status'] = "pending";
-        tx.success = tx.status != 'failed';
+        tx.success = tx.status == 'applied';
         if(i['zk_failure']!=null){
           tx.failureReason = i['zk_failure'];
         }
         tx.time = i['timestamp']; 
-        i['success'] = tx.success;
         tempZkTxList.add(tx);
       });
       tokenBuildTxList[tokenAddress] = tempZkTxList;

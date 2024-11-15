@@ -107,7 +107,7 @@ class TransactionDetailPage extends StatelessWidget {
       statusText = dic.failed;
     }
 
-    bool isCommonTx = txKindLow != "zkapp";
+    bool isCommonTx = txKindLow != "zkapp" && txKindLow != "zkapp_token";
 
     String txType = tx.type;
     if (txKindLow == "stake_delegation") {
@@ -116,6 +116,9 @@ class TransactionDetailPage extends StatelessWidget {
 
     if (isCommonTx) {
       txType = capitalize(txType);
+    }
+    if(txKindLow == "zkapp_token"){
+      txType = "zkApp Token";
     }
     bool isOut = tx.sender == store.wallet!.currentAddress;
     switch (txKindLow) {
@@ -126,6 +129,7 @@ class TransactionDetailPage extends StatelessWidget {
         }
         break;
       case "zkapp":
+      case "zkapp_token":
         if (!isMainToken) {
           statusIcon = tokenTxData?['isZkReceive'] == true ? 'tx_in' : 'tx_out';
         } else {
