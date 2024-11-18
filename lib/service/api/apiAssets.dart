@@ -407,8 +407,7 @@ class ApiAssets {
       }
     } catch (e) {
       print('SSL Pinning failed or other error: $e');
-      store.assets!
-          .setFeesMap(defaultTxFeesMap);
+      store.assets!.setFeesMap(defaultTxFeesMap);
     } finally {
       client.close();
     }
@@ -744,8 +743,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
       "networkID": networkId
     };
     String requestUrl = TokenBuildUrlv2 + "/buildlist";
+    final client = SslPinningHttpClient.createClient(
+        uri: requestUrl, nextType: CertificateKeys.auro_graphql);
     try {
-      var response = await http.post(
+      var response = await client.post(
         Uri.parse(requestUrl),
         headers: {
           'Content-Type': 'application/json',
@@ -753,16 +754,19 @@ ${List<String>.generate(pubkeys.length, (int index) {
         body: jsonEncode(params),
       );
       if (response.statusCode == 200) {
-        dynamic buildListData = convert.jsonDecode(response.body);
+        dynamic buildListData = jsonDecode(response.body);
         List<dynamic> responseList = buildListData["list"] ?? [];
         store.assets!.addTokenBuildTxs(responseList, pubKey, tokenPublicKey);
         return response.body;
       } else {
+        print('Error: ${response.statusCode}');
         return null;
       }
     } catch (e) {
       print('buildTokenBody Exception: $e');
       return null;
+    } finally {
+      client.close();
     }
   }
 }

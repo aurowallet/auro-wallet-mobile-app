@@ -7,6 +7,7 @@ import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
+import 'package:auro_wallet/service/api/SslPinningHttpClient.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
@@ -152,7 +153,7 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
     if (gqlResult.error) {
       print('转账广播出错了：');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
-      String nextMsg = msg.isEmpty ? gqlResult.errorMessage:msg;
+      String nextMsg = msg.isEmpty ? gqlResult.errorMessage : msg;
       UI.toast(nextMsg);
       return null;
     }
@@ -252,7 +253,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     if (gqlResult.error) {
       print('质押广播出错了');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
-      String nextMsg = msg.isEmpty ? gqlResult.errorMessage:msg;
+      String nextMsg = msg.isEmpty ? gqlResult.errorMessage : msg;
       UI.toast(nextMsg);
       return null;
     }
@@ -699,7 +700,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       if (isAuth) {
         await secureStorage.write(
             key: '$_biometricPasswordKey', value: password);
-      
       }
       return isAuth;
     } catch (e) {
@@ -728,11 +728,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<void> replaceBiometricData(String newValue) async {
-    await secureStorage.write(
-        key: '$_biometricPasswordKey', value: newValue);
+    await secureStorage.write(key: '$_biometricPasswordKey', value: newValue);
     print('Data replaced successfully');
   }
-  
+
   Future<bool> authenticate() async {
     try {
       return await auth.authenticate(
@@ -847,7 +846,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     if (gqlResult.error) {
       print('zk broadcaset error：');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
-      String nextMsg = msg.isEmpty ? gqlResult.errorMessage:msg;
+      String nextMsg = msg.isEmpty ? gqlResult.errorMessage : msg;
       UI.toast(nextMsg);
       return null;
     }
@@ -928,15 +927,21 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
   Future<dynamic> buildTokenBodyV2(Map prepareBody) async {
     String requestUrl = TokenBuildUrlv2 + "/buildzkv2";
+
+    final client = SslPinningHttpClient.createClient(
+      uri: requestUrl,
+      nextType: CertificateKeys.auro_graphql,
+    );
+
     try {
-      var response = await http.post(
+      var response = await client.post(
         Uri.parse(requestUrl),
         headers: {
           'Content-Type': 'application/json',
         },
         body: jsonEncode(prepareBody),
       );
-
+      
       if (response.statusCode == 200) {
         return response.body;
       } else {
@@ -945,27 +950,36 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     } catch (e) {
       print('buildTokenBody Exception: $e');
       return null;
+    } finally {
+      client.close();
     }
   }
+
   Future<dynamic> postTokenResult(Map prepareBody) async {
     String requestUrl = TokenBuildUrlv2 + "/sendzkv2";
+    final client = SslPinningHttpClient.createClient(
+      uri: requestUrl,
+      nextType: CertificateKeys.auro_graphql,
+    );
+
     try {
-      var response = await http.post(
+      var response = await client.post(
         Uri.parse(requestUrl),
         headers: {
           'Content-Type': 'application/json',
         },
         body: jsonEncode(prepareBody),
       );
-
       if (response.statusCode == 200) {
         return response.body;
       } else {
         return null;
       }
     } catch (e) {
-      print('buildTokenBody Exception: $e');
+      print('postTokenResult Exception: $e');
       return null;
+    } finally {
+      client.close();
     }
   }
 }
