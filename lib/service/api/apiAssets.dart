@@ -769,4 +769,38 @@ ${List<String>.generate(pubkeys.length, (int index) {
       client.close();
     }
   }
+  Future<dynamic> fetchPendingTokenList(String pubKey, String nonce) async {
+    String networkId = store.settings?.currentNode?.networkID ?? "";
+    Map params = {
+      "sender": pubKey,
+      "nonce": int.parse(nonce),
+      "networkID": networkId
+    };
+    String requestUrl = TokenBuildUrlv2 + "/pendinglist";
+    final client = SslPinningHttpClient.createClient(
+        uri: requestUrl, nextType: CertificateKeys.auro_graphql);
+    try {
+      var response = await client.post(
+        Uri.parse(requestUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(params),
+      );
+      if (response.statusCode == 200) {
+        dynamic buildListData = jsonDecode(response.body);
+        List<dynamic> responseList = buildListData["list"] ?? [];
+        store.assets!.addTokenPendingTxs(responseList, pubKey);
+        return response.body;
+      } else {
+        print('Error: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('buildTokenBody Exception: $e');
+      return null;
+    } finally {
+      client.close();
+    }
+  }
 }

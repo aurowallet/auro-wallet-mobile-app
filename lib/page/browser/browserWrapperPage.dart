@@ -120,6 +120,11 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
+      webApi.assets.fetchPendingTokenList(
+          widget.store.wallet!.currentAddress,
+          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
+                  ?.inferredNonce ??
+              "0")
     ]);
     nextUseInferredNonce = int.parse(
         store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");

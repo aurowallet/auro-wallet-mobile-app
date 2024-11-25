@@ -18,6 +18,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
@@ -261,6 +262,16 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   void _handleSubmit() async {
+    List<TokenPendingTx>? tempTxList = widget
+        .store.assets!.tokenPendingTxList[widget.store.wallet!.currentAddress];
+
+    if (isSendMainToken && (tempTxList != null && tempTxList.length > 0)) {
+      bool? isAgree =
+          await UI.showTokenTxDialog(context: context, txList: tempTxList);
+      if (isAgree == null || !isAgree) {
+        return;
+      }
+    }
     _unFocus();
     if (_nonceCtrl.text.isEmpty && currentFee == null) {
       if (_loading.value) {
@@ -287,6 +298,10 @@ class _TransferPageState extends State<TransferPage> {
       } else {
         inferredNonce =
             int.parse(mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
+        if (!isSendMainToken && (tempTxList != null && tempTxList.length > 0)) {
+          inferredNonce = tempTxList[0].nonce + 1;
+          shouldShowNonce = true;
+        }
       }
       fee = _feeCtrl.text.isNotEmpty
           ? double.parse(Fmt.parseNumber(_feeCtrl.text))
@@ -465,6 +480,11 @@ class _TransferPageState extends State<TransferPage> {
     await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
+      webApi.assets.fetchPendingTokenList(
+          widget.store.wallet!.currentAddress,
+          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
+                  ?.inferredNonce ??
+              "0")
     ]);
     runInAction(() {
       _loading.value = false;
@@ -607,6 +627,9 @@ class _TransferPageState extends State<TransferPage> {
 
   @override
   Widget build(BuildContext context) {
+    int nonceHolder = int.parse(
+        store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
+
     return Observer(
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;
@@ -742,12 +765,7 @@ class _TransferPageState extends State<TransferPage> {
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
                             nonceCtrl: _nonceCtrl,
-                            noncePlaceHolder: int.parse(store
-                                    .assets!
-                                    .mainTokenNetInfo
-                                    .tokenAssestInfo
-                                    ?.inferredNonce ??
-                                "0"),
+                            noncePlaceHolder: nonceHolder,
                             cap: fees.cap,
                           )
                         ],

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
+import 'package:auro_wallet/common/components/tokenTxDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenManageDialog.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenSelectDialog.dart';
@@ -17,6 +18,7 @@ import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -406,7 +408,7 @@ class UI {
             signType: signType,
             to: to,
             amount: amount,
-            zkNonce:zkNonce,
+            zkNonce: zkNonce,
             fee: fee,
             memo: memo,
             feePayer: feePayer,
@@ -511,6 +513,26 @@ class UI {
       enableDrag: false,
       builder: (BuildContext context) {
         return TokenManageDialog();
+      },
+    );
+  }
+
+  static Future<bool?> showTokenTxDialog({
+    required BuildContext context,
+    required List<TokenPendingTx> txList,
+    Function()? onConfirm,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (_) {
+        return TokenTxDialog(
+          txList: txList,
+          onOk: () {
+            if (onConfirm != null) {
+              onConfirm();
+            }
+          },
+        );
       },
     );
   }

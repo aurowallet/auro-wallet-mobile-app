@@ -7,6 +7,7 @@ import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/tokenInfoData.dart';
+import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
@@ -95,6 +96,10 @@ abstract class _AssetsStore with Store {
   @observable
   ObservableMap<String, List<TransferData>> tokenBuildTxList =
       ObservableMap<String, List<TransferData>>();
+
+  @observable
+  ObservableMap<String, List<TokenPendingTx>> tokenPendingTxList =
+      ObservableMap<String, List<TokenPendingTx>>();
 
   @action
   Future<void> setNextToken(Token token) async {
@@ -285,25 +290,32 @@ abstract class _AssetsStore with Store {
     pendingZkTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
   }
 
-  @action 
-  Future<void> addTokenBuildTxs(List<dynamic> ls, String address,String tokenAddress) async {
+  @action
+  Future<void> addTokenBuildTxs(
+      List<dynamic> ls, String address, String tokenAddress) async {
     if (rootStore.wallet!.currentAddress != address) return;
-     List<TransferData> tempZkTxList = [];
-      ls.forEach((i) {
-        i['memo'] = i['memo'] != null ? i['memo'] : '';
-        if(i['status'] == 'signed'){
-          i['status'] = 'pending';
-        }
-        TransferData tx = TransferData.fromJson(i);
-        i['status'] = "pending";
-        tx.success = tx.status == 'applied';
-        if(i['zk_failure']!=null){
-          tx.failureReason = i['zk_failure'];
-        }
-        tx.time = i['timestamp']; 
-        tempZkTxList.add(tx);
-      });
-      tokenBuildTxList[tokenAddress] = tempZkTxList;
+    List<TransferData> tempZkTxList = [];
+    ls.forEach((i) {
+      i['memo'] = i['memo'] != null ? i['memo'] : '';
+      TransferData tx = TransferData.fromJson(i);
+      i['status'] = "pending";
+      tx.success = tx.status == 'applied';
+      if (i['zk_failure'] != null) {
+        tx.failureReason = i['zk_failure'];
+      }
+      tx.time = i['timestamp'];
+      tempZkTxList.add(tx);
+    });
+    tokenBuildTxList[tokenAddress] = tempZkTxList;
+  }
+
+  @action
+  Future<void> addTokenPendingTxs(List<dynamic> ls, String address) async {
+    if (rootStore.wallet!.currentAddress != address) return;
+    List<TokenPendingTx> tempTxList = ls.map((item) {
+      return TokenPendingTx.fromJson(item);
+    }).toList();
+    tokenPendingTxList[address] = tempTxList;
   }
 
   @action
@@ -698,7 +710,8 @@ abstract class _AssetsStore with Store {
 
         double? tokenPrice = marketPrices[tokenId];
         if (tokenPrice != null) {
-          tokenBaseInfo.showAmount = double.parse((tokenBaseInfo.showBalance! * tokenPrice).toStringAsFixed(2));
+          tokenBaseInfo.showAmount = double.parse(
+              (tokenBaseInfo.showBalance! * tokenPrice).toStringAsFixed(2));
         }
         localConfig.tokenShowed = localShowedTokenIds.contains(tokenId);
 
@@ -740,6 +753,7 @@ abstract class _AssetsStore with Store {
     pendingZkTxs.clear();
     tokenZkTxs.clear();
     tokenBuildTxList.clear();
+    tokenPendingTxList.clear();
 
     clearMarketPrices();
 
@@ -769,6 +783,7 @@ abstract class _AssetsStore with Store {
 
     tokenZkTxs.clear();
     tokenBuildTxList.clear();
+    tokenPendingTxList.clear();
 
     tokenList.clear();
 

@@ -555,5 +555,16 @@
   "zkAppTipContent": "进入此zkApp时，您需遵守第三方zkApp的用户协议。",
   "passwordVerification": "密码验证",
   "pwdVerificationTip": "至少选择一个选项。",
-  "selectAsset": "选择资产"
+  "selectAsset": "选择资产",
+  "tokenPendingTip": "当前有<light>{count}</light>笔正在进行的交易，取消或继续当前操作",
+  "@tokenPendingTip": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "pendingTx": "待处理的交易",
+  "signed": "已签名"
 }

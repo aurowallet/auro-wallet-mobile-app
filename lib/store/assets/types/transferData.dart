@@ -7,12 +7,13 @@ part 'transferData.g.dart';
 @JsonSerializable()
 class TransferData extends _TransferData {
   static TransferData fromJson(Map<String, dynamic> json) {
-    final td =  _$TransferDataFromJson(json);
+    final td = _$TransferDataFromJson(json);
     if (td.success == null) {
       td.success = td.status != 'failed';
     }
     return td;
   }
+
   static Map<String, dynamic> toJson(TransferData data) =>
       _$TransferDataToJson(data);
   static TransferData fromPendingJson(Map<String, dynamic> json) {
@@ -27,7 +28,7 @@ class TransferData extends _TransferData {
   }
 
   static TransferData fromGraphQLJson(Map<String, dynamic> json) {
-    switch(json['kind']) {
+    switch (json['kind']) {
       case "STAKE_DELEGATION":
         json['type'] = "delegation";
         break;
@@ -51,11 +52,16 @@ class TransferData extends _TransferData {
   }
 
   static TransferData fromZkGraphQLJson(Map<String, dynamic> json) {
-    var accountUpdates = json['zkappCommand']['accountUpdates'] as List<dynamic>?;
-    var firstUpdate = accountUpdates?.isNotEmpty == true ? accountUpdates!.first as Map<String, dynamic> : null;
-    var receiver = firstUpdate != null ? firstUpdate['body']['publicKey'] : null;
-    
-    var feePayerBody = json['zkappCommand']['feePayer']['body'] as Map<String, dynamic>;
+    var accountUpdates =
+        json['zkappCommand']['accountUpdates'] as List<dynamic>?;
+    var firstUpdate = accountUpdates?.isNotEmpty == true
+        ? accountUpdates!.first as Map<String, dynamic>
+        : null;
+    var receiver =
+        firstUpdate != null ? firstUpdate['body']['publicKey'] : null;
+
+    var feePayerBody =
+        json['zkappCommand']['feePayer']['body'] as Map<String, dynamic>;
     var fee = feePayerBody['fee'].toString();
 
     json['type'] = "zkApp";
@@ -66,26 +72,32 @@ class TransferData extends _TransferData {
     json['receiver'] = receiver;
     json['nonce'] = feePayerBody['nonce'];
     json['transaction'] = jsonEncode(json['zkappCommand']);
-    bool isFailed = json['failureReason'] != null && (json['failureReason'] as List<dynamic>).isNotEmpty;
+    bool isFailed = json['failureReason'] != null &&
+        (json['failureReason'] as List<dynamic>).isNotEmpty;
     json['status'] = isFailed ? 'failed' : 'applied';
     json['success'] = !isFailed;
-    json['failureReason'] = json['failureReason']!=null? json['failureReason'].toString():"";
+    json['failureReason'] =
+        json['failureReason'] != null ? json['failureReason'].toString() : "";
     var data = fromJson(json);
     return data;
   }
 
   static TransferData fromZkPendingJson(Map<String, dynamic> json) {
-    var accountUpdates = json['zkappCommand']['accountUpdates'] as List<dynamic>?;
-    var firstUpdate = accountUpdates?.isNotEmpty == true ? accountUpdates!.first as Map<String, dynamic> : null;
-    var receiver = firstUpdate != null ? firstUpdate['body']['publicKey'] : null;
-    
-    var feePayerBody = json['zkappCommand']['feePayer']['body'] as Map<String, dynamic>;
-    var fee = feePayerBody['fee'].toString();
+    var accountUpdates =
+        json['zkappCommand']['accountUpdates'] as List<dynamic>?;
+    var firstUpdate = accountUpdates?.isNotEmpty == true
+        ? accountUpdates!.first as Map<String, dynamic>
+        : null;
+    var receiver =
+        firstUpdate != null ? firstUpdate['body']['publicKey'] : null;
 
+    var feePayerBody =
+        json['zkappCommand']['feePayer']['body'] as Map<String, dynamic>;
+    var fee = feePayerBody['fee'].toString();
 
     json['type'] = "zkApp";
     json['sender'] = feePayerBody['publicKey'];
-    json['nonce'] = int.parse(feePayerBody['nonce']); 
+    json['nonce'] = int.parse(feePayerBody['nonce']);
     json['receiver'] = receiver;
     json['fee'] = fee;
     json['status'] = "pending";
@@ -95,7 +107,6 @@ class TransferData extends _TransferData {
     var data = fromJson(json);
     return data;
   }
-
 }
 
 abstract class _TransferData {
@@ -116,6 +127,6 @@ abstract class _TransferData {
   String? transaction = "";
   String? failureReason = "";
   bool get isPending {
-    return status == 'pending';
+    return status == 'pending' || status == 'signed';
   }
 }

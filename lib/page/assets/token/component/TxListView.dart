@@ -185,38 +185,41 @@ class TransferListItem extends StatelessWidget {
     String showAmount = "";
 
     if (!isMainToken) {
-      if(txKindLow == "zkapp_token"){
-         address = data.receiver;
-         showAmount = Fmt.balance(data.amount, tokenDecimal);
-        tokenTxData = {
-          "isZkReceive":false
-        };
-      }else{
+      if (txKindLow == "zkapp_token") {
+        address = data.receiver;
+        showAmount = Fmt.balance(data.amount, tokenDecimal);
+        tokenTxData = {"isZkReceive": false};
+      } else {
         Map txData = jsonDecode(data.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
-        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,currentAddress,tokenId);
+        Map<String, dynamic> updateInfo =
+            getZkAppUpdateInfo(accountUpdates, currentAddress, tokenId);
         tokenTxData = updateInfo;
-        address = updateInfo['isZkReceive']?updateInfo['from']:updateInfo['to'];
-        String amount = Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
+        address =
+            updateInfo['isZkReceive'] ? updateInfo['from'] : updateInfo['to'];
+        String amount =
+            Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
         showAmount = updateInfo['symbol'] + amount;
       }
     } else {
       if (txKindLow == "zkapp") {
         Map txData = jsonDecode(data.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
-        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,currentAddress,tokenId);
-        
-        String amount = Fmt.balance(updateInfo['totalBalanceChange'], COIN.decimals);
+        Map<String, dynamic> updateInfo =
+            getZkAppUpdateInfo(accountUpdates, currentAddress, tokenId);
+
+        String amount =
+            Fmt.balance(updateInfo['totalBalanceChange'], COIN.decimals);
         showAmount = updateInfo['symbol'] + amount;
-         if(updateInfo['symbol'] == '+'){
-            address = updateInfo['from'];
-        }else{
-          address = updateInfo['to']; 
+        if (updateInfo['symbol'] == '+') {
+          address = updateInfo['from'];
+        } else {
+          address = updateInfo['to'];
         }
-      }else{
+      } else {
         address = isOut ? data.receiver : data.sender;
         showAmount =
-          (isOut ? '-' : '+') + Fmt.balance(data.amount, COIN.decimals);
+            (isOut ? '-' : '+') + Fmt.balance(data.amount, COIN.decimals);
       }
     }
 
@@ -261,6 +264,9 @@ class TransferListItem extends StatelessWidget {
       case 'pending':
         statusText = dic.pending;
         break;
+      case 'signed':
+        statusText = dic.signed;
+        break;
       default:
         statusText = data.status.toUpperCase();
         break;
@@ -276,8 +282,9 @@ class TransferListItem extends StatelessWidget {
         statusColor = ColorsUtil.hexColor(0xFFC633);
         break;
     }
-    Color bgColor =
-        data.status != 'pending' ? Colors.transparent : Color(0xFFF9FAFC);
+    Color bgColor = data.status != 'pending' && data.status != 'signed'
+        ? Colors.transparent
+        : Color(0xFFF9FAFC);
 
     bool tokenSendPending = data.type.toLowerCase() == "zkapp_token";
     return new Material(
@@ -345,7 +352,7 @@ class TransferListItem extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    (data.isPending ||tokenSendPending)
+                                    (data.isPending || tokenSendPending)
                                         ? 'Nonce ' + data.nonce.toString()
                                         : Fmt.dateTimeFromUTC(data.time),
                                     style: TextStyle(

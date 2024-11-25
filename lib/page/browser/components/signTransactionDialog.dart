@@ -12,6 +12,7 @@ import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
 import 'package:auro_wallet/page/browser/components/zkRow.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
@@ -98,11 +99,19 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         isLedger = store.wallet!.currentWallet.walletType ==
             WalletStore.seedTypeLedger;
       });
-      checkParams();
+      int lastNonce = checkParams();
+      _loadData(lastNonce);
     });
   }
 
-  void checkParams() {
+  Future<void> _loadData(int inputNonce) async {
+    await Future.wait([
+      webApi.assets.fetchPendingTokenList(
+          store.wallet!.currentAddress, inputNonce.toString())
+    ]);
+  }
+
+  int checkParams() {
     String toAddress = widget.to.toLowerCase();
     bool isScam = toAddress.isNotEmpty &&
         store.assets!.scamAddressStr.indexOf(toAddress) != -1;
@@ -110,11 +119,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     ZkAppValueEnum nextZkNonceType = isZkNonce
         ? ZkAppValueEnum.recommed_site
         : ZkAppValueEnum.recommed_default;
+    int lastNonce = isZkNonce
+        ? int.parse(widget.zkNonce ?? widget.preNonce.toString())
+        : widget.preNonce;
     setState(() {
       isRiskAddress = isScam;
-      inputNonce = isZkNonce
-          ? int.parse(widget.zkNonce ?? widget.preNonce.toString())
-          : widget.preNonce;
+      inputNonce = lastNonce;
       zkNonceType = nextZkNonceType;
       showNonceRow = isZkNonce;
     });
@@ -188,6 +198,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         feeType = tempFeeType;
       });
     }
+    return lastNonce;
   }
 
   @override
@@ -261,6 +272,18 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       UI.toast(dic.notSupportNow);
       return false;
     }
+
+    List<TokenPendingTx>? tempTxList =
+        store.assets!.tokenPendingTxList[store.wallet!.currentAddress];
+
+    if (tempTxList != null && tempTxList.length > 0) {
+      bool? isAgree =
+          await UI.showTokenTxDialog(context: context, txList: tempTxList);
+      if (isAgree == null || !isAgree) {
+        return false;
+      }
+    }
+
     print('onConfirm');
     bool exited = false;
     if (await _validate()) {
@@ -381,8 +404,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           int finalNonce = zkNonceType == ZkAppValueEnum.recommed_site
               ? inputNonce + 10 // +10 for force refresh nonce
               : nextNonce;
-          await widget.onConfirm(
-              responseData, finalNonce);
+          await widget.onConfirm(responseData, finalNonce);
           setState(() {
             submitting = false;
           });

@@ -96,15 +96,27 @@ class TransactionDetailPage extends StatelessWidget {
     String statusIcon;
     String statusText;
     Color statusColor;
-    if (pending) {
-      statusColor = ColorsUtil.hexColor(0xFFC633);
-      statusText = dic.pending;
-    } else if (success == true) {
-      statusColor = ColorsUtil.hexColor(0x38d79f);
-      statusText = dic.applied;
-    } else {
-      statusColor = ColorsUtil.hexColor(0xE84335);
-      statusText = dic.failed;
+    switch (tx.status) {
+      case 'applied':
+        statusText = dic.applied;
+        statusColor = ColorsUtil.hexColor(0x38d79f);
+        break;
+      case 'failed':
+        statusText = dic.failed;
+        statusColor = ColorsUtil.hexColor(0xE84335);
+        break;
+      case 'pending':
+        statusText = dic.pending;
+        statusColor = ColorsUtil.hexColor(0xFFC633);
+        break;
+      case 'signed':
+        statusText = dic.signed;
+        statusColor = ColorsUtil.hexColor(0xFFC633);
+        break;
+      default:
+        statusText = tx.status.toUpperCase();
+        statusColor = ColorsUtil.hexColor(0xFFC633);
+        break;
     }
 
     bool isCommonTx = txKindLow != "zkapp" && txKindLow != "zkapp_token";
@@ -117,7 +129,7 @@ class TransactionDetailPage extends StatelessWidget {
     if (isCommonTx) {
       txType = capitalize(txType);
     }
-    if(txKindLow == "zkapp_token"){
+    if (txKindLow == "zkapp_token") {
       txType = "zkApp Token";
     }
     bool isOut = tx.sender == store.wallet!.currentAddress;
@@ -159,7 +171,9 @@ class TransactionDetailPage extends StatelessWidget {
       TxInfoItem(label: dic.memo2, title: tx.memo, copyText: tx.memo),
       TxInfoItem(
         label: dic.time,
-        title: txKindLow == "zkapp_token" ? Fmt.dateTimeWithTimeZoneFromTimestamp(int.parse(tx.time??"0")):Fmt.dateTimeWithTimeZone(tx.time),
+        title: txKindLow == "zkapp_token"
+            ? Fmt.dateTimeWithTimeZoneFromTimestamp(int.parse(tx.time ?? "0"))
+            : Fmt.dateTimeWithTimeZone(tx.time),
       ),
       TxInfoItem(
         label: 'Nonce',
@@ -177,7 +191,7 @@ class TransactionDetailPage extends StatelessWidget {
         title: tx.hash,
         copyText: tx.hash,
       ),
-      txKindLow == "zkapp_token"  && tx.failureReason != null 
+      txKindLow == "zkapp_token" && tx.failureReason != null
           ? TxInfoItem(
               label: dic.buildFailed,
               title: tx.failureReason,
@@ -275,20 +289,24 @@ class TransactionDetailPage extends StatelessWidget {
                 children: _buildListView(context),
               ),
             ),
-             showExplorer ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                tx.hash.isNotEmpty
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 30)
-                            .copyWith(bottom: 30),
-                        child: BrowserLink(
-                          '${store.settings!.currentNode?.explorerUrl}/tx/${tx.hash}',
-                          text: dic.goToExplrer,
-                        ))
-                    : Container()
-              ],
-            ):SizedBox(height: 0,)
+            showExplorer
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      tx.hash.isNotEmpty
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30)
+                                  .copyWith(bottom: 30),
+                              child: BrowserLink(
+                                '${store.settings!.currentNode?.explorerUrl}/tx/${tx.hash}',
+                                text: dic.goToExplrer,
+                              ))
+                          : Container()
+                    ],
+                  )
+                : SizedBox(
+                    height: 0,
+                  )
           ],
         ),
       ),

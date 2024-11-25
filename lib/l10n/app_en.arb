@@ -553,7 +553,18 @@
   "tapToVerify": "Tap to verify",
   "zkAppTipTitle": "You are visiting a third-party zkApp",
   "zkAppTipContent": "You are a subiect to third-party zkApp‘s User Agreement when entering this zkApp.",
-  "passwordVerification":"Password Verification",
-  "pwdVerificationTip":"At least one option must be selected.",
-  "selectAsset": "Select Asset"
+  "passwordVerification": "Password Verification",
+  "pwdVerificationTip": "At least one option must be selected.",
+  "selectAsset": "Select Asset",
+  "tokenPendingTip": "There are <light>{count}</light> pending transactions, cancel or confirm the current action.",
+  "@tokenPendingTip": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "pendingTx": "Pending Transaction",
+  "signed":"Signed"
 }

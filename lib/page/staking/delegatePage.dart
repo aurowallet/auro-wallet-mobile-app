@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -127,6 +128,11 @@ class _DelegatePageState extends State<DelegatePage>
     await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
+      webApi.assets.fetchPendingTokenList(
+          widget.store.wallet!.currentAddress,
+          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
+                  ?.inferredNonce ??
+              "0")
     ]);
     runInAction(() {
       _loading.value = false;
@@ -195,6 +201,16 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   void _handleSubmit() async {
+    List<TokenPendingTx>? tempTxList = widget
+        .store.assets!.tokenPendingTxList[widget.store.wallet!.currentAddress];
+
+    if (tempTxList != null && tempTxList.length > 0) {
+      bool? isAgree =
+          await UI.showTokenTxDialog(context: context, txList: tempTxList);
+      if (isAgree == null || !isAgree) {
+        return;
+      }
+    }
     _unFocus();
     if (_nonceCtrl.text.isEmpty && currentFee == null) {
       if (_loading.value) {

@@ -555,5 +555,16 @@
   "zkAppTipContent": "Входячи до цього zkApp, ви підпорядковуєтесь Угоді користувача стороннього zkApp.",
   "passwordVerification": "Перевірка пароля",
   "pwdVerificationTip": "Необхідно вибрати щонайменше одну опцію.",
-  "selectAsset": "Вибрати актив"
+  "selectAsset": "Вибрати актив",
+  "tokenPendingTip": "Зараз є <light>{count}</light> транзакцій, що виконуються, скасувати чи продовжити поточну операцію.",
+  "@tokenPendingTip": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "pendingTx": "Очікувана транзакція",
+  "signed":"Підписано"
 }
