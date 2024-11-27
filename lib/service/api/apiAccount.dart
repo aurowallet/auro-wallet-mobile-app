@@ -904,27 +904,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return transferData;
   }
 
-  Future<dynamic> buildTokenBody(Map prepareBody) async {
-    String requestUrl = TokenBuildUrl + "/tokenbuild";
-
-    try {
-      var response = await http.post(
-        Uri.parse(requestUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(prepareBody),
-      );
-      if (response.statusCode == 200) {
-        return response.body;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      print('buildTokenBody Exception: $e');
-      return null;
-    }
-  }
   Future<dynamic> buildTokenBodyV2(Map prepareBody) async {
     String requestUrl = TokenBuildUrlv2 + "/buildzkv2";
 
@@ -941,14 +920,15 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         },
         body: jsonEncode(prepareBody),
       );
-      
+
       if (response.statusCode == 200) {
         return response.body;
       } else {
         return null;
       }
     } catch (e) {
-      print('buildTokenBody Exception: $e');
+      UI.toast(e.toString());
+      print('buildTokenBodyV2 Exception: $e');
       return null;
     } finally {
       client.close();
@@ -973,9 +953,26 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       if (response.statusCode == 200) {
         return response.body;
       } else {
+        if (response.body != null) {
+          try {
+            // Parse the response body into a Map
+            var responseBody = jsonDecode(response.body);
+
+            // Check if the 'message' field exists
+            if (responseBody['message'] != null) {
+              UI.toast(responseBody['message'].toString());
+            } else {
+              UI.toast(responseBody.toString());
+            }
+          } catch (e) {
+            // If parsing fails, treat the body as raw text
+            UI.toast(response.body.toString());
+          }
+        }
         return null;
       }
     } catch (e) {
+      UI.toast(e.toString());
       print('postTokenResult Exception: $e');
       return null;
     } finally {

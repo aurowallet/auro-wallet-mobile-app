@@ -233,6 +233,9 @@ class _TransferPageState extends State<TransferPage> {
     Map<String, dynamic> encrypRes = await webApi.bridge
         .encryptData(jsonEncode(buildInfo), center_public_keys);
     dynamic data = await webApi.account.buildTokenBodyV2(encrypRes);
+    if (data == null) {
+      return null;
+    }
     Map nextData = jsonDecode(data);
     if (nextData['data'] == null) {
       UI.toast(nextData['message'] ?? nextData.toString());
@@ -442,6 +445,9 @@ class _TransferPageState extends State<TransferPage> {
                 Map<String, dynamic> realUnSignTxStr = await webApi.bridge
                     .encryptData(jsonEncode(nextData), center_public_keys);
                 data = await webApi.account.postTokenResult(realUnSignTxStr);
+                if (data == null) {
+                  return false;
+                }
                 dynamic parsedData = jsonDecode(data);
                 if (parsedData['error'] != null) {
                   String msg = parsedData['error'] != null
