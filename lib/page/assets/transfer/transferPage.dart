@@ -232,7 +232,7 @@ class _TransferPageState extends State<TransferPage> {
     };
     Map<String, dynamic> encrypRes = await webApi.bridge
         .encryptData(jsonEncode(buildInfo), center_public_keys);
-    dynamic data = await webApi.account.buildTokenBodyV2(encrypRes);
+    dynamic data = await webApi.account.buildTokenBody(encrypRes);
     if (data == null) {
       return null;
     }

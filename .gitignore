@@ -36,7 +36,6 @@
 
 # api config
 apiConfig.dart
-certConfig.dart
 
 # android c compile file
 .cxx

@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'dart:convert' as convert;
 
-import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/service/api/SslPinningHttpClient.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class ApiStaking {
   ApiStaking(this.apiRoot);
@@ -28,28 +27,15 @@ class ApiStaking {
       return;
     }
     String txUrl = "$BASE_INFO_URL/validators";
-    final client = SslPinningHttpClient.createClient(
-        uri: txUrl, nextType: CertificateKeys.auro_api);
-
-    try {
-      var response = await client.get(
-        Uri.parse(txUrl),
-        headers: {'Content-Type': 'application/json; charset=utf-8'},
-      );
-
-      if (response.statusCode == 200) {
-        List list = convert.jsonDecode(utf8.decode(response.bodyBytes));
-        store.staking!.setValidatorsInfo(
-          list.map((e) => e as Map<String, dynamic>).toList(),
-        );
-        print('validators cached: ${list.length}');
-      } else {
-        print('Request validators failed with status: ${response.statusCode}.');
-      }
-    } catch (e) {
-      print('SSL Pinning failed or other error: $e');
-    } finally {
-      client.close();
+    var response = await http.get(Uri.parse(txUrl),
+        headers: {'Content-Type': 'application/json; charset=utf-8'});
+    if (response.statusCode == 200) {
+      List list = convert.jsonDecode(utf8.decode(response.bodyBytes));
+      store.staking!.setValidatorsInfo(
+          list.map((e) => e as Map<String, dynamic>).toList());
+      print('validators cached' + list.length.toString());
+    } else {
+      print('Request validators failed with status: ${response.statusCode}.');
     }
   }
 

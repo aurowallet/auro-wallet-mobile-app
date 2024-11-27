@@ -1,8 +1,5 @@
-import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:auro_wallet/service/api/SslPinningHttpClient.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 
 String? uuidFromObject(Object object) {
   if (object is Map<String, Object>) {
@@ -19,25 +16,11 @@ ValueNotifier<GraphQLClient> clientFor({
   required String uri,
   String? subscriptionUri,
 }) {
-  Link link;
-  Uri nextUri = Uri.parse(uri);
-  Client client;
-  if (nextUri.host.contains("aurowallet.com") && nextUri.path == "/graphql") {
-    client = SslPinningHttpClient.createClient(
-        uri: uri, nextType: CertificateKeys.auro_graphql);
-  } else if (nextUri.host.contains("zeko.io") && nextUri.path == "/graphql") {
-    client = SslPinningHttpClient.createClient(
-        uri: uri, nextType: CertificateKeys.zeko_graphql);
-  } else {
-    client = Client();
-  }
-  final HttpLink httpLink = HttpLink(
-    uri,
-    httpClient: client,
+  Link link = HttpLink(uri);
+  final GraphQLCache cache = GraphQLCache(
+      dataIdFromObject: uuidFromObject,
+      store: HiveStore()
   );
-
-  link = httpLink;
-
   if (subscriptionUri != null) {
     final WebSocketLink websocketLink = WebSocketLink(
       subscriptionUri,
@@ -47,17 +30,8 @@ ValueNotifier<GraphQLClient> clientFor({
       ),
     );
 
-    link = Link.split(
-      (request) => request.isSubscription,
-      websocketLink,
-      httpLink,
-    );
+    link = link.concat(websocketLink);
   }
-
-  final GraphQLCache cache = GraphQLCache(
-    dataIdFromObject: uuidFromObject,
-    store: HiveStore(),
-  );
 
   return ValueNotifier<GraphQLClient>(
     GraphQLClient(

@@ -7,7 +7,6 @@ import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
-import 'package:auro_wallet/service/api/SslPinningHttpClient.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
@@ -904,16 +903,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return transferData;
   }
 
-  Future<dynamic> buildTokenBodyV2(Map prepareBody) async {
+  Future<dynamic> buildTokenBody(Map prepareBody) async {
     String requestUrl = TokenBuildUrlv2 + "/buildzkv2";
-
-    final client = SslPinningHttpClient.createClient(
-      uri: requestUrl,
-      nextType: CertificateKeys.auro_graphql,
-    );
-
     try {
-      var response = await client.post(
+      var response = await http.post(
         Uri.parse(requestUrl),
         headers: {
           'Content-Type': 'application/json',
@@ -928,22 +921,15 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       }
     } catch (e) {
       UI.toast(e.toString());
-      print('buildTokenBodyV2 Exception: $e');
+      print('buildTokenBody Exception: $e');
       return null;
-    } finally {
-      client.close();
     }
   }
 
   Future<dynamic> postTokenResult(Map prepareBody) async {
     String requestUrl = TokenBuildUrlv2 + "/sendzkv2";
-    final client = SslPinningHttpClient.createClient(
-      uri: requestUrl,
-      nextType: CertificateKeys.auro_graphql,
-    );
-
     try {
-      var response = await client.post(
+      var response = await http.post(
         Uri.parse(requestUrl),
         headers: {
           'Content-Type': 'application/json',
@@ -975,8 +961,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       UI.toast(e.toString());
       print('postTokenResult Exception: $e');
       return null;
-    } finally {
-      client.close();
     }
   }
 }

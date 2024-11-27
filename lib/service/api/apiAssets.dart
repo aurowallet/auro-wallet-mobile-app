@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:convert' as convert;
 
-import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
-import 'package:auro_wallet/service/api/SslPinningHttpClient.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
@@ -21,62 +19,47 @@ class ApiAssets {
   final Api apiRoot;
   final store = globalAppStore;
   Future<void> fetchTransactions(pubKey) async {
-    String nextUrl = apiRoot.getTxRecordsApiUrl();
-    final sslClient = SslPinningHttpClient.createClient(
-        uri: nextUrl, nextType: CertificateKeys.auro_graphql);
-    final httpLink = HttpLink(
-      nextUrl,
-      httpClient: sslClient,
-    );
     final client = GraphQLClient(
-      link: httpLink,
+      link: HttpLink(apiRoot.getTxRecordsApiUrl()),
       cache: GraphQLCache(),
     );
     const String query = r'''
-    query fetchTxListQuery($pubKey: String) {
-      transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true, 
-      OR: [
-        {to: $pubKey}, 
-        {from: $pubKey}
-      ]}) {
-        nonce
-        memo
-        kind
-        hash
-        from
-        fee
-        amount
-        to
-        dateTime
-        failureReason
-      }
-    }
-  ''';
-
-    final QueryOptions options = QueryOptions(
+      query fetchTxListQuery($pubKey: String) {
+  transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true, 
+  OR: [
+  {to: $pubKey}, 
+  {from: $pubKey}
+   ]}) {
+    nonce
+    memo
+    kind
+    hash
+    from
+    fee
+    amount
+    to
+    dateTime
+    failureReason
+  }
+}
+    ''';
+    final QueryOptions _options = QueryOptions(
       document: gql(query),
       fetchPolicy: FetchPolicy.noCache,
       variables: {
         'pubKey': pubKey,
       },
     );
-
-    try {
-      final QueryResult result = await client.query(options);
-      if (result.hasException) {
-        print('Request tx list error');
-        print(result.exception.toString());
-        return;
-      }
-      List<dynamic> list = result.data!['transactions'];
-      print('transactions');
-      print(list.length);
-      await store.assets!.addTxs(list, pubKey, shouldCache: true);
-    } catch (e) {
-      print('SSL Pinning failed or other error: $e');
-    } finally {
-      sslClient.close();
+    final QueryResult result = await client.query(_options);
+    if (result.hasException) {
+      print('request tx list error');
+      print(result.exception.toString());
+      return;
     }
+    List<dynamic> list = result.data!['transactions'];
+    print('transactions');
+    print(list.length);
+    await store.assets!.addTxs(list, pubKey, shouldCache: true);
   }
 
   Future<void> fetchPendingTransactions(pubKey) async {
@@ -301,115 +284,84 @@ class ApiAssets {
 
   Future<void> fetchZkTransactions(publicKey,
       {tokenId = ZK_DEFAULT_TOKEN_ID}) async {
-    String nextUri = apiRoot.getTxRecordsApiUrl();
-    final sslClient = SslPinningHttpClient.createClient(
-        uri: nextUri, nextType: CertificateKeys.auro_graphql);
-
-    final httpLink = HttpLink(
-      nextUri,
-      httpClient: sslClient,
-    );
     final client = GraphQLClient(
-      link: httpLink,
+      link: HttpLink(apiRoot.getTxRecordsApiUrl()),
       cache: GraphQLCache(),
     );
-
     const String query = r'''
-    query zkApps($publicKey: String, $tokenId: String) {
-      zkapps(limit: 15, query: {
-        publicKey: $publicKey, tokenId: $tokenId
-      }, sortBy: DATETIME_DESC) {
+      query zkApps($publicKey: String,$tokenId: String) {
+    zkapps(limit: 15, query: {
+      publicKey: $publicKey,tokenId:$tokenId}, sortBy: DATETIME_DESC) {
         hash
-        dateTime
-        failureReason {
-          failures
+    dateTime
+    failureReason {
+      failures
+    }
+    zkappCommand {
+      feePayer {
+        authorization
+        body {
+          nonce
+          publicKey
+          fee
         }
-        zkappCommand {
-          feePayer {
-            authorization
-            body {
-              nonce
-              publicKey
-              fee
-            }
+      }
+      memo
+      accountUpdates {
+        body {
+          publicKey
+          
+         	tokenId 
+          balanceChange{
+            magnitude
+            sgn
           }
-          memo
-          accountUpdates {
-            body {
-              publicKey
-              tokenId 
-              balanceChange {
-                magnitude
-                sgn
-              }
-              update {
-                appState
-                tokenSymbol
-                zkappUri
-              }
-            }
+          update{
+            appState
+            tokenSymbol
+            zkappUri
           }
         }
       }
     }
-  ''';
-
+    }
+  }
+    ''';
     String nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
-    final QueryOptions options = QueryOptions(
+    final QueryOptions _options = QueryOptions(
       document: gql(query),
       fetchPolicy: FetchPolicy.noCache,
-      variables: {
-        'publicKey': publicKey,
-        'tokenId': nextTokenId,
-      },
+      variables: {'publicKey': publicKey, 'tokenId': nextTokenId},
     );
-    try {
-      final QueryResult result = await client.query(options);
-      if (result.hasException) {
-        print('Error fetching zk transactions: ${result.exception.toString()}');
-        return;
-      }
-
-      List<dynamic> list = result.data!['zkapps'];
-      print('Fetched zk transactions');
-      await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
-    } catch (e) {
-      print('SSL Pinning failed or other error: $e');
-    } finally {
-      sslClient.close();
+    final QueryResult result = await client.query(_options);
+    if (result.hasException) {
+      print('tx zk list throw error');
+      print(result.exception.toString());
+      return;
     }
+    List<dynamic> list = result.data!['zkapps'];
+    print('zk transactions');
+    await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
   }
 
   Future<void> queryTxFees() async {
     var feeUrl = "$BASE_INFO_URL/minter_fee.json";
-    final client = SslPinningHttpClient.createClient(
-        uri: feeUrl, nextType: CertificateKeys.auro_api);
-
-    try {
-      var response = await client.get(Uri.parse(feeUrl));
-      print('fee response: ${response.statusCode}');
-      if (response.statusCode == 200) {
-        var feeList = convert.jsonDecode(response.body);
-        if (feeList.length >= 6) {
-          store.assets!.setFeesMap({
-            'slow': double.parse(feeList[0]['value']),
-            'medium': double.parse(feeList[1]['value']),
-            'fast': double.parse(feeList[2]['value']),
-            'cap': double.parse(feeList[3]['value']),
-            'speedup': double.parse(feeList[4]['value']),
-            'accountupdate': double.parse(feeList[5]['value']),
-          });
-        }
-      } else {
-        store.assets!.setFeesMap(defaultTxFeesMap);
-        print(
-            'Request for transaction fees failed with status: ${response.statusCode}.');
+    var response = await http.get(Uri.parse(feeUrl));
+    print('fee response' + response.statusCode.toString());
+    if (response.statusCode == 200) {
+      var feeList = convert.jsonDecode(response.body);
+      if (feeList.length >= 6) {
+        store.assets!.setFeesMap({
+          'slow': double.parse(feeList[0]['value']),
+          'medium': double.parse(feeList[1]['value']),
+          'fast': double.parse(feeList[2]['value']),
+          'cap': double.parse(feeList[3]['value']),
+          'speedup': double.parse(feeList[4]['value']),
+          'accountupdate': double.parse(feeList[5]['value']),
+        });
       }
-    } catch (e) {
-      print('SSL Pinning failed or other error: $e');
+    } else {
       store.assets!.setFeesMap(defaultTxFeesMap);
-    } finally {
-      client.close();
     }
   }
 
@@ -478,34 +430,22 @@ ${List<String>.generate(pubkeys.length, (int index) {
       return;
     }
     String txUrl =
-        "$BASE_INFO_URL/prices?currency=${store.settings!.currencyCode}";
-    final client = SslPinningHttpClient.createClient(
-        uri: txUrl, nextType: CertificateKeys.auro_api);
-
-    try {
-      var response = await client.get(Uri.parse(txUrl));
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> priceRes =
-            convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
-        if (priceRes["data"] != null) {
-          double price = 0.0;
-
-          if (priceRes["data"] is int) {
-            price = (priceRes["data"] as int).toDouble();
-          } else {
-            price = priceRes["data"];
-          }
-
-          store.assets!.setMarketPrices(ZK_DEFAULT_TOKEN_ID, price);
+        "$BASE_INFO_URL/prices?currency=" + store.settings!.currencyCode;
+    var response = await http.get(Uri.parse(txUrl));
+    if (response.statusCode == 200) {
+      Map priceRes =
+          convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
+      if (priceRes["data"] != null) {
+        double price = 0;
+        if (priceRes["data"] is int) {
+          price = (priceRes["data"] as int).toDouble();
+        } else {
+          price = priceRes["data"];
         }
-      } else {
-        print('Request price failed with status: ${response.statusCode}.');
+        store.assets!.setMarketPrices(ZK_DEFAULT_TOKEN_ID, price);
       }
-    } catch (e) {
-      print('SSL Pinning failed or other error: $e');
-    } finally {
-      client.close();
+    } else {
+      print('Request price failed with status: ${response.statusCode}.');
     }
   }
 
@@ -514,27 +454,19 @@ ${List<String>.generate(pubkeys.length, (int index) {
       return;
     }
     String txUrl = "$BASE_INFO_URL/scam_list";
-    final client = SslPinningHttpClient.createClient(
-        uri: txUrl, nextType: CertificateKeys.auro_api);
+    var response = await http.get(Uri.parse(txUrl));
+    if (response.statusCode == 200) {
+      List<dynamic> scamList = convert.jsonDecode(response.body);
 
-    try {
-      var response = await client.get(Uri.parse(txUrl));
-      if (response.statusCode == 200) {
-        List<dynamic> scamList = convert.jsonDecode(response.body);
+      List<ScamItem> scamItemList = scamList.map((item) {
+        return ScamItem.fromJson(item);
+      }).toList();
 
-        List<ScamItem> scamItemList = scamList.map((item) {
-          return ScamItem.fromJson(item);
-        }).toList();
-        if (scamItemList.isNotEmpty) {
-          store.assets!.setLocalScamList(scamItemList);
-        }
-      } else {
-        print('Request scam failed with status: ${response.statusCode}.');
+      if (scamItemList.length > 0) {
+        store.assets!.setLocalScamList(scamItemList);
       }
-    } catch (e) {
-      print('SSL Pinning failed or other error: $e');
-    } finally {
-      client.close();
+    } else {
+      print('Request scam failed with status: ${response.statusCode}.');
     }
   }
 
@@ -701,33 +633,23 @@ ${List<String>.generate(pubkeys.length, (int index) {
       print(result.exception.toString());
       return null;
     }
-    dynamic tokenAccount = result.data!['account'];
+    Map tokenAccount = result.data!['account'];
     return tokenAccount;
   }
 
   Future<void> fetchTokenInfo() async {
     String networkId = store.settings?.currentNode?.networkID ?? "";
     String tokenUrl =
-        "$BASE_INFO_URL/tokenInfo?networkId=${getReadableNetworkId(networkId)}";
-    final client = SslPinningHttpClient.createClient(
-        uri: tokenUrl, nextType: CertificateKeys.auro_api);
-
-    try {
-      var response = await client.get(Uri.parse(tokenUrl));
-
-      if (response.statusCode == 200) {
-        List<dynamic> sourceList = convert.jsonDecode(response.body);
-        List<TokenInfoData> tokenInfoList = sourceList.map((item) {
-          return TokenInfoData.fromJson(item);
-        }).toList();
-        store.assets?.setTokenInfoData(tokenInfoList, shouldCache: true);
-      } else {
-        print('Request token Info failed with status: ${response.statusCode}.');
-      }
-    } catch (e) {
-      print('SSL Pinning failed or other error: $e');
-    } finally {
-      client.close();
+        "$BASE_INFO_URL/tokenInfo?networkId=" + getReadableNetworkId(networkId);
+    var response = await http.get(Uri.parse(tokenUrl));
+    if (response.statusCode == 200) {
+      List<dynamic> sourceList = convert.jsonDecode(response.body);
+      List<TokenInfoData> tokenInfoList = sourceList.map((item) {
+        return TokenInfoData.fromJson(item);
+      }).toList();
+      store.assets?.setTokenInfoData(tokenInfoList, shouldCache: true);
+    } else {
+      print('Request token Info failed with status: ${response.statusCode}.');
     }
   }
 
@@ -743,32 +665,24 @@ ${List<String>.generate(pubkeys.length, (int index) {
       "networkID": networkId
     };
     String requestUrl = TokenBuildUrlv2 + "/buildlist";
-    final client = SslPinningHttpClient.createClient(
-        uri: requestUrl, nextType: CertificateKeys.auro_graphql);
-    try {
-      var response = await client.post(
-        Uri.parse(requestUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(params),
-      );
-      if (response.statusCode == 200) {
-        dynamic buildListData = jsonDecode(response.body);
-        List<dynamic> responseList = buildListData["list"] ?? [];
-        store.assets!.addTokenBuildTxs(responseList, pubKey, tokenPublicKey);
-        return response.body;
-      } else {
-        print('Error: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('buildTokenBody Exception: $e');
+    var response = await http.post(
+      Uri.parse(requestUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(params),
+    );
+    if (response.statusCode == 200) {
+      dynamic buildListData = jsonDecode(response.body);
+      List<dynamic> responseList = buildListData["list"] ?? [];
+      store.assets!.addTokenBuildTxs(responseList, pubKey, tokenPublicKey);
+      return response.body;
+    } else {
+      print('Error: ${response.statusCode}');
       return null;
-    } finally {
-      client.close();
     }
   }
+
   Future<dynamic> fetchPendingTokenList(String pubKey, String nonce) async {
     String networkId = store.settings?.currentNode?.networkID ?? "";
     Map params = {
@@ -777,30 +691,21 @@ ${List<String>.generate(pubkeys.length, (int index) {
       "networkID": networkId
     };
     String requestUrl = TokenBuildUrlv2 + "/pendinglist";
-    final client = SslPinningHttpClient.createClient(
-        uri: requestUrl, nextType: CertificateKeys.auro_graphql);
-    try {
-      var response = await client.post(
-        Uri.parse(requestUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(params),
-      );
-      if (response.statusCode == 200) {
-        dynamic buildListData = jsonDecode(response.body);
-        List<dynamic> responseList = buildListData["list"] ?? [];
-        store.assets!.addTokenPendingTxs(responseList, pubKey);
-        return response.body;
-      } else {
-        print('Error: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('buildTokenBody Exception: $e');
+    var response = await http.post(
+      Uri.parse(requestUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(params),
+    );
+    if (response.statusCode == 200) {
+      dynamic buildListData = jsonDecode(response.body);
+      List<dynamic> responseList = buildListData["list"] ?? [];
+      store.assets!.addTokenPendingTxs(responseList, pubKey);
+      return response.body;
+    } else {
+      print('Error: ${response.statusCode}');
       return null;
-    } finally {
-      client.close();
     }
   }
 }
