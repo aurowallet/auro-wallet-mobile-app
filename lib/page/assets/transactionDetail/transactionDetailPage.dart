@@ -191,12 +191,6 @@ class TransactionDetailPage extends StatelessWidget {
         title: tx.hash,
         copyText: tx.hash,
       ),
-      txKindLow == "zkapp_token" && tx.failureReason != null
-          ? TxInfoItem(
-              label: dic.buildFailed,
-              title: tx.failureReason,
-            )
-          : null,
     ];
     var list = <Widget>[
       Column(
@@ -262,7 +256,45 @@ class TransactionDetailPage extends StatelessWidget {
 
       list.add(baseCon);
     });
+    if (txKindLow == "zkapp_token" && tx.failureReason != null) {
+      list.add(_buildRiskTip(context, tx));
+    }
     return list;
+  }
+
+  Widget _buildRiskTip(BuildContext context, TransferData tx) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    return Container(
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+          color: Color(0xFFD65A5A).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Color(0xFFD65A5A), width: 1)),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              SvgPicture.asset(
+                'assets/images/webview/icon_alert.svg',
+                height: 30,
+                width: 30,
+              ),
+              Text(dic.failed,
+                  style: TextStyle(
+                      color: Color(0xFFD65A5A),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500))
+            ],
+          ),
+          Text(tx.failureReason ?? "",
+              style: TextStyle(
+                  color: Color(0xFFD65A5A),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400))
+        ],
+      ),
+    );
   }
 
   @override
