@@ -3,7 +3,7 @@ import 'package:auro_wallet/store/settings/types/customNode.dart';
 
 Map<String, String> networkIDMap = {
   "mainnet": "mina:mainnet",
-  "testnet": "mina:testnet",
+  "testnet": "mina:devnet",
   "zekotestnet": "zeko:testnet",
 };
 
