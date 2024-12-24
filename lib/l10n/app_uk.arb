@@ -189,8 +189,15 @@
   "@copyCancel": {},
   "scantopay": "Скануйте, щоб заплатити мені",
   "@scantopay": {},
-  "addressQrTip": "Відскануйте QR-код і перенесіть на нього MINA",
-  "@addressQrTip": {},
+  "addressQrTip": "Відскануйте QR-код і перенесіть на нього <strongBlack>{symbol}</strongBlack>",
+  "@addressQrTip": {
+    "placeholders": {
+      "symbol": {
+        "type": "String",
+        "example": "MINA"
+      }
+    }
+  },
   "goToExplorer": "Перевірте більше історії транзакцій",
   "@goToExplorer": {},
   "homeNoTx": "Невідомий вузол, неможливо надати історію.",

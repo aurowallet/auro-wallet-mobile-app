@@ -107,8 +107,15 @@
   "@importLedger": {},
   "send": "Gönder",
   "@send": {},
-  "addressQrTip": "QR kodunu tarayın ve MINA'yı ona aktarın",
-  "@addressQrTip": {},
+  "addressQrTip": "QR kodunu tarayın ve <strongBlack>{symbol}</strongBlack>'yı ona aktarın",
+  "@addressQrTip": {
+    "placeholders": {
+      "symbol": {
+        "type": "String",
+        "example": "MINA"
+      }
+    }
+  },
   "createPassword": "Şifre Oluştur",
   "@createPassword": {},
   "importAccount_2": "İçe aktarılan hesaplar, orijinal olarak oluşturduğunuz Auro Wallet ile ilişkilendirilmeyecektir.",

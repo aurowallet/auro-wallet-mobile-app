@@ -1,5 +1,8 @@
 import 'dart:typed_data';
+import 'package:auro_wallet/common/components/customStyledText.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
@@ -39,8 +42,19 @@ class ReceivePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    String tokenSymbol = COIN.coinSymbol;
+    dynamic args = ModalRoute.of(context)!.settings.arguments;
+    if (args != null &&
+        args['isFromRoute'] == true &&
+        args['tokenSymbol'] != null) {
+      tokenSymbol = args['tokenSymbol'];
+    }
+    String currentAddress = store.wallet!.currentAddress;
+    String firstPart = currentAddress.substring(0, currentAddress.length - 6);
+    String lastPart = currentAddress.substring(currentAddress.length - 6);
+
     String codeAddress = store.wallet!.currentAddress;
-    Color themeColor = Theme.of(context).primaryColor;
     AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     var textButtonStyle = TextButton.styleFrom(
@@ -145,16 +159,18 @@ class ReceivePage extends StatelessWidget {
                                         ),
                                       ),
                                       Container(
-                                        padding: EdgeInsets.only(top: 50),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          dic.addressQrTip,
-                                          textAlign: TextAlign.center,
-                                          style: theme.headline6!.copyWith(
+                                          padding: EdgeInsets.only(
+                                              top: 30, bottom: 10),
+                                          alignment: Alignment.center,
+                                          child: CustomStyledText(
+                                            text: dic.addressQrTip(tokenSymbol),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
                                               fontSize: 14,
-                                              color: Color(0x80000000)),
-                                        ),
-                                      ),
+                                              fontWeight: FontWeight.w400,
+                                              color: Color(0x80000000),
+                                            ),
+                                          )),
                                       Container(
                                         decoration: BoxDecoration(),
                                         margin: EdgeInsets.only(top: 22),
@@ -170,17 +186,38 @@ class ReceivePage extends StatelessWidget {
                                         ),
                                       ),
                                       Container(
-                                        padding: EdgeInsets.only(
-                                            left: 40, right: 40, top: 22),
-                                        child: Text(
-                                          store.wallet!.currentAddress,
-                                          textAlign: TextAlign.center,
-                                          style: theme.headline6!.copyWith(
-                                              color: Colors.black,
-                                              height: 1.3,
-                                              fontSize: 14),
-                                        ),
-                                      ),
+                                          padding: EdgeInsets.only(
+                                              left: 40, right: 40, top: 22),
+                                          child: RichText(
+                                            text: TextSpan(
+                                              text: firstPart,
+                                              style: theme.headline6!.copyWith(
+                                                color: Colors.black,
+                                                height: 1.3,
+                                                fontSize: 14,
+                                              ),
+                                              children: <InlineSpan>[
+                                                WidgetSpan(
+                                                  alignment:
+                                                      PlaceholderAlignment
+                                                          .baseline,
+                                                  baseline:
+                                                      TextBaseline.alphabetic,
+                                                  child: Text(
+                                                    lastPart,
+                                                    style: theme.headline6!
+                                                        .copyWith(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      height: 1.3,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )),
                                       Container(
                                         margin: EdgeInsets.only(top: 30),
                                         height: 1,

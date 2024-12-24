@@ -264,9 +264,9 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                                     width: 20,
                                   ),
                                   TokenActionItem(
-                                    type: TokenActionType.receive,
-                                    store: widget.store,
-                                  ),
+                                      type: TokenActionType.receive,
+                                      store: widget.store,
+                                      tokenSymbol: tokenSymbol),
                                   SizedBox(
                                     width: showStakingEntry ? 20 : 0,
                                   ),
@@ -302,10 +302,12 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
 enum TokenActionType { send, receive, delegation }
 
 class TokenActionItem extends StatelessWidget {
-  TokenActionItem({required this.type, this.token, required this.store});
+  TokenActionItem(
+      {required this.type, this.token, required this.store, this.tokenSymbol});
 
   final TokenActionType type;
   final Token? token;
+  final String? tokenSymbol;
   final AppStore store;
 
   Future<void> onClickItem(
@@ -315,6 +317,8 @@ class TokenActionItem extends StatelessWidget {
       await store.assets!.setNextToken(token!);
     } else if (type == TokenActionType.delegation) {
       nextArguments = {"isFromRoute": true};
+    } else if (type == TokenActionType.receive) {
+      nextArguments = {"isFromRoute": true, "tokenSymbol": tokenSymbol};
     }
     Navigator.of(context).pushNamed(nextRouter, arguments: nextArguments);
   }

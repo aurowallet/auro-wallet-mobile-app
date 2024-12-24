@@ -189,8 +189,15 @@
   "@copyCancel": {},
   "scantopay": "扫码支付",
   "@scantopay": {},
-  "addressQrTip": "扫描二维码，转入MINA",
-  "@addressQrTip": {},
+  "addressQrTip": "扫描二维码，转入 <strongBlack>{symbol}</strongBlack>",
+  "@addressQrTip": {
+    "placeholders": {
+      "symbol": {
+        "type": "String",
+        "example": "MINA"
+      }
+    }
+  },
   "goToExplorer": "去浏览器查看交易记录",
   "@goToExplorer": {},
   "homeNoTx": "未知类型节点，无法提供相关记录。",

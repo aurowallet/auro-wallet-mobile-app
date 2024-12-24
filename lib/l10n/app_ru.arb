@@ -343,8 +343,15 @@
   "@copyCancel": {},
   "scantopay": "Сканировать, чтобы заплатить мне",
   "@scantopay": {},
-  "addressQrTip": "Отсканируйте QR-код и переведите на него MINA",
-  "@addressQrTip": {},
+  "addressQrTip": "Отсканируйте QR-код и переведите на него <strongBlack>{symbol}</strongBlack>",
+  "@addressQrTip": {
+    "placeholders": {
+      "symbol": {
+        "type": "String",
+        "example": "MINA"
+      }
+    }
+  },
   "homeNoTx": "Неизвестный узел, не способный предоставить историю.",
   "@homeNoTx": {},
   "delegationInfo": "Делегировании",

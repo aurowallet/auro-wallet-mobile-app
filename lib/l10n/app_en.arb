@@ -189,8 +189,15 @@
   "@copyCancel": {},
   "scantopay": "Scan to pay me",
   "@scantopay": {},
-  "addressQrTip": "Scan the QR code and transfer MINA to it",
-  "@addressQrTip": {},
+  "addressQrTip": "Scan the QR code and transfer <strongBlack>{symbol}</strongBlack> to it",
+  "@addressQrTip": {
+    "placeholders": {
+      "symbol": {
+        "type": "String",
+        "example": "MINA"
+      }
+    }
+  },
   "goToExplorer": "Check more transaction history",
   "@goToExplorer": {},
   "homeNoTx": "Unknown node, unable to provide history.",

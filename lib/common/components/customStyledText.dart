@@ -50,6 +50,7 @@ class CustomStyledText extends StatelessWidget {
           style: TextStyle(
               decoration: TextDecoration.underline, color: primaryColor),
         ),
+        'strongBlack':StyledTextTag(style: TextStyle(color: Color(0xCC000000))),
       },
     );
   }
