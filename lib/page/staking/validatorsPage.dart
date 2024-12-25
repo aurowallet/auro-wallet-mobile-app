@@ -103,8 +103,7 @@ class _ValidatorsPageState extends State<ValidatorsPage>
             backgroundColor: Colors.white,
             appBar: AppBar(
               title: Text(
-                dic.nodeProviders,
-                style: TextStyle(fontSize: 20),
+                dic.nodeProviders, 
               ),
               centerTitle: true,
               elevation: 0.0,
