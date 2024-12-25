@@ -192,8 +192,12 @@ class TransferListItem extends StatelessWidget {
       } else {
         Map txData = jsonDecode(data.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
-        Map<String, dynamic> updateInfo =
-            getZkAppUpdateInfo(accountUpdates, currentAddress, tokenId);
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
+          accountUpdates,
+          currentAddress,
+          data.sender ?? "",
+          tokenId,
+        );
         tokenTxData = updateInfo;
         address =
             updateInfo['isZkReceive'] ? updateInfo['from'] : updateInfo['to'];
@@ -205,8 +209,8 @@ class TransferListItem extends StatelessWidget {
       if (txKindLow == "zkapp") {
         Map txData = jsonDecode(data.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
-        Map<String, dynamic> updateInfo =
-            getZkAppUpdateInfo(accountUpdates, currentAddress, tokenId);
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
+            accountUpdates, currentAddress, data.sender ?? "", tokenId);
 
         String amount =
             Fmt.balance(updateInfo['totalBalanceChange'], COIN.decimals);

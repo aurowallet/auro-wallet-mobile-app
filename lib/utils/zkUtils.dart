@@ -182,7 +182,11 @@ int getAccountUpdateCount(String zkappCommand) {
 }
 
 Map<String, dynamic> getZkAppUpdateInfo(
-    List<dynamic> accountUpdates, String publicKey, String tokenId) {
+  List<dynamic> accountUpdates,
+  String publicKey,
+  String feePayer,
+  String tokenId,
+) {
   try {
     if (accountUpdates.isEmpty) {
       return {
@@ -223,7 +227,7 @@ Map<String, dynamic> getZkAppUpdateInfo(
         }
       }
 
-      if (body['publicKey'] != publicKey) {
+      if (body['tokenId'] != tokenId) {
         otherList.add({
           'address': body['publicKey'],
           'amount': magnitude,
@@ -260,10 +264,28 @@ Map<String, dynamic> getZkAppUpdateInfo(
           : otherList[0]['address']!;
       isZkReceive = false;
     } else {
-      to = updateList.isNotEmpty
-          ? updateList[0]['address']!
-          : otherList[0]['address']!;
-      from = publicKey;
+      if (updateList.isNotEmpty) {
+        Map<String, String> result = updateList.firstWhere(
+          (item) => item['address'] != feePayer,
+          orElse: () => {'address': '', 'amount': ''},
+        );
+        if (result['address'] != '') {
+          to = result['address']!;
+        } else {
+          to = publicKey;
+        }
+      } else {
+        Map<String, String> result = otherList.firstWhere(
+          (item) => item['address'] != feePayer,
+          orElse: () => {'address': '', 'amount': ''},
+        );
+        if (result['address'] != '') {
+          to = result['address']!;
+        } else {
+          to = publicKey;
+        }
+      }
+      from = feePayer;
     }
 
     return {

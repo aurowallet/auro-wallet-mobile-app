@@ -283,7 +283,16 @@ abstract class _AssetsStore with Store {
     if (rootStore.wallet!.currentAddress != address) return;
     if (ls == null) return;
     ls.forEach((i) {
-      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
+      try {
+        if (i['zkappCommand'] != null && i['zkappCommand']['memo'] != null) {
+          i['memo'] = bs58Decode(i['zkappCommand']['memo']);
+        } else {
+          i['memo'] = "";
+        }
+      } catch (e) {
+        i['memo'] = "";
+      }
+
       TransferData tx = TransferData.fromZkPendingJson(i);
       pendingZkTxs.add(tx);
     });
@@ -348,7 +357,15 @@ abstract class _AssetsStore with Store {
       if (ls.isEmpty) return;
       List<TransferData> tempZkTxList = [];
       ls.forEach((i) {
-        i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
+        try {
+          if (i['zkappCommand'] != null && i['zkappCommand']['memo'] != null) {
+            i['memo'] = bs58Decode(i['zkappCommand']['memo']);
+          } else {
+            i['memo'] = "";
+          }
+        } catch (e) {
+          i['memo'] = "";
+        }
         TransferData tx = TransferData.fromZkGraphQLJson(i);
         tx.success = tx.status != 'failed';
         i['success'] = tx.success;

@@ -67,11 +67,10 @@ class TransactionDetailPage extends StatelessWidget {
       } else {
         Map txData = jsonDecode(tx.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
-        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
-            accountUpdates, store.wallet!.currentAddress, tokenId);
+        Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,
+            store.wallet!.currentAddress, tx.sender ?? "", tokenId);
         tokenTxData = updateInfo;
-        showToAddress =
-            updateInfo['isZkReceive'] ? updateInfo['from'] : updateInfo['to'];
+        showToAddress = updateInfo['to'];
         String amount =
             Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
         showAmount = amount + " " + tokenSymbol;
@@ -81,12 +80,14 @@ class TransactionDetailPage extends StatelessWidget {
         Map txData = jsonDecode(tx.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
         Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
-            accountUpdates, store.wallet!.currentAddress, tokenId);
-        showToAddress =
-            updateInfo['isZkReceive'] ? updateInfo['from'] : updateInfo['to'];
-        String amount = Fmt.balance(updateInfo['totalBalanceChange'], decimals);
+          accountUpdates,
+          store.wallet!.currentAddress,
+          tx.sender ?? "",
+          tokenId,
+        );
+        showToAddress = updateInfo['to'];
         showAmount =
-            '${Fmt.balance(amount, decimals, minLength: 4, maxLength: decimals)} $symbol';
+            '${Fmt.balance(updateInfo['totalBalanceChange'], decimals)} $symbol';
       } else {
         showToAddress = tx.receiver;
         showAmount =
@@ -159,22 +160,16 @@ class TransactionDetailPage extends StatelessWidget {
       TxInfoItem(label: dic.txType, title: txType),
       TxInfoItem(label: dic.amount, title: showAmount),
       TxInfoItem(
-          label: dic.fromAddress,
-          title: tx.sender,
-          copyText: tx.sender,
-          showScamTag: tx.isFromAddressScam == true),
-      TxInfoItem(
         label: dic.toAddress,
         title: showToAddress,
         copyText: showToAddress,
       ),
-      TxInfoItem(label: dic.memo2, title: tx.memo, copyText: tx.memo),
       TxInfoItem(
-        label: dic.time,
-        title: txKindLow == "zkapp_token"
-            ? Fmt.dateTimeWithTimeZoneFromTimestamp(int.parse(tx.time ?? "0"))
-            : Fmt.dateTimeWithTimeZone(tx.time),
-      ),
+          label: dic.fromAddress,
+          title: tx.sender,
+          copyText: tx.sender,
+          showScamTag: tx.isFromAddressScam == true),
+      TxInfoItem(label: dic.memo2, title: tx.memo, copyText: tx.memo),
       TxInfoItem(
         label: 'Nonce',
         title: tx.nonce != null ? tx.nonce.toString() : null,
@@ -186,6 +181,12 @@ class TransactionDetailPage extends StatelessWidget {
                   '${Fmt.balance(tx.fee!, COIN.decimals, maxLength: COIN.decimals)} ${COIN.coinSymbol}',
             )
           : null,
+      TxInfoItem(
+        label: dic.time,
+        title: txKindLow == "zkapp_token"
+            ? Fmt.dateTimeWithTimeZoneFromTimestamp(int.parse(tx.time ?? "0"))
+            : Fmt.dateTimeWithTimeZone(tx.time),
+      ),
       TxInfoItem(
         label: dic.txHash,
         title: tx.hash,
