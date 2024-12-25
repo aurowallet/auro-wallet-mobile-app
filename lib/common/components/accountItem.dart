@@ -37,7 +37,9 @@ class WalletItem extends StatelessWidget {
       onSelectAccount?.call(account.address);
       await webApi.account
           .changeCurrentAccount(pubKey: account.address, fetchData: true);
-      Navigator.of(_context!).pop();
+      if (hideOption != true) {
+        Navigator.of(_context!).pop();
+      }
     } else {
       onSelectAccount?.call("");
     }
@@ -98,7 +100,7 @@ class WalletItem extends StatelessWidget {
                     width: 1),
                 borderRadius: BorderRadius.circular(12)),
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: IntrinsicHeight(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
