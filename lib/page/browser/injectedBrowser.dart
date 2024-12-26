@@ -124,16 +124,30 @@ class _WebViewInjectedState extends State<WebViewInjected> {
       toAddress = params?['to'];
     }
     if (signType != null) {
+      Object nextTx = params?['transaction'];
+      try {
+        if (params?['transaction'] != null) {
+          if (params?['transaction'].runtimeType == String) {
+            nextTx = params?['transaction'];
+          } else {
+            nextTx = jsonEncode(params?['transaction']);
+          }
+        }
+      } catch (e) {}
+
       await UI.showSignTransactionAction(
         context: context,
         signType: signType,
         to: toAddress,
         nonce: widget.onGetNewestNonce(),
-        zkNonce:Fmt.isNumber(params?['nonce'])? (params?['nonce'].toString()):"",
-        amount: Fmt.isNumber(params?['amount'])? (params?['amount'].toString()):"" ,
-        fee: Fmt.isNumber(params?['fee'])? (params?['fee'].toString()):"",
+        zkNonce:
+            Fmt.isNumber(params?['nonce']) ? (params?['nonce'].toString()) : "",
+        amount: Fmt.isNumber(params?['amount'])
+            ? (params?['amount'].toString())
+            : "",
+        fee: Fmt.isNumber(params?['fee']) ? (params?['fee'].toString()) : "",
         memo: params?['memo'],
-        transaction: params?['transaction'],
+        transaction: nextTx,
         feePayer: params?['feePayer'],
         onlySign: params?['onlySign'],
         url: siteInfo?['origin'],
@@ -245,9 +259,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
       siteInfo['origin'] = origin;
       payload['site'] = siteInfo;
     } else {
-      payload['site'] = {
-        "origin": origin
-      };
+      payload['site'] = {"origin": origin};
     }
 
     Map? params = payload['params'];
@@ -535,7 +547,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             jsObjectName: "AppProvider",
             onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
               try {
-                if(!isMainFrame){
+                if (!isMainFrame) {
                   print('msg is not from MainFrame');
                   return;
                 }
