@@ -583,9 +583,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         onLoadStop: (controller, url) async {
           await _onFinishLoad(url.toString());
         },
-        onConsoleMessage: (controller, consoleMessage) {
-          print("Console message: ${consoleMessage.message}");
-        },
+        // onConsoleMessage: (controller, consoleMessage) {
+        //   print("Console message: ${consoleMessage.message}");
+        // },
         onReceivedError: (controller, request, error) {
           print("Load error: $error");
         },
