@@ -3,13 +3,16 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+
+
+## [2.1.0]
 - Enhancements
     - Add token support
     - Add App Links(iOS/Android)
     - Add support for Zeko Testnet
     - Upgrade biometric authentication
     - Update transaction history
-    - ZkApp recommends fee/nonce
+    - zkApp recommends fee/nonce
     - Remove support for Berkeley network
 
 - Fixed
@@ -24,14 +27,14 @@ All notable changes to this project will be documented in this file.
     - Upgrade mina-signer to 3.0.7
     - Remove webview_flutter
     - Add support to return signed zk.
-    - ZkApp approve
+    - zkApp approve
     - Upgrade network config
     - Transaction history
 - Fixed
-    - Nonce issue after zkAsignJsonMessagepp switch chain
+    - Nonce issue after zkApp signJsonMessage switch chain
     - Fortmat issue of signJsonMessage
     - Cache load slow
-    - ZkApp transaction cancel
+    - zkApp transaction cancel
 
 ## [2.0.1]
 - Enhancements
@@ -40,7 +43,7 @@ All notable changes to this project will be documented in this file.
     - Remove unused libs (flutter_switch, flutter_rust_bridge, dio)
 - Fixed
     - Crash of iOS version less than 17
-    - ZkApp without icon connect issue
+    - zkApp without icon connect issue
 
 ## [2.0.0]
 - Add support for Berkeley network
