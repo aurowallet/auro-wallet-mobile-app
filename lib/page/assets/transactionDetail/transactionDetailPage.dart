@@ -87,7 +87,7 @@ class TransactionDetailPage extends StatelessWidget {
         );
         showToAddress = updateInfo['to'];
         showAmount =
-            '${Fmt.balance(updateInfo['totalBalanceChange'], decimals)} $symbol';
+            '${Fmt.balance(updateInfo['totalBalanceChange'], decimals, minLength: 4, maxLength: decimals)} $symbol';
       } else {
         showToAddress = tx.receiver;
         showAmount =
