@@ -193,8 +193,8 @@ Map<String, dynamic> getZkAppUpdateInfo(
         'totalBalanceChange': '0',
         'symbol': '',
         'updateCount': '-',
-        'from': '-',
-        'to': '-',
+        'from': '',
+        'to': '',
         "isZkReceive": true
       };
     }
@@ -218,12 +218,10 @@ Map<String, dynamic> getZkAppUpdateInfo(
                     .toString();
           }
         } else {
-          if (double.parse(magnitude) != 0) {
-            updateList.add({
-              'address': body['publicKey'],
-              'amount': magnitude,
-            });
-          }
+          updateList.add({
+            'address': body['publicKey'],
+            'amount': magnitude,
+          });
         }
       }
 
@@ -301,8 +299,8 @@ Map<String, dynamic> getZkAppUpdateInfo(
       'totalBalanceChange': '0',
       'symbol': '',
       'updateCount': '-',
-      'from': '-',
-      'to': '-',
+      'from': '',
+      'to': '',
       "isZkReceive": true
     };
   }
