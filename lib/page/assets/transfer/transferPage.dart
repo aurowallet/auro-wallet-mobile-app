@@ -522,7 +522,7 @@ class _TransferPageState extends State<TransferPage> {
               "type": AddressItemTypes.addressbook
             })
         .toList();
-    List<Map<String, dynamic>> tempList = [...accountList, ...contactsList];
+    List<Map<String, dynamic>> tempList = [...contactsList, ...accountList];
     List<DropdownAddressItem> convertedList = tempList
         .where((element) => element["address"] != currentAddress)
         .map((data) {
