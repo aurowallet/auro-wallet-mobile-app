@@ -367,6 +367,7 @@ class _TransferPageState extends State<TransferPage> {
                     fontSize: 22,
                     fontWeight: FontWeight.bold),
               ),
+              SizedBox(width: 6),
               Text(
                 tokenSymbol,
                 style: TextStyle(
