@@ -62,7 +62,10 @@ class TransactionDetailPage extends StatelessWidget {
     if (!isMainToken) {
       if (txKindLow == "zkapp_token") {
         showToAddress = tx.receiver;
-        showAmount = Fmt.balance(tx.amount, tokenDecimal) + " " + tokenSymbol;
+        showAmount = Fmt.balance(tx.amount, tokenDecimal,
+                minLength: 4, maxLength: tokenDecimal) +
+            " " +
+            tokenSymbol;
         tokenTxData = {"isZkReceive": false};
       } else {
         Map txData = jsonDecode(tx.transaction!);
@@ -71,8 +74,9 @@ class TransactionDetailPage extends StatelessWidget {
             store.wallet!.currentAddress, tx.sender ?? "", tokenId);
         tokenTxData = updateInfo;
         showToAddress = updateInfo['to'];
-        String amount =
-            Fmt.balance(updateInfo['totalBalanceChange'], tokenDecimal);
+        String amount = Fmt.balance(
+            updateInfo['totalBalanceChange'], tokenDecimal,
+            minLength: 4, maxLength: tokenDecimal);
         showAmount = amount + " " + tokenSymbol;
       }
     } else {
@@ -87,7 +91,7 @@ class TransactionDetailPage extends StatelessWidget {
         );
         showToAddress = updateInfo['to'];
         showAmount =
-            '${Fmt.balance(updateInfo['totalBalanceChange'], decimals, minLength: 4, maxLength: decimals)} $symbol';
+            '${Fmt.balance(updateInfo['totalBalanceChange'], decimals, minLength: 4, maxLength: tokenDecimal)} $symbol';
       } else {
         showToAddress = tx.receiver;
         showAmount =

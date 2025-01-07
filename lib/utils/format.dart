@@ -51,11 +51,13 @@ class Fmt {
         timeZone[0].padLeft(2, '0') +
         timeZone[1].padLeft(2, '0');
   }
+
   static String dateTimeWithTimeZoneFromTimestamp(int? timestamp) {
     if (timestamp == null) {
       return "";
     }
-    var dateValue = DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true).toLocal();
+    var dateValue =
+        DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true).toLocal();
     var str = DateFormat("yyyy-MM-dd HH:mm:ss").format(dateValue);
     var timeZone = dateValue.timeZoneOffset.toString().split(':');
     var timeZoneOffset = '${dateValue.timeZoneOffset.isNegative ? '-' : '+'}'
@@ -106,7 +108,14 @@ class Fmt {
     if (raw == null || raw.length == 0) {
       return '~';
     }
-    var balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
+    double balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
+    try {
+      Decimal nextBalance = Decimal.parse(balanceBigInt.toString());
+      balanceBigInt = nextBalance.floor(scale: maxLength).toDouble();
+    } catch (e) {
+      print('balance error ${e}');
+    }
+
     NumberFormat f = NumberFormat(
         ",##0.${'0' * minLength}${'#' * (maxLength - minLength)}", "en_US");
     return f.format(balanceBigInt);
