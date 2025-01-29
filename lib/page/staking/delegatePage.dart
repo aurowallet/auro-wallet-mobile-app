@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -358,8 +359,21 @@ class _DelegatePageState extends State<DelegatePage>
               //   Navigator.popUntil(context, ModalRoute.withName('/'));
               // }
               // Navigator.popAndPushNamed(context, ModalRoute.withName('/'));
-              await Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/', (Route<dynamic> route) => false);
+              bool isRouteInStack = false;
+              Navigator.popUntil(context, (route) {
+                if (route.settings.name == TokenDetailPage.route) {
+                  isRouteInStack = true;
+                  return true;
+                }
+                return false;
+              });
+              if (isRouteInStack) {
+                Navigator.popUntil(
+                    context, ModalRoute.withName(TokenDetailPage.route));
+              } else {
+                await Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/', (Route<dynamic> route) => false);
+              }
               globalBalanceRefreshKey.currentState?.show();
               return true;
             }
