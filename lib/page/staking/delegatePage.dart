@@ -375,6 +375,7 @@ class _DelegatePageState extends State<DelegatePage>
                     '/', (Route<dynamic> route) => false);
               }
               globalBalanceRefreshKey.currentState?.show();
+              globalTokenRefreshKey.currentState?.show();
               return true;
             }
             return false;
