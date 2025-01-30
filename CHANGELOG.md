@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+- Enhancements
+    - Sort of sendPage address 
+    - Add refresh after stake
+
+- Fixed
+    - Staking back router
 
 
 ## [2.1.0]
