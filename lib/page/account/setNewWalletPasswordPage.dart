@@ -190,7 +190,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                   Container(
                     padding: EdgeInsets.all(16),
                     margin: EdgeInsets.only(bottom: 22),
-                    child:  Text(dic.createPasswordTip, style: Theme.of(context).textTheme.headline6!.copyWith(
+                    child:  Text(dic.createPasswordTip, style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                       color: Theme.of(context).primaryColor,
                     ),),
                     decoration: BoxDecoration(

@@ -12,7 +12,7 @@ class Terms extends StatelessWidget {
   Widget build(BuildContext context) {
     var theme = Theme.of(context).textTheme;
     var normalStyle =
-        theme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666));
+        theme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x666666));
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Column(
       children: [
@@ -33,7 +33,7 @@ class Terms extends StatelessWidget {
                   launch(termsUrl);
                   print('The "$link" link is tapped.');
                 },
-                style: theme.headline5!
+                style: theme.headlineMedium!
                     .copyWith(color: Theme.of(context).primaryColor),
               ),
               "policy": StyledTextActionTag(
@@ -43,7 +43,7 @@ class Terms extends StatelessWidget {
                 launch(privacyUrl);
                 print('The "$link" link is tapped.');
               },
-                  style: theme.headline5!
+                  style: theme.headlineMedium!
                       .copyWith(color: Theme.of(context).primaryColor)),
             })
       ],

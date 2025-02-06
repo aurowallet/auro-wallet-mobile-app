@@ -57,7 +57,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                   Container(
                     padding: EdgeInsets.only(bottom: 20),
                     child: Text(dic.backTips_1,
-                        style: theme.headline6!.copyWith(
+                        style: theme.headlineSmall!.copyWith(
                             height: 1.4,
                             fontWeight: FontWeight.w600,
                             fontStyle: FontStyle.normal)),
@@ -65,7 +65,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                   Container(
                     padding: EdgeInsets.only(bottom: 20),
                     child: Text(dic.backTips_2,
-                        style: theme.headline6!.copyWith(
+                        style: theme.headlineSmall!.copyWith(
                             height: 1.4,
                             fontWeight: FontWeight.w400,
                             color: Color(0x80000000))),
@@ -73,7 +73,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                   Container(
                     padding: EdgeInsets.only(bottom: 0),
                     child: Text(dic.backTips_3,
-                        style: theme.headline6!.copyWith(
+                        style: theme.headlineSmall!.copyWith(
                             height: 1.4,
                             fontWeight: FontWeight.w400,
                             color: Color(0x80000000))),

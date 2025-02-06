@@ -24,25 +24,25 @@ final appTheme = ThemeData(
       shadowColor: Colors.transparent
   ),
   textTheme: TextTheme(
-      headline1: TextStyle(
+      displayLarge: TextStyle(
         fontSize: 24,
       ),
-      headline2: TextStyle(
+      displayMedium: TextStyle(
         fontSize: 22
       ),
-      headline3: TextStyle(
+      displaySmall: TextStyle(
           fontSize: 20
       ),
-      headline4: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      headline5: TextStyle(
+      headlineLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      headlineMedium: TextStyle(
           fontSize: 16,
           // color: ColorsUtil.hexColor(0x333333)
       ),
-      headline6: TextStyle(
+      headlineSmall: TextStyle(
           fontSize: 14,
           // color: ColorsUtil.hexColor(0x333333)
       ),
-      button: TextStyle(
+      labelLarge: TextStyle(
         color: Colors.white,
         fontSize: 18,
       )),

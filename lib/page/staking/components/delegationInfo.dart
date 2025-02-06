@@ -259,14 +259,16 @@ class EmptyInfo extends StatelessWidget {
                 Padding(
                     padding: EdgeInsets.only(top: 3),
                     child: Text(dic.emptyDelegateTitle,
-                        style: theme.headline4
-                            ?.copyWith(color: Colors.black, fontSize: 16)))
+                        style: theme.headlineLarge
+                            ?.copyWith(color: Colors.black, fontSize: 16)
+                            )
+                            )
               ]),
           Padding(
               padding: EdgeInsets.only(top: 10),
               child: Text(
                 dic.emptyDelegateDesc1,
-                style: theme.headline5!.copyWith(
+                style: theme.headlineMedium!.copyWith(
                     color: Colors.black.withOpacity(0.5),
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -281,7 +283,7 @@ class EmptyInfo extends StatelessWidget {
                     text: TextSpan(children: [
                       new TextSpan(
                         text: dic.emptyDelegateDesc2,
-                        style: theme.headline5!.copyWith(
+                        style: theme.headlineMedium!.copyWith(
                             color: Colors.black.withOpacity(0.5),
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -289,7 +291,7 @@ class EmptyInfo extends StatelessWidget {
                       ),
                       new TextSpan(
                         text: dic.emptyDelegateDesc3,
-                        style: theme.headline5!.copyWith(
+                        style: theme.headlineMedium!.copyWith(
                             color: Theme.of(context).primaryColor,
                             fontSize: 14,
                             fontWeight: FontWeight.w400,

@@ -120,7 +120,7 @@ class NetworkItem extends StatelessWidget {
                                                 BorderRadius.circular(4.0),
                                           ),
                                           child: Text(tagStr!,
-                                              style: theme.headline6!.copyWith(
+                                              style: theme.headlineSmall!.copyWith(
                                                   color: Colors.white,
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w500)),

@@ -45,7 +45,7 @@ class NormalButton extends StatelessWidget {
       }
       row.add(Text(
         text,
-        style: Theme.of(context).textTheme.button?.merge(textStyle),
+        style: Theme.of(context).textTheme.labelLarge?.merge(textStyle),
       ));
     }
     Color normalColor = color ?? Theme.of(context).primaryColor;

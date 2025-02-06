@@ -79,7 +79,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 48),
-                    primary: ColorsUtil.hexColor(0x594AF1),
+                    backgroundColor: ColorsUtil.hexColor(0x594AF1),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),

@@ -44,9 +44,9 @@ class ExportResultPage extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 children: <Widget>[
-                  Text(dic.walletAddress, style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x666666))),
+                  Text(dic.walletAddress, style: textTheme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x666666))),
                   Padding(padding: EdgeInsets.only(top: 10),),
-                  Text(args['address'], style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x333333))),
+                  Text(args['address'], style: textTheme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x333333))),
                   Container(
                     decoration: BoxDecoration(
                         color: Color(0xFFF9FAFC),
@@ -59,7 +59,7 @@ class ExportResultPage extends StatelessWidget {
                       children: [
                         Text(
                           args['key'],
-                          style: textTheme.headline5!.copyWith(color: ColorsUtil.hexColor(0x333333)),
+                          style: textTheme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x333333)),
                         ),
                         SizedBox(height: 20,),
                         Row(
@@ -76,7 +76,7 @@ class ExportResultPage extends StatelessWidget {
                                 padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
                                 child: Text(
                                   dic.copyToClipboard,
-                                  style: textTheme.headline5!.copyWith(
+                                  style: textTheme.headlineMedium!.copyWith(
                                       color: Theme.of(context).primaryColor),
                                 ),
                               ),

@@ -59,7 +59,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                       padding: EdgeInsets.only(left: 20, right: 20),
                       child: Text(
                         dic.show_seed_content,
-                        style: Theme.of(context).textTheme.headline5,
+                        style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
                     Container(
@@ -140,7 +140,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
                     padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                     child: Text(
                       dic.backupInOrder,
-                      style: Theme.of(context).textTheme.headline6!,
+                      style: Theme.of(context).textTheme.headlineSmall!,
                     ),
                   ),
                   Padding(
@@ -202,7 +202,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
             alignment: Alignment.centerLeft,
             child: Text(
               '${index + 1}. ${isEmpty ?  '' : word}',
-              style: Theme.of(context).textTheme.headline6!.copyWith(color: isEmpty ? Color(0x80000000) : Colors.white),
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: isEmpty ? Color(0x80000000) : Colors.white),
             ),
           ),
           onTap: clickable
@@ -253,7 +253,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
               ),
               child: Text(
                 '$word',
-                style: Theme.of(context).textTheme.headline6!.copyWith(
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                     color: Color(0xFF000000)
                 ),
               ),

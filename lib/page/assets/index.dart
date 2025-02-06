@@ -215,7 +215,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             // ),
             Text(
               dic.myWallet,
-              style: theme.headline1!.copyWith(
+              style: theme.displayLarge!.copyWith(
                 color: ColorsUtil.hexColor(0x020028),
                 fontWeight: FontWeight.bold,
               ),

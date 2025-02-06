@@ -19,10 +19,10 @@ class HomeListTip extends StatelessWidget {
           Expanded(
             child: Center(
                 child: Text(
-                  dic.txHistoryTip,
-                  style: theme.headline5!
-                      .copyWith(color: ColorsUtil.hexColor(0x666666)),
-                )),
+              dic.txHistoryTip,
+              style: theme.headlineMedium!
+                  .copyWith(color: ColorsUtil.hexColor(0x666666)),
+            )),
           )
         ],
       ),
@@ -55,7 +55,7 @@ class EmptyTxListTip extends StatelessWidget {
               padding: EdgeInsets.only(top: 10, bottom: 0),
               child: Text(
                 dic.walletHomeTip,
-                style: theme.headline5!.copyWith(
+                style: theme.headlineMedium!.copyWith(
                     fontSize: 12, color: ColorsUtil.hexColor(0x666666)),
               ))
         ],

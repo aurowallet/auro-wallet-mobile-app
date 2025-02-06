@@ -151,7 +151,7 @@ class ReceivePage extends StatelessWidget {
                                         alignment: Alignment.center,
                                         child: Text(
                                           dic.scantopay,
-                                          style: theme.headline6!.copyWith(
+                                          style: theme.headlineSmall!.copyWith(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w600,
                                               height: 1,
@@ -174,7 +174,7 @@ class ReceivePage extends StatelessWidget {
                                       Container(
                                         decoration: BoxDecoration(),
                                         margin: EdgeInsets.only(top: 22),
-                                        child: QrImage(
+                                        child: QrImageView(
                                           data: codeAddress,
                                           padding: EdgeInsets.zero,
                                           size: 150,
@@ -191,7 +191,7 @@ class ReceivePage extends StatelessWidget {
                                           child: RichText(
                                             text: TextSpan(
                                               text: firstPart,
-                                              style: theme.headline6!.copyWith(
+                                              style: theme.headlineSmall!.copyWith(
                                                 color: Colors.black,
                                                 height: 1.3,
                                                 fontSize: 14,
@@ -205,7 +205,7 @@ class ReceivePage extends StatelessWidget {
                                                       TextBaseline.alphabetic,
                                                   child: Text(
                                                     lastPart,
-                                                    style: theme.headline6!
+                                                    style: theme.headlineSmall!
                                                         .copyWith(
                                                       color: Colors.black,
                                                       fontWeight:

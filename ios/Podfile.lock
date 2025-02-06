@@ -1,5 +1,5 @@
 PODS:
-  - app_links (0.0.1):
+  - app_links (0.0.2):
     - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
@@ -9,11 +9,11 @@ PODS:
   - flutter_inappwebview_ios (0.0.1):
     - Flutter
     - flutter_inappwebview_ios/Core (= 0.0.1)
-    - OrderedSet (~> 5.0)
+    - OrderedSet (~> 6.0.3)
   - flutter_inappwebview_ios/Core (0.0.1):
     - Flutter
-    - OrderedSet (~> 5.0)
-  - flutter_native_splash (0.0.1):
+    - OrderedSet (~> 6.0.3)
+  - flutter_native_splash (2.4.3):
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
@@ -26,20 +26,22 @@ PODS:
     - Flutter
     - FlutterMacOS
   - MTBBarcodeScanner (5.0.11)
-  - OrderedSet (5.0.0)
-  - path_provider_ios (0.0.1):
+  - OrderedSet (6.0.3)
+  - path_provider_foundation (0.0.1):
     - Flutter
+    - FlutterMacOS
   - permission_handler_apple (9.3.0):
     - Flutter
-  - Protobuf (3.23.0)
+  - Protobuf (3.29.3)
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
   - qr_code_tools (0.0.7):
     - Flutter
-  - Reachability (3.2)
+  - Reachability (3.7.6)
   - reactive_ble_mobile (0.0.1):
     - Flutter
+    - FlutterMacOS
     - Protobuf (~> 3.5)
     - SwiftProtobuf (~> 1.0)
   - safe_device (1.0.0):
@@ -47,15 +49,16 @@ PODS:
     - Flutter
   - share (0.0.1):
     - Flutter
-  - shared_preferences_ios (0.0.1):
-    - Flutter
-  - sodium_libs (2.2.0):
-    - Flutter
-  - sqflite (0.0.3):
+  - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - SwiftProtobuf (1.21.0)
-  - Toast (4.0.0)
+  - sodium_libs (2.2.1):
+    - Flutter
+  - sqflite_darwin (0.0.4):
+    - Flutter
+    - FlutterMacOS
+  - SwiftProtobuf (1.28.2)
+  - Toast (4.1.1)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webcrypto (0.1.1):
@@ -71,16 +74,16 @@ DEPENDENCIES:
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
-  - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - qr_code_tools (from `.symlinks/plugins/qr_code_tools/ios`)
-  - reactive_ble_mobile (from `.symlinks/plugins/reactive_ble_mobile/ios`)
+  - reactive_ble_mobile (from `.symlinks/plugins/reactive_ble_mobile/darwin`)
   - safe_device (from `.symlinks/plugins/safe_device/ios`)
   - share (from `.symlinks/plugins/share/ios`)
-  - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sodium_libs (from `.symlinks/plugins/sodium_libs/ios`)
-  - sqflite (from `.symlinks/plugins/sqflite/darwin`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webcrypto (from `.symlinks/plugins/webcrypto/ios`)
 
@@ -113,8 +116,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
-  path_provider_ios:
-    :path: ".symlinks/plugins/path_provider_ios/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   qr_code_scanner:
@@ -122,52 +125,52 @@ EXTERNAL SOURCES:
   qr_code_tools:
     :path: ".symlinks/plugins/qr_code_tools/ios"
   reactive_ble_mobile:
-    :path: ".symlinks/plugins/reactive_ble_mobile/ios"
+    :path: ".symlinks/plugins/reactive_ble_mobile/darwin"
   safe_device:
     :path: ".symlinks/plugins/safe_device/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
-  shared_preferences_ios:
-    :path: ".symlinks/plugins/shared_preferences_ios/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sodium_libs:
     :path: ".symlinks/plugins/sodium_libs/ios"
-  sqflite:
-    :path: ".symlinks/plugins/sqflite/darwin"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webcrypto:
     :path: ".symlinks/plugins/webcrypto/ios"
 
 SPEC CHECKSUMS:
-  app_links: e70ca16b4b0f88253b3b3660200d4a10b4ea9795
+  app_links: e7a6750a915a9e161c58d91bc610e8cd1d4d0ad0
   connectivity_plus: 5f0eb61093bec56935f21a1699dd2758bc895587
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
-  flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
+  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
+  flutter_native_splash: f71420956eb811e6d310720fee915f1d42852e7a
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
-  fluttertoast: d410097af3a920745c7bb589f26967c6d35f92c0
-  image_picker_ios: 99dfe1854b4fa34d0364e74a78448a0151025425
+  fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
-  OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
-  permission_handler_apple: 036b856153a2b1f61f21030ff725f3e6fece2b78
-  Protobuf: 43e3764cdf3609fdd00417649561565703437fdc
+  OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  Protobuf: e2de96d939c642ce8da186343ff8929b35223212
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   qr_code_tools: 5b5dd44ccdfa4b81f645c251e421f61003254b81
-  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
-  reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
+  Reachability: fd0ecd23705e2599e4cceeb943222ae02296cbc6
+  reactive_ble_mobile: 856183aeda09f2a676bbaecbea8915c3cb1d33df
   safe_device: 4539eb6bdbeb4b61a763a51c4e73e6b37dea4e3d
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
-  shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
-  sodium_libs: 0486eb2c3172ce494406367d4b379042444b769d
-  sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
-  SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
-  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  sodium_libs: 1faae17af662384acbd13e41867a0008cd2e2318
+  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  SwiftProtobuf: 4dbaffec76a39a8dc5da23b40af1a5dc01a4c02d
+  Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webcrypto: 58dac29c85327d3d72a47d19d44128f10905f58e
 
 PODFILE CHECKSUM: 855dfe885459a8abc24a2b90f8d02007834247ae
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.16.2

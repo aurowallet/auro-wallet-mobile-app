@@ -73,7 +73,7 @@ class _RootAlertPageState extends State<RootAlertPage> {
                       child: Text(
                         dic.rootTip,
                         textAlign: TextAlign.center,
-                        style: theme.headline4
+                        style: theme.headlineLarge
                       ),
                     )
                   ]

@@ -53,7 +53,7 @@ class _TermsDialogState extends State<TermsDialog> {
               Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: Text(dic.termsDialogTitle,
-                    style: theme.headline3!.copyWith(
+                    style: theme.displaySmall!.copyWith(
                       color: ColorsUtil.hexColor(0x333333),
                     )),
               ),
@@ -79,7 +79,7 @@ class _TermsDialogState extends State<TermsDialog> {
                               borderRadius: BorderRadius.zero,
                               // side: BorderSide(color: Colors.red)
                             )),
-                        child: Text(dic.refuse, style: theme.headline5!),
+                        child: Text(dic.refuse, style: theme.headlineMedium!),
                         onPressed: () {
                           Navigator.of(context).pop(false);
                         },
@@ -102,7 +102,7 @@ class _TermsDialogState extends State<TermsDialog> {
                                     // side: BorderSide(color: Colors.red)
                                   )),
                               child: Text(dic.agree,
-                                  style: theme.headline5!.copyWith(
+                                  style: theme.headlineMedium!.copyWith(
                                       color: Theme.of(context).primaryColor)),
                               onPressed: () {
                                 Navigator.of(context).pop(true);
