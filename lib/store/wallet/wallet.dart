@@ -6,8 +6,6 @@ import 'package:auro_wallet/store/wallet/types/newWalletParams.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/utils/encryption.dart';
 import 'package:auro_wallet/store/wallet/types/seedData.dart';

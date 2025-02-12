@@ -75,8 +75,7 @@ class _ValidatorsPageState extends State<ValidatorsPage>
       return list;
     }
     var res = list.where((element) {
-      return (element.address != null &&
-              element.address
+      return (element.address
                   .toLowerCase()
                   .contains(keywords!.toLowerCase())) ||
           (element.name != null &&

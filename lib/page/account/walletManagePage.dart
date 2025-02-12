@@ -1,24 +1,16 @@
-import 'dart:async';
-import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/account/addAccountPage.dart';
-import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
 import 'package:auro_wallet/common/components/customPromptDialog.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/page/account/accountNamePage.dart';
-import 'package:auro_wallet/page/account/import/importWaysPage.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletManagePage extends StatefulWidget {
   const WalletManagePage(this.store);
@@ -57,7 +49,6 @@ class _WalletManagePageState extends State<WalletManagePage> {
     Map<String, WalletData> walletMap = store.wallet!.walletsMap;
     List<Widget> items = [];
     final watchModeAccounts = store.wallet!.watchModeAccountListAll;
-    final theme = Theme.of(context).textTheme;
     AppLocalizations dic = AppLocalizations.of(context)!;
     final renderItem = (account) {
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
@@ -162,7 +153,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
         actions: <Widget>[
           TextButton(
             style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(Colors.transparent)),
+                overlayColor: WidgetStateProperty.all(Colors.transparent)),
             child: Text(
               dic.reset,
               style: TextStyle(fontSize: 14, color: Color(0xFFD65A5A)),

@@ -1,9 +1,7 @@
-import 'dart:ui';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/staking/staking.dart';
 import 'package:auro_wallet/store/staking/types/overviewData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -38,10 +36,9 @@ class StakingOverview extends StatelessWidget {
     AppLocalizations dic = AppLocalizations.of(context)!;
     OverviewData data = store.staking!.overviewData;
     List<String> time = _getTime();
-    var theme = Theme.of(context).textTheme;
     TextStyle labelStyle = TextStyle(
         fontSize: 12,
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.black.withValues(alpha: 0.5),
         fontWeight: FontWeight.w500);
     TextStyle valueStyle = TextStyle(
       fontSize: 18,
@@ -58,7 +55,7 @@ class StakingOverview extends StatelessWidget {
                 SvgPicture.asset(
                   'assets/images/stake/icon_epoch.svg',
                   width: 16,
-                  color: Colors.black,
+                  colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                 ),
                 Container(
                   width: 8,
@@ -79,7 +76,7 @@ class StakingOverview extends StatelessWidget {
                   color: Color(0xFFF9FAFC),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: Colors.black.withOpacity(0.05), width: 0.5)),
+                      color: Colors.black.withValues(alpha: 0.05), width: 0.5)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ContactEditPage extends StatefulWidget {
   final SettingsStore store;

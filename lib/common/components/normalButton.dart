@@ -13,8 +13,7 @@ class NormalButton extends StatelessWidget {
       this.radius = 12,
       this.height = 48,
       this.shrink = false,
-      this.padding = EdgeInsets.zero})
-      : assert(text != null);
+      this.padding = EdgeInsets.zero});
 
   final String text;
   final Function()? onPressed;
@@ -56,8 +55,7 @@ class NormalButton extends StatelessWidget {
         padding: padding,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         backgroundColor:
-            submitting ? normalColor.withOpacity(0.8) : normalColor,
-        // onSurface: normalColor.withOpacity(0.5),
+            submitting ? normalColor.withValues(alpha: 0.8) : normalColor,
         minimumSize: Size(!shrink ? double.infinity : 0, height),
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),

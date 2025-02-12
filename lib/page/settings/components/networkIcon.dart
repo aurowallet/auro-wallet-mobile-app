@@ -42,7 +42,7 @@ class NetworkIcon extends StatelessWidget {
       return Container(
           child: CircleAvatar(
         radius: size / 2,
-        backgroundColor: Colors.black.withOpacity(0.3),
+        backgroundColor: Colors.black.withValues(alpha: 0.3),
         child: Text(
           iconName.isNotEmpty ? iconName[0].toUpperCase() : '',
           style: TextStyle(

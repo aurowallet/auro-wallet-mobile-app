@@ -64,7 +64,7 @@ class _TermsDialogState extends State<TermsDialog> {
               Container(
                 margin: EdgeInsets.only(top: 30),
                 height: 1,
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
               ),
               Row(
                   // mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -88,7 +88,7 @@ class _TermsDialogState extends State<TermsDialog> {
                     Container(
                       width: 0.5,
                       height: 48,
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                     ),
                     Expanded(
                         child: SizedBox(

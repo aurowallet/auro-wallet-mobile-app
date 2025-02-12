@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:convert/convert.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
 import '../mina_version.dart';

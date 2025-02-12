@@ -20,7 +20,7 @@ class BrowserActionButton extends StatelessWidget {
                   border: Border(
                 bottom: BorderSide(
                   width: 0.5,
-                  color: Color(0xFF000000).withOpacity(0.1),
+                  color: Color(0xFF000000).withValues(alpha: 0.1),
                 ),
               )),
               child: Row(
@@ -30,7 +30,9 @@ class BrowserActionButton extends StatelessWidget {
                     margin: const EdgeInsets.only(right: 10),
                     child: Center(
                         child: SvgPicture.asset(icon,
-                            width: 14, color: Colors.black)),
+                            width: 14,
+                            colorFilter: ColorFilter.mode(
+                                Colors.black, BlendMode.srcIn))),
                   ),
                   Text(
                     name,

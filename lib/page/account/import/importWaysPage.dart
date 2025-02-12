@@ -1,16 +1,12 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
-import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 
 class ImportWaysPage extends StatefulWidget {
   const ImportWaysPage(this.store);
@@ -62,12 +58,6 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
     ));
   }
 
-  void _onWatchMode() {
-    Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
-        redirect: ImportWatchedAccountPage.route,
-        placeholder: _getNextWatchedWalletName()
-    ));
-  }
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;

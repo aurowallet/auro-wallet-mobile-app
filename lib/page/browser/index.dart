@@ -9,7 +9,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -243,7 +242,7 @@ class _BrowserState extends State<Browser> with WidgetsBindingObserver {
                                   style: TextStyle(
                                       fontSize: 14,
                                       color: ColorsUtil.hexColor(0x808080)
-                                          .withOpacity(0.5),
+                                          .withValues(alpha: 0.5),
                                       fontWeight: FontWeight.w400,
                                       decoration: TextDecoration.none)))))
                   : Container(),

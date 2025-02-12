@@ -50,7 +50,7 @@ class _TxActionRowState extends State<TxActionRow> {
     var modalType = isSpeedUp ? TxActionType.speedup : TxActionType.cancel;
     await UI.showTxAction(
         context: context,
-        title: title!,
+        title: title,
         txData: widget.data,
         buttonText: dic.confirm,
         modalType: modalType,

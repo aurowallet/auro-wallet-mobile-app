@@ -245,7 +245,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             milliseconds: 400)); // avoid conflict with ledgerStatus Component
         await minaApp.getVersion(store.ledger!.ledgerDevice!);
         store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
-      } on LedgerException catch (e) {
+      } on LedgerException {
         store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
         showLedgerDialog = true;
       }
@@ -441,7 +441,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             child: Text(
                 Fmt.accountName(store.wallet!.currentWallet.currentAccount),
                 style: TextStyle(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     fontSize: 12,
                     fontWeight: FontWeight.w500)),
           ),
@@ -457,7 +457,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         SvgPicture.asset(
           'assets/images/assets/right_arrow.svg',
           height: 14,
-          color: Color(0xFF594AF1),
+          colorFilter: ColorFilter.mode(Color(0xFF594AF1), BlendMode.srcIn)
         ),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Container(
@@ -476,7 +476,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                             fontWeight: FontWeight.w500))),
                 Text(dic.toAddress,
                     style: TextStyle(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                         fontSize: 12,
                         fontWeight: FontWeight.w500))
               ],
@@ -507,7 +507,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
               Container(
                 child: Text(dic.amount,
                     style: TextStyle(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                         fontSize: 12,
                         fontWeight: FontWeight.w500)),
               ),
@@ -555,10 +555,10 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       bool isFeeDefault = nextType == ZkAppValueEnum.recommed_default;
       String feeContent = isFeeDefault ? dic.fee_default : dic.siteSuggested;
       Color feeTipBg = isFeeDefault
-          ? Color(0xFF808080).withOpacity(0.1)
-          : Color(0xFF0DB27C).withOpacity(0.1);
+          ? Color(0xFF808080).withValues(alpha: 0.1)
+          : Color(0xFF0DB27C).withValues(alpha: 0.1);
       Color feeContentColor =
-          isFeeDefault ? Color(0xFF808080).withOpacity(0.5) : Color(0xFF0DB27C);
+          isFeeDefault ? Color(0xFF808080).withValues(alpha: 0.5) : Color(0xFF0DB27C);
       feeTip = Container(
         padding: EdgeInsets.symmetric(horizontal: 4),
         margin: EdgeInsets.only(left: 4),
@@ -593,7 +593,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                 Container(
                   child: Text('Nonce',
                       style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           fontSize: 12,
                           fontWeight: FontWeight.w500)),
                 ),
@@ -654,7 +654,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                 Container(
                   child: Text(dic.transactionFee,
                       style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           fontSize: 12,
                           fontWeight: FontWeight.w500)),
                 ),
@@ -708,7 +708,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String memo = widget.memo ?? widget.feePayer?["memo"] ?? "";
     return Text(memo,
         style: TextStyle(
-            color: Colors.black.withOpacity(0.8),
+            color: Colors.black.withValues(alpha: 0.8),
             fontSize: 14,
             fontWeight: FontWeight.w400));
   }
@@ -717,7 +717,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     if (showRawDataStatus) {
       return Text(prettyPrintJson(jsonDecode(sourceData)),
           style: TextStyle(
-              color: Colors.black.withOpacity(0.8),
+              color: Colors.black.withValues(alpha: 0.8),
               fontSize: 14,
               fontWeight: FontWeight.w400));
     } else {
@@ -785,7 +785,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-          color: Color(0xFFD65A5A).withOpacity(0.1),
+          color: Color(0xFFD65A5A).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Color(0xFFD65A5A), width: 1)),
       child: Column(

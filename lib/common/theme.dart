@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 ThemeData theme = ThemeData();
 // TextButtonThemeData textButtonData = const TextButtonThemeData();
 final appTheme = ThemeData(
   useMaterial3: false, // close Material 3
   primaryColor: Color(0xFF594AF1),
   // highlightColor: Colors.transparent,
-  splashColor: Color(0xFF594AF1).withOpacity(0.1),
+  splashColor: Color(0xFF594AF1).withValues(alpha: 0.1),
   brightness: Brightness.light,
   // splashFactory: NoSplashFactory(),
   appBarTheme: AppBarTheme(
@@ -74,7 +73,6 @@ class _NoInteractiveInkFeature extends InteractiveInkFeature {
     required MaterialInkController controller,
     required RenderBox referenceBox,
     required Color color,
-    VoidCallback? onRemoved,
   }) : super(controller: controller, referenceBox: referenceBox, color: color);
 
 

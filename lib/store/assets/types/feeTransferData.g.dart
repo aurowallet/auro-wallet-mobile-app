@@ -10,7 +10,7 @@ FeeTransferData _$FeeTransferDataFromJson(Map<String, dynamic> json) =>
     FeeTransferData(
       json['recipient'] as String,
       json['dateTime'] as String,
-      json['fee'] as int,
+      (json['fee'] as num).toInt(),
       json['type'] as String,
     );
 

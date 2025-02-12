@@ -225,12 +225,12 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
       children: cells,
     );
 
-    return Container(
-      padding: EdgeInsets.only(top: 0),
-      child: Wrap(
-        children: cells,
-      ),
-    );
+    // return Container(
+    //   padding: EdgeInsets.only(top: 0),
+    //   child: Wrap(
+    //     children: cells,
+    //   ),
+    // );
   }
 
   Widget _buildWordsButtons() {
@@ -274,11 +274,11 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
       childAspectRatio: 3.4666,
       children: cells,
     );
-    return Container(
-      child: Wrap(
-        children: cells,
-      ),
-    );
+    // return Container(
+    //   child: Wrap(
+    //     children: cells,
+    //   ),
+    // );
   }
 
   @override

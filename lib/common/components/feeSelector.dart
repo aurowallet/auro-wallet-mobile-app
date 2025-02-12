@@ -1,9 +1,7 @@
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class FeeSelector extends StatefulWidget {
   FeeSelector({

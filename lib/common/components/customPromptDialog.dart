@@ -79,7 +79,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
               Container(
                 margin: EdgeInsets.only(top: 30),
                 height: 1,
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
               ),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Expanded(
@@ -90,7 +90,6 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,
-                          // side: BorderSide(color: Colors.red)
                         ),
                         textStyle: TextStyle(color: Colors.black)),
                     child: Text(dic.cancel,
@@ -109,7 +108,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                 Container(
                   width: 0.5,
                   height: 48,
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                 ),
                 Expanded(
                   child: SizedBox(
@@ -119,7 +118,6 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                           foregroundColor: Theme.of(context).primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
-                            // side: BorderSide(color: Colors.red)
                           )),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -128,7 +126,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
                               style: TextStyle(
                                   color: _isCorrect
                                       ? Theme.of(context).primaryColor
-                                      : Colors.black.withOpacity(0.3),
+                                      : Colors.black.withValues(alpha: 0.3),
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600))
                         ],

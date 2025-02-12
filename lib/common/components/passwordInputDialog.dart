@@ -199,7 +199,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                 : Container(
                     margin: EdgeInsets.only(top: 30),
                     height: 1,
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                   ),
             showBioWidget && isUseBiometric
                 ? Column(
@@ -229,7 +229,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                       Container(
                         margin: EdgeInsets.only(top: 20),
                         height: 1,
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                       ),
                       TextButton(
                         style: TextButton.styleFrom(
@@ -275,7 +275,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                         Container(
                           width: 0.5,
                           height: 48,
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                         ),
                         Expanded(
                           child: SizedBox(

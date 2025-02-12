@@ -54,7 +54,7 @@ class _BrowserTabState extends State<BrowserTab>
               right: 0,
               child: Container(
                 height: 0.5,
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
               ),
             ),
             Container(
@@ -67,7 +67,7 @@ class _BrowserTabState extends State<BrowserTab>
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
-                  unselectedLabelColor: Colors.black.withOpacity(0.5),
+                  unselectedLabelColor: Colors.black.withValues(alpha: 0.5),
                   tabs: widget.tabTitles
                       .map((title) => Tab(text: title))
                       .toList(),
@@ -104,7 +104,7 @@ class TabBorderContent extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
             border:
-                Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)),
+                Border.all(color: Colors.black.withValues(alpha: 0.05), width: 0.5)),
         padding: const EdgeInsets.all(10),
         child: SingleChildScrollView(
           child: tabContent,

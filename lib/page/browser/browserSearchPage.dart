@@ -7,7 +7,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -198,7 +197,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
                                       'assets/images/webview/icon_close_bg.svg',
                                       width: 16,
                                       height: 16,
-                                      color: Color(0x000033).withOpacity(0.5),
+                                      colorFilter: ColorFilter.mode(Color(0x000033).withValues(alpha: 0.5), BlendMode.srcIn)
                                     ),
                                   ),
                                 )
@@ -242,7 +241,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
                           Text(
                             dic.websiteNotFound,
                             style: TextStyle(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400),
                           )

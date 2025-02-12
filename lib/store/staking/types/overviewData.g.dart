@@ -7,13 +7,13 @@ part of 'overviewData.dart';
 // **************************************************************************
 
 OverviewData _$OverviewDataFromJson(Map<String, dynamic> json) => OverviewData()
-  ..blockchainLength = json['blockchainLength'] as int?
+  ..blockchainLength = (json['blockchainLength'] as num?)?.toInt()
   ..stateHash = json['stateHash'] as String
-  ..epochDuration = json['epochDuration'] as int
-  ..slotDuration = json['slotDuration'] as int
-  ..slotsPerEpoch = json['slotsPerEpoch'] as int
-  ..epoch = json['epoch'] as int
-  ..slot = json['slot'] as int;
+  ..epochDuration = (json['epochDuration'] as num).toInt()
+  ..slotDuration = (json['slotDuration'] as num).toInt()
+  ..slotsPerEpoch = (json['slotsPerEpoch'] as num).toInt()
+  ..epoch = (json['epoch'] as num).toInt()
+  ..slot = (json['slot'] as num).toInt();
 
 Map<String, dynamic> _$OverviewDataToJson(OverviewData instance) =>
     <String, dynamic>{

@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -50,19 +49,19 @@ class SearchInput extends StatelessWidget {
         ),
         decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black.withOpacity(0.05),
+            fillColor: Colors.black.withValues(alpha: 0.05),
             hintText: placeholder != null ? placeholder : dic.searchPlaceholder,
             hintStyle: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: Colors.black.withOpacity(0.3)),
+                color: Colors.black.withValues(alpha: 0.3)),
             prefixIcon: Padding(
               padding: EdgeInsets.only(top: 9, bottom: 8, left: 8, right: 12),
               child: SvgPicture.asset(
                 'assets/images/public/search.svg',
                 width: 24,
                 height: 24,
-                color: Color(0x80000000),
+                colorFilter: ColorFilter.mode(Color(0x80000000), BlendMode.srcIn)
               ),
             ),
             prefixIconConstraints: BoxConstraints(minWidth: 24, minHeight: 24),

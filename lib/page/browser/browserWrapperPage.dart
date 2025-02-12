@@ -60,7 +60,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
               loadTitle,
               style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
                   fontSize: 14,
-                  color: Color(0xFF000000).withOpacity(0.8),
+                  color: Color(0xFF000000).withValues(alpha: 0.8),
                   fontWeight: FontWeight.w500),
             ),
             automaticallyImplyLeading: false,
@@ -202,8 +202,9 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
   Widget build(BuildContext context) {
     String url = getLoadUrl(context);
 
-    Color disableBtnColor = ColorsUtil.hexColor(0x808080).withOpacity(0.5);
-    Color enableBtnColor = ColorsUtil.hexColor(0x000000).withOpacity(0.8);
+    Color disableBtnColor =
+        ColorsUtil.hexColor(0x808080).withValues(alpha: 0.5);
+    Color enableBtnColor = ColorsUtil.hexColor(0x000000).withValues(alpha: 0.8);
     return WillPopScope(
       child: _buildScaffold(
           onBack: () async {
@@ -268,7 +269,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                     border: Border(
                       top: BorderSide(
                         width: 0.5,
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                       ),
                     ),
                   ),
@@ -281,8 +282,9 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                             'assets/images/webview/icon_back.svg',
                             width: 30,
                             height: 30,
-                            color:
-                                canGoback ? enableBtnColor : disableBtnColor),
+                            colorFilter: ColorFilter.mode(
+                                canGoback ? enableBtnColor : disableBtnColor,
+                                BlendMode.srcIn)),
                         onTap: () async {
                           if (await _controller.canGoBack()) {
                             _controller.goBack();
@@ -295,9 +297,9 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                             'assets/images/webview/icon_pop.svg',
                             width: 30,
                             height: 30,
-                            color: canGoForward
-                                ? enableBtnColor
-                                : disableBtnColor),
+                            colorFilter: ColorFilter.mode(
+                                canGoForward ? enableBtnColor : disableBtnColor,
+                                BlendMode.srcIn)),
                         onTap: () async {
                           if (await _controller.canGoForward()) {
                             _controller.goForward();
@@ -310,8 +312,10 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                             'assets/images/webview/icon_refresh.svg',
                             width: 24,
                             height: 24,
-                            color:
-                                ColorsUtil.hexColor(0x000000).withOpacity(0.8)),
+                            colorFilter: ColorFilter.mode(
+                                ColorsUtil.hexColor(0x000000)
+                                    .withValues(alpha: 0.8),
+                                BlendMode.srcIn)),
                         onTap: () {
                           _controller.reload();
                         },
@@ -319,7 +323,8 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
                       Observer(builder: (BuildContext context) {
                         return IconButton(
                           icon: Icon(Icons.more_horiz),
-                          color: ColorsUtil.hexColor(0x000000).withOpacity(0.8),
+                          color: ColorsUtil.hexColor(0x000000)
+                              .withValues(alpha: 0.8),
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,

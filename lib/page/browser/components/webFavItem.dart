@@ -1,6 +1,4 @@
-import 'dart:ui';
 
-import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -21,7 +19,7 @@ class WebFavItem extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border:
-                Border.all(color: Colors.black.withOpacity(0.05), width: 0.5)),
+                Border.all(color: Colors.black.withValues(alpha: 0.05), width: 0.5)),
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -154,12 +152,12 @@ class ItemLogoState extends State<ItemLogo> {
               if (showHolderIcon) {
                 return SvgPicture.asset(
                   "assets/images/public/tab/tab_browser_active.svg",
-                  color: Colors.black,
+                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)
                 );
               }
               return Container(
                   decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.all(Radius.circular(20))),
                   width: 20,
                   height: 20,
@@ -207,7 +205,7 @@ class WebHistoryItem extends StatelessWidget {
                     maxLines: 1,
                     style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF000000).withOpacity(0.8),
+                        color: Color(0xFF000000).withValues(alpha: 0.8),
                         fontWeight: FontWeight.w500)),
                 Padding(
                   padding: EdgeInsets.only(top: 2),
@@ -218,7 +216,7 @@ class WebHistoryItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: TextStyle(
-                        color: ColorsUtil.hexColor(0x808080).withOpacity(0.5),
+                        color: ColorsUtil.hexColor(0x808080).withValues(alpha: 0.5),
                         fontWeight: FontWeight.w400,
                         fontSize: 10)),
               ],

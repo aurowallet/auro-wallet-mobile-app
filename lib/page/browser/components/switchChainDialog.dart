@@ -148,7 +148,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
                                 SvgPicture.asset(
                                   'assets/images/assets/right_arrow.svg',
                                   height: 14,
-                                  color: Color(0xFF594AF1),
+                                  colorFilter: ColorFilter.mode(Color(0xFF594AF1), BlendMode.srcIn)
                                 ),
                                 ChainItem(
                                     title: dic.target,

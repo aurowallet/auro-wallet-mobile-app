@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class CustomDivider extends StatelessWidget {
   CustomDivider({

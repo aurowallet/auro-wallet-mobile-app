@@ -134,7 +134,7 @@ class _LedgerStatusViewState extends State<LedgerStatusView> {
               'assets/images/ledger/icon_legder_status.svg',
               width: 28,
               height: 30,
-              color: ledgerAvailable ? Color(0xFF0DB27C) : Color(0xFFD65A5A),
+              colorFilter: ColorFilter.mode(ledgerAvailable ? Color(0xFF0DB27C) : Color(0xFFD65A5A), BlendMode.srcIn)
             ),
           ));
     });

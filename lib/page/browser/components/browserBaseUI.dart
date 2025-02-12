@@ -29,7 +29,7 @@ class BrowserDialogTitleRow extends StatelessWidget {
                 'assets/images/public/icon_nav_close.svg',
                 width: 24,
                 height: 24,
-                color: Colors.black,
+                colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)
               ),
               onTap: () => Navigator.pop(context),
             )
@@ -65,7 +65,7 @@ class BrowserDialogTitleRow extends StatelessWidget {
           ),
           Container(
             height: 0.5,
-            color: Color(0xFF000000).withOpacity(0.1),
+            color: Color(0xFF000000).withValues(alpha: 0.1),
           ),
         ],
       ),

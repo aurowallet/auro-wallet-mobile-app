@@ -1,21 +1,16 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
-import 'package:auro_wallet/common/components/accountItem.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get_storage/get_storage.dart';
 
 class AccountManagePage extends StatefulWidget {
   const AccountManagePage(this.store);
@@ -119,9 +114,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
         contents: [dic.deleteAccountTip],
       );
       String? password = await UI.showPasswordDialog(
-          context: context,
-          wallet: wallet,
-          inputPasswordRequired: true);
+          context: context, wallet: wallet, inputPasswordRequired: true);
       if (password == null) {
         return;
       }
@@ -228,7 +221,6 @@ class AccountInfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
     return InkWell(
         onTap: onClick,
         child: Container(
@@ -258,7 +250,8 @@ class AccountInfoItem extends StatelessWidget {
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.black.withOpacity(0.3),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.3),
                                       height: 1.2)))
                     ],
                   ),
@@ -270,11 +263,12 @@ class AccountInfoItem extends StatelessWidget {
                           left: 14,
                         ),
                         child: SvgPicture.asset(
-                          'assets/images/assets/right_arrow.svg',
-                          width: 6,
-                          height: 12,
-                          color: Colors.black.withOpacity(0.3),
-                        ))
+                            'assets/images/assets/right_arrow.svg',
+                            width: 6,
+                            height: 12,
+                            colorFilter: ColorFilter.mode(
+                                Colors.black.withValues(alpha: 0.3),
+                                BlendMode.srcIn)))
                     : Container(),
               ],
             )));

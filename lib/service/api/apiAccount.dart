@@ -419,7 +419,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       String keyStore, String keyStorePassword,
       {required BuildContext context}) async {
     try {
-      Sodium sodium = await SodiumSumoInit.init();
+      SodiumSumo sodium = await SodiumSumoInit.init();
       Map keystoreMap = jsonDecode(keyStore);
       var salt = bs58check.decode(keystoreMap['pwsalt']).sublist(1);
       SecureKey key = sodium.crypto.pwhash(
@@ -719,6 +719,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     } catch (e) {
       print("getBiometricPassStoreFile===${e.toString()}");
     }
+    return null;
   }
 
   Future<bool> canAuthenticateWithBiometrics() async {
@@ -939,23 +940,21 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       if (response.statusCode == 200) {
         return response.body;
       } else {
-        if (response.body != null) {
-          try {
-            // Parse the response body into a Map
-            var responseBody = jsonDecode(response.body);
+        try {
+          // Parse the response body into a Map
+          var responseBody = jsonDecode(response.body);
 
-            // Check if the 'message' field exists
-            if (responseBody['message'] != null) {
-              UI.toast(responseBody['message'].toString());
-            } else {
-              UI.toast(responseBody.toString());
-            }
-          } catch (e) {
-            // If parsing fails, treat the body as raw text
-            UI.toast(response.body.toString());
+          // Check if the 'message' field exists
+          if (responseBody['message'] != null) {
+            UI.toast(responseBody['message'].toString());
+          } else {
+            UI.toast(responseBody.toString());
           }
+        } catch (e) {
+          // If parsing fails, treat the body as raw text
+          UI.toast(response.body.toString());
         }
-        return null;
+              return null;
       }
     } catch (e) {
       UI.toast(e.toString());

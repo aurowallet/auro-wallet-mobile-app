@@ -54,7 +54,7 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                            color: Colors.black.withOpacity(0.1), width: 0.5),
+                            color: Colors.black.withValues(alpha: 0.1), width: 0.5),
                       ),
                       color: Color(0xFFF9FAFC),
                     ),

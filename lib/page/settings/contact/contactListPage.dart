@@ -90,7 +90,7 @@ class _ContactListPageState extends State<ContactListPage> {
         Text(
           dic.noAddress,
           style: TextStyle(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               fontSize: 12,
               fontWeight: FontWeight.w400
           ),
@@ -108,7 +108,7 @@ class _ContactListPageState extends State<ContactListPage> {
         itemCount: contacts.length,
         padding: EdgeInsets.symmetric(horizontal: 20).copyWith(top: 20),
         separatorBuilder: (BuildContext context, int index) =>  Container(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           height: 0.5,
           margin: EdgeInsets.symmetric(vertical: 10),
         ),
@@ -216,7 +216,7 @@ class ContactItem extends StatelessWidget {
             padding: EdgeInsets.only(top: 5),
             child: Text(address, style: TextStyle(
                 fontSize: 14,
-                color: Colors.black.withOpacity(0.3), fontWeight: FontWeight.w500
+                color: Colors.black.withValues(alpha: 0.3), fontWeight: FontWeight.w500
             )),
           ),
           onTap: _onClick,

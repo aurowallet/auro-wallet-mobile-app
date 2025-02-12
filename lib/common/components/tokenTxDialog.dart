@@ -65,7 +65,7 @@ class _TokenTxDialogDialogState extends State<TokenTxDialog> {
                     tags: {
                       'light': StyledTextTag(
                         style: TextStyle(
-                            color: Color(0xFF000000).withOpacity(0.8),
+                            color: Color(0xFF000000).withValues(alpha: 0.8),
                             fontSize: 12,
                             fontWeight: FontWeight.w500),
                       )
@@ -92,7 +92,7 @@ class _TokenTxDialogDialogState extends State<TokenTxDialog> {
         ),
         Container(
           height: 1,
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
         ),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Expanded(
@@ -118,7 +118,7 @@ class _TokenTxDialogDialogState extends State<TokenTxDialog> {
           Container(
             width: 0.5,
             height: 48,
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
           ),
           Expanded(
               child: SizedBox(
@@ -194,7 +194,7 @@ class TokenTxItemView extends StatelessWidget {
               decoration: BoxDecoration(
                   border: Border(
                       bottom: BorderSide(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 width: 0.5,
               ))),
               child: Row(

@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white,
               border: Border(
                 top: BorderSide(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   width: 0.5,
                 ),
               ),
@@ -195,7 +195,7 @@ class _HomePageState extends State<HomePage> {
               unselectedLabelStyle: textStyle,
               selectedLabelStyle: textStyle.copyWith(color: Colors.black),
               selectedItemColor: Colors.black,
-              unselectedItemColor: Colors.black.withOpacity(0.5),
+              unselectedItemColor: Colors.black.withValues(alpha: 0.5),
               type: BottomNavigationBarType.fixed,
               items: _navBarItems(_tabIndex),
             ),

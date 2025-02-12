@@ -59,7 +59,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
               Container(
                 margin: EdgeInsets.only(top: 30),
                 height: 1,
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
               ),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Expanded(
@@ -89,7 +89,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                 Container(
                   width: 0.5,
                   height: 48,
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                 ),
                 Expanded(
                   child: SizedBox(

@@ -289,7 +289,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           child: TooltipVisibility(
             visible: false,
             child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaleFactor: factor),
+              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(factor)),
               child: _isDangerous ? RootAlertPage() : child ?? Container(),
             ),
           ),

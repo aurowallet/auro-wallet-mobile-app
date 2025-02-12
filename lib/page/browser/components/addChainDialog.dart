@@ -110,7 +110,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                 children: [
                   BrowserDialogTitleRow(title: dic.addNetWork),
                   Container(
-                    color: Color(0xFFD65A5A).withOpacity(0.1),
+                    color: Color(0xFFD65A5A).withValues(alpha: 0.1),
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     margin: EdgeInsets.only(top: 20),
                     child: Text(dic.nodeAlert,
@@ -141,7 +141,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(4),
                                 border: Border.all(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     width: 0.5)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +152,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.black.withOpacity(0.8),
+                                          color: Colors.black.withValues(alpha: 0.8),
                                           fontWeight: FontWeight.w700)),
                                 ),
                                 Container(
@@ -161,7 +161,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.black.withOpacity(0.8),
+                                          color: Colors.black.withValues(alpha: 0.8),
                                           fontWeight: FontWeight.w400)),
                                 ),
                                 Container(
@@ -170,7 +170,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.black.withOpacity(0.8),
+                                          color: Colors.black.withValues(alpha: 0.8),
                                           fontWeight: FontWeight.w700)),
                                 ),
                                 Container(
@@ -178,7 +178,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: Colors.black.withOpacity(0.8),
+                                          color: Colors.black.withValues(alpha: 0.8),
                                           fontWeight: FontWeight.w400)),
                                 ),
                               ],

@@ -173,7 +173,6 @@ class _LockWalletPageState extends State<LockWalletPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final List<String> errors = [];
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: null,
@@ -200,7 +199,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                             color:
-                                                Colors.black.withOpacity(0.1)),
+                                                Colors.black.withValues(alpha: 0.1)),
                                         borderRadius:
                                             BorderRadius.circular(30.0),
                                       ),

@@ -36,7 +36,7 @@ class _AccountSelectDialogState extends State<AccountSelectDialog> {
             width: 50,
             height: 4,
             decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10)),
           )
         ],

@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:auro_wallet/common/consts/enums.dart';
 
 part 'customNode.g.dart';
 

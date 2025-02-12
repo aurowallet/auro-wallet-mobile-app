@@ -332,7 +332,6 @@ abstract class _AssetsStore with Store {
       {bool shouldCache = false}) async {
     txs.clear();
     if (rootStore.wallet!.currentAddress != address) return;
-    if (ls == null) return;
 
     ls.forEach((i) {
       i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';

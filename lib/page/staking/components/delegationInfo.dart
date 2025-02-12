@@ -29,7 +29,6 @@ class DelegationInfo extends StatelessWidget {
     String? delegate = isDelegated
         ? mainTokenNetInfo.tokenAssestInfo?.delegateAccount?.publicKey
         : null;
-    var theme = Theme.of(context).textTheme;
     var languageCode = store.settings!.localeCode.isNotEmpty
         ? store.settings!.localeCode
         : dic.localeName.toLowerCase();
@@ -47,11 +46,10 @@ class DelegationInfo extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    SvgPicture.asset(
-                      'assets/images/stake/icon_delegation.svg',
-                      width: 16,
-                      color: Colors.black,
-                    ),
+                    SvgPicture.asset('assets/images/stake/icon_delegation.svg',
+                        width: 16,
+                        colorFilter:
+                            ColorFilter.mode(Colors.black, BlendMode.srcIn)),
                     Container(
                       width: 8,
                     ),
@@ -64,11 +62,29 @@ class DelegationInfo extends StatelessWidget {
                     )
                   ],
                 ),
-                BrowserLink(
-                  url,
-                  text: dic.emptyDelegateDesc3,
-                  showIcon: false,
-                )
+                InkWell(
+                    child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(right: 0),
+                              child: Text(
+                                dic.emptyDelegateDesc3,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ],
+                        )),
+                    onTap: () {
+                      launchUrl(Uri.parse(url),
+                          mode: LaunchMode.inAppBrowserView);
+                    })
               ],
             ),
             Container(
@@ -77,7 +93,8 @@ class DelegationInfo extends StatelessWidget {
                     color: Color(0xFFF9FAFC),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: Colors.black.withOpacity(0.05), width: 0.5)),
+                        color: Colors.black.withValues(alpha: 0.05),
+                        width: 0.5)),
                 margin: EdgeInsets.only(top: 10),
                 child: loading
                     ? LoadingBox()
@@ -157,8 +174,6 @@ class DelegateInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var theme = Theme.of(context).textTheme;
-
     return Stack(
       children: [
         Observer(builder: (_) {
@@ -204,14 +219,13 @@ class DelegateInfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
         labelText,
         textAlign: TextAlign.left,
         style: TextStyle(
             fontSize: 12,
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             height: 1.42,
             fontWeight: FontWeight.w500),
       ),
@@ -260,16 +274,14 @@ class EmptyInfo extends StatelessWidget {
                     padding: EdgeInsets.only(top: 3),
                     child: Text(dic.emptyDelegateTitle,
                         style: theme.headlineLarge
-                            ?.copyWith(color: Colors.black, fontSize: 16)
-                            )
-                            )
+                            ?.copyWith(color: Colors.black, fontSize: 16)))
               ]),
           Padding(
               padding: EdgeInsets.only(top: 10),
               child: Text(
                 dic.emptyDelegateDesc1,
                 style: theme.headlineMedium!.copyWith(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     height: 1.3),
@@ -279,12 +291,11 @@ class EmptyInfo extends StatelessWidget {
               child: Wrap(
                 children: [
                   new RichText(
-                    textScaleFactor: MediaQuery.of(context).textScaleFactor,
                     text: TextSpan(children: [
                       new TextSpan(
                         text: dic.emptyDelegateDesc2,
                         style: theme.headlineMedium!.copyWith(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             height: 1.3),
@@ -302,10 +313,12 @@ class EmptyInfo extends StatelessWidget {
                                 ? store.settings!.aboutus!.stakingGuideCN
                                 : store.settings!.aboutus!.stakingGuide;
                             print('url' + url);
-                            launch(url);
+                            launchUrl(Uri.parse(url),
+                                mode: LaunchMode.inAppBrowserView);
                           },
                       ),
                     ]),
+                    textScaler: MediaQuery.textScalerOf(context),
                   ),
                 ],
               ))

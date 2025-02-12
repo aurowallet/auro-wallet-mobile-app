@@ -1,12 +1,6 @@
-import 'package:auro_wallet/common/consts/enums.dart';
-import 'package:auro_wallet/common/consts/network.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/settings/types/contactData.dart';
-import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/settings/types/followUsData.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:mobx/mobx.dart';
 
 part 'aboutUsData.g.dart';
 

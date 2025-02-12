@@ -40,7 +40,7 @@ class TokenIcon extends StatelessWidget {
       Widget defaultIcon = Container(
           child: CircleAvatar(
         radius: size / 2,
-        backgroundColor: Colors.black.withOpacity(0.3),
+        backgroundColor: Colors.black.withValues(alpha: 0.3),
         child: Text(
           iconName.isNotEmpty ? iconName.toUpperCase() : '',
           style: TextStyle(

@@ -29,8 +29,8 @@ class Terms extends StatelessWidget {
               "conditions": StyledTextActionTag(
                 (String? text, Map<String?, String?> attrs) {
                   final String? link = attrs['href'];
-                  final String? route = attrs['route'];
-                  launch(termsUrl);
+                  // final String? route = attrs['route'];
+                  launchUrl(Uri.parse(termsUrl), mode: LaunchMode.externalApplication);
                   print('The "$link" link is tapped.');
                 },
                 style: theme.headlineMedium!
@@ -39,8 +39,8 @@ class Terms extends StatelessWidget {
               "policy": StyledTextActionTag(
                   (String? text, Map<String?, String?> attrs) {
                 final String? link = attrs['href'];
-                final String? route = attrs['route'];
-                launch(privacyUrl);
+                // final String? route = attrs['route'];
+                launchUrl(Uri.parse(privacyUrl), mode: LaunchMode.externalApplication);
                 print('The "$link" link is tapped.');
               },
                   style: theme.headlineMedium!

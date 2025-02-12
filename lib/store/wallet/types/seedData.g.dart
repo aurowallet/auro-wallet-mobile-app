@@ -11,7 +11,7 @@ SeedData _$SeedDataFromJson(Map<String, dynamic> json) => SeedData(
       iv: json['iv'] as String,
       salt: json['salt'] as String,
       encryptedSecret: json['encryptedSecret'] as String,
-      version: json['version'] as int?,
+      version: (json['version'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$SeedDataToJson(SeedData instance) => <String, dynamic>{

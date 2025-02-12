@@ -45,7 +45,7 @@ class _ZkAppConnectPageState extends State<ZkAppConnectPage> with WidgetsBinding
         Text(
           dic.noConnectedApps,
           style: TextStyle(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               fontSize: 12,
               fontWeight: FontWeight.w400),
         )
@@ -63,7 +63,7 @@ class _ZkAppConnectPageState extends State<ZkAppConnectPage> with WidgetsBinding
         itemCount: zkAppConnectList.length,
         padding: EdgeInsets.only(top: 20),
         separatorBuilder: (BuildContext context, int index) => Container(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               height: 0.5,
               margin: EdgeInsets.symmetric(vertical: 0),
             ),

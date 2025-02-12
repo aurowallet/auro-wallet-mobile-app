@@ -64,7 +64,7 @@ class TokenManagaItem extends StatelessWidget {
                 border: Border(
                     bottom: BorderSide(
               color:
-                  tokenShowed ? Colors.white : Colors.black.withOpacity(0.05),
+                  tokenShowed ? Colors.white : Colors.black.withValues(alpha: 0.05),
               width: 0.5,
             ))),
             child: Row(
@@ -90,7 +90,7 @@ class TokenManagaItem extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Color(0xFF000000).withOpacity(0.8),
+                                color: Color(0xFF000000).withValues(alpha: 0.8),
                               ),
                             ),
                           ],

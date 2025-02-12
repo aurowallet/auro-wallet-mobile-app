@@ -1,13 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:convert/convert.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:auro_wallet/store/app.dart';
 
 class Fmt {
   static String address(String? addr, {int pad = 4, bool padSame = false}) {

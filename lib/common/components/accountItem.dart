@@ -1,8 +1,6 @@
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -10,8 +8,6 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
-import 'package:roundcheckbox/roundcheckbox.dart';
-import 'package:auro_wallet/common/components/roundedCard.dart';
 import 'package:auro_wallet/page/account/accountManagePage.dart';
 
 class WalletItem extends StatelessWidget {
@@ -28,47 +24,45 @@ class WalletItem extends StatelessWidget {
   final AccountData account;
   final BigInt balance;
   final AppStore store;
-  BuildContext? _context;
-  bool? hideOption;
-  Function(String)? onSelectAccount;
+  final bool? hideOption;
+  final Function(String)? onSelectAccount;
 
-  void _changeCurrentAccount(bool? isChecked) async {
+  void _changeCurrentAccount(bool? isChecked, BuildContext context) async {
     if (isChecked! && account.address != store.wallet!.currentAddress) {
       onSelectAccount?.call(account.address);
       await webApi.account
           .changeCurrentAccount(pubKey: account.address, fetchData: true);
       if (hideOption != true) {
-        Navigator.of(_context!).pop();
+        Navigator.of(context).pop();
       }
     } else {
       onSelectAccount?.call("");
     }
   }
 
-  void _viewAccountInfo() {
+  void _viewAccountInfo(BuildContext context) {
     print('account info');
-    Navigator.pushNamed(_context!, AccountManagePage.route,
+    Navigator.pushNamed(context, AccountManagePage.route,
         arguments: {"account": account, "wallet": wallet});
   }
 
-  void _onTapWallet() {
+  void _onTapWallet(BuildContext context) {
     print('tab wallet');
     new Future.delayed(const Duration(milliseconds: 500), () {
       if (wallet.walletType == WalletStore.seedTypeNone) {
-        _viewAccountInfo();
+        _viewAccountInfo(context);
         return;
       }
-      _changeCurrentAccount(account.address != store.wallet!.currentAddress);
+      _changeCurrentAccount(
+          account.address != store.wallet!.currentAddress, context);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final TextTheme theme = Theme.of(context).textTheme;
     String? labelText;
     bool isObserve = false;
-    _context = context;
     if (wallet.source == WalletSource.outside &&
         wallet.walletType == WalletStore.seedTypePrivateKey) {
       labelText = dic.imported;
@@ -81,8 +75,8 @@ class WalletItem extends StatelessWidget {
     final bool isChecked = account.address == store.wallet!.currentAddress;
     final Color textColor = isChecked ? Colors.white : Colors.black;
     final Color addressColor = isChecked
-        ? Colors.white.withOpacity(0.5)
-        : Colors.black.withOpacity(0.3);
+        ? Colors.white.withValues(alpha: 0.5)
+        : Colors.black.withValues(alpha: 0.3);
     return Container(
       margin: EdgeInsets.only(top: 10, right: 20, left: 20),
       clipBehavior: Clip.hardEdge,
@@ -90,13 +84,13 @@ class WalletItem extends StatelessWidget {
       child: Material(
         color: isChecked ? Theme.of(context).primaryColor : Color(0xFFF9FAFC),
         child: InkWell(
-          onTap: _onTapWallet,
+          onTap: () => _onTapWallet(context),
           child: Container(
             decoration: BoxDecoration(
                 border: Border.all(
                     color: isChecked
                         ? Theme.of(context).primaryColor
-                        : Colors.black.withOpacity(0.05),
+                        : Colors.black.withValues(alpha: 0.05),
                     width: 1),
                 borderRadius: BorderRadius.circular(12)),
             child: Padding(
@@ -190,7 +184,9 @@ class WalletItem extends StatelessWidget {
                                           color: Colors.red,
                                           size: 30,
                                         ),
-                                        onPressed: _viewAccountInfo)
+                                        onPressed: () =>
+                                            _viewAccountInfo(context),
+                                      )
                                     : Container(),
                                 Padding(
                                   padding: EdgeInsets.only(top: 10),
@@ -201,7 +197,7 @@ class WalletItem extends StatelessWidget {
                                     size: 20,
                                     color: textColor,
                                   ),
-                                  onTap: _viewAccountInfo,
+                                  onTap: () => _viewAccountInfo(context),
                                 )
                               ])
                   ],

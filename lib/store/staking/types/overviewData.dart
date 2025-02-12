@@ -1,6 +1,4 @@
-import 'dart:math';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:intl/intl.dart';
 
 part 'overviewData.g.dart';
 

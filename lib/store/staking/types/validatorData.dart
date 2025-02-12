@@ -1,6 +1,4 @@
-import 'dart:math';
 
-import 'package:intl/intl.dart';
 
 class ValidatorData extends _ValidatorData {
   static ValidatorData fromJson(Map<String, dynamic> json) {

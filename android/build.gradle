@@ -1,21 +1,22 @@
-buildscript {
-    // ext.kotlin_version = '1.6.0'
-    ext.kotlin_version = '1.8.0'
-    repositories {
-        google()
-        jcenter()
-        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
-//        maven{ url 'https://maven.aliyun.com/repository/central' }
-//        maven{ url 'https://maven.aliyun.com/repository/public' }
-//        maven{ url 'https://maven.aliyun.com/repository/google' }
-//        maven{ url 'https://maven.aliyun.com/repository/gradle-plugin' }
-    }
+// buildscript {
+//     // ext.kotlin_version = '1.6.0'
+//     ext.kotlin_version = '1.8.0'
+//     repositories {
+//         google()
+//         jcenter()
+//         maven { url 'https://mirrors.tuna.tsinghua.edu.cn/flutter/download.flutter.io' }
+//     }
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
+//     dependencies {
+//         // classpath 'com.android.tools.build:gradle:7.1.2'
+//         // classpath 'com.android.tools.build:gradle:8.4.0'
+//         classpath 'com.android.tools.build:gradle:8.0.2'
+//         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//         // classpath 'com.google.gms:google-services:4.3.15' // Add this line
+//         // classpath 'dev.flutter:flutter-gradle-plugin:1.0.0' // Add this if missing
+//         // classpath 'dev.flutter:flutter-gradle-plugin:1.0.0'
+//     }
+// }
 
 allprojects {
     repositories {

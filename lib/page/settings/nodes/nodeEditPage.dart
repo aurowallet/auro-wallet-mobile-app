@@ -221,7 +221,7 @@ class _NodeEditPageState extends State<NodeEditPage> {
                 TextButton(
                   style: ButtonStyle(
                       overlayColor:
-                          MaterialStateProperty.all(Colors.transparent)),
+                          WidgetStateProperty.all(Colors.transparent)),
                   child: Text(
                     dic.delete,
                     style: TextStyle(

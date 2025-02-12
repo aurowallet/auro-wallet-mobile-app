@@ -106,7 +106,7 @@ class ContentRow extends StatelessWidget {
     final titleText = Text(
       withColon ? "$title: " : title,
       style: TextStyle(
-          color: Color(0xFF000000).withOpacity(0.8),
+          color: Color(0xFF000000).withValues(alpha: 0.8),
           fontSize: 14,
           fontWeight: FontWeight.w600),
     );
@@ -115,7 +115,7 @@ class ContentRow extends StatelessWidget {
       child: Text(
         content != null ? content.toString() : "",
         style: TextStyle(
-            color: Color(0xFF000000).withOpacity(0.8),
+            color: Color(0xFF000000).withValues(alpha: 0.8),
             fontWeight: FontWeight.w400),
       ),
     );
@@ -127,7 +127,7 @@ class ContentRow extends StatelessWidget {
     final titleText = Text(
       withColon ? "$title: " : title,
       style: TextStyle(
-          color: Color(0xFF000000).withOpacity(0.8),
+          color: Color(0xFF000000).withValues(alpha: 0.8),
           fontSize: 14,
           fontWeight: FontWeight.w600),
     );
@@ -135,7 +135,7 @@ class ContentRow extends StatelessWidget {
     final contentText = Text(
       content != null ? content.toString() : "",
       style: TextStyle(
-          color: Color(0xFF000000).withOpacity(0.8),
+          color: Color(0xFF000000).withValues(alpha: 0.8),
           fontWeight: FontWeight.w400),
     );
 

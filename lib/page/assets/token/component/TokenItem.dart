@@ -78,7 +78,7 @@ class TokenItemView extends StatelessWidget {
                 decoration: BoxDecoration(
                     border: Border(
                         bottom: BorderSide(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   width: 0.5,
                 ))),
                 child: Row(
@@ -104,7 +104,7 @@ class TokenItemView extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFF000000).withOpacity(0.8),
+                                    color: Color(0xFF000000).withValues(alpha: 0.8),
                                   ),
                                 ),
                                 // delegationText != null
@@ -132,7 +132,7 @@ class TokenItemView extends StatelessWidget {
                                 //         decoration: BoxDecoration(
                                 //           color: isDelegation
                                 //               ? Color(0xFF594AF1)
-                                //               : Colors.black.withOpacity(0.3),
+                                //               : Colors.black.withValues(alpha: 0.3),
                                 //           borderRadius:
                                 //               BorderRadius.circular(29),
                                 //         ))
@@ -161,7 +161,7 @@ class TokenItemView extends StatelessWidget {
                           displayBalance,
                           style: TextStyle(
                               fontSize: 16,
-                              color: Color(0xFF000000).withOpacity(0.8),
+                              color: Color(0xFF000000).withValues(alpha: 0.8),
                               fontWeight: FontWeight.w500),
                         ),
                         displayAmount != null

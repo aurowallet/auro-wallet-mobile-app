@@ -10,7 +10,6 @@ import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/transactionDetail/transactionDetailPage.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -128,7 +127,7 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
               color: Colors.white,
               border: Border(
                   bottom: BorderSide(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 width: 0.5,
               ))),
           child: Text(
@@ -304,7 +303,7 @@ class TransferListItem extends StatelessWidget {
                 decoration: BoxDecoration(
                     border: Border(
                         bottom: BorderSide(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   width: 0.5,
                 ))),
                 child: Column(
@@ -365,7 +364,7 @@ class TransferListItem extends StatelessWidget {
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
-                                        color: statusColor.withOpacity(0.1),
+                                        color: statusColor.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(4)),
                                     padding: EdgeInsets.symmetric(
                                         vertical: 3, horizontal: 5),

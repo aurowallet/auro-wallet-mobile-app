@@ -97,7 +97,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
           dic.waitingLedgerSign,
           textAlign: TextAlign.center,
           style: TextStyle(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               fontSize: 14,
               fontWeight: FontWeight.w400),
         ),
@@ -129,7 +129,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
             milliseconds: 400)); // avoid conflict with ledgerStatus Component
         await minaApp.getVersion(widget.store.ledger!.ledgerDevice!);
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
-      } on LedgerException catch (e) {
+      } on LedgerException {
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
         showLedgerDialog = true;
       }
@@ -176,8 +176,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
           wallet: widget.store.wallet!.currentWallet,
           inputPasswordRequired: false,
           isTransaction: true,
-          store: widget.store
-      );
+          store: widget.store);
       if (password == null) {
         return false;
       }
@@ -312,7 +311,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
                   ),
                   Container(
                     height: 0.5,
-                    color: Color(0xFF000000).withOpacity(0.1),
+                    color: Color(0xFF000000).withValues(alpha: 0.1),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
@@ -359,7 +358,8 @@ class _TxActionDialogState extends State<TxActionDialog> {
                                   SvgPicture.asset(
                                       'assets/images/assets/right_arrow.svg',
                                       width: 8,
-                                      color: Color(0xFF594AF1)),
+                                      colorFilter: ColorFilter.mode(
+                                          Color(0xFF594AF1), BlendMode.srcIn)),
                                   Flexible(
                                       fit: FlexFit.tight,
                                       child: Column(
@@ -466,7 +466,7 @@ class TxActionTip extends StatelessWidget {
           tags: {
             'light': StyledTextTag(
               style: TextStyle(
-                  color: Color(0xFF000000).withOpacity(0.8),
+                  color: Color(0xFF000000).withValues(alpha: 0.8),
                   fontSize: 14,
                   fontWeight: FontWeight.w500),
             )

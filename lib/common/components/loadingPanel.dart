@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/common/components/formPanel.dart';
 class LoadingPanel extends StatelessWidget {
   LoadingPanel({

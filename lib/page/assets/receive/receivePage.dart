@@ -1,8 +1,6 @@
-import 'dart:typed_data';
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
@@ -12,16 +10,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'dart:ui' as ui;
-import 'package:share/share.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:share_plus/share_plus.dart';
 
 class ReceivePage extends StatelessWidget {
   ReceivePage(this.store);
 
   static final String route = '/assets/receive';
   final AppStore store;
-  GlobalKey _globalKey = new GlobalKey();
+  final GlobalKey _globalKey = GlobalKey();
 
   void _onShare() async {
     RenderRepaintBoundary? boundary =
@@ -37,7 +35,10 @@ class ReceivePage extends StatelessWidget {
       file.createSync();
     }
     file.writeAsBytesSync(pngBytes);
-    Share.shareFiles([path], text: store.wallet!.currentAddress);
+    final result = await Share.shareXFiles([XFile(path)], text: store.wallet!.currentAddress);
+    if (result.status == ShareResultStatus.success) {
+        print('Sharing success!');
+    }
   }
 
   @override
@@ -221,7 +222,7 @@ class ReceivePage extends StatelessWidget {
                                       Container(
                                         margin: EdgeInsets.only(top: 30),
                                         height: 1,
-                                        color: Colors.black.withOpacity(0.05),
+                                        color: Colors.black.withValues(alpha: 0.05),
                                       ),
                                       Row(
                                           mainAxisAlignment:
@@ -258,7 +259,7 @@ class ReceivePage extends StatelessWidget {
                                               width: 0.5,
                                               height: 48,
                                               color:
-                                                  Colors.black.withOpacity(0.1),
+                                                  Colors.black.withValues(alpha: 0.1),
                                             ),
                                             Expanded(
                                               child: SizedBox(
@@ -317,7 +318,7 @@ class ReceivePage extends StatelessWidget {
                       child: Text(
                         'aurowallet.com',
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.5), fontSize: 14),
+                            color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
                       ),
                     )
                   ],

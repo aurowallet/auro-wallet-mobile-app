@@ -181,7 +181,9 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                           width: 2,
                         ),
                         SvgPicture.asset('assets/images/webview/icon_copy.svg',
-                            width: 12, color: Colors.black)
+                            width: 12,
+                            colorFilter:
+                                ColorFilter.mode(Colors.black, BlendMode.srcIn))
                       ],
                     ),
                   ),
@@ -244,7 +246,8 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w400,
-                                      color: Color(0xFF000000).withOpacity(0.5),
+                                      color: Color(0xFF000000)
+                                          .withValues(alpha: 0.5),
                                     ),
                                   ),
                                 )
@@ -362,11 +365,9 @@ class TokenActionItem extends StatelessWidget {
                 color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(48),
               ),
-              child: SvgPicture.asset(
-                actionIconUrl!,
-                width: 14,
-                color: Colors.white,
-              ),
+              child: SvgPicture.asset(actionIconUrl!,
+                  width: 14,
+                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
             ),
             SizedBox(height: 4),
             Text(

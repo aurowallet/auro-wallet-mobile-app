@@ -4,7 +4,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:basic_utils/basic_utils.dart';
 import 'package:mobx/mobx.dart';
 
 part 'settings.g.dart';
@@ -110,21 +109,21 @@ abstract class _SettingsStore with Store {
   ) async {
     try {
       if (key.isNotEmpty) {
-        X509CertificateData certData = X509Utils.x509CertificateFromPem(key);
-        DateTime? expirationDate = certData.tbsCertificate?.validity.notAfter;
-        if (expirationDate != null) {
-          Map<String, dynamic>? certificateKeyMap = await rootStore.localStorage
-              .getObject(localStorageCertificateKey) as Map<String, dynamic>?;
-          Map<String, dynamic> nextKeys = {};
-          if (certificateKeyMap == null) {
-            nextKeys[certType.name] = key;
-          } else {
-            nextKeys = certificateKeyMap;
-            nextKeys[certType.name] = key;
-          }
-          await rootStore.localStorage
-              .setObject(localStorageCertificateKey, nextKeys);
-        }
+        // X509CertificateData certData = X509Utils.x509CertificateFromPem(key);
+        // DateTime? expirationDate = certData.tbsCertificate?.validity.notAfter;
+        // if (expirationDate != null) {
+        //   Map<String, dynamic>? certificateKeyMap = await rootStore.localStorage
+        //       .getObject(localStorageCertificateKey) as Map<String, dynamic>?;
+        //   Map<String, dynamic> nextKeys = {};
+        //   if (certificateKeyMap == null) {
+        //     nextKeys[certType.name] = key;
+        //   } else {
+        //     nextKeys = certificateKeyMap;
+        //     nextKeys[certType.name] = key;
+        //   }
+        //   await rootStore.localStorage
+        //       .setObject(localStorageCertificateKey, nextKeys);
+        // }
       }
     } catch (e) {
       print('setCertificatesKeys error ,${e.toString()}');

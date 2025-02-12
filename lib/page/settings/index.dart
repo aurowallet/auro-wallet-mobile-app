@@ -12,7 +12,6 @@ import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class Profile extends StatelessWidget {
@@ -27,7 +26,6 @@ class Profile extends StatelessWidget {
       var languageCode = store.settings!.localeCode.isNotEmpty
           ? store.settings!.localeCode
           : dic.localeName.toLowerCase();
-      var aboutUsData = store.settings!.aboutus;
       return Scaffold(
         appBar: AppBar(
           leading: null,

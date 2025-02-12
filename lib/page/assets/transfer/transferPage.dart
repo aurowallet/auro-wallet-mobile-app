@@ -8,18 +8,15 @@ import 'package:auro_wallet/common/components/feeSelector.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
-import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
-import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
-import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
@@ -29,7 +26,6 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
@@ -48,8 +44,6 @@ class _TransferPageState extends State<TransferPage> {
   _TransferPageState(this.store);
 
   final AppStore store;
-
-  final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _amountCtrl = new TextEditingController();
   final TextEditingController _toAddressCtrl = new TextEditingController();
@@ -604,18 +598,6 @@ class _TransferPageState extends State<TransferPage> {
     });
   }
 
-  void _onChooseContact() async {
-    var contact = await Navigator.of(context)
-        .pushNamed(ContactListPage.route, arguments: {"isToSelect": true});
-    if (contact != null) {
-      ContactData contactData = contact as ContactData;
-      _toAddressCtrl.text = contactData.address;
-      setState(() {
-        _contactData = contactData;
-        contactName = contactData.name;
-      });
-    }
-  }
 
   void _onAllClick() {
     _amountCtrl.text = availableBalance.toString();
@@ -660,7 +642,7 @@ class _TransferPageState extends State<TransferPage> {
                   'assets/images/assets/scanner.svg',
                   width: 20,
                   height: 20,
-                  color: Colors.black,
+                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)
                 ),
                 onPressed: _onScan,
               )
@@ -694,7 +676,7 @@ class _TransferPageState extends State<TransferPage> {
                                               horizontal: 4, vertical: 1),
                                           decoration: BoxDecoration(
                                               color:
-                                                  Colors.black.withOpacity(0.1),
+                                                  Colors.black.withValues(alpha: 0.1),
                                               borderRadius:
                                                   BorderRadius.circular(2)),
                                           child: Text(
@@ -703,7 +685,7 @@ class _TransferPageState extends State<TransferPage> {
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w500,
                                                 color: Colors.black
-                                                    .withOpacity(0.5)),
+                                                    .withValues(alpha: 0.5)),
                                           ),
                                         )
                                       : null,

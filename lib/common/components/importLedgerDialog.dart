@@ -112,7 +112,7 @@ class _ImportLedgerState extends State<ImportLedger> {
         }
         return;
       }
-      if (accounts == null || accounts.length == 0) {
+      if (accounts.length == 0) {
         return;
       }
       print('accounts');
@@ -167,7 +167,7 @@ class _ImportLedgerState extends State<ImportLedger> {
                               'assets/images/public/icon_nav_close.svg',
                               width: 24,
                               height: 24,
-                              color: Colors.black,
+                              colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)
                             ),
                             onTap: () => Navigator.pop(context),
                           )
@@ -175,7 +175,7 @@ class _ImportLedgerState extends State<ImportLedger> {
                       )),
                   Container(
                     height: 0.5,
-                    color: Color(0xFF000000).withOpacity(0.1),
+                    color: Color(0xFF000000).withValues(alpha: 0.1),
                   ),
                   Padding(
                     padding:
@@ -242,7 +242,7 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
               'assets/images/ledger/ledger_mina.svg',
               width: 200,
               height: 43,
-              color: Theme.of(context).primaryColor,
+              colorFilter: ColorFilter.mode(Theme.of(context).primaryColor, BlendMode.srcIn)
             ),
           ),
         )
@@ -252,17 +252,18 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
 }
 
 class ConnectLedger extends StatefulWidget {
-  ConnectLedger(
-      {required this.onConnected,
-      required this.locked,
-      required this.minaNotOpened});
+  ConnectLedger({
+    required this.onConnected,
+    this.locked = false,
+    this.minaNotOpened = false,
+  });
 
   final void Function() onConnected;
-  bool locked = false;
-  bool minaNotOpened = false;
+  final bool locked;
+  final bool minaNotOpened;
 
   @override
-  _ConnectLedgerState createState() => new _ConnectLedgerState();
+  _ConnectLedgerState createState() => _ConnectLedgerState();
 }
 
 class _ConnectLedgerState extends State<ConnectLedger> {
@@ -390,7 +391,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
       margin: EdgeInsets.only(top: 35),
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Color(0xFFD65A5A).withOpacity(0.1),
+        color: Color(0xFFD65A5A).withValues(alpha: 0.1),
         border: Border.all(color: Color(0xFFD65A5A), width: 1),
         borderRadius: BorderRadius.circular(10),
       ),

@@ -378,7 +378,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         icon: SvgPicture.asset(
                           'assets/images/assets/send.svg',
                           width: 10,
-                          color: Color(chainColor),
+                          colorFilter: ColorFilter.mode(Color(chainColor), BlendMode.srcIn)
                         ),
                         padding: EdgeInsets.zero,
                         radius: 24,
@@ -399,7 +399,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                               icon: SvgPicture.asset(
                                 'assets/images/assets/receive.svg',
                                 width: 10,
-                                color: Color(chainColor),
+                                colorFilter: ColorFilter.mode(Color(chainColor), BlendMode.srcIn)
                               ),
                               padding: EdgeInsets.zero,
                               radius: 24,

@@ -1,7 +1,6 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -69,7 +68,7 @@ class ExportResultPage extends StatelessWidget {
                                 'assets/images/assets/copy.svg',
                                 width: 15,
                                 height: 16,
-                                color: Theme.of(context).primaryColor
+                                colorFilter: ColorFilter.mode(Theme.of(context).primaryColor, BlendMode.srcIn)
                             ),
                             GestureDetector(
                               child: Container(

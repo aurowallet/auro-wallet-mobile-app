@@ -99,7 +99,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
           dic.waitingLedgerSign,
           textAlign: TextAlign.center,
           style: TextStyle(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               fontSize: 14,
               fontWeight: FontWeight.w400),
         ),
@@ -131,7 +131,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
             milliseconds: 400)); // avoid conflict with ledgerStatus Component
         await minaApp.getVersion(widget.store.ledger!.ledgerDevice!);
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
-      } on LedgerException catch (e) {
+      } on LedgerException {
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
         showLedgerDialog = true;
       }
@@ -195,7 +195,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                   ),
                   Container(
                     height: 0.5,
-                    color: Color(0xFF000000).withOpacity(0.1),
+                    color: Color(0xFF000000).withValues(alpha: 0.1),
                   ),
                   widget.headerLabel != null &&
                           widget.headerValue != null &&

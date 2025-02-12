@@ -33,7 +33,7 @@ class NetworkItem extends StatelessWidget {
 
   Color getChainNameColor(bool isSelected, bool isEditing, bool editable) {
     if (isEditing) {
-      return editable ? Colors.black : Colors.black.withOpacity(0.05);
+      return editable ? Colors.black : Colors.black.withValues(alpha: 0.05);
     } else if (isSelected) {
       return Colors.white;
     }
@@ -42,9 +42,9 @@ class NetworkItem extends StatelessWidget {
 
   Color getChainIdColor(bool isSelected, bool isEditing) {
     if (isSelected && !isEditing) {
-      return Colors.white.withOpacity(0.5);
+      return Colors.white.withValues(alpha: 0.5);
     }
-    return Colors.black.withOpacity(0.1);
+    return Colors.black.withValues(alpha: 0.1);
   }
 
   bool getNetworkCheckStatus() {
@@ -82,7 +82,7 @@ class NetworkItem extends StatelessWidget {
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                          color: Colors.black.withOpacity(0.05), width: 1)),
+                          color: Colors.black.withValues(alpha: 0.05), width: 1)),
                   child: Row(
                     children: [
                       NetworkIcon(
@@ -115,11 +115,11 @@ class NetworkItem extends StatelessWidget {
                                               horizontal: 4, vertical: 2),
                                           decoration: BoxDecoration(
                                             color: ColorsUtil.hexColor(0x000000)
-                                                .withOpacity(0.2),
+                                                .withValues(alpha: 0.2),
                                             borderRadius:
                                                 BorderRadius.circular(4.0),
                                           ),
-                                          child: Text(tagStr!,
+                                          child: Text(tagStr,
                                               style: theme.headlineSmall!.copyWith(
                                                   color: Colors.white,
                                                   fontSize: 12,

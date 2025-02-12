@@ -85,7 +85,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
         Container(
           margin: EdgeInsets.only(top: 30),
           height: 1,
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
         ),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Expanded(
@@ -97,7 +97,6 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
-                    // side: BorderSide(color: Colors.red)
                   )),
               child: Text(widget.cancelText ?? dic.cancel,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
@@ -112,7 +111,7 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
           Container(
             width: 0.5,
             height: 48,
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
           ),
           Expanded(
               child: SizedBox(
@@ -123,7 +122,6 @@ class _CustomConfirmDialogDialogState extends State<CustomConfirmDialog> {
                       widget.okColor ?? Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
-                    // side: BorderSide(color: Colors.red)
                   )),
               child: Text(widget.okText ?? dic.confirm,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),

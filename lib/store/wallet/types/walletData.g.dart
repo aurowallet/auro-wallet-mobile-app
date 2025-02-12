@@ -7,9 +7,9 @@ part of 'walletData.dart';
 // **************************************************************************
 
 WalletData _$WalletDataFromJson(Map<String, dynamic> json) => WalletData()
-  ..createTime = json['createTime'] as int
-  ..currentAccountIndex = json['currentAccountIndex'] as int
-  ..walletTypeIndex = json['walletTypeIndex'] as int
+  ..createTime = (json['createTime'] as num).toInt()
+  ..currentAccountIndex = (json['currentAccountIndex'] as num).toInt()
+  ..walletTypeIndex = (json['walletTypeIndex'] as num).toInt()
   ..walletType = json['walletType'] as String
   ..id = json['id'] as String
   ..source = json['source'] as String

@@ -1,10 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ExportMnemonicResultPage extends StatelessWidget {
   static final String route = '/setting/export_mnemonic_result';
@@ -28,23 +23,24 @@ class ExportMnemonicResultPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(borderRadius),
             ),
             child: new RichText(
-                textScaleFactor: MediaQuery.of(context).textScaleFactor,
-                text: TextSpan(children: [
-                  TextSpan(
-                    text: '${index + 1}. ',
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500),
-                  ),
-                  TextSpan(
-                    text: '$word',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500),
-                  ),
-                ])),
+              textScaler: MediaQuery.textScalerOf(context),
+              text: TextSpan(children: [
+                TextSpan(
+                  text: '${index + 1}. ',
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500),
+                ),
+                TextSpan(
+                  text: '$word',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500),
+                ),
+              ]),
+            ),
           )));
     }
     return GridView.count(
@@ -60,9 +56,6 @@ class ExportMnemonicResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final Map<String, String> args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, String>;
-    var textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: Text(dic.restoreSeed),

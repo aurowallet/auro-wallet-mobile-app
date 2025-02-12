@@ -50,9 +50,6 @@ class TransactionDetailPage extends StatelessWidget {
 
     bool isMainToken = tokenId == ZK_DEFAULT_TOKEN_ID;
 
-    final success = tx.success;
-    final pending = tx.isPending;
-
     String symbol = isMainToken ? COIN.coinSymbol : tokenSymbol;
     int decimals = isMainToken ? COIN.decimals : tokenDecimal;
     Map? tokenTxData;
@@ -213,7 +210,7 @@ class TransactionDetailPage extends StatelessWidget {
                   'assets/images/assets/$statusIcon.svg',
                   width: 48,
                   height: 48,
-                  color: Colors.white,
+                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)
                 ),
               )),
           Text(statusText,
@@ -273,7 +270,7 @@ class TransactionDetailPage extends StatelessWidget {
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
-          color: Color(0xFFD65A5A).withOpacity(0.1),
+          color: Color(0xFFD65A5A).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Color(0xFFD65A5A), width: 1)),
       child: Column(

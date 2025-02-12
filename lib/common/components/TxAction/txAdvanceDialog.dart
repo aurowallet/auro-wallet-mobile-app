@@ -110,19 +110,19 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               border:
-                  Border.all(color: Colors.black.withOpacity(0.1), width: 1),
-              color: Colors.black.withOpacity(0.05)),
+                  Border.all(color: Colors.black.withValues(alpha: 0.1), width: 1),
+              color: Colors.black.withValues(alpha: 0.05)),
           child: Text(widget.currentNonce.toString(),
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 fontWeight: FontWeight.w400,
               )),
         ),
         Container(
           margin: EdgeInsets.only(top: 30),
           height: 1,
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
         ),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Expanded(
@@ -151,7 +151,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
           Container(
             width: 0.5,
             height: 48,
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
           ),
           Expanded(
             child: SizedBox(

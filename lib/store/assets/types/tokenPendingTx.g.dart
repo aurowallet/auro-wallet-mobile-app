@@ -10,7 +10,7 @@ TokenPendingTx _$TokenPendingTxFromJson(Map<String, dynamic> json) =>
     TokenPendingTx(
       sender: json['sender'] as String,
       network: json['network'] as String,
-      nonce: json['nonce'] as int,
+      nonce: (json['nonce'] as num).toInt(),
       timestamp: json['timestamp'] as String,
       amount: json['amount'] as String,
       tokenaddress: json['tokenaddress'] as String,

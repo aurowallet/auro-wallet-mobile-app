@@ -2,11 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

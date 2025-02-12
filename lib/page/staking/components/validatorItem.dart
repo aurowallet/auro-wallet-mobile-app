@@ -1,15 +1,7 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/staking/staking.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
-import 'package:auro_wallet/common/components/formPanel.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 import '../delegatePage.dart';
@@ -18,11 +10,10 @@ class ValidatorItem extends StatelessWidget {
   ValidatorItem({required this.data, this.showSelected});
 
   final ValidatorData data;
-  bool? showSelected;
+  final bool? showSelected;
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
     return Container(
         margin: const EdgeInsets.only(top: 10),
         child: Material(
@@ -39,7 +30,7 @@ class ValidatorItem extends StatelessWidget {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                        color: Colors.black.withOpacity(0.05), width: 0.5)),
+                        color: Colors.black.withValues(alpha: 0.05), width: 0.5)),
                 padding:
                     const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                 child: Row(
@@ -71,7 +62,7 @@ class ValidatorItem extends StatelessWidget {
                         ),
                         Text(Fmt.address(data.address, pad: 6),
                             style: TextStyle(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 fontWeight: FontWeight.w400,
                                 fontSize: 12,
                                 height: 1.2)),

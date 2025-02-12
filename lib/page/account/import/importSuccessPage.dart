@@ -1,15 +1,9 @@
-import 'dart:async';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
-import 'package:auro_wallet/service/api/api.dart';
 
 
 class ImportSuccessPage extends StatefulWidget {

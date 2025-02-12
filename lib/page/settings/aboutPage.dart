@@ -82,7 +82,7 @@ class _AboutPage extends State<AboutPage> {
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: Colors.black.withOpacity(0.5))),
+                          color: Colors.black.withValues(alpha: 0.5))),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 10, right: 30, left: 30),

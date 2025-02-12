@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:flutter/material.dart';

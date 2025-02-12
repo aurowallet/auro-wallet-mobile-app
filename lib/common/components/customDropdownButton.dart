@@ -76,12 +76,10 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
     return FittedBox(
         child: Container(
       height: 30,
       constraints: BoxConstraints(
-          // minWidth: 100,
           ),
       child: Center(
           child: DropdownButtonHideUnderline(

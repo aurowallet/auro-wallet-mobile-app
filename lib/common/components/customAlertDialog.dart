@@ -30,7 +30,6 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var theme = Theme.of(context).textTheme;
     return Dialog(
       clipBehavior: Clip.hardEdge,
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -65,7 +64,7 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                 ),
               ),
               Container(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha:0.1),
                 height: 0.5,
                 margin: EdgeInsets.only(top: 30),
               ),
@@ -77,7 +76,6 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                         TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
-                      // side: BorderSide(color: Colors.red)
                     )),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

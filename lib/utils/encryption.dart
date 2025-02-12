@@ -7,7 +7,7 @@ import 'package:sodium_libs/sodium_libs_sumo.dart';
 import 'package:webcrypto/webcrypto.dart' as webcrypto;
 
 class Encryption {
-  static late final Sodium sodium;
+  static late final SodiumSumo sodium;
   static bool _inited = false;
 
   static Future<void> initializeSodium() async {

@@ -7,7 +7,6 @@ import 'package:auro_wallet/page/test/testTransactionData.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 class WebviewBridgeTestPage extends StatefulWidget {
   WebviewBridgeTestPage();

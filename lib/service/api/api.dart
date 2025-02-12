@@ -101,7 +101,7 @@ class Api {
     } on TimeoutException catch (_) {
       return GqlResult(result: null, error: true, errorMessage: dic.timeout);
     }
-    if (result!.hasException) {
+    if (result.hasException) {
       print('gql出错了：' + result.exception.toString());
       String message = '';
       if (result.exception!.graphqlErrors.length > 0) {

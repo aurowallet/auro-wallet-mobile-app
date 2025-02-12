@@ -30,7 +30,7 @@ class _LoadingCircleState extends State<LoadingCircle>{
               padding: EdgeInsets.only(top: 10),
               child: Text('  '+ dic.loading + '...', style: TextStyle(
                 fontSize: 12,
-                color: Colors.black.withOpacity(0.3)
+                color: Colors.black.withValues(alpha: 0.3)
               ),),
             )
           ],
@@ -75,7 +75,7 @@ class _RotatingCircleState extends State<RotatingCircle>
       child: SvgPicture.asset('assets/images/public/loading_circle.svg',
         width: widget.size,
         height: widget.size,
-        color: widget.color,
+        // colorFilter: widget.color!=null? ColorFilter.mode(widget.color!, BlendMode.srcIn):null
       ),
     );
   }

@@ -74,20 +74,23 @@ class _AddressDropdownButtonState extends State<AddressDropdownButton> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     SvgPicture.asset(
-                                        item.type == AddressItemTypes.account
-                                            ? 'assets/images/assets/wallet_manage.svg'
-                                            : 'assets/images/setting/contact.svg',
-                                        width: 24,
-                                        height: 24,
-                                        color:
-                                            Color(0xFF000000).withOpacity(0.8)),
+                                      item.type == AddressItemTypes.account
+                                          ? 'assets/images/assets/wallet_manage.svg'
+                                          : 'assets/images/setting/contact.svg',
+                                      width: 24,
+                                      height: 24,
+                                      colorFilter: ColorFilter.mode(
+                                          Color(0xFF000000)
+                                              .withValues(alpha: 0.8),
+                                          BlendMode.srcIn),
+                                    ),
                                     Padding(padding: EdgeInsets.only(left: 4)),
                                     Text(item.name,
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w400,
                                             color: Color(0xFF000000)
-                                                .withOpacity(0.8))),
+                                                .withValues(alpha: 0.8))),
                                   ]),
                               Text(
                                 '${Fmt.address(item.address, pad: 6)}',

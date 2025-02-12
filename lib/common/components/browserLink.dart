@@ -25,7 +25,6 @@ class _BrowserLinkState extends State<BrowserLink> {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
     return InkWell(
         child: Padding(
             padding: EdgeInsets.all(10),

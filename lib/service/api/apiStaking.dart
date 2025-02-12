@@ -13,7 +13,7 @@ class ApiStaking {
   final Api apiRoot;
   final store = globalAppStore;
 
-  Future<void> refreshStaking({clearCache: true}) async {
+  Future<void> refreshStaking({clearCache = true}) async {
     if (clearCache) {
       store.staking!.setValidatorsInfo([]);
     }

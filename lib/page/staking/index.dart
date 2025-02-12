@@ -10,7 +10,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class Staking extends StatefulWidget {
   Staking(this.store);

@@ -1,4 +1,3 @@
-import 'package:auro_wallet/store/assets/types/feeTransferData.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 

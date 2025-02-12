@@ -138,7 +138,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
     if (widget.content is String) {
       return Text(widget.content as String,
           style: TextStyle(
-              color: Colors.black.withOpacity(0.8),
+              color: Colors.black.withValues(alpha: 0.8),
               fontSize: 14,
               fontWeight: FontWeight.w400));
     } else if (widget.content is List<Map<String, String>>) {
@@ -158,7 +158,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
-                            color: Colors.black.withOpacity(0.8)),
+                            color: Colors.black.withValues(alpha: 0.8)),
                       ),
                       SizedBox(
                           height: 10), // You can adjust this space as needed
@@ -167,7 +167,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                         style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 14,
-                            color: Colors.black.withOpacity(0.8)),
+                            color: Colors.black.withValues(alpha: 0.8)),
                       ),
                     ],
                   ),
@@ -188,7 +188,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
       String showContent = jsonEncode(widget.content);
       return Text(showContent,
           style: TextStyle(
-              color: Colors.black.withOpacity(0.8),
+              color: Colors.black.withValues(alpha: 0.8),
               fontSize: 14,
               fontWeight: FontWeight.w400));
     } else {
@@ -242,7 +242,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                                               .currentWallet.currentAccount),
                                           style: TextStyle(
                                               color:
-                                                  Colors.black.withOpacity(0.5),
+                                                  Colors.black.withValues(alpha: 0.5),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500)),
                                     ),
@@ -263,7 +263,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
                                       child: Text(dic.amount,
                                           style: TextStyle(
                                               color:
-                                                  Colors.black.withOpacity(0.5),
+                                                  Colors.black.withValues(alpha: 0.5),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500)),
                                     ),
