@@ -18,7 +18,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   StateSetter? stateSetter;
   IconData lightIcon = Icons.flash_on;
 
-  final MobileScannerController controller = MobileScannerController();
+  final MobileScannerController controller = MobileScannerController(autoStart: false,);
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   @override
@@ -29,16 +29,28 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   }
 
   @override
-  void reassemble() {
-    super.reassemble();
-    controller.pause();
-    super.reassemble();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!controller.value.hasCameraPermission) {
+      return;
+    }
+
+    switch (state) {
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        return;
+      case AppLifecycleState.resumed:
+        unawaited(controller.start());
+      case AppLifecycleState.inactive:
+        unawaited(controller.stop());
+    }
   }
 
   @override
-  void dispose() {
-    controller.dispose();
+  Future<void> dispose() async {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+    await controller.dispose();
   }
 
   Future<void> _getQrByGallery() async {
@@ -122,6 +134,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
             children: [
               MobileScanner(
                 key: qrKey,
+                controller: controller,
                 onDetect: _handleBarcode,
                 scanWindow: Rect.fromCenter(
                   center: MediaQuery.of(context)
