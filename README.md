@@ -19,8 +19,8 @@ Auro Wallet is aiming to provide a more convenient entrance of the mina network.
 
 ### Dependencies
 
-- `Flutter 2.0.4 statble`
-- `Dart 2.12.2`
+- `Flutter 3.27.3 statble`
+- `Dart 3.6.1`
 
 ### Install Flutter 
 `Auro Wallet` is built with [Flutter](https://flutter.dev/), you need to have `Flutter` dev tools

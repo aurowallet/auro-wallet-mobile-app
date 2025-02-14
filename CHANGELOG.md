@@ -6,9 +6,11 @@ All notable changes to this project will be documented in this file.
 - Enhancements
     - Sort of sendPage address 
     - Add refresh after stake
+    - Upgrade flutter version to 3.27.3
 
 - Fixed
     - Staking back router
+    - data unsendable issue
 
 
 ## [2.1.0]
