@@ -118,7 +118,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   }
 
   Future<void> _onRefresh({showIndicator = false}) async {
-    if (showIndicator || store.assets!.tokenList.length == 0) {
+    if (showIndicator || store.assets!.tokenList.isEmpty) {
       store.assets!.setAssetsLoading(true);
     }
     await Future.wait([

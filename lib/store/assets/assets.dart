@@ -460,7 +460,7 @@ abstract class _AssetsStore with Store {
       List<Token> ls = List.of(cache[3]).map((i) => Token.fromJson(i)).toList();
       updateTokenAssets(ls, pubKey);
     } else {
-      tokenList = ObservableList();
+      tokenList = ObservableList<Token>();
     }
   }
 
@@ -494,7 +494,7 @@ abstract class _AssetsStore with Store {
     txs = ObservableList();
     accountsInfo = ObservableMap<String, AccountInfo>();
     zkTxs = ObservableList();
-    tokenList = ObservableList();
+    tokenList = ObservableList<Token>();
 
     clearTokenLocalConfigCache();
   }
@@ -637,10 +637,9 @@ abstract class _AssetsStore with Store {
       {bool shouldCache = false}) {
     tokenList.clear();
     if (rootStore.wallet!.currentAddress != address) return;
-
-    Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
     if (ls.isEmpty) {
-      tokenList.add(mainTokenDefaultConfig);
+      Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
+      tokenList = ObservableList.of([mainTokenDefaultConfig]);
     } else {
       List<Token> nextTokenList = ls.map((tokenItem) {
         TokenLocalConfig sourceLocalConfig =
