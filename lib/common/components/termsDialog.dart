@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/apiConfig.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/i18n/terms.dart';
 import 'package:flutter/material.dart';
@@ -31,13 +32,16 @@ class _TermsDialogState extends State<TermsDialog> {
     var termsUrl = '';
     var privacyUrl = '';
     if (aboutUsData != null) {
-      if(languageCode == 'zh'){
+      if (languageCode == 'zh') {
         termsUrl = aboutUsData.termsAndContionsZH;
         privacyUrl = aboutUsData.privacyPolicyZH;
-      }else{
+      } else {
         termsUrl = aboutUsData.termsAndContionsEN;
         privacyUrl = aboutUsData.privacyPolicyEN;
       }
+    } else {
+      termsUrl = terms_and_contions_default;
+      privacyUrl = privacy_policy_default;
     }
 
     return Dialog(
@@ -58,9 +62,8 @@ class _TermsDialogState extends State<TermsDialog> {
                     )),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 19, right: 20, left: 20),
-                child: Terms(termsUrl: termsUrl, privacyUrl: privacyUrl)
-              ),
+                  padding: EdgeInsets.only(top: 19, right: 20, left: 20),
+                  child: Terms(termsUrl: termsUrl, privacyUrl: privacyUrl)),
               Container(
                 margin: EdgeInsets.only(top: 30),
                 height: 1,
