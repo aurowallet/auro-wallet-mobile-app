@@ -75,7 +75,7 @@ class _RotatingCircleState extends State<RotatingCircle>
       child: SvgPicture.asset('assets/images/public/loading_circle.svg',
         width: widget.size,
         height: widget.size,
-        // colorFilter: widget.color!=null? ColorFilter.mode(widget.color!, BlendMode.srcIn):null
+        colorFilter: widget.color!=null? ColorFilter.mode(widget.color!, BlendMode.srcIn):null
       ),
     );
   }

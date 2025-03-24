@@ -10,6 +10,8 @@ import 'package:auro_wallet/page/browser/components/zkRow.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
+import 'package:auro_wallet/store/wallet/types/accountData.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -23,12 +25,18 @@ class SignatureDialog extends StatefulWidget {
     required this.onConfirm,
     this.iconUrl,
     this.onCancel,
+    this.walletConnectChainId,
+    this.signWallet,
+    this.fromAddress,
   });
 
   final Object content;
   final String method;
   final String url;
   final String? iconUrl;
+  final String? walletConnectChainId;
+  final WalletData? signWallet;
+  final String? fromAddress;
   final Function(Map) onConfirm;
   final Function()? onCancel;
 
@@ -40,10 +48,24 @@ class _SignatureDialogState extends State<SignatureDialog> {
   final store = globalAppStore;
   bool formatStatus = true;
   bool submitting = false;
+  late WalletData nextWalletData;
+  late AccountData nextAccountData;
 
   @override
   void initState() {
     super.initState();
+
+    nextWalletData = widget.signWallet != null
+        ? widget.signWallet!
+        : store.wallet!.currentWallet;
+    if (widget.signWallet != null) {
+      nextWalletData = widget.signWallet!;
+      nextAccountData = nextWalletData.accounts
+          .firstWhere((account) => account.pubKey == widget.fromAddress);
+    } else {
+      nextWalletData = store.wallet!.currentWallet;
+      nextAccountData = nextWalletData.currentAccount;
+    }
   }
 
   @override
@@ -54,8 +76,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
   Future<bool> onConfirm() async {
     print('onConfirm');
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final isLedger =
-        store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+    final isLedger = nextWalletData.walletType == WalletStore.seedTypeLedger;
     if (!formatStatus) {
       UI.toast("Error: Unknown content type");
       return false;
@@ -67,15 +88,15 @@ class _SignatureDialogState extends State<SignatureDialog> {
     String? privateKey;
     String? password = await UI.showPasswordDialog(
         context: context,
-        wallet: store.wallet!.currentWallet,
+        wallet: nextWalletData,
         inputPasswordRequired: false,
         isTransaction: true,
         store: store);
     if (password == null) {
       return false;
     }
-    privateKey = await webApi.account.getPrivateKey(store.wallet!.currentWallet,
-        store.wallet!.currentWallet.currentAccountIndex, password);
+    privateKey = await webApi.account
+        .getPrivateKey(nextWalletData, nextAccountData.accountIndex, password);
     if (privateKey == null) {
       UI.toast(dic.passwordError);
       return false;
@@ -86,7 +107,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
     Map signInfo = {
       "privateKey": privateKey,
       "type": "message",
-      "publicKey": store.wallet!.currentAddress,
+      "publicKey": nextAccountData.pubKey,
       "message": widget.method == 'mina_sign_JsonMessage'
           ? jsonEncode(widget.content)
           : widget.content
@@ -94,20 +115,14 @@ class _SignatureDialogState extends State<SignatureDialog> {
     late Map data;
     if (widget.method == 'mina_signMessage' ||
         widget.method == 'mina_sign_JsonMessage') {
-      data = await webApi.account.signMessage(
-        signInfo,
-        context: context,
-      );
+      data = await webApi.account.signMessage(signInfo,
+          context: context, networkId: widget.walletConnectChainId);
     } else if (widget.method == 'mina_signFields') {
-      data = await webApi.account.signFields(
-        signInfo,
-        context: context,
-      );
+      data = await webApi.account.signFields(signInfo,
+          context: context, networkId: widget.walletConnectChainId);
     } else if (widget.method == 'mina_createNullifier') {
-      data = await webApi.account.createNullifier(
-        signInfo,
-        context: context,
-      );
+      data = await webApi.account.createNullifier(signInfo,
+          context: context, networkId: widget.walletConnectChainId);
     } else {
       setState(() {
         submitting = false;
@@ -200,9 +215,10 @@ class _SignatureDialogState extends State<SignatureDialog> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    double? showBalance =
-        store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
-    BigInt balance = BigInt.from(showBalance ?? 0);
+    bool isShowBalance =
+        widget.signWallet == null && widget.walletConnectChainId == null;
+    double? showBalance = store
+        .assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -217,9 +233,9 @@ class _SignatureDialogState extends State<SignatureDialog> {
               Wrap(
                 children: [
                   BrowserDialogTitleRow(
-                    title: dic.signatureRequest,
-                    showChainType: true,
-                  ),
+                      title: dic.signatureRequest,
+                      showChainType: true,
+                      chainId: widget.walletConnectChainId),
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                       child: Column(
@@ -238,48 +254,52 @@ class _SignatureDialogState extends State<SignatureDialog> {
                                   children: [
                                     Container(
                                       child: Text(
-                                          Fmt.accountName(store.wallet!
-                                              .currentWallet.currentAccount),
+                                          Fmt.accountName(nextAccountData),
                                           style: TextStyle(
-                                              color:
-                                                  Colors.black.withValues(alpha: 0.5),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.5),
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500)),
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(top: 4),
                                       child: Text(
-                                          '${Fmt.address(store.wallet!.currentAddress, pad: 6)}',
+                                          '${Fmt.address(nextAccountData.address, pad: 6)}',
                                           style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500)),
                                     )
                                   ]),
-                              Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      child: Text(dic.amount,
-                                          style: TextStyle(
-                                              color:
-                                                  Colors.black.withValues(alpha: 0.5),
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500)),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.only(top: 4),
-                                      child: Text(
-                                          Fmt.balance(balance.toString(),
-                                                  COIN.decimals) +
-                                              " " +
-                                              COIN.coinSymbol,
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500)),
-                                    )
-                                  ]),
+                              isShowBalance
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                          Container(
+                                            child: Text(dic.amount,
+                                                style: TextStyle(
+                                                    color: Colors.black
+                                                        .withValues(alpha: 0.5),
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w500)),
+                                          ),
+                                          Container(
+                                            margin: EdgeInsets.only(top: 4),
+                                            child: Text(
+                                                Fmt.parseShowBalance(
+                                                        showBalance ?? 0) +
+                                                    " " +
+                                                    COIN.coinSymbol,
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w500)),
+                                          )
+                                        ])
+                                  : SizedBox(),
                             ],
                           ),
                           Container(

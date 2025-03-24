@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:auro_wallet/common/consts/browser.dart';
 import 'package:auro_wallet/common/consts/network.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -124,16 +125,19 @@ class _WebViewInjectedState extends State<WebViewInjected> {
       toAddress = params?['to'];
     }
     if (signType != null) {
-      Object nextTx = params?['transaction'];
-      try {
-        if (params?['transaction'] != null) {
-          if (params?['transaction'].runtimeType == String) {
-            nextTx = params?['transaction'];
-          } else {
-            nextTx = jsonEncode(params?['transaction']);
+      dynamic nextTx;
+      if (signType == SignTxDialogType.zkApp) {
+        nextTx = params?['transaction'];
+        try {
+          if (params?['transaction'] != null) {
+            if (params?['transaction'].runtimeType == String) {
+              nextTx = params?['transaction'];
+            } else {
+              nextTx = jsonEncode(params?['transaction']);
+            }
           }
-        }
-      } catch (e) {}
+        } catch (e) {}
+      }
 
       await UI.showSignTransactionAction(
         context: context,
@@ -152,22 +156,22 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         onlySign: params?['onlySign'],
         url: siteInfo?['origin'],
         iconUrl: siteInfo?['webIcon'],
-        onConfirm: (String responseData, int nonce) async {
+        onConfirm: (Map<String, dynamic> result) async {
           Map<String, dynamic> resData;
           if (params?['onlySign'].runtimeType == bool && params?['onlySign']) {
             resData = {
-              "result": {"signedData": responseData},
+              "result": {"signedData": result['signedData']},
               "id": payload['id']
             };
           } else {
             resData = {
-              "result": {"hash": responseData},
+              "result": {"hash": result['hash'],"paymentId":result['paymentId']},// 这里还有一个 paymentId
               "id": payload['id']
             };
           }
 
-          if (responseData.isNotEmpty) {
-            widget.onTxConfirmed(nonce);
+          if (result['hash']!= null || result['signedData']!= null) {
+            widget.onTxConfirmed(result['nonce']);
           }
           _responseToZkApp(method, resData);
           return "";
@@ -204,7 +208,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
       onConfirm: (Map data) async {
         Map<String, dynamic> resData = {"result": data, "id": payload['id']};
         _responseToZkApp(method, resData);
-        Navigator.of(context).pop();
         return;
       },
       onCancel: () {
@@ -464,6 +467,16 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         };
         Map<String, dynamic> resData = {
           "result": chainInfoArgs,
+          "id": payload['id']
+        };
+        _responseToZkApp(method, resData);
+        return;
+      case "wallet_info":
+        Map<String, dynamic> resData = {
+          "result": {
+            "version": app_version,
+            "init": true,
+          },
           "id": payload['id']
         };
         _responseToZkApp(method, resData);

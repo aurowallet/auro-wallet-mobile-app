@@ -7,10 +7,12 @@ class ErrorCodes {
   static const int notSupportChain = 20004;
   static const int zkChainPending = 20005;
   static const int unsupportMethod = 20006;
+  static const int addressNotExist = 20007;
   static const int internal = 21001;
   static const int throwError = 22001;
   static const int originDismatch = 23001;
   static const int notFound = 404;
+  
 }
 
 const String FALLBACK_MESSAGE =
@@ -34,6 +36,9 @@ const Map<int, Map<String, String>> errorMessages = {
   },
   ErrorCodes.notSupportChain: {
     "message": "Not support chain.",
+  },
+  ErrorCodes.addressNotExist: {
+    "message": "Address not exist.",
   },
   ErrorCodes.zkChainPending: {
     "message": "Request already pending. Please wait.",

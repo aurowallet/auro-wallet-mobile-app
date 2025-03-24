@@ -9124,7 +9124,8 @@ var DAppActions = {
     mina_verify_JsonMessage: "mina_verify_JsonMessage",
     mina_switchChain: "mina_switchChain",
     mina_createNullifier: "mina_createNullifier",
-    mina_addChain: "mina_addChain"
+    mina_addChain: "mina_addChain",
+    wallet_info: "wallet_info",
 };
 
 // EXTERNAL MODULE: ./node_modules/eventemitter3/index.js
@@ -9598,6 +9599,13 @@ var provider_MinaProvider = /** @class */ (function (_super) {
                         method: DAppActions.mina_createNullifier,
                         params: args,
                     })];
+            });
+        });
+    };
+    MinaProvider.prototype.getWalletInfo = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.request({ method: DAppActions.wallet_info })];
             });
         });
     };

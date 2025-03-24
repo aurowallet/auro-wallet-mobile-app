@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
@@ -12,16 +13,22 @@ import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
 import 'package:auro_wallet/page/browser/components/zkRow.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/store/wallet/types/accountData.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
@@ -34,21 +41,25 @@ enum ZkAppValueEnum {
 }
 
 class SignTransactionDialog extends StatefulWidget {
-  SignTransactionDialog(
-      {required this.signType,
-      required this.to,
-      required this.onConfirm,
-      required this.url,
-      required this.preNonce,
-      this.zkNonce = "",
-      this.amount,
-      this.fee,
-      this.memo,
-      this.transaction,
-      this.onCancel,
-      this.iconUrl,
-      this.feePayer,
-      this.onlySign});
+  SignTransactionDialog({
+    required this.signType,
+    required this.to,
+    required this.onConfirm,
+    required this.url,
+    required this.preNonce,
+    this.zkNonce = "",
+    this.amount,
+    this.fee,
+    this.memo,
+    this.transaction,
+    this.onCancel,
+    this.iconUrl,
+    this.feePayer,
+    this.onlySign,
+    this.walletConnectChainId,
+    this.signWallet,
+    this.fromAddress,
+  });
 
   final SignTxDialogType signType;
   final String to;
@@ -62,8 +73,11 @@ class SignTransactionDialog extends StatefulWidget {
   final String? iconUrl;
   final int preNonce;
   final bool? onlySign;
+  final String? walletConnectChainId;
+  final WalletData? signWallet;
+  final String? fromAddress;
 
-  final Function(String, int) onConfirm;
+  final Function(Map<String, dynamic>) onConfirm;
   final Function()? onCancel;
 
   @override
@@ -90,25 +104,69 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   bool zkOnlySign = false;
   bool isManualNonce = false;
   bool showNonceRow = false;
+  late WalletData nextWalletData;
+  late AccountData nextAccountData;
+  int customNetNonce = -1;
+  double customNetBalance = 0;
+  String? nextGqlUrl;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    nextWalletData = widget.signWallet != null
+        ? widget.signWallet!
+        : store.wallet!.currentWallet;
+    if (widget.signWallet != null) {
+      nextWalletData = widget.signWallet!;
+      nextAccountData = nextWalletData.accounts
+          .firstWhere((account) => account.pubKey == widget.fromAddress);
+    } else {
+      nextWalletData = store.wallet!.currentWallet;
+      nextAccountData = nextWalletData.currentAccount;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       setState(() {
-        isLedger = store.wallet!.currentWallet.walletType ==
-            WalletStore.seedTypeLedger;
+        isLedger = nextWalletData.walletType == WalletStore.seedTypeLedger;
       });
+      await _loadData();
       int lastNonce = checkParams();
-      _loadData(lastNonce);
+      if (widget.walletConnectChainId == null) {
+        _loadTokenPendingData(lastNonce);
+      }
     });
   }
 
-  Future<void> _loadData(int inputNonce) async {
+  Future<void> _loadTokenPendingData(int inputNonce) async {
     await Future.wait([
-      webApi.assets.fetchPendingTokenList(
-          store.wallet!.currentAddress, inputNonce.toString())
+      webApi.assets
+          .fetchPendingTokenList(nextAccountData.pubKey, inputNonce.toString())
     ]);
+  }
+
+  Future<void> _loadData() async {
+    if (widget.signWallet != null || widget.walletConnectChainId != null) {
+      List<String> pubKeyList = [];
+      pubKeyList.add(nextAccountData.pubKey);
+      if (widget.walletConnectChainId != null) {
+        CustomNode? nextEndpoint = findNodeByNetworkId(
+          defaultNetworkList,
+          store.settings?.customNodeList ?? [],
+          widget.walletConnectChainId,
+        );
+        nextGqlUrl = nextEndpoint?.url;
+      }
+      EasyLoading.show();
+      Map<String, AccountInfo> accountsInfo = await webApi.assets
+          .fetchBatchAccountsInfo(pubKeyList, gqlUrl: nextGqlUrl);
+      AccountInfo? balancesInfo_2 = accountsInfo[nextAccountData.pubKey];
+      EasyLoading.dismiss();
+      customNetNonce = balancesInfo_2?.inferredNonce ?? -1;
+      customNetBalance = double.parse(Fmt.amountDecimals(
+        balancesInfo_2!.total.toString(),
+        decimal: COIN.decimals,
+      ));
+    }
   }
 
   int checkParams() {
@@ -119,9 +177,17 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     ZkAppValueEnum nextZkNonceType = isZkNonce
         ? ZkAppValueEnum.recommed_site
         : ZkAppValueEnum.recommed_default;
-    int lastNonce = isZkNonce
-        ? int.parse(widget.zkNonce ?? widget.preNonce.toString())
-        : widget.preNonce;
+    int lastNonce;
+    if (isZkNonce) {
+      String? zkNonce = widget.zkNonce;
+      if (zkNonce != null) {
+        lastNonce = int.parse(zkNonce);
+      } else {
+        lastNonce = customNetNonce == -1 ? widget.preNonce : customNetNonce;
+      }
+    } else {
+      lastNonce = customNetNonce == -1 ? widget.preNonce : customNetNonce;
+    }
     setState(() {
       isRiskAddress = isScam;
       inputNonce = lastNonce;
@@ -136,10 +202,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     String? transaction;
     if (widget.signType == SignTxDialogType.zkApp) {
       transaction = zkCommandFormat(widget.transaction);
-      toAddressTemp =
-          getContractAddress(transaction, store.wallet!.currentAddress);
+      toAddressTemp = getContractAddress(transaction, nextAccountData.pubKey);
       List<dynamic> zkFormatData =
-          getZkInfo(transaction, store.wallet!.currentAddress);
+          getZkInfo(transaction, nextAccountData.pubKey);
       List<DataItem> dataItems = zkFormatData
           .map<DataItem>((item) => DataItem.fromJson(item))
           .toList();
@@ -208,10 +273,14 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   String? _validateAmount() {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    double? showBalance =
-        store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
-    double availableBalanceStr =
-        (showBalance != null ? showBalance : 0) as double;
+    double? showBalance;
+    if (widget.signWallet != null || widget.walletConnectChainId != null) {
+      showBalance = customNetBalance;
+    } else {
+      showBalance = store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
+    }
+
+    double availableBalanceStr = (showBalance != null ? showBalance : 0);
     Decimal available = Decimal.parse(availableBalanceStr.toString());
     Decimal transferAmount =
         Decimal.parse(Fmt.parseNumber(widget.amount as String));
@@ -274,13 +343,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     }
 
     List<TokenPendingTx>? tempTxList =
-        store.assets!.tokenPendingTxList[store.wallet!.currentAddress];
+        store.assets!.tokenPendingTxList[nextAccountData.pubKey];
 
     if (tempTxList != null && tempTxList.length > 0) {
-      bool? isAgree =
-          await UI.showTokenTxDialog(context: context, txList: tempTxList);
-      if (isAgree == null || !isAgree) {
-        return false;
+      if (widget.walletConnectChainId == null) {
+        bool? isAgree =
+            await UI.showTokenTxDialog(context: context, txList: tempTxList);
+        if (isAgree == null || !isAgree) {
+          return false;
+        }
       }
     }
 
@@ -298,7 +369,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       if (!isLedger) {
         String? password = await UI.showPasswordDialog(
             context: context,
-            wallet: store.wallet!.currentWallet,
+            wallet: nextWalletData,
             inputPasswordRequired: false,
             isTransaction: true,
             store: store);
@@ -309,9 +380,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           return false;
         }
         privateKey = await webApi.account.getPrivateKey(
-            store.wallet!.currentWallet,
-            store.wallet!.currentWallet.currentAccountIndex,
-            password);
+            nextWalletData, nextAccountData.accountIndex, password);
         if (privateKey == null) {
           setState(() {
             submitting = false;
@@ -322,8 +391,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       }
       int nextNonce = inputNonce;
       if (!isManualNonce && zkNonceType != ZkAppValueEnum.recommed_site) {
-        int tempNonce =
-            await webApi.assets.fetchAccountNonce(store.wallet!.currentAddress);
+        int tempNonce = await webApi.assets
+            .fetchAccountNonce(nextAccountData.pubKey, gqlUrl: nextGqlUrl);
         if (tempNonce != -1) {
           nextNonce = tempNonce;
         }
@@ -333,7 +402,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       if (widget.signType == SignTxDialogType.zkApp) {
         txInfo = {
           "privateKey": privateKey,
-          "fromAddress": store.wallet!.currentAddress,
+          "fromAddress": nextAccountData.pubKey,
           "fee": lastFee,
           "nonce": nextNonce,
           "memo": lastMemo != null ? lastMemo : "",
@@ -343,18 +412,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       } else {
         txInfo = {
           "privateKey": privateKey,
-          "accountIndex": store.wallet!.currentWallet.currentAccountIndex,
-          "fromAddress": store.wallet!.currentAddress,
+          "accountIndex": nextAccountData.accountIndex,
+          "fromAddress": nextAccountData.pubKey,
           "toAddress": widget.to,
           "fee": lastFee,
           "nonce": nextNonce,
           "memo": lastMemo != null ? lastMemo : "",
         };
         if (widget.signType == SignTxDialogType.Payment) {
-          double amount = double.parse(Fmt.balance(
-              widget.amount.toString(), COIN.decimals,
-              maxLength: COIN.decimals));
-          txInfo["amount"] = amount;
+          txInfo["amount"] = double.parse(widget.amount ?? "0");
         } else if (widget.signType == SignTxDialogType.Delegation) {
           isDelagetion = true;
         }
@@ -362,24 +428,34 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       dynamic data;
       if (isLedger) {
         print('start sign ledger');
-        final tx = await webApi.account
-            .ledgerSign(txInfo, context: context, isDelegation: isDelagetion);
+        final tx = await webApi.account.ledgerSign(txInfo,
+            context: context,
+            isDelegation: isDelagetion,
+            networkId: widget.walletConnectChainId);
         if (tx == null) {
           return false;
         }
         if (!exited) {
-          data = await webApi.account
-              .sendTxBody(tx, context: context, isDelegation: isDelagetion);
+          data = await webApi.account.sendTxBody(tx,
+              context: context, isDelegation: isDelagetion, gqlUrl: nextGqlUrl);
         }
       } else {
         if (widget.signType == SignTxDialogType.zkApp) {
-          data = await webApi.account.signAndSendZkTx(txInfo, context: context);
+          data = await webApi.account.signAndSendZkTx(txInfo,
+              context: context,
+              networkId: widget.walletConnectChainId,
+              gqlUrl: nextGqlUrl);
         } else {
           if (isDelagetion) {
-            data = await webApi.account
-                .signAndSendDelegationTx(txInfo, context: context);
+            data = await webApi.account.signAndSendDelegationTx(txInfo,
+                context: context,
+                networkId: widget.walletConnectChainId,
+                gqlUrl: nextGqlUrl);
           } else {
-            data = await webApi.account.signAndSendTx(txInfo, context: context);
+            data = await webApi.account.signAndSendTx(txInfo,
+                context: context,
+                networkId: widget.walletConnectChainId,
+                gqlUrl: nextGqlUrl);
           }
         }
       }
@@ -400,11 +476,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       bool signedDataNotEmpty = signedData.isNotEmpty;
       if (hashNotEmpty || signedDataNotEmpty) {
         if (mounted && !exited) {
-          String responseData = hashNotEmpty ? hash : signedData;
           int finalNonce = zkNonceType == ZkAppValueEnum.recommed_site
               ? inputNonce + 10 // +10 for force refresh nonce
               : nextNonce;
-          await widget.onConfirm(responseData, finalNonce);
+          await widget.onConfirm({
+            "hash": data.runtimeType == TransferData ? data.hash : null,
+            "signedData": signedData,
+            "nonce": finalNonce,
+            "paymentId": data.runtimeType == TransferData ? data.paymentId : null,
+          });
           setState(() {
             submitting = false;
           });
@@ -438,8 +518,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       children: [
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(
-            child: Text(
-                Fmt.accountName(store.wallet!.currentWallet.currentAccount),
+            child: Text(Fmt.accountName(nextWalletData.currentAccount),
                 style: TextStyle(
                     color: Colors.black.withValues(alpha: 0.5),
                     fontSize: 12,
@@ -447,18 +526,16 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           ),
           Container(
             margin: EdgeInsets.only(top: 4),
-            child: Text('${Fmt.address(store.wallet!.currentAddress, pad: 6)}',
+            child: Text('${Fmt.address(nextAccountData.pubKey, pad: 6)}',
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 14,
                     fontWeight: FontWeight.w500)),
           )
         ]),
-        SvgPicture.asset(
-          'assets/images/assets/right_arrow.svg',
-          height: 14,
-          colorFilter: ColorFilter.mode(Color(0xFF594AF1), BlendMode.srcIn)
-        ),
+        SvgPicture.asset('assets/images/assets/right_arrow.svg',
+            height: 14,
+            colorFilter: ColorFilter.mode(Color(0xFF594AF1), BlendMode.srcIn)),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Container(
             child: Row(
@@ -544,7 +621,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   void resetZkNonce() async {
     setState(() {
       zkNonceType = ZkAppValueEnum.recommed_default;
-      inputNonce = widget.preNonce;
+      inputNonce = customNetNonce == -1 ? widget.preNonce : customNetNonce;
     });
   }
 
@@ -557,8 +634,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       Color feeTipBg = isFeeDefault
           ? Color(0xFF808080).withValues(alpha: 0.1)
           : Color(0xFF0DB27C).withValues(alpha: 0.1);
-      Color feeContentColor =
-          isFeeDefault ? Color(0xFF808080).withValues(alpha: 0.5) : Color(0xFF0DB27C);
+      Color feeContentColor = isFeeDefault
+          ? Color(0xFF808080).withValues(alpha: 0.5)
+          : Color(0xFF0DB27C);
       feeTip = Container(
         padding: EdgeInsets.symmetric(horizontal: 4),
         margin: EdgeInsets.only(left: 4),
@@ -839,7 +917,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                   BrowserDialogTitleRow(
                       title: zkOnlySign ? dic.signatureRequest : dic.sendDetail,
                       showChainType: true,
-                      showLedgerStatus: isLedger),
+                      showLedgerStatus: isLedger,
+                      chainId: widget.walletConnectChainId),
                   Container(
                       constraints: BoxConstraints(
                           minHeight: minHeight, maxHeight: containerMaxHeight),
