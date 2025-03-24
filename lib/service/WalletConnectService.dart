@@ -14,6 +14,7 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 class WalletConnectService {
@@ -22,6 +23,7 @@ class WalletConnectService {
   final AppStore appStore;
   BuildContext? _context;
   bool _isInitialized = false;
+  String? tempScheme;
 
   final Map<String, PairingMetadata> _sessionMetadata = {};
 
@@ -38,6 +40,10 @@ class WalletConnectService {
   bool get isInitialized => _isInitialized;
   Future<void> testInit(BuildContext context) async {
     _context = context;
+  }
+
+  void setTempScheme(String? scheme) {
+    tempScheme = scheme;
   }
 
   Future<void> init(BuildContext context) async {
@@ -66,7 +72,6 @@ class WalletConnectService {
     _setupListeners();
     await _walletKit.init();
     _isInitialized = true;
-    getAllPairedLinks();
   }
 
   List<String> getAllSupportChains() {
@@ -105,7 +110,7 @@ class WalletConnectService {
       );
     }
   }
-  
+
   void onHandleSignTransactionDialog(SessionRequestEvent? event,
       {WalletData? signWallet, PairingMetadata? dAppMetadata}) async {
     if (event != null) {
@@ -224,6 +229,7 @@ class WalletConnectService {
                 result: responseData,
               ),
             );
+            handleRedirect(params?["scheme"]);
             return "";
           },
           onCancel: () {
@@ -263,7 +269,7 @@ class WalletConnectService {
         signWallet: signWallet,
         fromAddress: params?["from"],
         onConfirm: (Map data) async {
-          _walletKit.respondSessionRequest(
+          await _walletKit.respondSessionRequest(
             topic: event.topic,
             response: JsonRpcResponse(
               id: event.id,
@@ -271,6 +277,7 @@ class WalletConnectService {
               result: data,
             ),
           );
+          handleRedirect(params?["scheme"]);
         },
         onCancel: () {
           onHandleErrorReject(event, ErrorCodes.userRejectedRequest);
@@ -318,7 +325,7 @@ class WalletConnectService {
           onHandleErrorReject(event, ErrorCodes.addressNotExist);
           return;
         }
-        
+
         WalletData? signWallet;
         if (appStore.wallet!.currentAddress != params['from']) {
           signWallet = appStore.wallet!.walletList.firstWhere((w) =>
@@ -487,8 +494,9 @@ class WalletConnectService {
               namespaces: defaultNamespaces,
               sessionProperties: args.params.sessionProperties,
             );
+            handleRedirect(tempScheme);
           } catch (error) {
-            handleRedirect('', proposer.metadata.redirect, error.toString());
+            print('showConnectAction===0,${error}');
           }
         },
         onCancel: () async {
@@ -496,39 +504,32 @@ class WalletConnectService {
           await _walletKit.rejectSession(id: args.id, reason: error);
           await _walletKit.core.pairing
               .disconnect(topic: args.params.pairingTopic);
-          handleRedirect('', proposer.metadata.redirect, error.message);
         },
       );
     }
   }
 
-  void handleRedirect(String topic, Redirect? redirect,
-      [String? error, bool success = false]) {
-    debugPrint(
-        '[WalletConnect] handleRedirect topic: $topic, redirect: $redirect, error: $error');
-    openApp(topic, redirect,
-        delay: 100, onFail: (e) => debugPrint('Redirect failed: $e'));
-  }
+  void handleRedirect(String? scheme) async {
+    if (Platform.isAndroid) {
+      if (scheme != null) {
+        const MethodChannel _channel = MethodChannel('browser_launcher');
+        String targetPackageName = scheme;
 
-  Future<void> openApp(
-    String topic,
-    Redirect? redirect, {
-    int delay = 100,
-    Function(ReownSignError? error)? onFail,
-  }) async {
-    await Future.delayed(Duration(milliseconds: delay));
-    try {
-      await _walletKit.redirectToDapp(
-        topic: topic,
-        redirect: redirect,
-      );
-    } on ReownSignError catch (e) {
-      onFail?.call(e);
+        try {
+          await _channel
+              .invokeMethod('openBrowser', {'packageName': targetPackageName});
+        } on PlatformException catch (e) {
+          print("Failed to open browser: '${e.message}'");
+          UI.showBottomTipDialog(context: _context!);
+        }
+      } else {
+        UI.showBottomTipDialog(context: _context!);
+      }
     }
   }
 
   Future<void> pair(Uri uri) async {
-    await _walletKit.pair(uri: uri);
+    PairingInfo info = await _walletKit.pair(uri: uri);
   }
 
   Future<void> disconnect(String topic) async {

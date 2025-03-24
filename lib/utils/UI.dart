@@ -7,6 +7,7 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenManageDialog.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenSelectDialog.dart';
 import 'package:auro_wallet/page/browser/components/accountSelectDialog.dart';
+import 'package:auro_wallet/page/browser/components/bottomTipdialog.dart';
 import 'package:auro_wallet/page/browser/components/addChainDialog.dart';
 import 'package:auro_wallet/page/browser/components/advanceDialog.dart';
 import 'package:auro_wallet/page/browser/components/connectDialog.dart';
@@ -365,9 +366,9 @@ class UI {
             content: content,
             url: url,
             iconUrl: iconUrl,
-            walletConnectChainId:walletConnectChainId,
-            signWallet:signWallet,
-            fromAddress:fromAddress,
+            walletConnectChainId: walletConnectChainId,
+            signWallet: signWallet,
+            fromAddress: fromAddress,
             onConfirm: (Map data) async {
               await onConfirm(data);
               Navigator.of(context).pop();
@@ -422,9 +423,9 @@ class UI {
             url: url,
             iconUrl: iconUrl,
             preNonce: nonce,
-            walletConnectChainId:walletConnectChainId,
-            signWallet:signWallet,
-            fromAddress:fromAddress,
+            walletConnectChainId: walletConnectChainId,
+            signWallet: signWallet,
+            fromAddress: fromAddress,
             onConfirm: (Map<String, dynamic> result) async {
               await onConfirm(result);
               Navigator.of(context).pop();
@@ -541,6 +542,21 @@ class UI {
             }
           },
         );
+      },
+    );
+  }
+
+  static Future<void> showBottomTipDialog({
+    required BuildContext context,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
+      builder: (BuildContext context) {
+        return BottomTipDialog();
       },
     );
   }

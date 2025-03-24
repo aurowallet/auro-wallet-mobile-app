@@ -93,6 +93,27 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     });
   }
 
+  Map? extractApplinksParameters(Uri uri) {
+    String? action = uri.queryParameters['action'];
+    String? encodedUrl = uri.queryParameters['url'];
+    String decodedURL = Uri.decodeComponent(encodedUrl ?? "");
+    if (!isValidHttpUrl(decodedURL)) {
+      print('Not valid URL');
+      return null;
+    }
+    String? nextNetworkId;
+    String? networkId = uri.queryParameters['networkid'];
+    List<String> currentSupportChainList =
+        _appStore!.settings!.getSupportNetworkIDs();
+    if (currentSupportChainList.contains(networkId)) {
+      String? currentNetworkID = _appStore!.settings!.currentNode?.networkID;
+      if (currentNetworkID != networkId) {
+        nextNetworkId = networkId;
+      }
+    }
+    return {"action": action, "url": decodedURL, "networkId": nextNetworkId};
+  }
+
   Map? extractParameters(Uri uri) {
     try {
       String? action = uri.queryParameters['action'];
@@ -100,23 +121,10 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         print('Not support action');
         return null;
       }
-      String? encodedUrl = uri.queryParameters['url'];
-      String decodedURL = Uri.decodeComponent(encodedUrl ?? "");
-      if (!isValidHttpUrl(decodedURL)) {
-        print('Not valid URL');
-        return null;
+      if (action == 'openurl') {
+        return extractApplinksParameters(uri);
       }
-      String? nextNetworkId;
-      String? networkId = uri.queryParameters['networkid'];
-      List<String> currentSupportChainList =
-          _appStore!.settings!.getSupportNetworkIDs();
-      if (currentSupportChainList.contains(networkId)) {
-        String? currentNetworkID = _appStore!.settings!.currentNode?.networkID;
-        if (currentNetworkID != networkId) {
-          nextNetworkId = networkId;
-        }
-      }
-      return {"action": action, "url": decodedURL, "networkId": nextNetworkId};
+      return null;
     } catch (e) {
       print('Parameter parse error: ${e.toString()}');
       return null;
@@ -124,11 +132,19 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   }
 
   Future<void> openAppLink(Uri uri) async {
-    if (!mounted) return;
-    print(uri.toString());
+    String? host = uri.host;
+    String? wcUri = uri.queryParameters['uri'];
+    if (host == "wc" && wcUri != null && wcUri.isNotEmpty) {
+      String? scheme = uri.queryParameters['scheme'];
+      _appStore?.walletConnectService!.setTempScheme(scheme);
+      await _appStore?.walletConnectService!
+          .pair(Uri.parse(wcUri));
+      
+      return;
+    }
 
     Map? res = extractParameters(uri);
-    if (res != null) {
+    if (res != null && res['action'] == 'openurl') {
       setState(() {
         appLinkRouteParams = res;
       });
@@ -159,7 +175,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     if (code.isNotEmpty &&
         AppLocalizations.supportedLocales
             .any((locale) => locale.languageCode == code)) {
-      res = new Locale(code, '');
+      res = Locale(code, '');
     } else {
       res = Localizations.localeOf(context);
     }
