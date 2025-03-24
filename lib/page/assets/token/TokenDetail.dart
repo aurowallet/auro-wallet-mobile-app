@@ -65,7 +65,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
 
     tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
     displayBalance = tokenBaseInfo?.showBalance != null
-        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
+        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!,showLength: tokenDecimal)
         : "0.0";
     displayBalance = displayBalance + " " + tokenSymbol;
 

@@ -304,7 +304,7 @@ class _TransferPageState extends State<TransferPage> {
           ? double.parse(Fmt.parseNumber(_feeCtrl.text))
           : currentFee!;
       double amountToTransfer = amount;
-      if (_isAllTransfer()) {
+      if (isSendMainToken && _isAllTransfer()) {
         amountToTransfer =
             (Decimal.parse(amount.toString()) - Decimal.parse(fee.toString()))
                 .toDouble();
@@ -579,15 +579,22 @@ class _TransferPageState extends State<TransferPage> {
       return dic.amountError;
     }
     Decimal transferAmount = Decimal.parse(Fmt.parseNumber(_amountCtrl.text));
-    if (isAllTransferFlag) {
-      if ((transferAmount - transferFee) < Decimal.zero) {
-        return dic.balanceNotEnough;
+    if (isSendMainToken) {
+      if (isAllTransferFlag) {
+        if ((transferAmount - transferFee) < Decimal.zero) {
+          return dic.balanceNotEnough;
+        }
+      } else {
+        if (transferAmount > (available - transferFee)) {
+          return dic.balanceNotEnough;
+        }
       }
     } else {
-      if (transferAmount > (available - transferFee)) {
+      if (transferAmount > available) {
         return dic.balanceNotEnough;
       }
     }
+
     return null;
   }
 
@@ -598,13 +605,13 @@ class _TransferPageState extends State<TransferPage> {
     });
   }
 
-
   void _onAllClick() {
     _amountCtrl.text = availableBalance.toString();
+    _amountCtrl.text = Fmt.parseShowBalance(availableBalance!,
+        showLength: int.parse(availableDecimals ?? "0"));
   }
 
   String getTokenSymbol(Token token) {
-    bool isSendMainToken = token.tokenBaseInfo?.isMainToken ?? false;
     String tokenSymbol = "";
     if (isSendMainToken) {
       tokenSymbol = COIN.coinSymbol;
@@ -630,7 +637,11 @@ class _TransferPageState extends State<TransferPage> {
         String symbol = getTokenSymbol(store.assets!.nextToken);
         String pageTitle = dic.send + " " + symbol;
         String showBalance =
-            store.assets!.nextToken.tokenBaseInfo?.showBalance.toString() ?? "";
+            store.assets!.nextToken.tokenBaseInfo?.showBalance != null
+                ? Fmt.parseShowBalance(
+                    store.assets!.nextToken.tokenBaseInfo!.showBalance!,
+                    showLength: decimals)
+                : "0.0";
         return Scaffold(
           appBar: AppBar(
             title: Text(pageTitle),
@@ -638,12 +649,11 @@ class _TransferPageState extends State<TransferPage> {
             centerTitle: true,
             actions: <Widget>[
               IconButton(
-                icon: SvgPicture.asset(
-                  'assets/images/assets/scanner.svg',
-                  width: 20,
-                  height: 20,
-                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)
-                ),
+                icon: SvgPicture.asset('assets/images/assets/scanner.svg',
+                    width: 20,
+                    height: 20,
+                    colorFilter:
+                        ColorFilter.mode(Colors.black, BlendMode.srcIn)),
                 onPressed: _onScan,
               )
             ],
@@ -675,8 +685,8 @@ class _TransferPageState extends State<TransferPage> {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 4, vertical: 1),
                                           decoration: BoxDecoration(
-                                              color:
-                                                  Colors.black.withValues(alpha: 0.1),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.1),
                                               borderRadius:
                                                   BorderRadius.circular(2)),
                                           child: Text(

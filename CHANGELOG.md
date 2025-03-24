@@ -10,7 +10,8 @@ All notable changes to this project will be documented in this file.
 
 - Fixed
     - Staking back router
-    - data unsendable issue
+    - Small amount token transfers
+    - Terms link
 
 
 ## [2.1.0]
