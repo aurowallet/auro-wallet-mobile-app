@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
     - Sort of sendPage address 
     - Add refresh after stake
     - Upgrade flutter version to 3.27.3
+    - Input enhance BrowserSearchPage
 
 - Fixed
     - Staking back router

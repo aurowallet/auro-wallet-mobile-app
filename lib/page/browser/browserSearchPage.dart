@@ -107,6 +107,35 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
     });
   }
 
+  Widget _buildSearchView() {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    if (isValidHttpUrl(keywords)) {
+      return Container();
+    }
+    return keywords == null || keywords!.isEmpty
+        ? Container()
+        : Expanded(
+            child: Center(
+                child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/setting/empty_contact.svg',
+                width: 100,
+                height: 100,
+              ),
+              Text(
+                dic.websiteNotFound,
+                style: TextStyle(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400),
+              )
+            ],
+          )));
+  }
+
   Widget _buildHistoryList() {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Observer(builder: (BuildContext context) {
@@ -194,11 +223,13 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
                                     padding: EdgeInsets.only(
                                         top: 4, bottom: 4, right: 8),
                                     child: SvgPicture.asset(
-                                      'assets/images/webview/icon_close_bg.svg',
-                                      width: 16,
-                                      height: 16,
-                                      colorFilter: ColorFilter.mode(Color(0x000033).withValues(alpha: 0.5), BlendMode.srcIn)
-                                    ),
+                                        'assets/images/webview/icon_close_bg.svg',
+                                        width: 16,
+                                        height: 16,
+                                        colorFilter: ColorFilter.mode(
+                                            Color(0x000033)
+                                                .withValues(alpha: 0.5),
+                                            BlendMode.srcIn)),
                                   ),
                                 )
                               : null),
@@ -223,30 +254,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
                 ],
               ),
             ),
-            searchList.length != 0
-                ? _buildHistoryList()
-                : keywords == null || keywords!.isEmpty
-                    ? Container()
-                    : Expanded(
-                        child: Center(
-                            child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/images/setting/empty_contact.svg',
-                            width: 100,
-                            height: 100,
-                          ),
-                          Text(
-                            dic.websiteNotFound,
-                            style: TextStyle(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400),
-                          )
-                        ],
-                      )))
+            searchList.length != 0 ? _buildHistoryList() : _buildSearchView()
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:auro_wallet/common/consts/browser.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:auro_wallet/store/settings/types/customNode.dart';
 
 String getMessageFromCode(int code,
     [String fallbackMessage = FALLBACK_MESSAGE]) {
@@ -88,22 +89,9 @@ bool isValidHttpUrl(String? url) {
     if (url == null || url.isEmpty) {
       return false;
     }
-    if (!(url.startsWith('http') || url.startsWith('https'))) {
-      return false;
-    }
-    if (url.endsWith('.')) {
-      return false;
-    }
-    List<String> parts = url.split('.');
-    if (parts.length < 2) {
-      return false;
-    }
-    for (int i = 0; i < parts.length - 1; i++) {
-      if (parts[i].isNotEmpty && parts[i + 1].isNotEmpty) {
-        return true;
-      }
-    }
-    return false;
+    RegExp urlRegex = RegExp(r'^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$');
+    bool isValid = urlRegex.hasMatch(url) || urlRegex.hasMatch('https://$url');
+    return isValid;
   } catch (e) {
     return true;
   }
@@ -123,7 +111,10 @@ String getRealErrorMsg(dynamic error) {
         errorMessage = error[0]['message'];
       }
       // BuildError handling
-      if (errorMessage.isEmpty && error.length > 1 && error[1] is Map && error[1]['c'] != null) {
+      if (errorMessage.isEmpty &&
+          error.length > 1 &&
+          error[1] is Map &&
+          error[1]['c'] != null) {
         errorMessage = error[1]['c'];
       }
     } else if (error is String) {
@@ -144,4 +135,32 @@ String getRealErrorMsg(dynamic error) {
 String getOrigin(String url) {
   final uri = Uri.parse(url);
   return '${uri.scheme}://${uri.host}';
+}
+
+CustomNode? findNodeByNetworkId(
+  List<CustomNode> defaultNetworkList,
+  List<CustomNode> customNodeList,
+  String? networkId,
+) {
+  // First search in defaultNetworkList
+  try {
+    if (networkId == null) {
+      return null; //store.settings!.currentNode;
+    }
+    final defaultNode = defaultNetworkList.firstWhere(
+      (node) => node.networkID == networkId,
+    );
+    return defaultNode;
+  } catch (e) {
+    // If not found in default list, search in customNodeList
+    try {
+      final customNode = customNodeList.firstWhere(
+        (node) => node.networkID == networkId,
+      );
+      return customNode;
+    } catch (e) {
+      // Return null if not found in either list
+      return null;
+    }
+  }
 }
