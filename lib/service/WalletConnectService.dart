@@ -522,8 +522,6 @@ class WalletConnectService {
           print("Failed to open browser: '${e.message}'");
           UI.showBottomTipDialog(context: _context!);
         }
-      } else {
-        UI.showBottomTipDialog(context: _context!);
       }
     }
   }
