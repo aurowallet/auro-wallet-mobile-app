@@ -14,6 +14,12 @@ const String TESTNET_TRANSACTIONS_EXPLORER_URL = "";
 /// fee, networks and about us info
 const BASE_INFO_URL = "https://api.xxx.xyz";
 
+// token build service
+const String TokenBuildUrlv2 = "";
+
+// wallet connect project id
+const String WalletConnectProjectId = "";
+
 String app_private_keys = """
 -----BEGIN PRIVATE KEY-----
 -----END PRIVATE KEY-----

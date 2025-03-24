@@ -12,6 +12,7 @@ import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:auro_wallet/page/settings/nodes/nodeEditPage.dart';
 import 'package:auro_wallet/page/settings/security/PasswordVerificationPage.dart';
 import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
+import 'package:auro_wallet/page/settings/WalletConnectPage.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
 import 'package:auro_wallet/utils/UI.dart';
@@ -39,7 +40,6 @@ import 'package:auro_wallet/page/settings/nodes/remoteNodeListPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/common/theme.dart';
-
 import 'package:auro_wallet/page/homePage.dart';
 import 'package:auro_wallet/page/account/setNewWalletPasswordPage.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicPage.dart';
@@ -67,11 +67,8 @@ class WalletApp extends StatefulWidget {
 }
 
 class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
-  _WalletAppState();
-
   AppStore? _appStore;
   Locale? _locale;
-
   ThemeData _theme = appTheme;
   bool _isDangerous = false;
   late AppLinks _appLinks;
@@ -174,12 +171,17 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   Future<int> _initStore(BuildContext context) async {
     if (_appStore == null) {
       _appStore = globalAppStore;
-      print('initailizing app state');
+      print('initializing app state');
       print('sys locale: ${Localizations.localeOf(context)}');
       await _appStore!.init(Localizations.localeOf(context).toString());
-      // init webApi after store initiated
       webApi = Api(context, _appStore!);
       await webApi.init();
+      // print('[aurowallet]==WidgetsBinding===2, ${_appStore?.walletConnectService}');
+      if (_appStore?.walletConnectService != null) {
+        // print('[aurowallet]==WidgetsBinding===3,');
+        _appStore!.walletConnectService!.init(_homePageContext);
+      }
+
       _changeLang(context, _appStore!.settings!.localeCode);
     }
     return _appStore!.wallet!.walletListAll.length;
@@ -267,7 +269,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       locale: _locale,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [
-        AppLocalizations.delegate, // Add this line
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -289,7 +291,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           child: TooltipVisibility(
             visible: false,
             child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(factor)),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(factor)),
               child: _isDangerous ? RootAlertPage() : child ?? Container(),
             ),
           ),
@@ -319,13 +322,10 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                     }
                   } else {
                     return Container();
-                    // return SplashScreen();
                   }
                 },
               ),
             ),
-
-        // wallet
         CreateAccountEntryPage.route: (_) =>
             CreateAccountEntryPage(_appStore!.settings!, _changeLang),
         SetNewWalletPasswordPage.route: (_) =>
@@ -345,14 +345,10 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         LedgerAccountNamePage.route: (_) => LedgerAccountNamePage(_appStore!),
         AddAccountPage.route: (_) => AddAccountPage(_appStore!),
         LockWalletPage.route: (_) => LockWalletPage(_appStore!),
-
-        // assets
         TransferPage.route: (_) => TransferPage(_appStore!),
         ReceivePage.route: (_) => ReceivePage(_appStore!),
         TransactionDetailPage.route: (_) => TransactionDetailPage(_appStore!),
         TokenDetailPage.route: (_) => TokenDetailPage(_appStore!),
-
-        // setting
         AccountManagePage.route: (_) => AccountManagePage(_appStore!),
         ChangePasswordPage.route: (_) => ChangePasswordPage(_appStore!.wallet!),
         ExportResultPage.route: (_) => ExportResultPage(),
@@ -368,17 +364,14 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         ExportMnemonicResultPage.route: (_) => ExportMnemonicResultPage(),
         PasswordVerificationPage.route: (_) =>
             PasswordVerificationPage(_appStore!),
-
-        // staking
         DelegatePage.route: (_) => DelegatePage(_appStore!),
         ValidatorsPage.route: (_) => ValidatorsPage(_appStore!),
         Staking.route: (_) => Staking(_appStore!),
-
-        // webview bridge test page
         WebviewBridgeTestPage.route: (_) => WebviewBridgeTestPage(),
         BrowserWrapperPage.route: (_) => BrowserWrapperPage(_appStore!),
         BrowserSearchPage.route: (_) => BrowserSearchPage(_appStore!),
         ZkAppConnectPage.route: (_) => ZkAppConnectPage(_appStore!),
+        WalletConnectPage.route: (_) => WalletConnectPage(_appStore!),
       },
     );
   }

@@ -32,6 +32,7 @@ class WalletItem extends StatelessWidget {
       onSelectAccount?.call(account.address);
       await webApi.account
           .changeCurrentAccount(pubKey: account.address, fetchData: true);
+      store.walletConnectService?.emitAccountsChanged(account.address);
       if (hideOption != true) {
         Navigator.of(context).pop();
       }

@@ -63,6 +63,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       await widget.store.assets!.loadTokenInfoCache();
       webApi.assets.fetchTokenInfo();
       globalBalanceRefreshKey.currentState?.show();
+      widget.store.walletConnectService?.emitChainChanged(mainnetEndpoint.networkID); 
     }
     widget.settingStore.setCustomNodeList(endpoints);
   }
@@ -82,6 +83,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         await widget.store.assets!.loadTokenInfoCache();
         webApi.assets.fetchTokenInfo();
         globalBalanceRefreshKey.currentState?.show();
+        widget.store.walletConnectService?.emitChainChanged(node.networkID); 
         Navigator.of(context).pop();
       }
     }

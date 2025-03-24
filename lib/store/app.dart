@@ -1,3 +1,4 @@
+import 'package:auro_wallet/service/WalletConnectService.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
@@ -6,8 +7,7 @@ import 'package:auro_wallet/store/staking/staking.dart';
 import 'package:auro_wallet/store/browser/browser.dart';
 import 'package:auro_wallet/utils/localStorage.dart';
 import 'package:auro_wallet/utils/secureStorage.dart';
-
-import 'ledger/ledger.dart';
+import 'package:auro_wallet/store/ledger/ledger.dart';
 
 part 'app.g.dart';
 
@@ -33,6 +33,9 @@ abstract class _AppStore with Store {
 
   @observable
   BrowserStore? browser;
+
+  @observable
+  WalletConnectService? walletConnectService;
 
   @observable
   bool isReady = false;
@@ -64,6 +67,8 @@ abstract class _AppStore with Store {
 
     assets = AssetsStore(this as AppStore);
 
+    walletConnectService = WalletConnectService(this as AppStore);
+
     browser = BrowserStore(this as AppStore);
 
     try {
@@ -73,7 +78,6 @@ abstract class _AppStore with Store {
     }
 
     await assets!.loadCache();
-
     isReady = true;
   }
 }

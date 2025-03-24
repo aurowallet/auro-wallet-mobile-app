@@ -75,6 +75,7 @@ dependencies:
   local_auth_android: ^1.0.38
   share_plus: ^10.1.4
   mobile_scanner: ^6.0.6
+  reown_walletkit: ^1.1.3
 
 
 
@@ -194,6 +195,7 @@ flutter:
     - assets/images/setting/setting_logo.png
     - assets/images/setting/icon_delete.svg
     - assets/images/setting/icon_connect.svg
+    - assets/images/setting/icon_walletconnect.svg
 
     ## stake
     - assets/images/stake/icon_delegation.svg

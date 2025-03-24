@@ -93,6 +93,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     globalBalanceRefreshKey.currentState?.show();
 
     String networkName = showNode.name;
+    store.walletConnectService?.emitChainChanged(showNode.networkID); 
 
     widget.onConfirm(networkName, showNode.networkID);
   }

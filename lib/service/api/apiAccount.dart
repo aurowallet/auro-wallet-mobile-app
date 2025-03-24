@@ -510,6 +510,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       store.assets!.setAssetsLoading(true);
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
+      store.walletConnectService?.emitAccountsChanged(pubKey);
       webApi.assets.fetchAllTokenAssets();
       webApi.assets.fetchTransactions(pubKey);
       webApi.assets.fetchPendingTransactions(pubKey);
@@ -555,6 +556,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       // fetch info for the imported account
       String pubKey = acc['pubKey'];
+      store.walletConnectService?.emitAccountsChanged(pubKey);
       store.assets!.setAssetsLoading(true);
       webApi.assets.fetchAllTokenAssets();
       webApi.assets.fetchTransactions(pubKey);

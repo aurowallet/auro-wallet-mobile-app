@@ -100,6 +100,23 @@ mixin _$AppStore on _AppStore, Store {
     });
   }
 
+  late final _$walletConnectServiceAtom =
+      Atom(name: '_AppStore.walletConnectService', context: context);
+
+  @override
+  WalletConnectService? get walletConnectService {
+    _$walletConnectServiceAtom.reportRead();
+    return super.walletConnectService;
+  }
+
+  @override
+  set walletConnectService(WalletConnectService? value) {
+    _$walletConnectServiceAtom.reportWrite(value, super.walletConnectService,
+        () {
+      super.walletConnectService = value;
+    });
+  }
+
   late final _$isReadyAtom = Atom(name: '_AppStore.isReady', context: context);
 
   @override
@@ -132,6 +149,7 @@ assets: ${assets},
 staking: ${staking},
 ledger: ${ledger},
 browser: ${browser},
+walletConnectService: ${walletConnectService},
 isReady: ${isReady}
     ''';
   }

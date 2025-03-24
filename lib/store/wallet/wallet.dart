@@ -160,6 +160,7 @@ abstract class _WalletStore with Store {
     await rootStore.localStorage.setCurrentWallet('');
     await rootStore.secureStorage.clearSeeds();
     await loadWallet();
+    rootStore.walletConnectService?.clearAllPairings();
   }
 
   @action
@@ -306,6 +307,9 @@ abstract class _WalletStore with Store {
       deleteSeed(WalletStore.seedTypePrivateKey, wallet.id);
       if (walletList.length > 0) {
         rootStore.localStorage.setCurrentWallet(walletList[0].id);
+          if(rootStore.wallet!.currentAddress != walletList[0].currentAccount.pubKey){
+            rootStore.walletConnectService?.emitAccountsChanged(walletList[0].currentAccount.pubKey);
+          }
       }
     } else {
       wallet.currentAccountIndex = wallet.accounts[0].accountIndex;

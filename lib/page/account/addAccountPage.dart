@@ -77,6 +77,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
           return false;
         } else {
           await store.wallet!.addAccount(accountData, accountName, wallet);
+          store.walletConnectService?.emitAccountsChanged(accountData['pubKey']);
           store.assets!.loadAccountCache();
           store.assets!.setAssetsLoading(true);
           webApi.assets.fetchAllTokenAssets();

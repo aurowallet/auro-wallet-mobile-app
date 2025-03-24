@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/settings/WalletConnectPage.dart';
 import 'package:auro_wallet/page/settings/aboutPage.dart';
 import 'package:auro_wallet/page/settings/components/settingItem.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
@@ -13,7 +14,6 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
 class Profile extends StatelessWidget {
   Profile(this.store);
 
@@ -59,6 +59,16 @@ class Profile extends StatelessWidget {
                         value: (store.browser?.zkAppConnectingList.length ?? 0).toString(),
                         onTap: () => Navigator.of(context)
                             .pushNamed(ZkAppConnectPage.route),
+                      ),
+                       SettingItem(
+                        icon: 'assets/images/setting/icon_walletconnect.svg',
+                        title: "Wallet Connect",
+                        value: (store.walletConnectService?.getAllPairedLinks().length ?? 0).toString(),
+                        onTap: () => Navigator.of(context)
+                            .pushNamed(WalletConnectPage.route)
+                                  .then((_) {
+                                store.walletConnectService?.getAllPairedLinks();
+                              }),
                       ),
                       SettingItem(
                         icon: 'assets/images/setting/network.svg',
