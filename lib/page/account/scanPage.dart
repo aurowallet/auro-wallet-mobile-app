@@ -18,7 +18,9 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   StateSetter? stateSetter;
   IconData lightIcon = Icons.flash_on;
 
-  final MobileScannerController controller = MobileScannerController(autoStart: false,);
+  final MobileScannerController controller = MobileScannerController(
+    autoStart: false,
+  );
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   @override
@@ -77,6 +79,11 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   }
 
   Future _onScan(String? txt) async {
+    final params =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+    bool isScanWc = params?['isScanWc'] ?? false;
+
     if (txt == null) {
       return;
     }
@@ -84,27 +91,33 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     String address = '';
     String chainType = '';
     final String data = txt.trim();
-    List<String> ls = data.split(':');
-    if (ls.length > 0) {
-      if (ls.length > 1) {
-        if (ls[0].toLowerCase() != 'mina' || !Fmt.isAddress(ls[1])) {
-          UI.toast(dic.notValidAddress);
+
+    if (isScanWc && data.length > 0) {
+      Navigator.of(context)
+          .pop(QRCodeAddressResult(address: data, chainType: chainType));
+    } else {
+      List<String> ls = data.split(':');
+      if (ls.length > 0) {
+        if (ls.length > 1) {
+          if (ls[0].toLowerCase() != 'mina' || !Fmt.isAddress(ls[1])) {
+            UI.toast(dic.notValidAddress);
+          } else {
+            chainType = ls[0];
+            address = ls[1];
+          }
         } else {
-          chainType = ls[0];
-          address = ls[1];
-        }
-      } else {
-        if (!Fmt.isAddress(ls[0])) {
-          UI.toast(dic.notValidAddress);
-        } else {
-          address = ls[0];
+          if (!Fmt.isAddress(ls[0])) {
+            UI.toast(dic.notValidAddress);
+          } else {
+            address = ls[0];
+          }
         }
       }
-    }
-    if (address.length > 0) {
-      print('address detected in Qr');
-      Navigator.of(context)
-          .pop(QRCodeAddressResult(address: address, chainType: chainType));
+      if (address.length > 0) {
+        print('address detected in Qr');
+        Navigator.of(context)
+            .pop(QRCodeAddressResult(address: address, chainType: chainType));
+      }
     }
   }
 
@@ -137,9 +150,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                 controller: controller,
                 onDetect: _handleBarcode,
                 scanWindow: Rect.fromCenter(
-                  center: MediaQuery.of(context)
-                      .size
-                      .center(Offset.zero),
+                  center: MediaQuery.of(context).size.center(Offset.zero),
                   width: 260,
                   height: 260,
                 ),
