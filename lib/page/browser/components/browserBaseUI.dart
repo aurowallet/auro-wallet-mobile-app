@@ -8,12 +8,15 @@ class BrowserDialogTitleRow extends StatelessWidget {
       {required this.title,
       this.showChainType = false,
       this.showCloseIcon = false,
-      this.showLedgerStatus = false});
+      this.showLedgerStatus = false,
+      this.chainId,
+      });
 
   final String title;
   final bool showCloseIcon;
   final bool showChainType;
   final bool showLedgerStatus;
+  final String? chainId;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +59,7 @@ class BrowserDialogTitleRow extends StatelessWidget {
                   children: [
                     showLedgerStatus ? LedgerStatusView() : Container(),
                     SizedBox(width: 4),
-                    showChainType ? NetworkStatusView() : Container(),
+                    showChainType ? NetworkStatusView(chainId:chainId) : Container(),
                   ],
                 ),
                 ...closeWidget,

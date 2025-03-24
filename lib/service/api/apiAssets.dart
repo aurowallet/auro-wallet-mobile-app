@@ -6,6 +6,7 @@ import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/tokenInfoData.dart';
@@ -365,7 +366,8 @@ class ApiAssets {
     }
   }
 
-  Future<void> fetchBatchAccountsInfo(List<String> pubkeys) async {
+  Future<dynamic> fetchBatchAccountsInfo(List<String> pubkeys,
+      {String? gqlUrl}) async {
     var variablesStr = List<String>.generate(
         pubkeys.length, (int index) => '\$account$index:PublicKey!').join(',');
 
@@ -395,12 +397,23 @@ ${List<String>.generate(pubkeys.length, (int index) {
       variables: variables,
       fetchPolicy: FetchPolicy.noCache,
     );
-    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    var graphQLClient;
+    bool isCustomRequest = false;
+    if (gqlUrl != null) {
+      isCustomRequest = true;
+      Link link = HttpLink(gqlUrl);
+      graphQLClient = GraphQLClient(link: link, cache: GraphQLCache());
+    } else {
+      graphQLClient = apiRoot.graphQLClient;
+    }
+
+    final QueryResult result = await graphQLClient.query(_options);
     if (result.hasException) {
       print('fetch balance error');
       print(result.exception.toString());
       return;
     }
+    Map<String, AccountInfo> cacheAccountsInfo = new Map();
     pubkeys.asMap().forEach((index, pubKey) {
       var accountData = result.data?['account$index'];
       if (accountData != null) {
@@ -418,11 +431,18 @@ ${List<String>.generate(pubkeys.length, (int index) {
           "publicKey": publicKey,
         };
         print('balance:' + balance);
-        store.assets!.setAccountInfo(pubKey, accountInfo);
+        if (!isCustomRequest) {
+          store.assets!
+              .setAccountInfo(pubKey, accountInfo);
+        }
+        cacheAccountsInfo[pubKey] = AccountInfo.fromJson(accountInfo);
       } else {
-        store.assets!.setAccountInfo(pubKey, null);
+        if (!isCustomRequest) {
+          store.assets!.setAccountInfo(pubKey, null);
+        }
       }
     });
+    return cacheAccountsInfo;
   }
 
   Future<void> _fetchMarketPrice() async {
@@ -470,7 +490,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
   }
 
-  Future<int> fetchAccountNonce(String publicKey) async {
+  Future<int> fetchAccountNonce(String publicKey, {String? gqlUrl}) async {
     const String fetchNonceQuery =
         r'''query accountNonce($publicKey: PublicKey!) {
     account(publicKey: $publicKey) {
@@ -487,7 +507,16 @@ ${List<String>.generate(pubkeys.length, (int index) {
       variables: variables,
       fetchPolicy: FetchPolicy.noCache,
     );
-    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+
+    var graphQLClient;
+    if (gqlUrl != null) {
+      Link link = HttpLink(gqlUrl);
+      graphQLClient = GraphQLClient(link: link, cache: GraphQLCache());
+    } else {
+      graphQLClient = apiRoot.graphQLClient;
+    }
+
+    final QueryResult result = await graphQLClient.query(_options);
     if (result.hasException) {
       print('fetch nonce error');
       print(result.exception.toString());

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
@@ -69,7 +70,9 @@ class ApiAccount {
   }
 
   Future<TransferData?> sendTx(Map input, Map signature,
-      {required BuildContext context, isRawSignature = false}) async {
+      {required BuildContext context,
+      isRawSignature = false,
+      String? gqlUrl}) async {
     String? mutation;
     if (isRawSignature) {
       mutation = r'''
@@ -148,10 +151,17 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
       fetchPolicy: FetchPolicy.noCache,
       variables: variables,
     );
-    GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
+    GraphQLClient? customClient;
+    if (gqlUrl != null) {
+      final link = HttpLink(gqlUrl);
+      customClient = GraphQLClient(link: link, cache: GraphQLCache());
+    }
+    GqlResult gqlResult = await apiRoot.gqlRequest(_options,
+        context: context, customClient: customClient);
     if (gqlResult.error) {
-      print('转账广播出错了：');
+      print('payment broadcast error source: ${gqlResult.errorMessage}');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
+      print('[aurowallet] payment broadcast error: ${msg}');
       String nextMsg = msg.isEmpty ? gqlResult.errorMessage : msg;
       UI.toast(nextMsg);
       return null;
@@ -173,7 +183,9 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
   }
 
   Future<TransferData?> sendDelegationTx(Map input, Map signature,
-      {required BuildContext context, isRawSignature = false}) async {
+      {required BuildContext context,
+      isRawSignature = false,
+      String? gqlUrl}) async {
     String? mutation;
     if (isRawSignature) {
       mutation = r'''
@@ -248,7 +260,13 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       fetchPolicy: FetchPolicy.noCache,
       variables: variables,
     );
-    GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
+    GraphQLClient? customClient;
+    if (gqlUrl != null) {
+      final link = HttpLink(gqlUrl);
+      customClient = GraphQLClient(link: link, cache: GraphQLCache());
+    }
+    GqlResult gqlResult = await apiRoot.gqlRequest(_options,
+        context: context, customClient: customClient);
     if (gqlResult.error) {
       print('质押广播出错了');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
@@ -272,22 +290,26 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<TransferData?> sendTxBody(Map prepareBody,
-      {required BuildContext context, isDelegation = false}) async {
+      {required BuildContext context,
+      isDelegation = false,
+      String? gqlUrl}) async {
     TransferData? transferData;
     if (isDelegation) {
       transferData = await sendDelegationTx(
           prepareBody['payload'], prepareBody['signature'],
-          context: context, isRawSignature: true);
+          context: context, isRawSignature: true, gqlUrl: gqlUrl);
     } else {
       transferData = await sendTx(
           prepareBody['payload'], prepareBody['signature'],
-          context: context, isRawSignature: true);
+          context: context, isRawSignature: true, gqlUrl: gqlUrl);
     }
     return transferData;
   }
 
   Future<Map?> ledgerSign(Map txInfo,
-      {required BuildContext context, isDelegation = false}) async {
+      {required BuildContext context,
+      isDelegation = false,
+      String? networkId}) async {
     final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
         accountIndex: txInfo["accountIndex"]);
     final feeLarge =
@@ -297,7 +319,17 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         : BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
     final validUntil = "4294967295";
     try {
-      // final rawSignature = "8c6e8717bb6b60405446b722031c99a052a3f377ef4fbc83faf6f46fcbc36610e2f8455a3b64ce66b4dd9bc91541a126caae34140a941b5a7e1b24d3d3223420";
+      int nextNetwork = -1;
+      if (networkId != null) {
+        nextNetwork = networkId == networkIDMap['mainnet']
+            ? Networks.MAINNET.value
+            : Networks.DEVNET.value;
+      }
+      if (nextNetwork == -1) {
+        nextNetwork = store.settings!.isMainnet
+            ? Networks.MAINNET.value
+            : Networks.DEVNET.value;
+      }
       final rawSignature = await minaApp.signTransfer(
           store.ledger!.ledgerDevice!,
           txType: isDelegation ? TxType.DELEGATION.value : TxType.PAYMENT.value,
@@ -309,9 +341,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           nonce: txInfo['nonce'],
           memo: txInfo['memo'],
           validUntil: validUntil,
-          networkId: store.settings!.isMainnet
-              ? Networks.MAINNET.value
-              : Networks.DEVNET.value);
+          networkId: nextNetwork);
       final prepareBody = prepareBroadcastBody(
           from: txInfo['fromAddress'],
           to: txInfo['toAddress'],
@@ -332,15 +362,16 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<TransferData?> signAndSendTx(Map txInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context,
+      String? networkId,
+      String? gqlUrl}) async {
     final feeLarge =
         BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
     final amountLarge =
         BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
 
     final signedTx = await apiRoot.bridge.signPaymentTx({
-      "network": network,
+      "network": getNextNetwork(networkId),
       "type": "payment",
       "privateKey": txInfo['privateKey'],
       "fromAddress": txInfo['fromAddress'],
@@ -368,17 +399,18 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         validUntil: signedData["validUntil"]);
     TransferData? transferData = await sendTx(
         broadcastBody['payload'], broadcastBody['signature'],
-        context: context);
+        context: context, gqlUrl: gqlUrl);
     return transferData;
   }
 
   Future<TransferData?> signAndSendDelegationTx(Map txInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context,
+      String? networkId,
+      String? gqlUrl}) async {
     final feeLarge =
         BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
     final signedTx = await apiRoot.bridge.signStakeDelegationTx({
-      "network": network,
+      "network": getNextNetwork(networkId),
       "type": "delegation",
       "privateKey": txInfo['privateKey'],
       "fee": txInfo['fee'],
@@ -405,7 +437,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         validUntil: signedData["validUntil"]);
     TransferData? transferData = await sendDelegationTx(
         broadcastBody['payload'], broadcastBody['signature'],
-        context: context);
+        context: context, gqlUrl: gqlUrl);
     return transferData;
   }
 
@@ -755,57 +787,63 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   Future<Map<String, dynamic>> signMessage(Map signInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context, String? networkId}) async {
     Map<String, dynamic> signed = await apiRoot.bridge.signMessage({
-      "network": network,
+      "network": getNextNetwork(networkId),
       ...signInfo,
     });
     return signed;
   }
 
+  String getNextNetwork(String? networkId) {
+    String network = "";
+    if (networkId != null) {
+      network = networkId == networkIDMap['mainnet'] ? "mainnet" : "testnet";
+    }
+    if (network.isEmpty) {
+      network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    }
+    return network;
+  }
+
   Future<bool> verifyMessage(Map signedInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context, String? networkId}) async {
     bool verifyRes = await apiRoot.bridge.verifyMessage({
-      "network": network,
+      "network": getNextNetwork(networkId),
       ...signedInfo,
     });
     return verifyRes;
   }
 
   Future<Map<String, dynamic>> signFields(Map signInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context, String? networkId}) async {
     Map<String, dynamic> signed = await apiRoot.bridge.signFields({
-      "network": network,
+      "network": getNextNetwork(networkId),
       ...signInfo,
     });
     return signed;
   }
 
   Future<bool> verifyFields(Map signedInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context, String? networkId}) async {
     bool verifyRes = await apiRoot.bridge.verifyFields({
-      "network": network,
+      "network": getNextNetwork(networkId),
       ...signedInfo,
     });
     return verifyRes;
   }
 
   Future<Map<String, dynamic>> createNullifier(Map signInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context, String? networkId}) async {
     Map<String, dynamic> signed = await apiRoot.bridge.createNullifier({
-      "network": network,
+      "network": getNextNetwork(networkId),
       ...signInfo,
     });
     return signed;
   }
 
   Future<TransferData?> sendZkTx(Map zkappCommandInput,
-      {required BuildContext context}) async {
+      {required BuildContext context, String? gqlUrl}) async {
     String? mutation;
     mutation = r'''
     mutation sendZkapp($zkappCommandInput: ZkappCommandInput!) {
@@ -842,7 +880,17 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       variables: variables,
     );
 
-    GqlResult gqlResult = await apiRoot.gqlRequest(_options, context: context);
+    GraphQLClient? customClient;
+    if (gqlUrl != null) {
+      final link = HttpLink(gqlUrl);
+      customClient = GraphQLClient(
+        link: link,
+        cache: GraphQLCache(),
+      );
+    }
+
+    GqlResult gqlResult = await apiRoot.gqlRequest(_options,
+        context: context, customClient: customClient);
     if (gqlResult.error) {
       print('zk broadcaset error：');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
@@ -877,10 +925,11 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   FutureOr<dynamic> signAndSendZkTx(Map txInfo,
-      {required BuildContext context}) async {
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+      {required BuildContext context,
+      String? networkId,
+      String? gqlUrl}) async {
     final signedTx = await apiRoot.bridge.signZkTransaction({
-      "network": network,
+      "network": getNextNetwork(networkId),
       "type": "zk",
       "privateKey": txInfo['privateKey'],
       "fromAddress": txInfo['fromAddress'],
@@ -899,8 +948,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     if (zkOnlySign) {
       return {"signedData": jsonEncode(signedData)};
     }
-    TransferData? transferData =
-        await sendZkTx(signedData['zkappCommand'], context: context);
+    TransferData? transferData = await sendZkTx(signedData['zkappCommand'],
+        context: context, gqlUrl: gqlUrl);
     return transferData;
   }
 
@@ -954,7 +1003,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           // If parsing fails, treat the body as raw text
           UI.toast(response.body.toString());
         }
-              return null;
+        return null;
       }
     } catch (e) {
       UI.toast(e.toString());

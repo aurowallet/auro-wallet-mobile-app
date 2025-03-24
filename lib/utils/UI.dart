@@ -345,6 +345,9 @@ class UI {
     required Object content,
     required String url,
     required String method,
+    String? walletConnectChainId,
+    WalletData? signWallet,
+    String? fromAddress,
     String? iconUrl,
     required Future<void> Function(Map) onConfirm,
     Function()? onCancel,
@@ -362,8 +365,12 @@ class UI {
             content: content,
             url: url,
             iconUrl: iconUrl,
+            walletConnectChainId:walletConnectChainId,
+            signWallet:signWallet,
+            fromAddress:fromAddress,
             onConfirm: (Map data) async {
-              onConfirm(data);
+              await onConfirm(data);
+              Navigator.of(context).pop();
             },
             onCancel: () {
               if (onCancel != null) {
@@ -386,9 +393,12 @@ class UI {
     Object? transaction,
     bool? onlySign,
     Map<String, dynamic>? feePayer,
+    String? walletConnectChainId,
+    WalletData? signWallet,
+    String? fromAddress,
     required String url,
     String? iconUrl,
-    required Future<String> Function(String, int) onConfirm,
+    required Future<String> Function(Map<String, dynamic>) onConfirm,
     Function()? onCancel,
     String? buttonText,
   }) {
@@ -412,8 +422,11 @@ class UI {
             url: url,
             iconUrl: iconUrl,
             preNonce: nonce,
-            onConfirm: (String hash, int nonce) async {
-              await onConfirm(hash, nonce);
+            walletConnectChainId:walletConnectChainId,
+            signWallet:signWallet,
+            fromAddress:fromAddress,
+            onConfirm: (Map<String, dynamic> result) async {
+              await onConfirm(result);
               Navigator.of(context).pop();
             },
             onCancel: () {

@@ -87,13 +87,17 @@ class Api {
   }
 
   Future<GqlResult> gqlRequest(dynamic options,
-      {required BuildContext context, int timeout = 60}) async {
+      {required BuildContext context,
+      int timeout = 60,
+      GraphQLClient? customClient}) async {
     QueryResult? result;
     Future<QueryResult> req;
+    final client =
+        customClient ?? graphQLClient;
     if (options is MutationOptions) {
-      req = graphQLClient.mutate(options);
+      req = client.mutate(options);
     } else {
-      req = graphQLClient.query(options);
+      req = client.query(options);
     }
     AppLocalizations dic = AppLocalizations.of(context)!;
     try {
