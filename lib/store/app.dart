@@ -1,4 +1,5 @@
 import 'package:auro_wallet/service/WalletConnectService.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
@@ -16,6 +17,19 @@ final AppStore globalAppStore = AppStore();
 class AppStore extends _AppStore with _$AppStore {}
 
 abstract class _AppStore with Store {
+
+  
+  GlobalKey<RefreshIndicatorState>? balanceRefreshKey;
+
+  void setBalanceRefreshKey(GlobalKey<RefreshIndicatorState>? key) {
+    balanceRefreshKey = key;
+  }
+
+  void triggerBalanceRefresh() {
+    balanceRefreshKey?.currentState?.show();
+  }
+
+
   @observable
   SettingsStore? settings;
 
@@ -66,8 +80,8 @@ abstract class _AppStore with Store {
     ledger = LedgerStore();
 
     assets = AssetsStore(this as AppStore);
-
     walletConnectService = WalletConnectService(this as AppStore);
+    await walletConnectService!.init();
 
     browser = BrowserStore(this as AppStore);
 

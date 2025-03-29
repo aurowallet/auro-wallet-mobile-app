@@ -147,6 +147,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    initWalletConnect();
+  }
+  
+  Future<void> initWalletConnect() async {
+    store.walletConnectService!.setContext(context);
   }
 
   @override

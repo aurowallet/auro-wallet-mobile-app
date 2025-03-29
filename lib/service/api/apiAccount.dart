@@ -65,7 +65,7 @@ class ApiAccount {
     // refresh zkConnect
     await store.browser!.loadZkAppConnect(current);
     if (fetchData) {
-      globalBalanceRefreshKey.currentState?.show();
+      store.triggerBalanceRefresh();
     }
   }
 

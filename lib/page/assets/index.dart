@@ -34,6 +34,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   final AppStore store;
   Timer? _refreshTimer;
+  final GlobalKey<RefreshIndicatorState> _balanceRefreshKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void ledgerSetup() async {
@@ -90,6 +91,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bool showIndicator = store.assets!.tokenList.length == 0;
+      store.setBalanceRefreshKey(_balanceRefreshKey);
       this._onRefresh(showIndicator: showIndicator);
       _checkWatchMode();
       WidgetsBinding.instance.addObserver(this);
@@ -103,6 +105,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    store.setBalanceRefreshKey(null);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -375,11 +378,10 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                         text: dic.send,
                         textStyle: buttonTextStyle,
                         onPressed: _onTransfer,
-                        icon: SvgPicture.asset(
-                          'assets/images/assets/send.svg',
-                          width: 10,
-                          colorFilter: ColorFilter.mode(Color(chainColor), BlendMode.srcIn)
-                        ),
+                        icon: SvgPicture.asset('assets/images/assets/send.svg',
+                            width: 10,
+                            colorFilter: ColorFilter.mode(
+                                Color(chainColor), BlendMode.srcIn)),
                         padding: EdgeInsets.zero,
                         radius: 24,
                       ),
@@ -444,7 +446,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return Observer(
       builder: (_) {
         return RefreshIndicator(
-          key: globalBalanceRefreshKey,
+          key: _balanceRefreshKey,
           onRefresh: _onRefresh,
           child: SafeArea(
             maintainBottomViewPadding: true,

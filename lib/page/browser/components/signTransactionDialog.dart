@@ -488,7 +488,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           setState(() {
             submitting = false;
           });
-          globalBalanceRefreshKey.currentState?.show();
+          store.triggerBalanceRefresh();
           return true;
         }
       } else {

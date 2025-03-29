@@ -90,7 +90,7 @@ class _SwitchChainDialogState extends State<SwitchChainDialog> {
     await store.assets!.loadTokenLocalConfigCache();
     await store.assets!.loadTokenInfoCache();
     webApi.assets.fetchTokenInfo();
-    globalBalanceRefreshKey.currentState?.show();
+    store.triggerBalanceRefresh();
 
     String networkName = showNode.name;
     store.walletConnectService?.emitChainChanged(showNode.networkID); 

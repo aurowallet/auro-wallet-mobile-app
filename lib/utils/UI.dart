@@ -562,8 +562,6 @@ class UI {
   }
 }
 
-final GlobalKey<RefreshIndicatorState> globalBalanceRefreshKey =
-    new GlobalKey<RefreshIndicatorState>();
 
 final GlobalKey<RefreshIndicatorState> globalStakingRefreshKey =
     new GlobalKey<RefreshIndicatorState>();

@@ -372,7 +372,7 @@ class _DelegatePageState extends State<DelegatePage>
                 await Navigator.of(context).pushNamedAndRemoveUntil(
                     '/', (Route<dynamic> route) => false);
               }
-              globalBalanceRefreshKey.currentState?.show();
+              widget.store.triggerBalanceRefresh();
               globalTokenRefreshKey.currentState?.show();
               return true;
             }
