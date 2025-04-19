@@ -575,5 +575,7 @@
   "pendingTx": "待处理的交易",
   "signed": "已签名",
   "backToAppTitle":"返回应用程序",
-  "backToAppDesc":"请返回应用程序继续使用服务。"
+  "backToAppDesc":"请返回应用程序继续使用服务。",
+  "walletConnectTitle":"WalletConnect 会话",
+  "noWalletConnectSession": "无会话"
 }

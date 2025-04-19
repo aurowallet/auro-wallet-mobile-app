@@ -575,5 +575,7 @@
   "pendingTx": "Pending Transaction",
   "signed":"SIGNED",
   "backToAppTitle":"Return to app",
-  "backToAppDesc":"Please return to the app to continue using their services."
+  "backToAppDesc":"Please return to the app to continue using their services.",
+  "walletConnectTitle":"WalletConnect Sessions",
+  "noWalletConnectSession": "No sessions"
 }

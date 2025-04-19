@@ -62,7 +62,7 @@ class Profile extends StatelessWidget {
                       ),
                        SettingItem(
                         icon: 'assets/images/setting/icon_walletconnect.svg',
-                        title: "Wallet Connect",
+                        title: dic.walletConnectTitle,
                         value: (store.walletConnectService?.getAllPairedLinks().length ?? 0).toString(),
                         onTap: () => Navigator.of(context)
                             .pushNamed(WalletConnectPage.route)

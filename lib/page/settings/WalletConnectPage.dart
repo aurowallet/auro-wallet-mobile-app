@@ -96,7 +96,7 @@ class _WalletConnectPageState extends State<WalletConnectPage>
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic.appConnection),
+        title: Text(dic.walletConnectTitle),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -134,8 +134,8 @@ class WalletConnectItem extends StatelessWidget {
     if (metadata == null) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-        child: Text(dic.noConnectedApps),
-      );
+        child: Text(dic.noWalletConnectSession),
+      ); 
     }
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),

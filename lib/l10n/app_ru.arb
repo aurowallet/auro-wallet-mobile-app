@@ -577,5 +577,7 @@
   "pendingTx": "Ожидаемая транзакция",
   "signed":"Подписано",
   "backToAppTitle": "Назад в приложение",
-  "backToAppDesc": "Вернитесь в приложение, чтобы продолжить пользоваться его услугами."
+  "backToAppDesc": "Вернитесь в приложение, чтобы продолжить пользоваться его услугами.",
+  "walletConnectTitle":"Сеансы WalletConnect",
+  "noWalletConnectSession": "Нет сессий"
 }
