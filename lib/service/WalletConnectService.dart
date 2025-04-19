@@ -25,7 +25,6 @@ class WalletConnectService {
   bool _isInitialized = false;
   String? tempScheme;
 
-  final Map<String, PairingMetadata> _sessionMetadata = {};
 
   WalletConnectService(this.appStore);
 
@@ -38,7 +37,7 @@ class WalletConnectService {
   }
 
   bool get isInitialized => _isInitialized;
-  Future<void> testInit(BuildContext context) async {
+  void setContext(BuildContext context) async {
     _context = context;
   }
 
@@ -46,15 +45,12 @@ class WalletConnectService {
     tempScheme = scheme;
   }
 
-  Future<void> init(BuildContext context) async {
+  Future<void> init() async {
     if (_isInitialized) return;
-
-    _context = context;
-
     _walletKit = ReownWalletKit(
       core: ReownCore(
         projectId: projectId,
-        logLevel: LogLevel.all,
+        logLevel: LogLevel.nothing,
       ),
       metadata: const PairingMetadata(
         name: 'Auro Wallet',
@@ -71,12 +67,15 @@ class WalletConnectService {
 
     _setupListeners();
     await _walletKit.init();
+    print("[aurowallet] _walletKit init success");
     _isInitialized = true;
+    getAllPairedLinks();
   }
 
   List<String> getAllSupportChains() {
     List<String> currentSupportChainList =
         appStore.settings!.getSupportNetworkIDs();
+    print("[aurowallet] currentSupportChainList: ${currentSupportChainList}");
     return currentSupportChainList;
   }
 
@@ -488,7 +487,6 @@ class WalletConnectService {
             : "",
         onConfirm: () async {
           try {
-            _sessionMetadata[args.params.pairingTopic] = proposer.metadata;
             await _walletKit.approveSession(
               id: args.id,
               namespaces: defaultNamespaces,
@@ -511,7 +509,7 @@ class WalletConnectService {
 
   void handleRedirect(String? scheme) async {
     if (Platform.isAndroid) {
-      if (scheme != null) {
+      if (scheme != null && scheme.isNotEmpty) {
         const MethodChannel _channel = MethodChannel('browser_launcher');
         String targetPackageName = scheme;
 
@@ -568,6 +566,18 @@ class WalletConnectService {
     // }
     return pairings;
   }
+  // void getAllSessionLinks() {
+  //   final sessions = _walletKit.sessions.getAll();
+  //   for (var session in sessions) {
+  //     print('Session Information:');
+  //     print('Topic: ${session.topic}');
+  //     print('Peer ID: ${session.peer.toString()}');
+  //     print('Peer Metadata: ${session.peer.metadata}');
+  //     print('Namespaces: ${session.namespaces}');
+  //     print('---');
+    
+  //   }
+  // }
 
   Future<void> dispatchEnvelope(String uri) async {
     await _walletKit.dispatchEnvelope(uri);

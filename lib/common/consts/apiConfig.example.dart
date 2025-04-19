@@ -29,3 +29,10 @@ String center_public_keys = """
 -----BEGIN PUBLIC KEY-----
 -----END PUBLIC KEY-----
 """;
+
+const String GRAPH_QL_ZEKO_TESTNET_NODE_URL = "";
+const String ZEKO_TESTNET_TX_RECORDS_GQL_URL = "";
+const String ZEKO_TESTNET_TRANSACTIONS_EXPLORER_URL = "";
+
+String terms_and_contions_default= "https://www.aurowallet.com/terms-and-conditions";
+String privacy_policy_default = "https://www.aurowallet.com/privacy-policy";

@@ -137,9 +137,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     if (host == "wc" && wcUri != null && wcUri.isNotEmpty) {
       String? scheme = uri.queryParameters['scheme'];
       _appStore?.walletConnectService!.setTempScheme(scheme);
-      await _appStore?.walletConnectService!
-          .pair(Uri.parse(wcUri));
-      
+      await _appStore?.walletConnectService!.pair(Uri.parse(wcUri));
       return;
     }
 
@@ -190,14 +188,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       print('initializing app state');
       print('sys locale: ${Localizations.localeOf(context)}');
       await _appStore!.init(Localizations.localeOf(context).toString());
+      _appStore!.walletConnectService!.setContext(context);
       webApi = Api(context, _appStore!);
       await webApi.init();
-      // print('[aurowallet]==WidgetsBinding===2, ${_appStore?.walletConnectService}');
-      if (_appStore?.walletConnectService != null) {
-        // print('[aurowallet]==WidgetsBinding===3,');
-        _appStore!.walletConnectService!.init(_homePageContext);
-      }
-
       _changeLang(context, _appStore!.settings!.localeCode);
     }
     return _appStore!.wallet!.walletListAll.length;

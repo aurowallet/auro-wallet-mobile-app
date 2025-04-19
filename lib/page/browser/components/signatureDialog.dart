@@ -131,14 +131,18 @@ class _SignatureDialogState extends State<SignatureDialog> {
       UI.toast(dic.notSupportNow);
       return false;
     }
+   
+    if (data['error'] != null) {
+      UI.toast(data['error']['message']);
+      setState(() {
+      submitting = false;
+    });
+      return false;
+    }
+    await widget.onConfirm(data); 
     setState(() {
       submitting = false;
     });
-    if (data['error'] != null) {
-      UI.toast(data['error']['message']);
-      return false;
-    }
-    widget.onConfirm(data);
     return true;
   }
 

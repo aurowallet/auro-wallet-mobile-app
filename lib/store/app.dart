@@ -60,6 +60,10 @@ abstract class _AppStore with Store {
 
   @action
   Future<void> init(String sysLocaleCode) async {
+    
+    walletConnectService = WalletConnectService(this as AppStore);
+    await walletConnectService!.init();
+
     try {
       settings = SettingsStore(this as AppStore);
       await settings!.init();
@@ -80,8 +84,6 @@ abstract class _AppStore with Store {
     ledger = LedgerStore();
 
     assets = AssetsStore(this as AppStore);
-    walletConnectService = WalletConnectService(this as AppStore);
-    await walletConnectService!.init();
 
     browser = BrowserStore(this as AppStore);
 
