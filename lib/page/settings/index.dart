@@ -14,6 +14,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:auro_wallet/page/settings/preferences/preferencesPage.dart';
 class Profile extends StatelessWidget {
   Profile(this.store);
 
@@ -48,6 +49,12 @@ class Profile extends StatelessWidget {
                   child: Column(
                     children: [
                       SettingItem(
+                        icon: 'assets/images/setting/perference.svg', 
+                        title: dic.perferences,
+                        onTap: () =>
+                            Navigator.of(context).pushNamed(PreferencesPage.route),
+                      ),
+                      SettingItem(
                         icon: 'assets/images/setting/security.svg',
                         title: dic.security,
                         onTap: () =>
@@ -78,20 +85,6 @@ class Profile extends StatelessWidget {
                             withEllipsis: true),
                         onTap: () => Navigator.of(context)
                             .pushNamed(RemoteNodeListPage.route),
-                      ),
-                      SettingItem(
-                        icon: 'assets/images/setting/locale.svg',
-                        title: dic.language,
-                        value: languageConfig[languageCode],
-                        onTap: () =>
-                            Navigator.of(context).pushNamed(LocalesPage.route),
-                      ),
-                      SettingItem(
-                        icon: 'assets/images/setting/usd.svg',
-                        title: dic.currency,
-                        value: store.settings?.currencyCode.toUpperCase(),
-                        onTap: () => Navigator.of(context)
-                            .pushNamed(CurrenciesPage.route),
                       ),
                       SettingItem(
                         icon: 'assets/images/setting/contact.svg',

@@ -3,11 +3,14 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+
+## [2.1.1]
 - Enhancements
     - Sort of sendPage address 
     - Add refresh after stake
     - Upgrade flutter version to 3.27.3
     - Input enhance BrowserSearchPage
+    - Add support for Android build zkApp
 
 - Fixed
     - Staking back router

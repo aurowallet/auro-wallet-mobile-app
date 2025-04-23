@@ -577,5 +577,6 @@
   "backToAppTitle":"Return to app",
   "backToAppDesc":"Please return to the app to continue using their services.",
   "walletConnectTitle":"WalletConnect Sessions",
-  "noWalletConnectSession": "No sessions"
+  "noWalletConnectSession": "No sessions",
+  "perferences":"Perferences"
 }

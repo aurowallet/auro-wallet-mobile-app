@@ -58,6 +58,7 @@ import 'package:auro_wallet/page/account/import/importWatchedAccountPage.dart';
 import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
 import 'package:app_links/app_links.dart';
+import 'package:auro_wallet/page/settings/preferences/preferencesPage.dart';
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
@@ -381,6 +382,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         BrowserSearchPage.route: (_) => BrowserSearchPage(_appStore!),
         ZkAppConnectPage.route: (_) => ZkAppConnectPage(_appStore!),
         WalletConnectPage.route: (_) => WalletConnectPage(_appStore!),
+        PreferencesPage.route: (_) => PreferencesPage(_appStore!),
       },
     );
   }

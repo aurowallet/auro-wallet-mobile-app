@@ -12,7 +12,7 @@ const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 /// app versions
-const String app_version = 'v2.1.1(1169)';
+const String app_version = 'v2.1.1(1170)';
 
 final Map<String, String> languageConfig = {
   "en": 'English',

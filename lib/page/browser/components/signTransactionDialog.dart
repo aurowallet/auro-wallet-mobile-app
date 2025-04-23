@@ -22,13 +22,13 @@ import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/utils/Loading.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
@@ -156,7 +156,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         );
         nextGqlUrl = nextEndpoint?.url;
       }
-      EasyLoading.show();
+      EasyLoading.show(context);
       Map<String, AccountInfo> accountsInfo = await webApi.assets
           .fetchBatchAccountsInfo(pubKeyList, gqlUrl: nextGqlUrl);
       AccountInfo? balancesInfo_2 = accountsInfo[nextAccountData.pubKey];

@@ -68,11 +68,11 @@ class _WalletConnectPageState extends State<WalletConnectPage>
     }
     return ListView.separated(
       itemCount: _pairedLinks.length,
-      padding: const EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(top: 20),
       separatorBuilder: (BuildContext context, int index) => Container(
         color: Colors.black.withValues(alpha: 0.1),
         height: 0.5,
-        margin: const EdgeInsets.symmetric(vertical: 0),
+        margin: EdgeInsets.symmetric(vertical: 0),
       ),
       itemBuilder: (BuildContext context, int index) {
         final pairing = _pairedLinks[index];
@@ -118,7 +118,7 @@ class _WalletConnectPageState extends State<WalletConnectPage>
 }
 
 class WalletConnectItem extends StatelessWidget {
-  const WalletConnectItem({
+  WalletConnectItem({
     required this.pairing,
     required this.onDisconnect,
     Key? key,
@@ -133,12 +133,12 @@ class WalletConnectItem extends StatelessWidget {
     final metadata = pairing.peerMetadata;
     if (metadata == null) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         child: Text(dic.noWalletConnectSession),
-      ); 
+      );
     }
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,40 +158,36 @@ class WalletConnectItem extends StatelessWidget {
                   "assets/images/public/tab/tab_browser_active.svg",
                   width: 40,
                   colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   metadata.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     color: Colors.black,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   pairing.topic,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: Colors.black.withValues(alpha: 0.1), 
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   metadata.url,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.blue,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).primaryColor,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  metadata.description,
-                  style: const TextStyle(fontSize: 14),
                 ),
               ],
             ),
