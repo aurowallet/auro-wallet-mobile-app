@@ -578,7 +578,7 @@
   "signed":"Подписано",
   "backToAppTitle": "Назад в приложение",
   "backToAppDesc": "Вернитесь в приложение, чтобы продолжить пользоваться его услугами.",
-  "walletConnectTitle":"Сеансы WalletConnect",
+  "walletConnectTitle":"WalletConnect",
   "noWalletConnectSession": "Нет сессий",
   "perferences":"Настройки"
 }

@@ -576,7 +576,7 @@
   "signed":"Підписано",
   "backToAppTitle": "Повернутися до програми",
   "backToAppDesc": "Будь ласка, поверніться до програми, щоб продовжити користуватися її послугами.",
-  "walletConnectTitle":"Сесії WalletConnect",
+  "walletConnectTitle":"WalletConnect",
   "noWalletConnectSession": "Немає сесій",
   "perferences":"Налаштування"
 }

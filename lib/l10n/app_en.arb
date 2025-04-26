@@ -576,7 +576,7 @@
   "signed":"SIGNED",
   "backToAppTitle":"Return to app",
   "backToAppDesc":"Please return to the app to continue using their services.",
-  "walletConnectTitle":"WalletConnect Sessions",
+  "walletConnectTitle":"WalletConnect", 
   "noWalletConnectSession": "No sessions",
   "perferences":"Perferences"
 }
