@@ -140,8 +140,7 @@ class DelegateInfo extends StatelessWidget {
           ));
     } else {
       Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
-      double? showBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance;
-      BigInt total = BigInt.from(showBalance ?? 0);
+      double? showBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0.0;
 
       return Container(
           child: Column(
@@ -164,7 +163,7 @@ class DelegateInfo extends StatelessWidget {
           Row(children: [
             DelegateInfoItem(
                 labelText: dic.stakedBalance,
-                value: total.toString() + ' ' + COIN.coinSymbol)
+                value: showBalance.toString() + ' ' + COIN.coinSymbol)
           ]),
         ],
       ));

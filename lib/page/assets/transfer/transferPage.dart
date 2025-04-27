@@ -611,15 +611,6 @@ class _TransferPageState extends State<TransferPage> {
         showLength: int.parse(availableDecimals ?? "0"));
   }
 
-  String getTokenSymbol(Token token) {
-    String tokenSymbol = "";
-    if (isSendMainToken) {
-      tokenSymbol = COIN.coinSymbol;
-    } else {
-      tokenSymbol = token.tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
-    }
-    return tokenSymbol;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -634,7 +625,7 @@ class _TransferPageState extends State<TransferPage> {
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 120 : realBottom;
         nextBottom = nextBottom.isNegative ? 0 : nextBottom;
-        String symbol = getTokenSymbol(store.assets!.nextToken);
+        String symbol = tokenSymbol;
         String pageTitle = dic.send + " " + symbol;
         String showBalance =
             store.assets!.nextToken.tokenBaseInfo?.showBalance != null

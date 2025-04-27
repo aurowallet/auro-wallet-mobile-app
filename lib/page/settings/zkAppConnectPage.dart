@@ -15,9 +15,10 @@ class ZkAppConnectPage extends StatefulWidget {
   _ZkAppConnectPageState createState() => _ZkAppConnectPageState(store);
 }
 
-class _ZkAppConnectPageState extends State<ZkAppConnectPage> with WidgetsBindingObserver{
+class _ZkAppConnectPageState extends State<ZkAppConnectPage>
+    with WidgetsBindingObserver {
   _ZkAppConnectPageState(this.store);
-  
+
   final AppStore store;
   final Api api = webApi;
 
@@ -63,8 +64,7 @@ class _ZkAppConnectPageState extends State<ZkAppConnectPage> with WidgetsBinding
         itemCount: zkAppConnectList.length,
         padding: EdgeInsets.only(top: 20),
         separatorBuilder: (BuildContext context, int index) => Container(
-              color: Colors.black.withValues(alpha: 0.1),
-              height: 0.5,
+              height: 0,
               margin: EdgeInsets.symmetric(vertical: 0),
             ),
         itemBuilder: (BuildContext context, int index) {
