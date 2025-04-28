@@ -493,7 +493,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     String? webIcon = websiteInitInfo['webIcon'];
     String? icon = webIcon != null && webIcon.isNotEmpty ? webIcon : "";
     String? webTitle = await _controller.getTitle();
-    String title = webTitle != null && webTitle.isNotEmpty ? webTitle : url;
+    String title = webTitle != null && webTitle.isNotEmpty ? webTitle : getBrowserTitle(url);
 
     return {"webIconUrl": icon, "webTitle": title, url: url};
   }

@@ -9,6 +9,7 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -147,7 +148,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
       final String? icon = websiteInitInfo['webIconUrl'];
       store.browser!.updateFavItem({
         "url": loadUrl,
-        "title": title != null && title.isNotEmpty ? title : loadUrl,
+        "title": title != null && title.isNotEmpty ? title : getBrowserTitle(loadUrl),
         "icon": icon != null && icon.isNotEmpty ? icon : "",
         "time": DateTime.now().toString(),
       }, loadUrl);

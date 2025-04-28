@@ -164,3 +164,13 @@ CustomNode? findNodeByNetworkId(
     }
   }
 }
+
+/// Function to get the browser title from a URL
+String getBrowserTitle(String url) {
+  try {
+    final uri = Uri.parse(url);
+    return uri.host;
+  } catch (e) {
+    return url;
+  }
+}

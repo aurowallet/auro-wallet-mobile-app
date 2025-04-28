@@ -4,18 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
-## [2.1.1]
-- Enhancements
-    - Sort of sendPage address 
-    - Add refresh after stake
-    - Upgrade flutter version to 3.27.3
-    - Input enhance BrowserSearchPage
-    - Add support for Android build zkApp
+### Enhancements
+- BrowserWrapperPage UI
 
-- Fixed
-    - Staking back router
-    - Small amount token transfers
-    - Terms link
+
+## [2.1.1]
+### Enhancements
+- Sort of SendPage address 
+- Add refresh after stake
+- Upgrade Flutter version to 3.27.3
+- Input enhance BrowserSearchPage
+- Add support for Android build zkApp
+
+### Fixed
+- Staking back router
+- Small amount token transfer
+- Terms link
 
 
 ## [2.1.0]
@@ -28,8 +32,8 @@ All notable changes to this project will be documented in this file.
     - zkApp recommends fee/nonce
     - Remove support for Berkeley network
 
-- Fixed
-    - Transfer all balance
+- Fixed。、，
+    - Trans、fer all balance
     - Webview localServer
     - Origin of postMessage
 

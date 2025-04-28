@@ -14,7 +14,7 @@ class WebFavItem extends StatelessWidget {
 
   Widget buildWidget(BuildContext context) {
     String showTitle = data.title;
-    var itemWidth = (MediaQuery.of(context).size.width - 40) / 2 - 50;
+    var itemWidth = (MediaQuery.of(context).size.width - 48) / 2 - 50;
     return Container(
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -30,7 +30,7 @@ class WebFavItem extends StatelessWidget {
             ItemLogo(
               name: data.title,
               dataIcon: data.icon,
-              width: 20,
+              width: 24,
             ),
             SizedBox(
               width: 5,
@@ -187,7 +187,7 @@ class WebHistoryItem extends StatelessWidget {
             ItemLogo(
               name: data.title,
               dataIcon: data.icon,
-              showHolderIcon: true,
+              // showHolderIcon: true, 
               radius: 30,
               width: 24,
             ),
