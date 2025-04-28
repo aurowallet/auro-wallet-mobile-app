@@ -206,7 +206,6 @@ flutter:
     - assets/images/stake/icon_edit.svg
 
     ## tab bar bottom
-    - assets/images/assets/scanner_black.png
     - assets/images/assets/receive_line_black.png
 
     - assets/images/public/tab/tab_stake.svg

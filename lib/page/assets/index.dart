@@ -5,7 +5,7 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
-import 'package:auro_wallet/page/account/accountManagePage.dart';
+import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenListView.dart';
@@ -34,7 +34,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   final AppStore store;
   Timer? _refreshTimer;
-  final GlobalKey<RefreshIndicatorState> _balanceRefreshKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _balanceRefreshKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void ledgerSetup() async {
@@ -256,11 +257,18 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     );
   }
 
-  void _viewAccountDetail() {
-    Navigator.pushNamed(context, AccountManagePage.route, arguments: {
-      "account": store.wallet!.currentWallet.currentAccount,
-      "wallet": store.wallet!.currentWallet
-    });
+  void _onScan() async {
+    var params = {"isScanWc": true};
+    var result = await Navigator.of(context).pushNamed(
+      ScanPage.route,
+      arguments: params,
+    );
+    if (result == null) return;
+    String address = (result as QRCodeAddressResult).address;
+    if (!store.walletConnectService!.isInitialized) {
+      await store.walletConnectService!.init();
+    }
+    await store.walletConnectService!.pair(Uri.parse(address));
   }
 
   Widget _buildTopCard(BuildContext context) {
@@ -399,10 +407,10 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                               textStyle: buttonTextStyle,
                               onPressed: _onReceive,
                               icon: SvgPicture.asset(
-                                'assets/images/assets/receive.svg',
-                                width: 10,
-                                colorFilter: ColorFilter.mode(Color(chainColor), BlendMode.srcIn)
-                              ),
+                                  'assets/images/assets/receive.svg',
+                                  width: 10,
+                                  colorFilter: ColorFilter.mode(
+                                      Color(chainColor), BlendMode.srcIn)),
                               padding: EdgeInsets.zero,
                               radius: 24,
                             ))),
@@ -412,25 +420,15 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             ],
           ),
           Positioned(
-              right: 10,
-              top: 10,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                    color: Color(0x1A000000),
-                    borderRadius: BorderRadius.circular(10)),
-                child: IconButton(
-                    iconSize: 28,
-                    color: Colors.red,
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(minHeight: 0, minWidth: 0),
-                    icon: Icon(
-                      Icons.more_horiz,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                    onPressed: _viewAccountDetail),
+              right: 4,
+              top: 4,
+              child: IconButton(
+                icon: SvgPicture.asset('assets/images/assets/scanner.svg',
+                    width: 20,
+                    height: 20,
+                    colorFilter:
+                        ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                onPressed: _onScan,
               )),
         ]),
       ),
