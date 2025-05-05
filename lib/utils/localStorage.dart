@@ -176,6 +176,33 @@ class LocalStorage {
     String connectKey = '${webConnectList}_$address';
     await storage.setKV(connectKey, '[]');
   }
+
+  Future<void> removeZkAppTarget(String url) async {
+    if (url.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final keys = prefs
+          .getKeys()
+          .where((key) => key.startsWith('${webConnectList}_'))
+          .toList();
+      for (String key in keys) {
+        String? value = await storage.getKV(key);
+        if (value != null && value.isNotEmpty) {
+          try {
+            var connectListTemp = jsonDecode(value);
+            if (connectListTemp is List) {
+              List<String> connectList = List<String>.from(connectListTemp);
+              if (connectList.contains(url)) {
+                connectList.remove(url);
+                await storage.setKV(key, jsonEncode(connectList));
+              }
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+      }
+    }
+  }
 }
 
 class _LocalStorage {

@@ -9126,6 +9126,9 @@ var DAppActions = {
     mina_createNullifier: "mina_createNullifier",
     mina_addChain: "mina_addChain",
     wallet_info: "wallet_info",
+    mina_storePrivateCredential: "mina_storePrivateCredential",
+    mina_requestPresentation: "mina_requestPresentation",
+    wallet_revokePermissions: "wallet_revokePermissions",
 };
 
 // EXTERNAL MODULE: ./node_modules/eventemitter3/index.js
@@ -9607,6 +9610,31 @@ var provider_MinaProvider = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.request({ method: DAppActions.wallet_info })];
             });
+        });
+    };
+    MinaProvider.prototype.storePrivateCredential = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.request({
+                        method: DAppActions.mina_storePrivateCredential,
+                        params: args,
+                    })];
+            });
+        });
+    };
+    MinaProvider.prototype.requestPresentation = function (args) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.request({
+                        method: DAppActions.mina_requestPresentation,
+                        params: args,
+                    })];
+            });
+        });
+    };
+    MinaProvider.prototype.revokePermissions = function () {
+        return this.request({
+            method: DAppActions.wallet_revokePermissions,
         });
     };
     MinaProvider.prototype.initEvents = function () {

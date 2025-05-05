@@ -101,6 +101,15 @@ mixin _$BrowserStore on _BrowserStore, Store {
         .run(() => super.loadZkAppConnect(address));
   }
 
+  late final _$removeZkAppTargetUrlAsyncAction =
+      AsyncAction('_BrowserStore.removeZkAppTargetUrl', context: context);
+
+  @override
+  Future<void> removeZkAppTargetUrl(String url) {
+    return _$removeZkAppTargetUrlAsyncAction
+        .run(() => super.removeZkAppTargetUrl(url));
+  }
+
   late final _$updateFavItemAsyncAction =
       AsyncAction('_BrowserStore.updateFavItem', context: context);
 

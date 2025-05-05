@@ -165,12 +165,15 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             };
           } else {
             resData = {
-              "result": {"hash": result['hash'],"paymentId":result['paymentId']},// 这里还有一个 paymentId
+              "result": {
+                "hash": result['hash'],
+                "paymentId": result['paymentId']
+              }, 
               "id": payload['id']
             };
           }
 
-          if (result['hash']!= null || result['signedData']!= null) {
+          if (result['hash'] != null || result['signedData'] != null) {
             widget.onTxConfirmed(result['nonce']);
           }
           _responseToZkApp(method, resData);
@@ -481,6 +484,12 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         };
         _responseToZkApp(method, resData);
         return;
+
+      case "wallet_revokePermissions":
+        await store.browser?.removeZkAppTargetUrl(siteInfo?['origin']);
+        Map<String, dynamic> resData = {"result": [], "id": payload['id']};
+        _responseToZkApp(method, resData);
+        return;
       default:
         print('Unknown message from zkApp: ${method}');
         Map res = {"message": "Method not supported.", "code": 20006};
@@ -493,7 +502,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     String? webIcon = websiteInitInfo['webIcon'];
     String? icon = webIcon != null && webIcon.isNotEmpty ? webIcon : "";
     String? webTitle = await _controller.getTitle();
-    String title = webTitle != null && webTitle.isNotEmpty ? webTitle : getBrowserTitle(url);
+    String title = webTitle != null && webTitle.isNotEmpty
+        ? webTitle
+        : getBrowserTitle(url);
 
     return {"webIconUrl": icon, "webTitle": title, url: url};
   }

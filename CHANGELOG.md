@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Enhancements
 - BrowserWrapperPage UI
 - Add support for WalletConnect
+- Add support for revoke permissions
 
 
 ## [2.1.1]

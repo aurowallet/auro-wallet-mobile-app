@@ -302,6 +302,18 @@ class WalletConnectService {
         );
         return;
       }
+      if(method == "wallet_revokePermissions") {
+        await _walletKit.core.pairing.disconnect(topic: event.topic);
+        _walletKit.respondSessionRequest(
+          topic: event.topic,
+          response: JsonRpcResponse(
+            id: event.id,
+            jsonrpc: '2.0',
+            result: [],
+          ),
+        );
+        return;
+      }
 
       final params = event.params as Map;
       final fromAddress = params['from'];
@@ -474,7 +486,8 @@ class WalletConnectService {
             "mina_verifyMessage",
             "mina_verify_JsonMessage",
             "mina_verifyFields",
-            "wallet_info"
+            "wallet_info",
+            "wallet_revokePermissions"
           ],
           events: ["accountsChanged", "chainChanged"],
         ),

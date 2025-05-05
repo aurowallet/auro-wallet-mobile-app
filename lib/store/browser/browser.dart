@@ -67,6 +67,11 @@ abstract class _BrowserStore with Store {
       print(e);
     }
   }
+  @action
+  Future<void> removeZkAppTargetUrl(String url) async {
+    await rootStore.localStorage.removeZkAppTarget(url);
+    await loadZkAppConnect(rootStore.wallet!.currentAddress);
+  }
 
   @action
   Future<void> updateFavItem(Map<String, dynamic> con, String url) async {
