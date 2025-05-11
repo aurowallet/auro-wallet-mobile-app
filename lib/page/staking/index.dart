@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
@@ -25,10 +27,15 @@ class _StakingState extends State<Staking> {
 
   final AppStore store;
   bool loading = true;
+  Timer? _refreshTimer;
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchData();
+      _refreshTimer = Timer.periodic(Duration(minutes: 3), (timer) {
+        _onRefresh();
+      });
     });
     loading = !_haveCacheData();
     super.initState();
@@ -51,6 +58,16 @@ class _StakingState extends State<Staking> {
         loading = false;
       });
     }
+  }
+
+  Future<void> _onRefresh() async {
+    webApi.staking.fetchStakingOverview();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   void _onPress() {
@@ -76,7 +93,7 @@ class _StakingState extends State<Staking> {
         leading: null,
         title: isFromRoute ? Text(dic.staking) : null,
         toolbarHeight: isFromRoute ? null : 0,
-        centerTitle: true, 
+        centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(

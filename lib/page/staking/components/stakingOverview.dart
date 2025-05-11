@@ -1,9 +1,9 @@
-
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/staking/types/overviewData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -35,7 +35,6 @@ class StakingOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     OverviewData data = store.staking!.overviewData;
-    List<String> time = _getTime();
     TextStyle labelStyle = TextStyle(
         fontSize: 12,
         color: Colors.black.withValues(alpha: 0.5),
@@ -45,99 +44,104 @@ class StakingOverview extends StatelessWidget {
       color: Theme.of(context).primaryColor,
       fontWeight: FontWeight.w500,
     );
-    return Container(
-        margin: EdgeInsets.only(top: 10, left: 20, right: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/stake/icon_epoch.svg',
-                  width: 16,
-                  colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                ),
-                Container(
-                  width: 8,
-                ),
-                Text(
-                  dic.epochInfo,
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600),
-                )
-              ],
-            ),
-            Container(
-              padding: EdgeInsets.all(20),
-              margin: EdgeInsets.only(top: 10),
-              decoration: BoxDecoration(
-                  color: Color(0xFFF9FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: Colors.black.withValues(alpha: 0.05), width: 0.5)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+    return Observer(builder: (_) {
+      List<String> time = _getTime();
+      return Container(
+          margin: EdgeInsets.only(top: 10, left: 20, right: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Epoch',
-                        style: labelStyle,
-                      ),
-                      Text(
-                        data.epoch.toString(),
-                        style: valueStyle,
-                      ),
-                      Padding(padding: EdgeInsets.only(top: 10)),
-                      Container(
-                        width: 60,
-                        child: Text(
-                          'Slot',
-                          style: labelStyle,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(data.slot.toString(), style: valueStyle),
-                          Text(' / ${data.slotsPerEpoch.toString()}',
-                              style: valueStyle.copyWith(
-                                  fontSize: 12,
-                                  color: ColorsUtil.hexColor(0xb1b3be))),
-                        ],
-                      ),
-                      Padding(padding: EdgeInsets.only(top: 10)),
-                      Text(
-                        dic.epochEndTime,
-                        style: labelStyle,
-                      ),
-                      Row(
-                        children: [
-                          TimeInfo(time: time[0] + 'd'),
-                          Text(' : '),
-                          TimeInfo(time: time[1] + 'h'),
-                          Text(' : '),
-                          TimeInfo(time: time[2] + 'm'),
-                        ],
-                      ),
-                    ],
+                  SvgPicture.asset(
+                    'assets/images/stake/icon_epoch.svg',
+                    width: 16,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                   ),
-                  PercentageCircle(
-                    percentage: data.slotsPerEpoch != 0
-                        ? (data.slot / data.slotsPerEpoch)
-                        : 0,
+                  Container(
+                    width: 8,
+                  ),
+                  Text(
+                    dic.epochInfo,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600),
                   )
                 ],
               ),
-            )
-          ],
-        ));
+              Container(
+                padding: EdgeInsets.all(20),
+                margin: EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                    color: Color(0xFFF9FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        width: 0.5)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Epoch',
+                          style: labelStyle,
+                        ),
+                        Text(
+                          data.epoch.toString(),
+                          style: valueStyle,
+                        ),
+                        Padding(padding: EdgeInsets.only(top: 10)),
+                        Container(
+                          width: 60,
+                          child: Text(
+                            'Slot',
+                            style: labelStyle,
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(data.slot.toString(), style: valueStyle),
+                            Text(' / ${data.slotsPerEpoch.toString()}',
+                                style: valueStyle.copyWith(
+                                    fontSize: 12,
+                                    color: ColorsUtil.hexColor(0xb1b3be))),
+                          ],
+                        ),
+                        Padding(padding: EdgeInsets.only(top: 10)),
+                        Text(
+                          dic.epochEndTime,
+                          style: labelStyle,
+                        ),
+                        Row(
+                          children: [
+                            TimeInfo(time: time[0] + 'd'),
+                            Text(' : '),
+                            TimeInfo(time: time[1] + 'h'),
+                            Text(' : '),
+                            TimeInfo(time: time[2] + 'm'),
+                          ],
+                        ),
+                      ],
+                    ),
+                    PercentageCircle(
+                      percentage: data.slotsPerEpoch != 0
+                          ? (data.slot / data.slotsPerEpoch)
+                          : 0,
+                    )
+                  ],
+                ),
+              )
+            ],
+          ));
+    });
   }
 }
 

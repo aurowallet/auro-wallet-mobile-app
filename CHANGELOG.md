@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - BrowserWrapperPage UI
 - Add support for WalletConnect
 - Add support for revoke permissions
+- Add timed refresh to StakingPage
 
 
 ## [2.1.1]
