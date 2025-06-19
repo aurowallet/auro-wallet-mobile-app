@@ -19,7 +19,12 @@ class NetworkIcon extends StatelessWidget {
       if (endpoint.networkID == networkIDMap.mainnet) {
         iconUrl = "assets/images/stake/icon_mina_color.svg";
       } else {
-        iconUrl = 'assets/images/stake/icon_mina_gray.svg';
+        bool isZekoNet = endpoint.networkID.startsWith("zeko");
+        if (isZekoNet) {
+          iconUrl = 'assets/images/setting/icon_zeko_network.png';
+        } else {
+          iconUrl = 'assets/images/stake/icon_mina_gray.svg';
+        }
       }
     }
     return iconUrl;
@@ -30,14 +35,21 @@ class NetworkIcon extends StatelessWidget {
     String? iconUrl = getNetworkIcon();
     String iconName = endpoint.name;
     if (iconUrl != null && iconUrl.isNotEmpty) {
+      bool isPng = iconUrl.endsWith('png');
       return Container(
           child: ClipOval(
-              child: SvgPicture.asset(
-        iconUrl,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-      )));
+              child: isPng
+                  ? Image.asset(
+                      iconUrl,
+                      width: size,
+                      height: size,
+                    )
+                  : SvgPicture.asset(
+                      iconUrl,
+                      width: size,
+                      height: size,
+                      fit: BoxFit.cover,
+                    )));
     } else {
       return Container(
           child: CircleAvatar(

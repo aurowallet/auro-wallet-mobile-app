@@ -197,6 +197,7 @@ flutter:
     - assets/images/setting/icon_connect.svg
     - assets/images/setting/icon_walletconnect.svg
     - assets/images/setting/perference.svg
+    - assets/images/setting/icon_zeko_network.png
 
     ## stake
     - assets/images/stake/icon_delegation.svg
