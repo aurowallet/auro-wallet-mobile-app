@@ -88,21 +88,6 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  late final _$txsAtom = Atom(name: '_AssetsStore.txs', context: context);
-
-  @override
-  ObservableList<TransferData> get txs {
-    _$txsAtom.reportRead();
-    return super.txs;
-  }
-
-  @override
-  set txs(ObservableList<TransferData> value) {
-    _$txsAtom.reportWrite(value, super.txs, () {
-      super.txs = value;
-    });
-  }
-
   late final _$scamListAtom =
       Atom(name: '_AssetsStore.scamList', context: context);
 
@@ -151,34 +136,19 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
-  late final _$zkTxsAtom = Atom(name: '_AssetsStore.zkTxs', context: context);
+  late final _$tokenFullTxsAtom =
+      Atom(name: '_AssetsStore.tokenFullTxs', context: context);
 
   @override
-  ObservableList<TransferData> get zkTxs {
-    _$zkTxsAtom.reportRead();
-    return super.zkTxs;
+  ObservableMap<String, List<TransferData>> get tokenFullTxs {
+    _$tokenFullTxsAtom.reportRead();
+    return super.tokenFullTxs;
   }
 
   @override
-  set zkTxs(ObservableList<TransferData> value) {
-    _$zkTxsAtom.reportWrite(value, super.zkTxs, () {
-      super.zkTxs = value;
-    });
-  }
-
-  late final _$tokenZkTxsAtom =
-      Atom(name: '_AssetsStore.tokenZkTxs', context: context);
-
-  @override
-  ObservableMap<String, List<TransferData>> get tokenZkTxs {
-    _$tokenZkTxsAtom.reportRead();
-    return super.tokenZkTxs;
-  }
-
-  @override
-  set tokenZkTxs(ObservableMap<String, List<TransferData>> value) {
-    _$tokenZkTxsAtom.reportWrite(value, super.tokenZkTxs, () {
-      super.tokenZkTxs = value;
+  set tokenFullTxs(ObservableMap<String, List<TransferData>> value) {
+    _$tokenFullTxsAtom.reportWrite(value, super.tokenFullTxs, () {
+      super.tokenFullTxs = value;
     });
   }
 
@@ -365,24 +335,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
         .run(() => super.addTokenPendingTxs(ls, address));
   }
 
-  late final _$addTxsAsyncAction =
-      AsyncAction('_AssetsStore.addTxs', context: context);
+  late final _$addFullTxsAsyncAction =
+      AsyncAction('_AssetsStore.addFullTxs', context: context);
 
   @override
-  Future<void> addTxs(List<dynamic> ls, String address,
+  Future<void> addFullTxs(List<dynamic> ls, String address, String tokenId,
       {bool shouldCache = false}) {
-    return _$addTxsAsyncAction
-        .run(() => super.addTxs(ls, address, shouldCache: shouldCache));
-  }
-
-  late final _$addZkTxsAsyncAction =
-      AsyncAction('_AssetsStore.addZkTxs', context: context);
-
-  @override
-  Future<void> addZkTxs(List<dynamic> ls, String address, String tokenId,
-      {bool shouldCache = false}) {
-    return _$addZkTxsAsyncAction.run(
-        () => super.addZkTxs(ls, address, tokenId, shouldCache: shouldCache));
+    return _$addFullTxsAsyncAction.run(
+        () => super.addFullTxs(ls, address, tokenId, shouldCache: shouldCache));
   }
 
   late final _$setFeesMapAsyncAction =
@@ -630,12 +590,10 @@ isAssetsLoading: ${isAssetsLoading},
 accountsInfo: ${accountsInfo},
 transferFees: ${transferFees},
 pendingTxs: ${pendingTxs},
-txs: ${txs},
 scamList: ${scamList},
 scamAddressStr: ${scamAddressStr},
 pendingZkTxs: ${pendingZkTxs},
-zkTxs: ${zkTxs},
-tokenZkTxs: ${tokenZkTxs},
+tokenFullTxs: ${tokenFullTxs},
 tokenList: ${tokenList},
 marketPrices: ${marketPrices},
 localHideTokenMap: ${localHideTokenMap},

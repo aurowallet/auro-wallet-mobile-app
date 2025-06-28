@@ -106,6 +106,29 @@ class TransferData extends _TransferData {
     var data = fromJson(json);
     return data;
   }
+
+  @override
+  String toString() {
+    return 'TransferData(\n'
+        '  success: $success,\n'
+        '  nonce: $nonce,\n'
+        '  paymentId: $paymentId,\n'
+        '  hash: $hash,\n'
+        '  type: $type,\n'
+        '  time: $time,\n'
+        '  sender: $sender,\n'
+        '  receiver: $receiver,\n'
+        '  amount: $amount,\n'
+        '  fee: $fee,\n'
+        '  memo: $memo,\n'
+        '  status: $status,\n'
+        '  isFromAddressScam: $isFromAddressScam,\n'
+        '  showSpeedUp: $showSpeedUp,\n'
+        '  transaction: $transaction,\n'
+        '  failureReason: $failureReason,\n'
+        '  isPending: $isPending\n'
+        ')';
+  }
 }
 
 abstract class _TransferData {

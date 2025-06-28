@@ -31,10 +31,9 @@ abstract class _AssetsStore with Store {
   final String localStorageFeesKey = 'fees';
   final String cacheBalanceKey = 'balance';
   final String cachePriceKey = 'coin_price_v2';
-  final String cacheTxsKey = 'txs';
 
   final String cacheScamListKey = 'wallet_sacm_list';
-  final String cacheZkTxsKey = 'zk_txs_v2';
+  final String cacheFullTxsKey = 'accounts_full_txs';
 
   final String cacheTokensKey = 'account_token_v1';
 
@@ -56,9 +55,6 @@ abstract class _AssetsStore with Store {
   ObservableList<TransferData> pendingTxs = ObservableList<TransferData>();
 
   @observable
-  ObservableList<TransferData> txs = ObservableList<TransferData>();
-
-  @observable
   ObservableList<ScamItem> scamList = ObservableList<ScamItem>();
 
   @observable
@@ -68,10 +64,7 @@ abstract class _AssetsStore with Store {
   ObservableList<TransferData> pendingZkTxs = ObservableList<TransferData>();
 
   @observable
-  ObservableList<TransferData> zkTxs = ObservableList<TransferData>();
-
-  @observable
-  ObservableMap<String, List<TransferData>> tokenZkTxs =
+  ObservableMap<String, List<TransferData>> tokenFullTxs =
       ObservableMap<String, List<TransferData>>();
 
   @observable
@@ -168,14 +161,7 @@ abstract class _AssetsStore with Store {
       return Fmt.toDatetime(dateTimeStr);
     };
     List<TransferData> totals = [];
-    List<TransferData> sourceTotals = [];
-
-    List<TransferData> nextZkTx = tokenZkTxs[tokenId] ?? [];
-    if (tokenId == ZK_DEFAULT_TOKEN_ID) {
-      sourceTotals = [...txs, ...nextZkTx];
-    } else {
-      sourceTotals = [...nextZkTx];
-    }
+    List<TransferData> sourceTotals = tokenFullTxs[tokenId] ?? [];
     sourceTotals.forEach((i) {
       if (rootStore.settings?.isMainnet == true) {
         var addlow = i.sender!.toLowerCase();
@@ -327,60 +313,108 @@ abstract class _AssetsStore with Store {
     tokenPendingTxList[address] = tempTxList;
   }
 
+  // @action
+  // Future<void> addTxs(List<dynamic> ls, String address,
+  //     {bool shouldCache = false}) async {
+  //   txs.clear();
+  //   if (rootStore.wallet!.currentAddress != address) return;
+
+  //   ls.forEach((i) {
+  //     i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
+  //     TransferData tx = TransferData.fromGraphQLJson(i);
+  //     tx.success = tx.status != 'failed';
+  //     i['success'] = tx.success;
+  //     txs.add(tx);
+  //   });
+
+  //   if (shouldCache) {
+  //     rootStore.localStorage.setAccountCache(
+  //         rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, ls);
+  //   }
+  // }
+
+  // @action
+  // Future<void> addZkTxs(List<dynamic> ls, String address, String tokenId,
+  //     {bool shouldCache = false}) async {
+  //   try {
+  //     // zkTxs.clear();
+  //     if (rootStore.wallet!.currentAddress != address) return;
+  //     if (ls.isEmpty) return;
+  //     List<TransferData> tempZkTxList = [];
+  //     ls.forEach((i) {
+  //       try {
+  //         if (i['zkappCommand'] != null && i['zkappCommand']['memo'] != null) {
+  //           i['memo'] = bs58Decode(i['zkappCommand']['memo']);
+  //         } else {
+  //           i['memo'] = "";
+  //         }
+  //       } catch (e) {
+  //         i['memo'] = "";
+  //       }
+  //       TransferData tx = TransferData.fromZkGraphQLJson(i);
+  //       tx.success = tx.status != 'failed';
+  //       i['success'] = tx.success;
+  //       tempZkTxList.add(tx);
+  //     });
+
+  //     tokenFullTxs[tokenId] = tempZkTxList;
+  //     if (shouldCache) {
+  //       Map<String, List<Map<String, dynamic>>> jsonMap = {};
+  //       tokenFullTxs.forEach((key, value) {
+  //         jsonMap[key] = value
+  //             .map((transferData) => TransferData.toJson(transferData))
+  //             .toList();
+  //       });
+  //       rootStore.localStorage.setAccountCache(
+  //           rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, jsonMap);
+  //     }
+  //   } catch (e) {
+  //     print("addZkTxs===e=${e.toString()}");
+  //   }
+  // }
   @action
-  Future<void> addTxs(List<dynamic> ls, String address,
-      {bool shouldCache = false}) async {
-    txs.clear();
-    if (rootStore.wallet!.currentAddress != address) return;
-
-    ls.forEach((i) {
-      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
-      TransferData tx = TransferData.fromGraphQLJson(i);
-      tx.success = tx.status != 'failed';
-      i['success'] = tx.success;
-      txs.add(tx);
-    });
-
-    if (shouldCache) {
-      rootStore.localStorage.setAccountCache(
-          rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, ls);
-    }
-  }
-
-  @action
-  Future<void> addZkTxs(List<dynamic> ls, String address, String tokenId,
+  Future<void> addFullTxs(List<dynamic> ls, String address, String tokenId,
       {bool shouldCache = false}) async {
     try {
-      zkTxs.clear();
       if (rootStore.wallet!.currentAddress != address) return;
       if (ls.isEmpty) return;
       List<TransferData> tempZkTxList = [];
       ls.forEach((i) {
-        try {
-          if (i['zkappCommand'] != null && i['zkappCommand']['memo'] != null) {
-            i['memo'] = bs58Decode(i['zkappCommand']['memo']);
-          } else {
-            i['memo'] = "";
+        if(i['kind'] == "zkApp"){
+          dynamic realZkBody = i['zkAppBody'];
+          try {
+            if (realZkBody['zkappCommand'] != null && realZkBody['zkappCommand']['memo'] != null) {
+              realZkBody['memo'] = bs58Decode(realZkBody['zkappCommand']['memo']);
+            } else {
+              realZkBody['memo'] = "";
+            }
+          } catch (e) {
+            realZkBody['memo'] = "";
           }
-        } catch (e) {
-          i['memo'] = "";
+          realZkBody['failureReason'] = realZkBody['failureReasons'];
+          TransferData tx = TransferData.fromZkGraphQLJson(realZkBody);
+          tx.success = tx.status != 'failed';
+          realZkBody['success'] = tx.success;
+          tempZkTxList.add(tx);
+        }else{
+          dynamic realTxBody = i['body'];
+            realTxBody['memo'] = realTxBody['memo'] != null ? bs58Decode(realTxBody['memo']) : '';
+            TransferData tx = TransferData.fromGraphQLJson(realTxBody);
+            tx.success = tx.status != 'failed';
+            realTxBody['success'] = tx.success;
+            tempZkTxList.add(tx);
         }
-        TransferData tx = TransferData.fromZkGraphQLJson(i);
-        tx.success = tx.status != 'failed';
-        i['success'] = tx.success;
-        tempZkTxList.add(tx);
       });
-
-      tokenZkTxs[tokenId] = tempZkTxList;
+      tokenFullTxs[tokenId] = tempZkTxList;
       if (shouldCache) {
         Map<String, List<Map<String, dynamic>>> jsonMap = {};
-        tokenZkTxs.forEach((key, value) {
+        tokenFullTxs.forEach((key, value) {
           jsonMap[key] = value
               .map((transferData) => TransferData.toJson(transferData))
               .toList();
         });
         rootStore.localStorage.setAccountCache(
-            rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, jsonMap);
+            rootStore.wallet!.currentWallet.pubKey, cacheFullTxsKey, jsonMap);
       }
     } catch (e) {
       print("addZkTxs===e=${e.toString()}");
@@ -426,22 +460,22 @@ abstract class _AssetsStore with Store {
     await loadTokenLocalConfigCache();
     List cache = await Future.wait([
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
-      rootStore.localStorage.getAccountCache(pubKey, cacheTxsKey),
-      rootStore.localStorage.getAccountCache(pubKey, cacheZkTxsKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTokensKey),
+      rootStore.localStorage.getAccountCache(pubKey, cacheFullTxsKey),
     ]);
 
     if (cache[0] != null) {
       setAccountInfo(pubKey, cache[0], needCache: false);
     }
     if (cache[1] != null) {
-      txs = ObservableList.of(
-          List.of(cache[1]).map((i) => TransferData.fromJson(i)).toList());
+      tokenList.clear();
+      List<Token> ls = List.of(cache[1]).map((i) => Token.fromJson(i)).toList();
+      updateTokenAssets(ls, pubKey);
     } else {
-      txs = ObservableList();
+      tokenList = ObservableList<Token>();
     }
     if (cache[2] != null) {
-      tokenZkTxs.clear();
+      tokenFullTxs.clear();
       Map<String, dynamic> jsonMap = cache[2];
       ObservableMap<String, List<TransferData>> tempTokenZkTx =
           ObservableMap<String, List<TransferData>>();
@@ -451,16 +485,9 @@ abstract class _AssetsStore with Store {
             .toList();
         tempTokenZkTx[key] = transferDataList;
       });
-      tokenZkTxs.addAll(tempTokenZkTx);
+      tokenFullTxs.addAll(tempTokenZkTx);
     } else {
-      tokenZkTxs = ObservableMap<String, List<TransferData>>();
-    }
-    if (cache[3] != null) {
-      tokenList.clear();
-      List<Token> ls = List.of(cache[3]).map((i) => Token.fromJson(i)).toList();
-      updateTokenAssets(ls, pubKey);
-    } else {
-      tokenList = ObservableList<Token>();
+      tokenFullTxs = ObservableMap<String, List<TransferData>>();
     }
   }
 
@@ -487,13 +514,11 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> clearAccountCache() async {
-    rootStore.localStorage.clearAccountsCache(cacheTxsKey);
+    rootStore.localStorage.clearAccountsCache(cacheFullTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
-    rootStore.localStorage.clearAccountsCache(cacheZkTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheTokensKey);
-    txs = ObservableList();
     accountsInfo = ObservableMap<String, AccountInfo>();
-    zkTxs = ObservableList();
+    tokenFullTxs = ObservableMap<String, List<TransferData>>();
     tokenList = ObservableList<Token>();
 
     clearTokenLocalConfigCache();
@@ -762,11 +787,9 @@ abstract class _AssetsStore with Store {
   Future<void> clearAssestNodeCache() async {
     accountsInfo.clear();
 
-    txs.clear();
-    zkTxs.clear();
     pendingTxs.clear();
     pendingZkTxs.clear();
-    tokenZkTxs.clear();
+    tokenFullTxs.clear();
     tokenBuildTxList.clear();
     tokenPendingTxList.clear();
 
@@ -779,24 +802,20 @@ abstract class _AssetsStore with Store {
     tokenInfoList.clear();
 
     rootStore.localStorage.setAccountCache(
-        rootStore.wallet!.currentWallet.pubKey, cacheTxsKey, []);
-    rootStore.localStorage.setAccountCache(
-        rootStore.wallet!.currentWallet.pubKey, cacheZkTxsKey, {});
+        rootStore.wallet!.currentWallet.pubKey, cacheFullTxsKey, {});
     rootStore.localStorage.setAccountCache(
         rootStore.wallet!.currentWallet.pubKey, cacheTokensKey, []);
   }
 
   @action
   Future<void> clearAccountAssestCache() async {
-    txs.clear();
 
-    zkTxs.clear();
 
     pendingTxs.clear();
 
     pendingZkTxs.clear();
 
-    tokenZkTxs.clear();
+    tokenFullTxs.clear();
     tokenBuildTxList.clear();
     tokenPendingTxList.clear();
 

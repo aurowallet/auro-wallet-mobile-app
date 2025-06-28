@@ -65,7 +65,8 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
 
     tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
     displayBalance = tokenBaseInfo?.showBalance != null
-        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!,showLength: tokenDecimal)
+        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!,
+            showLength: tokenDecimal)
         : "0.0";
     displayBalance = displayBalance + " " + tokenSymbol;
 
@@ -129,17 +130,16 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
         webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
         webApi.assets
             .fetchPendingTransactions(widget.store.wallet!.currentAddress),
-        webApi.assets.fetchTransactions(widget.store.wallet!.currentAddress),
         webApi.assets
             .fetchPendingZkTransactions(widget.store.wallet!.currentAddress),
-        webApi.assets.fetchZkTransactions(widget.store.wallet!.currentAddress)
+        webApi.assets.fetchFullTransactions(widget.store.wallet!.currentAddress)
       ]);
     } else {
       await Future.wait([
         webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
         webApi.assets
             .fetchPendingZkTransactions(widget.store.wallet!.currentAddress),
-        webApi.assets.fetchZkTransactions(widget.store.wallet!.currentAddress,
+        webApi.assets.fetchFullTransactions(widget.store.wallet!.currentAddress,
             tokenId: tokenId),
         webApi.assets.fetchTokenTransactions(
             widget.store.wallet!.currentAddress, tokenPublicKey)

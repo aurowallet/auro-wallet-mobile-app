@@ -77,15 +77,6 @@ class Api {
     return MAIN_TX_RECORDS_GQL_URL;
   }
 
-  Future<void> refreshNetwork() async {
-    assets.fetchAllTokenAssets();
-    staking.refreshStaking();
-    assets.fetchPendingTransactions(store.wallet!.currentAddress);
-    assets.fetchTransactions(store.wallet!.currentAddress);
-    assets.fetchPendingZkTransactions(store.wallet!.currentAddress);
-    assets.fetchZkTransactions(store.wallet!.currentAddress);
-  }
-
   Future<GqlResult> gqlRequest(dynamic options,
       {required BuildContext context,
       int timeout = 60,

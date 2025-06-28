@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 - Add support for revoke permissions
 - Add timed refresh to StakingPage
 - Update zeko network icon
-
+- Update transaction request
 
 ## [2.1.1]
 ### Enhancements

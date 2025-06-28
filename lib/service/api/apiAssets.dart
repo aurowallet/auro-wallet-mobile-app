@@ -19,49 +19,49 @@ class ApiAssets {
 
   final Api apiRoot;
   final store = globalAppStore;
-  Future<void> fetchTransactions(pubKey) async {
-    final client = GraphQLClient(
-      link: HttpLink(apiRoot.getTxRecordsApiUrl()),
-      cache: GraphQLCache(),
-    );
-    const String query = r'''
-      query fetchTxListQuery($pubKey: String) {
-  transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true, 
-  OR: [
-  {to: $pubKey}, 
-  {from: $pubKey}
-   ]}) {
-    nonce
-    memo
-    kind
-    hash
-    from
-    fee
-    amount
-    to
-    dateTime
-    failureReason
-  }
-}
-    ''';
-    final QueryOptions _options = QueryOptions(
-      document: gql(query),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {
-        'pubKey': pubKey,
-      },
-    );
-    final QueryResult result = await client.query(_options);
-    if (result.hasException) {
-      print('request tx list error');
-      print(result.exception.toString());
-      return;
-    }
-    List<dynamic> list = result.data!['transactions'];
-    print('transactions');
-    print(list.length);
-    await store.assets!.addTxs(list, pubKey, shouldCache: true);
-  }
+//   Future<void> fetchTransactions(pubKey) async { // todo
+//     final client = GraphQLClient(
+//       link: HttpLink(apiRoot.getTxRecordsApiUrl()),
+//       cache: GraphQLCache(),
+//     );
+//     const String query = r'''
+//       query fetchTxListQuery($pubKey: String) {
+//   transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true, 
+//   OR: [
+//   {to: $pubKey}, 
+//   {from: $pubKey}
+//    ]}) {
+//     nonce
+//     memo
+//     kind
+//     hash
+//     from
+//     fee
+//     amount
+//     to
+//     dateTime
+//     failureReason
+//   }
+// }
+//     ''';
+//     final QueryOptions _options = QueryOptions(
+//       document: gql(query),
+//       fetchPolicy: FetchPolicy.noCache,
+//       variables: {
+//         'pubKey': pubKey,
+//       },
+//     );
+//     final QueryResult result = await client.query(_options);
+//     if (result.hasException) {
+//       print('request tx list error');
+//       print(result.exception.toString());
+//       return;
+//     }
+//     List<dynamic> list = result.data!['transactions'];
+//     print('transactions');
+//     print(list.length);
+//     await store.assets!.addTxs(list, pubKey, shouldCache: true);
+//   }
 
   Future<void> fetchPendingTransactions(pubKey) async {
     const String query = r'''
@@ -283,67 +283,67 @@ class ApiAssets {
     await store.assets!.addPendingZkTxs(list, publicKey);
   }
 
-  Future<void> fetchZkTransactions(publicKey,
-      {tokenId = ZK_DEFAULT_TOKEN_ID}) async {
-    final client = GraphQLClient(
-      link: HttpLink(apiRoot.getTxRecordsApiUrl()),
-      cache: GraphQLCache(),
-    );
-    const String query = r'''
-      query zkApps($publicKey: String,$tokenId: String) {
-    zkapps(limit: 15, query: {
-      publicKey: $publicKey,tokenId:$tokenId}, sortBy: DATETIME_DESC) {
-        hash
-    dateTime
-    failureReason {
-      failures
-    }
-    zkappCommand {
-      feePayer {
-        authorization
-        body {
-          nonce
-          publicKey
-          fee
-        }
-      }
-      memo
-      accountUpdates {
-        body {
-          publicKey
+  // Future<void> fetchZkTransactions(publicKey,
+  //     {tokenId = ZK_DEFAULT_TOKEN_ID}) async {
+  //   final client = GraphQLClient(
+  //     link: HttpLink(apiRoot.getTxRecordsApiUrl()),
+  //     cache: GraphQLCache(),
+  //   );
+  //   const String query = r'''
+  //     query zkApps($publicKey: String,$tokenId: String) {
+  //   zkapps(limit: 15, query: {
+  //     publicKey: $publicKey,tokenId:$tokenId}, sortBy: DATETIME_DESC) {
+  //       hash
+  //   dateTime
+  //   failureReason {
+  //     failures
+  //   }
+  //   zkappCommand {
+  //     feePayer {
+  //       authorization
+  //       body {
+  //         nonce
+  //         publicKey
+  //         fee
+  //       }
+  //     }
+  //     memo
+  //     accountUpdates {
+  //       body {
+  //         publicKey
           
-         	tokenId 
-          balanceChange{
-            magnitude
-            sgn
-          }
-          update{
-            appState
-            tokenSymbol
-            zkappUri
-          }
-        }
-      }
-    }
-    }
-  }
-    ''';
-    String nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
-    final QueryOptions _options = QueryOptions(
-      document: gql(query),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {'publicKey': publicKey, 'tokenId': nextTokenId},
-    );
-    final QueryResult result = await client.query(_options);
-    if (result.hasException) {
-      print('tx zk list throw error');
-      print(result.exception.toString());
-      return;
-    }
-    List<dynamic> list = result.data!['zkapps'];
-    print('zk transactions');
-    await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
-  }
+  //        	tokenId 
+  //         balanceChange{
+  //           magnitude
+  //           sgn
+  //         }
+  //         update{
+  //           appState
+  //           tokenSymbol
+  //           zkappUri
+  //         }
+  //       }
+  //     }
+  //   }
+  //   }
+  // }
+  //   ''';
+  //   String nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
+  //   final QueryOptions _options = QueryOptions(
+  //     document: gql(query),
+  //     fetchPolicy: FetchPolicy.noCache,
+  //     variables: {'publicKey': publicKey, 'tokenId': nextTokenId},
+  //   );
+  //   final QueryResult result = await client.query(_options);
+  //   if (result.hasException) {
+  //     print('tx zk list throw error');
+  //     print(result.exception.toString());
+  //     return;
+  //   }
+  //   List<dynamic> list = result.data!['zkapps'];
+  //   print('zk transactions');
+  //   // await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
+  // }
 
   Future<void> queryTxFees() async {
     var feeUrl = "$BASE_INFO_URL/minter_fee.json";
@@ -736,5 +736,93 @@ ${List<String>.generate(pubkeys.length, (int index) {
       print('Error: ${response.statusCode}');
       return null;
     }
+  }
+  Future<void> fetchFullTransactions(publicKey,
+      {tokenId = ZK_DEFAULT_TOKEN_ID}) async {
+    String requestUrl = apiRoot.getTxRecordsApiUrl();
+    final client = GraphQLClient(
+      link: HttpLink(requestUrl),
+      cache: GraphQLCache(),
+      queryRequestTimeout: const Duration(seconds: 60)
+    );
+    
+    const String query = r'''
+      query fetchTxListQuery($publicKey: String,$limit:Int,$tokenId: String) {
+  fullTransactions(
+    limit: $limit
+    query: {
+      publicKey: $publicKey,
+    tokenId:$tokenId}
+  ) {
+    nonce
+    timestamp
+    kind
+    body {
+      fee
+      from
+      to
+      nonce
+      amount
+      memo
+      hash
+      kind
+      dateTime
+      failureReason
+    }
+    zkAppBody {
+       hash
+    dateTime
+    failureReasons {
+      index
+      failures
+    }
+    zkappCommand {
+      feePayer {
+        body {
+          nonce
+          publicKey
+          fee
+        }
+      }
+      memo
+      accountUpdates {
+        body {
+          publicKey
+         	tokenId 
+          balanceChange{
+            magnitude
+            sgn
+          }
+          update{
+            appState
+            tokenSymbol
+            zkappUri
+          }
+        }
+      }
+    }
+    }
+  }
+}
+    ''';
+    String nextTokenId = "" ;
+    if(tokenId != null){ 
+      nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
+    }
+    
+    final QueryOptions _options = QueryOptions(
+      document: gql(query),
+      fetchPolicy: FetchPolicy.noCache,
+      variables: {'publicKey': publicKey, 'tokenId': nextTokenId,'limit':30},
+    );
+    final QueryResult result = await client.query(_options);
+    if (result.hasException) {
+      print('tx zk list throw error');
+      print(result.exception.toString());
+      return;
+    }
+    List<dynamic> list = result.data!['fullTransactions'];
+    print('list transactions ${list.toString()}');
+    await store.assets!.addFullTxs(list, publicKey, tokenId, shouldCache: true);
   }
 }
