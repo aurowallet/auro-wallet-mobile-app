@@ -39,6 +39,7 @@ class ApiAccount {
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   final _biometricEnabledKey = 'biometric_enabled_v1';
+  final _biometricEnabledKey_v2 = 'biometric_enabled_v2';
   final _biometricPasswordKey = 'biometric_password_';
   final _watchModeWarnedKey = 'watch_mode_warned';
 
@@ -660,22 +661,17 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   void setBiometricEnabled() {
-    apiRoot.configStorage
-        .write('$_biometricEnabledKey', DateTime.now().millisecondsSinceEpoch);
+    apiRoot.configStorage.write('$_biometricEnabledKey_v2', "enable");
   }
 
   void setBiometricDisabled() {
-    apiRoot.configStorage.write('$_biometricEnabledKey',
-        DateTime.now().millisecondsSinceEpoch - SECONDS_OF_DAY * 7000);
+    apiRoot.configStorage.write('$_biometricEnabledKey_v2', "disable");
   }
 
   bool getBiometricEnabled() {
-    final timestamp = apiRoot.configStorage.read('$_biometricEnabledKey');
-    // we cache user's password with biometric for 7 days.
-    if (timestamp != null &&
-        timestamp + SECONDS_OF_DAY * 7000 >
-            DateTime.now().millisecondsSinceEpoch) {
-      return true;
+    final enableStatus = apiRoot.configStorage.read('$_biometricEnabledKey_v2');
+    if (enableStatus != null) {
+      return enableStatus == "enable";
     }
     return false;
   }

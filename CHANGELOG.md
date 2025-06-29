@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file.
 - Update zeko browser link
 - Update queryRequestTimeout to 60s
 
+### Fixed
+- Biometric verify
+
+
 ## [2.1.1]
 ### Enhancements
 - Sort of SendPage address 
