@@ -35,6 +35,7 @@ class ApiSetting {
       document: gql(query),
       fetchPolicy: FetchPolicy.noCache,
       variables: {},
+      queryRequestTimeout: const Duration(seconds: 60)
     );
     Link link = HttpLink(uri);
     var graphQLClient = GraphQLClient(link: link, cache: GraphQLCache());

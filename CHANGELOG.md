@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 - Add timed refresh to StakingPage
 - Update zeko network icon
 - Update transaction request
+- Update zeko browser link
+- Update queryRequestTimeout to 60s
 
 ## [2.1.1]
 ### Enhancements

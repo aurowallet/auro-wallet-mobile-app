@@ -19,16 +19,16 @@ class ApiAssets {
 
   final Api apiRoot;
   final store = globalAppStore;
-//   Future<void> fetchTransactions(pubKey) async { // todo
+//   Future<void> fetchTransactions(pubKey) async {
 //     final client = GraphQLClient(
 //       link: HttpLink(apiRoot.getTxRecordsApiUrl()),
 //       cache: GraphQLCache(),
 //     );
 //     const String query = r'''
 //       query fetchTxListQuery($pubKey: String) {
-//   transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true, 
+//   transactions(limit: 15, sortBy: DATETIME_DESC, query: {canonical: true,
 //   OR: [
-//   {to: $pubKey}, 
+//   {to: $pubKey},
 //   {from: $pubKey}
 //    ]}) {
 //     nonce
@@ -54,7 +54,7 @@ class ApiAssets {
 //     final QueryResult result = await client.query(_options);
 //     if (result.hasException) {
 //       print('request tx list error');
-//       print(result.exception.toString());
+//       print(result.exception?.graphqlErrors.toString());
 //       return;
 //     }
 //     List<dynamic> list = result.data!['transactions'];
@@ -82,12 +82,12 @@ class ApiAssets {
       }
     ''';
     final QueryOptions _options = QueryOptions(
-      document: gql(query),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {
-        'pubKey': pubKey,
-      },
-    );
+        document: gql(query),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {
+          'pubKey': pubKey,
+        },
+        queryRequestTimeout: const Duration(seconds: 60));
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
@@ -265,12 +265,12 @@ class ApiAssets {
 
     ''';
     final QueryOptions _options = QueryOptions(
-      document: gql(query),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {
-        'publicKey': publicKey,
-      },
-    );
+        document: gql(query),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {
+          'publicKey': publicKey,
+        },
+        queryRequestTimeout: const Duration(seconds: 60));
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
       print('zk pending throw error');
@@ -311,39 +311,38 @@ class ApiAssets {
   //     accountUpdates {
   //       body {
   //         publicKey
-          
-  //        	tokenId 
-  //         balanceChange{
-  //           magnitude
-  //           sgn
-  //         }
-  //         update{
-  //           appState
-  //           tokenSymbol
-  //           zkappUri
-  //         }
-  //       }
-  //     }
-  //   }
-  //   }
-  // }
-  //   ''';
-  //   String nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
-  //   final QueryOptions _options = QueryOptions(
-  //     document: gql(query),
-  //     fetchPolicy: FetchPolicy.noCache,
-  //     variables: {'publicKey': publicKey, 'tokenId': nextTokenId},
-  //   );
-  //   final QueryResult result = await client.query(_options);
-  //   if (result.hasException) {
-  //     print('tx zk list throw error');
-  //     print(result.exception.toString());
-  //     return;
-  //   }
-  //   List<dynamic> list = result.data!['zkapps'];
-  //   print('zk transactions');
-  //   // await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
-  // }
+  // //        	tokenId
+  // //         balanceChange{
+  // //           magnitude
+  // //           sgn
+  // //         }
+  // //         update{
+  // //           appState
+  // //           tokenSymbol
+  // //           zkappUri
+  // //         }
+  // //       }
+  // //     }
+  // //   }
+  // //   }
+  // // }
+  // //   ''';
+  //   //   String nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
+  //   //   final QueryOptions _options = QueryOptions(
+  //   //     document: gql(query),
+  //   //     fetchPolicy: FetchPolicy.noCache,
+  //   //     variables: {'publicKey': publicKey, 'tokenId': nextTokenId},
+  //   //   );
+  //   //   final QueryResult result = await client.query(_options);
+  //   //   if (result.hasException) {
+  //   //     print('tx zk list throw error');
+  //   //     print(result.exception.toString());
+  //   //     return;
+  //   //   }
+  //   //   List<dynamic> list = result.data!['zkapps'];
+  //   //   print('zk transactions');
+  //   //   // await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
+  //   // }
 
   Future<void> queryTxFees() async {
     var feeUrl = "$BASE_INFO_URL/minter_fee.json";
@@ -393,10 +392,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
     });
 
     final QueryOptions _options = QueryOptions(
-      document: gql(fetchBalanceQuery),
-      variables: variables,
-      fetchPolicy: FetchPolicy.noCache,
-    );
+        document: gql(fetchBalanceQuery),
+        variables: variables,
+        fetchPolicy: FetchPolicy.noCache,
+        queryRequestTimeout: const Duration(seconds: 60));
     var graphQLClient;
     bool isCustomRequest = false;
     if (gqlUrl != null) {
@@ -432,8 +431,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
         };
         print('balance:' + balance);
         if (!isCustomRequest) {
-          store.assets!
-              .setAccountInfo(pubKey, accountInfo);
+          store.assets!.setAccountInfo(pubKey, accountInfo);
         }
         cacheAccountsInfo[pubKey] = AccountInfo.fromJson(accountInfo);
       } else {
@@ -503,10 +501,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
     };
 
     final QueryOptions _options = QueryOptions(
-      document: gql(fetchNonceQuery),
-      variables: variables,
-      fetchPolicy: FetchPolicy.noCache,
-    );
+        document: gql(fetchNonceQuery),
+        variables: variables,
+        fetchPolicy: FetchPolicy.noCache,
+        queryRequestTimeout: const Duration(seconds: 60));
 
     var graphQLClient;
     if (gqlUrl != null) {
@@ -550,12 +548,12 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
     ''';
     final QueryOptions _options = QueryOptions(
-      document: gql(query),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {
-        'publicKey': pubKey,
-      },
-    );
+        document: gql(query),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {
+          'publicKey': pubKey,
+        },
+        queryRequestTimeout: const Duration(seconds: 60));
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
@@ -594,10 +592,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
     String queryFields = generateTokenInfoQuery(tokenIds);
 
     final QueryOptions _options = QueryOptions(
-      document: gql(queryFields),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {},
-    );
+        document: gql(queryFields),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {},
+        queryRequestTimeout: const Duration(seconds: 60));
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
@@ -651,10 +649,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
     ''';
     final QueryOptions _options = QueryOptions(
-      document: gql(query),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {'publicKey': pubKey, 'tokenId': tokenId},
-    );
+        document: gql(query),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {'publicKey': pubKey, 'tokenId': tokenId},
+        queryRequestTimeout: const Duration(seconds: 60));
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
@@ -737,15 +735,15 @@ ${List<String>.generate(pubkeys.length, (int index) {
       return null;
     }
   }
+
   Future<void> fetchFullTransactions(publicKey,
       {tokenId = ZK_DEFAULT_TOKEN_ID}) async {
     String requestUrl = apiRoot.getTxRecordsApiUrl();
     final client = GraphQLClient(
-      link: HttpLink(requestUrl),
-      cache: GraphQLCache(),
-      queryRequestTimeout: const Duration(seconds: 60)
-    );
-    
+        link: HttpLink(requestUrl),
+        cache: GraphQLCache(),
+        queryRequestTimeout: const Duration(seconds: 60));
+
     const String query = r'''
       query fetchTxListQuery($publicKey: String,$limit:Int,$tokenId: String) {
   fullTransactions(
@@ -805,16 +803,20 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 }
     ''';
-    String nextTokenId = "" ;
-    if(tokenId != null){ 
+    String nextTokenId = "";
+    if (tokenId != null) {
       nextTokenId = tokenId == ZK_DEFAULT_TOKEN_ID ? "" : tokenId;
     }
-    
+
     final QueryOptions _options = QueryOptions(
-      document: gql(query),
-      fetchPolicy: FetchPolicy.noCache,
-      variables: {'publicKey': publicKey, 'tokenId': nextTokenId,'limit':30},
-    );
+        document: gql(query),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {
+          'publicKey': publicKey,
+          'tokenId': nextTokenId,
+          'limit': 30
+        },
+        queryRequestTimeout: const Duration(seconds: 60));
     final QueryResult result = await client.query(_options);
     if (result.hasException) {
       print('tx zk list throw error');

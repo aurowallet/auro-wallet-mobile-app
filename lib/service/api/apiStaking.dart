@@ -56,6 +56,7 @@ class ApiStaking {
       document: gql(query),
       fetchPolicy: FetchPolicy.noCache,
       variables: {'stateHash': stateHash},
+      queryRequestTimeout: const Duration(seconds: 60)
     );
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
     if (result.hasException) {
@@ -89,6 +90,7 @@ class ApiStaking {
       document: gql(query),
       fetchPolicy: FetchPolicy.noCache,
       variables: {},
+      queryRequestTimeout: const Duration(seconds: 60)
     );
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
