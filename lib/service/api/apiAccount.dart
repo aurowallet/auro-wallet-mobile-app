@@ -670,7 +670,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
   bool getBiometricEnabled() {
     final enableStatus = apiRoot.configStorage.read('$_biometricEnabledKey_v2');
-    if (enableStatus != null) {
+    final timestamp = apiRoot.configStorage.read('$_biometricEnabledKey');
+    if (enableStatus != null || timestamp != null) {
       return enableStatus == "enable";
     }
     return false;
