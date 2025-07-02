@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Update transaction request
 - Update zeko browser link
 - Update queryRequestTimeout to 60s
+- Add devPage
 
 ### Fixed
 - Biometric verify

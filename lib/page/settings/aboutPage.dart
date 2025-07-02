@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/settings/Dev/devPage.dart';
 import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/browserLink.dart';
@@ -44,6 +45,13 @@ class _AboutPage extends State<AboutPage> {
         privacyUrl = aboutUsData.privacyPolicyEN;
       }
     }
+    void _onClick() {
+      Navigator.pushNamed(
+        context,
+        DevPage.route,
+      );
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).cardColor,
       appBar: AppBar(
@@ -58,12 +66,16 @@ class _AboutPage extends State<AboutPage> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(top: 55, bottom: 10),
-                  child: Image.asset(
-                    'assets/images/setting/setting_logo.png',
-                    width: 72,
-                    height: 72,
+                SizedBox(height: 45),
+                GestureDetector(
+                  onDoubleTap: _onClick,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                    child: Image.asset(
+                      'assets/images/setting/setting_logo.png',
+                      width: 72,
+                      height: 72,
+                    ),
                   ),
                 ),
                 Row(

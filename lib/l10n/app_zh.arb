@@ -578,5 +578,7 @@
   "backToAppDesc":"请返回应用程序继续使用服务。",
   "walletConnectTitle":"WalletConnect",
   "noWalletConnectSession": "无会话",
-  "perferences":"偏好"
+  "perferences":"偏好",
+  "response":"响应",
+  "retry":"重试"
 }

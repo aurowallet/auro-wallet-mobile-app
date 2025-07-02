@@ -63,7 +63,7 @@ class ApiAssets {
 //     await store.assets!.addTxs(list, pubKey, shouldCache: true);
 //   }
 
-  Future<void> fetchPendingTransactions(pubKey) async {
+  Future<dynamic> fetchPendingTransactions(pubKey, {isDev = false}) async {
     const String query = r'''
       query fetchPendingListQuery($pubKey: PublicKey!) {
         pooledUserCommands(publicKey: $pubKey) {
@@ -93,14 +93,25 @@ class ApiAssets {
     if (result.hasException) {
       print('request pending tx request');
       print(result.exception.toString());
-      return;
+      if (isDev) {
+        return {
+          'error': true,
+          'message': result.exception.toString(),
+          'details': result.exception?.graphqlErrors ?? [],
+        };
+      } else {
+        return;
+      }
     }
     List<dynamic> list = result.data!['pooledUserCommands'];
     print('pending list length:${list.length}');
-    await store.assets!.addPendingTxs(list, pubKey);
+    if (!isDev) {
+      await store.assets!.addPendingTxs(list, pubKey);
+    }
+    return list;
   }
 
-  Future<void> fetchPendingZkTransactions(publicKey) async {
+  Future<dynamic> fetchPendingZkTransactions(publicKey, {isDev = false}) async {
     const String query = r'''
       query pendingZkTx($publicKey: PublicKey) {
   pooledZkappCommands(publicKey: $publicKey) {
@@ -275,12 +286,23 @@ class ApiAssets {
     if (result.hasException) {
       print('zk pending throw error');
       print(result.exception.toString());
-      return;
+      if (isDev) {
+        return {
+          'error': true,
+          'message': result.exception.toString(),
+          'details': result.exception?.graphqlErrors ?? [],
+        };
+      } else {
+        return;
+      }
     }
     List<dynamic> list = result.data!['pooledZkappCommands'];
     print('zk pending list length:${list.length}');
     print('zk pending list length=2:${jsonEncode(list)}');
-    await store.assets!.addPendingZkTxs(list, publicKey);
+    if (!isDev) {
+      await store.assets!.addPendingZkTxs(list, publicKey);
+    }
+    return list;
   }
 
   // Future<void> fetchZkTransactions(publicKey,
@@ -527,9 +549,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
     return int.parse(nonce);
   }
 
-  Future<List<TokenAssetInfo>> fetchTokenAssets(
-    String pubKey,
-  ) async {
+  Future<List<TokenAssetInfo>> fetchTokenAssets(String pubKey,
+      {isDev = false}) async {
     const String query = r'''
   query tokenQueryBody($publicKey: PublicKey!) {
     accounts(publicKey: $publicKey) {
@@ -559,6 +580,13 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (result.hasException) {
       print('request all token assets failed');
       print(result.exception.toString());
+      if (isDev) {
+        throw {
+          'error': true,
+          'message': result.exception.toString(),
+          'details': result.exception?.graphqlErrors ?? [],
+        };
+      }
       return [];
     }
     List<dynamic> list = result.data!['accounts'];
@@ -607,35 +635,55 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 
   /// get balance and delegate info
-  Future<void> fetchAllTokenAssets({bool showIndicator = false}) async {
-    String pubKey = store.wallet!.currentWallet.pubKey;
-    if (showIndicator) {
-      store.assets!.setAssetsLoading(true);
-    }
-    _fetchMarketPrice();
-    if (pubKey.isNotEmpty) {
-      List<TokenAssetInfo> tokenAssets = await fetchTokenAssets(pubKey);
-      List<String> tokenIds =
-          tokenAssets.map((token) => token.tokenId).toList();
-      if (tokenIds.length > 0) {
-        dynamic tokenNetInfos = await fetchAllTokenInfo(tokenIds);
-
-        List<Token> tokens = tokenAssets.map((assetInfo) {
-          TokenNetInfo? netInfo = tokenNetInfos[assetInfo.tokenId] != null
-              ? TokenNetInfo.fromJson(tokenNetInfos[assetInfo.tokenId])
-              : null;
-
-          return Token(
-            tokenAssestInfo: assetInfo,
-            tokenNetInfo: netInfo,
-          );
-        }).toList();
-        store.assets!.updateTokenAssets(tokens, pubKey, shouldCache: true);
-      } else {
-        store.assets!.updateTokenAssets([], pubKey, shouldCache: true);
+  Future<dynamic> fetchAllTokenAssets(
+      {bool showIndicator = false, isDev = false}) async {
+    try {
+      String pubKey = store.wallet!.currentWallet.pubKey;
+      print('object pubKey: $pubKey');
+      if (showIndicator) {
+        store.assets!.setAssetsLoading(true);
       }
+      _fetchMarketPrice();
+      if (pubKey.isNotEmpty) {
+        List<TokenAssetInfo> tokenAssets =
+            await fetchTokenAssets(pubKey, isDev: isDev);
+        List<String> tokenIds =
+            tokenAssets.map((token) => token.tokenId).toList();
+        if (tokenIds.length > 0) {
+          dynamic tokenNetInfos = await fetchAllTokenInfo(tokenIds);
+
+          List<Token> tokens = tokenAssets.map((assetInfo) {
+            TokenNetInfo? netInfo = tokenNetInfos[assetInfo.tokenId] != null
+                ? TokenNetInfo.fromJson(tokenNetInfos[assetInfo.tokenId])
+                : null;
+
+            return Token(
+              tokenAssestInfo: assetInfo,
+              tokenNetInfo: netInfo,
+            );
+          }).toList();
+          if (!isDev) {
+            store.assets!.updateTokenAssets(tokens, pubKey, shouldCache: true);
+          } else {
+            return tokens;
+          }
+        } else {
+          if (!isDev) {
+            store.assets!.updateTokenAssets([], pubKey, shouldCache: true);
+          } else {
+            return [];
+          }
+        }
+      }
+      store.assets!.setAssetsLoading(false);
+    } catch (e) {
+      print('Unexpected error: $e');
+      return {
+        'error': true,
+        'message': 'Unexpected error occurred: $e',
+        'details': [],
+      };
     }
-    store.assets!.setAssetsLoading(false);
   }
 
   Future<dynamic> getTokenState(String pubKey, String tokenId) async {
@@ -736,8 +784,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
   }
 
-  Future<void> fetchFullTransactions(publicKey,
-      {tokenId = ZK_DEFAULT_TOKEN_ID}) async {
+  Future<dynamic> fetchFullTransactions(publicKey,
+      {tokenId = ZK_DEFAULT_TOKEN_ID, isDev = false}) async {
     String requestUrl = apiRoot.getTxRecordsApiUrl();
     final client = GraphQLClient(
         link: HttpLink(requestUrl),
@@ -821,10 +869,18 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (result.hasException) {
       print('tx zk list throw error');
       print(result.exception.toString());
-      return;
+      return {
+        'error': true,
+        'message': result.exception.toString(),
+        'details': result.exception?.graphqlErrors ?? [],
+      };
     }
     List<dynamic> list = result.data!['fullTransactions'];
     print('list transactions ${list.toString()}');
-    await store.assets!.addFullTxs(list, publicKey, tokenId, shouldCache: true);
+    if (!isDev) {
+      await store.assets!
+          .addFullTxs(list, publicKey, tokenId, shouldCache: true);
+    }
+    return list;
   }
 }

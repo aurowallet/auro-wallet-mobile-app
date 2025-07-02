@@ -578,5 +578,7 @@
   "backToAppDesc": "Hizmetlerini kullanmaya devam etmek için lütfen uygulamaya geri dönün.",
   "walletConnectTitle":"WalletConnect",
   "noWalletConnectSession": "Oturum yok",
-  "perferences":"Tercihler"
+  "perferences":"Tercihler",
+  "response":"Yanıt",
+  "retry":"Tekrar Dene"
 }

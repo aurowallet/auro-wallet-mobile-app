@@ -49,6 +49,8 @@ import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/createAccountEntryPage.dart';
 import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/page/settings/currenciesPage.dart';
+import 'package:auro_wallet/page/settings/Dev/devPage.dart';
+import 'package:auro_wallet/page/settings/Dev/TransactionPage.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
 import 'package:auro_wallet/page/settings/security/securityPage.dart';
 import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
@@ -383,6 +385,11 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         ZkAppConnectPage.route: (_) => ZkAppConnectPage(_appStore!),
         WalletConnectPage.route: (_) => WalletConnectPage(_appStore!),
         PreferencesPage.route: (_) => PreferencesPage(_appStore!),
+        
+        
+        // for dev 
+        DevPage.route: (_) => DevPage(_appStore!),
+        TransactionPage.route: (_) => TransactionPage(_appStore!),
       },
     );
   }

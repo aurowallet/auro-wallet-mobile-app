@@ -578,5 +578,7 @@
   "backToAppDesc": "Будь ласка, поверніться до програми, щоб продовжити користуватися її послугами.",
   "walletConnectTitle":"WalletConnect",
   "noWalletConnectSession": "Немає сесій",
-  "perferences":"Налаштування"
+  "perferences":"Налаштування",
+  "response":"Відповідь",
+  "retry":"Повторити"
 }
