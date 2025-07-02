@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [2.1.2]
 ### Enhancements
 - BrowserWrapperPage UI
 - Add support for WalletConnect
