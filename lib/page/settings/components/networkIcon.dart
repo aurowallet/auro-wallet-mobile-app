@@ -21,7 +21,7 @@ class NetworkIcon extends StatelessWidget {
       } else {
         bool isZekoNet = endpoint.networkID.startsWith("zeko");
         if (isZekoNet) {
-          iconUrl = 'assets/images/setting/icon_zeko_network.png';
+          iconUrl = 'assets/images/setting/icon_zeko_testnet.svg';
         } else {
           iconUrl = 'assets/images/stake/icon_mina_gray.svg';
         }
@@ -35,16 +35,9 @@ class NetworkIcon extends StatelessWidget {
     String? iconUrl = getNetworkIcon();
     String iconName = endpoint.name;
     if (iconUrl != null && iconUrl.isNotEmpty) {
-      bool isPng = iconUrl.endsWith('png');
       return Container(
           child: ClipOval(
-              child: isPng
-                  ? Image.asset(
-                      iconUrl,
-                      width: size,
-                      height: size,
-                    )
-                  : SvgPicture.asset(
+              child: SvgPicture.asset(
                       iconUrl,
                       width: size,
                       height: size,

@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Update zeko browser link
 - Update queryRequestTimeout to 60s
 - Add devPage
+- Android targetSdkVersion to 35
 
 ### Fixed
 - Biometric verify
