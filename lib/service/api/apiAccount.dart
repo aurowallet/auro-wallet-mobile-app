@@ -665,13 +665,16 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   void setBiometricDisabled() {
-    apiRoot.configStorage.write('$_biometricEnabledKey_v2', "disable");
+    apiRoot.configStorage.write('$_biometricEnabledKey_v2', "disable"); 
   }
 
   bool getBiometricEnabled() {
-    final enableStatus = apiRoot.configStorage.read('$_biometricEnabledKey_v2');
     final timestamp = apiRoot.configStorage.read('$_biometricEnabledKey');
-    if (enableStatus != null || timestamp != null) {
+    if(timestamp != null){
+      return true;
+    }
+    final enableStatus = apiRoot.configStorage.read('$_biometricEnabledKey_v2');
+    if (enableStatus != null) {
       return enableStatus == "enable";
     }
     return false;
