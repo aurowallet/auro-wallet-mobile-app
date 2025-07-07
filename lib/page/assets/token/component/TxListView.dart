@@ -323,30 +323,36 @@ class TransferListItem extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '$title',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black),
-                                      ),
-                                      data.isFromAddressScam == true
-                                          ? ScamTag()
-                                          : SizedBox(height: 0),
-                                    ]),
+                                Container(
+                                  height: 20,
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '$title',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.black),
+                                        ),
+                                        data.isFromAddressScam == true
+                                            ? ScamTag()
+                                            : SizedBox(height: 0),
+                                      ]),
+                                ),
                                 Flexible(
                                     flex: 1,
-                                    child: Text(
-                                      '$showAmount',
-                                      softWrap: true,
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500),
-                                    ))
+                                    child: Container(
+                                        height: 20,
+                                        child: Text(
+                                          '$showAmount',
+                                          softWrap: true,
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500),
+                                        )))
                               ],
                             ),
                             Padding(padding: EdgeInsets.only(top: 4)),
@@ -364,7 +370,8 @@ class TransferListItem extends StatelessWidget {
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
-                                        color: statusColor.withValues(alpha: 0.1),
+                                        color:
+                                            statusColor.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(4)),
                                     padding: EdgeInsets.symmetric(
                                         vertical: 3, horizontal: 5),
