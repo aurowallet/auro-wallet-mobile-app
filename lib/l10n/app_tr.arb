@@ -580,5 +580,6 @@
   "noWalletConnectSession": "Oturum yok",
   "perferences":"Tercihler",
   "response":"Yanıt",
-  "retry":"Tekrar Dene"
+  "retry":"Tekrar Dene",
+  "scanTip":"Adres QR kodu ve WalletConnect desteği"
 }

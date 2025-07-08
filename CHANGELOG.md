@@ -10,15 +10,15 @@ All notable changes to this project will be documented in this file.
 - Add support for WalletConnect
 - Add support for revoke permissions
 - Add timed refresh to StakingPage
-- Update zeko network icon
+- Update Zeko network icon
 - Update transaction request
-- Update zeko browser link
+- Update Zeko browser link
 - Update queryRequestTimeout to 60s
 - Add devPage
 - Android targetSdkVersion to 35
 
 ### Fixed
-- Biometric verify
+- Biometric authentication
 
 
 ## [2.1.1]

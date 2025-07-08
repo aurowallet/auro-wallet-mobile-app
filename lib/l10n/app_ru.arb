@@ -582,5 +582,6 @@
   "noWalletConnectSession": "Нет сессий",
   "perferences":"Настройки",
   "response":"Ответ",
-  "retry":"Повторить"
+  "retry":"Повторить",
+  "scanTip":"Поддержка QR-кода адреса и WalletConnect"
 }

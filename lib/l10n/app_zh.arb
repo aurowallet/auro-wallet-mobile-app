@@ -580,5 +580,6 @@
   "noWalletConnectSession": "无会话",
   "perferences":"偏好",
   "response":"响应",
-  "retry":"重试"
+  "retry":"重试",
+  "scanTip":"支持地址二维码和 WalletConnect"
 }

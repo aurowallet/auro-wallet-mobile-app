@@ -580,5 +580,6 @@
   "noWalletConnectSession": "Немає сесій",
   "perferences":"Налаштування",
   "response":"Відповідь",
-  "retry":"Повторити"
+  "retry":"Повторити",
+  "scanTip":"Підтримка QR-коду адреси та WalletConnect"
 }

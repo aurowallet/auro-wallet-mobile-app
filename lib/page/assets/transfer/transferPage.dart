@@ -88,6 +88,15 @@ class _TransferPageState extends State<TransferPage> {
       dynamic params = ModalRoute.of(context)!.settings.arguments;
       token = store.assets!.nextToken;
       isFromModal = params?['isFromModal'] ?? false;
+      String? scanAddress = params?['address'];
+
+      if (scanAddress != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            _toAddressCtrl.text = scanAddress;
+          });
+        });
+      }
 
       TokenAssetInfo? tokenAssestInfo = token.tokenAssestInfo;
 

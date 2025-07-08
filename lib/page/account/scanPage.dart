@@ -1,10 +1,13 @@
-import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
-import 'package:auro_wallet/utils/format.dart';
-import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/common/components/backgroundContainer.dart';
 import 'dart:async'; // For Platform.isX
-import 'package:image_picker/image_picker.dart';
+
+import 'package:auro_wallet/common/components/backgroundContainer.dart';
+import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/assets/transfer/transferPage.dart';
+import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanPage extends StatefulWidget {
@@ -15,8 +18,9 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
+  final AppStore store = globalAppStore;
   StateSetter? stateSetter;
-  IconData lightIcon = Icons.flash_on;
+  bool isFlashLight = false;
 
   final MobileScannerController controller = MobileScannerController(
     autoStart: false,
@@ -55,27 +59,33 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     await controller.dispose();
   }
 
-  Future<void> _getQrByGallery() async {
-    final ImagePicker _picker = ImagePicker();
-    try {
-      // Pick the image from gallery
-      final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
+  QRCodeAddressResult? _processQRCodeData(String data, AppLocalizations dic) {
+    List<String> ls = data.split(':');
+    String address = '';
+    String chainType = '';
 
-      if (file != null) {
-        // Decode the QR code from the image
-        final BarcodeCapture? barcodeCapture =
-            await controller.analyzeImage(file.path);
-        final String qrData = barcodeCapture?.barcodes.first.displayValue ?? "";
-
-        if (qrData.isNotEmpty) {
-          _onScan(qrData);
+    if (ls.length > 0) {
+      if (ls.length > 1) {
+        if (ls[0].toLowerCase() != 'mina' || !Fmt.isAddress(ls[1])) {
+          UI.toast(dic.notValidAddress);
+        } else {
+          chainType = ls[0];
+          address = ls[1];
+        }
+      } else {
+        if (!Fmt.isAddress(ls[0])) {
+          UI.toast(dic.notValidAddress);
+        } else {
+          address = ls[0];
         }
       }
-    } catch (e, stackTrace) {
-      // Handle any errors that occur during the process
-      print('Error picking or processing image: $e');
-      print(stackTrace);
     }
+
+    if (address.length > 0) {
+      print('address detected in Qr');
+      return QRCodeAddressResult(address: address, chainType: chainType);
+    }
+    return null;
   }
 
   Future _onScan(String? txt) async {
@@ -93,28 +103,22 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     final String data = txt.trim();
 
     if (isScanWc && data.length > 0) {
-      Navigator.of(context)
-          .pop(QRCodeAddressResult(address: data, chainType: chainType));
-    } else {
-      List<String> ls = data.split(':');
-      if (ls.length > 0) {
-        if (ls.length > 1) {
-          if (ls[0].toLowerCase() != 'mina' || !Fmt.isAddress(ls[1])) {
-            UI.toast(dic.notValidAddress);
-          } else {
-            chainType = ls[0];
-            address = ls[1];
-          }
-        } else {
-          if (!Fmt.isAddress(ls[0])) {
-            UI.toast(dic.notValidAddress);
-          } else {
-            address = ls[0];
-          }
+      if (data.startsWith("wc:")) {
+        Navigator.of(context)
+            .pop(QRCodeAddressResult(address: data, chainType: chainType));
+        return;
+      } else {
+        QRCodeAddressResult? res = _processQRCodeData(data, dic);
+        if (res != null) {
+          await store.assets!.setNextToken(store.assets!.mainTokenNetInfo);
+          Navigator.of(context).pushReplacementNamed(TransferPage.route,
+              arguments: {"isFromModal": true, "address": res.address});
+          return;
         }
       }
-      if (address.length > 0) {
-        print('address detected in Qr');
+    } else {
+      QRCodeAddressResult? res = _processQRCodeData(data, dic);
+      if (res != null) {
         Navigator.of(context)
             .pop(QRCodeAddressResult(address: address, chainType: chainType));
       }
@@ -136,6 +140,10 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final scanWindowHeight = 260.0;
+    final scanWindowTop = (screenHeight - scanWindowHeight) / 2;
+    final textTop = scanWindowTop + scanWindowHeight + 50.0;
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: null,
@@ -168,40 +176,51 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                 ),
               ),
               Positioned(
-                left: 60,
-                bottom: 60,
-                child: StatefulBuilder(
-                  builder: (BuildContext context, StateSetter setState) {
-                    stateSetter = setState;
-                    return MaterialButton(
-                        child: Icon(
-                          lightIcon,
-                          size: 40,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        onPressed: () {
-                          controller.toggleTorch();
-                          if (lightIcon == Icons.flash_on) {
-                            lightIcon = Icons.flash_off;
-                          } else {
-                            lightIcon = Icons.flash_on;
-                          }
-                          stateSetter!(() {});
-                        });
-                  },
+                left: 0,
+                right: 0,
+                top: textTop,
+                child: Center(
+                  child: Container(
+                    width: 260,
+                    child: Text(
+                      dic.scanTip,
+                      style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
                 ),
               ),
               Positioned(
-                right: 60,
-                bottom: 60,
-                child: MaterialButton(
-                    child: Icon(
-                      Icons.image,
-                      size: 40,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    onPressed: _getQrByGallery),
-              )
+                left: 0,
+                right: 0,
+                bottom: 100,
+                child: Center(
+                  child: StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                      return MaterialButton(
+                          child: SvgPicture.asset(
+                            "assets/images/public/icon_flashlight.svg",
+                            width: 40,
+                            height: 40,
+                            colorFilter: ColorFilter.mode(
+                              isFlashLight
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.white,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          onPressed: () {
+                            controller.toggleTorch();
+                            setState(() {
+                              isFlashLight = !isFlashLight;
+                            });
+                          });
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
           fit: BoxFit.cover,

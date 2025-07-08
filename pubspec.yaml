@@ -11,7 +11,7 @@ description: MinaWallet made with Flutter.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.1.2+1175
+version: 2.1.2+1177
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -57,7 +57,6 @@ dependencies:
   path_provider: ^2.1.5
   bip32: ^2.0.0
   hex: ^0.2.0
-  image_picker: ^1.0.7
   webcrypto: "0.5.7"
   styled_text: ^8.1.0
   dropdown_button2: ^2.3.9
@@ -239,6 +238,7 @@ flutter:
     - assets/images/public/icon_nav_close.svg
     - assets/images/public/error.svg
     - assets/images/public/splash_screen_android.png
+    - assets/images/public/icon_flashlight.svg
 
     # - assets/images/assets/logo.png unuse
     - assets/images/assets/assets_send.png

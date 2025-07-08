@@ -580,5 +580,6 @@
   "noWalletConnectSession": "No sessions",
   "perferences":"Perferences",
   "response":"Response",
-  "retry":"Retry"
+  "retry":"Retry",
+  "scanTip":"Support address QR code and WalletConnect"
 }
