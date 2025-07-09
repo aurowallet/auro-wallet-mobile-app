@@ -67,14 +67,14 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     if (ls.length > 0) {
       if (ls.length > 1) {
         if (ls[0].toLowerCase() != 'mina' || !Fmt.isAddress(ls[1])) {
-          UI.toast(dic.notValidAddress);
+          // UI.toast(dic.notValidAddress);
         } else {
           chainType = ls[0];
           address = ls[1];
         }
       } else {
         if (!Fmt.isAddress(ls[0])) {
-          UI.toast(dic.notValidAddress);
+          // UI.toast(dic.notValidAddress);
         } else {
           address = ls[0];
         }
@@ -98,14 +98,12 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
       return;
     }
     AppLocalizations dic = AppLocalizations.of(context)!;
-    String address = '';
-    String chainType = '';
     final String data = txt.trim();
 
     if (isScanWc && data.length > 0) {
       if (data.startsWith("wc:")) {
         Navigator.of(context)
-            .pop(QRCodeAddressResult(address: data, chainType: chainType));
+            .pop(QRCodeAddressResult(address: data, chainType: ''));
         return;
       } else {
         QRCodeAddressResult? res = _processQRCodeData(data, dic);
@@ -116,11 +114,28 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           return;
         }
       }
+      setState(() {
+        isFlashLight = false;
+      });
+      await UI.showAlertDialog(
+        context: context,
+        contents: [dic.notValidAddress],
+      );
+      controller.start();
     } else {
       QRCodeAddressResult? res = _processQRCodeData(data, dic);
       if (res != null) {
-        Navigator.of(context)
-            .pop(QRCodeAddressResult(address: address, chainType: chainType));
+        Navigator.of(context).pop(QRCodeAddressResult(
+            address: res.address, chainType: res.chainType));
+      } else {
+        setState(() {
+          isFlashLight = false;
+        });
+        await UI.showAlertDialog(
+          context: context,
+          contents: [dic.notValidAddress],
+        );
+        controller.start();
       }
     }
   }
