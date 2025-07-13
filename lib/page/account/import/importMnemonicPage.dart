@@ -42,37 +42,35 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
 
   void onTextChange() {
     final selection = _mnemonicCtrl.value.selection;
-    RegExp blank = new RegExp(r'\s$');
+    RegExp blank = RegExp(r'\s$');
     final text = _mnemonicCtrl.value.text.replaceAll(blank, ' ');
     if (!selection.isValid) {
       return;
     }
     final before = selection.textBefore(text);
     final after = selection.textAfter(text);
-    print('after'+  after);
-    print('before' + before);
+    print('after: $after');
+    print('before: $before');
     if (errorMsg != null) {
       setState(() {
         errorMsg = null;
       });
     }
-    if (after.isEmpty && !blank.hasMatch(before)) {
-      String? lastChars = new RegExp(r'[\w]+$').stringMatch(before);
+    if (after.isEmpty) {
+      String? lastChars = RegExp(r'[\w]+$').stringMatch(before);
       if (lastChars != null) {
-        List<String> words = WORDLIST.where((word) => word.lastIndexOf(lastChars) == 0).toList();
+        List<String> words = WORDLIST.where((word) => word.startsWith(lastChars)).toList();
         List<String> shortWords = words.sublist(0, min(words.length, 10));
-        if (!(words.length == 1 && words[0] == lastChars)) {
-          setState(() {
-            tips = shortWords;
-          });
-          return;
-        }
+        setState(() {
+          tips = shortWords;
+        });
+        return;
       }
     }
     setState(() {
       tips = [];
     });
-  }
+}
 
   @override
   void dispose() {
