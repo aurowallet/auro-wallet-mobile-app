@@ -43,10 +43,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with https://www.aurowallet.com -->
                 <data
                     android:scheme="https"
-                    android:host="www.aurowallet.com" />
+                    android:host="applinks.aurowallet.com" />
             </intent-filter>
 
             <!-- New intent filter for custom scheme -->
@@ -54,7 +53,6 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with aurowallet://deeplink -->
                 <data
                     android:scheme="aurowallet"
                     android:host="deeplink" />

@@ -78,7 +78,7 @@
 		<true/>
 		<key>com.apple.developer.associated-domains</key>
 		<array>
-			<string>applinks:www.aurowallet.com</string>
+			<string>applinks:applinks.aurowallet.com</string>
 		</array>
 	</dict>
 </plist>

@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:www.aurowallet.com</string>
+		<string>applinks:applinks.aurowallet.com</string>
 	</array>
 	<key>com.apple.security.network.client</key>
 	<true/>
