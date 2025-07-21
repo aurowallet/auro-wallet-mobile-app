@@ -53,22 +53,22 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
     store.settings!.setTestnetShowStatus(isCheck);
   }
 
-  void onSelectNode(bool checkStatus, String checkedUrl) async { 
+  void onSelectNode(bool checkStatus, String checkedUrl) async {
     if (checkStatus) {
       final nodes = store.settings!.allNodes
-          .where((element) => element.url == checkedUrl); 
+          .where((element) => element.url == checkedUrl);
       if (nodes.length > 0) {
         final node = nodes.first;
         await store.assets!.clearAssestNodeCache();
         store.assets!.setAssetsLoading(true);
-        await store.settings!.setCurrentNode(node); 
+        await store.settings!.setCurrentNode(node);
         webApi.updateGqlClient(checkedUrl);
         webApi.staking.refreshStaking();
         await store.assets!.loadTokenLocalConfigCache();
         await store.assets!.loadTokenInfoCache();
         webApi.assets.fetchTokenInfo();
         store.triggerBalanceRefresh();
-        store.walletConnectService?.emitChainChanged(node.networkID); 
+        store.walletConnectService?.emitChainChanged(node.networkID);
       }
     }
     Navigator.of(context).pop();
@@ -125,14 +125,22 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                               color: ColorsUtil.hexColor(0x808080),
                               fontWeight: FontWeight.w400)),
                     ),
-                    Switch(
-                      value: _isCheck,
-                      onChanged: _changed,
-                      activeColor: Colors.white,
-                      inactiveThumbColor: Colors.white,
-                      activeTrackColor: Color(0xFF594AF1),
-                      inactiveTrackColor: Color(0xFFE9E9E9),
-                    ),
+                    Theme(
+                      data: ThemeData(
+                        useMaterial3: true,
+                      ).copyWith(
+                        colorScheme: Theme.of(context)
+                            .colorScheme
+                            .copyWith(outline: Color(0xFFE9E9E9)),
+                      ),
+                      child: Switch(
+                        value: _isCheck,
+                        onChanged: _changed,
+                        inactiveThumbColor: Colors.white,
+                        inactiveTrackColor: Color(0xFFE9E9E9),
+                        activeTrackColor: Color(0xFF594AF1),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -150,8 +158,7 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
                         ),
                         NetworkItem(
                           endpoint: defaultNetworkList.firstWhere((network) =>
-                              network.networkID ==
-                              networkIDMap.zekotestnet),
+                              network.networkID == networkIDMap.zekotestnet),
                           onChecked: onSelectNode,
                         )
                       ]),

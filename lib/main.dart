@@ -9,31 +9,30 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await initHiveForFlutter(); // fluter graphql init
 
   // get_storage dependency
   await GetStorage.init('configuration');
 
-  runApp(
-      Phoenix(
-        child: WalletApp(),
-      )
-  );
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent, 
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
-    
-    systemNavigationBarColor: Colors.white,
-    systemNavigationBarDividerColor: Colors.white,
+  ));
+  runApp(Phoenix(
+    child: WalletApp(),
   ));
   configLoading();
 }
 
 void configLoading() {
   EasyLoading.instance
-    ..indicatorWidget = Image.asset('assets/images/public/loading.gif', width: 80, height: 80,)
+    ..indicatorWidget = Image.asset(
+      'assets/images/public/loading.gif',
+      width: 80,
+      height: 80,
+    )
     ..displayDuration = const Duration(milliseconds: 2000)
     ..loadingStyle = EasyLoadingStyle.custom
     ..maskType = EasyLoadingMaskType.black

@@ -46,6 +46,7 @@ class _TermsDialogState extends State<TermsDialog> {
 
     return Dialog(
       clipBehavior: Clip.hardEdge,
+      backgroundColor: Colors.white,
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -77,12 +78,20 @@ class _TermsDialogState extends State<TermsDialog> {
                       height: 48,
                       child: TextButton(
                         style: TextButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                              // side: BorderSide(color: Colors.red)
-                            )),
-                        child: Text(dic.refuse, style: theme.headlineMedium!),
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                          alignment: Alignment.center,
+                        ),
+                        child: Text(
+                          dic.refuse,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontStyle: FontStyle.normal,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black),
+                        ),
                         onPressed: () {
                           Navigator.of(context).pop(false);
                         },
@@ -98,15 +107,21 @@ class _TermsDialogState extends State<TermsDialog> {
                             height: 48,
                             child: TextButton(
                               style: TextButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).primaryColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero,
-                                    // side: BorderSide(color: Colors.red)
-                                  )),
-                              child: Text(dic.agree,
-                                  style: theme.headlineMedium!.copyWith(
-                                      color: Theme.of(context).primaryColor)),
+                                foregroundColor: Theme.of(context).primaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                                alignment: Alignment.center,
+                              ),
+                              child: Text(
+                                dic.agree,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontStyle: FontStyle.normal,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
                               onPressed: () {
                                 Navigator.of(context).pop(true);
                               },

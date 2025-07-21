@@ -83,10 +83,11 @@ class _TransactionState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(pageTitle),
         centerTitle: true,
+        surfaceTintColor: Colors.white,
         actions: <Widget>[
           TextButton(
             style: ButtonStyle(

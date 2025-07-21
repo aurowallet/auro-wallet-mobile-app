@@ -73,11 +73,6 @@ class ReceivePage extends StatelessWidget {
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             actions: null,
-            systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.dark,
-            ),
           ),
           body: SafeArea(
             maintainBottomViewPadding: true,

@@ -54,6 +54,7 @@ class _CustomPromptDialogState extends State<CustomPromptDialog> {
 
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
+      backgroundColor: Colors.white,
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [

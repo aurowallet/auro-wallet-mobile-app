@@ -66,6 +66,7 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
+      backgroundColor: Colors.white,
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0))),

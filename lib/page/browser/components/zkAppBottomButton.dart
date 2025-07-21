@@ -3,14 +3,14 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ZkAppBottomButton extends StatelessWidget {
-  ZkAppBottomButton(
-      {required this.onConfirm,
-      this.onCancel,
-      this.hideCancel,
-      this.submitting,
-      this.disabled = false,
-      this.confirmBtnText,
-      });
+  ZkAppBottomButton({
+    required this.onConfirm,
+    this.onCancel,
+    this.hideCancel,
+    this.submitting,
+    this.disabled = false,
+    this.confirmBtnText,
+  });
 
   final Function()? onCancel;
   final Function() onConfirm;
@@ -30,6 +30,9 @@ class ZkAppBottomButton extends StatelessWidget {
           minimumSize: Size(double.infinity, 48),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.10),
+          ),
         ),
         onPressed: () {
           if (onCancel != null) {

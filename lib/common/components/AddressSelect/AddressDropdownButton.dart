@@ -58,6 +58,7 @@ class _AddressDropdownButtonState extends State<AddressDropdownButton> {
             width: MediaQuery.of(context).size.width - 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
+              color: Color(0xFFF9FAFC),
             ),
             offset: Offset(offsetX, -30),
             elevation: 8),

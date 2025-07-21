@@ -53,7 +53,7 @@ class _AboutPage extends State<AboutPage> {
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(dic.about),
         centerTitle: true,

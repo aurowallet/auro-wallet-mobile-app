@@ -191,6 +191,8 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
         ),
       ),
       body: RefreshIndicator(
+          backgroundColor: Colors.white,
+          color: Theme.of(context).primaryColor,
           key: globalTokenRefreshKey,
           onRefresh: _onRefresh,
           child: SafeArea(

@@ -444,6 +444,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return Observer(
       builder: (_) {
         return RefreshIndicator(
+          backgroundColor: Colors.white,
+          color: Theme.of(context).primaryColor,
           key: _balanceRefreshKey,
           onRefresh: _onRefresh,
           child: SafeArea(

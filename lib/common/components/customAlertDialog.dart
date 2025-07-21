@@ -32,6 +32,7 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Dialog(
       clipBehavior: Clip.hardEdge,
+      backgroundColor: Colors.white,
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -64,7 +65,7 @@ class _CustomAlertDialogDialogState extends State<CustomAlertDialog> {
                 ),
               ),
               Container(
-                color: Colors.black.withValues(alpha:0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 height: 0.5,
                 margin: EdgeInsets.only(top: 30),
               ),

@@ -112,26 +112,14 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildPage(int i) {
     if (i == 0) {
-      double statusBarHeight = MediaQuery.of(context).padding.top;
       return Scaffold(
         backgroundColor: Color(0xFFEDEFF2),
         appBar: AppBar(
-          automaticallyImplyLeading: true,
           leading: null,
           title: null,
           toolbarHeight: 0,
-          titleSpacing: 0,
-          centerTitle: false,
-          backgroundColor: Colors.transparent,
-          elevation: 0.0,
+          backgroundColor: Color(0xFFEDEFF2),
           actions: null,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarIconBrightness: Brightness.dark,
-            statusBarColor: Colors.transparent,
-            statusBarBrightness: Brightness.light,
-            systemNavigationBarColor: Colors.white,
-            systemNavigationBarDividerColor: Colors.white,
-          ),
         ),
         resizeToAvoidBottomInset: false,
         body: _getPage(0),

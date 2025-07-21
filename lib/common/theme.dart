@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 ThemeData theme = ThemeData();
 // TextButtonThemeData textButtonData = const TextButtonThemeData();
 final appTheme = ThemeData(
-  useMaterial3: false, // close Material 3
+  useMaterial3: true,
   primaryColor: Color(0xFF594AF1),
   // highlightColor: Colors.transparent,
   splashColor: Color(0xFF594AF1).withValues(alpha: 0.1),

@@ -193,14 +193,23 @@ class SwitchItem extends StatelessWidget {
                     fontSize: 16,
                     color: Colors.black,
                     fontWeight: FontWeight.w600)),
-            Switch(
-              value: isOn,
-              onChanged: onClick,
-              activeColor: Colors.white,
-              inactiveThumbColor: Colors.white,
-              activeTrackColor: Color(0xFF594AF1),
-              inactiveTrackColor: Color(0xFFE9E9E9),
-            ),
+            Theme(
+              data: ThemeData(
+                useMaterial3: true,
+              ).copyWith(
+                colorScheme: Theme.of(context)
+                    .colorScheme
+                    .copyWith(outline: Color(0xFFE9E9E9)),
+              ),
+              child: Switch(
+                value: isOn,
+                onChanged: onClick,
+                activeColor: Colors.white,
+                inactiveThumbColor: Colors.white,
+                activeTrackColor: Color(0xFF594AF1),
+                inactiveTrackColor: Color(0xFFE9E9E9),
+              ),
+            )
           ],
         ));
   }

@@ -117,6 +117,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     }
     return Dialog(
       insetPadding: EdgeInsets.symmetric(horizontal: 20),
+      backgroundColor: Colors.white,
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0))),

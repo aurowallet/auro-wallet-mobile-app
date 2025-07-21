@@ -19,7 +19,7 @@ class BrowserTab extends StatefulWidget {
 class _BrowserTabState extends State<BrowserTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int? currentIndex=0;
+  int? currentIndex = 0;
 
   @override
   void initState() {
@@ -60,6 +60,7 @@ class _BrowserTabState extends State<BrowserTab>
             Container(
               constraints: BoxConstraints.expand(height: 35),
               child: TabBar(
+                  tabAlignment: TabAlignment.start,
                   isScrollable: true,
                   controller: _tabController,
                   labelColor: Colors.black,
@@ -73,11 +74,13 @@ class _BrowserTabState extends State<BrowserTab>
                       .toList(),
                   indicatorColor: Colors.black,
                   indicatorWeight: 2,
-                  indicatorSize: TabBarIndicatorSize.label,
+                  indicatorPadding: EdgeInsets.only(right: 20),
+                  dividerHeight: 0,
+                  indicatorSize: TabBarIndicatorSize.tab,
                   labelPadding:
                       EdgeInsets.only(left: 0, right: 20, top: 0, bottom: 0)),
             ),
-            widget.tabRightWidget != null && currentIndex ==0
+            widget.tabRightWidget != null && currentIndex == 0
                 ? Positioned(bottom: 8, right: 0, child: widget.tabRightWidget!)
                 : Container(),
           ],
@@ -103,8 +106,8 @@ class TabBorderContent extends StatelessWidget {
     return Container(
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
-            border:
-                Border.all(color: Colors.black.withValues(alpha: 0.05), width: 0.5)),
+            border: Border.all(
+                color: Colors.black.withValues(alpha: 0.05), width: 0.5)),
         padding: const EdgeInsets.all(10),
         child: SingleChildScrollView(
           child: tabContent,

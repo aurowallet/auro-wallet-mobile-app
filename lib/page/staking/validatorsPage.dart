@@ -76,8 +76,8 @@ class _ValidatorsPageState extends State<ValidatorsPage>
     }
     var res = list.where((element) {
       return (element.address
-                  .toLowerCase()
-                  .contains(keywords!.toLowerCase())) ||
+              .toLowerCase()
+              .contains(keywords!.toLowerCase())) ||
           (element.name != null &&
               element.name!.toLowerCase().contains(keywords!.toLowerCase()));
     }).toList();
@@ -98,14 +98,17 @@ class _ValidatorsPageState extends State<ValidatorsPage>
         : null;
     return RefreshIndicator(
         onRefresh: onRefresh,
+        backgroundColor: Colors.white,
+        color: Theme.of(context).primaryColor,
         child: Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
               title: Text(
-                dic.nodeProviders, 
+                dic.nodeProviders,
               ),
               centerTitle: true,
               elevation: 0.0,
+              surfaceTintColor: Colors.white,
             ),
             resizeToAvoidBottomInset: false,
             body: SafeArea(
@@ -131,9 +134,8 @@ class _ValidatorsPageState extends State<ValidatorsPage>
                           return SubmitNodeButton();
                         }
                         return ValidatorItem(
-                          data: uiList[index],
-                          showSelected:delegate == uiList[index].address
-                        );
+                            data: uiList[index],
+                            showSelected: delegate == uiList[index].address);
                       },
                     ))
                   ],

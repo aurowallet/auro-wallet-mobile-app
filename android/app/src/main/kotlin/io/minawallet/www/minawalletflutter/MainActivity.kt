@@ -6,9 +6,16 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.core.view.WindowCompat
 
 class MainActivity : FlutterFragmentActivity() {
     private val CHANNEL = "browser_launcher" // Channel name to match Flutter
+
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Enable Edge-to-Edge mode
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    }
 
     override fun configureFlutterEngine(flutterEngine: io.flutter.embedding.engine.FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

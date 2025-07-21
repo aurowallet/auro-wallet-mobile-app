@@ -193,7 +193,9 @@ class DelegateInfo extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               child: Text(
                 dic.changeNode,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14, fontWeight: FontWeight.w600),
               ),
               onPressed: () {
                 _onChangeNode(context);

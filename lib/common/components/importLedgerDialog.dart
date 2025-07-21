@@ -164,11 +164,11 @@ class _ImportLedgerState extends State<ImportLedger> {
                           GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             child: SvgPicture.asset(
-                              'assets/images/public/icon_nav_close.svg',
-                              width: 24,
-                              height: 24,
-                              colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)
-                            ),
+                                'assets/images/public/icon_nav_close.svg',
+                                width: 24,
+                                height: 24,
+                                colorFilter: ColorFilter.mode(
+                                    Colors.black, BlendMode.srcIn)),
                             onTap: () => Navigator.pop(context),
                           )
                         ],
@@ -238,12 +238,11 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
         Padding(
           padding: EdgeInsets.only(top: 26),
           child: Center(
-            child: SvgPicture.asset(
-              'assets/images/ledger/ledger_mina.svg',
-              width: 200,
-              height: 43,
-              colorFilter: ColorFilter.mode(Theme.of(context).primaryColor, BlendMode.srcIn)
-            ),
+            child: SvgPicture.asset('assets/images/ledger/ledger_mina.svg',
+                width: 200,
+                height: 43,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).primaryColor, BlendMode.srcIn)),
           ),
         )
       ],
@@ -430,6 +429,9 @@ class _ConnectLedgerState extends State<ConnectLedger> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
                 // alignment: Alignment.centerLeft,
+                side: BorderSide(
+                  color: Color.fromRGBO(0, 0, 0, 0.10),
+                ),
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 backgroundColor: Color(0xFFF9FAFC)),
             child: Row(

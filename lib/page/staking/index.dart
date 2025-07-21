@@ -99,6 +99,8 @@ class _StakingState extends State<Staking> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: RefreshIndicator(
+            backgroundColor: Colors.white,
+            color: Theme.of(context).primaryColor,
             key: globalStakingRefreshKey,
             onRefresh: _fetchData,
             child: Column(
