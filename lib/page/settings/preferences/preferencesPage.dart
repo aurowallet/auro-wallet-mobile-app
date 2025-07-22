@@ -4,6 +4,7 @@ import 'package:auro_wallet/page/settings/currenciesPage.dart';
 import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class PreferencesPage extends StatefulWidget {
@@ -34,9 +35,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var languageCode = store.settings!.localeCode.isNotEmpty
-        ? store.settings!.localeCode
-        : dic.localeName.toLowerCase();
     return Scaffold(
       appBar: AppBar(
         title: Text(dic.perferences),
@@ -44,26 +42,33 @@ class _PreferencesPageState extends State<PreferencesPage> {
       ),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      body: SafeArea(
-        maintainBottomViewPadding: true,
-        child: Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Column(
-              children: <Widget>[
-                MenuItem(
-                  text: dic.language,
-                  value: languageConfig[languageCode],
-                  onClick: () =>
-                      Navigator.of(context).pushNamed(LocalesPage.route),
-                ),
-                MenuItem(
-                  text: dic.currency,
-                  value: store.settings?.currencyCode.toUpperCase(),
-                  onClick: () =>
-                      Navigator.of(context).pushNamed(CurrenciesPage.route),
-                ),
-              ],
-            )),
+      body: Observer(
+        builder: (_) {
+          var languageCode = store.settings!.localeCode.isNotEmpty
+              ? store.settings!.localeCode
+              : dic.localeName.toLowerCase();
+          return SafeArea(
+            maintainBottomViewPadding: true,
+            child: Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Column(
+                  children: <Widget>[
+                    MenuItem(
+                      text: dic.language,
+                      value: languageConfig[languageCode],
+                      onClick: () =>
+                          Navigator.of(context).pushNamed(LocalesPage.route),
+                    ),
+                    MenuItem(
+                      text: dic.currency,
+                      value: store.settings?.currencyCode.toUpperCase(),
+                      onClick: () =>
+                          Navigator.of(context).pushNamed(CurrenciesPage.route),
+                    ),
+                  ],
+                )),
+          );
+        },
       ),
     );
   }

@@ -8,8 +8,10 @@ All notable changes to this project will be documented in this file.
 - Update applinks url
 - Mnemonic phrase prompt when restore an account
 - Open useMaterial3
+
 ### Fixed
 - The link issue on AboutPage
+- PreferencesPage update delay
 
 
 ## [2.1.2]
