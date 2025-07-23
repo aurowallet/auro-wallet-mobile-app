@@ -10,6 +10,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AccountManagePage extends StatefulWidget {
@@ -126,6 +127,17 @@ class _AccountManagePageState extends State<AccountManagePage> {
     }
   }
 
+  AccountData findAccountByPubKey(String targetPubKey) {
+    try {
+      return store.wallet!.walletsMap[account.walletId]!.accounts.firstWhere(
+        (account) => account.pubKey == targetPubKey,
+        orElse: () => AccountData(),
+      );
+    } catch (e) {
+      return account;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -158,11 +170,15 @@ class _AccountManagePageState extends State<AccountManagePage> {
                     color: Color(0x1A000000),
                   ),
                 ),
-                AccountInfoItem(
-                    label: dic.accountName,
-                    value: Fmt.accountName(account),
-                    onClick: _changeAccountName,
-                    padding: EdgeInsets.only(top: 16, bottom: 8)),
+                Observer(builder: (_) {
+                  AccountData targetAccount =
+                      findAccountByPubKey(account.pubKey);
+                  return AccountInfoItem(
+                      label: dic.accountName,
+                      value: Fmt.accountName(targetAccount),
+                      onClick: _changeAccountName,
+                      padding: EdgeInsets.only(top: 16, bottom: 8));
+                }),
                 !isWatchedOrLedgerAccount
                     ? AccountInfoItem(
                         label: dic.exportPrivateKey,

@@ -9,6 +9,11 @@ class WalletData extends _WalletData {
       _$WalletDataFromJson(json);
 
   static Map<String, dynamic> toJson(WalletData acc) => _$WalletDataToJson(acc);
+
+  @override
+  String toString() {
+    return 'WalletData(name: $name, pubKey: $pubKey, address: $address, currentAccount: $currentAccount, createTime: $createTime, currentAccountIndex: $currentAccountIndex, walletTypeIndex: $walletTypeIndex, walletType: $walletType, id: $id, source: $source, meta: $meta, accounts: $accounts)';
+  }
 }
 
 abstract class _WalletData {

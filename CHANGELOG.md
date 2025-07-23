@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - The link issue on AboutPage
 - PreferencesPage update delay
+- AccountName update delay
 
 
 ## [2.1.2]
