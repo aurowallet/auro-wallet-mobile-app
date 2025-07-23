@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Mnemonic phrase prompt when restore an account
 - Open useMaterial3
 - Add password verification when closing AppAccess
+- Token management item click area
 
 ### Fixed
 - The link issue on AboutPage

@@ -63,8 +63,9 @@ class TokenManagaItem extends StatelessWidget {
             decoration: BoxDecoration(
                 border: Border(
                     bottom: BorderSide(
-              color:
-                  tokenShowed ? Colors.white : Colors.black.withValues(alpha: 0.05),
+              color: tokenShowed
+                  ? Colors.white
+                  : Colors.black.withValues(alpha: 0.05),
               width: 0.5,
             ))),
             child: Row(
@@ -121,13 +122,16 @@ class TokenManagaItem extends StatelessWidget {
                 ),
                 InkWell(
                   onTap: onPressed,
-                  child: SvgPicture.asset(
-                    hideToken
-                        ? "assets/images/assets/icon_token_show.svg"
-                        : "assets/images/assets/icon_token_hide.svg",
-                    fit: BoxFit.cover,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    child: SvgPicture.asset(
+                      hideToken
+                          ? "assets/images/assets/icon_token_show.svg"
+                          : "assets/images/assets/icon_token_hide.svg",
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
+                )
               ],
             )),
         // )
