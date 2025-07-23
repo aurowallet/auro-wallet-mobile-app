@@ -77,10 +77,16 @@ class _PasswordVerificationState extends State<PasswordVerificationPage>
         _controller.forward();
       }
     } else {
-      if (isOn) {
-        webApi.account.setAppAccessEnabled();
+      if (!isOn) {
+        String? password = await UI.showPasswordDialog(
+            context: context,
+            wallet: store.wallet!.currentWallet,
+            inputPasswordRequired: true);
+        if (password != null) {
+          webApi.account.setAppAccessDisabled();
+        }
       } else {
-        webApi.account.setAppAccessDisabled();
+        webApi.account.setAppAccessEnabled();
       }
       setState(() {
         _isAppAccessEnable = isOn;

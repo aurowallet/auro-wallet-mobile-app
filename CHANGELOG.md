@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Update applinks url
 - Mnemonic phrase prompt when restore an account
 - Open useMaterial3
+- Add password verification when closing AppAccess
 
 ### Fixed
 - The link issue on AboutPage
