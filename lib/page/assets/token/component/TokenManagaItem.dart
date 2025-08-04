@@ -5,6 +5,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -43,7 +44,7 @@ class TokenManagaItem extends StatelessWidget {
       tokenSymbol = COIN.coinSymbol;
       tokenName = COIN.name;
     } else {
-      tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+      tokenSymbol = getTokenSymbol(tokenNetInfo);
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
     tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";

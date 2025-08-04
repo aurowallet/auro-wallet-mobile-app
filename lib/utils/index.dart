@@ -89,7 +89,8 @@ bool isValidHttpUrl(String? url) {
     if (url == null || url.isEmpty) {
       return false;
     }
-    RegExp urlRegex = RegExp(r'^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$');
+    RegExp urlRegex =
+        RegExp(r'^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$');
     bool isValid = urlRegex.hasMatch(url) || urlRegex.hasMatch('https://$url');
     return isValid;
   } catch (e) {
@@ -173,4 +174,10 @@ String getBrowserTitle(String url) {
   } catch (e) {
     return url;
   }
+}
+
+String getTokenSymbol(TokenNetInfo? tokenNetInfo) {
+  return (tokenNetInfo != null && tokenNetInfo.tokenSymbol.isNotEmpty)
+      ? tokenNetInfo.tokenSymbol
+      : "UNKNOWN";
 }

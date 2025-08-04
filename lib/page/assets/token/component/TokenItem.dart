@@ -6,6 +6,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 
 class TokenItemView extends StatelessWidget {
@@ -40,11 +41,11 @@ class TokenItemView extends StatelessWidget {
       tokenSymbol = COIN.coinSymbol;
       tokenName = COIN.name;
     } else {
-      tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+      tokenSymbol = getTokenSymbol(tokenNetInfo);
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
     // isDelegation = tokenBaseInfo?.isDelegation ?? false;
-      tokenIconUrl  = tokenBaseInfo?.iconUrl ?? "";
+    tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
     displayBalance = tokenBaseInfo?.showBalance != null
         ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
         : "0.0";
@@ -89,7 +90,7 @@ class TokenItemView extends StatelessWidget {
                         TokenIcon(
                           iconUrl: tokenIconUrl,
                           tokenSymbol: tokenSymbol,
-                          isMainToken:isMainToken,
+                          isMainToken: isMainToken,
                         ),
                         SizedBox(
                           width: 16,
@@ -104,7 +105,8 @@ class TokenItemView extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFF000000).withValues(alpha: 0.8),
+                                    color: Color(0xFF000000)
+                                        .withValues(alpha: 0.8),
                                   ),
                                 ),
                                 // delegationText != null

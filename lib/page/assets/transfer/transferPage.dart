@@ -108,7 +108,7 @@ class _TransferPageState extends State<TransferPage> {
         tokenSymbol = COIN.coinSymbol;
         availableDecimals = COIN.decimals.toString();
       } else {
-        tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+        tokenSymbol = getTokenSymbol(tokenNetInfo);
         availableDecimals = tokenBaseInfo?.decimals;
         tokenPublicKey = tokenNetInfo?.publicKey;
       }

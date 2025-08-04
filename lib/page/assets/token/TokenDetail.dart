@@ -14,6 +14,7 @@ import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -57,7 +58,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       tokenSymbol = COIN.coinSymbol;
       tokenName = COIN.name;
     } else {
-      tokenSymbol = tokenNetInfo?.tokenSymbol ?? "UNKNOWN";
+      tokenSymbol = getTokenSymbol(tokenNetInfo);
       tokenName = Fmt.address(tokenId, pad: 6);
       tokenDecimal = int.parse(tokenBaseInfo?.decimals ?? "0");
       tokenPublicKey = tokenNetInfo?.publicKey;
