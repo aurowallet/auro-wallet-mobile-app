@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auro_wallet/common/components/TimerManager.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -33,12 +36,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
 enum SignTxDialogType { Payment, Delegation, zkApp }
-
-enum ZkAppValueEnum {
-  recommed_site,
-  recommed_default,
-  recommed_custom,
-}
 
 class SignTransactionDialog extends StatefulWidget {
   SignTransactionDialog({
@@ -110,6 +107,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   double customNetBalance = 0;
   String? nextGqlUrl;
 
+  double defaultNetFee = DEFAULT_TRANSACTION_FEE;
+  double zekoNetFee = DEFAULT_TRANSACTION_FEE;
+  bool isZekoNet = false;
+
+  TimerManager? timerManager;
+
   @override
   void initState() {
     super.initState();
@@ -129,7 +132,38 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       setState(() {
         isLedger = nextWalletData.walletType == WalletStore.seedTypeLedger;
       });
-      await _loadData();
+      int weight = 0;
+
+      if (widget.signType == SignTxDialogType.zkApp) {
+        String? transaction = zkCommandFormat(widget.transaction);
+        if (transaction.isNotEmpty) {
+          int zkUpdateCount = getAccountUpdateCount(transaction);
+          weight = zkUpdateCount;
+        }
+      }
+      if (widget.walletConnectChainId != null) {
+        isZekoNet = widget.walletConnectChainId?.startsWith("zeko") ?? false;
+      } else {
+        isZekoNet = store.settings!.isZekoNet;
+      }
+
+      await _loadData(weight);
+      int intervalTime = 0;
+
+      timerManager = TimerManager(
+        intervalTime: intervalTime,
+        onCountdownEnd: () async {
+          if (isZekoNet && feeType == ZkAppValueEnum.recommed_default) {
+            dynamic zekoFee =
+                await webApi.assets.getZekoNetFee(weight: weight + 1);
+            double nextFee = Fmt.parsedZekoFee(zekoFee);
+            setState(() {
+              zekoNetFee = nextFee;
+            });
+          }
+        },
+      );
+
       int lastNonce = checkParams();
       if (widget.walletConnectChainId == null) {
         _loadTokenPendingData(lastNonce);
@@ -144,7 +178,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     ]);
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData(int weight) async {
     if (widget.signWallet != null || widget.walletConnectChainId != null) {
       List<String> pubKeyList = [];
       pubKeyList.add(nextAccountData.pubKey);
@@ -166,6 +200,13 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         balancesInfo_2!.total.toString(),
         decimal: COIN.decimals,
       ));
+    }
+    if (isZekoNet && feeType == ZkAppValueEnum.recommed_default) {
+      dynamic zekoFee = await webApi.assets.getZekoNetFee(weight: weight + 1);
+      double nextFee = Fmt.parsedZekoFee(zekoFee);
+      setState(() {
+        zekoNetFee = nextFee;
+      });
     }
   }
 
@@ -239,6 +280,16 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     setState(() {
       lastMemo = memoTemp;
     });
+    
+    if (widget.signType == SignTxDialogType.zkApp && transaction != null) {
+      int zkUpdateCount = getAccountUpdateCount(transaction);
+      double zkAdditionFee = 0;
+      zkAdditionFee = store.assets!.transferFees.accountupdate * zkUpdateCount;
+      defaultNetFee = store.assets!.transferFees.medium +
+          zkAdditionFee;
+    } else {
+      defaultNetFee = store.assets!.transferFees.medium;
+    }
 
     if (webFee != null && Fmt.isNumber(webFee)) {
       lastFee = double.parse(webFee.toString());
@@ -249,19 +300,16 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         feeType = tempFeeType;
         showFeeErrorTip = showFeeErrorTip;
       });
+      timerManager?.setIntervalTime(0);
     } else {
-      double zkAdditionFee = 0;
-      if (widget.signType == SignTxDialogType.zkApp && transaction != null) {
-        int zkUpdateCount = getAccountUpdateCount(transaction);
-        zkAdditionFee =
-            store.assets!.transferFees.accountupdate * zkUpdateCount;
-      }
-      lastFee = store.assets!.transferFees.medium + zkAdditionFee;
       tempFeeType = ZkAppValueEnum.recommed_default;
       setState(() {
-        lastFee = lastFee;
+        lastFee = isZekoNet ? zekoNetFee : defaultNetFee;
         feeType = tempFeeType;
       });
+      if (isZekoNet) {
+        timerManager?.setIntervalTime(ZEKO_FEE_LOOP_TIME);
+      }
     }
     return lastNonce;
   }
@@ -604,17 +652,41 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   void showAdvanceDialog() async {
     UI.showAdvance(
         context: context,
-        fee: lastFee,
+        fee: feeType == ZkAppValueEnum.recommed_custom
+            ? lastFee
+            : 0,
+        feePlaceHolder: lastFee,
+        feeType: feeType,
         nonce: inputNonce,
         onConfirm: (double fee, int nonce) {
-          setState(() {
-            lastFee = fee;
-            inputNonce = nonce;
-            isManualNonce = true;
-            showFeeErrorTip = fee >= store.assets!.transferFees.cap;
-            feeType = ZkAppValueEnum.recommed_custom;
-            zkNonceType = ZkAppValueEnum.recommed_custom;
-          });
+          if (nonce != inputNonce) {
+            setState(() {
+              isManualNonce = true;
+              inputNonce = nonce;
+              zkNonceType = ZkAppValueEnum.recommed_custom;
+            });
+          }
+          if (fee > 0) {
+            setState(() {
+              lastFee = fee;
+              showFeeErrorTip = fee >= store.assets!.transferFees.cap;
+              feeType = ZkAppValueEnum.recommed_custom;
+              timerManager?.setIntervalTime(0);
+            });
+          } else {
+            if (feeType == ZkAppValueEnum.recommed_custom) {
+              setState(() {
+                lastFee = isZekoNet ? zekoNetFee : defaultNetFee;
+                feeType = ZkAppValueEnum.recommed_default;
+              });
+              if (isZekoNet &&
+                  (timerManager != null &&
+                      timerManager!.getIntervalTime() == 0)) {
+                timerManager
+                    ?.setIntervalTime(ZEKO_FEE_LOOP_TIME);
+              }
+            }
+          }
         });
   }
 
@@ -720,6 +792,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   Widget _buildFeeRow() {
     AppLocalizations dic = AppLocalizations.of(context)!;
     String showFee = (lastFee).toString();
+    bool showTimer =
+        (timerManager != null && timerManager!.getIntervalTime() > 0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -746,6 +820,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                               fontSize: 14,
                               fontWeight: FontWeight.w500)),
                       _buildZkTip(feeType),
+                      showTimer
+                          ? CountdownTimer(timerManager: timerManager!)
+                          : SizedBox(),
                     ],
                   ),
                 )

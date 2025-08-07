@@ -3,6 +3,7 @@ import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
 import 'package:auro_wallet/common/components/tokenTxDialog.dart';
+import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenManageDialog.dart';
 import 'package:auro_wallet/page/assets/token/component/tokenSelectDialog.dart';
@@ -28,6 +29,7 @@ import 'package:auro_wallet/common/components/passwordInputDialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/common/components/TimerManager.dart';
 
 class UI {
   static void copyAndNotify(BuildContext context, String? text) {
@@ -70,6 +72,7 @@ class UI {
     Widget? headValue,
     bool disabled = false,
     bool isLedger = false,
+    TimerManager? timerManager,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -86,6 +89,7 @@ class UI {
             headerLabel: headLabel,
             headerValue: headValue,
             buttonText: buttonText,
+            timerManager: timerManager,
             onConfirm: () async {
               bool? success = await onConfirm();
               if (success == false) {
@@ -463,6 +467,8 @@ class UI {
   static Future<void> showAdvance({
     required BuildContext context,
     required double fee,
+    required double feePlaceHolder,
+    required ZkAppValueEnum feeType,
     required int nonce,
     required Function(double, int) onConfirm,
   }) {
@@ -471,7 +477,9 @@ class UI {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AdvanceDialog(
-          nextStateFee: fee,
+          fee: fee,
+          feePlaceHolder: feePlaceHolder,
+          feeType: feeType,
           nonce: nonce,
           onConfirm: (double fee, int nonce) {
             onConfirm(fee, nonce);
@@ -561,7 +569,6 @@ class UI {
     );
   }
 }
-
 
 final GlobalKey<RefreshIndicatorState> globalStakingRefreshKey =
     new GlobalKey<RefreshIndicatorState>();

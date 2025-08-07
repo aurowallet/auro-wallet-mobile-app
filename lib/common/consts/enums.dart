@@ -6,3 +6,9 @@ class WalletSource {
 }
 
 enum CertificateKeys { auro_graphql, auro_api, zeko_graphql }
+
+enum ZkAppValueEnum {
+  recommed_site,
+  recommed_default,
+  recommed_custom,
+}

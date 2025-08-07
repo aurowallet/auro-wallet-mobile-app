@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/TimerManager.dart';
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
@@ -11,14 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
-enum TxItemTypes { address, amount, text, head }
+enum TxItemTypes { showTimer }
 
 class TxItem {
-  TxItem({required this.label, required this.value, this.type});
+  TxItem({required this.label, required this.value, this.showTimer = false});
 
   final String label;
   final String value;
-  final TxItemTypes? type;
+  final bool showTimer;
 }
 
 class TxConfirmDialog extends StatefulWidget {
@@ -31,6 +32,7 @@ class TxConfirmDialog extends StatefulWidget {
     this.buttonText,
     this.headerLabel,
     this.headerValue,
+    this.timerManager,
   });
 
   final List<TxItem> items;
@@ -41,6 +43,7 @@ class TxConfirmDialog extends StatefulWidget {
   final bool disabled;
   final bool isLedger;
   final Function()? onConfirm;
+  final TimerManager? timerManager;
 
   final store = globalAppStore;
 
@@ -184,7 +187,9 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              widget.isLedger ? LedgerStatusView() : Container(),
+                              widget.isLedger
+                                  ? LedgerStatusView()
+                                  : Container(),
                               SizedBox(width: 4),
                               NetworkStatusView()
                             ],
@@ -211,8 +216,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                             ? this.renderLedgerConfirm()
                             : widget.items.map((e) {
                                 return TxConfirmItem(
-                                  data: e,
-                                );
+                                    data: e, timerManager: widget.timerManager);
                               }).toList()),
                       ],
                     ),
@@ -242,24 +246,14 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
 }
 
 class TxConfirmItem extends StatelessWidget {
-  TxConfirmItem({required this.data});
+  TxConfirmItem({required this.data, this.timerManager});
 
   final TxItem data;
+  final TimerManager? timerManager;
 
   @override
   Widget build(BuildContext context) {
-    String text;
-    switch (data.type) {
-      case TxItemTypes.amount:
-        text = data.value;
-        break;
-      case TxItemTypes.address:
-        text = data.value;
-        break;
-      default:
-        text = data.value;
-        break;
-    }
+    String text = data.value;
     return Padding(
         padding: EdgeInsets.only(top: 28),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -277,12 +271,20 @@ class TxConfirmItem extends StatelessWidget {
           Container(
             height: 4,
           ),
-          Text(text,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  height: 1.33,
-                  fontWeight: FontWeight.w500)),
+          Row(
+            children: [
+              Flexible(
+                  child: Text(text,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          height: 1.33,
+                          fontWeight: FontWeight.w500))),
+              (data.showTimer && timerManager != null)
+                  ? CountdownTimer(timerManager: timerManager!)
+                  : SizedBox(),
+            ],
+          )
         ]));
   }
 }

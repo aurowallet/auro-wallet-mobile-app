@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
 import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
+import 'package:auro_wallet/common/components/TimerManager.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:auro_wallet/common/components/feeSelector.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
+import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
@@ -44,12 +45,13 @@ class _TransferPageState extends State<TransferPage> {
   _TransferPageState(this.store);
 
   final AppStore store;
+  TimerManager? timerManager;
 
-  final TextEditingController _amountCtrl = new TextEditingController();
-  final TextEditingController _toAddressCtrl = new TextEditingController();
-  final TextEditingController _memoCtrl = new TextEditingController();
-  final TextEditingController _nonceCtrl = new TextEditingController();
-  final TextEditingController _feeCtrl = new TextEditingController();
+  final TextEditingController _amountCtrl = TextEditingController();
+  final TextEditingController _toAddressCtrl = TextEditingController();
+  final TextEditingController _memoCtrl = TextEditingController();
+  final TextEditingController _nonceCtrl = TextEditingController();
+  final TextEditingController _feeCtrl = TextEditingController();
   late ReactionDisposer _monitorFeeDisposer;
   final addressFocusNode = FocusNode();
   bool submitDisabled = true;
@@ -72,6 +74,8 @@ class _TransferPageState extends State<TransferPage> {
   late Token mainTokenNetInfo;
   String tokenId = "";
   bool isFromModal = false;
+  double? zekoNetFee;
+  int feeWeight = 0;
 
   @override
   void initState() {
@@ -99,7 +103,6 @@ class _TransferPageState extends State<TransferPage> {
       }
 
       TokenAssetInfo? tokenAssestInfo = token.tokenAssestInfo;
-
       TokenNetInfo? tokenNetInfo = token.tokenNetInfo;
       TokenBaseInfo? tokenBaseInfo = token.tokenBaseInfo;
 
@@ -108,6 +111,7 @@ class _TransferPageState extends State<TransferPage> {
         tokenSymbol = COIN.coinSymbol;
         availableDecimals = COIN.decimals.toString();
       } else {
+        feeWeight = 3;
         tokenSymbol = getTokenSymbol(tokenNetInfo);
         availableDecimals = tokenBaseInfo?.decimals;
         tokenPublicKey = tokenNetInfo?.publicKey;
@@ -117,6 +121,25 @@ class _TransferPageState extends State<TransferPage> {
       mainTokenBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance;
       tokenId = tokenAssestInfo?.tokenId ?? "";
 
+      int intervalTime = _feeCtrl.text.isNotEmpty
+          ? 0
+          : (store.settings!.isZekoNet ? ZEKO_FEE_LOOP_TIME : 0);
+      timerManager = TimerManager(
+        intervalTime: intervalTime,
+        onCountdownEnd: () async {
+          if (store.settings!.isZekoNet && _feeCtrl.text.isEmpty) {
+            dynamic zekoFee =
+                await webApi.assets.getZekoNetFee(weight: feeWeight + 1);
+            if (_feeCtrl.text.isEmpty) {
+              setState(() {
+                zekoNetFee = Fmt.parsedZekoFee(zekoFee);
+                currentFee = zekoNetFee;
+              });
+            }
+          }
+          print('Refresh completed');
+        },
+      );
       _loadData();
       _loadAddressData();
     });
@@ -130,6 +153,7 @@ class _TransferPageState extends State<TransferPage> {
     _nonceCtrl.dispose();
     _feeCtrl.dispose();
     _monitorFeeDisposer();
+    timerManager?.dispose();
     super.dispose();
   }
 
@@ -138,8 +162,13 @@ class _TransferPageState extends State<TransferPage> {
       inputDirty = true;
       if (_feeCtrl.text.isNotEmpty) {
         currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        timerManager?.setIntervalTime(0);
       } else {
-        currentFee = null;
+        currentFee = currentFee =
+            zekoNetFee != null ? zekoNetFee : store.assets?.transferFees.medium;
+        ;
+        timerManager?.setIntervalTime(
+            store.settings!.isZekoNet ? ZEKO_FEE_LOOP_TIME : 0);
       }
     });
   }
@@ -281,7 +310,6 @@ class _TransferPageState extends State<TransferPage> {
     _unFocus();
     if (_nonceCtrl.text.isEmpty && currentFee == null) {
       if (_loading.value) {
-        // waiting nonce data from server and user does not choose fee
         setState(() {
           submitting = true;
         });
@@ -309,9 +337,7 @@ class _TransferPageState extends State<TransferPage> {
           shouldShowNonce = true;
         }
       }
-      fee = _feeCtrl.text.isNotEmpty
-          ? double.parse(Fmt.parseNumber(_feeCtrl.text))
-          : currentFee!;
+      fee = currentFee!;
       double amountToTransfer = amount;
       if (isSendMainToken && _isAllTransfer()) {
         amountToTransfer =
@@ -319,25 +345,26 @@ class _TransferPageState extends State<TransferPage> {
                 .toDouble();
       }
       AppLocalizations dic = AppLocalizations.of(context)!;
+      bool showTimer = false;
+      if (timerManager != null && timerManager!.getIntervalTime() > 0) {
+        showTimer = true;
+      }
       var txItems = [
+        TxItem(label: dic.toAddress, value: toAddress),
         TxItem(
-            label: dic.toAddress, value: toAddress, type: TxItemTypes.address),
-        TxItem(
-            label: dic.fromAddress,
-            value: store.wallet!.currentAddress,
-            type: TxItemTypes.address),
+          label: dic.fromAddress,
+          value: store.wallet!.currentAddress,
+        ),
         TxItem(
             label: dic.fee,
             value: '${fee.toString()} ${COIN.coinSymbol}',
-            type: TxItemTypes.amount),
+            showTimer: showTimer),
       ];
       if (shouldShowNonce) {
-        txItems.add(TxItem(
-            label: "Nonce ", value: '$inferredNonce', type: TxItemTypes.text));
+        txItems.add(TxItem(label: "Nonce ", value: '$inferredNonce'));
       }
       if (memo.isNotEmpty) {
-        txItems
-            .add(TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
+        txItems.add(TxItem(label: dic.memo2, value: memo));
       }
       final isWatchMode =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
@@ -356,6 +383,7 @@ class _TransferPageState extends State<TransferPage> {
           disabled: isWatchMode,
           buttonText: isWatchMode ? dic.watchMode : dic.confirm,
           headLabel: dic.amount,
+          timerManager: timerManager,
           headValue: Row(
             textBaseline: TextBaseline.alphabetic,
             crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -487,15 +515,23 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<void> _loadData() async {
-    await Future.wait([
+    List data = await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
       webApi.assets.fetchPendingTokenList(
           widget.store.wallet!.currentAddress,
           widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
                   ?.inferredNonce ??
-              "0")
+              "0"),
+      webApi.assets
+          .getZekoNetFee(weight: store.settings!.isZekoNet ? feeWeight + 1 : 0)
     ]);
+    if (store.settings!.isZekoNet && data[3] != null) {
+      setState(() {
+        zekoNetFee = Fmt.parsedZekoFee(data[3]);
+        currentFee = zekoNetFee;
+      });
+    }
     runInAction(() {
       _loading.value = false;
     });
@@ -554,9 +590,9 @@ class _TransferPageState extends State<TransferPage> {
     }
     print('_onFeeLoaded');
     setState(() {
-      currentFee = fees.medium;
-      _feeCtrl.text = currentFee.toString();
-      print('set fee ctr');
+      if (_feeCtrl.text.isEmpty) {
+        currentFee = zekoNetFee != null ? zekoNetFee : fees.medium;
+      }
     });
   }
 
@@ -571,7 +607,7 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   void _unFocus() {
-    FocusScope.of(context).requestFocus(new FocusNode());
+    FocusScope.of(context).requestFocus(FocusNode());
   }
 
   String? _validateAmount() {
@@ -580,9 +616,7 @@ class _TransferPageState extends State<TransferPage> {
     double availableBalanceStr =
         (availableBalance != null ? availableBalance : 0) as double;
     Decimal available = Decimal.parse(availableBalanceStr.toString());
-    double fee = _feeCtrl.text.isNotEmpty
-        ? double.parse(Fmt.parseNumber(_feeCtrl.text))
-        : currentFee!;
+    double fee = currentFee!;
     Decimal transferFee = Decimal.parse(fee.toString());
     if (_amountCtrl.text.isEmpty) {
       return dic.amountError;
@@ -603,7 +637,6 @@ class _TransferPageState extends State<TransferPage> {
         return dic.balanceNotEnough;
       }
     }
-
     return null;
   }
 
@@ -611,6 +644,7 @@ class _TransferPageState extends State<TransferPage> {
     _feeCtrl.text = fee.toString();
     setState(() {
       currentFee = fee;
+      timerManager?.setIntervalTime(0); // Stop countdown when fee is chosen
     });
   }
 
@@ -620,12 +654,10 @@ class _TransferPageState extends State<TransferPage> {
         showLength: int.parse(availableDecimals ?? "0"));
   }
 
-
   @override
   Widget build(BuildContext context) {
     int nonceHolder = int.parse(
         store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
-
     return Observer(
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;
@@ -751,10 +783,12 @@ class _TransferPageState extends State<TransferPage> {
                             ),
                           ),
                           FeeSelector(
-                            fees: fees,
-                            onChoose: _onChooseFee,
-                            value: currentFee,
-                          ),
+                              fees: fees,
+                              onChoose: _onChooseFee,
+                              value: currentFee,
+                              timerManager:
+                                  timerManager != null ? timerManager : null,
+                              showFeeGroup: !store.settings!.isZekoNet),
                           Container(
                             height: 0.5,
                             margin: EdgeInsets.symmetric(
@@ -763,6 +797,7 @@ class _TransferPageState extends State<TransferPage> {
                           ),
                           AdvancedTransferOptions(
                             feeCtrl: _feeCtrl,
+                            feePlaceHolder: currentFee,
                             nonceCtrl: _nonceCtrl,
                             noncePlaceHolder: nonceHolder,
                             cap: fees.cap,

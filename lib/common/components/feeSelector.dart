@@ -1,18 +1,22 @@
+import 'package:auro_wallet/common/components/TimerManager.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
+import 'package:flutter/material.dart';
 
 class FeeSelector extends StatefulWidget {
-  FeeSelector({
-    required this.fees,
-    required this.onChoose,
-    required this.value,
-  });
+  FeeSelector(
+      {required this.fees,
+      required this.onChoose,
+      required this.value,
+      this.showFeeGroup = true,
+      this.timerManager});
 
   final Fees fees;
   final double? value;
   final Function onChoose;
+  final bool showFeeGroup;
+  final TimerManager? timerManager;
 
   @override
   _FeeSelectorState createState() => _FeeSelectorState();
@@ -50,49 +54,58 @@ class _FeeSelectorState extends State<FeeSelector> {
                   color: Color(0xD9000000),
                   fontWeight: FontWeight.w600),
             ),
-            Text(
-              value == null ? '' : value.toString() + " "+COIN.coinSymbol,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0x80000000),
-                  fontWeight: FontWeight.w400),
+            Row(
+              children: [
+                Text(
+                  value == null ? '' : value.toString() + " " + COIN.coinSymbol,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0x80000000),
+                      fontWeight: FontWeight.w400),
+                ),
+                widget.timerManager != null
+                    ? CountdownTimer(timerManager: widget.timerManager!)
+                    : SizedBox(),
+              ],
             )
           ]),
           Padding(padding: EdgeInsets.only(top: 8)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: FeeItem(
-                  text: dic.fee_slow,
-                  value: fees.slow,
-                  isActive: fees.slow == value,
-                  onClick: _onClick,
-                ),
-                flex: 1,
-              ),
-              SizedBox(width: 11),
-              Flexible(
-                child: FeeItem(
-                  text: dic.fee_default,
-                  value: fees.medium,
-                  isActive: fees.medium == value,
-                  onClick: _onClick,
-                ),
-                flex: 1,
-              ),
-              SizedBox(width: 11),
-              Flexible(
-                child: FeeItem(
-                  text: dic.fee_fast,
-                  value: fees.fast,
-                  isActive: fees.fast == value,
-                  onClick: _onClick,
-                ),
-                flex: 1,
-              ),
-            ],
-          )
+          widget.showFeeGroup
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: FeeItem(
+                        text: dic.fee_slow,
+                        value: fees.slow,
+                        isActive: fees.slow == value,
+                        onClick: _onClick,
+                      ),
+                      flex: 1,
+                    ),
+                    SizedBox(width: 11),
+                    Flexible(
+                      child: FeeItem(
+                        text: dic.fee_default,
+                        value: fees.medium,
+                        isActive: fees.medium == value,
+                        onClick: _onClick,
+                      ),
+                      flex: 1,
+                    ),
+                    SizedBox(width: 11),
+                    Flexible(
+                      child: FeeItem(
+                        text: dic.fee_fast,
+                        value: fees.fast,
+                        isActive: fees.fast == value,
+                        onClick: _onClick,
+                      ),
+                      flex: 1,
+                    ),
+                  ],
+                )
+              : SizedBox()
         ],
       ),
     );

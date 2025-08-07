@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Open useMaterial3
 - Add password verification when closing AppAccess
 - Token management item click area
+- Update Zeko transaction fee
 
 ### Fixed
 - The link issue on AboutPage

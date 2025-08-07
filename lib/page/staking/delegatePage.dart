@@ -254,25 +254,23 @@ class _DelegatePageState extends State<DelegatePage>
       // }
       txItems.addAll([
         TxItem(
-            label: dic.providerAddress,
-            value: validatorAddress,
-            type: TxItemTypes.address),
+          label: dic.providerAddress,
+          value: validatorAddress,
+        ),
         TxItem(
-            label: dic.fromAddress,
-            value: store.wallet!.currentAddress,
-            type: TxItemTypes.address),
+          label: dic.fromAddress,
+          value: store.wallet!.currentAddress,
+        ),
         TxItem(
-            label: dic.fee,
-            value: '${fee.toString()} ${COIN.coinSymbol}',
-            type: TxItemTypes.amount),
+          label: dic.fee,
+          value: '${fee.toString()} ${COIN.coinSymbol}',
+        ),
       ]);
       if (shouldShowNonce) {
-        txItems.add(TxItem(
-            label: "Nonce ", value: '$inferredNonce', type: TxItemTypes.text));
+        txItems.add(TxItem(label: "Nonce ", value: '$inferredNonce'));
       }
       if (memo.isNotEmpty) {
-        txItems
-            .add(TxItem(label: dic.memo2, value: memo, type: TxItemTypes.text));
+        txItems.add(TxItem(label: dic.memo2, value: memo));
       }
       bool isWatchMode =
           store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;

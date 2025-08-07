@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:auro_wallet/common/consts/index.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
 
 class Fmt {
   static String address(String? addr, {int pad = 4, bool padSame = false}) {
@@ -303,13 +305,43 @@ class Fmt {
   }
 
   static String parseShowBalance(double balance, {int showLength = 4}) {
-    String formatted = balance.toStringAsFixed(showLength);
-    formatted = formatted.contains('.')
-        ? formatted
-            .replaceFirst(RegExp(r'0*$'), '')
-            .replaceFirst(RegExp(r'\.$'), '')
-        : formatted;
-    return formatted;
+    try {
+      String formatted = balance.toStringAsFixed(showLength);
+      formatted = formatted.contains('.')
+          ? formatted
+              .replaceFirst(RegExp(r'0*$'), '')
+              .replaceFirst(RegExp(r'\.$'), '')
+          : formatted;
+      return formatted;
+    } catch (e) {
+      return balance.toString();
+    }
+  }
+
+  static double parsedZekoFee(dynamic fee, {double buffer = 0.1}) {
+    double backFee = DEFAULT_TRANSACTION_FEE;
+    try {
+      if (fee.runtimeType != double && fee.runtimeType != String) {
+        return DEFAULT_TRANSACTION_FEE;
+      }
+      String feePerWeightUnit = fee.toString();
+      feePerWeightUnit = amountDecimals(fee.toString(), decimal: COIN.decimals);
+      if (buffer > 0) {
+        final feeDecimal = Decimal.parse(feePerWeightUnit);
+        final bufferDecimal = Decimal.parse((buffer + 1).toString());
+        feePerWeightUnit = (feeDecimal * bufferDecimal).toString();
+      }
+
+      // Round down to 4 decimal places
+      final feeDecimal = Decimal.parse(feePerWeightUnit);
+      feePerWeightUnit = feeDecimal.toStringAsFixed(4);
+
+      backFee = double.parse(feePerWeightUnit);
+    } catch (e) {
+      print('parsedZekoFee err ${e}');
+    }
+
+    return backFee;
   }
 }
 

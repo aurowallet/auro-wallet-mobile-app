@@ -10,3 +10,7 @@ Map<String, double> defaultTxFeesMap = {
 };
 
 Fees defaultTxFees = Fees.fromJson(defaultTxFeesMap);
+
+double DEFAULT_TRANSACTION_FEE = 0.1001;
+
+int ZEKO_FEE_LOOP_TIME = 10;

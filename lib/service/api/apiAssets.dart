@@ -883,4 +883,39 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
     return list;
   }
+
+  Future<dynamic> getZekoNetFee({weight = 1, isDev = false}) async {
+    if (weight == 0) {
+      return 0;
+    }
+    const String query = r'''
+      query FeePerWeight($weight: Int!) { feePerWeightUnit(weight: $weight) }
+    ''';
+    final QueryOptions _options = QueryOptions(
+        document: gql(query),
+        fetchPolicy: FetchPolicy.noCache,
+        variables: {
+          'weight': weight,
+        },
+        queryRequestTimeout: const Duration(seconds: 60));
+
+    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (result.hasException) {
+      print('request zeko fee request');
+      print(result.exception.toString());
+      if (isDev) {
+        return {
+          'error': true,
+          'message': result.exception.toString(),
+          'details': result.exception?.graphqlErrors ?? [],
+        };
+      } else {
+        return 0 ;
+      }
+    }
+    dynamic feePerWeightUnit = result.data!['feePerWeightUnit'];
+    print(
+        'getZekoNetFee feePerWeightUnit:${feePerWeightUnit}, ${feePerWeightUnit.runtimeType}');
+    return feePerWeightUnit;
+  }
 }
