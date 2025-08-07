@@ -9,11 +9,10 @@ class HomeListTip extends StatelessWidget {
     AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
     return Container(
-      margin: EdgeInsets.only(top: 20),
-      padding: EdgeInsets.only(top: 60, bottom: 60, left: 20, right: 20),
+      padding: EdgeInsets.only(top: 80, bottom: 60, left: 20, right: 20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-      ),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          color: Colors.white),
       child: Row(
         children: [
           Expanded(
