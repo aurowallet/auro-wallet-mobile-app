@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - The link issue on AboutPage
 - PreferencesPage update delay
 - AccountName update delay
+- AccountManage balance (Zeko)
 
 
 ## [2.1.2]
