@@ -54,7 +54,8 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
               onPressed: onToggle,
               style: TextButton.styleFrom(
                 minimumSize: Size.zero,
-                padding: EdgeInsets.only(right: 20, top: 10, bottom: 10),
+                padding:
+                    EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 foregroundColor: Theme.of(context).primaryColor,
               ),

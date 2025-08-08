@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [2.2.0]
 ### Enhancements
-- Update applinks url
+- Update Applinks URL
 - Mnemonic phrase prompt when restore an account
 - Open useMaterial3
 - Add password verification when closing AppAccess
