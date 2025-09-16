@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ### Enhancements
 - Upgrade mina-signer to 3.1.0
 
+### Fixed
+- URL validation
+
 ## [2.2.0]
 ### Enhancements
 - Update Applinks URL

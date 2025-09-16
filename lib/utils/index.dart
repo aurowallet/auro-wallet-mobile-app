@@ -85,17 +85,24 @@ String getReadableNetworkId(String networkId) {
 }
 
 bool isValidHttpUrl(String? url) {
-  try {
-    if (url == null || url.isEmpty) {
-      return false;
-    }
-    RegExp urlRegex =
-        RegExp(r'^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$');
-    bool isValid = urlRegex.hasMatch(url) || urlRegex.hasMatch('https://$url');
-    return isValid;
-  } catch (e) {
-    return true;
+  if (url == null || url.trim().isEmpty) {
+    return false;
   }
+  url = url.trim();
+  final urlRegex = RegExp(
+    r'^https?://'
+    r'(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}'
+    r'(?::[0-9]{1,5})?'
+    r'(?:/[^?\s#]*)?'
+    r'(?:\?[^#\s]*)?'
+    r'(?:#[^\s]*)?$',
+    caseSensitive: false,
+  );
+  if (!urlRegex.hasMatch(url)) {
+    return false;
+  }
+  final uri = Uri.tryParse(url);
+  return uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
 }
 
 String getRealErrorMsg(dynamic error) {
