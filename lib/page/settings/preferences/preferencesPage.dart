@@ -37,7 +37,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic.perferences),
+        title: Text(dic.preferences),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,

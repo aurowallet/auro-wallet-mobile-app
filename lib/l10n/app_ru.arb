@@ -607,7 +607,7 @@
   "backToAppDesc": "Вернитесь в приложение, чтобы продолжить пользоваться его услугами.",
   "walletConnectTitle":"WalletConnect",
   "noWalletConnectSession": "Нет сессий",
-  "perferences":"Настройки",
+  "preferences":"Настройки",
   "response":"Ответ",
   "retry":"Повторить",
   "scanTip":"Поддержка QR-кода адреса и WalletConnect"

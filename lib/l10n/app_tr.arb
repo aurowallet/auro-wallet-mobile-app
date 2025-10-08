@@ -605,7 +605,7 @@
   "backToAppDesc": "Hizmetlerini kullanmaya devam etmek için lütfen uygulamaya geri dönün.",
   "walletConnectTitle":"WalletConnect",
   "noWalletConnectSession": "Oturum yok",
-  "perferences":"Tercihler",
+  "preferences":"Tercihler",
   "response":"Yanıt",
   "retry":"Tekrar Dene",
   "scanTip":"Adres QR kodu ve WalletConnect desteği"

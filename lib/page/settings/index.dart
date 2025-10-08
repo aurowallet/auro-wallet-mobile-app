@@ -49,8 +49,8 @@ class Profile extends StatelessWidget {
                   child: Column(
                     children: [
                       SettingItem(
-                        icon: 'assets/images/setting/perference.svg', 
-                        title: dic.perferences,
+                        icon: 'assets/images/setting/preference.svg', 
+                        title: dic.preferences,
                         onTap: () =>
                             Navigator.of(context).pushNamed(PreferencesPage.route),
                       ),
