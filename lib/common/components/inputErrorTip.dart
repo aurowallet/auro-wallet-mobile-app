@@ -1,28 +1,26 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-enum TipType  {
+
+enum TipType {
   error,
   warn,
 }
 
-
 class InputErrorTip extends StatefulWidget {
-  InputErrorTip({
-    required this.ctrl,
-    // required this.validate,
-    required this.message,
-    this.keepShow = true,
-    this.focusNode,
-    this.hideIcon = false,
-    this.padding = const EdgeInsets.only(top: 4),
-    this.tipType = TipType.error,
-    this.validate,
-    this.asyncValidate,
-    this.isError,
-    this.showMessage = true
-  });
+  InputErrorTip(
+      {required this.ctrl,
+      // required this.validate,
+      required this.message,
+      this.keepShow = true,
+      this.focusNode,
+      this.hideIcon = false,
+      this.padding = const EdgeInsets.only(top: 4),
+      this.tipType = TipType.error,
+      this.validate,
+      this.asyncValidate,
+      this.isError,
+      this.showMessage = true});
 
   final TextEditingController ctrl;
   final bool Function(String text)? validate;
@@ -38,6 +36,7 @@ class InputErrorTip extends StatefulWidget {
   @override
   _InputErrorTipState createState() => _InputErrorTipState();
 }
+
 class _InputErrorTipState extends State<InputErrorTip> {
   bool isCorrect = true;
   bool isDirty = false;
@@ -46,7 +45,7 @@ class _InputErrorTipState extends State<InputErrorTip> {
   void initState() {
     super.initState();
     if (widget.focusNode != null) {
-      widget.focusNode?.addListener((){
+      widget.focusNode?.addListener(() {
         if (widget.focusNode != null && !widget.focusNode!.hasFocus) {
           _onChange();
         }
@@ -55,9 +54,10 @@ class _InputErrorTipState extends State<InputErrorTip> {
       widget.ctrl.addListener(_onChange);
     }
   }
+
   void _onChange() async {
     String text = widget.ctrl.text.trim();
-    if(text.length > 0 && !isDirty) {
+    if (text.length > 0 && !isDirty) {
       isDirty = true;
     }
     if (isDirty) {
@@ -74,23 +74,25 @@ class _InputErrorTipState extends State<InputErrorTip> {
       }
     }
   }
-  Widget renderTip (TipType tipType, bool hideIcon) {
+
+  Widget renderTip(TipType tipType, bool hideIcon) {
     if (hideIcon) {
       return Container();
     }
-    switch(tipType) {
+    switch (tipType) {
       case TipType.error:
         return SvgPicture.asset(
-            isCorrect ? 'assets/images/public/success_tip.svg' : 'assets/images/public/error_tip.svg',
+            isCorrect
+                ? 'assets/images/public/success_tip.svg'
+                : 'assets/images/public/error_tip.svg',
             width: 15,
-            height: 15
-        );
+            height: 15);
       default:
-        return Icon(
-            CupertinoIcons.exclamationmark_circle_fill,
-            size: 20,
-            color: ColorsUtil.hexColor(0xFFC633)
-        );
+        return SvgPicture.asset('assets/images/public/error_tip.svg',
+            width: 20,
+            height: 20,
+            colorFilter: ColorFilter.mode(
+                ColorsUtil.hexColor(0xFFC633), BlendMode.srcIn));
     }
   }
 
@@ -101,21 +103,24 @@ class _InputErrorTipState extends State<InputErrorTip> {
     }
     Color? textColor;
     if (widget.tipType == TipType.error) {
-      textColor = (widget.isError ?? !isCorrect ) ? ColorsUtil.hexColor(0xFFD65A5A): Color(0xB9B9B9);
+      textColor = (widget.isError ?? !isCorrect)
+          ? ColorsUtil.hexColor(0xFFD65A5A)
+          : Color(0xB9B9B9);
     } else {
       textColor = ColorsUtil.hexColor(0xFFC633);
     }
     return Padding(
       padding: widget.padding,
-      child: Row(
-          children:[
-            this.renderTip(widget.tipType, widget.hideIcon),
-            Padding(
-                padding: EdgeInsets.only(left: widget.hideIcon ? 0 :6),
-                child: Text(widget.message, style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.w600))
-            )
-          ]
-      ),
+      child: Row(children: [
+        this.renderTip(widget.tipType, widget.hideIcon),
+        Padding(
+            padding: EdgeInsets.only(left: widget.hideIcon ? 0 : 6),
+            child: Text(widget.message,
+                style: TextStyle(
+                    color: textColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600)))
+      ]),
     );
   }
 }
