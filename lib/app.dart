@@ -137,8 +137,21 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   Future<void> openAppLink(Uri uri) async {
     String? host = uri.host;
     String? wcUri = uri.queryParameters['uri'];
+    bool isWalletConnectLink = false;
+    String? scheme;
     if (host == "wc" && wcUri != null && wcUri.isNotEmpty) {
-      String? scheme = uri.queryParameters['scheme'];
+      scheme = uri.queryParameters['scheme'];
+      isWalletConnectLink = true;
+    } else if (uri.scheme == 'https' &&
+        host.endsWith(
+            '.aurowallet.com') && 
+        uri.queryParameters['action'] == 'wc' &&
+        wcUri != null &&
+        wcUri.isNotEmpty) {
+      scheme = uri.queryParameters['scheme'];
+      isWalletConnectLink = true;
+    }
+    if (isWalletConnectLink && wcUri != null) {
       _appStore?.walletConnectService!.setTempScheme(scheme);
       await _appStore?.walletConnectService!.pair(Uri.parse(wcUri));
       return;
@@ -385,9 +398,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         ZkAppConnectPage.route: (_) => ZkAppConnectPage(_appStore!),
         WalletConnectPage.route: (_) => WalletConnectPage(_appStore!),
         PreferencesPage.route: (_) => PreferencesPage(_appStore!),
-        
-        
-        // for dev 
+        // for dev
         DevPage.route: (_) => DevPage(_appStore!),
         TransactionPage.route: (_) => TransactionPage(_appStore!),
       },

@@ -25,7 +25,6 @@ class WalletConnectService {
   bool _isInitialized = false;
   String? tempScheme;
 
-
   WalletConnectService(this.appStore);
 
   ReownWalletKit get walletKit {
@@ -39,6 +38,9 @@ class WalletConnectService {
   bool get isInitialized => _isInitialized;
   void setContext(BuildContext context) async {
     _context = context;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("[aurowallet] Context bound after frame: $_context");
+    });
   }
 
   void setTempScheme(String? scheme) {
@@ -77,6 +79,17 @@ class WalletConnectService {
         appStore.settings!.getSupportNetworkIDs();
     print("[aurowallet] currentSupportChainList: ${currentSupportChainList}");
     return currentSupportChainList;
+  }
+
+  BuildContext _getValidContext() {
+    if (_context != null && _context!.mounted) {
+      return _context!;
+    }
+    final rootContext = WidgetsBinding.instance.rootElement;
+    if (rootContext != null && rootContext.mounted) {
+      return rootContext;
+    }
+    throw StateError("[aurowallet] No valid context available for UI trigger");
   }
 
   void _setupListeners() {
@@ -186,55 +199,60 @@ class WalletConnectService {
           zkUrl = dAppMetadata.url;
         }
 
-        await UI.showSignTransactionAction(
-          context: _context!,
-          signType: signType,
-          to: toAddress,
-          nonce: int.parse(appStore
-                  .assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ??
-              "0"),
-          zkNonce: Fmt.isNumber(params?['nonce'])
-              ? (params?['nonce'].toString())
-              : "",
-          amount: Fmt.isNumber(params?['amount'])
-              ? (params?['amount'].toString())
-              : "",
-          fee: Fmt.isNumber(params?['fee']) ? (params?['fee'].toString()) : "",
-          memo: params?['memo'],
-          transaction: nextTx,
-          feePayer: params?['feePayer'],
-          onlySign: params?['onlySign'],
-          url: zkUrl,
-          iconUrl: iconUrl,
-          walletConnectChainId: nextChainId,
-          signWallet: signWallet,
-          fromAddress: params?["from"],
-          onConfirm: (Map<String, dynamic> result) async {
-            Map<String, dynamic> responseData = {};
-            if (params?['onlySign'].runtimeType == bool &&
-                params?['onlySign']) {
-              responseData = {"signedData": result['signedData']};
-            } else {
-              responseData = {
-                "hash": result['hash'],
-                "paymentId": result['paymentId']
-              };
-            }
-            _walletKit.respondSessionRequest(
-              topic: event.topic,
-              response: JsonRpcResponse(
-                id: event.id,
-                jsonrpc: '2.0',
-                result: responseData,
-              ),
-            );
-            handleRedirect(params?["scheme"]);
-            return "";
-          },
-          onCancel: () {
-            onHandleErrorReject(event, ErrorCodes.userRejectedRequest);
-          },
-        );
+        final validContext = _getValidContext();
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await UI.showSignTransactionAction(
+            context: validContext,
+            signType: signType,
+            to: toAddress,
+            nonce: int.parse(appStore
+                    .assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ??
+                "0"),
+            zkNonce: Fmt.isNumber(params?['nonce'])
+                ? (params?['nonce'].toString())
+                : "",
+            amount: Fmt.isNumber(params?['amount'])
+                ? (params?['amount'].toString())
+                : "",
+            fee:
+                Fmt.isNumber(params?['fee']) ? (params?['fee'].toString()) : "",
+            memo: params?['memo'],
+            transaction: nextTx,
+            feePayer: params?['feePayer'],
+            onlySign: params?['onlySign'],
+            url: zkUrl,
+            iconUrl: iconUrl,
+            walletConnectChainId: nextChainId,
+            signWallet: signWallet,
+            fromAddress: params?["from"],
+            onConfirm: (Map<String, dynamic> result) async {
+              Map<String, dynamic> responseData = {};
+              if (params?['onlySign'].runtimeType == bool &&
+                  params?['onlySign']) {
+                responseData = {"signedData": result['signedData']};
+              } else {
+                responseData = {
+                  "hash": result['hash'],
+                  "paymentId": result['paymentId']
+                };
+              }
+              _walletKit.respondSessionRequest(
+                topic: event.topic,
+                response: JsonRpcResponse(
+                  id: event.id,
+                  jsonrpc: '2.0',
+                  result: jsonEncode(responseData),
+                ),
+              );
+              await Future.delayed(const Duration(milliseconds: 500));
+              handleRedirect(params?["scheme"]);
+              return "";
+            },
+            onCancel: () {
+              onHandleErrorReject(event, ErrorCodes.userRejectedRequest);
+            },
+          );
+        });
       }
     }
   }
@@ -257,31 +275,36 @@ class WalletConnectService {
         iconUrl = dAppMetadata.icons.length > 0 ? dAppMetadata.icons[0] : "";
         zkUrl = dAppMetadata.url;
       }
+      final validContext = _getValidContext();
 
-      await UI.showSignatureAction(
-        method: event.method,
-        context: _context!,
-        content: message,
-        iconUrl: iconUrl,
-        url: zkUrl,
-        walletConnectChainId: nextChainId,
-        signWallet: signWallet,
-        fromAddress: params?["from"],
-        onConfirm: (Map data) async {
-          await _walletKit.respondSessionRequest(
-            topic: event.topic,
-            response: JsonRpcResponse(
-              id: event.id,
-              jsonrpc: '2.0',
-              result: data,
-            ),
-          );
-          handleRedirect(params?["scheme"]);
-        },
-        onCancel: () {
-          onHandleErrorReject(event, ErrorCodes.userRejectedRequest);
-        },
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await UI.showSignatureAction(
+          method: event.method,
+          context: validContext,
+          content: message,
+          iconUrl: iconUrl,
+          url: zkUrl,
+          walletConnectChainId: nextChainId,
+          signWallet: signWallet,
+          fromAddress: params?["from"],
+          onConfirm: (Map data) async {
+            await _walletKit.respondSessionRequest(
+              topic: event.topic,
+              response: JsonRpcResponse(
+                id: event.id,
+                jsonrpc: '2.0',
+                result: jsonEncode(data),
+              ),
+            );
+            await Future.delayed(const Duration(milliseconds: 500));
+            handleRedirect(params?["scheme"]);
+            return;
+          },
+          onCancel: () {
+            onHandleErrorReject(event, ErrorCodes.userRejectedRequest);
+          },
+        );
+      });
     }
   }
 
@@ -294,22 +317,22 @@ class WalletConnectService {
           response: JsonRpcResponse(
             id: event.id,
             jsonrpc: '2.0',
-            result: {
+            result: jsonEncode({
               "version": app_version,
               "init": true,
-            },
+            }),
           ),
         );
         return;
       }
-      if(method == "wallet_revokePermissions") {
+      if (method == "wallet_revokePermissions") {
         await _walletKit.core.pairing.disconnect(topic: event.topic);
         _walletKit.respondSessionRequest(
           topic: event.topic,
           response: JsonRpcResponse(
             id: event.id,
             jsonrpc: '2.0',
-            result: [],
+            result: jsonEncode([]),
           ),
         );
         return;
@@ -325,6 +348,7 @@ class WalletConnectService {
         }
       } catch (e) {}
       try {
+        _getValidContext();
         if (!getAllSupportChains().contains(event.chainId)) {
           onHandleErrorReject(event, ErrorCodes.notSupportChain);
           return;
@@ -371,14 +395,14 @@ class WalletConnectService {
             };
             bool res = await webApi.account.verifyMessage(
               verifyData,
-              context: _context!,
+              context: _getValidContext(),
             );
             _walletKit.respondSessionRequest(
               topic: event.topic,
               response: JsonRpcResponse(
                 id: event.id,
                 jsonrpc: '2.0',
-                result: res,
+                result: jsonEncode(res),
               ),
             );
             break;
@@ -393,14 +417,14 @@ class WalletConnectService {
             };
             bool res = await webApi.account.verifyFields(
               verifyData,
-              context: _context!,
+              context: _getValidContext(),
             );
             _walletKit.respondSessionRequest(
               topic: event.topic,
               response: JsonRpcResponse(
                 id: event.id,
                 jsonrpc: '2.0',
-                result: res,
+                result: jsonEncode(res),
               ),
             );
             break;
@@ -450,8 +474,7 @@ class WalletConnectService {
   }
 
   void _onSessionAuthRequest(SessionAuthRequest? args) {
-    if (args != null) {
-    }
+    if (args != null) {}
   }
 
   void _onSessionConnect(SessionConnect? args) {
@@ -462,8 +485,7 @@ class WalletConnectService {
   }
 
   void _onSessionProposal(SessionProposalEvent? args) async {
-    debugPrint(
-        '[SampleWallet] _onSessionProposal ${jsonEncode(args?.params)}');
+    debugPrint('[SampleWallet] _onSessionProposal ${jsonEncode(args?.params)}');
 
     if (args != null && _context != null) {
       final proposer = args.params.proposer;
@@ -492,31 +514,35 @@ class WalletConnectService {
           events: ["accountsChanged", "chainChanged"],
         ),
       };
-      UI.showConnectAction(
-        context: _context!,
-        url: proposer.metadata.url,
-        iconUrl: proposer.metadata.icons.isNotEmpty
-            ? proposer.metadata.icons.first
-            : "",
-        onConfirm: () async {
-          try {
-            await _walletKit.approveSession(
-              id: args.id,
-              namespaces: defaultNamespaces,
-              sessionProperties: args.params.sessionProperties,
-            );
-            handleRedirect(tempScheme);
-          } catch (error) {
-            print('showConnectAction===0,${error}');
-          }
-        },
-        onCancel: () async {
-          final error = Errors.getSdkError(Errors.USER_REJECTED).toSignError();
-          await _walletKit.rejectSession(id: args.id, reason: error);
-          await _walletKit.core.pairing
-              .disconnect(topic: args.params.pairingTopic);
-        },
-      );
+      final validContext = _getValidContext();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        UI.showConnectAction(
+          context: validContext,
+          url: proposer.metadata.url,
+          iconUrl: proposer.metadata.icons.isNotEmpty
+              ? proposer.metadata.icons.first
+              : "",
+          onConfirm: () async {
+            try {
+              await _walletKit.approveSession(
+                id: args.id,
+                namespaces: defaultNamespaces,
+                sessionProperties: args.params.sessionProperties,
+              );
+              handleRedirect(tempScheme);
+            } catch (error) {
+              print('showConnectAction===0,${error}');
+            }
+          },
+          onCancel: () async {
+            final error =
+                Errors.getSdkError(Errors.USER_REJECTED).toSignError();
+            await _walletKit.rejectSession(id: args.id, reason: error);
+            await _walletKit.core.pairing
+                .disconnect(topic: args.params.pairingTopic);
+          },
+        );
+      });
     }
   }
 
@@ -531,9 +557,13 @@ class WalletConnectService {
               .invokeMethod('openBrowser', {'packageName': targetPackageName});
         } on PlatformException catch (e) {
           print("Failed to open browser: '${e.message}'");
-          UI.showBottomTipDialog(context: _context!);
+          final validContext = _getValidContext();
+          UI.showBottomTipDialog(context: validContext);
         }
       }
+    } else {
+      await Future.delayed(const Duration(milliseconds: 300));
+      UI.showBottomTipDialog(context: _context!);
     }
   }
 
@@ -550,8 +580,7 @@ class WalletConnectService {
     for (final pairing in pairings) {
       try {
         await _walletKit.core.pairing.disconnect(topic: pairing.topic);
-      } catch (e) {
-      }
+      } catch (e) {}
     }
   }
 
@@ -588,7 +617,7 @@ class WalletConnectService {
   //     print('Peer Metadata: ${session.peer.metadata}');
   //     print('Namespaces: ${session.namespaces}');
   //     print('---');
-    
+
   //   }
   // }
 
