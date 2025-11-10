@@ -81,7 +81,7 @@ class _BrowserSearchPage extends State<BrowserSearchPage> {
   }
 
   void _onLoadUrl(String url) async { 
-    if (!isValidHttpUrl(url)) {
+    if (!isValidHttpUrl(formatUrl(url))) {
       print("error url, please input");
       return;
     }
