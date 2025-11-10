@@ -30,7 +30,7 @@ class Terms extends StatelessWidget {
                 (String? text, Map<String?, String?> attrs) {
                   final String? link = attrs['href'];
                   // final String? route = attrs['route'];
-                  launchUrl(Uri.parse(termsUrl), mode: LaunchMode.externalApplication);
+                  launchUrl(Uri.parse(termsUrl), mode: LaunchMode.inAppBrowserView);
                   print('The "$link" link is tapped.');
                 },
                 style: theme.headlineMedium!
@@ -40,7 +40,7 @@ class Terms extends StatelessWidget {
                   (String? text, Map<String?, String?> attrs) {
                 final String? link = attrs['href'];
                 // final String? route = attrs['route'];
-                launchUrl(Uri.parse(privacyUrl), mode: LaunchMode.externalApplication);
+                launchUrl(Uri.parse(privacyUrl), mode: LaunchMode.inAppBrowserView);
                 print('The "$link" link is tapped.');
               },
                   style: theme.headlineMedium!

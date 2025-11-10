@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class IconBrowserLink extends StatefulWidget {
   IconBrowserLink(this.url, {required this.icon, this.mainAxisAlignment});
@@ -19,7 +20,7 @@ class _IconBrowserLinkState extends State<IconBrowserLink> {
     setState(() {
       _loading = true;
     });
-    await UI.launchURL(widget.url);
+    await UI.launchURL(widget.url, mode: LaunchMode.inAppBrowserView);
     setState(() {
       _loading = false;
     });
@@ -31,9 +32,7 @@ class _IconBrowserLinkState extends State<IconBrowserLink> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.center,
-        children: <Widget>[
-          widget.icon
-        ],
+        children: <Widget>[widget.icon],
       ),
       onTap: () {
         _launchUrl();

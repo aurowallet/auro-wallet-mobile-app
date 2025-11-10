@@ -49,11 +49,12 @@ class UI {
         fontSize: 14.0);
   }
 
-  static Future<void> launchURL(String url) async {
+  static Future<void> launchURL(String url, {LaunchMode? mode}) async {
     try {
       final Uri uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await launchUrl(uri,
+            mode: mode != null ? mode : LaunchMode.externalApplication);
       } else {
         print('Could not launch $url');
       }

@@ -17,6 +17,7 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TxListView extends StatefulWidget {
   TxListView(this.store,
@@ -68,6 +69,7 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
             child: BrowserLink(
               '$browserLink/account/$currentAddress/txs',
               text: dic.goToExplorer,
+              launchMode: LaunchMode.inAppBrowserView,
             ))
       ],
     ));

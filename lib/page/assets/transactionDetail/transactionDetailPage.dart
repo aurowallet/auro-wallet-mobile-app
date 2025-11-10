@@ -14,6 +14,7 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TransactionDetailPage extends StatelessWidget {
   TransactionDetailPage(this.store);
@@ -206,12 +207,11 @@ class TransactionDetailPage extends StatelessWidget {
                 decoration: new BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(48.0)),
                     color: statusColor),
-                child: SvgPicture.asset(
-                  'assets/images/assets/$statusIcon.svg',
-                  width: 48,
-                  height: 48,
-                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)
-                ),
+                child: SvgPicture.asset('assets/images/assets/$statusIcon.svg',
+                    width: 48,
+                    height: 48,
+                    colorFilter:
+                        ColorFilter.mode(Colors.white, BlendMode.srcIn)),
               )),
           Text(statusText,
               style: TextStyle(
@@ -334,6 +334,7 @@ class TransactionDetailPage extends StatelessWidget {
                               child: BrowserLink(
                                 '${store.settings!.currentNode?.explorerUrl}/tx/${tx.hash}',
                                 text: dic.goToExplrer,
+                                launchMode: LaunchMode.inAppBrowserView,
                               ))
                           : Container()
                     ],

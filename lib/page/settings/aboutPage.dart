@@ -9,6 +9,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   AboutPage(this.store);
@@ -113,6 +114,7 @@ class _AboutPage extends State<AboutPage> {
                     text: dic.userAgree,
                     showIcon: false,
                     textStyle: textBrowserStyle,
+                    launchMode: LaunchMode.inAppBrowserView,
                   ),
                 ),
                 Container(
@@ -122,6 +124,7 @@ class _AboutPage extends State<AboutPage> {
                     text: dic.privacy,
                     showIcon: false,
                     textStyle: textBrowserStyle,
+                    launchMode: LaunchMode.inAppBrowserView
                   ),
                 ),
                 Container(
@@ -131,6 +134,7 @@ class _AboutPage extends State<AboutPage> {
                     text: dic.github,
                     showIcon: false,
                     textStyle: textBrowserStyle,
+                    launchMode: LaunchMode.inAppBrowserView
                   ),
                 ),
                 Container(

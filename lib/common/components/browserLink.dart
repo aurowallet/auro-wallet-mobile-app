@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BrowserLink extends StatefulWidget {
   BrowserLink(this.url,
       {this.text,
       this.mainAxisAlignment,
       this.textStyle,
-      this.showIcon = true});
+      this.showIcon = true,
+      this.launchMode});
 
   final String? text;
   final TextStyle? textStyle;
   final String url;
   final MainAxisAlignment? mainAxisAlignment;
   final bool showIcon;
+  final LaunchMode? launchMode;
 
   @override
   _BrowserLinkState createState() => _BrowserLinkState();
@@ -20,7 +23,7 @@ class BrowserLink extends StatefulWidget {
 
 class _BrowserLinkState extends State<BrowserLink> {
   Future<void> _launchUrl() async {
-    await UI.launchURL(widget.url);
+    await UI.launchURL(widget.url, mode: widget.launchMode);
   }
 
   @override

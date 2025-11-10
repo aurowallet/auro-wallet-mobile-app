@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [2.2.1]
 ### Enhancements
 - Upgrade mina-signer to 3.1.0
 - WalletConnect of iOS
+- External URL open
 
 ### Fixed
 - URL validation
