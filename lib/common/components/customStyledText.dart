@@ -19,7 +19,7 @@ class CustomStyledText extends StatelessWidget {
       style: st,
       textAlign: textAlign,
       newLineAsBreaks: true,
-      textScaleFactor: MediaQuery.of(context).textScaleFactor,
+      textScaler: MediaQuery.of(context).textScaler,
       tags: {
         'bold': StyledTextTag(style: TextStyle(fontWeight: FontWeight.w900)),
         'red': StyledTextTag(

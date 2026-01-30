@@ -35,7 +35,7 @@ class ReceivePage extends StatelessWidget {
       file.createSync();
     }
     file.writeAsBytesSync(pngBytes);
-    final result = await Share.shareXFiles([XFile(path)], text: store.wallet!.currentAddress);
+    final result = await SharePlus.instance.share(ShareParams(files: [XFile(path)], text: store.wallet!.currentAddress));
     if (result.status == ShareResultStatus.success) {
         print('Sharing success!');
     }

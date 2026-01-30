@@ -11,9 +11,10 @@ class WillPopScopWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    return new WillPopScope(
-      child: child,
-      onWillPop: () async {
+    return PopScope(
+      canPop: !Platform.isAndroid,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
         if (Platform.isAndroid) {
           bool? res = await UI.showConfirmDialog(
             context: context,
@@ -21,15 +22,12 @@ class WillPopScopWrapper extends StatelessWidget {
             okText: dic.confirm,
             cancelText: dic.cancel,
           );
-          if (res == null || res == false) {
-            return Future.value(false);
-          } else {
-            return Future.value(true);
+          if (res == true && context.mounted) {
+            Navigator.of(context).pop();
           }
-        } else {
-          return Future.value(true);
         }
       },
+      child: child,
     );
   }
 }

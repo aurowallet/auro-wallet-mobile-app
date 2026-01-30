@@ -114,8 +114,8 @@ class UI {
       barrierDismissible: barrierDismissible,
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;
-        return WillPopScope(
-          onWillPop: () async => !disableBack,
+        return PopScope(
+          canPop: !disableBack,
           child: CustomAlertDialog(
             title: dic.prompt,
             confirm: confirm,

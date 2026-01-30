@@ -30,7 +30,7 @@ class CopyContainer extends StatelessWidget {
                 padding: !showIcon ? EdgeInsets.zero :  EdgeInsets.only(right: 4),
                 child: child,
               ),),
-            showIcon ? SvgPicture.asset('assets/images/public/icon_copy.svg', width: 17, height: 17, color: iconColor ?? Theme.of(context).primaryColor,) : Container()
+            showIcon ? SvgPicture.asset('assets/images/public/icon_copy.svg', width: 17, height: 17, colorFilter: ColorFilter.mode(iconColor ?? Theme.of(context).primaryColor, BlendMode.srcIn),) : Container()
           ],
         ) ,
         onTap: () {

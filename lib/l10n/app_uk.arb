@@ -447,7 +447,7 @@
     "@importSameAccount_1": {
         "placeholders": {
             "address": {
-                "type": "Рядок",
+                "type": "String",
                 "example": "B62..."
             }
         }
@@ -456,7 +456,7 @@
     "@importSameAccount_2": {
         "placeholders": {
             "accountName": {
-                "type": "Рядок",
+                "type": "String",
                 "example": "Рахунок 1..."
             }
         }

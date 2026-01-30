@@ -9,7 +9,7 @@ final appTheme = ThemeData(
   brightness: Brightness.light,
   // splashFactory: NoSplashFactory(),
   appBarTheme: AppBarTheme(
-      color: Colors.white,
+      backgroundColor: Colors.white,
       foregroundColor: Colors.black,
       elevation: 0,
       iconTheme: IconThemeData(

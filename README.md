@@ -1,7 +1,7 @@
 # Auro Wallet Mobile App
 
-[![Flutter Version](https://img.shields.io/badge/Flutter-3.27.3-blue)](https://flutter.dev)
-[![Dart Version](https://img.shields.io/badge/Dart-3.6.1-blue)](https://dart.dev)
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.38.8-blue)](https://flutter.dev)
+[![Dart Version](https://img.shields.io/badge/Dart-3.10.7-blue)](https://dart.dev)
 [![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android-green)](https://flutter.dev)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![Tested with BrowserStack](https://img.shields.io/badge/Tested%20with-BrowserStack-brightgreen)](https://www.browserstack.com)
@@ -24,8 +24,8 @@ Auro Wallet serves as a convenient gateway to the Mina Protocol, enabling users 
 ### Prerequisites
 
 To build and run Auro Wallet, ensure you have the following installed:
-- **Flutter**: Version 3.27.3 (stable)
-- **Dart**: Version 3.6.1
+- **Flutter**: Version 3.38.8 (stable)
+- **Dart**: Version 3.10.7
 - A compatible IDE (e.g., VS Code, Android Studio)
 - A configured development environment for iOS and/or Android
 

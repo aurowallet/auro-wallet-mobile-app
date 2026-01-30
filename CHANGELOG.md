@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+## [2.3.0]
+### Enhancements
+- Upgrade Flutter version to 3.38.8
+- Upgrade Dart version to 3.10.7
+- Upgrade dependencies:
+  - mobile_scanner: 6.0.10 → 7.1.4
+  - fluttertoast: 8.2.12 → 9.0.0
+  - permission_handler: 11.4.0 → 12.0.1
+  - share_plus: 10.1.4 → 12.0.1
+  - styled_text: 8.1.0 → 9.0.0
+  - freezed: 2.5.8 → 3.2.4
+  - sodium_libs: 3.4.3+2 → 3.4.6+4
+- Update deprecated APIs (WillPopScope → PopScope, textScaleFactor → textScaler, etc.)
+- Update Android build configuration (AGP 8.7.3, Gradle 8.13, compileSdk 36)
+
 
 ## [2.2.1]
 ### Enhancements
