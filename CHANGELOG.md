@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
   - sodium_libs: 3.4.3+2 → 3.4.6+4
 - Update deprecated APIs (WillPopScope → PopScope, textScaleFactor → textScaler, etc.)
 - Update Android build configuration (AGP 8.7.3, Gradle 8.13, compileSdk 36)
+- Support Android 16kb
 
 
 ## [2.2.1]
