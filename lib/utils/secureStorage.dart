@@ -3,7 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class SecureStorage {
-  final storage = new FlutterSecureStorage();
+  final storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.unlocked,
+    ),
+  );
   final seedKey = 'wallet_seed';
   final migrateKey = 'storage_migrated';
 

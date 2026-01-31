@@ -34,9 +34,15 @@ class Encryption {
 
   static Future<Uint8List> password2Hash(String pwd, Uint8List salt) async {
     await initializeSodium();
+    final passwordBytes = Uint8List.fromList(pwd.codeUnits);
+    final passwordInt8 = Int8List.view(
+      passwordBytes.buffer,
+      passwordBytes.offsetInBytes,
+      passwordBytes.length,
+    );
     SecureKey secureKey = sodium.crypto.pwhash(
       outLen: 32,
-      password: Int8List.fromList(pwd.codeUnits),
+      password: passwordInt8,
       salt: salt,
       opsLimit: 3,
       memLimit: sodium.crypto.pwhash.memLimitInteractive,
