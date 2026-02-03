@@ -931,4 +931,22 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scanTip => 'Adres QR kodu ve WalletConnect desteği';
+
+  @override
+  String get notificationTxSuccess => 'İşlem Başarılı';
+
+  @override
+  String get notificationTxFailed => 'İşlem Başarısız';
+
+  @override
+  String get notificationTxSuccessBody => 'İşleminiz onaylandı.';
+
+  @override
+  String notificationTxSuccessBodyWithAmount(String amount, String symbol) {
+    return '$amount $symbol tutarındaki işleminiz onaylandı.';
+  }
+
+  @override
+  String get notificationTxFailedBody =>
+      'İşleminiz başarısız oldu. Lütfen tekrar deneyin.';
 }

@@ -608,5 +608,16 @@
   "preferences":"偏好",
   "response":"响应",
   "retry":"重试",
-  "scanTip":"支持地址二维码和 WalletConnect"
+  "scanTip":"支持地址二维码和 WalletConnect",
+  "notificationTxSuccess":"交易成功",
+  "notificationTxFailed":"交易失败",
+  "notificationTxSuccessBody":"您的交易已确认。",
+  "notificationTxSuccessBodyWithAmount":"您的 {amount} {symbol} 交易已确认。",
+  "@notificationTxSuccessBodyWithAmount": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationTxFailedBody":"您的交易失败，请重试。"
 }

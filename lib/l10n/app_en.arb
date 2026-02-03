@@ -581,5 +581,16 @@
   "preferences":"Preferences",
   "response":"Response",
   "retry":"Retry",
-  "scanTip":"Support address QR code and WalletConnect"
+  "scanTip":"Support address QR code and WalletConnect",
+  "notificationTxSuccess":"Transaction Successful",
+  "notificationTxFailed":"Transaction Failed",
+  "notificationTxSuccessBody":"Your transaction has been confirmed.",
+  "notificationTxSuccessBodyWithAmount":"Your transaction of {amount} {symbol} has been confirmed.",
+  "@notificationTxSuccessBodyWithAmount": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationTxFailedBody":"Your transaction failed. Please try again."
 }

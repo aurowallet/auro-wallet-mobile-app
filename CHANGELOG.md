@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Update deprecated APIs (WillPopScope → PopScope, textScaleFactor → textScaler, etc.)
 - Update Android build configuration (AGP 8.7.3, Gradle 8.13, compileSdk 36)
 - Support Android 16kb
+- Add notification support
 
 
 ## [2.2.1]

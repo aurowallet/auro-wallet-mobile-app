@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/service/tx_status_monitor.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
@@ -100,18 +101,32 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       _onRefresh();
     });
 
+    // Register callback for transaction confirmation refresh
+    TxStatusMonitor().onTxConfirmed = _onTxConfirmedRefresh;
+
     super.initState();
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    // Clear callback to avoid memory leak
+    TxStatusMonitor().onTxConfirmed = null;
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// Called when a transaction is confirmed
+  /// Only refresh if current network matches the transaction's network
+  void _onTxConfirmedRefresh(String gqlUrl) {
+    final currentGqlUrl = widget.store.settings?.currentNode?.url;
+    if (currentGqlUrl == gqlUrl && mounted) {
+      _onRefresh();
+    }
+  }
+
   Future<void> _onRefresh({showIndicator = false}) async {
-    if (showIndicator) {
+    if (showIndicator && mounted) {
       setState(() {
         isLoading = true;
       });
@@ -120,9 +135,11 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
       _fetchTransactions(showIndicator),
     ]);
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _fetchTransactions(showIndicator) async {

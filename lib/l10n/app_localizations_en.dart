@@ -929,4 +929,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanTip => 'Support address QR code and WalletConnect';
+
+  @override
+  String get notificationTxSuccess => 'Transaction Successful';
+
+  @override
+  String get notificationTxFailed => 'Transaction Failed';
+
+  @override
+  String get notificationTxSuccessBody =>
+      'Your transaction has been confirmed.';
+
+  @override
+  String notificationTxSuccessBodyWithAmount(String amount, String symbol) {
+    return 'Your transaction of $amount $symbol has been confirmed.';
+  }
+
+  @override
+  String get notificationTxFailedBody =>
+      'Your transaction failed. Please try again.';
 }

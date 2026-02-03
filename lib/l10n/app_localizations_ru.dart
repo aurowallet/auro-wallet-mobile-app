@@ -933,4 +933,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get scanTip => 'Поддержка QR-кода адреса и WalletConnect';
+
+  @override
+  String get notificationTxSuccess => 'Транзакция успешна';
+
+  @override
+  String get notificationTxFailed => 'Транзакция не удалась';
+
+  @override
+  String get notificationTxSuccessBody => 'Ваша транзакция подтверждена.';
+
+  @override
+  String notificationTxSuccessBodyWithAmount(String amount, String symbol) {
+    return 'Ваша транзакция на $amount $symbol подтверждена.';
+  }
+
+  @override
+  String get notificationTxFailedBody =>
+      'Ваша транзакция не удалась. Пожалуйста, попробуйте снова.';
 }

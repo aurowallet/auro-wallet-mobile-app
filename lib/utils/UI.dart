@@ -93,7 +93,7 @@ class UI {
             timerManager: timerManager,
             onConfirm: () async {
               bool? success = await onConfirm();
-              if (success == false) {
+              if (success != true && context.mounted) {
                 Navigator.of(context).pop();
               }
             });

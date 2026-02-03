@@ -610,5 +610,16 @@
     "preferences": "Налаштування",
     "response": "Відповідь",
     "retry": "Повторити",
-    "scanTip": "Підтримка QR-коду адреси та WalletConnect"
+    "scanTip": "Підтримка QR-коду адреси та WalletConnect",
+    "notificationTxSuccess":"Транзакція успішна",
+    "notificationTxFailed":"Транзакція не вдалася",
+    "notificationTxSuccessBody":"Вашу транзакцію підтверджено.",
+    "notificationTxSuccessBodyWithAmount":"Вашу транзакцію на {amount} {symbol} підтверджено.",
+    "@notificationTxSuccessBodyWithAmount": {
+      "placeholders": {
+        "amount": {"type": "String"},
+        "symbol": {"type": "String"}
+      }
+    },
+    "notificationTxFailedBody":"Ваша транзакція не вдалася. Будь ласка, спробуйте ще раз."
 }

@@ -6,6 +6,7 @@ import 'package:auro_wallet/app.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:auro_wallet/service/notification_service.dart';
 
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,10 @@ Future<void> main() async {
 
   // get_storage dependency
   await GetStorage.init('configuration');
+
+  // Initialize notification service
+  await NotificationService().initialize();
+  await NotificationService().requestPermission();
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarIconBrightness: Brightness.dark,

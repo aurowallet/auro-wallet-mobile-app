@@ -900,4 +900,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get scanTip => '支持地址二维码和 WalletConnect';
+
+  @override
+  String get notificationTxSuccess => '交易成功';
+
+  @override
+  String get notificationTxFailed => '交易失败';
+
+  @override
+  String get notificationTxSuccessBody => '您的交易已确认。';
+
+  @override
+  String notificationTxSuccessBodyWithAmount(String amount, String symbol) {
+    return '您的 $amount $symbol 交易已确认。';
+  }
+
+  @override
+  String get notificationTxFailedBody => '您的交易失败，请重试。';
 }

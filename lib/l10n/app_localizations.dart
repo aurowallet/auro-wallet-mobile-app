@@ -1837,6 +1837,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Support address QR code and WalletConnect'**
   String get scanTip;
+
+  /// No description provided for @notificationTxSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Successful'**
+  String get notificationTxSuccess;
+
+  /// No description provided for @notificationTxFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Failed'**
+  String get notificationTxFailed;
+
+  /// No description provided for @notificationTxSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transaction has been confirmed.'**
+  String get notificationTxSuccessBody;
+
+  /// No description provided for @notificationTxSuccessBodyWithAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transaction of {amount} {symbol} has been confirmed.'**
+  String notificationTxSuccessBodyWithAmount(String amount, String symbol);
+
+  /// No description provided for @notificationTxFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transaction failed. Please try again.'**
+  String get notificationTxFailedBody;
 }
 
 class _AppLocalizationsDelegate

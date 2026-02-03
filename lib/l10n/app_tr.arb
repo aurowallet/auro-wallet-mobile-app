@@ -608,5 +608,16 @@
   "preferences":"Tercihler",
   "response":"Yanıt",
   "retry":"Tekrar Dene",
-  "scanTip":"Adres QR kodu ve WalletConnect desteği"
+  "scanTip":"Adres QR kodu ve WalletConnect desteği",
+  "notificationTxSuccess":"İşlem Başarılı",
+  "notificationTxFailed":"İşlem Başarısız",
+  "notificationTxSuccessBody":"İşleminiz onaylandı.",
+  "notificationTxSuccessBodyWithAmount":"{amount} {symbol} tutarındaki işleminiz onaylandı.",
+  "@notificationTxSuccessBodyWithAmount": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationTxFailedBody":"İşleminiz başarısız oldu. Lütfen tekrar deneyin."
 }

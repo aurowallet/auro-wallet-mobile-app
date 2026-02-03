@@ -15,6 +15,8 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/index.dart';
+import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/service/tx_status_monitor.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bs58check/bs58check.dart' as bs58check;
@@ -36,6 +38,8 @@ class ApiAccount {
   final store = globalAppStore;
 
   final LocalAuthentication auth = LocalAuthentication();
+  // Note: Removing custom options to maintain backward compatibility with existing stored data
+  // The default FlutterSecureStorage options should work for most cases
   final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   final _biometricEnabledKey = 'biometric_enabled_v1';
@@ -180,6 +184,23 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
       ..status = 'pending'
       ..success = false
       ..receiver = paymentData["to"];
+    
+    // Add to transaction status monitor for notification
+    if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
+      final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
+      // Format amount from nanomina to display format
+      final formattedAmount = data.amount != null 
+          ? Fmt.balance(data.amount.toString(), COIN.decimals, maxLength: COIN.decimals)
+          : null;
+      TxStatusMonitor().addPendingTx(
+        hash: data.hash!,
+        paymentId: data.paymentId,
+        amount: formattedAmount,
+        tokenSymbol: COIN.coinSymbol,
+        txType: MonitorTxType.payment,
+        gqlUrl: currentGqlUrl,
+      );
+    }
     return data;
   }
 
@@ -287,6 +308,19 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       ..status = 'pending'
       ..success = false
       ..receiver = paymentData["to"];
+    
+    // Add to transaction status monitor for notification
+    if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
+      final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
+      // Note: delegation transactions don't have amount, but we pass null
+      TxStatusMonitor().addPendingTx(
+        hash: data.hash!,
+        paymentId: data.paymentId,
+        tokenSymbol: COIN.coinSymbol,
+        txType: MonitorTxType.delegation,
+        gqlUrl: currentGqlUrl,
+      );
+    }
     return data;
   }
 
@@ -761,7 +795,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
   Future<void> replaceBiometricData(String newValue) async {
     await secureStorage.write(key: '$_biometricPasswordKey', value: newValue);
-    print('Data replaced successfully');
   }
 
   Future<bool> authenticate() async {
@@ -921,6 +954,18 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       ..status = 'pending'
       ..success = false
       ..receiver = receiver;
+    
+    // Add to transaction status monitor for notification
+    if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
+      final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
+      TxStatusMonitor().addPendingTx(
+        hash: data.hash!,
+        paymentId: data.paymentId,
+        tokenSymbol: 'zkApp',
+        txType: MonitorTxType.zkApp,
+        gqlUrl: currentGqlUrl,
+      );
+    }
     return data;
   }
 

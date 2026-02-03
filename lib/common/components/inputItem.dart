@@ -80,7 +80,18 @@ class _InputItemState extends State<InputItem> {
     });
   }
 
+  @override
+  void dispose() {
+    _controller?.removeListener(_onTextChange);
+    // Only dispose if we created the controller
+    if (widget.controller == null) {
+      _controller?.dispose();
+    }
+    super.dispose();
+  }
+
   _onTextChange() {
+    if (!mounted) return;
     final value = _controller!.text;
     int counter = 0;
     for (int i = 0; i < value.length; i++) {

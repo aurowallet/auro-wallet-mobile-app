@@ -16,11 +16,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class TransactionDetailPage extends StatelessWidget {
+class TransactionDetailPage extends StatefulWidget {
   TransactionDetailPage(this.store);
 
   static final String route = '/assets/tx';
   final AppStore store;
+
+  @override
+  State<TransactionDetailPage> createState() => _TransactionDetailPageState();
+}
+
+class _TransactionDetailPageState extends State<TransactionDetailPage> {
 
   Widget _buildLabel(String name) {
     return Container(
@@ -39,10 +45,8 @@ class TransactionDetailPage extends StatelessWidget {
     return s;
   }
 
-  List<Widget> _buildListView(BuildContext context) {
+  List<Widget> _buildListView(BuildContext context, TransferData tx, Map params) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    Map params = ModalRoute.of(context)!.settings.arguments as Map;
-    TransferData tx = params['data'];
     String txKindLow = tx.type.toLowerCase();
 
     String tokenId = params['tokenId'];
@@ -69,7 +73,7 @@ class TransactionDetailPage extends StatelessWidget {
         Map txData = jsonDecode(tx.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
         Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,
-            store.wallet!.currentAddress, tx.sender ?? "", tokenId);
+            widget.store.wallet!.currentAddress, tx.sender ?? "", tokenId);
         tokenTxData = updateInfo;
         showToAddress = updateInfo['to'];
         String amount = Fmt.balance(
@@ -83,7 +87,7 @@ class TransactionDetailPage extends StatelessWidget {
         List<dynamic> accountUpdates = txData['accountUpdates'];
         Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
           accountUpdates,
-          store.wallet!.currentAddress,
+          widget.store.wallet!.currentAddress,
           tx.sender ?? "",
           tokenId,
         );
@@ -135,7 +139,7 @@ class TransactionDetailPage extends StatelessWidget {
     if (txKindLow == "zkapp_token") {
       txType = "zkApp Token";
     }
-    bool isOut = tx.sender == store.wallet!.currentAddress;
+    bool isOut = tx.sender == widget.store.wallet!.currentAddress;
     switch (txKindLow) {
       case 'delegation':
       case 'stake_delegation':
@@ -302,11 +306,10 @@ class TransactionDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-
-    Map params = ModalRoute.of(context)!.settings.arguments as Map;
-
-    TransferData tx = params['data'];
+    Map params = ModalRoute.of(context)?.settings.arguments as Map? ?? {};
+    TransferData tx = params['data'] as TransferData;
     bool showExplorer = tx.type != "zkapp_token";
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('${dic.details}'),
@@ -320,7 +323,7 @@ class TransactionDetailPage extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.only(bottom: 30, right: 20, left: 20),
-                children: _buildListView(context),
+                children: _buildListView(context, tx, params),
               ),
             ),
             showExplorer
@@ -332,7 +335,7 @@ class TransactionDetailPage extends StatelessWidget {
                               padding: EdgeInsets.symmetric(horizontal: 30)
                                   .copyWith(bottom: 30),
                               child: BrowserLink(
-                                '${store.settings!.currentNode?.explorerUrl}/tx/${tx.hash}',
+                                '${widget.store.settings!.currentNode?.explorerUrl}/tx/${tx.hash}',
                                 text: dic.goToExplrer,
                                 launchMode: LaunchMode.inAppBrowserView,
                               ))
