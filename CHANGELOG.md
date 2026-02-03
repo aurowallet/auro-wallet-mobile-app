@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Update Android build configuration (AGP 8.7.3, Gradle 8.13, compileSdk 36)
 - Support Android 16kb
 - Add notification support
+- Add test cases to wallet
 
 
 ## [2.2.1]
