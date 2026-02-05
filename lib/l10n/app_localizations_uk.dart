@@ -949,4 +949,92 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String get notificationTxFailedBody =>
       'Ваша транзакція не вдалася. Будь ласка, спробуйте ще раз.';
+
+  @override
+  String get renameWallet => 'Перейменувати гаманець';
+
+  @override
+  String get deleteWallet => 'Видалити гаманець';
+
+  @override
+  String get deleteWalletWarning =>
+      'Цю дію неможливо скасувати. Переконайтеся, що ви зберегли мнемонічну фразу перед видаленням.';
+
+  @override
+  String get hdWallet => 'HD Гаманець';
+
+  @override
+  String get walletNamePlaceholder => 'Введіть назву гаманця';
+
+  @override
+  String get accounts => 'акаунтів';
+
+  @override
+  String get selectWallet => 'Вибрати гаманець';
+
+  @override
+  String get noMnemonicWallet =>
+      'Немає доступного HD гаманця. Спочатку створіть або імпортуйте гаманець.';
+
+  @override
+  String get walletDetails => 'Деталі гаманця';
+
+  @override
+  String get walletNameLabel => 'Назва гаманця';
+
+  @override
+  String get changeWalletName => 'Змінити назву гаманця';
+
+  @override
+  String get seedPhrase => 'Мнемонічна фраза';
+
+  @override
+  String get deleteWalletConfirm =>
+      'Ви впевнені, що хочете видалити цей гаманець?';
+
+  @override
+  String get walletDeleted => 'Гаманець успішно видалено';
+
+  @override
+  String get walletRenamed => 'Гаманець успішно перейменовано';
+
+  @override
+  String get privateKeyWallet => 'Приватний ключ';
+
+  @override
+  String get ledgerWallet => 'Ledger';
+
+  @override
+  String get watchWallet => 'Тільки перегляд';
+
+  @override
+  String get rename => 'Перейменувати';
+
+  @override
+  String get backupMnemonic => 'Резервна копія мнемоніки';
+
+  @override
+  String get addWallet => 'Додати гаманець';
+
+  @override
+  String get importWallet => 'Імпортувати гаманець';
+
+  @override
+  String get walletManagement => 'Керування гаманцями';
+
+  @override
+  String get mnemonicPhrase => 'Мнемонічна фраза';
+
+  @override
+  String get mnemonicImportDesc =>
+      'Імпорт за допомогою мнемонічної фрази з 12 або 24 слів';
+
+  @override
+  String get privateKeyImportDesc => 'Імпорт за допомогою приватного ключа';
+
+  @override
+  String get keystoreImportDesc => 'Імпорт за допомогою файлу Keystore';
+
+  @override
+  String get ledgerImportDesc => 'Підключення через Bluetooth або USB';
 }

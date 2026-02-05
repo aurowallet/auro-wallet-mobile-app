@@ -22,6 +22,7 @@ abstract class _SettingsStore with Store {
   final String localStorageAboutUsKey = 'about_us';
   final String localStorageCustomNodeList = 'custom_node_list';
   final String localStorageCurrentNodeKey = 'current_node';
+  final String localStorageTermsAgreedKey = 'terms_agreed';
 
   final String cacheTestnetShowStatusKey = 'network_testnet_status';
 
@@ -44,6 +45,9 @@ abstract class _SettingsStore with Store {
 
   @observable
   bool lockWalletStatus = true;
+
+  @observable
+  bool termsAgreed = false;
 
   bool get isSupportTxHistory {
     return currentNode?.txUrl != null && currentNode!.txUrl!.isNotEmpty;
@@ -100,6 +104,7 @@ abstract class _SettingsStore with Store {
     await loadTestnetShowStatus();
     await loadAboutUs();
     await loadContacts();
+    await loadTermsAgreed();
   }
 
   @action
@@ -292,5 +297,18 @@ abstract class _SettingsStore with Store {
   @action
   Future<void> setLockWalletStatus(bool status) async {
     lockWalletStatus = status;
+  }
+
+  @action
+  Future<void> setTermsAgreed(bool agreed) async {
+    termsAgreed = agreed;
+    await rootStore.localStorage.setObject(localStorageTermsAgreedKey, agreed);
+  }
+
+  @action
+  Future<void> loadTermsAgreed() async {
+    bool? agreed = await rootStore.localStorage
+        .getObject(localStorageTermsAgreedKey) as bool?;
+    termsAgreed = agreed == true;
   }
 }

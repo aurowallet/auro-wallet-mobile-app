@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -50,14 +51,22 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
     }
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
     String accountName = params["accountName"];
-    String? password = await UI.showPasswordDialog(
-        context: context,
-        wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: true
-    );
-    if (password == null) {
-      return;
+    
+    // Check if password is already set (from initialization flow)
+    String password = store.wallet!.newWalletParams.password;
+    if (password.isEmpty) {
+      // Password not set, show dialog (from wallet management flow)
+      final dialogPassword = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true
+      );
+      if (dialogPassword == null) {
+        return;
+      }
+      password = dialogPassword;
     }
+    
     setState(() {
       submitting = true;
     });
@@ -66,8 +75,21 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
       submitting = false;
     });
     if(isSuccess) {
-      // UI.toast(dic['backup_success_restore']!);
-      Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+      // Check if coming from initialization flow or wallet management
+      bool fromInitialization = params["fromInitialization"] == true;
+      if (fromInitialization) {
+        // From initialization - go to success page and clear navigation stack
+        store.wallet!.resetNewWallet();
+        Navigator.pushNamedAndRemoveUntil(
+          context, 
+          ImportSuccessPage.route, 
+          (Route<dynamic> route) => false,
+          arguments: {'type': 'restore'}
+        );
+      } else {
+        // From wallet management
+        Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+      }
     }
   }
   @override

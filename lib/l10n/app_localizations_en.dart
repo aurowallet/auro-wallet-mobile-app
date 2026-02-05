@@ -73,7 +73,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inputSeed =>
-      'Please enter 12 mnemonic phrases in order, without capitalization, punctuation symbols.';
+      'Please enter 12 or 24 mnemonic phrases in order, without capitalization, punctuation symbols.';
 
   @override
   String get confirm => 'Confirm';
@@ -948,4 +948,91 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationTxFailedBody =>
       'Your transaction failed. Please try again.';
+
+  @override
+  String get renameWallet => 'Rename Wallet';
+
+  @override
+  String get deleteWallet => 'Delete Wallet';
+
+  @override
+  String get deleteWalletWarning =>
+      'This action cannot be undone. Make sure you have backed up your mnemonic phrase before deleting.';
+
+  @override
+  String get hdWallet => 'HD Wallet';
+
+  @override
+  String get walletNamePlaceholder => 'Enter wallet name';
+
+  @override
+  String get accounts => 'accounts';
+
+  @override
+  String get selectWallet => 'Select Wallet';
+
+  @override
+  String get noMnemonicWallet =>
+      'No HD wallet available. Please create or import a wallet first.';
+
+  @override
+  String get walletDetails => 'Wallet Details';
+
+  @override
+  String get walletNameLabel => 'Wallet Name';
+
+  @override
+  String get changeWalletName => 'Change Wallet Name';
+
+  @override
+  String get seedPhrase => 'Seed Phrase';
+
+  @override
+  String get deleteWalletConfirm =>
+      'Are you sure you want to delete this wallet?';
+
+  @override
+  String get walletDeleted => 'Wallet deleted successfully';
+
+  @override
+  String get walletRenamed => 'Wallet renamed successfully';
+
+  @override
+  String get privateKeyWallet => 'Private Key';
+
+  @override
+  String get ledgerWallet => 'Ledger';
+
+  @override
+  String get watchWallet => 'Watch-only';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
+  String get backupMnemonic => 'Backup Mnemonic';
+
+  @override
+  String get addWallet => 'Add Wallet';
+
+  @override
+  String get importWallet => 'Import Wallet';
+
+  @override
+  String get walletManagement => 'Wallet Management';
+
+  @override
+  String get mnemonicPhrase => 'Mnemonic Phrase';
+
+  @override
+  String get mnemonicImportDesc => 'Import using 12 or 24 word mnemonic phrase';
+
+  @override
+  String get privateKeyImportDesc => 'Import using private key';
+
+  @override
+  String get keystoreImportDesc => 'Import using Keystore file';
+
+  @override
+  String get ledgerImportDesc => 'Connect via Bluetooth or USB';
 }

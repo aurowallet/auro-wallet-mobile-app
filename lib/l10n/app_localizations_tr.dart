@@ -949,4 +949,92 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get notificationTxFailedBody =>
       'İşleminiz başarısız oldu. Lütfen tekrar deneyin.';
+
+  @override
+  String get renameWallet => 'Cüzdanı Yeniden Adlandır';
+
+  @override
+  String get deleteWallet => 'Cüzdanı Sil';
+
+  @override
+  String get deleteWalletWarning =>
+      'Bu işlem geri alınamaz. Silmeden önce anımsatıcı ifadenizi yedeklediğinizden emin olun.';
+
+  @override
+  String get hdWallet => 'HD Cüzdan';
+
+  @override
+  String get walletNamePlaceholder => 'Cüzdan adı girin';
+
+  @override
+  String get accounts => 'hesap';
+
+  @override
+  String get selectWallet => 'Cüzdan Seç';
+
+  @override
+  String get noMnemonicWallet =>
+      'Kullanılabilir HD cüzdan yok. Lütfen önce bir cüzdan oluşturun veya içe aktarın.';
+
+  @override
+  String get walletDetails => 'Cüzdan Detayları';
+
+  @override
+  String get walletNameLabel => 'Cüzdan Adı';
+
+  @override
+  String get changeWalletName => 'Cüzdan Adını Değiştir';
+
+  @override
+  String get seedPhrase => 'Tohum İfadesi';
+
+  @override
+  String get deleteWalletConfirm =>
+      'Bu cüzdanı silmek istediğinizden emin misiniz?';
+
+  @override
+  String get walletDeleted => 'Cüzdan başarıyla silindi';
+
+  @override
+  String get walletRenamed => 'Cüzdan başarıyla yeniden adlandırıldı';
+
+  @override
+  String get privateKeyWallet => 'Özel Anahtar';
+
+  @override
+  String get ledgerWallet => 'Ledger';
+
+  @override
+  String get watchWallet => 'Sadece İzleme';
+
+  @override
+  String get rename => 'Yeniden Adlandır';
+
+  @override
+  String get backupMnemonic => 'Anımsatıcıyı Yedekle';
+
+  @override
+  String get addWallet => 'Cüzdan Ekle';
+
+  @override
+  String get importWallet => 'Cüzdanı İçe Aktar';
+
+  @override
+  String get walletManagement => 'Cüzdan Yönetimi';
+
+  @override
+  String get mnemonicPhrase => 'Anımsatıcı İfade';
+
+  @override
+  String get mnemonicImportDesc =>
+      '12 veya 24 kelimelik anımsatıcı ifade ile içe aktar';
+
+  @override
+  String get privateKeyImportDesc => 'Özel anahtar ile içe aktar';
+
+  @override
+  String get keystoreImportDesc => 'Keystore dosyası ile içe aktar';
+
+  @override
+  String get ledgerImportDesc => 'Bluetooth veya USB ile bağlan';
 }

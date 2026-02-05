@@ -669,6 +669,12 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       {required BuildContext context,
       required String seedType,
       required String walletSource}) async {
+    // Set default wallet name from newWalletParams if not already set
+    if (store.wallet!.newWalletParams.name != null && 
+        store.wallet!.newWalletParams.name!.isNotEmpty &&
+        (acc['name'] == null || acc['name'].toString().isEmpty)) {
+      acc['name'] = store.wallet!.newWalletParams.name;
+    }
     await store.wallet!.addWallet(
       acc,
       store.wallet!.newWalletParams.password,

@@ -67,7 +67,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backup_success_restore => '恭喜您，已经成功导入钱包！';
 
   @override
-  String get inputSeed => '请按顺序输入12位助记词，没有大写和标点符号。';
+  String get inputSeed => '请按顺序输入12或24位助记词，没有大写和标点符号。';
 
   @override
   String get confirm => '确定';
@@ -917,4 +917,88 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationTxFailedBody => '您的交易失败，请重试。';
+
+  @override
+  String get renameWallet => '重命名钱包';
+
+  @override
+  String get deleteWallet => '删除钱包';
+
+  @override
+  String get deleteWalletWarning => '此操作无法撤销。请确保在删除前已备份助记词。';
+
+  @override
+  String get hdWallet => 'HD 钱包';
+
+  @override
+  String get walletNamePlaceholder => '输入钱包名称';
+
+  @override
+  String get accounts => '个账户';
+
+  @override
+  String get selectWallet => '选择钱包';
+
+  @override
+  String get noMnemonicWallet => '没有可用的 HD 钱包。请先创建或导入钱包。';
+
+  @override
+  String get walletDetails => '钱包详情';
+
+  @override
+  String get walletNameLabel => '钱包名称';
+
+  @override
+  String get changeWalletName => '修改钱包名称';
+
+  @override
+  String get seedPhrase => '助记词';
+
+  @override
+  String get deleteWalletConfirm => '确定要删除此钱包吗？';
+
+  @override
+  String get walletDeleted => '钱包删除成功';
+
+  @override
+  String get walletRenamed => '钱包重命名成功';
+
+  @override
+  String get privateKeyWallet => '私钥';
+
+  @override
+  String get ledgerWallet => 'Ledger';
+
+  @override
+  String get watchWallet => '观察钱包';
+
+  @override
+  String get rename => '重命名';
+
+  @override
+  String get backupMnemonic => '备份助记词';
+
+  @override
+  String get addWallet => '添加钱包';
+
+  @override
+  String get importWallet => '导入钱包';
+
+  @override
+  String get walletManagement => '钱包管理';
+
+  @override
+  String get mnemonicPhrase => '助记词';
+
+  @override
+  String get mnemonicImportDesc => '使用12或24位助记词导入';
+
+  @override
+  String get privateKeyImportDesc => '使用私钥导入';
+
+  @override
+  String get keystoreImportDesc => '使用 Keystore 文件导入';
+
+  @override
+  String get ledgerImportDesc => '通过蓝牙或USB连接';
 }

@@ -12,63 +12,111 @@ mixin _$WalletStore on _WalletStore, Store {
   Computed<WalletData>? _$currentWalletComputed;
 
   @override
-  WalletData get currentWallet => (_$currentWalletComputed ??=
-          Computed<WalletData>(() => super.currentWallet,
-              name: '_WalletStore.currentWallet'))
-      .value;
+  WalletData get currentWallet =>
+      (_$currentWalletComputed ??= Computed<WalletData>(
+        () => super.currentWallet,
+        name: '_WalletStore.currentWallet',
+      )).value;
   Computed<Map<String, WalletData>>? _$walletsMapComputed;
 
   @override
-  Map<String, WalletData> get walletsMap => (_$walletsMapComputed ??=
-          Computed<Map<String, WalletData>>(() => super.walletsMap,
-              name: '_WalletStore.walletsMap'))
-      .value;
+  Map<String, WalletData> get walletsMap =>
+      (_$walletsMapComputed ??= Computed<Map<String, WalletData>>(
+        () => super.walletsMap,
+        name: '_WalletStore.walletsMap',
+      )).value;
   Computed<List<AccountData>>? _$accountListAllComputed;
 
   @override
-  List<AccountData> get accountListAll => (_$accountListAllComputed ??=
-          Computed<List<AccountData>>(() => super.accountListAll,
-              name: '_WalletStore.accountListAll'))
-      .value;
+  List<AccountData> get accountListAll =>
+      (_$accountListAllComputed ??= Computed<List<AccountData>>(
+        () => super.accountListAll,
+        name: '_WalletStore.accountListAll',
+      )).value;
   Computed<List<AccountData>>? _$watchModeAccountListAllComputed;
 
   @override
   List<AccountData> get watchModeAccountListAll =>
       (_$watchModeAccountListAllComputed ??= Computed<List<AccountData>>(
-              () => super.watchModeAccountListAll,
-              name: '_WalletStore.watchModeAccountListAll'))
-          .value;
+        () => super.watchModeAccountListAll,
+        name: '_WalletStore.watchModeAccountListAll',
+      )).value;
   Computed<List<WalletData>>? _$walletListAllComputed;
 
   @override
-  List<WalletData> get walletListAll => (_$walletListAllComputed ??=
-          Computed<List<WalletData>>(() => super.walletListAll,
-              name: '_WalletStore.walletListAll'))
-      .value;
+  List<WalletData> get walletListAll =>
+      (_$walletListAllComputed ??= Computed<List<WalletData>>(
+        () => super.walletListAll,
+        name: '_WalletStore.walletListAll',
+      )).value;
   Computed<WalletData?>? _$mnemonicWalletComputed;
 
   @override
-  WalletData? get mnemonicWallet => (_$mnemonicWalletComputed ??=
-          Computed<WalletData?>(() => super.mnemonicWallet,
-              name: '_WalletStore.mnemonicWallet'))
-      .value;
+  WalletData? get mnemonicWallet =>
+      (_$mnemonicWalletComputed ??= Computed<WalletData?>(
+        () => super.mnemonicWallet,
+        name: '_WalletStore.mnemonicWallet',
+      )).value;
   Computed<String>? _$currentAddressComputed;
 
   @override
-  String get currentAddress =>
-      (_$currentAddressComputed ??= Computed<String>(() => super.currentAddress,
-              name: '_WalletStore.currentAddress'))
-          .value;
+  String get currentAddress => (_$currentAddressComputed ??= Computed<String>(
+    () => super.currentAddress,
+    name: '_WalletStore.currentAddress',
+  )).value;
   Computed<String>? _$currentAccountPubKeyComputed;
 
   @override
-  String get currentAccountPubKey => (_$currentAccountPubKeyComputed ??=
-          Computed<String>(() => super.currentAccountPubKey,
-              name: '_WalletStore.currentAccountPubKey'))
-      .value;
+  String get currentAccountPubKey =>
+      (_$currentAccountPubKeyComputed ??= Computed<String>(
+        () => super.currentAccountPubKey,
+        name: '_WalletStore.currentAccountPubKey',
+      )).value;
+  Computed<List<WalletData>>? _$sortedWalletListComputed;
 
-  late final _$loadingAtom =
-      Atom(name: '_WalletStore.loading', context: context);
+  @override
+  List<WalletData> get sortedWalletList =>
+      (_$sortedWalletListComputed ??= Computed<List<WalletData>>(
+        () => super.sortedWalletList,
+        name: '_WalletStore.sortedWalletList',
+      )).value;
+  Computed<List<WalletData>>? _$hdWalletListComputed;
+
+  @override
+  List<WalletData> get hdWalletList =>
+      (_$hdWalletListComputed ??= Computed<List<WalletData>>(
+        () => super.hdWalletList,
+        name: '_WalletStore.hdWalletList',
+      )).value;
+  Computed<List<WalletData>>? _$importedWalletListComputed;
+
+  @override
+  List<WalletData> get importedWalletList =>
+      (_$importedWalletListComputed ??= Computed<List<WalletData>>(
+        () => super.importedWalletList,
+        name: '_WalletStore.importedWalletList',
+      )).value;
+  Computed<List<WalletData>>? _$ledgerWalletListComputed;
+
+  @override
+  List<WalletData> get ledgerWalletList =>
+      (_$ledgerWalletListComputed ??= Computed<List<WalletData>>(
+        () => super.ledgerWalletList,
+        name: '_WalletStore.ledgerWalletList',
+      )).value;
+  Computed<List<WalletData>>? _$watchWalletListComputed;
+
+  @override
+  List<WalletData> get watchWalletList =>
+      (_$watchWalletListComputed ??= Computed<List<WalletData>>(
+        () => super.watchWalletList,
+        name: '_WalletStore.watchWalletList',
+      )).value;
+
+  late final _$loadingAtom = Atom(
+    name: '_WalletStore.loading',
+    context: context,
+  );
 
   @override
   bool get loading {
@@ -83,8 +131,10 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  late final _$txStatusAtom =
-      Atom(name: '_WalletStore.txStatus', context: context);
+  late final _$txStatusAtom = Atom(
+    name: '_WalletStore.txStatus',
+    context: context,
+  );
 
   @override
   String get txStatus {
@@ -99,8 +149,10 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  late final _$newWalletParamsAtom =
-      Atom(name: '_WalletStore.newWalletParams', context: context);
+  late final _$newWalletParamsAtom = Atom(
+    name: '_WalletStore.newWalletParams',
+    context: context,
+  );
 
   @override
   NewWalletParams get newWalletParams {
@@ -115,8 +167,10 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  late final _$currentWalletIdAtom =
-      Atom(name: '_WalletStore.currentWalletId', context: context);
+  late final _$currentWalletIdAtom = Atom(
+    name: '_WalletStore.currentWalletId',
+    context: context,
+  );
 
   @override
   String get currentWalletId {
@@ -129,15 +183,19 @@ mixin _$WalletStore on _WalletStore, Store {
   @override
   set currentWalletId(String value) {
     _$currentWalletIdAtom.reportWrite(
-        value, _currentWalletIdIsInitialized ? super.currentWalletId : null,
-        () {
-      super.currentWalletId = value;
-      _currentWalletIdIsInitialized = true;
-    });
+      value,
+      _currentWalletIdIsInitialized ? super.currentWalletId : null,
+      () {
+        super.currentWalletId = value;
+        _currentWalletIdIsInitialized = true;
+      },
+    );
   }
 
-  late final _$walletListAtom =
-      Atom(name: '_WalletStore.walletList', context: context);
+  late final _$walletListAtom = Atom(
+    name: '_WalletStore.walletList',
+    context: context,
+  );
 
   @override
   ObservableList<WalletData> get walletList {
@@ -152,8 +210,10 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  late final _$runtimePwdAtom =
-      Atom(name: '_WalletStore.runtimePwd', context: context);
+  late final _$runtimePwdAtom = Atom(
+    name: '_WalletStore.runtimePwd',
+    context: context,
+  );
 
   @override
   String get runtimePwd {
@@ -168,142 +228,237 @@ mixin _$WalletStore on _WalletStore, Store {
     });
   }
 
-  late final _$setCurrentAccountAsyncAction =
-      AsyncAction('_WalletStore.setCurrentAccount', context: context);
+  late final _$setCurrentAccountAsyncAction = AsyncAction(
+    '_WalletStore.setCurrentAccount',
+    context: context,
+  );
 
   @override
   Future<void> setCurrentAccount(String pubKey) {
-    return _$setCurrentAccountAsyncAction
-        .run(() => super.setCurrentAccount(pubKey));
+    return _$setCurrentAccountAsyncAction.run(
+      () => super.setCurrentAccount(pubKey),
+    );
   }
 
-  late final _$updateAccountNameAsyncAction =
-      AsyncAction('_WalletStore.updateAccountName', context: context);
+  late final _$updateAccountNameAsyncAction = AsyncAction(
+    '_WalletStore.updateAccountName',
+    context: context,
+  );
 
   @override
   Future<void> updateAccountName(AccountData account, String name) {
-    return _$updateAccountNameAsyncAction
-        .run(() => super.updateAccountName(account, name));
+    return _$updateAccountNameAsyncAction.run(
+      () => super.updateAccountName(account, name),
+    );
   }
 
-  late final _$updateAccountAsyncAction =
-      AsyncAction('_WalletStore.updateAccount', context: context);
+  late final _$updateAccountAsyncAction = AsyncAction(
+    '_WalletStore.updateAccount',
+    context: context,
+  );
 
   @override
   Future<void> updateAccount(Map<String, dynamic> acc) {
     return _$updateAccountAsyncAction.run(() => super.updateAccount(acc));
   }
 
-  late final _$clearWalletsAsyncAction =
-      AsyncAction('_WalletStore.clearWallets', context: context);
+  late final _$clearWalletsAsyncAction = AsyncAction(
+    '_WalletStore.clearWallets',
+    context: context,
+  );
 
   @override
   Future<void> clearWallets() {
     return _$clearWalletsAsyncAction.run(() => super.clearWallets());
   }
 
-  late final _$addAccountAsyncAction =
-      AsyncAction('_WalletStore.addAccount', context: context);
+  late final _$addAccountAsyncAction = AsyncAction(
+    '_WalletStore.addAccount',
+    context: context,
+  );
 
   @override
   Future<void> addAccount(
-      Map<String, dynamic> acc, String accountName, WalletData wallet) {
-    return _$addAccountAsyncAction
-        .run(() => super.addAccount(acc, accountName, wallet));
+    Map<String, dynamic> acc,
+    String accountName,
+    WalletData wallet,
+  ) {
+    return _$addAccountAsyncAction.run(
+      () => super.addAccount(acc, accountName, wallet),
+    );
   }
 
-  late final _$addWalletAsyncAction =
-      AsyncAction('_WalletStore.addWallet', context: context);
+  late final _$addWalletAsyncAction = AsyncAction(
+    '_WalletStore.addWallet',
+    context: context,
+  );
 
   @override
   Future<WalletResult> addWallet(
-      Map<String, dynamic> walletInfo, String? password,
-      {required BuildContext context,
-      required String seedType,
-      required String? walletSource}) {
-    return _$addWalletAsyncAction.run(() => super.addWallet(
-        walletInfo, password,
-        context: context, seedType: seedType, walletSource: walletSource));
+    Map<String, dynamic> walletInfo,
+    String? password, {
+    required BuildContext context,
+    required String seedType,
+    required String? walletSource,
+  }) {
+    return _$addWalletAsyncAction.run(
+      () => super.addWallet(
+        walletInfo,
+        password,
+        context: context,
+        seedType: seedType,
+        walletSource: walletSource,
+      ),
+    );
   }
 
-  late final _$removeAccountAsyncAction =
-      AsyncAction('_WalletStore.removeAccount', context: context);
+  late final _$removeAccountAsyncAction = AsyncAction(
+    '_WalletStore.removeAccount',
+    context: context,
+  );
 
   @override
   Future<void> removeAccount(AccountData acc) {
     return _$removeAccountAsyncAction.run(() => super.removeAccount(acc));
   }
 
-  late final _$loadWalletAsyncAction =
-      AsyncAction('_WalletStore.loadWallet', context: context);
+  late final _$loadWalletAsyncAction = AsyncAction(
+    '_WalletStore.loadWallet',
+    context: context,
+  );
 
   @override
   Future<void> loadWallet() {
     return _$loadWalletAsyncAction.run(() => super.loadWallet());
   }
 
-  late final _$encryptSeedAsyncAction =
-      AsyncAction('_WalletStore.encryptSeed', context: context);
+  late final _$encryptSeedAsyncAction = AsyncAction(
+    '_WalletStore.encryptSeed',
+    context: context,
+  );
 
   @override
   Future<void> encryptSeed(
-      String pubKey, String seed, String seedType, String password) {
-    return _$encryptSeedAsyncAction
-        .run(() => super.encryptSeed(pubKey, seed, seedType, password));
+    String pubKey,
+    String seed,
+    String seedType,
+    String password,
+  ) {
+    return _$encryptSeedAsyncAction.run(
+      () => super.encryptSeed(pubKey, seed, seedType, password),
+    );
   }
 
-  late final _$decryptSeedAsyncAction =
-      AsyncAction('_WalletStore.decryptSeed', context: context);
+  late final _$decryptSeedAsyncAction = AsyncAction(
+    '_WalletStore.decryptSeed',
+    context: context,
+  );
 
   @override
   Future<String?> decryptSeed(String pubKey, String seedType, String password) {
-    return _$decryptSeedAsyncAction
-        .run(() => super.decryptSeed(pubKey, seedType, password));
+    return _$decryptSeedAsyncAction.run(
+      () => super.decryptSeed(pubKey, seedType, password),
+    );
   }
 
-  late final _$checkSeedExistAsyncAction =
-      AsyncAction('_WalletStore.checkSeedExist', context: context);
+  late final _$checkSeedExistAsyncAction = AsyncAction(
+    '_WalletStore.checkSeedExist',
+    context: context,
+  );
 
   @override
   Future<bool> checkSeedExist(String seedType, String pubKey) {
-    return _$checkSeedExistAsyncAction
-        .run(() => super.checkSeedExist(seedType, pubKey));
+    return _$checkSeedExistAsyncAction.run(
+      () => super.checkSeedExist(seedType, pubKey),
+    );
   }
 
-  late final _$checkPasswordAsyncAction =
-      AsyncAction('_WalletStore.checkPassword', context: context);
+  late final _$checkPasswordAsyncAction = AsyncAction(
+    '_WalletStore.checkPassword',
+    context: context,
+  );
 
   @override
   Future<bool> checkPassword(String pubKey, String seedType, String password) {
-    return _$checkPasswordAsyncAction
-        .run(() => super.checkPassword(pubKey, seedType, password));
+    return _$checkPasswordAsyncAction.run(
+      () => super.checkPassword(pubKey, seedType, password),
+    );
   }
 
-  late final _$deleteSeedAsyncAction =
-      AsyncAction('_WalletStore.deleteSeed', context: context);
+  late final _$deleteSeedAsyncAction = AsyncAction(
+    '_WalletStore.deleteSeed',
+    context: context,
+  );
 
   @override
   Future<void> deleteSeed(String seedType, String pubKey) {
-    return _$deleteSeedAsyncAction
-        .run(() => super.deleteSeed(seedType, pubKey));
+    return _$deleteSeedAsyncAction.run(
+      () => super.deleteSeed(seedType, pubKey),
+    );
   }
 
-  late final _$deleteWatchModeWalletsAsyncAction =
-      AsyncAction('_WalletStore.deleteWatchModeWallets', context: context);
+  late final _$deleteWatchModeWalletsAsyncAction = AsyncAction(
+    '_WalletStore.deleteWatchModeWallets',
+    context: context,
+  );
 
   @override
   Future<void> deleteWatchModeWallets() {
-    return _$deleteWatchModeWalletsAsyncAction
-        .run(() => super.deleteWatchModeWallets());
+    return _$deleteWatchModeWalletsAsyncAction.run(
+      () => super.deleteWatchModeWallets(),
+    );
   }
 
-  late final _$_WalletStoreActionController =
-      ActionController(name: '_WalletStore', context: context);
+  late final _$renameWalletAsyncAction = AsyncAction(
+    '_WalletStore.renameWallet',
+    context: context,
+  );
+
+  @override
+  Future<bool> renameWallet(String walletId, String newName) {
+    return _$renameWalletAsyncAction.run(
+      () => super.renameWallet(walletId, newName),
+    );
+  }
+
+  late final _$deleteWalletAsyncAction = AsyncAction(
+    '_WalletStore.deleteWallet',
+    context: context,
+  );
+
+  @override
+  Future<bool> deleteWallet(String walletId, String password) {
+    return _$deleteWalletAsyncAction.run(
+      () => super.deleteWallet(walletId, password),
+    );
+  }
+
+  late final _$addAccountToWalletAsyncAction = AsyncAction(
+    '_WalletStore.addAccountToWallet',
+    context: context,
+  );
+
+  @override
+  Future<Map<String, dynamic>?> addAccountToWallet(
+    String walletId,
+    String accountName,
+    String password,
+  ) {
+    return _$addAccountToWalletAsyncAction.run(
+      () => super.addAccountToWallet(walletId, accountName, password),
+    );
+  }
+
+  late final _$_WalletStoreActionController = ActionController(
+    name: '_WalletStore',
+    context: context,
+  );
 
   @override
   void setNewAccount(String password) {
     final _$actionInfo = _$_WalletStoreActionController.startAction(
-        name: '_WalletStore.setNewAccount');
+      name: '_WalletStore.setNewAccount',
+    );
     try {
       return super.setNewAccount(password);
     } finally {
@@ -314,7 +469,8 @@ mixin _$WalletStore on _WalletStore, Store {
   @override
   void setNewWalletSeed(String seed, String seedType) {
     final _$actionInfo = _$_WalletStoreActionController.startAction(
-        name: '_WalletStore.setNewWalletSeed');
+      name: '_WalletStore.setNewWalletSeed',
+    );
     try {
       return super.setNewWalletSeed(seed, seedType);
     } finally {
@@ -325,7 +481,8 @@ mixin _$WalletStore on _WalletStore, Store {
   @override
   void resetNewWallet() {
     final _$actionInfo = _$_WalletStoreActionController.startAction(
-        name: '_WalletStore.resetNewWallet');
+      name: '_WalletStore.resetNewWallet',
+    );
     try {
       return super.resetNewWallet();
     } finally {
@@ -336,7 +493,8 @@ mixin _$WalletStore on _WalletStore, Store {
   @override
   void setRuntimePwd(String pwd) {
     final _$actionInfo = _$_WalletStoreActionController.startAction(
-        name: '_WalletStore.setRuntimePwd');
+      name: '_WalletStore.setRuntimePwd',
+    );
     try {
       return super.setRuntimePwd(pwd);
     } finally {
@@ -347,7 +505,8 @@ mixin _$WalletStore on _WalletStore, Store {
   @override
   void clearRuntimePwd() {
     final _$actionInfo = _$_WalletStoreActionController.startAction(
-        name: '_WalletStore.clearRuntimePwd');
+      name: '_WalletStore.clearRuntimePwd',
+    );
     try {
       return super.clearRuntimePwd();
     } finally {
@@ -371,7 +530,12 @@ watchModeAccountListAll: ${watchModeAccountListAll},
 walletListAll: ${walletListAll},
 mnemonicWallet: ${mnemonicWallet},
 currentAddress: ${currentAddress},
-currentAccountPubKey: ${currentAccountPubKey}
+currentAccountPubKey: ${currentAccountPubKey},
+sortedWalletList: ${sortedWalletList},
+hdWalletList: ${hdWalletList},
+importedWalletList: ${importedWalletList},
+ledgerWalletList: ${ledgerWalletList},
+watchWalletList: ${watchWalletList}
     ''';
   }
 }

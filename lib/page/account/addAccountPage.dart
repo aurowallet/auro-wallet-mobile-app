@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/account/accountNamePage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
@@ -39,6 +39,9 @@ class _AddAccountPageState extends State<AddAccountPage> {
     super.dispose();
   }
 
+  // Selected wallet for adding account (used when multiple HD wallets exist)
+  WalletData? _selectedWallet;
+
   Future<bool> _onSubmitAccountName(String accountName) async {
     String? password = await UI.showPasswordDialog(
         context: context,
@@ -47,7 +50,8 @@ class _AddAccountPageState extends State<AddAccountPage> {
     if (password == null) {
       return false;
     }
-    WalletData? wallet = store.wallet!.mnemonicWallet;
+    // Use selected wallet or fall back to first mnemonic wallet
+    WalletData? wallet = _selectedWallet ?? store.wallet!.mnemonicWallet;
     if (wallet != null) {
       final accountData = await webApi.account
           .createAccountByAccountIndex(wallet, accountName, password);
@@ -89,11 +93,75 @@ class _AddAccountPageState extends State<AddAccountPage> {
   }
 
   void _onCreate() {
-    Navigator.pushNamed(context, AccountNamePage.route,
-        arguments: AccountNameParams(
-            callback: _onSubmitAccountName,
-            placeholder:
-                'Account ${store.wallet!.getNextWalletAccountIndex(store.wallet!.mnemonicWallet) + 1}'));
+    final hdWallets = store.wallet!.hdWalletList;
+
+    if (hdWallets.isEmpty) {
+      // No HD wallet available
+      AppLocalizations dic = AppLocalizations.of(context)!;
+      UI.toast(dic.noMnemonicWallet);
+      return;
+    }
+
+    if (hdWallets.length == 1) {
+      // Only one HD wallet, use it directly
+      _selectedWallet = hdWallets[0];
+      _createAccountDirectly(_selectedWallet!);
+    } else {
+      // Multiple HD wallets, show selection dialog
+      _showWalletSelector(hdWallets);
+    }
+  }
+
+  void _showWalletSelector(List<WalletData> hdWallets) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                dic.selectWallet,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Divider(height: 1),
+            ...hdWallets.map((wallet) => ListTile(
+                  leading: Icon(
+                    Icons.account_balance_wallet,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  title: Text(store.wallet!.getWalletDisplayName(wallet)),
+                  subtitle: Text('${wallet.accounts.length} ${dic.accounts}'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _selectedWallet = wallet;
+                    _createAccountDirectly(wallet);
+                  },
+                )),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Create account directly with default name (skip name input)
+  Future<void> _createAccountDirectly(WalletData wallet) async {
+    final accountName = 'Account ${store.wallet!.getNextWalletAccountIndex(wallet) + 1}';
+    final success = await _onSubmitAccountName(accountName);
+    if (success) {
+      Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+    }
   }
 
   String _getNextImportWalletName() {
@@ -104,26 +172,24 @@ class _AddAccountPageState extends State<AddAccountPage> {
   }
 
   void _onPrivateKey() {
-    Navigator.pushReplacementNamed(context, AccountNamePage.route,
-        arguments: AccountNameParams(
-            redirect: ImportPrivateKeyPage.route,
-            placeholder: _getNextImportWalletName()));
+    // Go directly to import page with default name (skip name input)
+    Navigator.pushReplacementNamed(context, ImportPrivateKeyPage.route,
+        arguments: {"accountName": _getNextImportWalletName()});
   }
 
   void _onKeyStore() {
-    Navigator.pushReplacementNamed(context, AccountNamePage.route,
-        arguments: AccountNameParams(
-            redirect: ImportKeyStorePage.route,
-            placeholder: _getNextImportWalletName()));
+    // Go directly to import page with default name (skip name input)
+    Navigator.pushReplacementNamed(context, ImportKeyStorePage.route,
+        arguments: {"accountName": _getNextImportWalletName()});
   }
 
   void _showLedgerImport() async {
     int count =
         store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) + 1;
     final ledgerWalletName = 'Ledger $count';
+    // Go directly to Ledger import with default name (skip name input)
     Navigator.pushNamed(context, LedgerAccountNamePage.route,
-        arguments: LedgerAccountNameParams(placeholder: ledgerWalletName));
-    return;
+        arguments: LedgerAccountNameParams(defaultName: ledgerWalletName));
   }
 
   @override

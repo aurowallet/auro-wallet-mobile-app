@@ -221,7 +221,7 @@ abstract class AppLocalizations {
   /// No description provided for @inputSeed.
   ///
   /// In en, this message translates to:
-  /// **'Please enter 12 mnemonic phrases in order, without capitalization, punctuation symbols.'**
+  /// **'Please enter 12 or 24 mnemonic phrases in order, without capitalization, punctuation symbols.'**
   String get inputSeed;
 
   /// No description provided for @confirm.
@@ -1867,6 +1867,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your transaction failed. Please try again.'**
   String get notificationTxFailedBody;
+
+  /// No description provided for @renameWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Wallet'**
+  String get renameWallet;
+
+  /// No description provided for @deleteWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Wallet'**
+  String get deleteWallet;
+
+  /// No description provided for @deleteWalletWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone. Make sure you have backed up your mnemonic phrase before deleting.'**
+  String get deleteWalletWarning;
+
+  /// No description provided for @hdWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'HD Wallet'**
+  String get hdWallet;
+
+  /// No description provided for @walletNamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter wallet name'**
+  String get walletNamePlaceholder;
+
+  /// No description provided for @accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'accounts'**
+  String get accounts;
+
+  /// No description provided for @selectWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Wallet'**
+  String get selectWallet;
+
+  /// No description provided for @noMnemonicWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'No HD wallet available. Please create or import a wallet first.'**
+  String get noMnemonicWallet;
+
+  /// No description provided for @walletDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Details'**
+  String get walletDetails;
+
+  /// No description provided for @walletNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Name'**
+  String get walletNameLabel;
+
+  /// No description provided for @changeWalletName.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Wallet Name'**
+  String get changeWalletName;
+
+  /// No description provided for @seedPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed Phrase'**
+  String get seedPhrase;
+
+  /// No description provided for @deleteWalletConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this wallet?'**
+  String get deleteWalletConfirm;
+
+  /// No description provided for @walletDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet deleted successfully'**
+  String get walletDeleted;
+
+  /// No description provided for @walletRenamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet renamed successfully'**
+  String get walletRenamed;
+
+  /// No description provided for @privateKeyWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Private Key'**
+  String get privateKeyWallet;
+
+  /// No description provided for @ledgerWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger'**
+  String get ledgerWallet;
+
+  /// No description provided for @watchWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch-only'**
+  String get watchWallet;
+
+  /// No description provided for @rename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get rename;
+
+  /// No description provided for @backupMnemonic.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Mnemonic'**
+  String get backupMnemonic;
+
+  /// No description provided for @addWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Wallet'**
+  String get addWallet;
+
+  /// No description provided for @importWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Wallet'**
+  String get importWallet;
+
+  /// No description provided for @walletManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Management'**
+  String get walletManagement;
+
+  /// No description provided for @mnemonicPhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Mnemonic Phrase'**
+  String get mnemonicPhrase;
+
+  /// No description provided for @mnemonicImportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Import using 12 or 24 word mnemonic phrase'**
+  String get mnemonicImportDesc;
+
+  /// No description provided for @privateKeyImportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Import using private key'**
+  String get privateKeyImportDesc;
+
+  /// No description provided for @keystoreImportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Import using Keystore file'**
+  String get keystoreImportDesc;
+
+  /// No description provided for @ledgerImportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via Bluetooth or USB'**
+  String get ledgerImportDesc;
 }
 
 class _AppLocalizationsDelegate

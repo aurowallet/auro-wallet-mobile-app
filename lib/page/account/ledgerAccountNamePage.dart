@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +11,12 @@ import 'package:flutter/services.dart';
 
 class LedgerAccountNameParams {
   LedgerAccountNameParams({
-    required this.placeholder,
+    required this.defaultName,
+    this.fromInitialization = false,
   });
 
-  final String placeholder;
+  final String defaultName;
+  final bool fromInitialization;
 }
 
 class LedgerAccountNamePage extends StatefulWidget {
@@ -61,21 +64,33 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
   void _handleSubmit() async {
     LedgerAccountNameParams params =
         ModalRoute.of(context)!.settings.arguments as LedgerAccountNameParams;
+    // Use input name or default name as fallback
     String accountName = _nameCtrl.text.trim();
     if (accountName.isEmpty) {
-      accountName = params.placeholder;
+      accountName = params.defaultName;
     }
     final accountIndex = int.tryParse(_accountIndexCtrl.text) ?? 0;
     setState(() {
       importing = true;
     });
-    String? password = await UI.showPasswordDialog(
-        context: context,
-        wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: true);
-    if (password == null) {
-      return;
+    
+    // Check if password is already set (from initialization flow)
+    String password = store.wallet!.newWalletParams.password;
+    if (password.isEmpty) {
+      // Password not set, show dialog (from wallet management flow)
+      final dialogPassword = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true);
+      if (dialogPassword == null) {
+        setState(() {
+          importing = false;
+        });
+        return;
+      }
+      password = dialogPassword;
     }
+    
     bool? generated = await UI.showImportLedgerDialog(
       context: context,
       accountIndex: accountIndex,
@@ -84,8 +99,20 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
       password: password,
     );
     if (generated == true) {
-      Navigator.popUntil(
-          context, (route) => route.settings.name == WalletManagePage.route);
+      // Check if coming from initialization flow or wallet management
+      if (params.fromInitialization) {
+        // From initialization - go to success page and clear navigation stack
+        store.wallet!.resetNewWallet();
+        Navigator.pushNamedAndRemoveUntil(
+          context, 
+          ImportSuccessPage.route, 
+          (Route<dynamic> route) => false,
+          arguments: {'type': 'restore'}
+        );
+      } else {
+        // From wallet management
+        Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+      }
     }
     setState(() {
       importing = false;
@@ -118,7 +145,7 @@ class _LedgerAccountNamePageState extends State<LedgerAccountNamePage> {
                         maxLength: 16,
                         label: dic.inputAccountName,
                         initialValue: '',
-                        placeholder: params.placeholder,
+                        placeholder: params.defaultName,
                         controller: _nameCtrl,
                       ),
                       Padding(

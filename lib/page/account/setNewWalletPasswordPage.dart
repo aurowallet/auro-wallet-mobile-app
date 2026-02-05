@@ -2,11 +2,15 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicTipsPage.dart';
 import 'package:auro_wallet/page/account/import/importMnemonicPage.dart';
+import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
+import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
+import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 
 class SetNewWalletPasswordPage extends StatefulWidget {
   const SetNewWalletPasswordPage(this.store);
@@ -87,10 +91,45 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
     }
     widget.store.wallet!.setNewAccount(_passCtrl.text);
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
-    if (params['type'] == 'create') {
-      Navigator.pushNamed(context, BackupMnemonicTipsPage.route);
-    } else {
-      Navigator.pushNamed(context, ImportMnemonicPage.route);
+    String type = params['type'] ?? 'create';
+    
+    switch (type) {
+      case 'create':
+        // Set default wallet name for create flow
+        int count = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) + 1;
+        widget.store.wallet!.setNewWalletName('Wallet $count');
+        Navigator.pushNamed(context, BackupMnemonicTipsPage.route);
+        break;
+      case 'import':
+        // Set default wallet name for mnemonic import flow
+        int hdCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) + 1;
+        widget.store.wallet!.setNewWalletName('Wallet $hdCount');
+        Navigator.pushNamed(context, ImportMnemonicPage.route);
+        break;
+      case 'privateKey':
+        // Get default name for private key import
+        int pkCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+        Navigator.pushNamed(context, ImportPrivateKeyPage.route, arguments: {
+          "accountName": "Imported $pkCount",
+          "fromInitialization": true
+        });
+        break;
+      case 'keystore':
+        // Get default name for keystore import
+        int ksCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+        Navigator.pushNamed(context, ImportKeyStorePage.route, arguments: {
+          "accountName": "Imported $ksCount",
+          "fromInitialization": true
+        });
+        break;
+      case 'ledger':
+        // Get default name for ledger import
+        int ledgerCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) + 1;
+        Navigator.pushNamed(context, LedgerAccountNamePage.route,
+            arguments: LedgerAccountNameParams(defaultName: 'Ledger $ledgerCount', fromInitialization: true));
+        break;
+      default:
+        Navigator.pushNamed(context, BackupMnemonicTipsPage.route);
     }
   }
 

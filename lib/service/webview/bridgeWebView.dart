@@ -71,11 +71,16 @@ class BridgeWebView {
           }
           if (message.messageLevel != ConsoleMessageLevel.LOG) return;
 
+          // Only try to parse messages that look like JSON (start with '{')
+          final msgStr = message.message.trim();
+          if (!msgStr.startsWith('{')) return;
+
           try {
-            var msg = jsonDecode(message.message);
+            var msg = jsonDecode(msgStr);
 
             final String? path = msg['path'];
-            if (_msgCompleters[path!] != null) {
+            if (path == null) return;
+            if (_msgCompleters[path] != null) {
               Completer handler = _msgCompleters[path]!;
               handler.complete(msg['data']);
               if (path.contains('uid=')) {
@@ -87,8 +92,7 @@ class BridgeWebView {
               handler(msg['data']);
             }
           } catch (err) {
-            // ignore
-            print('msg parsing error $err');
+            // Silently ignore non-JSON messages
           }
         },
         onLoadStop: (controller, url) async {

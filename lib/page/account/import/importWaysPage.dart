@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:auro_wallet/page/account/accountNamePage.dart';
+import 'package:auro_wallet/page/account/import/importMnemonicPage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
 
@@ -23,39 +24,56 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
 
   final AppStore store;
 
-
   @override
   void initState() {
     super.initState();
-
   }
+
   @override
   void dispose() {
     super.dispose();
   }
 
-  String _getNextImportWalletName() {
-   int count = store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
-    return 'Import Account $count';
+  String _getNextHDWalletName() {
+    int count = store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) + 1;
+    return 'Wallet $count';
   }
 
-  String _getNextWatchedWalletName() {
-    int count = store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeNone) + 1;
-    return 'Watched Account $count';
+  String _getNextImportWalletName() {
+    int count = store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+    return 'Imported $count';
+  }
+
+  Future<void> _onMnemonic() async {
+    // Verify password first if wallet exists (force password input, no biometric)
+    if (store.wallet!.walletList.isNotEmpty) {
+      final currentWallet = store.wallet!.currentWallet;
+      final password = await UI.showPasswordDialog(
+        context: context,
+        wallet: currentWallet,
+        inputPasswordRequired: true,
+      );
+      if (password == null) return;
+      store.wallet!.setNewAccount(password);
+    }
+    
+    // Set default wallet name and go directly to import page (skip name input)
+    store.wallet!.setNewWalletName(_getNextHDWalletName());
+    Navigator.pushNamed(context, ImportMnemonicPage.route);
   }
 
   void _onPrivateKey() {
-    Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
-      redirect: ImportPrivateKeyPage.route,
-      placeholder: _getNextImportWalletName()
-    ));
+    // Go directly to import page with default name (skip name input)
+    Navigator.pushNamed(context, ImportPrivateKeyPage.route, arguments: {
+      "accountName": _getNextImportWalletName()
+    });
   }
 
   void _onKeyStore() {
-    Navigator.pushReplacementNamed(context, AccountNamePage.route, arguments: AccountNameParams(
-        redirect: ImportKeyStorePage.route,
-        placeholder: _getNextImportWalletName()
-    ));
+    // Go directly to import page with default name (skip name input)
+    Navigator.pushNamed(context, ImportKeyStorePage.route, arguments: {
+      "accountName": _getNextImportWalletName()
+    });
   }
 
   @override
@@ -63,7 +81,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(dic.import),
+        title: Text(dic.importWallet),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -71,9 +89,13 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(left: 0, right: 0, top: 20),
+            padding: EdgeInsets.only(top: 20),
           child: Column(
             children: <Widget>[
+                ImportItem(
+                  text: dic.mnemonicPhrase,
+                  onClick: _onMnemonic,
+                ),
                 ImportItem(
                   text: dic.privateKey,
                   onClick: _onPrivateKey,
@@ -82,10 +104,6 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
                   text: 'Keystore',
                   onClick: _onKeyStore,
                 ),
-                // ImportItem(
-                //   text: dic['watchAccount']!,
-                //   onClick: _onWatchMode,
-                // ),
               ],
           )
         ),

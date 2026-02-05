@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Support Android 16kb
 - Add notification support
 - Add test cases to wallet
+- Support multi-wallet
 
 
 ## [2.2.1]

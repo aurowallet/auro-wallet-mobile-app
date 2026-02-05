@@ -12,19 +12,109 @@ class CreateAccountEntryPage extends StatelessWidget {
   static final String route = '/account/entry';
   final SettingsStore store;
   final Function changeLang;
-  void _onClick(BuildContext _ctx, String type) async {
+
+  /// Check and show terms dialog if not agreed yet
+  Future<bool> _checkTermsAgreement(BuildContext context) async {
+    if (store.termsAgreed) {
+      return true;
+    }
     bool? agree = await showDialog<bool?>(
-      context: _ctx,
+      context: context,
       builder: (_) {
-        return TermsDialog(
-          store: store,
-        );
+        return TermsDialog(store: store);
       },
     );
     if (agree == true) {
-      Navigator.pushNamed(_ctx, SetNewWalletPasswordPage.route,
-          arguments: {"type": type});
+      await store.setTermsAgreed(true);
+      return true;
     }
+    return false;
+  }
+
+  void _onCreateWallet(BuildContext context) async {
+    if (!await _checkTermsAgreement(context)) return;
+    Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
+        arguments: {"type": "create"});
+  }
+
+  void _onRestoreWallet(BuildContext context) async {
+    if (!await _checkTermsAgreement(context)) return;
+    _showRestoreOptions(context);
+  }
+
+  void _showRestoreOptions(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                dic.importWallet,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            _RestoreOptionItem(
+              title: dic.mnemonicPhrase,
+              subtitle: dic.mnemonicImportDesc,
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
+                    arguments: {"type": "import"});
+              },
+            ),
+            _RestoreOptionItem(
+              title: dic.privateKey,
+              subtitle: dic.privateKeyImportDesc,
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
+                    arguments: {"type": "privateKey"});
+              },
+            ),
+            _RestoreOptionItem(
+              title: 'Keystore',
+              subtitle: dic.keystoreImportDesc,
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
+                    arguments: {"type": "keystore"});
+              },
+            ),
+            _RestoreOptionItem(
+              title: dic.hardwareWallet,
+              subtitle: dic.ledgerImportDesc,
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
+                    arguments: {"type": "ledger"});
+              },
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -94,7 +184,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: () {
-                      _onClick(context, 'create');
+                      _onCreateWallet(context);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -124,7 +214,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      _onClick(context, 'import');
+                      _onRestoreWallet(context);
                     },
                     child: Row(
                       children: [
@@ -161,6 +251,59 @@ class CreateAccountEntryPage extends StatelessWidget {
               ],
             ),
           )),
+    );
+  }
+}
+
+class _RestoreOptionItem extends StatelessWidget {
+  const _RestoreOptionItem({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: ColorsUtil.hexColor(0x999999),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: ColorsUtil.hexColor(0xCCCCCC),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

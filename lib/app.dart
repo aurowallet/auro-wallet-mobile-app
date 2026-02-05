@@ -25,6 +25,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:auro_wallet/common/components/willPopScopWrapper.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
+import 'package:auro_wallet/page/account/walletDetailsPage.dart';
+import 'package:auro_wallet/page/account/addWalletPage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/import/importWaysPage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
@@ -357,6 +359,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
             SetNewWalletPasswordPage(_appStore!),
         BackupMnemonicTipsPage.route: (_) => BackupMnemonicTipsPage(_appStore!),
         WalletManagePage.route: (_) => WalletManagePage(_appStore!),
+        WalletDetailsPage.route: (_) => WalletDetailsPage(_appStore!),
+        AddWalletPage.route: (_) => AddWalletPage(_appStore!),
         ImportPrivateKeyPage.route: (_) => ImportPrivateKeyPage(_appStore!),
         ImportKeyStorePage.route: (_) => ImportKeyStorePage(_appStore!),
         ImportWaysPage.route: (_) => ImportWaysPage(_appStore!),

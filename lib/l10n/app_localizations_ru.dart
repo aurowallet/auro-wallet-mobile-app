@@ -951,4 +951,92 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get notificationTxFailedBody =>
       'Ваша транзакция не удалась. Пожалуйста, попробуйте снова.';
+
+  @override
+  String get renameWallet => 'Переименовать кошелек';
+
+  @override
+  String get deleteWallet => 'Удалить кошелек';
+
+  @override
+  String get deleteWalletWarning =>
+      'Это действие нельзя отменить. Убедитесь, что вы сделали резервную копию мнемонической фразы перед удалением.';
+
+  @override
+  String get hdWallet => 'HD Кошелек';
+
+  @override
+  String get walletNamePlaceholder => 'Введите название кошелька';
+
+  @override
+  String get accounts => 'аккаунтов';
+
+  @override
+  String get selectWallet => 'Выбрать кошелек';
+
+  @override
+  String get noMnemonicWallet =>
+      'Нет доступного HD кошелька. Сначала создайте или импортируйте кошелек.';
+
+  @override
+  String get walletDetails => 'Детали кошелька';
+
+  @override
+  String get walletNameLabel => 'Название кошелька';
+
+  @override
+  String get changeWalletName => 'Изменить название кошелька';
+
+  @override
+  String get seedPhrase => 'Мнемоническая фраза';
+
+  @override
+  String get deleteWalletConfirm =>
+      'Вы уверены, что хотите удалить этот кошелек?';
+
+  @override
+  String get walletDeleted => 'Кошелек успешно удален';
+
+  @override
+  String get walletRenamed => 'Кошелек успешно переименован';
+
+  @override
+  String get privateKeyWallet => 'Приватный ключ';
+
+  @override
+  String get ledgerWallet => 'Ledger';
+
+  @override
+  String get watchWallet => 'Только просмотр';
+
+  @override
+  String get rename => 'Переименовать';
+
+  @override
+  String get backupMnemonic => 'Резервная копия мнемоники';
+
+  @override
+  String get addWallet => 'Добавить кошелек';
+
+  @override
+  String get importWallet => 'Импортировать кошелек';
+
+  @override
+  String get walletManagement => 'Управление кошельками';
+
+  @override
+  String get mnemonicPhrase => 'Мнемоническая фраза';
+
+  @override
+  String get mnemonicImportDesc =>
+      'Импорт с помощью мнемонической фразы из 12 или 24 слов';
+
+  @override
+  String get privateKeyImportDesc => 'Импорт с помощью приватного ключа';
+
+  @override
+  String get keystoreImportDesc => 'Импорт с помощью файла Keystore';
+
+  @override
+  String get ledgerImportDesc => 'Подключение через Bluetooth или USB';
 }

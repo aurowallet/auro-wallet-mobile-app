@@ -3,21 +3,33 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 
 class ChangeNameDialog extends StatefulWidget {
-  ChangeNameDialog({this.onOk, this.onCancel});
+  ChangeNameDialog({
+    this.onOk,
+    this.onCancel,
+    this.initialValue,
+    this.title,
+    this.placeholder,
+    this.maxLength = 16,
+  });
 
   final Function? onOk;
   final Function? onCancel;
+  final String? initialValue;
+  final String? title;
+  final String? placeholder;
+  final int maxLength;
 
   @override
   _ChangeNameDialogDialogState createState() => _ChangeNameDialogDialogState();
 }
 
 class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
-  final TextEditingController _nameCtrl = new TextEditingController();
+  late TextEditingController _nameCtrl;
 
   @override
   void initState() {
     super.initState();
+    _nameCtrl = TextEditingController(text: widget.initialValue ?? '');
   }
 
   @override
@@ -41,7 +53,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
             children: [
               Padding(
                 padding: EdgeInsets.only(top: 20),
-                child: Text(dic.renameAccountName,
+                child: Text(widget.title ?? dic.renameAccountName,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -50,9 +62,9 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30),
                 child: InputItem(
-                  maxLength: 16,
-                  initialValue: '',
-                  placeholder: dic.accountNameLimit,
+                  maxLength: widget.maxLength,
+                  initialValue: widget.initialValue ?? '',
+                  placeholder: widget.placeholder ?? dic.accountNameLimit,
                   padding: EdgeInsets.only(top: 20),
                   controller: _nameCtrl,
                 ),
