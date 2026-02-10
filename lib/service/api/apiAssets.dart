@@ -493,20 +493,24 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (!store.settings!.isMainnet) {
       return;
     }
-    String txUrl = "$BASE_INFO_URL/scam_list";
-    var response = await http.get(Uri.parse(txUrl));
-    if (response.statusCode == 200) {
-      List<dynamic> scamList = convert.jsonDecode(response.body);
+    try {
+      String txUrl = "$BASE_INFO_URL/scam_list";
+      var response = await http.get(Uri.parse(txUrl));
+      if (response.statusCode == 200) {
+        List<dynamic> scamList = convert.jsonDecode(response.body);
 
-      List<ScamItem> scamItemList = scamList.map((item) {
-        return ScamItem.fromJson(item);
-      }).toList();
+        List<ScamItem> scamItemList = scamList.map((item) {
+          return ScamItem.fromJson(item);
+        }).toList();
 
-      if (scamItemList.length > 0) {
-        store.assets!.setLocalScamList(scamItemList);
+        if (scamItemList.length > 0) {
+          store.assets!.setLocalScamList(scamItemList);
+        }
+      } else {
+        print('Request scam failed with status: ${response.statusCode}.');
       }
-    } else {
-      print('Request scam failed with status: ${response.statusCode}.');
+    } catch (e) {
+      print('fetchScamInfo error: $e');
     }
   }
 

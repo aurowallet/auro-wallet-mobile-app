@@ -23,6 +23,9 @@ All notable changes to this project will be documented in this file.
 - Support multi-wallet
 - Add integration test
 
+### Fixed
+- fetchScamInfo catch
+
 
 ## [2.2.1]
 ### Enhancements
