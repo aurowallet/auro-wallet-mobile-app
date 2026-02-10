@@ -635,10 +635,14 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   bool isMnemonicValid(String mnemonic) {
-    final words = mnemonic.trim().split(RegExp(r"(\s)"));
-    if (words.length < 12) {
-      return false;
-    }
+    // Normalize whitespace: replace tabs/newlines with spaces, trim, then filter empty parts
+    final normalized = mnemonic
+        .replaceAll('\n', ' ')
+        .replaceAll('\r', ' ')
+        .replaceAll('\t', ' ')
+        .trim();
+    final words = normalized.split(' ').where((w) => w.isNotEmpty).toList();
+    if (words.length < 12) return false;
     return bip39.validateMnemonic(words.join(' '));
   }
 
