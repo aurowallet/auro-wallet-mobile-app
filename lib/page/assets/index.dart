@@ -15,6 +15,7 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -236,6 +237,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                     width: 12,
                   ),
                   IconButton(
+                      key: TestKeys.walletManageIcon,
                       iconSize: 30,
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),
@@ -361,6 +363,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       children: [
                         Text(
                           showAmount,
+                          key: TestKeys.balanceDisplay,
                           style: TextStyle(
                               fontSize: 32,
                               color: amountColor,
@@ -382,6 +385,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       height: 40.0,
                       // constraints: BoxConstraints(maxWidth: 140),
                       child: NormalButton(
+                        key: TestKeys.sendButton,
                         color: Colors.white,
                         text: dic.send,
                         textStyle: buttonTextStyle,

@@ -7,7 +7,8 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class InputItem extends StatefulWidget {
   InputItem(
-      {this.label,
+      {super.key,
+      this.label,
       this.initialValue,
       this.onChanged,
       this.rightWidget,

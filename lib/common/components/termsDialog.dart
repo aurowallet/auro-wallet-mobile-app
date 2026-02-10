@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/consts/apiConfig.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/i18n/terms.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +78,7 @@ class _TermsDialogState extends State<TermsDialog> {
                         child: SizedBox(
                       height: 48,
                       child: TextButton(
+                        key: TestKeys.termsRefuseButton,
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
@@ -106,6 +108,7 @@ class _TermsDialogState extends State<TermsDialog> {
                         child: SizedBox(
                             height: 48,
                             child: TextButton(
+                              key: TestKeys.termsAgreeButton,
                               style: TextButton.styleFrom(
                                 foregroundColor: Theme.of(context).primaryColor,
                                 shape: RoundedRectangleBorder(

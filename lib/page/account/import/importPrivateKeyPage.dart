@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
@@ -114,6 +115,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputItem(
+                      key: TestKeys.privateKeyInput,
                       padding: EdgeInsets.zero,
                       inputPadding: EdgeInsets.only(top: 20),
                       label: dic.pleaseInputPriKey,
@@ -135,6 +137,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child: NormalButton(
+                    key: TestKeys.importButton,
                     submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: dic.confirm,

@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/termsDialog.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/setNewWalletPasswordPage.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
@@ -177,6 +178,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(left: 38, right: 38),
                   child: ElevatedButton(
+                    key: TestKeys.createWalletButton,
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(double.infinity, 48),
                       backgroundColor: ColorsUtil.hexColor(0x594AF1),
@@ -204,6 +206,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 20, left: 38, right: 38),
                   child: OutlinedButton(
+                    key: TestKeys.restoreWalletButton,
                     style: OutlinedButton.styleFrom(
                       minimumSize: Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(

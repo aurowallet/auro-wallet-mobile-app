@@ -1,6 +1,7 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/wallet/types/uiKeyring.dart';
 
@@ -52,6 +53,7 @@ class KeyringSection extends StatelessWidget {
               // Menu icon for wallet details (only for HD wallets with real wallet id)
               if (isHDWallet && onWalletDetails != null)
                 IconButton(
+                  key: TestKeys.walletMoreButton,
                   icon: Icon(Icons.more_horiz, color: Color(0xFF594AF1), size: 20),
                   onPressed: onWalletDetails,
                   padding: EdgeInsets.all(8),
@@ -77,6 +79,7 @@ class KeyringSection extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
+                  key: TestKeys.addAccountButton,
                   onTap: onAddAccount,
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
@@ -176,6 +179,7 @@ class KeyringSection extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         GestureDetector(
+                          key: TestKeys.accountMoreButton,
                           onTap: () => onAccountDetails?.call(account),
                           child: Icon(
                             Icons.more_horiz,

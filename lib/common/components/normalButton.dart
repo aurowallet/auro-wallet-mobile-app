@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class NormalButton extends StatelessWidget {
   NormalButton(
-      {required this.text,
+      {super.key,
+      required this.text,
       this.textStyle,
       this.onPressed,
       this.icon,

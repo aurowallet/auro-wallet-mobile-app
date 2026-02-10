@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 
 class WalletManagePage extends StatefulWidget {
   const WalletManagePage(this.store);
@@ -289,6 +290,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
+                    key: TestKeys.addWalletButton,
                     onPressed: _onAddWallet,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF594AF1),

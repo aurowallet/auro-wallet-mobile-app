@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -237,6 +238,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                     ),
                   ),
                         InputItem(
+                          key: TestKeys.passwordInput,
                           label: dic.password,
                           initialValue: '',
                           controller: _passCtrl,
@@ -288,6 +290,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           validate: _validateNumber,
                         ),
                         InputItem(
+                          key: TestKeys.confirmPasswordInput,
                           label: dic.confirmPasswordShort,
                           initialValue: '',
                           controller: _pass2Ctrl,
@@ -336,6 +339,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                   child: NormalButton(
+                    key: TestKeys.nextButton,
                     disabled: _isFormError() || _submitDisabled,
                     text: dic.next,
                     onPressed: _onSubmit,

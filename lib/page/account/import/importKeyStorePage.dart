@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
@@ -111,6 +112,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                     InputItem(
+                      key: TestKeys.keystoreInput,
                       padding: EdgeInsets.zero,
                       inputPadding: EdgeInsets.only(top: 20),
                       label: dic.pleaseInputKeyPair,
@@ -118,6 +120,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
                       maxLines: 8,
                     ),
                     InputItem(
+                      key: TestKeys.keystorePasswordInput,
                       label: dic.pleaseInputKeyPairPwd,
                       controller: _keyStorePasswordCtrl,
                       isPassword: true,
@@ -137,6 +140,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child: NormalButton(
+                    key: TestKeys.importButton,
                     submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: dic.confirm,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,8 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
   }
   void _handleSubmit() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    String mnemonic = _mnemonicCtrl.text.trim().split(RegExp(r"(\s)")).join(' ');
+    // Normalize: replace all whitespace (including newlines, tabs, multiple spaces) with single space
+    String mnemonic = _mnemonicCtrl.text.trim().replaceAll(RegExp(r'\s+'), ' ');
     bool isMnemonicValid = webApi.account.isMnemonicValid(mnemonic);
     if (!isMnemonicValid) {
       setState(() {
@@ -188,6 +190,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                       child: Wrap(
                         children: [
                           InputItem(
+                            key: TestKeys.mnemonicInput,
                             initialValue: '',
                             labelStyle: TextStyle(
                                 fontSize: 14
@@ -214,6 +217,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                     Padding(
                         padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                         child: NormalButton(
+                          key: TestKeys.confirmButton,
                           submitting: submitting,
                           color: ColorsUtil.hexColor(0x6D5FFE),
                           text: dic.confirm,

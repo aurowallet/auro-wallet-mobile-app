@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/consts/enums.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
@@ -73,6 +74,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                 child: NormalButton(
+                  key: TestKeys.mnemonicSavedButton,
                   text: dic.show_seed_button,
                   onPressed: () {
                     setState(() {
