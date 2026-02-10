@@ -91,6 +91,8 @@ dev_dependencies:
   flutter_native_splash: ^2.4.7
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   flutter_phoenix: ^1.0.0
   freezed: ^3.2.4
 

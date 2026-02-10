@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Add notification support
 - Add test cases to wallet
 - Support multi-wallet
+- Add integration test
 
 
 ## [2.2.1]
