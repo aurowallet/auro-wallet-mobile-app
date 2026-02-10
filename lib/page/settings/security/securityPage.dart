@@ -155,10 +155,6 @@ class _SecurityPageState extends State<SecurityPage> {
             child: Column(
               children: <Widget>[
                 MenuItem(
-                  text: dic.restoreSeed,
-                  onClick: _onBackup,
-                ),
-                MenuItem(
                   text: dic.changePassword,
                   onClick: _onChangePassword,
                 ),
