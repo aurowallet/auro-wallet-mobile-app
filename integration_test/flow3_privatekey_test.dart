@@ -8,16 +8,12 @@ import 'package:auro_wallet/main.dart' as app;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'test_config.dart';
 import 'test_utils.dart';
-
-class TestData {
-  static const String defaultPassword = 'Test1234!';
-  static const String testPrivateKey = 'EKEL888U1yKv1xveoxiBPYZcCQMQsaRNYc6ftKMKiFrXUmpuvjsW';
-  static const String expectedAddress = 'B62qo1CwWp18WhM5toS9D76WL7NxXNxKx2biESNk68AGrqKjRaFf8ks';
-}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  suppressBackgroundNetworkErrors();
 
   testWidgets('Flow 3: Import wallet via private key - to home', (WidgetTester tester) async {
     const flowName = 'Flow3-PrivateKeyImport';
@@ -101,13 +97,13 @@ void main() {
       print('❌ Password input not found');
       return;
     }
-    await tester.enterText(passwordInput, TestData.defaultPassword);
+    await tester.enterText(passwordInput, TestConfig.password);
     await tester.pumpAndSettle();
     print('✅ Password entered');
     
     final confirmInput = find.byKey(TestKeys.confirmPasswordInput);
     if (confirmInput.evaluate().isNotEmpty) {
-      await tester.enterText(confirmInput, TestData.defaultPassword);
+      await tester.enterText(confirmInput, TestConfig.password);
       await tester.pumpAndSettle();
       print('✅ Password confirmed');
     }
@@ -127,7 +123,7 @@ void main() {
     await ss.take(tester, '3.4_password_done');
     
     if (privateKeyInput.evaluate().isNotEmpty) {
-      await tester.enterText(privateKeyInput, TestData.testPrivateKey);
+      await tester.enterText(privateKeyInput, TestConfig.pkWallet.privateKey);
       await tester.pumpAndSettle();
       print('✅ Private key entered');
       await ss.take(tester, '3.5_privatekey_entered');

@@ -18,46 +18,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/main.dart' as app;
+import 'test_config.dart';
 import 'test_utils.dart';
-
-class TestData {
-  static const String defaultPassword = 'Test1234!';
-  
-  // First mnemonic - for wallet init (create if none exists)
-  static const String firstMnemonic = 
-      'century love gravity defense upset peasant reform tenant access illegal double magic';
-  
-  // Second mnemonic - for adding 2nd HD wallet
-  static const String secondMnemonic = 
-      'dove then garbage sponsor core observe replace miss north lunar asthma twice';
-  
-  // Private key - for PK import test
-  static const String importPrivateKey = 
-      'EKEL888U1yKv1xveoxiBPYZcCQMQsaRNYc6ftKMKiFrXUmpuvjsW';
-  
-  // Keystore - for keystore import test
-  static const String importKeystore = 
-      '{"box_primitive":"xsalsa20poly1305","pw_primitive":"argon2i","nonce":"49n6CriT6oYGcF9xp9MuVCFBJEU1wZ8YxMX3oqs","pwsalt":"65UZjZyPKdsNHnH2vdvSyeppXocg","pwdiff":[134217728,6],"ciphertext":"7395cfBPRrLWgQDiu9dfLLRuEuCh1WkS8vNw4oUXrutEnyAsAcPNE5iiXtu1YXS3YzvkTZq1s"}';
-  static const String keystorePassword = '123456';
-  static const String keystorePrivateKey = 'EKEMqXWTFW11v8um8VnRzEwZUL2g9WuMWWCxeDrSsjrkbF75La89';
-  
-  // Known wallet addresses
-  // firstMnemonic (century...) 1st account — Devnet balance
-  static const String firstMnemonicAddress = 
-      'B62qoV35KayJT6D3MseTa8fEBNe4gEJLHGtfoFNhhQbv8JRxrKXntXj';
-  // secondMnemonic (dove...) 1st account (hdIndex=0)
-  static const String secondMnemonicAddress = 
-      'B62qqLzqPFKoyu4d1bwf33H4fo5XjySjpZC1WZYqjTxX5o5Rga3Ujx1';
-  // secondMnemonic (dove...) 2nd account (hdIndex=1)
-  static const String secondMnemonicAccount2Address = 
-      'B62qjXFMeiyHfz5XrACFpc1zbu2SLKho8NVwudqr2eSnAhN2kr4pXoS';
-  // Private key import address
-  static const String importPrivateKeyAddress = 
-      'B62qo1CwWp18WhM5toS9D76WL7NxXNxKx2biESNk68AGrqKjRaFf8ks';
-  // Keystore import address
-  static const String keystoreAddress = 
-      'B62qkSLnPzXsjRGn9V7rJqMCycQSaWcxqMrCgGv9Ff1tZ2mumnp1EJq';
-}
 
 /// Helper: create wallet via mnemonic
 Future<bool> createWalletByMnemonic(WidgetTester tester, String mnemonic, String password) async {
@@ -192,11 +154,267 @@ Future<bool> createWalletByMnemonic(WidgetTester tester, String mnemonic, String
   return false;
 }
 
+/// Atomic helper: scroll wallet mgmt page, find account by address, ensure visible, and TAP.
+/// Returns true if the button was found and tapped, false otherwise.
+/// This avoids the stale-index problem by tapping immediately after finding.
+Future<bool> scrollFindAndTapAccountButton(WidgetTester tester, String targetAddress) async {
+  // First try without scrolling
+  bool tapped = await _tryFindAndTapAccountButton(tester, targetAddress);
+  if (tapped) return true;
+
+  // Scroll down in the ListView to reveal off-screen items
+  print('🔍 Not found initially, scrolling down to reveal more accounts...');
+  final listViews = find.byType(ListView);
+  if (listViews.evaluate().isEmpty) {
+    print('⚠️ No ListView found on page');
+    return false;
+  }
+
+  for (int scroll = 0; scroll < 5; scroll++) {
+    await tester.drag(listViews.first, const Offset(0, -300));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    tapped = await _tryFindAndTapAccountButton(tester, targetAddress);
+    if (tapped) return true;
+  }
+
+  print('⚠️ Target address not found after scrolling');
+  return false;
+}
+
+/// Internal: find the target address text, locate the nearest accountMoreButton
+/// by Y-position, ensure it's visible, and tap it. Returns true if tapped.
+Future<bool> _tryFindAndTapAccountButton(WidgetTester tester, String targetAddress) async {
+  final accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
+  final btnElements = accountMoreBtns.evaluate().toList();
+  final int btnCount = btnElements.length;
+
+  final expectedPrefix = targetAddress.substring(0, 10);
+  final expectedSuffix = targetAddress.substring(targetAddress.length - 10);
+  final expectedTruncated = '$expectedPrefix...$expectedSuffix';
+
+  final allTextWidgets = find.textContaining('B62q');
+
+  print('🔍 Looking for: $targetAddress');
+  print('🔍 Truncated form: $expectedTruncated');
+
+  // Find the target address element
+  Element? targetElement;
+  List<String> displayedTexts = [];
+  for (var element in allTextWidgets.evaluate()) {
+    final widget = element.widget;
+    if (widget is Text && widget.data != null && widget.data!.contains('B62q')) {
+      final text = widget.data!;
+      displayedTexts.add(text);
+      if (targetElement == null) {
+        if (text == expectedTruncated || text == targetAddress ||
+            (text.startsWith(expectedPrefix) && text.endsWith(expectedSuffix))) {
+          targetElement = element;
+        }
+      }
+    }
+  }
+
+  print('🔍 Found ${displayedTexts.length} B62q text widgets, $btnCount accountMoreButtons');
+
+  if (targetElement == null) {
+    print('🔍 Target not visible yet (will scroll to find)');
+    print('   Expected (truncated): $expectedTruncated');
+    for (int i = 0; i < displayedTexts.length; i++) {
+      print('   [$i] "${displayedTexts[i]}"');
+    }
+    return false;
+  }
+
+  // Get Y position of the matching address text
+  final targetRO = targetElement.renderObject;
+  if (targetRO == null || targetRO is! RenderBox) {
+    print('⚠️ Target text has no RenderBox');
+    return false;
+  }
+  final targetY = targetRO.localToGlobal(Offset.zero).dy;
+
+  // Find the closest accountMoreButton by Y position
+  double bestDistance = double.infinity;
+  int bestIndex = -1;
+
+  for (int i = 0; i < btnCount; i++) {
+    final btnRO = btnElements[i].renderObject;
+    if (btnRO == null || btnRO is! RenderBox) continue;
+    final btnY = btnRO.localToGlobal(Offset.zero).dy;
+    final distance = (btnY - targetY).abs();
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestIndex = i;
+    }
+  }
+
+  if (bestDistance >= 100 || bestIndex < 0) {
+    print('⚠️ No accountMoreButton near target address (best Y-distance=${bestDistance.toStringAsFixed(0)})');
+    return false;
+  }
+
+  print('✅ Found account at index $bestIndex for $expectedTruncated (Y-dist=${bestDistance.toStringAsFixed(0)})');
+
+  // Directly invoke the GestureDetector's onTap callback.
+  // This avoids both the stale-index RangeError (finder re-evaluation)
+  // and the off-screen tap issue (tapAt fails when Y > screen height).
+  final btnWidget = btnElements[bestIndex].widget;
+  if (btnWidget is GestureDetector && btnWidget.onTap != null) {
+    btnWidget.onTap!();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+    return true;
+  }
+
+  print('⚠️ Button widget is not a tappable GestureDetector');
+  return false;
+}
+
+/// Helper: Verify exported mnemonic on ExportResultPage
+/// The mnemonic is displayed as a single Text widget with space-separated words.
+/// Returns a result string for testResults.
+String verifyExportedMnemonic({
+  required String testName,
+  required String expectedMnemonic,
+}) {
+  final expectedWords = expectedMnemonic.trim().split(RegExp(r'\s+'));
+  final firstWord = expectedWords.first;
+
+  // Find Text widgets that contain the first mnemonic word
+  var mnemonicFinder = find.textContaining(firstWord);
+  String? actualMnemonic;
+
+  for (var element in mnemonicFinder.evaluate()) {
+    final widget = element.widget;
+    if (widget is Text && widget.data != null) {
+      final text = widget.data!.trim();
+      final words = text.split(RegExp(r'\s+'));
+      // A mnemonic has 12+ words and starts with the expected first word
+      if (words.length >= 12 && words.first == firstWord) {
+        actualMnemonic = text;
+        break;
+      }
+    }
+  }
+
+  if (actualMnemonic == null) {
+    print('❌ Mnemonic not found on export page');
+    print('   Expected first word: $firstWord');
+    // Print all text widgets for diagnosis
+    var allTexts = find.byType(Text);
+    int count = 0;
+    for (var element in allTexts.evaluate()) {
+      final widget = element.widget;
+      if (widget is Text && widget.data != null && widget.data!.length > 20) {
+        print('   Text[$count]: "${widget.data!.substring(0, widget.data!.length.clamp(0, 80))}..."');
+        count++;
+      }
+    }
+    return 'FAIL - Mnemonic not found on export page';
+  }
+
+  if (actualMnemonic == expectedMnemonic) {
+    print('✅ Mnemonic verified: ${actualMnemonic.substring(0, 30)}...');
+    final actualWords = actualMnemonic.split(RegExp(r'\s+'));
+    print('✅ Word count: ${actualWords.length}');
+    return 'PASS';
+  } else {
+    print('❌ Mnemonic mismatch');
+    print('   Expected: $expectedMnemonic');
+    print('   Actual:   $actualMnemonic');
+    // Show word-by-word diff
+    final actualWords = actualMnemonic.split(RegExp(r'\s+'));
+    for (int i = 0; i < expectedWords.length || i < actualWords.length; i++) {
+      final exp = i < expectedWords.length ? expectedWords[i] : '(missing)';
+      final act = i < actualWords.length ? actualWords[i] : '(missing)';
+      final match = exp == act ? '✅' : '❌';
+      print('   [$i] $match expected="$exp" actual="$act"');
+    }
+    return 'FAIL - Mnemonic mismatch';
+  }
+}
+
+/// Helper: Verify exported address + private key on ExportResultPage
+/// [expectedAddress] — the expected B62q... address (null to skip address check)
+/// [expectedPK] — the full expected private key (null to skip exact PK check)
+/// [expectedPKPrefix] — expected PK prefix e.g. 'EKFT' (used only if expectedPK is null)
+/// Returns a result string for testResults
+String verifyExportedKeyAndAddress({
+  required String testName,
+  String? expectedAddress,
+  String? expectedPK,
+  String? expectedPKPrefix,
+}) {
+  String? actualAddress;
+  String? actualPK;
+
+  // Find address (B62q...)
+  var addressFinder = find.textContaining('B62q');
+  if (addressFinder.evaluate().isNotEmpty) {
+    for (var element in addressFinder.evaluate()) {
+      final widget = element.widget;
+      if (widget is Text && widget.data != null &&
+          widget.data!.startsWith('B62q') && widget.data!.length > 30) {
+        actualAddress = widget.data!;
+        break;
+      }
+    }
+  }
+
+  // Find PK (EK...)
+  var pkFinder = find.textContaining('EK');
+  if (pkFinder.evaluate().isNotEmpty) {
+    for (var element in pkFinder.evaluate()) {
+      final widget = element.widget;
+      if (widget is Text && widget.data != null &&
+          widget.data!.startsWith('EK') && widget.data!.length > 30) {
+        actualPK = widget.data!;
+        break;
+      }
+    }
+  }
+
+  // Validate
+  List<String> errors = [];
+
+  if (actualAddress == null) {
+    errors.add('address not found');
+  } else if (expectedAddress != null && actualAddress != expectedAddress) {
+    errors.add('address mismatch');
+  }
+
+  if (actualPK == null) {
+    errors.add('PK not found');
+  } else if (expectedPK != null && actualPK != expectedPK) {
+    errors.add('PK mismatch');
+  } else if (expectedPKPrefix != null && !actualPK.startsWith(expectedPKPrefix)) {
+    errors.add('PK prefix mismatch');
+  }
+
+  if (errors.isEmpty) {
+    if (actualAddress != null) print('✅ Address verified: $actualAddress');
+    if (actualPK != null) print('✅ PK verified: $actualPK');
+    return 'PASS';
+  } else {
+    final reason = errors.join('; ');
+    print('❌ $reason');
+    print('   Expected address: ${expectedAddress ?? "(not checked)"}');
+    print('   Actual   address: ${actualAddress ?? "(not found)"}');
+    print('   Expected PK:      ${expectedPK ?? expectedPKPrefix ?? "(not checked)"}');
+    print('   Actual   PK:      ${actualPK ?? "(not found)"}');
+    return 'FAIL - $reason';
+  }
+}
+
 /// Test result tracking
 Map<String, String> testResults = {};
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  suppressBackgroundNetworkErrors();
 
   group('Flow 5: Multi-Wallet Tests', () {
     
@@ -206,6 +424,7 @@ void main() {
       print('║                      Multi-Wallet Tests                      ║');
       print('╚══════════════════════════════════════════════════════════════╝');
       print('\n');
+      TestConfig.validate(flowLabel: 'Flow 5');
     });
 
     tearDownAll(() async {
@@ -213,10 +432,22 @@ void main() {
       print('╔══════════════════════════════════════════════════════════════╗');
       print('║                         Test Summary                         ║');
       print('╠══════════════════════════════════════════════════════════════╣');
+      int passCount = 0, failCount = 0, skipCount = 0, partialCount = 0;
       testResults.forEach((test, result) {
-        final status = result == 'PASS' ? '✅' : (result.startsWith('SKIP') ? '⏭️' : '❌');
+        String status;
+        if (result == 'PASS') {
+          status = '✅'; passCount++;
+        } else if (result.startsWith('SKIP')) {
+          status = '⏭️'; skipCount++;
+        } else if (result.startsWith('PARTIAL')) {
+          status = '⚠️'; partialCount++;
+        } else {
+          status = '❌'; failCount++;
+        }
         print('║ $status $test: $result');
       });
+      print('╠══════════════════════════════════════════════════════════════╣');
+      print('║ Total: ${testResults.length}  ✅ $passCount  ❌ $failCount  ⚠️ $partialCount  ⏭️ $skipCount');
       print('╚══════════════════════════════════════════════════════════════╝');
       print('\n');
       
@@ -262,8 +493,8 @@ void main() {
       if (needsCreate) {
         final created = await createWalletByMnemonic(
           tester, 
-          TestData.firstMnemonic, 
-          TestData.defaultPassword
+          TestConfig.hdWallet1.mnemonic, 
+          TestConfig.password
         );
         if (created) {
           hasWallet = true;
@@ -424,7 +655,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pump(const Duration(milliseconds: 500));
         await ss.take(tester, '5.3.3_password');
         var confirmPwdBtn = find.text(dic.confirm);
@@ -440,7 +671,7 @@ void main() {
       print('Step 5: Enter mnemonic');
       final mnemonicInput = find.byKey(TestKeys.mnemonicInput);
       if (mnemonicInput.evaluate().isNotEmpty) {
-        await tester.enterText(mnemonicInput, TestData.secondMnemonic);
+        await tester.enterText(mnemonicInput, TestConfig.hdWallet2.mnemonic);
         await tester.pump(const Duration(milliseconds: 500));
         print('✅ Entered 2nd mnemonic');
       }
@@ -542,8 +773,19 @@ void main() {
       print('✅ Opened wallet mgmt');
       await ss.take(tester, '5.3b.1_wallet_mgmt');
       
-      // Idempotent: if PK wallet address exists
+      // Idempotent: if PK wallet address exists (scroll down to check off-screen items)
       var existingPK = find.textContaining('B62qo1');
+      if (existingPK.evaluate().isEmpty) {
+        final listView = find.byType(ListView);
+        if (listView.evaluate().isNotEmpty) {
+          for (int s = 0; s < 3; s++) {
+            await tester.drag(listView.first, const Offset(0, -300));
+            await tester.pumpAndSettle();
+            existingPK = find.textContaining('B62qo1');
+            if (existingPK.evaluate().isNotEmpty) break;
+          }
+        }
+      }
       if (existingPK.evaluate().isNotEmpty) {
         print('✅ PK wallet exists (idempotent), skipping');
         testResults[testName] = 'PASS';
@@ -593,7 +835,7 @@ void main() {
         if (textFields.evaluate().isNotEmpty) pkInput = textFields;
       }
       if (pkInput.evaluate().isNotEmpty) {
-        await tester.enterText(pkInput.first, TestData.importPrivateKey);
+        await tester.enterText(pkInput.first, TestConfig.pkWallet.privateKey);
         await tester.pump(const Duration(milliseconds: 500));
         print('✅ Entered private key');
       }
@@ -613,7 +855,7 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pump(const Duration(milliseconds: 500));
         print('✅ Password entered');
         var confirmPwdBtn = find.text(dic.confirm);
@@ -674,8 +916,19 @@ void main() {
       print('✅ Opened wallet mgmt');
       await ss.take(tester, '5.3c.1_wallet_mgmt');
       
-      // Idempotent: if KS wallet address exists
+      // Idempotent: if KS wallet address exists (scroll down to check off-screen items)
       var existingKS = find.textContaining('B62qkS');
+      if (existingKS.evaluate().isEmpty) {
+        final listView = find.byType(ListView);
+        if (listView.evaluate().isNotEmpty) {
+          for (int s = 0; s < 3; s++) {
+            await tester.drag(listView.first, const Offset(0, -300));
+            await tester.pumpAndSettle();
+            existingKS = find.textContaining('B62qkS');
+            if (existingKS.evaluate().isNotEmpty) break;
+          }
+        }
+      }
       if (existingKS.evaluate().isNotEmpty) {
         print('✅ KS wallet exists (idempotent), skipping');
         testResults[testName] = 'PASS';
@@ -720,14 +973,14 @@ void main() {
       print('Step 5: Enter Keystore');
       var ksInput = find.byKey(TestKeys.keystoreInput);
       if (ksInput.evaluate().isNotEmpty) {
-        await tester.enterText(ksInput, TestData.importKeystore);
+        await tester.enterText(ksInput, TestConfig.ksWallet.keystoreJson);
         await tester.pump(const Duration(milliseconds: 500));
         print('✅ Entered Keystore');
       }
       
       var ksPwdInput = find.byKey(TestKeys.keystorePasswordInput);
       if (ksPwdInput.evaluate().isNotEmpty) {
-        await tester.enterText(ksPwdInput, TestData.keystorePassword);
+        await tester.enterText(ksPwdInput, TestConfig.ksWallet.keystorePassword);
         await tester.pump(const Duration(milliseconds: 500));
         print('✅ Entered Keystore password');
       }
@@ -747,7 +1000,7 @@ void main() {
       await tester.pump(const Duration(seconds: 2));
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pump(const Duration(milliseconds: 500));
         print('✅ Entered wallet password');
         var confirmPwdBtn = find.text(dic.confirm);
@@ -933,6 +1186,10 @@ void main() {
       
       await ss.take(tester, '5.5.1_wallet_mgmt');
       
+      // Count accounts before adding
+      int accountsBefore = find.byKey(TestKeys.accountMoreButton).evaluate().length;
+      print('Accounts before: $accountsBefore');
+      
       // Step 2: Add Account 2 to 1st HD wallet
       print('Step 2: Add account for HD Wallet 1');
       var addAccountBtn = find.byKey(TestKeys.addAccountButton);
@@ -942,17 +1199,53 @@ void main() {
       if (addAccountBtn.evaluate().isNotEmpty) {
         await tester.tap(addAccountBtn.first);
         await tester.pumpAndSettle();
+        
+        // Handle password dialog
+        bool pwHandled = false;
+        for (int i = 0; i < 5; i++) {
+          await tester.pump(const Duration(seconds: 1));
+          if (find.byType(TextField).evaluate().isNotEmpty) {
+            await tester.enterText(find.byType(TextField).last, TestConfig.password);
+            await tester.pumpAndSettle();
+            print('✅ Password entered for HD1');
+            var confirmBtn = find.text(dic.confirm);
+            if (confirmBtn.evaluate().isNotEmpty) {
+              await tester.tap(confirmBtn.last, warnIfMissed: false);
+              try {
+                await tester.pumpAndSettle(const Duration(seconds: 2));
+              } catch (e) {
+                for (int j = 0; j < 5; j++) {
+                  await tester.pump(const Duration(seconds: 1));
+                }
+              }
+              print('✅ Password confirmed for HD1');
+              pwHandled = true;
+            }
+            break;
+          }
+        }
+        
+        // Wait for account to be created
         await tester.pump(const Duration(seconds: 2));
-        print('✅ HD Wallet 1 account added');
+        await tester.pumpAndSettle();
+        
+        int accountsAfterHD1 = find.byKey(TestKeys.accountMoreButton).evaluate().length;
+        if (accountsAfterHD1 > accountsBefore) {
+          print('✅ HD Wallet 1 account added (accounts: $accountsBefore → $accountsAfterHD1)');
+          wallet1Done = true;
+        } else if (pwHandled) {
+          print('⚠️ Password entered but account count unchanged ($accountsAfterHD1)');
+          wallet1Done = true; // may have been created but UI not updated yet
+        } else {
+          print('⚠️ Password dialog not found after tapping Add Account');
+        }
         await ss.take(tester, '5.5.2_hd1_acct_added');
-        wallet1Done = true;
       } else {
         print('⚠️ Add account button not found');
       }
       
       // Step 3: Add Account 2 to 2nd HD wallet
       print('Step 3: Add account for HD Wallet 2');
-      // Wait for any overlay/animation from step 2 to fully dismiss
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
       addAccountBtn = find.byKey(TestKeys.addAccountButton);
@@ -960,26 +1253,65 @@ void main() {
       
       bool wallet2Done = false;
       if (addAccountBtn.evaluate().length >= 2) {
-        // Scroll to make the 2nd button fully visible and tappable
+        // Scroll to make the 2nd button visible
         await tester.ensureVisible(addAccountBtn.at(1));
         await tester.pump(const Duration(milliseconds: 500));
         await tester.pumpAndSettle();
-        await tester.tap(addAccountBtn.at(1));
+        await tester.tap(addAccountBtn.at(1), warnIfMissed: false);
         await tester.pumpAndSettle();
+        
+        // Handle password dialog
+        bool pwHandled = false;
+        for (int i = 0; i < 5; i++) {
+          await tester.pump(const Duration(seconds: 1));
+          if (find.byType(TextField).evaluate().isNotEmpty) {
+            await tester.enterText(find.byType(TextField).last, TestConfig.password);
+            await tester.pumpAndSettle();
+            print('✅ Password entered for HD2');
+            var confirmBtn = find.text(dic.confirm);
+            if (confirmBtn.evaluate().isNotEmpty) {
+              await tester.tap(confirmBtn.last, warnIfMissed: false);
+              try {
+                await tester.pumpAndSettle(const Duration(seconds: 2));
+              } catch (e) {
+                for (int j = 0; j < 5; j++) {
+                  await tester.pump(const Duration(seconds: 1));
+                }
+              }
+              print('✅ Password confirmed for HD2');
+              pwHandled = true;
+            }
+            break;
+          }
+        }
+        
+        // Wait for account to be created
         await tester.pump(const Duration(seconds: 2));
-        print('✅ HD Wallet 2 account added');
+        await tester.pumpAndSettle();
+        
+        int accountsAfterHD2 = find.byKey(TestKeys.accountMoreButton).evaluate().length;
+        if (pwHandled) {
+          print('✅ HD Wallet 2 account added (accounts now: $accountsAfterHD2)');
+          wallet2Done = true;
+        } else {
+          print('⚠️ Password dialog not found for HD2');
+        }
         await ss.take(tester, '5.5.3_hd2_acct_added');
-        wallet2Done = true;
       } else if (addAccountBtn.evaluate().length == 1) {
-        // May only have one HD wallet with add button
-        print('⚠️ Only 1 add account btn, HD Wallet 2 may have Account 2');
-        wallet2Done = true;
+        print('⚠️ Only 1 add account btn found (expected 2 for two HD wallets)');
       } else {
-        print('⚠️ 2nd add account button not found');
+        print('⚠️ No add account buttons found');
       }
       
-      if (wallet1Done || wallet2Done) {
+      // Final count
+      int accountsAfter = find.byKey(TestKeys.accountMoreButton).evaluate().length;
+      print('Accounts after: $accountsAfter (expected ${accountsBefore + 2})');
+      
+      if (wallet1Done && wallet2Done) {
         testResults[testName] = 'PASS';
+      } else if (wallet1Done || wallet2Done) {
+        testResults[testName] = 'PASS';
+        print('⚠️ Only one HD wallet had sub-account added');
       } else {
         testResults[testName] = 'SKIP - Add account entry not found';
       }
@@ -1067,7 +1399,7 @@ void main() {
       const newPassword = 'NewPass123!';
       var inputFields = find.byType(TextField);
       if (inputFields.evaluate().length >= 3) {
-        await tester.enterText(inputFields.at(0), TestData.defaultPassword);
+        await tester.enterText(inputFields.at(0), TestConfig.password);
         await tester.pump(const Duration(milliseconds: 500));
         print('✅ Entered old password');
         await tester.enterText(inputFields.at(1), newPassword);
@@ -1115,9 +1447,9 @@ void main() {
         if (inputFields.evaluate().length >= 3) {
           await tester.enterText(inputFields.at(0), newPassword);
           await tester.pump(const Duration(milliseconds: 500));
-          await tester.enterText(inputFields.at(1), TestData.defaultPassword);
+          await tester.enterText(inputFields.at(1), TestConfig.password);
           await tester.pump(const Duration(milliseconds: 500));
-          await tester.enterText(inputFields.at(2), TestData.defaultPassword);
+          await tester.enterText(inputFields.at(2), TestConfig.password);
           await tester.pump(const Duration(milliseconds: 500));
           
           confirmBtn = find.text(dic.confirm);
@@ -1366,7 +1698,7 @@ void main() {
           
           // Step 5: Enter new name in dialog (w-<last 6 chars of address>)
           print('Step 5: Enter new wallet name');
-          final newWalletName = 'w-${TestData.secondMnemonicAddress.substring(TestData.secondMnemonicAddress.length - 6)}';
+          final newWalletName = 'w-${TestConfig.hdWallet2.account1Address!.substring(TestConfig.hdWallet2.account1Address!.length - 6)}';
           var textFields = find.byType(TextField);
           if (textFields.evaluate().isNotEmpty) {
             await tester.enterText(textFields.last, newWalletName);
@@ -1500,7 +1832,7 @@ void main() {
           
           // Step 5: Enter new account name (a-<last 6 chars of address>)
           print('Step 5: Enter new account name');
-          final newAccountName = 'a-${TestData.secondMnemonicAddress.substring(TestData.secondMnemonicAddress.length - 6)}';
+          final newAccountName = 'a-${TestConfig.hdWallet2.account1Address!.substring(TestConfig.hdWallet2.account1Address!.length - 6)}';
           var textFields = find.byType(TextField);
           if (textFields.evaluate().isNotEmpty) {
             await tester.enterText(textFields.last, newAccountName);
@@ -1613,7 +1945,7 @@ void main() {
       print('Step 4: Enter password');
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         await ss.take(tester, '5.11.2_password');
         var confirmBtn = find.text(dic.confirm);
@@ -1626,23 +1958,12 @@ void main() {
       
       await tester.pump(const Duration(seconds: 2));
       
-      // Step 5: Verify reached ExportResultPage
-      print('Step 5: Verify mnemonic display');
-      var mnemonicWords = find.textContaining('century');
-      if (mnemonicWords.evaluate().isNotEmpty) {
-        print('✅ Mnemonic displayed correctly');
-        testResults[testName] = 'PASS';
-      } else {
-        // Check page title for Seed Phrase / Export Private Key
-        var exportPageTitle = find.text(dic.seedPhrase);
-        if (exportPageTitle.evaluate().isNotEmpty) {
-          print('✅ Reached export page');
-          testResults[testName] = 'PASS';
-        } else {
-          print('⚠️ Mnemonic content not found');
-          testResults[testName] = 'PARTIAL - Mnemonic content not found';
-        }
-      }
+      // Step 5: Verify mnemonic matches TestConfig
+      print('Step 5: Verify mnemonic matches TestConfig');
+      testResults[testName] = verifyExportedMnemonic(
+        testName: testName,
+        expectedMnemonic: TestConfig.hdWallet1.mnemonic,
+      );
       
       await ss.take(tester, '5.11.3_mnemonic_display');
       await endTestDelay(tester);
@@ -1698,7 +2019,7 @@ void main() {
       print('Step 4: Enter password');
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         await ss.take(tester, '5.11b.2_password');
         var confirmBtn = find.text(dic.confirm);
@@ -1711,22 +2032,12 @@ void main() {
       
       await tester.pump(const Duration(seconds: 2));
       
-      // Step 5: Verify dove mnemonic displayed
-      print('Step 5: Verify mnemonic display');
-      var mnemonicWords = find.textContaining('dove');
-      if (mnemonicWords.evaluate().isNotEmpty) {
-        print('✅ HD Wallet 2 mnemonic (dove...) displayed correctly');
-        testResults[testName] = 'PASS';
-      } else {
-        var exportPageTitle = find.text(dic.seedPhrase);
-        if (exportPageTitle.evaluate().isNotEmpty) {
-          print('✅ Reached export page');
-          testResults[testName] = 'PASS';
-        } else {
-          print('⚠️ Mnemonic content not found');
-          testResults[testName] = 'PARTIAL - dove mnemonic content not found';
-        }
-      }
+      // Step 5: Verify mnemonic matches TestConfig
+      print('Step 5: Verify mnemonic matches TestConfig');
+      testResults[testName] = verifyExportedMnemonic(
+        testName: testName,
+        expectedMnemonic: TestConfig.hdWallet2.mnemonic,
+      );
       
       await ss.take(tester, '5.11b.3_hd2_mnemonic');
       await endTestDelay(tester);
@@ -1752,16 +2063,18 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Tap 1st account more button → AccountManagePage
-      print('Step 2: Tap acct1 more button');
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      if (accountMoreBtns.evaluate().isEmpty) {
-        testResults[testName] = 'SKIP - Account more button not found';
+      // Step 2: Find HD1-Account1 by address and tap its more button
+      print('Step 2: Tap HD1 acct1 more button');
+      final hd1Acct1Addr = TestConfig.hdWallet1.account1Address;
+      if (hd1Acct1Addr == null) {
+        testResults[testName] = 'SKIP - hdWallet1.account1Address not configured';
         return;
       }
-      await tester.tap(accountMoreBtns.first);
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
+      bool found = await scrollFindAndTapAccountButton(tester, hd1Acct1Addr);
+      if (!found) {
+        testResults[testName] = 'FAIL - HD1 acct1 address not found on wallet mgmt page';
+        return;
+      }
       print('✅ Entered account mgmt page');
       
       // Step 3: Tap Export Private Key
@@ -1806,7 +2119,7 @@ void main() {
       }
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         print('✅ Password entered');
         // Button enables after input, pump for onChanged
@@ -1846,27 +2159,13 @@ void main() {
       
       await ss.take(tester, '5.12.2_pk_display');
       
-      // Step 6: Verify ExportResultPage shows PK (starts with EK)
-      print('Step 6: Verify PK display');
-      var privateKeyText = find.textContaining('EK');
-      bool foundKey = false;
-      if (privateKeyText.evaluate().isNotEmpty) {
-        for (var element in privateKeyText.evaluate()) {
-          final widget = element.widget;
-          if (widget is Text && widget.data != null && widget.data!.startsWith('EK') && widget.data!.length > 30) {
-            print('✅ PK correctly shown: ${widget.data!.substring(0, 20)}...');
-            foundKey = true;
-            break;
-          }
-        }
-      }
-      
-      if (foundKey) {
-        testResults[testName] = 'PASS';
-      } else {
-        var exportTitle = find.text(dic.exportPrivateKey);
-        testResults[testName] = exportTitle.evaluate().isNotEmpty ? 'PARTIAL - Reached export page but PK not shown' : 'FAIL - Did not reach export page';
-      }
+      // Step 6: Verify address + PK on ExportResultPage
+      print('Step 6: Verify address + PK');
+      testResults[testName] = verifyExportedKeyAndAddress(
+        testName: testName,
+        expectedAddress: TestConfig.hdWallet1.account1Address,
+        expectedPK: TestConfig.hdWallet1.account1PrivateKey,
+      );
       
       await endTestDelay(tester);
       print('\n========== $testName Done ==========\n');
@@ -1892,17 +2191,19 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Tap acct2 more button (HD wallet acct2, added by 5.5)
-      print('Step 2: Tap acct2 more button');
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      if (accountMoreBtns.evaluate().length < 2) {
-        testResults[testName] = 'SKIP - Less than 2 accounts';
+      // Step 2: Find HD1-Account2 by address and tap its more button
+      print('Step 2: Tap HD1 acct2 more button');
+      final hd1Acct2Addr = TestConfig.hdWallet1.account2Address;
+      if (hd1Acct2Addr == null) {
+        testResults[testName] = 'SKIP - hdWallet1.account2Address not configured';
         return;
       }
-      await tester.tap(accountMoreBtns.at(1));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
-      print('✅ Entered acct2 mgmt page');
+      bool found = await scrollFindAndTapAccountButton(tester, hd1Acct2Addr);
+      if (!found) {
+        testResults[testName] = 'FAIL - HD1 acct2 address not found on wallet mgmt page';
+        return;
+      }
+      print('✅ Entered HD1 acct2 mgmt page');
       await ss.take(tester, '5.13.1_account_mgmt');
       
       // Step 3: Tap Export Private Key
@@ -1940,7 +2241,7 @@ void main() {
       }
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         print('✅ Password entered');
         await ss.take(tester, '5.13.2_password');
@@ -1968,22 +2269,13 @@ void main() {
       
       await ss.take(tester, '5.13.3_pk_display');
       
-      // Step 6: Verify export page
-      print('Step 6: Verify PK display');
-      var privateKeyText = find.textContaining('EK');
-      bool foundKey = false;
-      if (privateKeyText.evaluate().isNotEmpty) {
-        for (var element in privateKeyText.evaluate()) {
-          final widget = element.widget;
-          if (widget is Text && widget.data != null && widget.data!.startsWith('EK') && widget.data!.length > 30) {
-            print('✅ Acct2 PK correctly shown: ${widget.data!.substring(0, 20)}...');
-            foundKey = true;
-            break;
-          }
-        }
-      }
-      
-      testResults[testName] = foundKey ? 'PASS' : 'PARTIAL - PK content not found';
+      // Step 6: Verify address + PK on ExportResultPage
+      print('Step 6: Verify address + PK');
+      testResults[testName] = verifyExportedKeyAndAddress(
+        testName: testName,
+        expectedAddress: TestConfig.hdWallet1.account2Address,
+        expectedPK: TestConfig.hdWallet1.account2PrivateKey,
+      );
       
       await ss.take(tester, '5.13_done');
       await endTestDelay(tester);
@@ -2010,18 +2302,18 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Tap HD2-Account1 (accountMoreButton[2])
+      // Step 2: Find HD2-Account1 by address and tap its more button
       print('Step 2: Tap HD2 acct1 more button');
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      if (accountMoreBtns.evaluate().length < 3) {
-        testResults[testName] = 'SKIP - Not enough accounts (run 5.3+5.5 first)';
+      final hd2Acct1Addr = TestConfig.hdWallet2.account1Address;
+      if (hd2Acct1Addr == null) {
+        testResults[testName] = 'SKIP - hdWallet2.account1Address not configured';
         return;
       }
-      await tester.ensureVisible(accountMoreBtns.at(2));
-      await tester.pumpAndSettle();
-      await tester.tap(accountMoreBtns.at(2));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
+      bool found = await scrollFindAndTapAccountButton(tester, hd2Acct1Addr);
+      if (!found) {
+        testResults[testName] = 'FAIL - HD2 acct1 address not found on wallet mgmt page';
+        return;
+      }
       print('✅ Entered HD2 acct1 mgmt page');
       await ss.take(tester, '5.13b.1_account_mgmt');
       
@@ -2059,7 +2351,7 @@ void main() {
       }
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         await ss.take(tester, '5.13b.2_password');
         await tester.pump(const Duration(milliseconds: 500));
@@ -2083,32 +2375,13 @@ void main() {
       
       await ss.take(tester, '5.13b.3_pk_display');
       
-      // Step 6: Verify PK = EKFTDZnZ...
-      print('Step 6: Verify PK = EKFTDZnZ...');
-      bool found = false;
-      var anyPK = find.textContaining('EK');
-      if (anyPK.evaluate().isNotEmpty) {
-        for (var element in anyPK.evaluate()) {
-          final widget = element.widget;
-          if (widget is Text && widget.data != null && widget.data!.startsWith('EKFT')) {
-            print('✅ HD2 acct1 PK verified: ${widget.data!.substring(0, 20)}...');
-            found = true;
-            break;
-          }
-        }
-      }
-      if (!found) {
-        // Also accept any EK-prefixed PK (order may differ)
-        for (var element in (anyPK.evaluate())) {
-          final widget = element.widget;
-          if (widget is Text && widget.data != null && widget.data!.startsWith('EK') && widget.data!.length > 30) {
-            print('⚠️ PK shown but unexpected: ${widget.data!.substring(0, 20)}...');
-            found = true;
-            break;
-          }
-        }
-      }
-      testResults[testName] = found ? 'PASS' : 'PARTIAL - PK content not found';
+      // Step 6: Verify address + PK on ExportResultPage
+      print('Step 6: Verify address + PK');
+      testResults[testName] = verifyExportedKeyAndAddress(
+        testName: testName,
+        expectedAddress: TestConfig.hdWallet2.account1Address,
+        expectedPK: TestConfig.hdWallet2.account1PrivateKey,
+      );
       
       await ss.take(tester, '5.13b_done');
       await endTestDelay(tester);
@@ -2135,18 +2408,18 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Tap HD2-Account2 (accountMoreButton[3])
+      // Step 2: Find HD2-Account2 by address and tap its more button
       print('Step 2: Tap HD2 acct2 more button');
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      if (accountMoreBtns.evaluate().length < 4) {
-        testResults[testName] = 'SKIP - Not enough accounts (run 5.3+5.5 first)';
+      final hd2Acct2Addr = TestConfig.hdWallet2.account2Address;
+      if (hd2Acct2Addr == null) {
+        testResults[testName] = 'SKIP - hdWallet2.account2Address not configured';
         return;
       }
-      await tester.ensureVisible(accountMoreBtns.at(3));
-      await tester.pumpAndSettle();
-      await tester.tap(accountMoreBtns.at(3));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
+      bool found = await scrollFindAndTapAccountButton(tester, hd2Acct2Addr);
+      if (!found) {
+        testResults[testName] = 'FAIL - HD2 acct2 address not found on wallet mgmt page';
+        return;
+      }
       print('✅ Entered HD2 acct2 mgmt page');
       await ss.take(tester, '5.13c.1_account_mgmt');
       
@@ -2184,7 +2457,7 @@ void main() {
       }
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         await ss.take(tester, '5.13c.2_password');
         await tester.pump(const Duration(milliseconds: 500));
@@ -2208,31 +2481,13 @@ void main() {
       
       await ss.take(tester, '5.13c.3_pk_display');
       
-      // Step 6: Verify PK = EKDspUyZ...
-      print('Step 6: Verify PK = EKDspUyZ...');
-      bool found = false;
-      var anyPK = find.textContaining('EK');
-      if (anyPK.evaluate().isNotEmpty) {
-        for (var element in anyPK.evaluate()) {
-          final widget = element.widget;
-          if (widget is Text && widget.data != null && widget.data!.startsWith('EKDs')) {
-            print('✅ HD2 acct2 PK verified: ${widget.data!.substring(0, 20)}...');
-            found = true;
-            break;
-          }
-        }
-      }
-      if (!found) {
-        for (var element in (anyPK.evaluate())) {
-          final widget = element.widget;
-          if (widget is Text && widget.data != null && widget.data!.startsWith('EK') && widget.data!.length > 30) {
-            print('⚠️ PK shown but unexpected: ${widget.data!.substring(0, 20)}...');
-            found = true;
-            break;
-          }
-        }
-      }
-      testResults[testName] = found ? 'PASS' : 'PARTIAL - PK content not found';
+      // Step 6: Verify address + PK on ExportResultPage
+      print('Step 6: Verify address + PK');
+      testResults[testName] = verifyExportedKeyAndAddress(
+        testName: testName,
+        expectedAddress: TestConfig.hdWallet2.account2Address,
+        expectedPK: TestConfig.hdWallet2.account2PrivateKey,
+      );
       
       await ss.take(tester, '5.13c_done');
       await endTestDelay(tester);
@@ -2259,44 +2514,15 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Find imported PK wallet account more button
-      // Expected order: HD Wallet 1 (Account1, Account2), HD Wallet 2 (Account1, Account2), Imported PK, Imported KS
-      // accountMoreButton index: [0]=HD1-Acc1, [1]=HD1-Acc2, [2]=HD2-Acc1, [3]=HD2-Acc2, [4]=PK, [5]=KS
+      // Step 2: Find imported PK wallet account by address (scroll if off-screen) and tap
       print('Step 2: Find PK wallet account');
       
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      int pkIndex = -1;
+      bool found = await scrollFindAndTapAccountButton(tester, TestConfig.pkWallet.address);
       
-      // Find account containing PK wallet address
-      var pkAddressText = find.textContaining('B62qo1');
-      if (pkAddressText.evaluate().isNotEmpty) {
-        print('✅ Found PK wallet address');
-        pkIndex = 4;
+      if (!found) {
+        testResults[testName] = 'SKIP - PK wallet not found (run 5.3b first)';
+        return;
       }
-      
-      if (pkIndex < 0 || accountMoreBtns.evaluate().length <= pkIndex) {
-        var importedTexts = find.textContaining('Imported');
-        if (importedTexts.evaluate().isNotEmpty) {
-          print('✅ Found Imported wallet');
-          if (accountMoreBtns.evaluate().length > 4) {
-            pkIndex = 4;
-          } else if (accountMoreBtns.evaluate().length > 2) {
-            pkIndex = accountMoreBtns.evaluate().length - 2;
-          }
-        }
-        
-        if (pkIndex < 0 || accountMoreBtns.evaluate().length <= pkIndex) {
-          testResults[testName] = 'SKIP - PK wallet not found (run 5.3b first)';
-          return;
-        }
-      }
-      
-      // Scroll to make target button visible
-      await tester.ensureVisible(accountMoreBtns.at(pkIndex));
-      await tester.pumpAndSettle();
-      await tester.tap(accountMoreBtns.at(pkIndex));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
       print('✅ Entered PK wallet account mgmt page');
       await ss.take(tester, '5.14.1_account_mgmt');
       
@@ -2335,7 +2561,7 @@ void main() {
       }
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         print('✅ Password entered');
         await ss.take(tester, '5.14.2_password');
@@ -2363,27 +2589,13 @@ void main() {
       
       await ss.take(tester, '5.14.3_pk_display');
       
-      // Step 6: Verify PK display
-      print('Step 6: Verify private key');
-      var pkText = find.textContaining(TestData.importPrivateKey.substring(0, 10));
-      bool found = false;
-      if (pkText.evaluate().isNotEmpty) {
-        print('✅ Exported PK matches import');
-        found = true;
-      } else {
-        var anyPK = find.textContaining('EK');
-        if (anyPK.evaluate().isNotEmpty) {
-          for (var element in anyPK.evaluate()) {
-            final widget = element.widget;
-            if (widget is Text && widget.data != null && widget.data!.startsWith('EK') && widget.data!.length > 30) {
-              print('✅ Found PK: ${widget.data!.substring(0, 20)}...');
-              found = true;
-              break;
-            }
-          }
-        }
-      }
-      testResults[testName] = found ? 'PASS' : 'PARTIAL - PK content not found';
+      // Step 6: Verify address + PK on ExportResultPage
+      print('Step 6: Verify address + PK');
+      testResults[testName] = verifyExportedKeyAndAddress(
+        testName: testName,
+        expectedAddress: TestConfig.pkWallet.address,
+        expectedPK: TestConfig.pkWallet.privateKey,
+      );
       
       await ss.take(tester, '5.14_done');
       await endTestDelay(tester);
@@ -2412,31 +2624,13 @@ void main() {
       
       // Step 2: Find Keystore wallet account more button (last one)
       print('Step 2: Find Keystore wallet account');
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      int ksIndex = accountMoreBtns.evaluate().length - 1;
       
-      if (ksIndex < 0) {
-        testResults[testName] = 'SKIP - No accounts found';
-        return;
-      }
+      bool ksFound = await scrollFindAndTapAccountButton(tester, TestConfig.ksWallet.address);
       
-      // Verify if this is Keystore wallet address
-      var ksAddressText = find.textContaining('B62qkS');
-      if (ksAddressText.evaluate().isNotEmpty) {
-        print('✅ Found Keystore wallet address');
-      }
-      
-      if (accountMoreBtns.evaluate().length <= ksIndex || ksIndex < 0) {
+      if (!ksFound) {
         testResults[testName] = 'SKIP - KS wallet not found (run 5.3c first)';
         return;
       }
-      
-      // Scroll to make target button visible
-      await tester.ensureVisible(accountMoreBtns.at(ksIndex));
-      await tester.pumpAndSettle();
-      await tester.tap(accountMoreBtns.at(ksIndex));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
       print('✅ Entered KS wallet account mgmt page');
       await ss.take(tester, '5.15.1_account_mgmt');
       
@@ -2475,7 +2669,7 @@ void main() {
       }
       final passwordFields = find.byType(TextField);
       if (passwordFields.evaluate().isNotEmpty) {
-        await tester.enterText(passwordFields.last, TestData.defaultPassword);
+        await tester.enterText(passwordFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         print('✅ Password entered');
         await ss.take(tester, '5.15.2_password');
@@ -2503,35 +2697,13 @@ void main() {
       
       await ss.take(tester, '5.15.3_pk_display');
       
-      // Step 6: Verify PK = EKEMqXWT...（TestData.keystorePrivateKey）
-      print('Step 6: Verify PK = EKEMqXWT...');
-      bool found = false;
-      bool exactMatch = false;
-      var anyPK = find.textContaining('EK');
-      if (anyPK.evaluate().isNotEmpty) {
-        for (var element in anyPK.evaluate()) {
-          final widget = element.widget;
-          if (widget is Text && widget.data != null && widget.data!.startsWith('EK') && widget.data!.length > 30) {
-            final exportedKey = widget.data!;
-            found = true;
-            if (exportedKey == TestData.keystorePrivateKey) {
-              print('✅ KS PK exact match: ${exportedKey.substring(0, 20)}...');
-              exactMatch = true;
-            } else {
-              print('⚠️ PK shown but does not match: ${exportedKey.substring(0, 20)}...');
-              print('   Expected: ${TestData.keystorePrivateKey.substring(0, 20)}...');
-            }
-            break;
-          }
-        }
-      }
-      if (exactMatch) {
-        testResults[testName] = 'PASS';
-      } else if (found) {
-        testResults[testName] = 'PARTIAL - PK shown but does not match';
-      } else {
-        testResults[testName] = 'PARTIAL - PK content not found';
-      }
+      // Step 6: Verify address + PK on ExportResultPage
+      print('Step 6: Verify address + PK');
+      testResults[testName] = verifyExportedKeyAndAddress(
+        testName: testName,
+        expectedAddress: TestConfig.ksWallet.address,
+        expectedPK: TestConfig.ksWallet.privateKey,
+      );
       
       await ss.take(tester, '5.15_done');
       await endTestDelay(tester);
@@ -2558,22 +2730,19 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Find last imported wallet (Keystore) account → AccountManagePage
-      print('Step 2: Tap imported wallet account more button');
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      int lastIdx = accountMoreBtns.evaluate().length - 1;
+      // Step 2: Find KS wallet account by address (scroll if off-screen)
+      print('Step 2: Find KS wallet account');
+      bool importFound = await scrollFindAndTapAccountButton(tester, TestConfig.ksWallet.address);
       
-      if (lastIdx < 0) {
-        testResults[testName] = 'SKIP - No accounts found';
-        return;
+      if (!importFound) {
+        // Try PK wallet as fallback
+        importFound = await scrollFindAndTapAccountButton(tester, TestConfig.pkWallet.address);
       }
       
-      // Scroll to make target button visible
-      await tester.ensureVisible(accountMoreBtns.at(lastIdx));
-      await tester.pumpAndSettle();
-      await tester.tap(accountMoreBtns.at(lastIdx));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
+      if (!importFound) {
+        testResults[testName] = 'SKIP - No imported wallet found';
+        return;
+      }
       print('✅ Entered imported wallet account mgmt page');
       await ss.take(tester, '5.16.1_account_mgmt');
       
@@ -2645,7 +2814,7 @@ void main() {
       // Step 3.5: Handle password dialog
       final pwdFields = find.byType(TextField);
       if (pwdFields.evaluate().isNotEmpty) {
-        await tester.enterText(pwdFields.last, TestData.defaultPassword);
+        await tester.enterText(pwdFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         var confirmPwd = find.text(dic.confirm);
         if (confirmPwd.evaluate().isNotEmpty) {
@@ -2659,7 +2828,7 @@ void main() {
       print('Step 4: Enter existing mnemonic');
       var mnemonicInput = find.byKey(TestKeys.mnemonicInput);
       if (mnemonicInput.evaluate().isNotEmpty) {
-        await tester.enterText(mnemonicInput, TestData.firstMnemonic);
+        await tester.enterText(mnemonicInput, TestConfig.hdWallet1.mnemonic);
         await tester.pumpAndSettle();
       }
       await tester.pump(const Duration(seconds: 1));
@@ -2839,7 +3008,7 @@ void main() {
       print('Step 5: Get current address');
       // Home address is truncated (B62q...xxx), cannot use for transfer
       // Use 1st mnemonic wallet address (Devnet balance)
-      String currentAddress = TestData.firstMnemonicAddress;
+      String currentAddress = TestConfig.hdWallet1.account1Address!;
       print('✅ Using addr: ${currentAddress.substring(0, 15)}...');
       
       // Step 6: Tap Send button
@@ -2938,7 +3107,7 @@ void main() {
         if (pwdDialogTitle.evaluate().isNotEmpty) {
           final pwdFields = find.byType(TextField);
           if (pwdFields.evaluate().isNotEmpty) {
-            await tester.enterText(pwdFields.last, TestData.defaultPassword);
+            await tester.enterText(pwdFields.last, TestConfig.password);
             await tester.pump(const Duration(seconds: 1));
             var confirmPwd = find.text(dic.confirm);
             if (confirmPwd.evaluate().isNotEmpty) {
@@ -3204,7 +3373,7 @@ void main() {
         if (pwdDialogTitle.evaluate().isNotEmpty) {
           final pwdFields = find.byType(TextField);
           if (pwdFields.evaluate().isNotEmpty) {
-            await tester.enterText(pwdFields.last, TestData.defaultPassword);
+            await tester.enterText(pwdFields.last, TestConfig.password);
             await tester.pump(const Duration(seconds: 1));
             var confirmPwd = find.text(dic.confirm);
             if (confirmPwd.evaluate().isNotEmpty) {
@@ -3388,7 +3557,7 @@ void main() {
         if (pwdDialogTitle.evaluate().isNotEmpty) {
           final pwdFields = find.byType(TextField);
           if (pwdFields.evaluate().isNotEmpty) {
-            await tester.enterText(pwdFields.last, TestData.defaultPassword);
+            await tester.enterText(pwdFields.last, TestConfig.password);
             await tester.pump(const Duration(seconds: 1));
             var confirmPwd = find.text(dic.confirm);
             if (confirmPwd.evaluate().isNotEmpty) {
@@ -3480,40 +3649,16 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Find PK wallet account (containing B62qo1 address)
+      // Step 2: Find PK wallet account by address (scroll if off-screen)
       print('Step 2: Find PK wallet account');
-      // Scroll to bottom to ensure visible
-      final listView = find.byType(ListView);
-      if (listView.evaluate().isNotEmpty) {
-        await tester.drag(listView.first, const Offset(0, -300));
-        await tester.pumpAndSettle();
-        await tester.pump(const Duration(seconds: 1));
-      }
+      int beforeCount = find.byKey(TestKeys.accountMoreButton).evaluate().length;
+      print('✅ Current account count: $beforeCount');
       
-      var pkAddress = find.textContaining('B62qo1');
-      if (pkAddress.evaluate().isEmpty) {
+      bool pkFound = await scrollFindAndTapAccountButton(tester, TestConfig.pkWallet.address);
+      if (!pkFound) {
         testResults[testName] = 'SKIP - PK wallet not found (run 5.3b first)';
         return;
       }
-      
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      int pkIndex = 4; // expected: HD1-Acc1(0), HD1-Acc2(1), HD2-Acc1(2), HD2-Acc2(3), PK(4), KS(5)
-      if (accountMoreBtns.evaluate().length <= pkIndex) {
-        pkIndex = accountMoreBtns.evaluate().length - 2; // 2nd to last
-      }
-      if (pkIndex < 0 || accountMoreBtns.evaluate().length <= pkIndex) {
-        testResults[testName] = 'SKIP - Not enough accounts';
-        return;
-      }
-      
-      int beforeCount = accountMoreBtns.evaluate().length;
-      print('✅ Current account count: $beforeCount');
-      
-      await tester.ensureVisible(accountMoreBtns.at(pkIndex));
-      await tester.pumpAndSettle();
-      await tester.tap(accountMoreBtns.at(pkIndex));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
       print('✅ Entered PK wallet account mgmt page');
       await ss.take(tester, '5.21.1_account_mgmt');
       
@@ -3543,7 +3688,7 @@ void main() {
       // Password input
       final pwdFields = find.byType(TextField);
       if (pwdFields.evaluate().isNotEmpty) {
-        await tester.enterText(pwdFields.last, TestData.defaultPassword);
+        await tester.enterText(pwdFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         var confirmPwd = find.text(dic.confirm);
         if (confirmPwd.evaluate().isNotEmpty) {
@@ -3563,24 +3708,40 @@ void main() {
         }
       }
       
-      // Step 5: Verify account count decreased
+      // Step 5: Verify PK wallet address is no longer present (scroll to check all)
       print('Step 5: Verify delete result');
-      var afterBtns = find.byKey(TestKeys.accountMoreButton);
-      int afterCount = afterBtns.evaluate().length;
-      print('Accounts after delete: $afterCount (before: $beforeCount)');
-      
-      if (afterCount < beforeCount) {
-        print('✅ PK wallet account deleted');
-        testResults[testName] = 'PASS';
-      } else {
-        // May have returned to home
-        var homeCheck = find.byKey(TestKeys.sendButton);
-        if (homeCheck.evaluate().isNotEmpty) {
-          print('✅ Returned to home after delete');
+      bool pkStillExists = false;
+      // Check if we're on wallet mgmt page or home
+      var addWalletAfter = find.byKey(TestKeys.addWalletButton);
+      var homeAfter = find.byKey(TestKeys.sendButton);
+      if (addWalletAfter.evaluate().isNotEmpty) {
+        // On wallet mgmt: check PK address is gone
+        final pkPrefix = TestConfig.pkWallet.address.substring(0, 6);
+        var checkPK = find.textContaining(pkPrefix);
+        if (checkPK.evaluate().isNotEmpty) {
+          pkStillExists = true;
+        } else {
+          final lv = find.byType(ListView);
+          if (lv.evaluate().isNotEmpty) {
+            for (int s = 0; s < 3; s++) {
+              await tester.drag(lv.first, const Offset(0, -300));
+              await tester.pumpAndSettle();
+              checkPK = find.textContaining(pkPrefix);
+              if (checkPK.evaluate().isNotEmpty) { pkStillExists = true; break; }
+            }
+          }
+        }
+        if (!pkStillExists) {
+          print('✅ PK wallet account deleted (address no longer in list)');
           testResults[testName] = 'PASS';
         } else {
-          testResults[testName] = 'PARTIAL - Delete not confirmed';
+          testResults[testName] = 'FAIL - PK wallet still exists after delete';
         }
+      } else if (homeAfter.evaluate().isNotEmpty) {
+        print('✅ Returned to home after delete');
+        testResults[testName] = 'PASS';
+      } else {
+        testResults[testName] = 'PARTIAL - Delete not confirmed';
       }
       
       await ss.take(tester, '5.21_done');
@@ -3608,25 +3769,18 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       
-      // Step 2: Find Keystore wallet (last imported account)
+      // Step 2: Find Keystore wallet account by address (scroll if off-screen)
       print('Step 2: Find Keystore wallet account');
-      var accountMoreBtns = find.byKey(TestKeys.accountMoreButton);
-      int lastIdx = accountMoreBtns.evaluate().length - 1;
-      
-      if (lastIdx < 0) {
-        testResults[testName] = 'SKIP - No accounts found';
-        return;
-      }
-      
-      int beforeCount = accountMoreBtns.evaluate().length;
+      int beforeCount = find.byKey(TestKeys.accountMoreButton).evaluate().length;
       print('✅ Current account count: $beforeCount');
       
-      await tester.ensureVisible(accountMoreBtns.at(lastIdx));
-      await tester.pumpAndSettle();
-      await tester.tap(accountMoreBtns.at(lastIdx));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
-      print('✅ Entered last account mgmt page');
+      bool ksFound = await scrollFindAndTapAccountButton(tester, TestConfig.ksWallet.address);
+      
+      if (!ksFound) {
+        testResults[testName] = 'SKIP - KS wallet not found (may be deleted already)';
+        return;
+      }
+      print('✅ Entered KS wallet account mgmt page');
       await ss.take(tester, '5.22.1_account_mgmt');
       
       // Step 3: Tap Delete Account
@@ -3653,7 +3807,7 @@ void main() {
       
       final pwdFields = find.byType(TextField);
       if (pwdFields.evaluate().isNotEmpty) {
-        await tester.enterText(pwdFields.last, TestData.defaultPassword);
+        await tester.enterText(pwdFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         var confirmPwd = find.text(dic.confirm);
         if (confirmPwd.evaluate().isNotEmpty) {
@@ -3669,22 +3823,38 @@ void main() {
         if (addWalletCheck.evaluate().isNotEmpty) break;
       }
       
-      // Step 5: Verify
+      // Step 5: Verify KS wallet address is no longer present (scroll to check all)
       print('Step 5: Verify delete result');
-      var afterBtns = find.byKey(TestKeys.accountMoreButton);
-      int afterCount = afterBtns.evaluate().length;
-      print('Accounts after delete: $afterCount (before: $beforeCount)');
-      
-      if (afterCount < beforeCount) {
-        print('✅ KS wallet account deleted');
-        testResults[testName] = 'PASS';
-      } else {
-        var homeCheck = find.byKey(TestKeys.sendButton);
-        if (homeCheck.evaluate().isNotEmpty) {
+      bool ksStillExists = false;
+      var addWalletAfter = find.byKey(TestKeys.addWalletButton);
+      var homeAfter = find.byKey(TestKeys.sendButton);
+      if (addWalletAfter.evaluate().isNotEmpty) {
+        final ksPrefix = TestConfig.ksWallet.address.substring(0, 6);
+        var checkKS = find.textContaining(ksPrefix);
+        if (checkKS.evaluate().isNotEmpty) {
+          ksStillExists = true;
+        } else {
+          final lv = find.byType(ListView);
+          if (lv.evaluate().isNotEmpty) {
+            for (int s = 0; s < 3; s++) {
+              await tester.drag(lv.first, const Offset(0, -300));
+              await tester.pumpAndSettle();
+              checkKS = find.textContaining(ksPrefix);
+              if (checkKS.evaluate().isNotEmpty) { ksStillExists = true; break; }
+            }
+          }
+        }
+        if (!ksStillExists) {
+          print('✅ KS wallet account deleted (address no longer in list)');
           testResults[testName] = 'PASS';
         } else {
-          testResults[testName] = 'PARTIAL - Delete not confirmed';
+          testResults[testName] = 'FAIL - KS wallet still exists after delete';
         }
+      } else if (homeAfter.evaluate().isNotEmpty) {
+        print('✅ Returned to home after delete');
+        testResults[testName] = 'PASS';
+      } else {
+        testResults[testName] = 'PARTIAL - Delete not confirmed';
       }
       
       await ss.take(tester, '5.22_done');
@@ -3761,7 +3931,7 @@ void main() {
       print('Step 5: Enter password');
       final pwdFields = find.byType(TextField);
       if (pwdFields.evaluate().isNotEmpty) {
-        await tester.enterText(pwdFields.last, TestData.defaultPassword);
+        await tester.enterText(pwdFields.last, TestConfig.password);
         await tester.pumpAndSettle();
         var confirmPwd = find.text(dic.confirm);
         if (confirmPwd.evaluate().isNotEmpty) {

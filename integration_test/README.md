@@ -13,6 +13,8 @@ integration_test/
 ├── flow3_privatekey_test.dart   # Import wallet via private key
 ├── flow4_keystore_test.dart     # Import wallet via Keystore
 ├── flow5_multiwallet_test.dart  # Multi-wallet management (requires existing wallet)
+├── flow6_setup_wallets_test.dart # Quick setup: import all wallets from TestConfig
+├── test_config.dart              # Centralized test data (mnemonics, keys, addresses)
 ├── run_tests.sh                 # Test runner script
 ├── test_utils.dart              # Shared utilities (screenshots, i18n, helpers)
 ├── test-issue.md                # Issue tracking & test checklist
@@ -40,7 +42,16 @@ flutter devices
 # 4. Run multi-wallet tests (requires existing wallet on device)
 ./integration_test/run_tests.sh <device_id> 5
 
-# 5. Run a single test directly via flutter drive
+# 5. Quick setup: import all wallets (HD1, HD2, PK, KS + sub-accounts)
+#    Wallets are kept after test (--keep-app-running)
+./integration_test/run_tests.sh <device_id> 6
+
+# Or run flow6 directly (add --keep-app-running to prevent app uninstall):
+# flutter drive --driver=test_driver/integration_test.dart \
+#   --target=integration_test/flow6_setup_wallets_test.dart \
+#   --keep-app-running -d <device_id>
+
+# 6. Run a single test directly via flutter drive
 flutter drive \
   --driver=test_driver/integration_test.dart \
   --target=integration_test/flow2_mnemonic_test.dart \
@@ -56,9 +67,11 @@ flutter drive \
 | 3 | `flow3_privatekey_test.dart` | Import via private key, reach home page | Clean install |
 | 4 | `flow4_keystore_test.dart` | Import via Keystore, reach home page | Clean install |
 | 5 | `flow5_multiwallet_test.dart` | Multi-wallet management (add, switch, rename, etc.) | Existing wallet on device |
+| 6 | `flow6_setup_wallets_test.dart` | Quick setup: import all wallets + add sub-accounts | Clean install or existing wallet |
 
 - **Flow 1-4** uninstall the app before running to ensure a clean state
 - **Flow 5** preserves existing data since it requires an existing wallet
+- **Flow 6** is a standalone setup flow that imports all test wallets (idempotent — skips wallets that already exist) and does **not** delete them afterwards, so subsequent `flutter run` sessions keep the wallet state
 
 ## run_tests.sh Usage
 
@@ -113,23 +126,28 @@ flutter drive \
 
 ## Test Data
 
-Test data is embedded directly in each flow file via `TestData` classes. Standard test values:
+Test data is centralized in `test_config.dart` via the `TestConfig` class. All flow files import from this single source. Standard test values:
 
 | Item | Value |
 |------|-------|
 | **Password** | `Test1234!` |
 | **Mnemonic** | `century love gravity defense upset peasant reform tenant access illegal double magic` |
 | **Private Key** | `EKEL888U1yKv1xveoxiBPYZcCQMQsaRNYc6ftKMKiFrXUmpuvjsW` |
-| **Keystore** | See `flow4_keystore_test.dart` |
+| **Keystore** | See `test_config.dart` |
 | **Keystore Password** | `123456` |
 
-### Expected Addresses
+### All Wallets & Accounts (TestConfig)
 
-| Import Method | Expected Address |
-|---------------|-----------------|
-| Mnemonic | `B62qoV35KayJT6D3MseTa8fEBNe4gEJLHGtfoFNhhQbv8JRxrKXntXj` |
-| Private Key | `B62qo1CwWp18WhM5toS9D76WL7NxXNxKx2biESNk68AGrqKjRaFf8ks` |
-| Keystore | `B62qkhhWkJdZx9MAZHd67VqBAX7FVbzSizqsFYqMKvQu4kPNyFxxCmB` |
+| Wallet | Account | Address |
+|--------|---------|--------|
+| HD Wallet 1 (mnemonic 1) | Account 1 | `B62qoV35KayJT6D3MseTa8fEBNe4gEJLHGtfoFNhhQbv8JRxrKXntXj` |
+| HD Wallet 1 (mnemonic 1) | Account 2 | `B62qkfKzmRJH9N7LEeMHYNgA3uAiD53rJqJvhNzrXr7UM78okmZjAc7` |
+| HD Wallet 2 (mnemonic 2) | Account 1 | `B62qqLzqPFKoyu4d1bwf33H4fo5XjySjpZC1WZYqjTxX5o5Rga3Ujx1` |
+| HD Wallet 2 (mnemonic 2) | Account 2 | `B62qjXFMeiyHfz5XrACFpc1zbu2SLKho8NVwudqr2eSnAhN2kr4pXoS` |
+| Private Key Wallet | — | `B62qo1CwWp18WhM5toS9D76WL7NxXNxKx2biESNk68AGrqKjRaFf8ks` |
+| Keystore Wallet | — | `B62qkSLnPzXsjRGn9V7rJqMCycQSaWcxqMrCgGv9Ff1tZ2mumnp1EJq` |
+
+All private keys and mnemonics are defined in `test_config.dart`. Run `TestConfig.validate()` to check for missing values.
 
 ## TestKeys
 

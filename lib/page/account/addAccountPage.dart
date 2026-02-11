@@ -157,7 +157,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
 
   /// Create account directly with default name (skip name input)
   Future<void> _createAccountDirectly(WalletData wallet) async {
-    final accountName = 'Account ${store.wallet!.getNextWalletAccountIndex(wallet) + 1}';
+    final accountName = WalletStore.defaultAccountName(store.wallet!.getNextWalletAccountIndex(wallet) + 1);
     final success = await _onSubmitAccountName(accountName);
     if (success) {
       Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);

@@ -68,7 +68,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
     if (password == null) return;
     
     // Create account with next HD index
-    final accountName = 'Account ${store.wallet!.getNextWalletAccountIndex(wallet) + 1}';
+    final accountName = WalletStore.defaultAccountName(store.wallet!.getNextWalletAccountIndex(wallet) + 1);
     final accountData = await webApi.account.createAccountByAccountIndex(wallet, accountName, password);
     
     if (accountData?['error'] != null) {

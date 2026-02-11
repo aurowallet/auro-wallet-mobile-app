@@ -8,17 +8,12 @@ import 'package:auro_wallet/main.dart' as app;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'test_config.dart';
 import 'test_utils.dart';
-
-class TestData {
-  static const String defaultPassword = 'Test1234!';
-  static const String testKeystore = '{"box_primitive":"xsalsa20poly1305","pw_primitive":"argon2i","nonce":"49n6CriT6oYGcF9xp9MuVCFBJEU1wZ8YxMX3oqs","pwsalt":"65UZjZyPKdsNHnH2vdvSyeppXocg","pwdiff":[134217728,6],"ciphertext":"7395cfBPRrLWgQDiu9dfLLRuEuCh1WkS8vNw4oUXrutEnyAsAcPNE5iiXtu1YXS3YzvkTZq1s"}';
-  static const String keystorePassword = '123456';
-  static const String expectedAddress = 'B62qkSLnPzXsjRGn9V7rJqMCycQSaWcxqMrCgGv9Ff1tZ2mumnp1EJq';
-}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  suppressBackgroundNetworkErrors();
 
   testWidgets('Flow 4: Import wallet via Keystore - to home', (WidgetTester tester) async {
     const flowName = 'Flow4-KeystoreImport';
@@ -102,13 +97,13 @@ void main() {
       print('❌ Password input not found');
       return;
     }
-    await tester.enterText(passwordInput, TestData.defaultPassword);
+    await tester.enterText(passwordInput, TestConfig.password);
     await tester.pumpAndSettle();
     print('✅ Password entered');
     
     final confirmInput = find.byKey(TestKeys.confirmPasswordInput);
     if (confirmInput.evaluate().isNotEmpty) {
-      await tester.enterText(confirmInput, TestData.defaultPassword);
+      await tester.enterText(confirmInput, TestConfig.password);
       await tester.pumpAndSettle();
       print('✅ Password confirmed');
     }
@@ -128,7 +123,7 @@ void main() {
     await ss.take(tester, '4.4_password_done');
     
     if (keystoreInput.evaluate().isNotEmpty) {
-      await tester.enterText(keystoreInput, TestData.testKeystore);
+      await tester.enterText(keystoreInput, TestConfig.ksWallet.keystoreJson);
       await tester.pumpAndSettle();
       print('✅ Keystore content entered');
     } else {
@@ -140,7 +135,7 @@ void main() {
     print('Step 6: Enter Keystore password');
     final keystorePasswordInput = find.byKey(TestKeys.keystorePasswordInput);
     if (keystorePasswordInput.evaluate().isNotEmpty) {
-      await tester.enterText(keystorePasswordInput, TestData.keystorePassword);
+      await tester.enterText(keystorePasswordInput, TestConfig.ksWallet.keystorePassword);
       await tester.pumpAndSettle();
       print('✅ Keystore password entered');
     } else {

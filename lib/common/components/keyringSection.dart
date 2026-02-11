@@ -144,7 +144,7 @@ class KeyringSection extends StatelessWidget {
                         Text(
                           account.name.isNotEmpty 
                               ? account.name 
-                              : 'Account ${(account.hdIndex ?? 0) + 1}',
+                              : WalletStore.defaultAccountName((account.hdIndex ?? 0) + 1),
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 16,

@@ -5,6 +5,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 
 class Fmt {
@@ -225,7 +226,7 @@ class Fmt {
   }
 
   static String accountName(AccountData acc) {
-    return '${acc.name.isNotEmpty ? acc.name : 'Account ${acc.accountIndex + 1}'}';
+    return '${acc.name.isNotEmpty ? acc.name : WalletStore.defaultAccountName(acc.accountIndex + 1)}';
   }
 
   static String validatorName(BuildContext ctx, String? name) {

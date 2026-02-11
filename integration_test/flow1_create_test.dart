@@ -5,17 +5,16 @@
 
 import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/main.dart' as app;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'test_config.dart';
 import 'test_utils.dart';
-
-class TestData {
-  static const String defaultPassword = 'Test1234!';
-}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  suppressBackgroundNetworkErrors();
 
   testWidgets('Flow 1: Create wallet - to mnemonic verify page', (WidgetTester tester) async {
     const flowName = 'Flow1-CreateWallet';
@@ -86,13 +85,13 @@ void main() {
       print('❌ Password input not found');
       return;
     }
-    await tester.enterText(passwordInput, TestData.defaultPassword);
+    await tester.enterText(passwordInput, TestConfig.password);
     await tester.pumpAndSettle();
     print('✅ Password entered');
     
     final confirmInput = find.byKey(TestKeys.confirmPasswordInput);
     if (confirmInput.evaluate().isNotEmpty) {
-      await tester.enterText(confirmInput, TestData.defaultPassword);
+      await tester.enterText(confirmInput, TestConfig.password);
       await tester.pumpAndSettle();
       print('✅ Password confirmed');
     }
@@ -141,6 +140,32 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     
     await ss.take(tester, '1.5_mnemonic_display');
+    
+    // Validate mnemonic word count (expect 12 words displayed as "N. word")
+    final allTexts = find.textContaining(RegExp(r'^\d+\. \S+'));
+    int wordCount = 0;
+    List<String> capturedWords = [];
+    for (var element in allTexts.evaluate()) {
+      final widget = element.widget;
+      if (widget is Text && widget.data != null) {
+        final match = RegExp(r'^(\d+)\. (\S+)$').firstMatch(widget.data!);
+        if (match != null) {
+          wordCount++;
+          capturedWords.add(match.group(2)!);
+        }
+      }
+    }
+    print('🔍 Mnemonic word count: $wordCount');
+    if (wordCount > 0) {
+      print('🔍 Mnemonic words: ${capturedWords.join(' ')}');
+    }
+    if (wordCount != 12) {
+      print('❌ ERROR: Expected 12 mnemonic words, got $wordCount');
+      testResult = 'FAIL - Mnemonic word count is $wordCount (expected 12)';
+      await endTestDelay(tester);
+      return;
+    }
+    print('✅ Mnemonic has exactly 12 words');
     
     final mnemonicSavedButton = find.byKey(TestKeys.mnemonicSavedButton);
     if (mnemonicSavedButton.evaluate().isNotEmpty) {

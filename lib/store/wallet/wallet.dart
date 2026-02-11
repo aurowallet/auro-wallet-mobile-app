@@ -30,6 +30,9 @@ class WalletStore extends _WalletStore with _$WalletStore {
   // Keyring group name constants
   static const String keyringGroupImported = 'Imported';
   static const String keyringGroupLedger = 'Ledger';
+
+  /// Default account name for HD wallets: "Account 1", "Account 2", etc.
+  static String defaultAccountName(int index) => 'Account $index';
 }
 
 abstract class _WalletStore with Store {
@@ -304,7 +307,7 @@ abstract class _WalletStore with Store {
 
     var accountData = new AccountData()
       ..pubKey = pubKey
-      ..name = name ?? ""
+      ..name = seedType == WalletStore.seedTypeMnemonic ? WalletStore.defaultAccountName(1) : (name ?? "")
       ..walletId = pubKey
       ..createTime = DateTime.now().millisecondsSinceEpoch
       ..accountIndex = hdIndex;
@@ -791,7 +794,7 @@ abstract class _WalletStore with Store {
         'mnemonic': mnemonic,
         'nextIndex': nextIndex,
         'accountName': accountName.isEmpty
-            ? 'Account ${wallet.accounts.length + 1}'
+            ? WalletStore.defaultAccountName(wallet.accounts.length + 1)
             : accountName,
       };
     } catch (e) {

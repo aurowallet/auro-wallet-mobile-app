@@ -11,6 +11,28 @@ import 'package:auro_wallet/l10n/app_localizations_en.dart';
 /// i18n dictionary instance (English)
 final dic = AppLocalizationsEn();
 
+/// Suppress background network exceptions (SocketException, ClientException, etc.)
+/// that occur after tests complete. These come from app background API calls
+/// (e.g. price fetching) and should not cause test failures.
+/// Call this right after IntegrationTestWidgetsFlutterBinding.ensureInitialized().
+void suppressBackgroundNetworkErrors() {
+  final originalOnError = FlutterError.onError;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    final exStr = details.exception.toString();
+    if (exStr.contains('SocketException') ||
+        exStr.contains('ClientException') ||
+        exStr.contains('HandshakeException') ||
+        exStr.contains('Connection reset by peer') ||
+        exStr.contains('Connection terminated')) {
+      debugPrint('⚠️ Suppressed background network error: ${details.exception}');
+      return;
+    }
+    if (originalOnError != null) {
+      originalOnError(details);
+    }
+  };
+}
+
 /// Strip zero-width spaces inserted by Fmt.breakWord
 String stripBreakWord(String text) => text.replaceAll('\u200B', '');
 
