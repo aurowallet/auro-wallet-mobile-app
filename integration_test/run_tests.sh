@@ -96,7 +96,6 @@ Test flows:
   3  Private key import  (flow3_privatekey_test.dart)
   4  Keystore import     (flow4_keystore_test.dart)
   5  Multi-wallet        (flow5_multiwallet_test.dart) — keeps existing wallet
-  6  Quick wallet setup   (flow6_setup_wallets_test.dart) — import all, no uninstall
 
 Config file (.test_config in project root):
   DEVICE_ID=<id>           Persist device ID
@@ -161,7 +160,6 @@ get_test_file() {
         3) echo "flow3_privatekey_test.dart" ;;
         4) echo "flow4_keystore_test.dart" ;;
         5) echo "flow5_multiwallet_test.dart" ;;
-        6) echo "flow6_setup_wallets_test.dart" ;;
         *) echo "" ;;
     esac
 }
@@ -173,7 +171,6 @@ get_test_name() {
         3) echo "Import Wallet (Private Key)" ;;
         4) echo "Import Wallet (Keystore)" ;;
         5) echo "Multi-Wallet Tests" ;;
-        6) echo "Quick Wallet Setup" ;;
         *) echo "Unknown test" ;;
     esac
 }
@@ -246,7 +243,6 @@ show_menu() {
     echo -e "    ${BOLD}3${NC}  Import (Private Key)   ${DIM}(flow3 — uninstall first)${NC}"
     echo -e "    ${BOLD}4${NC}  Import (Keystore)      ${DIM}(flow4 — uninstall first)${NC}"
     echo -e "    ${BOLD}5${NC}  Multi-Wallet Tests     ${DIM}(flow5 — keep wallet)${NC}"
-    echo -e "    ${BOLD}6${NC}  Quick Wallet Setup     ${DIM}(flow6 — import all, no uninstall)${NC}"
     echo ""
     echo -e "    ${BOLD}a${NC}  All (1-5)              ${DIM}default${NC}"
     echo ""
@@ -322,7 +318,7 @@ run_test() {
     echo -e "  ${BOLD}[$test_num] $test_name${NC}  ${DIM}($test_file)${NC}"
     echo -e "  ${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-    if [ "$test_num" = "5" ] || [ "$test_num" = "6" ]; then
+    if [ "$test_num" = "5" ]; then
         echo -e "  ${YELLOW}Keeping app data — flow $test_num preserves existing wallet${NC}"
     else
         uninstall_app
@@ -337,11 +333,7 @@ run_test() {
     local log_file="$LOG_DIR/flow${test_num}.log"
     : > "$log_file"
 
-    # For flow6 (quick wallet setup), add --keep-app-running to prevent uninstall
     local extra_flags="$FLUTTER_EXTRA"
-    if [ "$test_num" = "6" ]; then
-        extra_flags="$extra_flags --keep-app-running"
-    fi
 
     # Run flutter drive in background, write output to log file
     flutter drive \

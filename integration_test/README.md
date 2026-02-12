@@ -13,7 +13,6 @@ integration_test/
 ├── flow3_privatekey_test.dart   # Import wallet via private key
 ├── flow4_keystore_test.dart     # Import wallet via Keystore
 ├── flow5_multiwallet_test.dart  # Multi-wallet management (requires existing wallet)
-├── flow6_setup_wallets_test.dart # Quick setup: import all wallets from TestConfig
 ├── test_config.dart              # Centralized test data (mnemonics, keys, addresses)
 ├── run_tests.sh                 # Test runner script
 ├── test_utils.dart              # Shared utilities (screenshots, i18n, helpers)
@@ -42,16 +41,7 @@ flutter devices
 # 4. Run multi-wallet tests (requires existing wallet on device)
 ./integration_test/run_tests.sh <device_id> 5
 
-# 5. Quick setup: import all wallets (HD1, HD2, PK, KS + sub-accounts)
-#    Wallets are kept after test (--keep-app-running)
-./integration_test/run_tests.sh <device_id> 6
-
-# Or run flow6 directly (add --keep-app-running to prevent app uninstall):
-# flutter drive --driver=test_driver/integration_test.dart \
-#   --target=integration_test/flow6_setup_wallets_test.dart \
-#   --keep-app-running -d <device_id>
-
-# 6. Run a single test directly via flutter drive
+# 5. Run a single test directly via flutter drive
 flutter drive \
   --driver=test_driver/integration_test.dart \
   --target=integration_test/flow2_mnemonic_test.dart \
@@ -67,11 +57,9 @@ flutter drive \
 | 3 | `flow3_privatekey_test.dart` | Import via private key, reach home page | Clean install |
 | 4 | `flow4_keystore_test.dart` | Import via Keystore, reach home page | Clean install |
 | 5 | `flow5_multiwallet_test.dart` | Multi-wallet management (add, switch, rename, etc.) | Existing wallet on device |
-| 6 | `flow6_setup_wallets_test.dart` | Quick setup: import all wallets + add sub-accounts | Clean install or existing wallet |
 
 - **Flow 1-4** uninstall the app before running to ensure a clean state
 - **Flow 5** preserves existing data since it requires an existing wallet
-- **Flow 6** is a standalone setup flow that imports all test wallets (idempotent — skips wallets that already exist) and does **not** delete them afterwards, so subsequent `flutter run` sessions keep the wallet state
 
 ## run_tests.sh Usage
 
