@@ -1,5 +1,9 @@
 import 'dart:math';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/staking/validatorsPage.dart';
+import 'package:auro_wallet/page/staking/components/validatorItem.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
+import 'package:collection/collection.dart';
 import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +24,18 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
+import 'package:auro_wallet/common/consts/index.dart' as consts;
 
 class DelegateParams {
-  DelegateParams({this.manualAddValidator = false, this.validatorData});
+  DelegateParams({
+    this.manualAddValidator = false,
+    this.validatorData,
+    this.isRedelegate = false,
+  });
 
   bool manualAddValidator;
   ValidatorData? validatorData;
+  bool isRedelegate;
 }
 
 class DelegatePage extends StatefulWidget {
@@ -50,16 +60,16 @@ class _DelegatePageState extends State<DelegatePage>
   final TextEditingController _memoCtrl = new TextEditingController();
   final TextEditingController _validatorCtrl = new TextEditingController();
   late ReactionDisposer _monitorFeeDisposer;
-  bool _submitDisabled = false;
+  bool _submitDisabled = true;
   bool submitting = false;
   var _loading = Observable(true);
   bool inputDirty = false;
   double? currentFee;
+  double? defaultFee;
 
   @override
   void initState() {
     super.initState();
-    _onFeeLoaded(store.assets!.transferFees);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DelegateParams params =
           ModalRoute.of(context)!.settings.arguments as DelegateParams;
@@ -68,31 +78,35 @@ class _DelegatePageState extends State<DelegatePage>
       _feeCtrl.addListener(_onFeeInputChange);
       if (params.manualAddValidator) {
         _validatorCtrl.addListener(_monitorSummitStatus);
-        setState(() {
-          _submitDisabled = true;
-        });
       }
+      _updateSubmitState();
       _loadData();
     });
   }
 
   @override
   void dispose() {
-    super.dispose();
     _memoCtrl.dispose();
     _nonceCtrl.dispose();
     _feeCtrl.dispose();
     _validatorCtrl.dispose();
     _monitorFeeDisposer();
+    super.dispose();
   }
 
   void _onFeeInputChange() {
     setState(() {
-      inputDirty = true;
       if (_feeCtrl.text.isNotEmpty) {
-        currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        inputDirty = true;
+        try {
+          currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        } catch (e) {
+          currentFee = defaultFee ?? store.assets!.transferFees.medium;
+        }
       } else {
-        currentFee = null;
+        // When fee is cleared, restore to default fee
+        inputDirty = false;
+        currentFee = defaultFee ?? store.assets!.transferFees.medium;
       }
     });
   }
@@ -111,16 +125,51 @@ class _DelegatePageState extends State<DelegatePage>
     }
   }
 
+  void _updateSubmitState() {
+    DelegateParams params =
+        ModalRoute.of(context)!.settings.arguments as DelegateParams;
+    
+    bool shouldDisable = false;
+    if (params.manualAddValidator) {
+      shouldDisable = _validatorCtrl.text.isEmpty;
+    } else {
+      bool hasValidator = params.validatorData != null;
+      if (!hasValidator && store.settings!.isMainnet) {
+        hasValidator = store.staking!.validatorsInfo.isNotEmpty;
+      }
+      shouldDisable = !hasValidator;
+    }
+    
+    if (_submitDisabled != shouldDisable) {
+      setState(() {
+        _submitDisabled = shouldDisable;
+      });
+    }
+  }
+
   void _onFeeLoaded(Fees fees) {
-    if (inputDirty) {
-      return;
-    }
     print('_onFeeLoaded');
-    if (currentFee == null) {
-      currentFee = fees.medium;
-      _feeCtrl.text = currentFee.toString();
-      print('set fee ctr');
+    if (fees.medium > 0) {
+      defaultFee = fees.medium;
     }
+    if (!inputDirty && currentFee == null) {
+      setState(() {
+        currentFee = fees.medium;
+      });
+    }
+  }
+
+  double _getEffectiveFee() {
+    if (_feeCtrl.text.isNotEmpty) {
+      try {
+        return double.parse(Fmt.parseNumber(_feeCtrl.text));
+      } catch (e) {
+      }
+    }
+    if (currentFee != null) {
+      return currentFee!;
+    }
+    return consts.defaultTxFees.medium;
   }
 
   Future<void> _loadData() async {
@@ -139,10 +188,25 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   void _onChooseFee(double fee) {
-    _feeCtrl.text = fee.toString();
+    if (_feeCtrl.text.isNotEmpty) {
+      _feeCtrl.clear();
+    }
     setState(() {
+      inputDirty = false;
       currentFee = fee;
     });
+  }
+
+  String _floorToDecimals(double value, int decimals) {
+    double multiplier = pow(10, decimals).toDouble();
+    return ((value * multiplier).floor() / multiplier).toStringAsFixed(decimals);
+  }
+
+  int? _parseNonce(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   String? _validateBalance() {
@@ -154,9 +218,7 @@ class _DelegatePageState extends State<DelegatePage>
     BigInt available =
         BigInt.from(pow(10, COIN.decimals) * availableBalanceStr);
     final int decimals = COIN.decimals;
-    double fee = _feeCtrl.text.isNotEmpty
-        ? double.parse(Fmt.parseNumber(_feeCtrl.text))
-        : currentFee!;
+    double fee = _getEffectiveFee();
     if (available / BigInt.from(pow(10, decimals)) - fee <= 0) {
       return dic.balanceNotEnough;
     }
@@ -225,8 +287,6 @@ class _DelegatePageState extends State<DelegatePage>
     }
     if (await _validate()) {
       AppLocalizations dic = AppLocalizations.of(context)!;
-      String symbol = COIN.coinSymbol;
-      int decimals = COIN.decimals;
       String memo = _memoCtrl.text.trim();
       double fee;
       bool shouldShowNonce = false;
@@ -239,15 +299,23 @@ class _DelegatePageState extends State<DelegatePage>
             store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ??
                 "0");
       }
-      fee = _feeCtrl.text.isNotEmpty
-          ? double.parse(Fmt.parseNumber(_feeCtrl.text))
-          : currentFee!;
+      fee = _getEffectiveFee();
       DelegateParams params =
           ModalRoute.of(context)!.settings.arguments as DelegateParams;
       ValidatorData? validatorData = params.validatorData;
+      ValidatorData? effectiveValidator = validatorData;
+      if (!params.manualAddValidator && effectiveValidator == null) {
+        if (store.staking!.validatorsInfo.isNotEmpty) {
+          effectiveValidator = store.staking!.validatorsInfo.first;
+        }
+      }
+      if (!params.manualAddValidator && effectiveValidator == null) {
+        UI.toast(dic.inputNodeAddress);
+        return;
+      }
       String validatorAddress = params.manualAddValidator
           ? _validatorCtrl.text.trim()
-          : validatorData!.address;
+          : effectiveValidator!.address;
       List<TxItem> txItems = [];
       // if (!params.manualAddValidator) {
       //   txItems.add(TxItem(label: dic.producerName, value: validatorData!.name ?? Fmt.address(validatorAddress, pad: 8)));
@@ -281,7 +349,7 @@ class _DelegatePageState extends State<DelegatePage>
         validateName = Fmt.address(validatorAddress, pad: 10);
       } else {
         validateName =
-            validatorData!.name ?? Fmt.address(validatorAddress, pad: 10);
+            effectiveValidator!.name ?? Fmt.address(validatorAddress, pad: 10);
       }
       bool exited = false;
       await UI.showTxConfirm(
@@ -289,7 +357,7 @@ class _DelegatePageState extends State<DelegatePage>
           title: dic.sendDetail,
           items: txItems,
           isLedger: isLedger,
-          headLabel: dic.producerName,
+          headLabel: dic.nodeProviders,
           headValue: Text(
             validateName,
             style: TextStyle(
@@ -349,29 +417,14 @@ class _DelegatePageState extends State<DelegatePage>
               return false;
             }
             if (mounted) {
-              // if (data != null) {
-              //   await Navigator.pushReplacementNamed(context, TransactionDetailPage.route, arguments: data);
-              // } else {
-              //   Navigator.popUntil(context, ModalRoute.withName('/'));
-              // }
-              // Navigator.popAndPushNamed(context, ModalRoute.withName('/'));
-              bool isRouteInStack = false;
-              Navigator.popUntil(context, (route) {
-                if (route.settings.name == TokenDetailPage.route) {
-                  isRouteInStack = true;
-                  return true;
-                }
-                return false;
-              });
-              if (isRouteInStack) {
-                Navigator.popUntil(
-                    context, ModalRoute.withName(TokenDetailPage.route));
-              } else {
-                await Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/', (Route<dynamic> route) => false);
-              }
               widget.store.triggerBalanceRefresh();
               globalTokenRefreshKey.currentState?.show();
+              await widget.store.assets!.setNextToken(widget.store.assets!.mainTokenNetInfo);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                TokenDetailPage.route,
+                ModalRoute.withName('/'),
+              );
               return true;
             }
             return false;
@@ -390,13 +443,18 @@ class _DelegatePageState extends State<DelegatePage>
         DelegateParams params =
             ModalRoute.of(context)!.settings.arguments as DelegateParams;
         ValidatorData? validatorData = params.validatorData;
+        bool isRedelegate = params.isRedelegate;
+
+        Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+        String? currentValidatorAddress = mainTokenNetInfo
+            .tokenAssestInfo?.delegateAccount?.publicKey;
 
         double realBottom = MediaQuery.of(context).viewInsets.bottom;
         double nextBottom = realBottom > 0 ? realBottom - 102 : realBottom;
         nextBottom = nextBottom.isNegative ? 0 : nextBottom;
         return Scaffold(
           appBar: AppBar(
-            title: Text(dic.staking),
+            title: Text(isRedelegate ? dic.redelegate : dic.stake),
             shadowColor: Colors.transparent,
             centerTitle: true,
           ),
@@ -406,62 +464,118 @@ class _DelegatePageState extends State<DelegatePage>
             maintainBottomViewPadding: true,
             child: Builder(
               builder: (BuildContext context) {
+                // Manual input mode - show old staking page layout with InputItem components
+                if (params.manualAddValidator) {
+                  return Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: ListView(
+                          padding: EdgeInsets.fromLTRB(20, 28, 20, 0),
+                          children: <Widget>[
+                            Container(
+                              child: Column(
+                                children: [
+                                  InputItem(
+                                    padding: const EdgeInsets.only(top: 0),
+                                    label: dic.nodeProviders,
+                                    controller: _validatorCtrl,
+                                    placeholder: '',
+                                  ),
+                                  InputItem(
+                                    label: dic.memo,
+                                    initialValue: '',
+                                    controller: _memoCtrl,
+                                    placeholder: '',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            FeeSelector(
+                              fees: fees,
+                              value: currentFee,
+                              onChoose: _onChooseFee,
+                            ),
+                            Container(
+                              height: 0.5,
+                              margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Color(0x1A000000),
+                              ),
+                            ),
+                            AdvancedTransferOptions(
+                              feeCtrl: _feeCtrl,
+                              nonceCtrl: _nonceCtrl,
+                              noncePlaceHolder: _parseNonce(store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce),
+                              feePlaceHolder: currentFee,
+                              cap: fees.cap,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
+                        child: NormalButton(
+                          color: ColorsUtil.hexColor(0x6D5FFE),
+                          text: dic.next,
+                          disabled: _submitDisabled,
+                          onPressed: _handleSubmit,
+                        ),
+                      )
+                    ],
+                  );
+                }
+                
                 return Column(
                   children: <Widget>[
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      color: Color(0x1A00D395),
+                      child: Text(
+                        dic.stakeInfoBanner,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF00D395),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
                     Expanded(
                       child: ListView(
-                        padding: EdgeInsets.fromLTRB(20, 28, 20, 0),
+                        padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                         children: <Widget>[
-                          Container(
-                            child: Column(
-                              children: [
-                                !params.manualAddValidator
-                                    ? ValidatorSelector(
-                                        validatorData: validatorData!)
-                                    : InputItem(
-                                        padding: const EdgeInsets.only(top: 0),
-                                        label: dic.stakingProviderName,
-                                        controller: _validatorCtrl,
-                                      ),
-                                InputItem(
-                                  label: dic.memo,
-                                  initialValue: '',
-                                  controller: _memoCtrl,
-                                ),
-                              ],
+                          if (isRedelegate) ...[
+                            Text(
+                              dic.fromValidator,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black.withValues(alpha: 0.6),
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            _buildCurrentValidatorCard(context, currentValidatorAddress),
+                            SizedBox(height: 20),
+                          ],
+                          Text(
+                            isRedelegate ? dic.toValidator : dic.stakingProviderName,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black.withValues(alpha: 0.6),
                             ),
                           ),
-                          FeeSelector(
-                            fees: fees,
-                            value: currentFee,
-                            onChoose: _onChooseFee,
-                          ),
-                          Container(
-                            height: 0.5,
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            decoration: BoxDecoration(color: Color(0x1A000000)),
-                          ),
-                          AdvancedTransferOptions(
-                            feeCtrl: _feeCtrl,
-                            nonceCtrl: _nonceCtrl,
-                            noncePlaceHolder: int.parse(store
-                                    .assets!
-                                    .mainTokenNetInfo
-                                    .tokenAssestInfo
-                                    ?.inferredNonce ??
-                                "0"),
-                            cap: fees.cap,
-                          )
+                          SizedBox(height: 8),
+                          _buildToValidatorCard(context, validatorData, params.manualAddValidator),
+                          if (!isRedelegate)
+                            _buildApyEstimates(context),
                         ],
                       ),
                     ),
-                    Padding(
-                        padding: EdgeInsets.only(
-                            top: 15, left: 15, right: 15, bottom: nextBottom)),
                     Container(
                       padding: EdgeInsets.only(
-                          left: 38, right: 38, top: 12, bottom: 30),
+                          left: 38, right: 38, top: 12, bottom: 30 + nextBottom),
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: dic.next,
@@ -476,6 +590,229 @@ class _DelegatePageState extends State<DelegatePage>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildCurrentValidatorCard(BuildContext context, String? validatorAddress) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    final ValidatorData? validator = validatorAddress != null
+        ? store.staking!.allValidators.firstWhereOrNull((v) => v.address == validatorAddress)
+        : null;
+    
+    String displayName = validator?.name ?? 
+        (validatorAddress != null ? Fmt.address(validatorAddress, pad: 8) : dic.currentValidator);
+    
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color(0xFFF9FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.05), width: 0.5),
+      ),
+      child: Row(
+        children: [
+          if (validator != null)
+            _buildValidatorLogo(validator)
+          else
+            _defaultLogoWithAddress(validatorAddress),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              displayName,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToValidatorCard(BuildContext context, ValidatorData? validatorData, bool manualAdd) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    bool isMainnet = store.settings!.isMainnet;
+    
+    if (manualAdd) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.1), width: 1),
+        ),
+        child: TextField(
+          controller: _validatorCtrl,
+          decoration: InputDecoration(
+            hintText: dic.inputNodeAddress,
+            hintStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.black.withValues(alpha: 0.3),
+            ),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+          ),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+      );
+    }
+    
+    ValidatorData? defaultValidator;
+    if (isMainnet && validatorData == null && store.staking!.validatorsInfo.isNotEmpty) {
+      defaultValidator = store.staking!.validatorsInfo.first;
+    }
+    
+    ValidatorData? displayValidator = validatorData ?? defaultValidator;
+    
+    return GestureDetector(
+      onTap: () {
+        DelegateParams params =
+            ModalRoute.of(context)!.settings.arguments as DelegateParams;
+        Navigator.pushReplacementNamed(
+          context, 
+          ValidatorsPage.route,
+          arguments: {
+            'isRedelegate': params.isRedelegate,
+            'selectedValidatorAddress': displayValidator?.address,
+          },
+        );
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Color(0xFFF9FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.05), width: 0.5),
+        ),
+        child: Row(
+          children: [
+            if (displayValidator != null) ...[
+              _buildValidatorLogo(displayValidator),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  displayValidator.name ?? Fmt.address(displayValidator.address, pad: 8),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ] else ...[
+              Expanded(
+                child: Text(
+                  dic.selectValidator,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ],
+            Icon(
+              Icons.chevron_right,
+              color: Colors.black.withValues(alpha: 0.3),
+              size: 30,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildValidatorLogo(ValidatorData validator) {
+    return ItemLogo(
+      name: validator.name,
+      logo: validator.logo,
+      radius: 20,
+      address: validator.address,
+    );
+  }
+
+  Widget _defaultLogoWithAddress(String? address) {
+    return ItemLogo(
+      name: null,
+      logo: '',
+      radius: 20,
+      address: address,
+    );
+  }
+
+  Widget _buildApyEstimates(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    bool isMainnet = store.settings!.isMainnet;
+    
+    double? apy = store.staking!.stakingAPY;
+    Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
+    double balance = mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0.0;
+    
+    String oneEpochEst = '--';
+    String threeMonthEst = '--';
+    String sixMonthEst = '--';
+    
+    if (isMainnet && apy != null && apy > 0 && balance > 0) {
+      double apyDecimal = apy / 100;
+      
+      double oneEpochValue = balance * apyDecimal * (DAYS_PER_EPOCH / DAYS_PER_YEAR);
+      double threeMonthValue = balance * apyDecimal * (DAYS_PER_THREE_MONTHS / DAYS_PER_YEAR);
+      double sixMonthValue = balance * apyDecimal * (DAYS_PER_SIX_MONTHS / DAYS_PER_YEAR);
+      
+      oneEpochEst = _floorToDecimals(oneEpochValue, 4);
+      threeMonthEst = _floorToDecimals(threeMonthValue, 4);
+      sixMonthEst = _floorToDecimals(sixMonthValue, 4);
+    }
+    
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Color(0xFFF9FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.05), width: 0.5),
+      ),
+      child: Column(
+        children: [
+          _buildEstimateRow(dic.epochEstimate, '$oneEpochEst ${COIN.coinSymbol}'),
+          SizedBox(height: 12),
+          _buildEstimateRow(dic.threeMonthsEstimate, '$threeMonthEst ${COIN.coinSymbol}'),
+          SizedBox(height: 12),
+          _buildEstimateRow(dic.sixMonthsEstimate, '$sixMonthEst ${COIN.coinSymbol}'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEstimateRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black.withValues(alpha: 0.5),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+      ],
     );
   }
 }

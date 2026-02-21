@@ -230,6 +230,15 @@ abstract class _AssetsStore with Store {
       accountsInfo.remove(pubKey);
     } else {
       accountsInfo[pubKey] = AccountInfo.fromJson(amt as Map<String, dynamic>);
+      
+      // Update delegation cache if this is for the current account
+      if (pubKey == rootStore.wallet?.currentAddress) {
+        String? delegate = amt['delegate'] as String?;
+        String networkID = rootStore.settings?.currentNode?.networkID ?? '';
+        // If delegate equals pubKey, it means not delegated (self-delegation)
+        String? delegationKey = (delegate != null && delegate != pubKey) ? delegate : '';
+        rootStore.staking?.setDelegationCache(delegationKey, pubKey, networkID);
+      }
     }
 
     if (!needCache) return;

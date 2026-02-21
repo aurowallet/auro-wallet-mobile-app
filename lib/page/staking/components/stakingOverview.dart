@@ -59,9 +59,7 @@ class StakingOverview extends StatelessWidget {
                     colorFilter:
                         const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                   ),
-                  Container(
-                    width: 8,
-                  ),
+                  Container(width: 8),
                   Text(
                     dic.epochInfo,
                     style: TextStyle(
@@ -152,7 +150,6 @@ class TimeInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
     return Container(
         padding: EdgeInsets.zero,
         child: Text(time,
@@ -168,7 +165,6 @@ class PercentageCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
     return Container(
         child: new CircularPercentIndicator(
       radius: 60.0,

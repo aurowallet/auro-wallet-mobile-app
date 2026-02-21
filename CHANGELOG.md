@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [2.2.2]
+### Enhancements
+- Update delegation UI
+
 ## [2.2.1]
 ### Enhancements
 - Upgrade mina-signer to 3.1.0
