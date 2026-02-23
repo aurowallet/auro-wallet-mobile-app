@@ -9,6 +9,14 @@ part of 'staking.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$StakingStore on _StakingStore, Store {
+  Computed<List<ValidatorData>>? _$allValidatorsComputed;
+
+  @override
+  List<ValidatorData> get allValidators => (_$allValidatorsComputed ??=
+          Computed<List<ValidatorData>>(() => super.allValidators,
+              name: '_StakingStore.allValidators'))
+      .value;
+
   late final _$validatorsInfoAtom =
       Atom(name: '_StakingStore.validatorsInfo', context: context);
 
@@ -25,6 +33,22 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
+  late final _$inactiveValidatorsInfoAtom =
+      Atom(name: '_StakingStore.inactiveValidatorsInfo', context: context);
+
+  @override
+  List<ValidatorData> get inactiveValidatorsInfo {
+    _$inactiveValidatorsInfoAtom.reportRead();
+    return super.inactiveValidatorsInfo;
+  }
+
+  @override
+  set inactiveValidatorsInfo(List<ValidatorData> value) {
+    _$inactiveValidatorsInfoAtom.reportWrite(value, super.inactiveValidatorsInfo, () {
+      super.inactiveValidatorsInfo = value;
+    });
+  }
+
   late final _$overviewDataAtom =
       Atom(name: '_StakingStore.overviewData', context: context);
 
@@ -38,6 +62,102 @@ mixin _$StakingStore on _StakingStore, Store {
   set overviewData(OverviewData value) {
     _$overviewDataAtom.reportWrite(value, super.overviewData, () {
       super.overviewData = value;
+    });
+  }
+
+  late final _$stakingAPYAtom =
+      Atom(name: '_StakingStore.stakingAPY', context: context);
+
+  @override
+  double? get stakingAPY {
+    _$stakingAPYAtom.reportRead();
+    return super.stakingAPY;
+  }
+
+  @override
+  set stakingAPY(double? value) {
+    _$stakingAPYAtom.reportWrite(value, super.stakingAPY, () {
+      super.stakingAPY = value;
+    });
+  }
+
+  late final _$lastLoadedDataKeyAtom =
+      Atom(name: '_StakingStore.lastLoadedDataKey', context: context);
+
+  @override
+  String? get lastLoadedDataKey {
+    _$lastLoadedDataKeyAtom.reportRead();
+    return super.lastLoadedDataKey;
+  }
+
+  @override
+  set lastLoadedDataKey(String? value) {
+    _$lastLoadedDataKeyAtom.reportWrite(value, super.lastLoadedDataKey, () {
+      super.lastLoadedDataKey = value;
+    });
+  }
+
+  late final _$pendingNavigationRouteAtom =
+      Atom(name: '_StakingStore.pendingNavigationRoute', context: context);
+
+  @override
+  String? get pendingNavigationRoute {
+    _$pendingNavigationRouteAtom.reportRead();
+    return super.pendingNavigationRoute;
+  }
+
+  @override
+  set pendingNavigationRoute(String? value) {
+    _$pendingNavigationRouteAtom.reportWrite(value, super.pendingNavigationRoute, () {
+      super.pendingNavigationRoute = value;
+    });
+  }
+
+  late final _$cachedDelegationKeyAtom =
+      Atom(name: '_StakingStore.cachedDelegationKey', context: context);
+
+  @override
+  String? get cachedDelegationKey {
+    _$cachedDelegationKeyAtom.reportRead();
+    return super.cachedDelegationKey;
+  }
+
+  @override
+  set cachedDelegationKey(String? value) {
+    _$cachedDelegationKeyAtom.reportWrite(value, super.cachedDelegationKey, () {
+      super.cachedDelegationKey = value;
+    });
+  }
+
+  late final _$cachedDelegationOwnerAtom =
+      Atom(name: '_StakingStore.cachedDelegationOwner', context: context);
+
+  @override
+  String? get cachedDelegationOwner {
+    _$cachedDelegationOwnerAtom.reportRead();
+    return super.cachedDelegationOwner;
+  }
+
+  @override
+  set cachedDelegationOwner(String? value) {
+    _$cachedDelegationOwnerAtom.reportWrite(value, super.cachedDelegationOwner, () {
+      super.cachedDelegationOwner = value;
+    });
+  }
+
+  late final _$cachedDelegationNetworkAtom =
+      Atom(name: '_StakingStore.cachedDelegationNetwork', context: context);
+
+  @override
+  String? get cachedDelegationNetwork {
+    _$cachedDelegationNetworkAtom.reportRead();
+    return super.cachedDelegationNetwork;
+  }
+
+  @override
+  set cachedDelegationNetwork(String? value) {
+    _$cachedDelegationNetworkAtom.reportWrite(value, super.cachedDelegationNetwork, () {
+      super.cachedDelegationNetwork = value;
     });
   }
 
@@ -72,12 +192,45 @@ mixin _$StakingStore on _StakingStore, Store {
   }
 
   @override
-  void setValidatorsInfo(List<Map<String, dynamic>> data,
-      {bool shouldCache = true}) {
+  void setStakingAPY(double apy, {bool shouldCache = true}) {
+    final _$actionInfo = _$_StakingStoreActionController.startAction(
+        name: '_StakingStore.setStakingAPY');
+    try {
+      return super.setStakingAPY(apy, shouldCache: shouldCache);
+    } finally {
+      _$_StakingStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearStakingAPY() {
+    final _$actionInfo = _$_StakingStoreActionController.startAction(
+        name: '_StakingStore.clearStakingAPY');
+    try {
+      return super.clearStakingAPY();
+    } finally {
+      _$_StakingStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setDelegationCache(String? delegationKey, String ownerAddress, String networkID, {bool shouldCache = true}) {
+    final _$actionInfo = _$_StakingStoreActionController.startAction(
+        name: '_StakingStore.setDelegationCache');
+    try {
+      return super.setDelegationCache(delegationKey, ownerAddress, networkID, shouldCache: shouldCache);
+    } finally {
+      _$_StakingStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setValidatorsInfo(List<Map<String, dynamic>> activeData,
+      List<Map<String, dynamic>> inactiveData, {bool shouldCache = true}) {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
         name: '_StakingStore.setValidatorsInfo');
     try {
-      return super.setValidatorsInfo(data, shouldCache: shouldCache);
+      return super.setValidatorsInfo(activeData, inactiveData, shouldCache: shouldCache);
     } finally {
       _$_StakingStoreActionController.endAction(_$actionInfo);
     }
@@ -87,7 +240,15 @@ mixin _$StakingStore on _StakingStore, Store {
   String toString() {
     return '''
 validatorsInfo: ${validatorsInfo},
-overviewData: ${overviewData}
+inactiveValidatorsInfo: ${inactiveValidatorsInfo},
+overviewData: ${overviewData},
+stakingAPY: ${stakingAPY},
+lastLoadedDataKey: ${lastLoadedDataKey},
+pendingNavigationRoute: ${pendingNavigationRoute},
+cachedDelegationKey: ${cachedDelegationKey},
+cachedDelegationOwner: ${cachedDelegationOwner},
+cachedDelegationNetwork: ${cachedDelegationNetwork},
+allValidators: ${allValidators}
     ''';
   }
 }

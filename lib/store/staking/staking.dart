@@ -14,14 +14,42 @@ abstract class _StakingStore with Store {
 
   final AppStore rootStore;
 
-  final String localStorageValidatorsKey = 'validator_list';
+  final String localStorageValidatorsV2Key = 'validators_v2';
   final String localStorageOverviewKey = 'staking_overview';
+  final String localStorageStakingAPYKey = 'staking_apy';
+  final String localStorageDelegationCacheKey = 'delegation_cache';
 
   @observable
   List<ValidatorData> validatorsInfo = [];
 
   @observable
+  List<ValidatorData> inactiveValidatorsInfo = [];
+
+  @observable
   OverviewData overviewData = OverviewData();
+
+  @observable
+  double? stakingAPY;
+
+  /// Track the last loaded account/network key to avoid unnecessary loading
+  @observable
+  String? lastLoadedDataKey;
+
+  /// Pending navigation route after staking completes
+  @observable
+  String? pendingNavigationRoute;
+
+  @observable
+  String? cachedDelegationKey;
+
+  @observable
+  String? cachedDelegationOwner;
+
+  @observable
+  String? cachedDelegationNetwork;
+
+  @computed
+  List<ValidatorData> get allValidators => [...validatorsInfo, ...inactiveValidatorsInfo];
 
   @action
   Future<void> init() async {
@@ -36,31 +64,118 @@ abstract class _StakingStore with Store {
     }
   }
   @action
-  void setValidatorsInfo(List<Map<String, dynamic>> data, {bool shouldCache = true}) {
-    List<ValidatorData> ls = [];
-    data.forEach((i) {
-      ValidatorData data = ValidatorData.fromJson(i);
-      ls.add(data);
-    });
-    validatorsInfo = ls;
-    // cache data
+  void setStakingAPY(double apy, {bool shouldCache = true}) {
+    stakingAPY = apy;
     if (shouldCache) {
-      rootStore.localStorage.setObject(localStorageValidatorsKey, ls.map((i)=>ValidatorData.toJson(i)).toList());
+      rootStore.localStorage.setObject(localStorageStakingAPYKey, apy);
+    }
+  }
+
+  @action
+  void clearStakingAPY() {
+    stakingAPY = null;
+  }
+
+  @action
+  void clearOverviewData() {
+    overviewData = OverviewData();
+  }
+
+  /// Clear all data that is specific to an account/network
+  @action
+  void clearAccountSpecificData() {
+    overviewData = OverviewData();
+    // Don't clear validators as they are network-wide, not account-specific
+  }
+
+  @action
+  void setDelegationCache(String? delegationKey, String ownerAddress, String networkID, {bool shouldCache = true}) {
+    cachedDelegationKey = delegationKey;
+    cachedDelegationOwner = ownerAddress;
+    cachedDelegationNetwork = networkID;
+    if (shouldCache) {
+      rootStore.localStorage.setObject(localStorageDelegationCacheKey, {
+        'key': delegationKey,
+        'owner': ownerAddress,
+        'network': networkID,
+      });
+    }
+  }
+
+  /// Get cached delegation key if cache is valid for current account and network
+  String? getValidDelegationKey(String currentAddress, String currentNetworkID) {
+    if (cachedDelegationOwner == currentAddress && cachedDelegationNetwork == currentNetworkID) {
+      return cachedDelegationKey;
+    }
+    return null;
+  }
+
+  /// Check if delegation cache is valid for current account and network
+  bool isDelegationCacheValid(String currentAddress, String currentNetworkID) {
+    return cachedDelegationOwner == currentAddress && cachedDelegationNetwork == currentNetworkID;
+  }
+
+  @action
+  void setValidatorsInfo(List<Map<String, dynamic>> activeData, List<Map<String, dynamic>> inactiveData, {bool shouldCache = true}) {
+    List<ValidatorData> activeList = [];
+    activeData.forEach((i) {
+      ValidatorData data = ValidatorData.fromJson(i);
+      activeList.add(data);
+    });
+    validatorsInfo = activeList;
+
+    List<ValidatorData> inactiveList = [];
+    inactiveData.forEach((i) {
+      ValidatorData data = ValidatorData.fromJson(i);
+      inactiveList.add(data);
+    });
+    inactiveValidatorsInfo = inactiveList;
+
+    // cache data with combined structure
+    if (shouldCache) {
+      rootStore.localStorage.setObject(localStorageValidatorsV2Key, {
+        'active': activeList.map((i) => ValidatorData.toJson(i)).toList(),
+        'inactive': inactiveList.map((i) => ValidatorData.toJson(i)).toList(),
+      });
     }
   }
 
   @action
   Future<void> loadCache() async {
-    List cacheOverview = await Future.wait([
-      rootStore.localStorage.getObject(localStorageValidatorsKey),
+    List cacheData = await Future.wait([
+      rootStore.localStorage.getObject(localStorageValidatorsV2Key),
       rootStore.localStorage.getObject(localStorageOverviewKey),
+      rootStore.localStorage.getObject(localStorageStakingAPYKey),
+      rootStore.localStorage.getObject(localStorageDelegationCacheKey),
     ]);
-    if (cacheOverview[0] != null) {
-      List<dynamic> accList = cacheOverview[0];
-      validatorsInfo = ObservableList.of(accList.map((i) => ValidatorData.fromJson(i as Map<String, dynamic>)));
+    if (cacheData[0] != null) {
+      // Only load cached validators if on mainnet to avoid showing stale data
+      if (rootStore.settings?.isMainnet == true) {
+        Map<String, dynamic> validatorsData = cacheData[0] as Map<String, dynamic>;
+        if (validatorsData['active'] != null) {
+          List<dynamic> activeList = validatorsData['active'];
+          validatorsInfo = ObservableList.of(activeList.map((i) => ValidatorData.fromJson(i as Map<String, dynamic>)));
+        }
+        if (validatorsData['inactive'] != null) {
+          List<dynamic> inactiveList = validatorsData['inactive'];
+          inactiveValidatorsInfo = ObservableList.of(inactiveList.map((i) => ValidatorData.fromJson(i as Map<String, dynamic>)));
+        }
+      }
     }
-    if (cacheOverview[1] != null) {
-      setOverviewInfo(cacheOverview[1], shouldCache: false);
+    if (cacheData[1] != null) {
+      setOverviewInfo(cacheData[1], shouldCache: false);
+    }
+    if (cacheData[2] != null) {
+      // Only load cached APY if on mainnet to avoid showing stale data
+      if (rootStore.settings?.isMainnet == true) {
+        stakingAPY = (cacheData[2] as num).toDouble();
+      }
+    }
+    if (cacheData[3] != null) {
+      Map<String, dynamic> delegationCache = cacheData[3] as Map<String, dynamic>;
+      cachedDelegationKey = delegationCache['key'] as String?;
+      cachedDelegationOwner = delegationCache['owner'] as String?;
+      cachedDelegationNetwork = delegationCache['network'] as String?;
     }
   }
 }

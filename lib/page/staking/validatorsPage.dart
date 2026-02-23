@@ -1,5 +1,4 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/staking/components/searchInput.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
 import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -27,65 +26,59 @@ class _ValidatorsPageState extends State<ValidatorsPage>
   _ValidatorsPageState(this.store);
 
   final AppStore store;
-  List<ValidatorData> validatorsList = [];
-  List<ValidatorData> uiList = [];
-  late ReactionDisposer monitorListDisposer;
-  TextEditingController editingController = new TextEditingController();
-  String? keywords;
+  List<ValidatorData> activeList = [];
+  List<ValidatorData> inactiveList = [];
+  late ReactionDisposer monitorActiveDisposer;
+  late ReactionDisposer monitorInactiveDisposer;
 
   @override
   void initState() {
     super.initState();
+    activeList = store.staking!.validatorsInfo;
+    inactiveList = store.staking!.inactiveValidatorsInfo;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      monitorListDisposer =
-          reaction((_) => store.staking!.validatorsInfo, _onListChange);
-      editingController.addListener(_onKeywordsChange);
-      Future.delayed(const Duration(milliseconds: 230), () {
-        validatorsList = store.staking!.validatorsInfo;
-        setState(() {
-          uiList = validatorsList;
-        });
-      });
+      monitorActiveDisposer =
+          reaction((_) => store.staking!.validatorsInfo, _onActiveListChange);
+      monitorInactiveDisposer =
+          reaction((_) => store.staking!.inactiveValidatorsInfo, _onInactiveListChange);
     });
   }
 
   @override
   void dispose() {
+    monitorActiveDisposer();
+    monitorInactiveDisposer();
     super.dispose();
-    monitorListDisposer();
-    editingController.dispose();
   }
 
-  void _onKeywordsChange() {
+  void _onActiveListChange(List<ValidatorData> vs) {
     setState(() {
-      keywords = editingController.text.trim();
-      uiList = _filter(validatorsList);
+      activeList = vs;
     });
   }
 
-  void _onListChange(List<ValidatorData> vs) {
-    validatorsList = vs;
+  void _onInactiveListChange(List<ValidatorData> vs) {
     setState(() {
-      uiList = _filter(vs);
+      inactiveList = vs;
     });
-  }
-
-  List<ValidatorData> _filter(List<ValidatorData> list) {
-    if (keywords == null || keywords!.isEmpty) {
-      return list;
-    }
-    var res = list.where((element) {
-      return (element.address
-              .toLowerCase()
-              .contains(keywords!.toLowerCase())) ||
-          (element.name != null &&
-              element.name!.toLowerCase().contains(keywords!.toLowerCase()));
-    }).toList();
-    return res;
   }
 
   Future<void> onRefresh() async {
     await webApi.staking.fetchValidators();
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.black,
+        ),
+      ),
+    );
   }
 
   @override
@@ -96,6 +89,17 @@ class _ValidatorsPageState extends State<ValidatorsPage>
     String? delegate = isDelegated
         ? mainTokenNetInfo.tokenAssestInfo?.delegateAccount?.publicKey
         : null;
+    
+    dynamic args = ModalRoute.of(context)?.settings.arguments;
+    bool isRedelegate = false;
+    String? selectedValidatorAddress;
+    if (args is Map) {
+      isRedelegate = args['isRedelegate'] == true;
+      selectedValidatorAddress = args['selectedValidatorAddress'] as String?;
+    }
+    
+    String? displaySelectedAddress = selectedValidatorAddress ?? delegate;
+    
     return RefreshIndicator(
         onRefresh: onRefresh,
         backgroundColor: Colors.white,
@@ -113,48 +117,48 @@ class _ValidatorsPageState extends State<ValidatorsPage>
             resizeToAvoidBottomInset: false,
             body: SafeArea(
                 maintainBottomViewPadding: true,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: SearchInput(
-                        editingController: editingController,
-                      ),
-                    ),
-                    Expanded(
-                        child: ListView.builder(
+                child: ListView(
                       padding: const EdgeInsets.only(
                           left: 20, right: 20, bottom: 20, top: 0),
-                      itemCount: uiList.length + 2,
-                      itemBuilder: (context, index) {
-                        if (index == uiList.length) {
-                          return ManualAddValidatorButton();
-                        }
-                        if (index == uiList.length + 1) {
-                          return SubmitNodeButton();
-                        }
-                        return ValidatorItem(
-                            data: uiList[index],
-                            showSelected: delegate == uiList[index].address);
-                      },
-                    ))
-                  ],
-                ))));
+                      children: [
+                        if (activeList.isNotEmpty) ...[
+                          _buildSectionHeader(dic.active),
+                          ...activeList.map((validator) => ValidatorItem(
+                              data: validator,
+                              showSelected: displaySelectedAddress == validator.address,
+                              isRedelegate: isRedelegate)),
+                        ],
+                        if (inactiveList.isNotEmpty) ...[
+                          _buildSectionHeader(dic.inactive),
+                          ...inactiveList.map((validator) => ValidatorItem(
+                              data: validator,
+                              showSelected: displaySelectedAddress == validator.address,
+                              isRedelegate: isRedelegate)),
+                        ],
+                        ManualAddValidatorButton(isRedelegate: isRedelegate),
+                        SubmitNodeButton(),
+                      ],
+                    ))));
   }
 }
 
 class ManualAddValidatorButton extends StatelessWidget {
+  ManualAddValidatorButton({this.isRedelegate = false});
+  
+  final bool isRedelegate;
+  
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var theme = Theme.of(context).textTheme;
     return Padding(
         padding: EdgeInsets.only(top: 20),
         child: GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, DelegatePage.route,
+              Navigator.pushReplacementNamed(context, DelegatePage.route,
                   arguments: DelegateParams(
-                      validatorData: null, manualAddValidator: true));
+                      validatorData: null, 
+                      manualAddValidator: true,
+                      isRedelegate: isRedelegate));
             },
             behavior: HitTestBehavior.opaque,
             child: Container(
@@ -176,30 +180,22 @@ class SubmitNodeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var theme = Theme.of(context).textTheme;
     return Padding(
         padding: EdgeInsets.only(top: 10, bottom: 0),
-        child: GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, DelegatePage.route,
-                  arguments: DelegateParams(
-                      validatorData: null, manualAddValidator: true));
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-                child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                BrowserLink(
-                    'https://github.com/aurowallet/launch/tree/master/validators',
-                    showIcon: false,
-                    text: dic.submitNode,
-                    textStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0x4D000000),
-                    )),
-              ],
-            ))));
+        child: Container(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            BrowserLink(
+                'https://github.com/aurowallet/launch/tree/master/validators',
+                showIcon: false,
+                text: dic.submitNode,
+                textStyle: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0x4D000000),
+                )),
+          ],
+        )));
   }
 }

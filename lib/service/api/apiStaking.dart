@@ -15,27 +15,59 @@ class ApiStaking {
 
   Future<void> refreshStaking({clearCache = true}) async {
     if (clearCache) {
-      store.staking!.setValidatorsInfo([]);
+      store.staking!.setValidatorsInfo([], []);
     }
     fetchStakingOverview();
     fetchValidators();
+    fetchStakingAPY();
+  }
+
+  Future<double?> fetchStakingAPY() async {
+    if (!store.settings!.isMainnet) {
+      // Clear APY when not on mainnet to avoid showing stale mainnet data
+      store.staking!.clearStakingAPY();
+      return null;
+    }
+    String url = "$BASE_INFO_URL/staking/apy";
+    try {
+      var response = await http.get(Uri.parse(url),
+          headers: {'Content-Type': 'application/json; charset=utf-8'});
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = convert.jsonDecode(utf8.decode(response.bodyBytes));
+        double? apy = (data['apr'] as num?)?.toDouble();
+        if (apy != null) {
+          store.staking!.setStakingAPY(apy);
+        }
+        return apy;
+      }
+    } catch (e) {
+      print('Request staking APY failed: $e');
+    }
+    return null;
   }
 
   Future<void> fetchValidators() async {
     if (!store.settings!.isMainnet) {
-      store.staking!.setValidatorsInfo([]);
+      store.staking!.setValidatorsInfo([], []);
       return;
     }
-    String txUrl = "$BASE_INFO_URL/validators";
-    var response = await http.get(Uri.parse(txUrl),
-        headers: {'Content-Type': 'application/json; charset=utf-8'});
-    if (response.statusCode == 200) {
-      List list = convert.jsonDecode(utf8.decode(response.bodyBytes));
-      store.staking!.setValidatorsInfo(
-          list.map((e) => e as Map<String, dynamic>).toList());
-      print('validators cached' + list.length.toString());
-    } else {
-      print('Request validators failed with status: ${response.statusCode}.');
+    String txUrl = "$BASE_INFO_URL/validators/v2";
+    try {
+      var response = await http.get(Uri.parse(txUrl),
+          headers: {'Content-Type': 'application/json; charset=utf-8'});
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = convert.jsonDecode(utf8.decode(response.bodyBytes));
+        List activeList = data['active'] ?? [];
+        List inactiveList = data['inactive'] ?? [];
+        store.staking!.setValidatorsInfo(
+            activeList.map((e) => e as Map<String, dynamic>).toList(),
+            inactiveList.map((e) => e as Map<String, dynamic>).toList());
+        print('validators cached: active=${activeList.length}, inactive=${inactiveList.length}');
+      } else {
+        print('Request validators failed with status: ${response.statusCode}.');
+      }
+    } catch (e) {
+      print('Request validators failed: $e');
     }
   }
 

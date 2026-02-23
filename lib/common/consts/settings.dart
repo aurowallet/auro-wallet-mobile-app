@@ -11,8 +11,13 @@ class COIN {
 const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
+const int DAYS_PER_YEAR = 365;
+const int DAYS_PER_EPOCH = 15;
+const int DAYS_PER_THREE_MONTHS = 90;
+const int DAYS_PER_SIX_MONTHS = 180;
+
 /// app versions
-const String app_version = 'v2.2.1(1188)';
+const String app_version = 'v2.2.2(1189)';
 
 final Map<String, String> languageConfig = {
   "en": 'English',

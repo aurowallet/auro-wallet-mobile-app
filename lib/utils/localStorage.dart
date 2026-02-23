@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {
@@ -61,7 +60,7 @@ class LocalStorage {
   }
 
   Future<bool> setObject(String key, Object value) async {
-    String str = await compute(jsonEncode, value);
+    String str = jsonEncode(value);
     return storage.setKV('${customKVKey}_$key', str);
   }
 
