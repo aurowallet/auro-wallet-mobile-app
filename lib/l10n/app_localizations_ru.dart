@@ -1004,6 +1004,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get privateKeyWallet => 'Приватный ключ';
 
   @override
+  String get keystoreWallet => 'Keystore';
+
+  @override
   String get ledgerWallet => 'Ledger';
 
   @override
@@ -1039,4 +1042,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ledgerImportDesc => 'Подключение через Bluetooth или USB';
+
+  @override
+  String get getStarted => 'Начало работы';
+
+  @override
+  String get ledgerIntroDesc =>
+      'Перед началом убедитесь, что на вашем Ledger установлена последняя прошивка, устройство настроено и приложение Mina установлено.';
+
+  @override
+  String get ledgerIntroStep1 => 'Подключите Ledger к телефону.';
+
+  @override
+  String get ledgerIntroStep2 =>
+      'Откройте приложение Mina на Ledger, пока не увидите <bold>Mina is ready</bold>.';
+
+  @override
+  String get hdPathDesc =>
+      'Если вы не знаете, что означает этот параметр, менять его не нужно. Подробные <link>инструкции</link>.';
 }

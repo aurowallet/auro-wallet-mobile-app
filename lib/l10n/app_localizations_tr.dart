@@ -1002,6 +1002,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get privateKeyWallet => 'Özel Anahtar';
 
   @override
+  String get keystoreWallet => 'Keystore';
+
+  @override
   String get ledgerWallet => 'Ledger';
 
   @override
@@ -1037,4 +1040,22 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get ledgerImportDesc => 'Bluetooth veya USB ile bağlan';
+
+  @override
+  String get getStarted => 'Başlayın';
+
+  @override
+  String get ledgerIntroDesc =>
+      'Başlamadan önce, Ledger cihazınızda en güncel yazılımın yüklü olduğundan, cihazın kurulduğundan ve Mina uygulamasının yüklendiğinden emin olun.';
+
+  @override
+  String get ledgerIntroStep1 => 'Ledger\'ınızı telefona bağlayın.';
+
+  @override
+  String get ledgerIntroStep2 =>
+      'Ledger cihazınızda Mina uygulamasını açın, <bold>Mina is ready</bold> yazısını görene kadar bekleyin.';
+
+  @override
+  String get hdPathDesc =>
+      'Aşağıdaki ayarın ne olduğunu bilmiyorsanız, değiştirmenize gerek yoktur. Ayrıntılı <link>talimatları</link> görüntüleyin.';
 }

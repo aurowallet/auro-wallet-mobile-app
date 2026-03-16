@@ -1001,6 +1001,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privateKeyWallet => 'Private Key';
 
   @override
+  String get keystoreWallet => 'Keystore';
+
+  @override
   String get ledgerWallet => 'Ledger';
 
   @override
@@ -1035,4 +1038,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ledgerImportDesc => 'Connect via Bluetooth or USB';
+
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get ledgerIntroDesc =>
+      'Before you start, ensure you have the most up-to-date firmware on your Ledger device and that Ledger is set up. And the Mina App has been installed in the Ledger device.';
+
+  @override
+  String get ledgerIntroStep1 => 'Connect your Ledger to the phone.';
+
+  @override
+  String get ledgerIntroStep2 =>
+      'Open the Mina app in your Ledger device, Until you see <bold>Mina is ready</bold>.';
+
+  @override
+  String get hdPathDesc =>
+      'If you don\'t know what this setting below is, you don\'t need to change it. View detailed <link>instructions</link>.';
 }

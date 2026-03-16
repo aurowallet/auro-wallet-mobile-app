@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
+import 'package:auro_wallet/page/account/selectHDPathPage.dart';
 import 'package:auro_wallet/page/account/LockWalletPage.dart';
 import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/page/browser/browserSearchPage.dart';
@@ -78,7 +80,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   bool _isDangerous = false;
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
-  late BuildContext _homePageContext;
+  BuildContext? _homePageContext;
+  bool _storeReady = false;
   Map? appLinkRouteParams;
 
   @override
@@ -105,6 +108,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     if (!isValidHttpUrl(decodedURL)) {
       print('Not valid URL');
       return null;
+    }
+    if (_appStore?.settings == null) {
+      return {"action": action, "url": decodedURL, "networkId": null};
     }
     String? nextNetworkId;
     String? networkId = uri.queryParameters['networkid'];
@@ -210,6 +216,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       webApi = Api(context, _appStore!);
       await webApi.init();
       _changeLang(context, _appStore!.settings!.localeCode);
+      _storeReady = true;
     }
     return _appStore!.wallet!.walletListAll.length;
   }
@@ -223,6 +230,13 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 
   Future<void> _doAutoRouting(BuildContext context, bool isFromLockPage) async {
     if (appLinkRouteParams != null) {
+      if (!_storeReady || _appStore == null) {
+        return;
+      }
+      final homeCtx = _homePageContext;
+      if (homeCtx == null) {
+        return;
+      }
       int walletLength = _appStore!.wallet!.walletListAll.length;
       if (walletLength == 0) {
         return;
@@ -233,9 +247,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           return;
         }
       }
-      AppLocalizations dic = AppLocalizations.of(_homePageContext)!;
+      AppLocalizations dic = AppLocalizations.of(homeCtx)!;
       bool? rejected = await UI.showConfirmDialog(
-          context: _homePageContext,
+          context: homeCtx,
           title: dic.zkAppTipTitle,
           contents: [appLinkRouteParams!['url'] + '\n', dic.zkAppTipContent],
           okText: dic.isee,
@@ -244,19 +258,19 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         return;
       }
       bool isBrowserWrapperPageOpened = false;
-      Navigator.of(_homePageContext).popUntil((route) {
+      Navigator.of(homeCtx).popUntil((route) {
         if (route.settings.name == BrowserWrapperPage.route) {
           isBrowserWrapperPageOpened = true;
         }
         return true;
       });
       if (isBrowserWrapperPageOpened) {
-        Navigator.of(_homePageContext).pushReplacementNamed(
+        Navigator.of(homeCtx).pushReplacementNamed(
           BrowserWrapperPage.route,
           arguments: {"url": appLinkRouteParams!['url']},
         );
       } else {
-        Navigator.of(_homePageContext).pushNamed(
+        Navigator.of(homeCtx).pushNamed(
           BrowserWrapperPage.route,
           arguments: {"url": appLinkRouteParams!['url']},
         );
@@ -265,7 +279,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       if (appLinkRouteParams!['networkId'] != null &&
           currentNetworkID != appLinkRouteParams!['networkId']) {
         await UI.showSwitchChainAction(
-            context: _homePageContext,
+            context: homeCtx,
             networkID: appLinkRouteParams!['networkId'],
             url: appLinkRouteParams!['url'],
             iconUrl: null,
@@ -372,6 +386,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         ImportWatchedAccountPage.route: (_) =>
             ImportWatchedAccountPage(_appStore!),
         LedgerAccountNamePage.route: (_) => LedgerAccountNamePage(_appStore!),
+        ConnectHardwareWalletIntroPage.route: (_) => ConnectHardwareWalletIntroPage(_appStore!),
+        SelectHDPathPage.route: (_) => SelectHDPathPage(_appStore!),
         AddAccountPage.route: (_) => AddAccountPage(_appStore!),
         LockWalletPage.route: (_) => LockWalletPage(_appStore!),
         TransferPage.route: (_) => TransferPage(_appStore!),

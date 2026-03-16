@@ -1964,6 +1964,12 @@ abstract class AppLocalizations {
   /// **'Private Key'**
   String get privateKeyWallet;
 
+  /// No description provided for @keystoreWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Keystore'**
+  String get keystoreWallet;
+
   /// No description provided for @ledgerWallet.
   ///
   /// In en, this message translates to:
@@ -2035,6 +2041,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect via Bluetooth or USB'**
   String get ledgerImportDesc;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @ledgerIntroDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you start, ensure you have the most up-to-date firmware on your Ledger device and that Ledger is set up. And the Mina App has been installed in the Ledger device.'**
+  String get ledgerIntroDesc;
+
+  /// No description provided for @ledgerIntroStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your Ledger to the phone.'**
+  String get ledgerIntroStep1;
+
+  /// No description provided for @ledgerIntroStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Mina app in your Ledger device, Until you see <bold>Mina is ready</bold>.'**
+  String get ledgerIntroStep2;
+
+  /// No description provided for @hdPathDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If you don\'t know what this setting below is, you don\'t need to change it. View detailed <link>instructions</link>.'**
+  String get hdPathDesc;
 }
 
 class _AppLocalizationsDelegate

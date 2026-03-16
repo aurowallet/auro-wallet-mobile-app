@@ -34,13 +34,25 @@ class CreateAccountEntryPage extends StatelessWidget {
 
   void _onCreateWallet(BuildContext context) async {
     if (!await _checkTermsAgreement(context)) return;
-    Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
-        arguments: {"type": "create"});
+    Navigator.pushNamed(
+      context,
+      SetNewWalletPasswordPage.route,
+      arguments: {"type": "create"},
+    );
   }
 
-  void _onRestoreWallet(BuildContext context) async {
+  void _onImportWallet(BuildContext context) async {
     if (!await _checkTermsAgreement(context)) return;
     _showRestoreOptions(context);
+  }
+
+  void _onConnectHardwareWallet(BuildContext context) async {
+    if (!await _checkTermsAgreement(context)) return;
+    Navigator.pushNamed(
+      context,
+      SetNewWalletPasswordPage.route,
+      arguments: {"type": "ledger"},
+    );
   }
 
   void _showRestoreOptions(BuildContext context) {
@@ -69,10 +81,7 @@ class CreateAccountEntryPage extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 dic.importWallet,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ),
             _RestoreOptionItem(
@@ -80,8 +89,11 @@ class CreateAccountEntryPage extends StatelessWidget {
               subtitle: dic.mnemonicImportDesc,
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
-                    arguments: {"type": "import"});
+                Navigator.pushNamed(
+                  context,
+                  SetNewWalletPasswordPage.route,
+                  arguments: {"type": "import"},
+                );
               },
             ),
             _RestoreOptionItem(
@@ -89,26 +101,23 @@ class CreateAccountEntryPage extends StatelessWidget {
               subtitle: dic.privateKeyImportDesc,
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
-                    arguments: {"type": "privateKey"});
+                Navigator.pushNamed(
+                  context,
+                  SetNewWalletPasswordPage.route,
+                  arguments: {"type": "privateKey"},
+                );
               },
             ),
             _RestoreOptionItem(
-              title: 'Keystore',
+              title: dic.keystoreWallet,
               subtitle: dic.keystoreImportDesc,
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
-                    arguments: {"type": "keystore"});
-              },
-            ),
-            _RestoreOptionItem(
-              title: dic.hardwareWallet,
-              subtitle: dic.ledgerImportDesc,
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.pushNamed(context, SetNewWalletPasswordPage.route,
-                    arguments: {"type": "ledger"});
+                Navigator.pushNamed(
+                  context,
+                  SetNewWalletPasswordPage.route,
+                  arguments: {"type": "keystore"},
+                );
               },
             ),
             SizedBox(height: 16),
@@ -125,135 +134,147 @@ class CreateAccountEntryPage extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: SafeArea(
-          maintainBottomViewPadding: true,
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              leading: null,
-              title: null,
-              toolbarHeight: 0,
-              backgroundColor: Colors.transparent,
-              elevation: 0.0,
-              actions: null,
-            ),
-            resizeToAvoidBottomInset: false,
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 50),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              width: MediaQuery.of(context).size.width - 40,
-                              margin: EdgeInsets.only(left: 20),
-                              child: SvgPicture.asset(
-                                "assets/images/entry/desc.svg",
-                                fit: BoxFit.contain,
-                              ),
+        maintainBottomViewPadding: true,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            leading: null,
+            title: null,
+            toolbarHeight: 0,
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+            actions: null,
+          ),
+          resizeToAvoidBottomInset: false,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  children: [
+                    SizedBox(height: 50),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width - 40,
+                            margin: EdgeInsets.only(left: 20),
+                            child: SvgPicture.asset(
+                              "assets/images/entry/desc.svg",
+                              fit: BoxFit.contain,
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 60),
+                  child: Image.asset(
+                    "assets/images/entry/auro_logo.png",
+                    width: MediaQuery.of(context).size.width * (245 / 375),
+                    height:
+                        MediaQuery.of(context).size.width *
+                        (245 / 375) *
+                        (221 / 245),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 38, right: 38),
+                child: ElevatedButton(
+                  key: TestKeys.createWalletButton,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 48),
+                    backgroundColor: ColorsUtil.hexColor(0x594AF1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    _onCreateWallet(context);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset("assets/images/entry/icon_add.svg"),
+                      SizedBox(width: 8),
+                      Text(
+                        dic.createWallet,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: 60),
-                    child: Image.asset(
-                      "assets/images/entry/auro_logo.png",
-                      width: MediaQuery.of(context).size.width * (245 / 375),
-                      height: MediaQuery.of(context).size.width *
-                          (245 / 375) *
-                          (221 / 245),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 20, left: 38, right: 38),
+                child: OutlinedButton(
+                  key: TestKeys.restoreWalletButton,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    side: BorderSide(color: Color.fromRGBO(0, 0, 0, 0.10)),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 38, right: 38),
-                  child: ElevatedButton(
-                    key: TestKeys.createWalletButton,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 48),
-                      backgroundColor: ColorsUtil.hexColor(0x594AF1),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      _onCreateWallet(context);
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SvgPicture.asset("assets/images/entry/icon_add.svg"),
-                        SizedBox(width: 8),
-                        Text(dic.createWallet,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            )),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20, left: 38, right: 38),
-                  child: OutlinedButton(
-                    key: TestKeys.restoreWalletButton,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  onPressed: () {
+                    _onImportWallet(context);
+                  },
+                  child: Row(
+                    children: [
+                      SvgPicture.asset("assets/images/entry/icon_restore.svg"),
+                      SizedBox(width: 8),
+                      Text(
+                        dic.importWallet,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      side: BorderSide(
-                        color: Color.fromRGBO(0, 0, 0, 0.10),
-                      ),
-                    ),
-                    onPressed: () {
-                      _onRestoreWallet(context);
-                    },
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(
-                            "assets/images/entry/icon_restore.svg"),
-                        SizedBox(width: 8),
-                        Text(dic.restoreWallet,
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            )),
-                      ],
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: GestureDetector(
+                  onTap: () {
+                    _onConnectHardwareWallet(context);
+                  },
+                  child: Text(
+                    dic.connectHardwareWallet,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(20, 50, 20, 0),
-                  child: Text(
-                    dic.restoreTip,
-                    style: theme.bodySmall
-                        ?.copyWith(color: ColorsUtil.hexColor(0xCCCCCC)),
-                    textAlign: TextAlign.center,
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(0, 31, 0, 24),
+                child: Text(
+                  'aurowallet.com',
+                  style: theme.bodySmall?.copyWith(
+                    color: ColorsUtil.hexColor(0xB9B9B9),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0, 31, 0, 24),
-                  child: Text(
-                    'aurowallet.com',
-                    style: theme.bodySmall
-                        ?.copyWith(color: ColorsUtil.hexColor(0xB9B9B9)),
-                  ),
-                ),
-              ],
-            ),
-          )),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -300,10 +321,7 @@ class _RestoreOptionItem extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: ColorsUtil.hexColor(0xCCCCCC),
-            ),
+            Icon(Icons.chevron_right, color: ColorsUtil.hexColor(0xCCCCCC)),
           ],
         ),
       ),

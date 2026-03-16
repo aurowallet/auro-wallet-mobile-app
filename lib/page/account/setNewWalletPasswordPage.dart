@@ -11,7 +11,7 @@ import 'package:auro_wallet/page/account/create/backupMnemonicTipsPage.dart';
 import 'package:auro_wallet/page/account/import/importMnemonicPage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
-import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
 
 class SetNewWalletPasswordPage extends StatefulWidget {
   const SetNewWalletPasswordPage(this.store);
@@ -37,6 +37,10 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   bool unRepeatError = false;
   bool _submitDisabled = true;
 
+  int _getNextImportedWalletCount() {
+    return widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+  }
+
 
   @override
   void initState() {
@@ -49,10 +53,10 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
 
   @override
   void dispose() {
-    super.dispose();
     _pass2Ctrl.dispose();
     _passCtrl.dispose();
     _pass2Focus.dispose();
+    super.dispose();
   }
 
 
@@ -90,7 +94,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
     ) {
       return;
     }
-    widget.store.wallet!.setNewAccount(_passCtrl.text);
+    widget.store.wallet!.setNewAccount(passStr);
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
     String type = params['type'] ?? 'create';
     
@@ -109,7 +113,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
         break;
       case 'privateKey':
         // Get default name for private key import
-        int pkCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+        int pkCount = _getNextImportedWalletCount();
         Navigator.pushNamed(context, ImportPrivateKeyPage.route, arguments: {
           "accountName": "Imported $pkCount",
           "fromInitialization": true
@@ -117,7 +121,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
         break;
       case 'keystore':
         // Get default name for keystore import
-        int ksCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+        int ksCount = _getNextImportedWalletCount();
         Navigator.pushNamed(context, ImportKeyStorePage.route, arguments: {
           "accountName": "Imported $ksCount",
           "fromInitialization": true
@@ -126,8 +130,8 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
       case 'ledger':
         // Get default name for ledger import
         int ledgerCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) + 1;
-        Navigator.pushNamed(context, LedgerAccountNamePage.route,
-            arguments: LedgerAccountNameParams(defaultName: 'Ledger $ledgerCount', fromInitialization: true));
+        Navigator.pushNamed(context, ConnectHardwareWalletIntroPage.route,
+            arguments: ConnectHardwareWalletIntroParams(defaultName: 'Ledger $ledgerCount', fromInitialization: true));
         break;
       default:
         Navigator.pushNamed(context, BackupMnemonicTipsPage.route);

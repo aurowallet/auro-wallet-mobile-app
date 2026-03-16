@@ -35,12 +35,16 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
   }
 
   String _getNextHDWalletName() {
-    int count = store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) + 1;
+    int count =
+        store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) +
+        1;
     return 'Wallet $count';
   }
 
   String _getNextImportWalletName() {
-    int count = store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+    int count =
+        store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) +
+        1;
     return 'Imported $count';
   }
 
@@ -56,7 +60,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
       if (password == null) return;
       store.wallet!.setNewAccount(password);
     }
-    
+
     // Set default wallet name and go directly to import page (skip name input)
     store.wallet!.setNewWalletName(_getNextHDWalletName());
     Navigator.pushNamed(context, ImportMnemonicPage.route);
@@ -64,48 +68,40 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
 
   void _onPrivateKey() {
     // Go directly to import page with default name (skip name input)
-    Navigator.pushNamed(context, ImportPrivateKeyPage.route, arguments: {
-      "accountName": _getNextImportWalletName()
-    });
+    Navigator.pushNamed(
+      context,
+      ImportPrivateKeyPage.route,
+      arguments: {"accountName": _getNextImportWalletName()},
+    );
   }
 
   void _onKeyStore() {
     // Go directly to import page with default name (skip name input)
-    Navigator.pushNamed(context, ImportKeyStorePage.route, arguments: {
-      "accountName": _getNextImportWalletName()
-    });
+    Navigator.pushNamed(
+      context,
+      ImportKeyStorePage.route,
+      arguments: {"accountName": _getNextImportWalletName()},
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(dic.importWallet),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(dic.importWallet), centerTitle: true),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Padding(
-            padding: EdgeInsets.only(top: 20),
+          padding: EdgeInsets.only(top: 20),
           child: Column(
             children: <Widget>[
-                ImportItem(
-                  text: dic.mnemonicPhrase,
-                  onClick: _onMnemonic,
-                ),
-                ImportItem(
-                  text: dic.privateKey,
-                  onClick: _onPrivateKey,
-                ),
-                ImportItem(
-                  text: 'Keystore',
-                  onClick: _onKeyStore,
-                ),
-              ],
-          )
+              ImportItem(text: dic.mnemonicPhrase, onClick: _onMnemonic),
+              ImportItem(text: dic.privateKey, onClick: _onPrivateKey),
+              ImportItem(text: dic.keystoreWallet, onClick: _onKeyStore),
+            ],
+          ),
         ),
       ),
     );
@@ -113,7 +109,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
 }
 
 class ImportItem extends StatelessWidget {
-  ImportItem({required this.text,required this.onClick});
+  ImportItem({required this.text, required this.onClick});
 
   final String text;
   final void Function() onClick;
@@ -123,26 +119,32 @@ class ImportItem extends StatelessWidget {
     return InkWell(
       onTap: onClick,
       child: Container(
-          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          decoration: BoxDecoration(
-            // border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-          ),
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        decoration: BoxDecoration(
+          // border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(text, style: TextStyle(fontSize: 16, color: ColorsUtil.hexColor(0x010000)),),
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 16,
+                color: ColorsUtil.hexColor(0x010000),
+              ),
+            ),
             Container(
+              width: 6,
+              margin: EdgeInsets.only(left: 14),
+              child: SvgPicture.asset(
+                'assets/images/assets/right_arrow.svg',
                 width: 6,
-                margin: EdgeInsets.only(left: 14,),
-                child: SvgPicture.asset(
-                    'assets/images/assets/right_arrow.svg',
-                    width: 6,
-                    height: 12
-                )
+                height: 12,
+              ),
             ),
           ],
-        )
-      )
+        ),
+      ),
     );
   }
 }

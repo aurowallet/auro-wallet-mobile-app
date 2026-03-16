@@ -652,6 +652,8 @@
   "@walletRenamed": {},
   "privateKeyWallet": "私钥",
   "@privateKeyWallet": {},
+  "keystoreWallet": "Keystore",
+  "@keystoreWallet": {},
   "ledgerWallet": "Ledger",
   "@ledgerWallet": {},
   "watchWallet": "观察钱包",
@@ -675,5 +677,15 @@
   "keystoreImportDesc": "使用 Keystore 文件导入",
   "@keystoreImportDesc": {},
   "ledgerImportDesc": "通过蓝牙或USB连接",
-  "@ledgerImportDesc": {}
+  "@ledgerImportDesc": {},
+  "getStarted": "开始使用",
+  "@getStarted": {},
+  "ledgerIntroDesc": "开始之前，请确保您的 Ledger 设备已更新到最新固件且已完成设置，并且已在 Ledger 设备中安装了 Mina 应用。",
+  "@ledgerIntroDesc": {},
+  "ledgerIntroStep1": "将 Ledger 与手机连接。",
+  "@ledgerIntroStep1": {},
+  "ledgerIntroStep2": "在 Ledger 中打开 Mina 应用，直到看到 <bold>Mina is ready</bold>。",
+  "@ledgerIntroStep2": {},
+  "hdPathDesc": "如果您不了解以下设置，无需修改。查看详细<link>说明</link>。",
+  "@hdPathDesc": {}
 }

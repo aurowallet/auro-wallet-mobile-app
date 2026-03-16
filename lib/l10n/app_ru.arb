@@ -654,6 +654,8 @@
   "@walletRenamed": {},
   "privateKeyWallet": "Приватный ключ",
   "@privateKeyWallet": {},
+  "keystoreWallet": "Keystore",
+  "@keystoreWallet": {},
   "ledgerWallet": "Ledger",
   "@ledgerWallet": {},
   "watchWallet": "Только просмотр",
@@ -677,5 +679,15 @@
   "keystoreImportDesc": "Импорт с помощью файла Keystore",
   "@keystoreImportDesc": {},
   "ledgerImportDesc": "Подключение через Bluetooth или USB",
-  "@ledgerImportDesc": {}
+  "@ledgerImportDesc": {},
+  "getStarted": "Начало работы",
+  "@getStarted": {},
+  "ledgerIntroDesc": "Перед началом убедитесь, что на вашем Ledger установлена последняя прошивка, устройство настроено и приложение Mina установлено.",
+  "@ledgerIntroDesc": {},
+  "ledgerIntroStep1": "Подключите Ledger к телефону.",
+  "@ledgerIntroStep1": {},
+  "ledgerIntroStep2": "Откройте приложение Mina на Ledger, пока не увидите <bold>Mina is ready</bold>.",
+  "@ledgerIntroStep2": {},
+  "hdPathDesc": "Если вы не знаете, что означает этот параметр, менять его не нужно. Подробные <link>инструкции</link>.",
+  "@hdPathDesc": {}
 }

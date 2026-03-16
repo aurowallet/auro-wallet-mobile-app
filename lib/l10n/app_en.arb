@@ -625,6 +625,8 @@
   "@walletRenamed": {},
   "privateKeyWallet": "Private Key",
   "@privateKeyWallet": {},
+  "keystoreWallet": "Keystore",
+  "@keystoreWallet": {},
   "ledgerWallet": "Ledger",
   "@ledgerWallet": {},
   "watchWallet": "Watch-only",
@@ -648,5 +650,15 @@
   "keystoreImportDesc": "Import using Keystore file",
   "@keystoreImportDesc": {},
   "ledgerImportDesc": "Connect via Bluetooth or USB",
-  "@ledgerImportDesc": {}
+  "@ledgerImportDesc": {},
+  "getStarted": "Get Started",
+  "@getStarted": {},
+  "ledgerIntroDesc": "Before you start, ensure you have the most up-to-date firmware on your Ledger device and that Ledger is set up. And the Mina App has been installed in the Ledger device.",
+  "@ledgerIntroDesc": {},
+  "ledgerIntroStep1": "Connect your Ledger to the phone.",
+  "@ledgerIntroStep1": {},
+  "ledgerIntroStep2": "Open the Mina app in your Ledger device, Until you see <bold>Mina is ready</bold>.",
+  "@ledgerIntroStep2": {},
+  "hdPathDesc": "If you don't know what this setting below is, you don't need to change it. View detailed <link>instructions</link>.",
+  "@hdPathDesc": {}
 }

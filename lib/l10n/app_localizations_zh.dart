@@ -967,6 +967,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get privateKeyWallet => '私钥';
 
   @override
+  String get keystoreWallet => 'Keystore';
+
+  @override
   String get ledgerWallet => 'Ledger';
 
   @override
@@ -1001,4 +1004,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ledgerImportDesc => '通过蓝牙或USB连接';
+
+  @override
+  String get getStarted => '开始使用';
+
+  @override
+  String get ledgerIntroDesc =>
+      '开始之前，请确保您的 Ledger 设备已更新到最新固件且已完成设置，并且已在 Ledger 设备中安装了 Mina 应用。';
+
+  @override
+  String get ledgerIntroStep1 => '将 Ledger 与手机连接。';
+
+  @override
+  String get ledgerIntroStep2 =>
+      '在 Ledger 中打开 Mina 应用，直到看到 <bold>Mina is ready</bold>。';
+
+  @override
+  String get hdPathDesc => '如果您不了解以下设置，无需修改。查看详细<link>说明</link>。';
 }

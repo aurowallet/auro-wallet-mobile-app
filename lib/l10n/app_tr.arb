@@ -652,6 +652,8 @@
   "@walletRenamed": {},
   "privateKeyWallet": "Özel Anahtar",
   "@privateKeyWallet": {},
+  "keystoreWallet": "Keystore",
+  "@keystoreWallet": {},
   "ledgerWallet": "Ledger",
   "@ledgerWallet": {},
   "watchWallet": "Sadece İzleme",
@@ -675,5 +677,15 @@
   "keystoreImportDesc": "Keystore dosyası ile içe aktar",
   "@keystoreImportDesc": {},
   "ledgerImportDesc": "Bluetooth veya USB ile bağlan",
-  "@ledgerImportDesc": {}
+  "@ledgerImportDesc": {},
+  "getStarted": "Başlayın",
+  "@getStarted": {},
+  "ledgerIntroDesc": "Başlamadan önce, Ledger cihazınızda en güncel yazılımın yüklü olduğundan, cihazın kurulduğundan ve Mina uygulamasının yüklendiğinden emin olun.",
+  "@ledgerIntroDesc": {},
+  "ledgerIntroStep1": "Ledger'ınızı telefona bağlayın.",
+  "@ledgerIntroStep1": {},
+  "ledgerIntroStep2": "Ledger cihazınızda Mina uygulamasını açın, <bold>Mina is ready</bold> yazısını görene kadar bekleyin.",
+  "@ledgerIntroStep2": {},
+  "hdPathDesc": "Aşağıdaki ayarın ne olduğunu bilmiyorsanız, değiştirmenize gerek yoktur. Ayrıntılı <link>talimatları</link> görüntüleyin.",
+  "@hdPathDesc": {}
 }

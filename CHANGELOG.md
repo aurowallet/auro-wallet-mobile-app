@@ -22,6 +22,9 @@ All notable changes to this project will be documented in this file.
 - Add test cases to wallet
 - Support multi-wallet
 - Add integration test
+- Ledger process
+- Restore process
+
 
 ### Fixed
 - fetchScamInfo catch

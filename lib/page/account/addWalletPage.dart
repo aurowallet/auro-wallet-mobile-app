@@ -1,7 +1,7 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/import/importWaysPage.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicTipsPage.dart';
-import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
@@ -50,11 +50,11 @@ class AddWalletPage extends StatelessWidget {
   }
 
   void _onHardwareWallet(BuildContext context) {
-    // Go directly to Ledger import with default name
+    // Go to Connect Hardware Wallet intro page
     Navigator.pushNamed(
       context,
-      LedgerAccountNamePage.route,
-      arguments: LedgerAccountNameParams(defaultName: _getNextLedgerWalletName()),
+      ConnectHardwareWalletIntroPage.route,
+      arguments: ConnectHardwareWalletIntroParams(defaultName: _getNextLedgerWalletName()),
     );
   }
 
