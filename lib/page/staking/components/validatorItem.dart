@@ -7,10 +7,11 @@ import 'package:roundcheckbox/roundcheckbox.dart';
 import '../delegatePage.dart';
 
 class ValidatorItem extends StatelessWidget {
-  ValidatorItem({required this.data, this.showSelected});
+  ValidatorItem({required this.data, this.showSelected, this.isRedelegate = false});
 
   final ValidatorData data;
   final bool? showSelected;
+  final bool isRedelegate;
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +22,12 @@ class ValidatorItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
-              Navigator.pushNamed(context, DelegatePage.route,
+              // Use pushReplacementNamed to avoid route stacking
+              Navigator.pushReplacementNamed(context, DelegatePage.route,
                   arguments: DelegateParams(
-                      validatorData: data, manualAddValidator: false));
+                      validatorData: data, 
+                      manualAddValidator: false,
+                      isRedelegate: isRedelegate));
             },
             borderRadius: BorderRadius.circular(10),
             child: Container(
@@ -40,6 +44,7 @@ class ValidatorItem extends StatelessWidget {
                     ItemLogo(
                       name: data.name,
                       logo: data.logo,
+                      address: data.address,
                     ),
                     Container(
                       width: 10,
@@ -91,11 +96,12 @@ class ValidatorItem extends StatelessWidget {
 }
 
 class ItemLogo extends StatefulWidget {
-  ItemLogo({this.name, required this.logo, this.radius = 15});
+  ItemLogo({this.name, required this.logo, this.radius = 15, this.address});
 
   final String? name;
   final String logo;
   final double? radius;
+  final String? address; // Fallback for display when name is empty
 
   @override
   ItemLogoState createState() => ItemLogoState();
@@ -108,6 +114,17 @@ class ItemLogoState extends State<ItemLogo> {
     setState(() {
       loadError = true;
     });
+  }
+
+  /// Get display character: name first char > address first char > 'U'
+  String _getDisplayChar() {
+    if (widget.name != null && widget.name!.isNotEmpty) {
+      return widget.name!.substring(0, 1).toUpperCase();
+    }
+    if (widget.address != null && widget.address!.isNotEmpty) {
+      return widget.address!.substring(0, 1).toUpperCase();
+    }
+    return 'U';
   }
 
   @override
@@ -125,7 +142,7 @@ class ItemLogoState extends State<ItemLogo> {
           : null,
       child: showText
           ? Text(
-              widget.name?.substring(0, 1).toUpperCase() ?? 'U',
+              _getDisplayChar(),
               style: TextStyle(fontSize: 16, color: Colors.white),
             )
           : null,

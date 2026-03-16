@@ -175,6 +175,7 @@ flutter:
     - assets/images/assets/icon_token_show.svg
     - assets/images/assets/icon_token_hide.svg
     - assets/images/public/icon_biometric.svg
+    - assets/images/public/icon_info_staking.svg
 
     # ledger
     - assets/images/ledger/ledger_logo.svg
