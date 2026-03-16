@@ -85,6 +85,9 @@ class _ImportLedgerState extends State<ImportLedger> {
       return;
     }
     store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
+    if (!mounted) {
+      return;
+    }
     setState(() {
       connected = true;
     });
@@ -96,7 +99,7 @@ class _ImportLedgerState extends State<ImportLedger> {
       if (accountIndex == null || widget.accountName == null) {
         return;
       }
-      List<String>? accounts;
+      late final List<String> accounts;
       try {
         final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
             accountIndex: accountIndex);
@@ -112,7 +115,7 @@ class _ImportLedgerState extends State<ImportLedger> {
         }
         return;
       }
-      if (accounts.length == 0) {
+      if (accounts.isEmpty) {
         return;
       }
       print('accounts');
@@ -124,11 +127,10 @@ class _ImportLedgerState extends State<ImportLedger> {
           seedType: WalletStore.seedTypeLedger,
           hdIndex: accountIndex,
           password: widget.password);
-      if (isSuccess == true) {
-        Navigator.of(context).pop(true);
-      } else {
-        Navigator.of(context).pop(false);
+      if (!mounted) {
+        return;
       }
+      Navigator.of(context).pop(isSuccess == true);
     }
   }
 
@@ -205,6 +207,16 @@ class LedgerGetAddress extends StatefulWidget {
 
 class _LedgerGetAddressState extends State<LedgerGetAddress> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Wrap(
@@ -273,6 +285,9 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   LedgerDevice? ledgerDevice;
   Ledger? ledgerInstance;
   StreamSubscription<LedgerDevice>? cancelScan;
+  Timer? _reconnectTimer;
+  int _connectAttempt = 0;
+  static const int _maxConnectAttempts = 3;
 
   @override
   void initState() {
@@ -293,23 +308,27 @@ class _ConnectLedgerState extends State<ConnectLedger> {
 
   @override
   void dispose() {
-    super.dispose();
+    _reconnectTimer?.cancel();
     LedgerInit.cancelScan?.cancel();
     LedgerInit.offScanListener();
+    super.dispose();
   }
 
   void _connect() async {
     print('start connect');
+    _reconnectTimer?.cancel();
     setState(() {
       connecting = true;
     });
     bool finishConnecting = false;
-    Future.delayed(Duration(seconds: 6), () {
-      if (mounted) {
-        if (!finishConnecting) {
-          print('reconnect');
-          this._connect();
-        }
+    _connectAttempt++;
+    _reconnectTimer = Timer(Duration(seconds: 6), () {
+      if (!mounted) {
+        return;
+      }
+      if (!finishConnecting && _connectAttempt < _maxConnectAttempts) {
+        print('reconnect');
+        _connect();
       }
     });
     try {
@@ -317,16 +336,19 @@ class _ConnectLedgerState extends State<ConnectLedger> {
       // await ledgerInstance!.dispose();
       await ledgerInstance!.connect(ledgerDevice!);
       print('finish connect');
+      if (!mounted) return;
       setState(() {
         unactive = false;
         connecting = false;
       });
       finishConnecting = true;
+      _connectAttempt = 0;
     } on LedgerException catch (e) {
       await ledgerInstance!.disconnect(ledgerDevice!);
       store.ledger!.setDevice(null);
       print('connect error');
       print(e);
+      if (!mounted) return;
       setState(() {
         unactive = true;
         connecting = false;
@@ -340,6 +362,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
 
   onScanSuccess(LedgerDevice device) async {
     print('scaned a device' + DateTime.now().toUtc().toString());
+    if (!mounted) return;
     setState(() {
       ledgerDevice = device;
       searching = false;
@@ -378,7 +401,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   }
 
   Widget renderError() {
-    late String errorStr;
+    String errorStr = '';
     AppLocalizations dic = AppLocalizations.of(context)!;
     if (unactive || widget.locked) {
       errorStr = dic.unlockLedger;
@@ -411,7 +434,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
     return Wrap(
       children: [
         LedgerTipItem(
-            num: '1', text: dic.ledgerTip1, descText: dic.ledgerSupport),
+            num: '1', text: dic.ledgerTip1),
         LedgerTipItem(
           num: '2',
           text: dic.ledgerTip2,

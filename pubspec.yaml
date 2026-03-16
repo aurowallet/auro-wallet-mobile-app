@@ -177,6 +177,7 @@ flutter:
     - assets/images/public/icon_biometric.svg
 
     # ledger
+    - assets/images/ledger/ledger_logo.svg
     - assets/images/ledger/ledger_mina.svg
     - assets/images/ledger/icon_legder_status.svg
 
