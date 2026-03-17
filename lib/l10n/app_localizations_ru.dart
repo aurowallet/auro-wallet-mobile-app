@@ -1060,4 +1060,66 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get hdPathDesc =>
       'Если вы не знаете, что означает этот параметр, менять его не нужно. Подробные <link>инструкции</link>.';
+
+  @override
+  String get currentEpoch => 'Текущая эпоха';
+
+  @override
+  String get earnOnMina => 'Заработок на MINA';
+
+  @override
+  String get apr => 'Годовая доходность';
+
+  @override
+  String get lockTime => 'Время блокировки';
+
+  @override
+  String get notLocked => 'Не заблокировано';
+
+  @override
+  String get active => 'Активно';
+
+  @override
+  String get inactive => 'Неактивно';
+
+  @override
+  String get unknownNetworkStaking =>
+      'Неизвестная сеть, невозможно предоставить информацию.';
+
+  @override
+  String get redelegate => 'Переделегировать';
+
+  @override
+  String get stake => 'Стейкинг';
+
+  @override
+  String get stakeInfoBanner =>
+      'В протоколе Mina стейкинг — это операция делегирования. Ваши активы не будут заблокированы, и вы можете переводить их в любое время.';
+
+  @override
+  String get validator => 'Валидатор';
+
+  @override
+  String get fromValidator => 'От валидатора';
+
+  @override
+  String get toValidator => 'К валидатору';
+
+  @override
+  String get currentValidator => 'Текущий валидатор';
+
+  @override
+  String get selectValidator => 'Выбрать';
+
+  @override
+  String get epochEstimate => '15 дней (1 эпоха) прогноз';
+
+  @override
+  String get threeMonthsEstimate => '3 месяца прогноз';
+
+  @override
+  String get sixMonthsEstimate => '6 месяцев прогноз';
+
+  @override
+  String get staked => 'Застейкано';
 }

@@ -56,7 +56,7 @@ class _StakingState extends State<Staking> {
       webApi.staking.fetchValidators(),
       webApi.assets.fetchAllTokenAssets(),
       webApi.staking.fetchStakingOverview(),
-      webApi.staking.fetchStakingAPY(),
+      webApi.staking.fetchStakingAPR(),
     ]);
     if (mounted) {
       store.staking!.lastLoadedDataKey = '${store.wallet!.currentAddress}_${store.settings!.currentNode?.networkID}';
@@ -67,7 +67,7 @@ class _StakingState extends State<Staking> {
   }
 
   Future<void> _onRefresh() async {
-    await webApi.staking.fetchStakingOverview();
+    await Future.wait([webApi.staking.fetchStakingOverview(), webApi.staking.fetchStakingAPR()]);
   }
 
   @override

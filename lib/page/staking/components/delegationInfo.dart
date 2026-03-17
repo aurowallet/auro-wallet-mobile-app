@@ -202,7 +202,7 @@ class EarnOnMinaCard extends StatelessWidget {
     return Observer(builder: (_) {
       Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
       double showBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0.0;
-      double? stakingAPY = store.staking!.stakingAPY;
+      double? stakingAPR = store.staking!.stakingAPR;
       return Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -220,7 +220,7 @@ class EarnOnMinaCard extends StatelessWidget {
             SizedBox(height: 12),
             _buildInfoRow(
               dic.apr,
-              stakingAPY != null ? '${stakingAPY.toStringAsFixed(2)}%' : '--',
+              stakingAPR != null ? '${stakingAPR.toStringAsFixed(2)}%' : '--',
             ),
             SizedBox(height: 12),
             _buildInfoRow(

@@ -1056,4 +1056,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hdPathDesc =>
       'If you don\'t know what this setting below is, you don\'t need to change it. View detailed <link>instructions</link>.';
+
+  @override
+  String get currentEpoch => 'Current Epoch';
+
+  @override
+  String get earnOnMina => 'Earn on MINA';
+
+  @override
+  String get apr => 'APR';
+
+  @override
+  String get lockTime => 'Lock Time';
+
+  @override
+  String get notLocked => 'Not Locked';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactive => 'Inactive';
+
+  @override
+  String get unknownNetworkStaking =>
+      'Unknown network, Unable to provide history.';
+
+  @override
+  String get redelegate => 'Redelegate';
+
+  @override
+  String get stake => 'Stake';
+
+  @override
+  String get stakeInfoBanner =>
+      'In Mina protocol. Stake is a delegation operation, your assets will not be locked, and you can transfer them at any time.';
+
+  @override
+  String get validator => 'Validator';
+
+  @override
+  String get fromValidator => 'From Validator';
+
+  @override
+  String get toValidator => 'To Validator';
+
+  @override
+  String get currentValidator => 'Current Validator';
+
+  @override
+  String get selectValidator => 'Select';
+
+  @override
+  String get epochEstimate => '15 days (1 epoch) est.';
+
+  @override
+  String get threeMonthsEstimate => '3 months est.';
+
+  @override
+  String get sixMonthsEstimate => '6 months est.';
+
+  @override
+  String get staked => 'Staked';
 }

@@ -2071,6 +2071,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If you don\'t know what this setting below is, you don\'t need to change it. View detailed <link>instructions</link>.'**
   String get hdPathDesc;
+
+  /// No description provided for @currentEpoch.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Epoch'**
+  String get currentEpoch;
+
+  /// No description provided for @earnOnMina.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn on MINA'**
+  String get earnOnMina;
+
+  /// No description provided for @apr.
+  ///
+  /// In en, this message translates to:
+  /// **'APR'**
+  String get apr;
+
+  /// No description provided for @lockTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock Time'**
+  String get lockTime;
+
+  /// No description provided for @notLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Locked'**
+  String get notLocked;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @inactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get inactive;
+
+  /// No description provided for @unknownNetworkStaking.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown network, Unable to provide history.'**
+  String get unknownNetworkStaking;
+
+  /// No description provided for @redelegate.
+  ///
+  /// In en, this message translates to:
+  /// **'Redelegate'**
+  String get redelegate;
+
+  /// No description provided for @stake.
+  ///
+  /// In en, this message translates to:
+  /// **'Stake'**
+  String get stake;
+
+  /// No description provided for @stakeInfoBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'In Mina protocol. Stake is a delegation operation, your assets will not be locked, and you can transfer them at any time.'**
+  String get stakeInfoBanner;
+
+  /// No description provided for @validator.
+  ///
+  /// In en, this message translates to:
+  /// **'Validator'**
+  String get validator;
+
+  /// No description provided for @fromValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'From Validator'**
+  String get fromValidator;
+
+  /// No description provided for @toValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'To Validator'**
+  String get toValidator;
+
+  /// No description provided for @currentValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Validator'**
+  String get currentValidator;
+
+  /// No description provided for @selectValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get selectValidator;
+
+  /// No description provided for @epochEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'15 days (1 epoch) est.'**
+  String get epochEstimate;
+
+  /// No description provided for @threeMonthsEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'3 months est.'**
+  String get threeMonthsEstimate;
+
+  /// No description provided for @sixMonthsEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'6 months est.'**
+  String get sixMonthsEstimate;
+
+  /// No description provided for @staked.
+  ///
+  /// In en, this message translates to:
+  /// **'Staked'**
+  String get staked;
 }
 
 class _AppLocalizationsDelegate

@@ -1021,4 +1021,64 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get hdPathDesc => '如果您不了解以下设置，无需修改。查看详细<link>说明</link>。';
+
+  @override
+  String get currentEpoch => '当前 Epoch';
+
+  @override
+  String get earnOnMina => '赚取 MINA';
+
+  @override
+  String get apr => '年化收益率';
+
+  @override
+  String get lockTime => '锁定时间';
+
+  @override
+  String get notLocked => '未锁定';
+
+  @override
+  String get active => '已委托';
+
+  @override
+  String get inactive => '未委托';
+
+  @override
+  String get unknownNetworkStaking => '未知网络，无法提供信息。';
+
+  @override
+  String get redelegate => '更换验证人';
+
+  @override
+  String get stake => '质押';
+
+  @override
+  String get stakeInfoBanner => '在 Mina 协议中，质押是一种委托操作，您的资产不会被锁定，您可以随时转移它们。';
+
+  @override
+  String get validator => '验证人';
+
+  @override
+  String get fromValidator => '当前验证人';
+
+  @override
+  String get toValidator => '新验证人';
+
+  @override
+  String get currentValidator => '当前验证人';
+
+  @override
+  String get selectValidator => '选择';
+
+  @override
+  String get epochEstimate => '15天 (1 epoch) 预估';
+
+  @override
+  String get threeMonthsEstimate => '3个月预估';
+
+  @override
+  String get sixMonthsEstimate => '6个月预估';
+
+  @override
+  String get staked => '已质押';
 }

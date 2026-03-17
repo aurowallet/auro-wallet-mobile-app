@@ -1058,4 +1058,65 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get hdPathDesc =>
       'Aşağıdaki ayarın ne olduğunu bilmiyorsanız, değiştirmenize gerek yoktur. Ayrıntılı <link>talimatları</link> görüntüleyin.';
+
+  @override
+  String get currentEpoch => 'Mevcut Dönem';
+
+  @override
+  String get earnOnMina => 'MINA ile Kazan';
+
+  @override
+  String get apr => 'Yıllık Getiri';
+
+  @override
+  String get lockTime => 'Kilitleme Süresi';
+
+  @override
+  String get notLocked => 'Kilitli Değil';
+
+  @override
+  String get active => 'Aktif';
+
+  @override
+  String get inactive => 'Aktif Değil';
+
+  @override
+  String get unknownNetworkStaking => 'Bilinmeyen ağ, bilgi sağlanamıyor.';
+
+  @override
+  String get redelegate => 'Yeniden Delege Et';
+
+  @override
+  String get stake => 'Stake';
+
+  @override
+  String get stakeInfoBanner =>
+      'Mina protokolünde stake, bir delegasyon işlemidir. Varlıklarınız kilitlenmez ve istediğiniz zaman transfer edebilirsiniz.';
+
+  @override
+  String get validator => 'Doğrulayıcı';
+
+  @override
+  String get fromValidator => 'Mevcut Doğrulayıcı';
+
+  @override
+  String get toValidator => 'Yeni Doğrulayıcı';
+
+  @override
+  String get currentValidator => 'Mevcut Doğrulayıcı';
+
+  @override
+  String get selectValidator => 'Seç';
+
+  @override
+  String get epochEstimate => '15 gün (1 dönem) tahmini';
+
+  @override
+  String get threeMonthsEstimate => '3 ay tahmini';
+
+  @override
+  String get sixMonthsEstimate => '6 ay tahmini';
+
+  @override
+  String get staked => 'Stake Edildi';
 }

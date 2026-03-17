@@ -65,19 +65,19 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
-  late final _$stakingAPYAtom =
-      Atom(name: '_StakingStore.stakingAPY', context: context);
+  late final _$stakingAPRAtom =
+      Atom(name: '_StakingStore.stakingAPR', context: context);
 
   @override
-  double? get stakingAPY {
-    _$stakingAPYAtom.reportRead();
-    return super.stakingAPY;
+  double? get stakingAPR {
+    _$stakingAPRAtom.reportRead();
+    return super.stakingAPR;
   }
 
   @override
-  set stakingAPY(double? value) {
-    _$stakingAPYAtom.reportWrite(value, super.stakingAPY, () {
-      super.stakingAPY = value;
+  set stakingAPR(double? value) {
+    _$stakingAPRAtom.reportWrite(value, super.stakingAPR, () {
+      super.stakingAPR = value;
     });
   }
 
@@ -197,22 +197,22 @@ mixin _$StakingStore on _StakingStore, Store {
   }
 
   @override
-  void setStakingAPY(double apy, {bool shouldCache = true}) {
+  void setStakingAPR(double apr, {bool shouldCache = true}) {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
-        name: '_StakingStore.setStakingAPY');
+        name: '_StakingStore.setStakingAPR');
     try {
-      return super.setStakingAPY(apy, shouldCache: shouldCache);
+      return super.setStakingAPR(apr, shouldCache: shouldCache);
     } finally {
       _$_StakingStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void clearStakingAPY() {
+  void clearStakingAPR() {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
-        name: '_StakingStore.clearStakingAPY');
+        name: '_StakingStore.clearStakingAPR');
     try {
-      return super.clearStakingAPY();
+      return super.clearStakingAPR();
     } finally {
       _$_StakingStoreActionController.endAction(_$actionInfo);
     }
@@ -248,7 +248,7 @@ mixin _$StakingStore on _StakingStore, Store {
 validatorsInfo: ${validatorsInfo},
 inactiveValidatorsInfo: ${inactiveValidatorsInfo},
 overviewData: ${overviewData},
-stakingAPY: ${stakingAPY},
+stakingAPR: ${stakingAPR},
 lastLoadedDataKey: ${lastLoadedDataKey},
 pendingNavigationRoute: ${pendingNavigationRoute},
 cachedDelegationKey: ${cachedDelegationKey},

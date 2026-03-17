@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file.
 - Add integration test
 - Ledger process
 - Restore process
-
+- Update API of staking APR
 
 ### Fixed
 - fetchScamInfo catch

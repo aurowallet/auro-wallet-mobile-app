@@ -568,8 +568,7 @@ class _DelegatePageState extends State<DelegatePage>
                           ),
                           SizedBox(height: 8),
                           _buildToValidatorCard(context, validatorData, params.manualAddValidator),
-                          if (!isRedelegate)
-                            _buildApyEstimates(context),
+                          if (!isRedelegate) _buildAprEstimates(context),
                         ],
                       ),
                     ),
@@ -749,11 +748,11 @@ class _DelegatePageState extends State<DelegatePage>
     );
   }
 
-  Widget _buildApyEstimates(BuildContext context) {
+  Widget _buildAprEstimates(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     bool isMainnet = store.settings!.isMainnet;
     
-    double? apy = store.staking!.stakingAPY;
+    double? apr = store.staking!.stakingAPR;
     Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
     double balance = mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0.0;
     
@@ -761,12 +760,12 @@ class _DelegatePageState extends State<DelegatePage>
     String threeMonthEst = '--';
     String sixMonthEst = '--';
     
-    if (isMainnet && apy != null && apy > 0 && balance > 0) {
-      double apyDecimal = apy / 100;
+    if (isMainnet && apr != null && apr > 0 && balance > 0) {
+      double aprDecimal = apr / 100;
       
-      double oneEpochValue = balance * apyDecimal * (DAYS_PER_EPOCH / DAYS_PER_YEAR);
-      double threeMonthValue = balance * apyDecimal * (DAYS_PER_THREE_MONTHS / DAYS_PER_YEAR);
-      double sixMonthValue = balance * apyDecimal * (DAYS_PER_SIX_MONTHS / DAYS_PER_YEAR);
+      double oneEpochValue = balance * aprDecimal * (DAYS_PER_EPOCH / DAYS_PER_YEAR);
+      double threeMonthValue = balance * aprDecimal * (DAYS_PER_THREE_MONTHS / DAYS_PER_YEAR);
+      double sixMonthValue = balance * aprDecimal * (DAYS_PER_SIX_MONTHS / DAYS_PER_YEAR);
       
       oneEpochEst = _floorToDecimals(oneEpochValue, 4);
       threeMonthEst = _floorToDecimals(threeMonthValue, 4);
