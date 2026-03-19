@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:convert' as convert;
 
-import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/tokenInfoData.dart';
@@ -366,25 +366,29 @@ class ApiAssets {
   //   //   // await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
   //   // }
 
-  Future<void> queryTxFees() async {
-    var feeUrl = "$BASE_INFO_URL/minter_fee.json";
-    var response = await http.get(Uri.parse(feeUrl));
-    print('fee response' + response.statusCode.toString());
-    if (response.statusCode == 200) {
-      var feeList = convert.jsonDecode(response.body);
-      if (feeList.length >= 6) {
-        store.assets!.setFeesMap({
-          'slow': double.parse(feeList[0]['value']),
-          'medium': double.parse(feeList[1]['value']),
-          'fast': double.parse(feeList[2]['value']),
-          'cap': double.parse(feeList[3]['value']),
-          'speedup': double.parse(feeList[4]['value']),
-          'accountupdate': double.parse(feeList[5]['value']),
-        });
+  Future<Fees?> _fetchFeeConfig(String feeUrl) async {
+    try {
+      final response = await http.get(Uri.parse(feeUrl));
+      print('fee response $feeUrl ${response.statusCode}');
+      if (response.statusCode != 200) {
+        return null;
       }
-    } else {
-      store.assets!.setFeesMap(defaultTxFeesMap);
+
+      final dynamic feeData = convert.jsonDecode(response.body);
+      return Fees.tryParse(feeData);
+    } catch (e) {
+      print('query fee config error $feeUrl $e');
+      return null;
     }
+  }
+
+  Future<void> queryTxFees() async {
+    final feeUrl = "$BASE_INFO_URL/fee_config.json";
+    final Fees? parsedFees = await _fetchFeeConfig(feeUrl);
+    if (parsedFees != null) {
+      await store.assets!.setFeesConfig(parsedFees);
+    }
+    // If fetch failed, keep existing transferFees (either cached or default from init)
   }
 
   Future<dynamic> fetchBatchAccountsInfo(List<String> pubkeys,

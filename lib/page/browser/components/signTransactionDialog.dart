@@ -87,7 +87,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   bool isRiskAddress = false;
   bool showRawDataStatus = false;
-  double lastFee = 0.0101;
+  late double lastFee;
   late String? lastMemo = "";
   late int inputNonce;
   ZkAppValueEnum feeType = ZkAppValueEnum.recommed_default;
@@ -107,15 +107,23 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   double customNetBalance = 0;
   String? nextGqlUrl;
 
-  double defaultNetFee = DEFAULT_TRANSACTION_FEE;
-  double zekoNetFee = DEFAULT_TRANSACTION_FEE;
+  late double defaultNetFee;
+  late double zekoNetFee;
   bool isZekoNet = false;
 
   TimerManager? timerManager;
 
+  double _getCurrentDefaultFee() {
+    return store.assets?.transferFees.medium ?? DEFAULT_TRANSACTION_FEE;
+  }
+
   @override
   void initState() {
     super.initState();
+    final initialFee = _getCurrentDefaultFee();
+    lastFee = initialFee;
+    defaultNetFee = initialFee;
+    zekoNetFee = initialFee;
     nextWalletData = widget.signWallet != null
         ? widget.signWallet!
         : store.wallet!.currentWallet;
@@ -148,7 +156,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       }
 
       await _loadData(weight);
-      int intervalTime = 0;
+
+      int lastNonce = checkParams();
+
+      int intervalTime = (isZekoNet && feeType == ZkAppValueEnum.recommed_default)
+          ? ZEKO_FEE_LOOP_TIME
+          : 0;
 
       timerManager = TimerManager(
         intervalTime: intervalTime,
@@ -164,7 +177,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         },
       );
 
-      int lastNonce = checkParams();
       if (widget.walletConnectChainId == null) {
         _loadTokenPendingData(lastNonce);
       }
@@ -284,7 +296,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     if (widget.signType == SignTxDialogType.zkApp && transaction != null) {
       int zkUpdateCount = getAccountUpdateCount(transaction);
       double zkAdditionFee = 0;
-      zkAdditionFee = store.assets!.transferFees.accountupdate * zkUpdateCount;
+      zkAdditionFee = store.assets!.transferFees.zkAppAccountUpdateFee * zkUpdateCount;
       defaultNetFee = store.assets!.transferFees.medium +
           zkAdditionFee;
     } else {
@@ -292,13 +304,13 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     }
 
     if (webFee != null && Fmt.isNumber(webFee)) {
-      lastFee = double.parse(webFee.toString());
+      final parsedWebFee = double.parse(webFee.toString());
       tempFeeType = ZkAppValueEnum.recommed_site;
-      showFeeErrorTip = lastFee >= store.assets!.transferFees.cap;
+      final feeExceedsCap = store.assets!.transferFees.isFeeExceedsCapValue(parsedWebFee);
       setState(() {
-        lastFee = lastFee;
+        lastFee = parsedWebFee;
         feeType = tempFeeType;
-        showFeeErrorTip = showFeeErrorTip;
+        showFeeErrorTip = feeExceedsCap;
       });
       timerManager?.setIntervalTime(0);
     } else {
@@ -316,6 +328,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
   @override
   void dispose() {
+    timerManager?.dispose();
     super.dispose();
   }
 
@@ -669,7 +682,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           if (fee > 0) {
             setState(() {
               lastFee = fee;
-              showFeeErrorTip = fee >= store.assets!.transferFees.cap;
+              showFeeErrorTip = store.assets!.transferFees.isFeeExceedsCapValue(fee);
               feeType = ZkAppValueEnum.recommed_custom;
               timerManager?.setIntervalTime(0);
             });

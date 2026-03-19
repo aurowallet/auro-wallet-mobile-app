@@ -407,14 +407,14 @@ mixin _$AssetsStore on _AssetsStore, Store {
     );
   }
 
-  late final _$setFeesMapAsyncAction = AsyncAction(
-    '_AssetsStore.setFeesMap',
+  late final _$setFeesConfigAsyncAction = AsyncAction(
+    '_AssetsStore.setFeesConfig',
     context: context,
   );
 
   @override
-  Future<void> setFeesMap(Map<String, double> fees) {
-    return _$setFeesMapAsyncAction.run(() => super.setFeesMap(fees));
+  Future<void> setFeesConfig(Fees fees) {
+    return _$setFeesConfigAsyncAction.run(() => super.setFeesConfig(fees));
   }
 
   late final _$clearMarketPricesAsyncAction = AsyncAction(

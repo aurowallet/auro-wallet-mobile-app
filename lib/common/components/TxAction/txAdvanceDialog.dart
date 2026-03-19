@@ -34,18 +34,12 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
 
   @override
   void dispose() {
+    _feeCtrl.dispose();
     super.dispose();
   }
 
   bool _validateFee(String fee) {
-    bool res = true;
-    if (fee.isNotEmpty &&
-        double.parse(fee) >= widget.store.assets!.transferFees.cap) {
-      res = false;
-    } else {
-      res = true;
-    }
-    return res;
+    return !widget.store.assets!.transferFees.isFeeExceedsCap(fee);
   }
 
   @override

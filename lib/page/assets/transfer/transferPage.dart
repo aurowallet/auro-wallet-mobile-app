@@ -52,7 +52,7 @@ class _TransferPageState extends State<TransferPage> {
   final TextEditingController _memoCtrl = TextEditingController();
   final TextEditingController _nonceCtrl = TextEditingController();
   final TextEditingController _feeCtrl = TextEditingController();
-  late ReactionDisposer _monitorFeeDisposer;
+  ReactionDisposer? _monitorFeeDisposer;
   final addressFocusNode = FocusNode();
   bool submitDisabled = true;
   bool submitting = false;
@@ -80,8 +80,8 @@ class _TransferPageState extends State<TransferPage> {
   @override
   void initState() {
     super.initState();
-    _onFeeLoaded(store.assets!.transferFees);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onFeeLoaded(store.assets!.transferFees);
       _monitorFeeDisposer =
           reaction((_) => store.assets!.transferFees, _onFeeLoaded);
       _amountCtrl.addListener(_monitorSummitStatus);
@@ -152,7 +152,7 @@ class _TransferPageState extends State<TransferPage> {
     _memoCtrl.dispose();
     _nonceCtrl.dispose();
     _feeCtrl.dispose();
-    _monitorFeeDisposer();
+    _monitorFeeDisposer?.call();
     timerManager?.dispose();
     super.dispose();
   }
@@ -161,12 +161,15 @@ class _TransferPageState extends State<TransferPage> {
     setState(() {
       inputDirty = true;
       if (_feeCtrl.text.isNotEmpty) {
-        currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        try {
+          currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
+        } catch (e) {
+          currentFee = zekoNetFee != null ? zekoNetFee : store.assets?.transferFees.medium;
+        }
         timerManager?.setIntervalTime(0);
       } else {
-        currentFee = currentFee =
+        currentFee =
             zekoNetFee != null ? zekoNetFee : store.assets?.transferFees.medium;
-        ;
         timerManager?.setIntervalTime(
             store.settings!.isZekoNet ? ZEKO_FEE_LOOP_TIME : 0);
       }
@@ -799,7 +802,7 @@ class _TransferPageState extends State<TransferPage> {
                             feePlaceHolder: currentFee,
                             nonceCtrl: _nonceCtrl,
                             noncePlaceHolder: nonceHolder,
-                            cap: fees.cap,
+                            transferFees: fees,
                           )
                         ],
                       ),

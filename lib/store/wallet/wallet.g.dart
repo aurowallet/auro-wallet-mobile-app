@@ -467,6 +467,18 @@ mixin _$WalletStore on _WalletStore, Store {
   }
 
   @override
+  void setNewWalletName(String name) {
+    final _$actionInfo = _$_WalletStoreActionController.startAction(
+      name: '_WalletStore.setNewWalletName',
+    );
+    try {
+      return super.setNewWalletName(name);
+    } finally {
+      _$_WalletStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setNewWalletSeed(String seed, String seedType) {
     final _$actionInfo = _$_WalletStoreActionController.startAction(
       name: '_WalletStore.setNewWalletSeed',

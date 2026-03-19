@@ -52,14 +52,14 @@ class _TxActionDialogState extends State<TxActionDialog> {
     super.initState();
     double nextPlusFee = widget.modalType == TxActionType.cancel
         ? 0.0001
-        : widget.store.assets!.transferFees.speedup;
+        : widget.store.assets!.transferFees.speedUpBuffer;
 
     preFee = double.parse(widget.txData.fee as String);
     preFee = double.parse(Fmt.balance(
         widget.txData.fee.toString(), COIN.decimals,
         maxLength: COIN.decimals));
 
-    speedUpFee = widget.store.assets!.transferFees.speedup;
+    speedUpFee = widget.store.assets!.transferFees.speedUpBuffer;
     speedUpFee = speedUpFee.isNegative ? 0 : speedUpFee;
 
     nextStateFee = (Decimal.parse(nextPlusFee.toString()) +
@@ -160,7 +160,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
         );
       },
     );
-    if (nextFee!.isNotEmpty) {
+    if (nextFee != null && nextFee.isNotEmpty) {
       nextStateFee = double.parse(nextFee);
     }
   }

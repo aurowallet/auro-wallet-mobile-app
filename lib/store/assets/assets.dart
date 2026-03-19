@@ -1,4 +1,3 @@
-import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -28,7 +27,7 @@ abstract class _AssetsStore with Store {
 
   final String localStorageBlocksKey = 'blocks';
 
-  final String localStorageFeesKey = 'fees';
+  final String localStorageFeesKey = 'fee_config_v1';
   final String cacheBalanceKey = 'balance';
   final String cachePriceKey = 'coin_price_v2';
 
@@ -49,7 +48,7 @@ abstract class _AssetsStore with Store {
       ObservableMap<String, AccountInfo>();
 
   @observable
-  Fees transferFees = defaultTxFees;
+  Fees transferFees = Fees.fromDefault();
 
   @observable
   ObservableList<TransferData> pendingTxs = ObservableList<TransferData>();
@@ -431,9 +430,9 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> setFeesMap(Map<String, double> fees) async {
-    transferFees = Fees.fromJson(fees);
-    rootStore.localStorage.setObject(localStorageFeesKey, transferFees);
+  Future<void> setFeesConfig(Fees fees) async {
+    transferFees = fees;
+    await rootStore.localStorage.setObject(localStorageFeesKey, transferFees);
   }
 
   @action
@@ -512,13 +511,17 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadFeesCache() async {
-    Map<String, dynamic>? fees = await rootStore.localStorage
-        .getObject(localStorageFeesKey) as Map<String, dynamic>?;
-    if (fees != null) {
-      transferFees = Fees.fromJson(fees);
-    } else {
-      transferFees = Fees.fromDefault();
+    try {
+      Map<String, dynamic>? fees = await rootStore.localStorage
+          .getObject(localStorageFeesKey) as Map<String, dynamic>?;
+      if (fees != null) {
+        transferFees = Fees.fromJson(fees);
+        return;
+      }
+    } catch (e) {
+      print('load fee cache error $e');
     }
+    transferFees = Fees.fromDefault();
   }
 
   @action

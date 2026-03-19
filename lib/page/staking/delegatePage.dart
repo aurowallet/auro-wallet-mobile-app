@@ -24,7 +24,6 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
-import 'package:auro_wallet/common/consts/index.dart' as consts;
 
 class DelegateParams {
   DelegateParams({
@@ -59,7 +58,7 @@ class _DelegatePageState extends State<DelegatePage>
   final TextEditingController _feeCtrl = new TextEditingController();
   final TextEditingController _memoCtrl = new TextEditingController();
   final TextEditingController _validatorCtrl = new TextEditingController();
-  late ReactionDisposer _monitorFeeDisposer;
+  ReactionDisposer? _monitorFeeDisposer;
   bool _submitDisabled = true;
   bool submitting = false;
   var _loading = Observable(true);
@@ -73,6 +72,7 @@ class _DelegatePageState extends State<DelegatePage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DelegateParams params =
           ModalRoute.of(context)!.settings.arguments as DelegateParams;
+      _onFeeLoaded(store.assets!.transferFees);
       _monitorFeeDisposer =
           reaction((_) => store.assets!.transferFees, _onFeeLoaded);
       _feeCtrl.addListener(_onFeeInputChange);
@@ -90,7 +90,7 @@ class _DelegatePageState extends State<DelegatePage>
     _nonceCtrl.dispose();
     _feeCtrl.dispose();
     _validatorCtrl.dispose();
-    _monitorFeeDisposer();
+    _monitorFeeDisposer?.call();
     super.dispose();
   }
 
@@ -152,7 +152,7 @@ class _DelegatePageState extends State<DelegatePage>
     if (fees.medium > 0) {
       defaultFee = fees.medium;
     }
-    if (!inputDirty && currentFee == null) {
+    if (!inputDirty) {
       setState(() {
         currentFee = fees.medium;
       });
@@ -169,7 +169,7 @@ class _DelegatePageState extends State<DelegatePage>
     if (currentFee != null) {
       return currentFee!;
     }
-    return consts.defaultTxFees.medium;
+    return store.assets!.transferFees.medium;
   }
 
   Future<void> _loadData() async {
@@ -507,7 +507,7 @@ class _DelegatePageState extends State<DelegatePage>
                               nonceCtrl: _nonceCtrl,
                               noncePlaceHolder: _parseNonce(store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce),
                               feePlaceHolder: currentFee,
-                              cap: fees.cap,
+                              transferFees: fees,
                             ),
                           ],
                         ),

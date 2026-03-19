@@ -117,6 +117,24 @@ mixin _$SettingsStore on _SettingsStore, Store {
     });
   }
 
+  late final _$termsAgreedAtom = Atom(
+    name: '_SettingsStore.termsAgreed',
+    context: context,
+  );
+
+  @override
+  bool get termsAgreed {
+    _$termsAgreedAtom.reportRead();
+    return super.termsAgreed;
+  }
+
+  @override
+  set termsAgreed(bool value) {
+    _$termsAgreedAtom.reportWrite(value, super.termsAgreed, () {
+      super.termsAgreed = value;
+    });
+  }
+
   late final _$certExpiredCheckStatusAtom = Atom(
     name: '_SettingsStore.certExpiredCheckStatus',
     context: context,
@@ -455,6 +473,26 @@ mixin _$SettingsStore on _SettingsStore, Store {
     );
   }
 
+  late final _$setTermsAgreedAsyncAction = AsyncAction(
+    '_SettingsStore.setTermsAgreed',
+    context: context,
+  );
+
+  @override
+  Future<void> setTermsAgreed(bool agreed) {
+    return _$setTermsAgreedAsyncAction.run(() => super.setTermsAgreed(agreed));
+  }
+
+  late final _$loadTermsAgreedAsyncAction = AsyncAction(
+    '_SettingsStore.loadTermsAgreed',
+    context: context,
+  );
+
+  @override
+  Future<void> loadTermsAgreed() {
+    return _$loadTermsAgreedAsyncAction.run(() => super.loadTermsAgreed());
+  }
+
   late final _$_SettingsStoreActionController = ActionController(
     name: '_SettingsStore',
     context: context,
@@ -493,6 +531,7 @@ currencyCode: ${currencyCode},
 currentNode: ${currentNode},
 testnetShowStatus: ${testnetShowStatus},
 lockWalletStatus: ${lockWalletStatus},
+termsAgreed: ${termsAgreed},
 certExpiredCheckStatus: ${certExpiredCheckStatus},
 certificateKeyData: ${certificateKeyData},
 aboutus: ${aboutus},

@@ -7,7 +7,6 @@ import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -68,10 +67,7 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
   }
 
   bool _validateFee(String fee) {
-    if (fee.isNotEmpty && Fmt.isNumber(fee)) {
-      return double.parse(fee) < store.assets!.transferFees.cap;
-    }
-    return true;
+    return !store.assets!.transferFees.isFeeExceedsCap(fee);
   }
 
   @override

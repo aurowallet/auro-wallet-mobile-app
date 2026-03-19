@@ -12,13 +12,16 @@ mixin _$StakingStore on _StakingStore, Store {
   Computed<List<ValidatorData>>? _$allValidatorsComputed;
 
   @override
-  List<ValidatorData> get allValidators => (_$allValidatorsComputed ??=
-          Computed<List<ValidatorData>>(() => super.allValidators,
-              name: '_StakingStore.allValidators'))
-      .value;
+  List<ValidatorData> get allValidators =>
+      (_$allValidatorsComputed ??= Computed<List<ValidatorData>>(
+        () => super.allValidators,
+        name: '_StakingStore.allValidators',
+      )).value;
 
-  late final _$validatorsInfoAtom =
-      Atom(name: '_StakingStore.validatorsInfo', context: context);
+  late final _$validatorsInfoAtom = Atom(
+    name: '_StakingStore.validatorsInfo',
+    context: context,
+  );
 
   @override
   List<ValidatorData> get validatorsInfo {
@@ -33,8 +36,10 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
-  late final _$inactiveValidatorsInfoAtom =
-      Atom(name: '_StakingStore.inactiveValidatorsInfo', context: context);
+  late final _$inactiveValidatorsInfoAtom = Atom(
+    name: '_StakingStore.inactiveValidatorsInfo',
+    context: context,
+  );
 
   @override
   List<ValidatorData> get inactiveValidatorsInfo {
@@ -44,13 +49,19 @@ mixin _$StakingStore on _StakingStore, Store {
 
   @override
   set inactiveValidatorsInfo(List<ValidatorData> value) {
-    _$inactiveValidatorsInfoAtom.reportWrite(value, super.inactiveValidatorsInfo, () {
-      super.inactiveValidatorsInfo = value;
-    });
+    _$inactiveValidatorsInfoAtom.reportWrite(
+      value,
+      super.inactiveValidatorsInfo,
+      () {
+        super.inactiveValidatorsInfo = value;
+      },
+    );
   }
 
-  late final _$overviewDataAtom =
-      Atom(name: '_StakingStore.overviewData', context: context);
+  late final _$overviewDataAtom = Atom(
+    name: '_StakingStore.overviewData',
+    context: context,
+  );
 
   @override
   OverviewData get overviewData {
@@ -65,8 +76,10 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
-  late final _$stakingAPRAtom =
-      Atom(name: '_StakingStore.stakingAPR', context: context);
+  late final _$stakingAPRAtom = Atom(
+    name: '_StakingStore.stakingAPR',
+    context: context,
+  );
 
   @override
   double? get stakingAPR {
@@ -81,8 +94,10 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
-  late final _$lastLoadedDataKeyAtom =
-      Atom(name: '_StakingStore.lastLoadedDataKey', context: context);
+  late final _$lastLoadedDataKeyAtom = Atom(
+    name: '_StakingStore.lastLoadedDataKey',
+    context: context,
+  );
 
   @override
   String? get lastLoadedDataKey {
@@ -97,8 +112,10 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
-  late final _$pendingNavigationRouteAtom =
-      Atom(name: '_StakingStore.pendingNavigationRoute', context: context);
+  late final _$pendingNavigationRouteAtom = Atom(
+    name: '_StakingStore.pendingNavigationRoute',
+    context: context,
+  );
 
   @override
   String? get pendingNavigationRoute {
@@ -108,13 +125,19 @@ mixin _$StakingStore on _StakingStore, Store {
 
   @override
   set pendingNavigationRoute(String? value) {
-    _$pendingNavigationRouteAtom.reportWrite(value, super.pendingNavigationRoute, () {
-      super.pendingNavigationRoute = value;
-    });
+    _$pendingNavigationRouteAtom.reportWrite(
+      value,
+      super.pendingNavigationRoute,
+      () {
+        super.pendingNavigationRoute = value;
+      },
+    );
   }
 
-  late final _$cachedDelegationKeyAtom =
-      Atom(name: '_StakingStore.cachedDelegationKey', context: context);
+  late final _$cachedDelegationKeyAtom = Atom(
+    name: '_StakingStore.cachedDelegationKey',
+    context: context,
+  );
 
   @override
   String? get cachedDelegationKey {
@@ -129,8 +152,10 @@ mixin _$StakingStore on _StakingStore, Store {
     });
   }
 
-  late final _$cachedDelegationOwnerAtom =
-      Atom(name: '_StakingStore.cachedDelegationOwner', context: context);
+  late final _$cachedDelegationOwnerAtom = Atom(
+    name: '_StakingStore.cachedDelegationOwner',
+    context: context,
+  );
 
   @override
   String? get cachedDelegationOwner {
@@ -140,13 +165,19 @@ mixin _$StakingStore on _StakingStore, Store {
 
   @override
   set cachedDelegationOwner(String? value) {
-    _$cachedDelegationOwnerAtom.reportWrite(value, super.cachedDelegationOwner, () {
-      super.cachedDelegationOwner = value;
-    });
+    _$cachedDelegationOwnerAtom.reportWrite(
+      value,
+      super.cachedDelegationOwner,
+      () {
+        super.cachedDelegationOwner = value;
+      },
+    );
   }
 
-  late final _$cachedDelegationNetworkAtom =
-      Atom(name: '_StakingStore.cachedDelegationNetwork', context: context);
+  late final _$cachedDelegationNetworkAtom = Atom(
+    name: '_StakingStore.cachedDelegationNetwork',
+    context: context,
+  );
 
   @override
   String? get cachedDelegationNetwork {
@@ -156,13 +187,19 @@ mixin _$StakingStore on _StakingStore, Store {
 
   @override
   set cachedDelegationNetwork(String? value) {
-    _$cachedDelegationNetworkAtom.reportWrite(value, super.cachedDelegationNetwork, () {
-      super.cachedDelegationNetwork = value;
-    });
+    _$cachedDelegationNetworkAtom.reportWrite(
+      value,
+      super.cachedDelegationNetwork,
+      () {
+        super.cachedDelegationNetwork = value;
+      },
+    );
   }
 
-  late final _$initAsyncAction =
-      AsyncAction('_StakingStore.init', context: context);
+  late final _$initAsyncAction = AsyncAction(
+    '_StakingStore.init',
+    context: context,
+  );
 
   @override
   Future<void> init() {
@@ -199,7 +236,8 @@ mixin _$StakingStore on _StakingStore, Store {
   @override
   void setStakingAPR(double apr, {bool shouldCache = true}) {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
-        name: '_StakingStore.setStakingAPR');
+      name: '_StakingStore.setStakingAPR',
+    );
     try {
       return super.setStakingAPR(apr, shouldCache: shouldCache);
     } finally {
@@ -210,7 +248,8 @@ mixin _$StakingStore on _StakingStore, Store {
   @override
   void clearStakingAPR() {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
-        name: '_StakingStore.clearStakingAPR');
+      name: '_StakingStore.clearStakingAPR',
+    );
     try {
       return super.clearStakingAPR();
     } finally {
@@ -219,24 +258,66 @@ mixin _$StakingStore on _StakingStore, Store {
   }
 
   @override
-  void setDelegationCache(String? delegationKey, String ownerAddress, String networkID, {bool shouldCache = true}) {
+  void clearOverviewData() {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
-        name: '_StakingStore.setDelegationCache');
+      name: '_StakingStore.clearOverviewData',
+    );
     try {
-      return super.setDelegationCache(delegationKey, ownerAddress, networkID, shouldCache: shouldCache);
+      return super.clearOverviewData();
     } finally {
       _$_StakingStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setValidatorsInfo(List<Map<String, dynamic>> activeData,
-      List<Map<String, dynamic>> inactiveData, {bool shouldCache = true}) {
+  void clearAccountSpecificData() {
+    final _$actionInfo = _$_StakingStoreActionController.startAction(
+      name: '_StakingStore.clearAccountSpecificData',
+    );
+    try {
+      return super.clearAccountSpecificData();
+    } finally {
+      _$_StakingStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setDelegationCache(
+    String? delegationKey,
+    String ownerAddress,
+    String networkID, {
+    bool shouldCache = true,
+  }) {
+    final _$actionInfo = _$_StakingStoreActionController.startAction(
+      name: '_StakingStore.setDelegationCache',
+    );
+    try {
+      return super.setDelegationCache(
+        delegationKey,
+        ownerAddress,
+        networkID,
+        shouldCache: shouldCache,
+      );
+    } finally {
+      _$_StakingStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setValidatorsInfo(
+    List<Map<String, dynamic>> activeData,
+    List<Map<String, dynamic>> inactiveData, {
+    bool shouldCache = true,
+  }) {
     final _$actionInfo = _$_StakingStoreActionController.startAction(
       name: '_StakingStore.setValidatorsInfo',
     );
     try {
-      return super.setValidatorsInfo(activeData, inactiveData, shouldCache: shouldCache);
+      return super.setValidatorsInfo(
+        activeData,
+        inactiveData,
+        shouldCache: shouldCache,
+      );
     } finally {
       _$_StakingStoreActionController.endAction(_$actionInfo);
     }

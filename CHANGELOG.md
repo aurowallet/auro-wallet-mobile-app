@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 - Ledger process
 - Restore process
 - Update API of staking APR
+- Upgrade network fee config
 
 ### Fixed
 - fetchScamInfo catch
