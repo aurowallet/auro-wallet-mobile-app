@@ -707,5 +707,11 @@
   "epochEstimate": "15天 (1 epoch) 预估",
   "threeMonthsEstimate": "3个月预估",
   "sixMonthsEstimate": "6个月预估",
-  "staked": "已质押"
+  "staked": "已质押",
+  "networkFee": "网络费用",
+  "@networkFee": {},
+  "inputFeeError": "请输入有效的网络费用",
+  "@inputFeeError": {},
+  "inputNonceError": "请输入有效的nonce",
+  "@inputNonceError": {}
 }

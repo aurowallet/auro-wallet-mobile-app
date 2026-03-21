@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/customStyledText.dart';
+import 'package:auro_wallet/common/components/feeButtonGroup.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -12,12 +13,14 @@ class TxAdvanceDialog extends StatefulWidget {
       {this.onOk,
       this.onCancel,
       required this.currentNonce,
-      required this.nextStateFee});
+      required this.nextStateFee,
+      this.showFeeButtons = true});
 
   final Function? onOk;
   final Function? onCancel;
   final int currentNonce;
   final double nextStateFee;
+  final bool showFeeButtons;
   final store = globalAppStore;
 
   @override
@@ -30,6 +33,9 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
   @override
   void initState() {
     super.initState();
+    _feeCtrl.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -40,6 +46,10 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
 
   bool _validateFee(String fee) {
     return !widget.store.assets!.transferFees.isFeeExceedsCap(fee);
+  }
+
+  void _onClickFeeButton(double fee) {
+    _feeCtrl.text = fee.toString();
   }
 
   @override
@@ -62,7 +72,7 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: InputItem(
-            label: dic.transactionFee,
+            label: dic.networkFee,
             maxLength: 16,
             initialValue: '',
             placeholder: widget.nextStateFee.toString(),
@@ -73,6 +83,18 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
             labelStyle: TextStyle(
               fontWeight: FontWeight.w700,
             ),
+            suffixIcon: widget.showFeeButtons
+                ? Padding(
+                    padding: EdgeInsets.only(right: 4),
+                    child: FeeButtonGroup(
+                      fees: widget.store.assets!.transferFees,
+                      currentFeeText: _feeCtrl.text,
+                      fallbackFee: widget.nextStateFee,
+                      onSelectFee: _onClickFeeButton,
+                    ),
+                  )
+                : null,
+            suffixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
           ),
         ),
         InputErrorTip(
@@ -168,10 +190,19 @@ class _TxAdvanceDialogDialogState extends State<TxAdvanceDialog> {
                   ],
                 ),
                 onPressed: () {
+                  AppLocalizations dic = AppLocalizations.of(context)!;
+                  String inputFee = _feeCtrl.text.trim();
+                  if (inputFee.isNotEmpty) {
+                    final parsedFee = double.tryParse(inputFee);
+                    if (parsedFee == null || parsedFee <= 0) {
+                      UI.toast(dic.inputFeeError);
+                      return;
+                    }
+                  }
                   if (widget.onOk != null) {
                     widget.onOk!();
                   }
-                  Navigator.of(context).pop(_feeCtrl.text.trim());
+                  Navigator.of(context).pop(inputFee);
                 },
               ),
             ),

@@ -1081,4 +1081,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get staked => '已质押';
+
+  @override
+  String get networkFee => '网络费用';
+
+  @override
+  String get inputFeeError => '请输入有效的交易费用';
+
+  @override
+  String get inputNonceError => '请输入有效的nonce';
 }

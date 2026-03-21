@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
-import 'package:auro_wallet/common/components/feeSelector.dart';
+import 'package:auro_wallet/common/components/networkFeeDisplay.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -21,7 +21,6 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 
@@ -70,6 +69,7 @@ class _DelegatePageState extends State<DelegatePage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       DelegateParams params =
           ModalRoute.of(context)!.settings.arguments as DelegateParams;
       _onFeeLoaded(store.assets!.transferFees);
@@ -187,14 +187,17 @@ class _DelegatePageState extends State<DelegatePage>
     });
   }
 
-  void _onChooseFee(double fee) {
-    if (_feeCtrl.text.isNotEmpty) {
+  void _onAdvanceConfirm(String fee, String nonce) {
+    if (fee.isNotEmpty) {
+      _feeCtrl.text = fee;
+    } else {
       _feeCtrl.clear();
     }
-    setState(() {
-      inputDirty = false;
-      currentFee = fee;
-    });
+    if (nonce.isNotEmpty) {
+      _nonceCtrl.text = nonce;
+    } else {
+      _nonceCtrl.clear();
+    }
   }
 
   String _floorToDecimals(double value, int decimals) {
@@ -490,25 +493,7 @@ class _DelegatePageState extends State<DelegatePage>
                                 ],
                               ),
                             ),
-                            FeeSelector(
-                              fees: fees,
-                              value: currentFee,
-                              onChoose: _onChooseFee,
-                            ),
-                            Container(
-                              height: 0.5,
-                              margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Color(0x1A000000),
-                              ),
-                            ),
-                            AdvancedTransferOptions(
-                              feeCtrl: _feeCtrl,
-                              nonceCtrl: _nonceCtrl,
-                              noncePlaceHolder: _parseNonce(store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce),
-                              feePlaceHolder: currentFee,
-                              transferFees: fees,
-                            ),
+                            _buildNetworkFeeDisplay(fees),
                           ],
                         ),
                       ),
@@ -589,6 +574,19 @@ class _DelegatePageState extends State<DelegatePage>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildNetworkFeeDisplay(Fees fees, {bool showAdvanceButton = true}) {
+    return NetworkFeeDisplay(
+      currentFee: currentFee ?? fees.medium,
+      transferFees: fees,
+      onAdvanceConfirm: _onAdvanceConfirm,
+      currentNonce: _parseNonce(store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce),
+      advanceFee: _feeCtrl.text,
+      advanceNonce: _nonceCtrl.text,
+      showFeeButtons: !store.settings!.isZekoNet,
+      showAdvanceButton: showAdvanceButton,
     );
   }
 

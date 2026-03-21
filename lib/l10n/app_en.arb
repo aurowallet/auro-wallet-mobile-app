@@ -680,5 +680,11 @@
   "epochEstimate": "15 days (1 epoch) est.",
   "threeMonthsEstimate": "3 months est.",
   "sixMonthsEstimate": "6 months est.",
-  "staked": "Staked"
+  "staked": "Staked",
+  "networkFee": "Network Fee",
+  "@networkFee": {},
+  "inputFeeError": "Please enter a valid network fee",
+  "@inputFeeError": {},
+  "inputNonceError": "Please enter a valid nonce",
+  "@inputNonceError": {}
 }

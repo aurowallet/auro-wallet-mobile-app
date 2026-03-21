@@ -2191,6 +2191,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Staked'**
   String get staked;
+
+  /// No description provided for @networkFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Network Fee'**
+  String get networkFee;
+
+  /// No description provided for @inputFeeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid transaction fee'**
+  String get inputFeeError;
+
+  /// No description provided for @inputNonceError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid nonce'**
+  String get inputNonceError;
 }
 
 class _AppLocalizationsDelegate

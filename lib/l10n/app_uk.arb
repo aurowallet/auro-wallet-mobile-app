@@ -709,5 +709,8 @@
     "epochEstimate": "15 днів (1 епоха) прогноз",
     "threeMonthsEstimate": "3 місяці прогноз",
     "sixMonthsEstimate": "6 місяців прогноз",
-    "staked": "Застейкано"
+    "staked": "Застейкано",
+    "networkFee": "Комісія мережі",
+    "inputFeeError": "Введіть дійсну комісію мережі",
+    "inputNonceError": "Введіть дійсний nonce"
 }

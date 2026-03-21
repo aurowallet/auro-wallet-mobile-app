@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/feeButtonGroup.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
@@ -17,13 +18,15 @@ class AdvanceDialog extends StatefulWidget {
     required this.fee,
     required this.feePlaceHolder,
     required this.feeType,
+    this.showFeeButtons = true,
   });
 
-  final Function(double fee, int nonce) onConfirm;
+  final Function(double? fee, int nonce) onConfirm;
   final int nonce;
   final double fee;
   final double feePlaceHolder;
   final ZkAppValueEnum feeType;
+  final bool showFeeButtons;
 
   @override
   _AdvanceDialogState createState() => _AdvanceDialogState();
@@ -40,21 +43,40 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
     _feeCtrl.text = widget.feeType == ZkAppValueEnum.recommed_custom
         ? widget.fee.toString()
         : "";
+    _feeCtrl.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   void onConfirm() {
+    AppLocalizations dic = AppLocalizations.of(context)!;
     String inputFee = _feeCtrl.text.trim();
     String inputNonce = _nonceCtrl.text.trim();
     int inferredNonce = widget.nonce;
 
-    double fee = 0;
+    if (inputFee.isNotEmpty) {
+      final parsedFee = double.tryParse(inputFee);
+      if (parsedFee == null || parsedFee <= 0) {
+        UI.toast(dic.inputFeeError);
+        return;
+      }
+    }
+    if (inputNonce.isNotEmpty) {
+      final parsedNonce = int.tryParse(inputNonce);
+      if (parsedNonce == null || parsedNonce < 0) {
+        UI.toast(dic.inputNonceError);
+        return;
+      }
+    }
+
+    double? fee;
     int nonce = 0;
     try {
       if (inputFee.isNotEmpty) {
         fee = double.parse(inputFee);
       }
     } catch (e) {
-      fee = 0;
+      fee = null;
     }
     try {
       nonce = inputNonce.isNotEmpty ? int.parse(inputNonce) : inferredNonce;
@@ -62,8 +84,12 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
       nonce = widget.nonce;
     }
 
-    widget.onConfirm(fee, nonce);
     Navigator.of(context).pop();
+    widget.onConfirm(fee, nonce);
+  }
+
+  void _onClickFeeButton(double fee) {
+    _feeCtrl.text = fee.toString();
   }
 
   bool _validateFee(String fee) {
@@ -97,7 +123,7 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: InputItem(
-                label: dic.fee,
+                label: dic.networkFee,
                 maxLength: 16,
                 placeholder: widget.feeType != ZkAppValueEnum.recommed_custom
                     ? widget.feePlaceHolder.toString()
@@ -109,6 +135,18 @@ class _AdvanceDialogState extends State<AdvanceDialog> {
                 labelStyle: TextStyle(
                   fontWeight: FontWeight.w700,
                 ),
+                suffixIcon: widget.showFeeButtons
+                    ? Padding(
+                        padding: EdgeInsets.only(right: 4),
+                        child: FeeButtonGroup(
+                          fees: store.assets!.transferFees,
+                          currentFeeText: _feeCtrl.text,
+                          fallbackFee: widget.feePlaceHolder,
+                          onSelectFee: _onClickFeeButton,
+                        ),
+                      )
+                    : null,
+                suffixIconConstraints: BoxConstraints(minHeight: 0, minWidth: 0),
               ),
             ),
             InputErrorTip(

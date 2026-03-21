@@ -3,8 +3,7 @@ import 'dart:math';
 import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
 import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
 import 'package:auro_wallet/common/components/TimerManager.dart';
-import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
-import 'package:auro_wallet/common/components/feeSelector.dart';
+import 'package:auro_wallet/common/components/networkFeeDisplay.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
@@ -81,6 +80,7 @@ class _TransferPageState extends State<TransferPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _onFeeLoaded(store.assets!.transferFees);
       _monitorFeeDisposer =
           reaction((_) => store.assets!.transferFees, _onFeeLoaded);
@@ -159,8 +159,8 @@ class _TransferPageState extends State<TransferPage> {
 
   void _onFeeInputChange() {
     setState(() {
-      inputDirty = true;
       if (_feeCtrl.text.isNotEmpty) {
+        inputDirty = true;
         try {
           currentFee = double.parse(Fmt.parseNumber(_feeCtrl.text));
         } catch (e) {
@@ -168,6 +168,7 @@ class _TransferPageState extends State<TransferPage> {
         }
         timerManager?.setIntervalTime(0);
       } else {
+        inputDirty = false;
         currentFee =
             zekoNetFee != null ? zekoNetFee : store.assets?.transferFees.medium;
         timerManager?.setIntervalTime(
@@ -340,7 +341,7 @@ class _TransferPageState extends State<TransferPage> {
           shouldShowNonce = true;
         }
       }
-      fee = currentFee!;
+      fee = currentFee ?? store.assets!.transferFees.medium;
       double amountToTransfer = amount;
       if (isSendMainToken && _isAllTransfer()) {
         amountToTransfer =
@@ -618,7 +619,7 @@ class _TransferPageState extends State<TransferPage> {
     double availableBalanceStr =
         (availableBalance != null ? availableBalance : 0) as double;
     Decimal available = Decimal.parse(availableBalanceStr.toString());
-    double fee = currentFee!;
+    double fee = currentFee ?? store.assets!.transferFees.medium;
     Decimal transferFee = Decimal.parse(fee.toString());
     if (_amountCtrl.text.isEmpty) {
       return dic.amountError;
@@ -642,12 +643,17 @@ class _TransferPageState extends State<TransferPage> {
     return null;
   }
 
-  void _onChooseFee(double fee) {
-    _feeCtrl.text = fee.toString();
-    setState(() {
-      currentFee = fee;
-      timerManager?.setIntervalTime(0); // Stop countdown when fee is chosen
-    });
+  void _onAdvanceConfirm(String fee, String nonce) {
+    if (fee.isNotEmpty) {
+      _feeCtrl.text = fee;
+    } else {
+      _feeCtrl.clear();
+    }
+    if (nonce.isNotEmpty) {
+      _nonceCtrl.text = nonce;
+    } else {
+      _nonceCtrl.clear();
+    }
   }
 
   void _onAllClick() {
@@ -784,25 +790,14 @@ class _TransferPageState extends State<TransferPage> {
                               ],
                             ),
                           ),
-                          FeeSelector(
-                              fees: fees,
-                              onChoose: _onChooseFee,
-                              value: currentFee,
-                              timerManager:
-                                  timerManager != null ? timerManager : null,
-                              showFeeGroup: !store.settings!.isZekoNet),
-                          Container(
-                            height: 0.5,
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 10),
-                            decoration: BoxDecoration(color: Color(0x1A000000)),
-                          ),
-                          AdvancedTransferOptions(
-                            feeCtrl: _feeCtrl,
-                            feePlaceHolder: currentFee,
-                            nonceCtrl: _nonceCtrl,
-                            noncePlaceHolder: nonceHolder,
+                          NetworkFeeDisplay(
+                            currentFee: currentFee ?? fees.medium,
                             transferFees: fees,
+                            onAdvanceConfirm: _onAdvanceConfirm,
+                            currentNonce: nonceHolder,
+                            advanceFee: _feeCtrl.text,
+                            advanceNonce: _nonceCtrl.text,
+                            showFeeButtons: !store.settings!.isZekoNet,
                           )
                         ],
                       ),

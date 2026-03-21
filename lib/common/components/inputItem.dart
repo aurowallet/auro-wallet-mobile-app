@@ -32,7 +32,8 @@ class InputItem extends StatefulWidget {
       this.autoFocus = false,
       this.textAlign = TextAlign.left,
       this.isError,
-      this.contentPadding});
+      this.contentPadding,
+      this.suffixIconConstraints});
 
   final int? maxLength;
   final bool autoFocus;
@@ -59,6 +60,7 @@ class InputItem extends StatefulWidget {
   final double borderRadius;
   final TextAlign textAlign;
   final Widget? suffixIcon;
+  final BoxConstraints? suffixIconConstraints;
 
   @override
   _InputItemState createState() => _InputItemState();
@@ -206,6 +208,7 @@ class _InputItemState extends State<InputItem> {
                 suffixIcon: widget.isPassword
                     ? _buildSuffixIcon()
                     : (widget.suffixIcon ?? null),
+                suffixIconConstraints: widget.suffixIconConstraints,
                 // enabledBorder: InputBorder.none,
                 focusedBorder: border.copyWith(
                     borderSide: BorderSide(

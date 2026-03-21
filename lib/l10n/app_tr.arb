@@ -707,5 +707,8 @@
   "epochEstimate": "15 gün (1 dönem) tahmini",
   "threeMonthsEstimate": "3 ay tahmini",
   "sixMonthsEstimate": "6 ay tahmini",
-  "staked": "Stake Edildi"
+  "staked": "Stake Edildi",
+  "networkFee": "Ağ Ücreti",
+  "inputFeeError": "Lütfen geçerli bir ağ ücreti girin",
+  "inputNonceError": "Lütfen geçerli bir nonce girin"
 }

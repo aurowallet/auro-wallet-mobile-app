@@ -671,7 +671,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         feePlaceHolder: lastFee,
         feeType: feeType,
         nonce: inputNonce,
-        onConfirm: (double fee, int nonce) {
+        showFeeButtons: !isZekoNet,
+        onConfirm: (double? fee, int nonce) {
           if (nonce != inputNonce) {
             setState(() {
               isManualNonce = true;
@@ -679,7 +680,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
               zkNonceType = ZkAppValueEnum.recommed_custom;
             });
           }
-          if (fee > 0) {
+          if (fee != null) {
             setState(() {
               lastFee = fee;
               showFeeErrorTip = store.assets!.transferFees.isFeeExceedsCapValue(fee);

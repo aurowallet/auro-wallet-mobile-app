@@ -1118,4 +1118,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get staked => 'Staked';
+
+  @override
+  String get networkFee => 'Network Fee';
+
+  @override
+  String get inputFeeError => 'Please enter a valid transaction fee';
+
+  @override
+  String get inputNonceError => 'Please enter a valid nonce';
 }
