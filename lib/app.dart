@@ -17,6 +17,7 @@ import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/page/settings/WalletConnectPage.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
+import 'package:auro_wallet/service/tx_status_monitor.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/foundation.dart' as Foundation;
@@ -215,6 +216,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       _appStore!.walletConnectService!.setContext(context);
       webApi = Api(context, _appStore!);
       await webApi.init();
+      TxStatusMonitor().ensureLifecycleObserving();
       _changeLang(context, _appStore!.settings!.localeCode);
       _storeReady = true;
     }

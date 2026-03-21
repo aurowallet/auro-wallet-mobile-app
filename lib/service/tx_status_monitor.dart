@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:auro_wallet/service/notification_service.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -22,6 +23,13 @@ class PendingTxInfo {
   final DateTime createdAt;
   Timer? timer;
 
+  final int? nonce;
+
+  final bool isZeko;
+  final String? txUrl;
+  final String? senderAddress;
+  int retryCount;
+
   PendingTxInfo({
     required this.hash,
     this.paymentId,
@@ -31,53 +39,145 @@ class PendingTxInfo {
     required this.gqlUrl,
     required this.createdAt,
     this.timer,
+    this.nonce,
+    this.isZeko = false,
+    this.txUrl,
+    this.senderAddress,
+    this.retryCount = 0,
   });
 }
 
-// Callback type for transaction confirmed
 typedef TxConfirmedCallback = void Function(String gqlUrl);
 
-class TxStatusMonitor {
+class TxStatusMonitor with WidgetsBindingObserver {
   static final TxStatusMonitor _instance = TxStatusMonitor._internal();
   factory TxStatusMonitor() => _instance;
   TxStatusMonitor._internal();
 
+  bool _lifecycleRegistered = false;
+  bool _isPaused = false;
+
+  void ensureLifecycleObserving() {
+    if (!_lifecycleRegistered) {
+      WidgetsBinding.instance.addObserver(this);
+      _lifecycleRegistered = true;
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _pauseAllPolling();
+    } else if (state == AppLifecycleState.resumed) {
+      _resumeAllPolling();
+    }
+  }
+
+  void _pauseAllPolling() {
+    if (_isPaused) return;
+    _isPaused = true;
+    for (final txInfo in _pendingTxs.values) {
+      txInfo.timer?.cancel();
+      txInfo.timer = null;
+    }
+  }
+
+  void _resumeAllPolling() {
+    if (!_isPaused) return;
+    _isPaused = false;
+    for (final txInfo in List.of(_pendingTxs.values)) {
+      if (txInfo.isZeko) {
+        if (txInfo.txUrl != null && txInfo.senderAddress != null) {
+          _pollZekoArchiveForTx(txInfo, txInfo.txUrl!, txInfo.senderAddress!, txInfo.retryCount);
+        }
+      } else {
+        _checkTxStatus(txInfo, txInfo.retryCount);
+      }
+    }
+  }
+
   final Map<String, PendingTxInfo> _pendingTxs = {};
   final Map<String, bool> _nodeSupportsTransactionStatus = {};
+  final Map<String, GraphQLClient> _zekoArchiveClients = {};
   
-  // Callback for notifying when transaction is confirmed
-  TxConfirmedCallback? onTxConfirmed;
+  final List<TxConfirmedCallback> _onTxConfirmedListeners = [];
+
+  void addOnTxConfirmedListener(TxConfirmedCallback listener) {
+    if (!_onTxConfirmedListeners.contains(listener)) {
+      _onTxConfirmedListeners.add(listener);
+    }
+  }
+
+  void removeOnTxConfirmedListener(TxConfirmedCallback listener) {
+    _onTxConfirmedListeners.remove(listener);
+  }
+
+  void _notifyTxConfirmedListeners(String gqlUrl) {
+    for (final listener in List.of(_onTxConfirmedListeners)) {
+      listener(gqlUrl);
+    }
+  }
   
-  // Debounce: track pending refresh requests per gqlUrl
   final Set<String> _pendingRefreshUrls = {};
   Timer? _refreshDebounceTimer;
 
   static const int _pollIntervalSeconds = 5;
+  static const int _maxPollRetries = 720;
 
-  static const String TX_STATUS_PENDING = 'PENDING';
   static const String TX_STATUS_INCLUDED = 'INCLUDED';
   static const String TX_STATUS_UNKNOWN = 'UNKNOWN';
 
-  void addPendingTx({
+  static const int _zekoArchivePollIntervalSeconds = 10;
+  static const int _zekoArchiveMaxRetries = 180;
+
+  Future<void> addPendingTx({
     required String hash,
     String? paymentId,
     String? amount,
     String? tokenSymbol,
     required MonitorTxType txType,
     required String gqlUrl,
+    int? nonce,
+    bool isZekoNet = false,
+    String? txUrl,
+    String? senderAddress,
   }) async {
-    if (hash.isEmpty || paymentId == null || paymentId.isEmpty) {
-      return;
-    }
+    try {
+      if (hash.isEmpty || paymentId == null || paymentId.isEmpty) {
+        return;
+      }
 
-    if (_pendingTxs.containsKey(hash)) {
-      return;
-    }
+      if (_pendingTxs.containsKey(hash)) {
+        return;
+      }
 
-    final isSupported = await _checkNodeSupportsTransactionStatus(gqlUrl);
-    
-    if (!isSupported) {
-      // Show "transaction sent" notification immediately for unsupported nodes
+      if (isZekoNet) {
+        final txInfo = PendingTxInfo(
+          hash: hash,
+          paymentId: paymentId,
+          amount: amount,
+          tokenSymbol: tokenSymbol,
+          txType: txType,
+          gqlUrl: gqlUrl,
+          createdAt: DateTime.now(),
+          nonce: nonce,
+          isZeko: true,
+          txUrl: txUrl,
+          senderAddress: senderAddress,
+        );
+        if (txUrl != null && txUrl.isNotEmpty && senderAddress != null && senderAddress.isNotEmpty) {
+          _pendingTxs[hash] = txInfo;
+          _pollZekoArchiveForTx(txInfo, txUrl, senderAddress);
+        }
+        return;
+      }
+
+      final isSupported = await _checkNodeSupportsTransactionStatus(gqlUrl);
+      
+      if (!isSupported) {
+        return;
+      }
+      
       final txInfo = PendingTxInfo(
         hash: hash,
         paymentId: paymentId,
@@ -86,34 +186,19 @@ class TxStatusMonitor {
         txType: txType,
         gqlUrl: gqlUrl,
         createdAt: DateTime.now(),
+        nonce: nonce,
       );
-      _showSentNotification(txInfo);
-      return;
-    }
-    
-    final txInfo = PendingTxInfo(
-      hash: hash,
-      paymentId: paymentId,
-      amount: amount,
-      tokenSymbol: tokenSymbol,
-      txType: txType,
-      gqlUrl: gqlUrl,
-      createdAt: DateTime.now(),
-    );
-    
-    _pendingTxs[hash] = txInfo;
-    _startPollingForTx(txInfo);
+      
+      _pendingTxs[hash] = txInfo;
+      _startPollingForTx(txInfo);
+    } catch (e) {}
   }
 
-  /// Check if the node supports transactionStatus query by making a test query
-  /// If field doesn't exist: graphqlErrors + no data
-  /// If field exists: has data (even if status is UNKNOWN)
   Future<bool> _checkNodeSupportsTransactionStatus(String gqlUrl) async {
     if (_nodeSupportsTransactionStatus.containsKey(gqlUrl)) {
       return _nodeSupportsTransactionStatus[gqlUrl]!;
     }
 
-    // Try a test query with dummy ID to check if field exists
     const String testQuery = r'''
       query transactionStatus($paymentId: ID!) {
         transactionStatus(payment: $paymentId)
@@ -135,13 +220,10 @@ class TxStatusMonitor {
         return true;
       }
       
-      // Check GraphQL errors - if error is about invalid input (not missing field), field IS supported
       if (result.hasException && result.exception?.graphqlErrors.isNotEmpty == true) {
         final errors = result.exception!.graphqlErrors;
         for (final error in errors) {
           final message = error.message.toLowerCase();
-          // "Invalid transaction" or "Malformed input" means the field exists but input is bad
-          // This is different from "Cannot query field" which means field doesn't exist
           if (message.contains('invalid') || message.contains('malformed')) {
             _nodeSupportsTransactionStatus[gqlUrl] = true;
             return true;
@@ -158,7 +240,6 @@ class TxStatusMonitor {
       _nodeSupportsTransactionStatus[gqlUrl] = false;
       return false;
     } catch (e) {
-      _nodeSupportsTransactionStatus[gqlUrl] = false;
       return false;
     }
   }
@@ -167,11 +248,19 @@ class TxStatusMonitor {
     _checkTxStatus(txInfo);
   }
 
-  Future<void> _checkTxStatus(PendingTxInfo txInfo) async {
+  Future<void> _checkTxStatus(PendingTxInfo txInfo, [int retryCount = 0]) async {
+    if (_isPaused) return;
+    txInfo.retryCount = retryCount;
+    if (retryCount >= _maxPollRetries) {
+      _removeTx(txInfo.hash);
+      return;
+    }
     try {
       final status = txInfo.txType == MonitorTxType.zkApp
           ? await _fetchZkTxStatus(txInfo.paymentId!, txInfo.gqlUrl)
           : await _fetchTxStatus(txInfo.paymentId!, txInfo.gqlUrl);
+
+      if (!_pendingTxs.containsKey(txInfo.hash) || _isPaused) return;
 
       if (status == TX_STATUS_INCLUDED) {
         _onTxConfirmed(txInfo);
@@ -181,11 +270,15 @@ class TxStatusMonitor {
       } else {
         txInfo.timer = Timer(
           Duration(seconds: _pollIntervalSeconds),
-          () => _checkTxStatus(txInfo),
+          () => _checkTxStatus(txInfo, retryCount + 1),
         );
       }
     } catch (e) {
-      _removeTx(txInfo.hash);
+      if (!_pendingTxs.containsKey(txInfo.hash) || _isPaused) return;
+      txInfo.timer = Timer(
+        Duration(seconds: _pollIntervalSeconds),
+        () => _checkTxStatus(txInfo, retryCount + 1),
+      );
     }
   }
 
@@ -238,6 +331,9 @@ class TxStatusMonitor {
   void _removeTx(String hash) {
     final txInfo = _pendingTxs.remove(hash);
     txInfo?.timer?.cancel();
+    if (_pendingTxs.isEmpty) {
+      _nodeSupportsTransactionStatus.clear();
+    }
   }
 
   void _onTxConfirmed(PendingTxInfo txInfo) {
@@ -245,23 +341,110 @@ class TxStatusMonitor {
     _scheduleRefreshCallback(txInfo.gqlUrl);
   }
   
-  /// Schedule a refresh callback with debounce
-  /// Multiple transactions from same network will only trigger one refresh
+  void _pollZekoArchiveForTx(PendingTxInfo txInfo, String txUrl, String senderAddress, [int retryCount = 0]) {
+    if (_isPaused) return;
+    txInfo.retryCount = retryCount;
+    if (retryCount >= _zekoArchiveMaxRetries) {
+      _removeTx(txInfo.hash);
+      return;
+    }
+    txInfo.timer = Timer(
+      Duration(seconds: _zekoArchivePollIntervalSeconds),
+      () async {
+        if (_isPaused) return;
+        try {
+          final found = await _checkTxExistsInArchive(txInfo.hash, txUrl, senderAddress, txInfo.nonce);
+          if (!_pendingTxs.containsKey(txInfo.hash) || _isPaused) return;
+          if (found) {
+            _onTxConfirmed(txInfo);
+            _removeTx(txInfo.hash);
+          } else {
+            _pollZekoArchiveForTx(txInfo, txUrl, senderAddress, retryCount + 1);
+          }
+        } catch (e) {
+          if (!_pendingTxs.containsKey(txInfo.hash) || _isPaused) return;
+          _pollZekoArchiveForTx(txInfo, txUrl, senderAddress, retryCount + 1);
+        }
+      },
+    );
+  }
+
+  Future<bool> _checkTxExistsInArchive(String hash, String txUrl, String senderAddress, int? pendingNonce) async {
+    const String query = r'''
+      query checkTx($publicKey: String, $limit: Int) {
+        fullTransactions(limit: $limit, query: { publicKey: $publicKey }) {
+          body { hash nonce from }
+          zkAppBody {
+            hash
+            zkappCommand { feePayer { body { nonce publicKey } } }
+          }
+        }
+      }
+    ''';
+
+    try {
+      final client = _zekoArchiveClients.putIfAbsent(
+        txUrl,
+        () => GraphQLClient(link: HttpLink(txUrl), cache: GraphQLCache()),
+      );
+      final options = QueryOptions(
+        document: gql(query),
+        variables: {'publicKey': senderAddress, 'limit': 10},
+        fetchPolicy: FetchPolicy.noCache,
+      );
+      final result = await client.query(options);
+      if (result.hasException || result.data == null) {
+        return false;
+      }
+      final List<dynamic> txList = result.data!['fullTransactions'] ?? [];
+      for (final tx in txList) {
+        final bodyHash = tx['body']?['hash'];
+        final zkAppHash = tx['zkAppBody']?['hash'];
+
+        if (bodyHash == hash || zkAppHash == hash) {
+          return true;
+        }
+
+        if (pendingNonce != null) {
+          if (tx['body'] != null && tx['body']['from'] == senderAddress) {
+            final confirmedNonce = _parseNonce(tx['body']['nonce']);
+            if (confirmedNonce != null && confirmedNonce >= pendingNonce) {
+              return true;
+            }
+          }
+          final feePayer = tx['zkAppBody']?['zkappCommand']?['feePayer']?['body'];
+          if (feePayer != null && feePayer['publicKey'] == senderAddress) {
+            final confirmedNonce = _parseNonce(feePayer['nonce']);
+            if (confirmedNonce != null && confirmedNonce >= pendingNonce) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  int? _parseNonce(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
   void _scheduleRefreshCallback(String gqlUrl) {
     _pendingRefreshUrls.add(gqlUrl);
     
-    // Cancel existing timer and start new one (debounce)
     _refreshDebounceTimer?.cancel();
     _refreshDebounceTimer = Timer(const Duration(milliseconds: 500), () {
       for (final url in _pendingRefreshUrls) {
-        onTxConfirmed?.call(url);
+        _notifyTxConfirmedListeners(url);
       }
       _pendingRefreshUrls.clear();
     });
   }
 
-  /// Get localization strings based on current app locale
-  /// This ensures notifications use current language even after language switch
   AppLocalizations _getCurrentLocalization() {
     final localeCode = globalAppStore.settings?.localeCode ?? 'en';
     switch (localeCode.toLowerCase()) {
@@ -283,7 +466,6 @@ class TxStatusMonitor {
       final dic = _getCurrentLocalization();
       
       String successBody;
-      // Only show amount for payment type transactions
       if (txInfo.txType == MonitorTxType.payment && txInfo.amount != null && txInfo.tokenSymbol != null) {
         successBody = dic.notificationTxSuccessBodyWithAmount(
           txInfo.amount!,
@@ -301,43 +483,24 @@ class TxStatusMonitor {
         successBody: successBody,
         failedBody: dic.notificationTxFailedBody,
       );
-    } catch (e) {
-      // Ignore notification errors
-    }
-  }
-
-  void _showSentNotification(PendingTxInfo txInfo) {
-    try {
-      final dic = _getCurrentLocalization();
-      
-      String body;
-      // Only show amount for payment type transactions
-      if (txInfo.txType == MonitorTxType.payment && txInfo.amount != null && txInfo.tokenSymbol != null) {
-        body = dic.notificationTxSuccessBodyWithAmount(
-          txInfo.amount!,
-          txInfo.tokenSymbol!,
-        );
-      } else {
-        body = dic.notificationTxSuccessBody;
-      }
-
-      NotificationService().showTransactionNotification(
-        isSuccess: true,
-        txHash: txInfo.hash,
-        successTitle: dic.notificationTxSuccess,
-        failedTitle: dic.notificationTxFailed,
-        successBody: body,
-        failedBody: dic.notificationTxFailedBody,
-      );
-    } catch (e) {
-      // Ignore notification errors
-    }
+    } catch (e) {}
   }
 
   void dispose() {
+    if (_lifecycleRegistered) {
+      WidgetsBinding.instance.removeObserver(this);
+      _lifecycleRegistered = false;
+    }
+    _isPaused = false;
+    _refreshDebounceTimer?.cancel();
+    _refreshDebounceTimer = null;
     for (var txInfo in _pendingTxs.values) {
       txInfo.timer?.cancel();
     }
     _pendingTxs.clear();
+    _pendingRefreshUrls.clear();
+    _onTxConfirmedListeners.clear();
+    _zekoArchiveClients.clear();
+    _nodeSupportsTransactionStatus.clear();
   }
 }

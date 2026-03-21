@@ -102,7 +102,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
     });
 
     // Register callback for transaction confirmation refresh
-    TxStatusMonitor().onTxConfirmed = _onTxConfirmedRefresh;
+    TxStatusMonitor().addOnTxConfirmedListener(_onTxConfirmedRefresh);
 
     super.initState();
   }
@@ -110,17 +110,13 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     _refreshTimer?.cancel();
-    // Clear callback to avoid memory leak
-    TxStatusMonitor().onTxConfirmed = null;
+    TxStatusMonitor().removeOnTxConfirmedListener(_onTxConfirmedRefresh);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  /// Called when a transaction is confirmed
-  /// Only refresh if current network matches the transaction's network
   void _onTxConfirmedRefresh(String gqlUrl) {
-    final currentGqlUrl = widget.store.settings?.currentNode?.url;
-    if (currentGqlUrl == gqlUrl && mounted) {
+    if (mounted) {
       _onRefresh();
     }
   }
@@ -145,7 +141,6 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   Future<void> _fetchTransactions(showIndicator) async {
     if (isMainToken) {
       await Future.wait([
-        webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
         webApi.assets
             .fetchPendingTransactions(widget.store.wallet!.currentAddress),
         webApi.assets
@@ -154,7 +149,6 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       ]);
     } else {
       await Future.wait([
-        webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
         webApi.assets
             .fetchPendingZkTransactions(widget.store.wallet!.currentAddress),
         webApi.assets.fetchFullTransactions(widget.store.wallet!.currentAddress,

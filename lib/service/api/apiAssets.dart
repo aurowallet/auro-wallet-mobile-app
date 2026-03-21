@@ -64,6 +64,9 @@ class ApiAssets {
 //   }
 
   Future<dynamic> fetchPendingTransactions(pubKey, {isDev = false}) async {
+    if (store.settings!.isZekoNet) {
+      return [];
+    }
     const String query = r'''
       query fetchPendingListQuery($pubKey: PublicKey!) {
         pooledUserCommands(publicKey: $pubKey) {
@@ -112,6 +115,9 @@ class ApiAssets {
   }
 
   Future<dynamic> fetchPendingZkTransactions(publicKey, {isDev = false}) async {
+    if (store.settings!.isZekoNet) {
+      return [];
+    }
     const String query = r'''
       query pendingZkTx($publicKey: PublicKey) {
   pooledZkappCommands(publicKey: $publicKey) {
@@ -795,6 +801,9 @@ ${List<String>.generate(pubkeys.length, (int index) {
   Future<dynamic> fetchFullTransactions(publicKey,
       {tokenId = ZK_DEFAULT_TOKEN_ID, isDev = false}) async {
     String requestUrl = apiRoot.getTxRecordsApiUrl();
+    if (requestUrl.isEmpty) {
+      return [];
+    }
     final client = GraphQLClient(
         link: HttpLink(requestUrl),
         cache: GraphQLCache(),

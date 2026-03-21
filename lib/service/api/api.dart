@@ -71,10 +71,13 @@ class Api {
 
   String getTxRecordsApiUrl() {
     String? txUrl = store.settings!.currentNode?.txUrl;
-    if (txUrl != null) {
+    if (txUrl != null && txUrl.isNotEmpty) {
       return txUrl;
     }
-    return MAIN_TX_RECORDS_GQL_URL;
+    if (store.settings!.isMainnet) {
+      return MAIN_TX_RECORDS_GQL_URL;
+    }
+    return '';
   }
 
   Future<GqlResult> gqlRequest(dynamic options,

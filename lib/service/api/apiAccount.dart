@@ -185,10 +185,8 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
       ..success = false
       ..receiver = paymentData["to"];
     
-    // Add to transaction status monitor for notification
     if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
       final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
-      // Format amount from nanomina to display format
       final formattedAmount = data.amount != null 
           ? Fmt.balance(data.amount.toString(), COIN.decimals, maxLength: COIN.decimals)
           : null;
@@ -199,6 +197,10 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
         tokenSymbol: COIN.coinSymbol,
         txType: MonitorTxType.payment,
         gqlUrl: currentGqlUrl,
+        nonce: data.nonce,
+        isZekoNet: store.settings!.isZekoNet,
+        txUrl: store.settings!.currentNode?.txUrl,
+        senderAddress: data.sender,
       );
     }
     return data;
@@ -309,16 +311,18 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       ..success = false
       ..receiver = paymentData["to"];
     
-    // Add to transaction status monitor for notification
     if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
       final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
-      // Note: delegation transactions don't have amount, but we pass null
       TxStatusMonitor().addPendingTx(
         hash: data.hash!,
         paymentId: data.paymentId,
         tokenSymbol: COIN.coinSymbol,
         txType: MonitorTxType.delegation,
         gqlUrl: currentGqlUrl,
+        nonce: data.nonce,
+        isZekoNet: store.settings!.isZekoNet,
+        txUrl: store.settings!.currentNode?.txUrl,
+        senderAddress: data.sender,
       );
     }
     return data;
@@ -552,8 +556,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchFullTransactions(pubKey);
       return true;
     } catch (e) {
-      return false;
       print('network may not connected');
+      return false;
     }
   }
 
@@ -594,12 +598,12 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       store.assets!.setAssetsLoading(true);
       webApi.assets.fetchAllTokenAssets();
       webApi.assets.fetchPendingTransactions(pubKey);
-      webApi.assets.fetchPendingTransactions(pubKey);
+      webApi.assets.fetchPendingZkTransactions(pubKey);
       webApi.assets.fetchFullTransactions(pubKey);
       return true;
     } catch (e) {
-      return false;
       print('network may not connected');
+      return false;
     }
   }
 
@@ -965,7 +969,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       ..success = false
       ..receiver = receiver;
     
-    // Add to transaction status monitor for notification
     if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
       final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
       TxStatusMonitor().addPendingTx(
@@ -974,6 +977,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         tokenSymbol: 'zkApp',
         txType: MonitorTxType.zkApp,
         gqlUrl: currentGqlUrl,
+        nonce: data.nonce,
+        isZekoNet: store.settings!.isZekoNet,
+        txUrl: store.settings!.currentNode?.txUrl,
+        senderAddress: data.sender,
       );
     }
     return data;

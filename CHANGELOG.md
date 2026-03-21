@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
 - Update API of staking APR
 - Upgrade network fee config
 - Update Advance UI
+- Update transaction history fetch
 
 ### Fixed
 - fetchScamInfo catch
