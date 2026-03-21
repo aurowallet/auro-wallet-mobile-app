@@ -346,7 +346,6 @@ class TransferListItem extends StatelessWidget {
                                 Flexible(
                                     flex: 1,
                                     child: Container(
-                                        height: 20,
                                         child: Text(
                                           '$showAmount',
                                           softWrap: true,

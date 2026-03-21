@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - fetchScamInfo catch
 - Token decimal
+- TxList amount display
 
 
 ## [2.2.2]
