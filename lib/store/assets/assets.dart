@@ -726,7 +726,9 @@ abstract class _AssetsStore with Store {
         if (tokenNetPublicKey.isNotEmpty) {
           List<String> zkappState = tokenItem.tokenNetInfo?.zkappState ?? [];
           try {
-            if (zkappState.isNotEmpty) {
+            if (foundToken != null && foundToken.decimal.isNotEmpty) {
+              decimals = foundToken.decimal;
+            } else if (zkappState.isNotEmpty) {
               decimals = zkappState[0];
             }
             tokenBaseInfo.decimals = decimals;
@@ -752,6 +754,9 @@ abstract class _AssetsStore with Store {
             ));
             tokenBaseInfo.iconUrl = "assets/images/stake/icon_mina_color.svg";
           } else {
+            if (foundToken != null && foundToken.decimal.isNotEmpty) {
+              decimals = foundToken.decimal;
+            }
             tokenBaseInfo.decimals = decimals;
             tokenBaseInfo.showBalance = double.parse(Fmt.amountDecimals(
               totalBalance.toString(),

@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - fetchScamInfo catch
+- Token decimal
 
 
 ## [2.2.2]
