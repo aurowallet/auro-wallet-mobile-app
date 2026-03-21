@@ -1086,7 +1086,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get networkFee => '网络费用';
 
   @override
-  String get inputFeeError => '请输入有效的交易费用';
+  String get inputFeeError => '请输入有效的网络费用';
 
   @override
   String get inputNonceError => '请输入有效的nonce';

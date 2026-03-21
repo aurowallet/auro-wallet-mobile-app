@@ -1123,7 +1123,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get networkFee => 'Network Fee';
 
   @override
-  String get inputFeeError => 'Please enter a valid transaction fee';
+  String get inputFeeError => 'Please enter a valid network fee';
 
   @override
   String get inputNonceError => 'Please enter a valid nonce';

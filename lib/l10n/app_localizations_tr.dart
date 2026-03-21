@@ -1121,11 +1121,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get staked => 'Stake Edildi';
 
   @override
-  String get networkFee => 'Network Fee';
+  String get networkFee => 'Ağ Ücreti';
 
   @override
-  String get inputFeeError => 'Please enter a valid transaction fee';
+  String get inputFeeError => 'Lütfen geçerli bir ağ ücreti girin';
 
   @override
-  String get inputNonceError => 'Please enter a valid nonce';
+  String get inputNonceError => 'Lütfen geçerli bir nonce girin';
 }

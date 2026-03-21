@@ -2201,7 +2201,7 @@ abstract class AppLocalizations {
   /// No description provided for @inputFeeError.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid transaction fee'**
+  /// **'Please enter a valid network fee'**
   String get inputFeeError;
 
   /// No description provided for @inputNonceError.

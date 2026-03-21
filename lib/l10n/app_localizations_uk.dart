@@ -1122,11 +1122,11 @@ class AppLocalizationsUk extends AppLocalizations {
   String get staked => 'Застейкано';
 
   @override
-  String get networkFee => 'Network Fee';
+  String get networkFee => 'Комісія мережі';
 
   @override
-  String get inputFeeError => 'Please enter a valid transaction fee';
+  String get inputFeeError => 'Введіть дійсну комісію мережі';
 
   @override
-  String get inputNonceError => 'Please enter a valid nonce';
+  String get inputNonceError => 'Введіть дійсний nonce';
 }
