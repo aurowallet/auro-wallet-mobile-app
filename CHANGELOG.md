@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - Upgrade network fee config
 - Update Advance UI
 - Update transaction history fetch
+- Refactor token/staking refresh handling
 
 ### Fixed
 - fetchScamInfo catch

@@ -506,8 +506,8 @@ class _TransferPageState extends State<TransferPage> {
                 );
               } else {
                 Navigator.popUntil(context, ModalRoute.withName(TokenDetailPage.route));
+                widget.store.triggerTokenRefresh();
               }
-              globalTokenRefreshKey.currentState?.show();
               return true;
             }
             return false;

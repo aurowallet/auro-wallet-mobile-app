@@ -421,7 +421,7 @@ class _DelegatePageState extends State<DelegatePage>
             }
             if (mounted) {
               widget.store.triggerBalanceRefresh();
-              globalTokenRefreshKey.currentState?.show();
+              widget.store.triggerStakingRefresh();
               await widget.store.assets!.setNextToken(widget.store.assets!.mainTokenNetInfo);
               Navigator.pushNamedAndRemoveUntil(
                 context,

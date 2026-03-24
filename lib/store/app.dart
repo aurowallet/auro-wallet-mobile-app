@@ -20,13 +20,31 @@ abstract class _AppStore with Store {
 
   
   GlobalKey<RefreshIndicatorState>? balanceRefreshKey;
+  GlobalKey<RefreshIndicatorState>? tokenRefreshKey;
+  GlobalKey<RefreshIndicatorState>? stakingRefreshKey;
 
   void setBalanceRefreshKey(GlobalKey<RefreshIndicatorState>? key) {
     balanceRefreshKey = key;
   }
 
+  void setTokenRefreshKey(GlobalKey<RefreshIndicatorState>? key) {
+    tokenRefreshKey = key;
+  }
+
+  void setStakingRefreshKey(GlobalKey<RefreshIndicatorState>? key) {
+    stakingRefreshKey = key;
+  }
+
   void triggerBalanceRefresh() {
     balanceRefreshKey?.currentState?.show();
+  }
+
+  void triggerTokenRefresh() {
+    tokenRefreshKey?.currentState?.show();
+  }
+
+  void triggerStakingRefresh() {
+    stakingRefreshKey?.currentState?.show();
   }
 
 

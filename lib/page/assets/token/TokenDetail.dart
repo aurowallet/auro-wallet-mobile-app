@@ -45,6 +45,8 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   int tokenDecimal = COIN.decimals;
   String? tokenPublicKey;
   Timer? _refreshTimer;
+  final GlobalKey<RefreshIndicatorState> _tokenRefreshKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -87,6 +89,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       showStakingEntry = true;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.store.setTokenRefreshKey(_tokenRefreshKey);
       List<TransferData> txs = [
         ...widget.store.assets!.getTotalPendingTxs(tokenId!),
         ...widget.store.assets!.getTotalTxs(tokenId!)
@@ -110,6 +113,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    widget.store.setTokenRefreshKey(null);
     TxStatusMonitor().removeOnTxConfirmedListener(_onTxConfirmedRefresh);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -205,7 +209,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       body: RefreshIndicator(
           backgroundColor: Colors.white,
           color: Theme.of(context).primaryColor,
-          key: globalTokenRefreshKey,
+          key: _tokenRefreshKey,
           onRefresh: _onRefresh,
           child: SafeArea(
             maintainBottomViewPadding: true,
