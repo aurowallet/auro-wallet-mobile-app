@@ -713,5 +713,7 @@
   "inputFeeError": "请输入有效的网络费用",
   "@inputFeeError": {},
   "inputNonceError": "请输入有效的nonce",
-  "@inputNonceError": {}
+  "@inputNonceError": {},
+  "biometricUpdateFailed": "生物识别数据更新失败，请重试。",
+  "@biometricUpdateFailed": {}
 }

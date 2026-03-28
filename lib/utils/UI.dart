@@ -186,13 +186,12 @@ class UI {
     bool isTransaction = false,
     AppStore? store,
   }) {
-    if (isTransaction) {
-      final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
-      if (!isTransactionEnable && store != null) {
-        String pwd = store.wallet!.runtimePwd;
-        if (pwd.isNotEmpty) {
-          return Future.value(pwd);
-        }
+    if (isTransaction &&
+        !inputPasswordRequired &&
+        !webApi.account.getTransactionPwdEnabled()) {
+      final cachedPwd = globalAppStore.wallet?.runtimePwd ?? "";
+      if (cachedPwd.isNotEmpty) {
+        return Future.value(cachedPwd);
       }
     }
 

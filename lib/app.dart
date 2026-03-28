@@ -84,14 +84,50 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   BuildContext? _homePageContext;
   bool _storeReady = false;
   Map? appLinkRouteParams;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  bool _lockPagePushed = false;
+  bool _inlineLockShowing = false;
+  Future<int>? _initFuture;
 
   @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
     initDeepLinks();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _detectDanger();
     });
-    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_storeReady) return; // webApi not initialized yet — skip safely
+    if (state == AppLifecycleState.paused) {
+      if (_appStore?.settings != null && webApi.account.getAppAccessEnabled()) {
+        _appStore!.settings!.setLockWalletStatus(true);
+      }
+      _appStore?.wallet?.clearRuntimePwd();
+    } else if (state == AppLifecycleState.resumed) {
+      if (initLockCheck() && !_lockPagePushed && !_inlineLockShowing) {
+        _lockPagePushed = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final nav = _navigatorKey.currentState;
+          if (nav != null) {
+            try {
+              nav.pushNamed(LockWalletPage.route).then((_) {
+                _lockPagePushed = false;
+              }).catchError((e) {
+                _lockPagePushed = false;
+              });
+            } catch (e) {
+              _lockPagePushed = false;
+            }
+          } else {
+            _lockPagePushed = false;
+          }
+        });
+      }
+    }
   }
 
   Future<void> initDeepLinks() async {
@@ -225,6 +261,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     webApi.dispose();
     _linkSubscription?.cancel();
     super.dispose();
@@ -299,15 +336,19 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   }
 
   bool initLockCheck() {
+    if (_appStore?.settings == null) return false;
     final isAppAccessOpen = webApi.account.getAppAccessEnabled();
     return isAppAccessOpen && _appStore!.settings!.lockWalletStatus;
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _doAutoRouting(context, false));
+    if (appLinkRouteParams != null) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _doAutoRouting(context, false));
+    }
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Auro Wallet',
       locale: _locale,
       debugShowCheckedModeBanner: false,
@@ -344,7 +385,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       routes: {
         HomePage.route: (context) => WillPopScopWrapper(
               child: FutureBuilder<int>(
-                future: _initStore(context),
+                future: _initFuture ??= _initStore(context),
                 builder: (_, AsyncSnapshot<int> snapshot) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _homePageContext = context;
@@ -352,11 +393,13 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                   if (snapshot.hasData) {
                     FlutterNativeSplash.remove();
                     if (snapshot.data! > 0) {
-                      bool isOpen = initLockCheck();
+                      bool isOpen = initLockCheck() && !_lockPagePushed;
                       if (isOpen) {
+                        _inlineLockShowing = true;
                         return LockWalletPage(_appStore!,
                             unLockCallBack: _doAutoRouting);
                       } else {
+                        _inlineLockShowing = false;
                         return HomePage(_appStore!);
                       }
                     } else {

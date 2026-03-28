@@ -710,5 +710,6 @@
   "staked": "Stake Edildi",
   "networkFee": "Ağ Ücreti",
   "inputFeeError": "Lütfen geçerli bir ağ ücreti girin",
-  "inputNonceError": "Lütfen geçerli bir nonce girin"
+  "inputNonceError": "Lütfen geçerli bir nonce girin",
+  "biometricUpdateFailed": "Biyometrik veriler güncellenemedi. Lütfen tekrar deneyin."
 }

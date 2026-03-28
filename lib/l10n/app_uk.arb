@@ -712,5 +712,6 @@
     "staked": "Застейкано",
     "networkFee": "Комісія мережі",
     "inputFeeError": "Введіть дійсну комісію мережі",
-    "inputNonceError": "Введіть дійсний nonce"
+    "inputNonceError": "Введіть дійсний nonce",
+    "biometricUpdateFailed": "Не вдалося оновити біометричні дані. Будь ласка, спробуйте ще раз."
 }

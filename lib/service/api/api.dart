@@ -41,6 +41,10 @@ class Api {
         clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
             .value;
 
+    // Load security flags from SecureStorage (with GetStorage migration)
+    // before any flag reads (e.g. initLockCheck in app.dart).
+    await account.initSecurityFlags();
+
     bridge = BridgeService();
     await launchWebview();
     fetchInitialInfo();

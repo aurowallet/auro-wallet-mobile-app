@@ -25,6 +25,8 @@ class _LockWalletPageState extends State<LockWalletPage> {
   FocusNode _pass2Focus = new FocusNode();
   bool isUseBiometric = false;
   bool canUseBiometric = false;
+  bool _isBiometricAuthenticating = false;
+  bool _isVerifyingPassword = false;
 
   @override
   void initState() {
@@ -43,9 +45,9 @@ class _LockWalletPageState extends State<LockWalletPage> {
 
   @override
   void dispose() {
-    super.dispose();
     _passCtrl.dispose();
     _pass2Focus.dispose();
+    super.dispose();
   }
 
   Future<void> _onSubmit() async {
@@ -58,15 +60,14 @@ class _LockWalletPageState extends State<LockWalletPage> {
     }
     bool isCorrect = await webApi.account
         .checkAccountPassword(widget.store.wallet!.currentWallet, passStr);
+    if (!mounted) return;
     if (!isCorrect) {
       UI.toast(dic.passwordError);
       return;
     }
-    final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
-    if (!isTransactionEnable) {
+    if (!webApi.account.getTransactionPwdEnabled()) {
       widget.store.wallet!.setRuntimePwd(passStr);
     }
-
     onCheckSuccess();
   }
 
@@ -82,10 +83,15 @@ class _LockWalletPageState extends State<LockWalletPage> {
 
   void onCheckSuccess() {
     widget.store.settings!.setLockWalletStatus(false);
+    final callback = widget.unLockCallBack;
+    if (callback != null) {
+      callback(context, true);
+    }
 
-    Navigator.of(context).pushReplacementNamed('/');
-    if (widget.unLockCallBack != null) {
-      widget.unLockCallBack!(context, true);
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacementNamed('/');
     }
   }
 
@@ -96,26 +102,43 @@ class _LockWalletPageState extends State<LockWalletPage> {
       return;
     }
 
-    bool isCorrect = await webApi.account
-        .checkAccountPassword(widget.store.wallet!.currentWallet, password);
-    if (!isCorrect) {
-      UI.toast(dic.passwordError);
-      return;
+    setState(() {
+      _isVerifyingPassword = true;
+    });
+
+    try {
+      bool isCorrect = await webApi.account
+          .checkAccountPassword(widget.store.wallet!.currentWallet, password);
+      if (!mounted) return;
+      if (!isCorrect) {
+        UI.toast(dic.passwordError);
+        return;
+      }
+      if (!webApi.account.getTransactionPwdEnabled()) {
+        widget.store.wallet!.setRuntimePwd(password);
+      }
+      onCheckSuccess();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isVerifyingPassword = false;
+        });
+      }
     }
-    final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
-    if (!isTransactionEnable) {
-      widget.store.wallet!.setRuntimePwd(password);
-    }
-    onCheckSuccess();
   }
 
   Future<void> _checkBiometricAuthenticate() async {
-    final result =
-        await webApi.account.getBiometricPassStoreFile(context);
-    if (result != null) {
-      await _onOk(result);
-    } else {
-      print('biometric read null');
+    if (_isBiometricAuthenticating) return;
+    _isBiometricAuthenticating = true;
+    try {
+      final result =
+          await webApi.account.getBiometricPassStoreFile(context);
+      if (!mounted) return;
+      if (result != null) {
+        await _onOk(result);
+      }
+    } finally {
+      _isBiometricAuthenticating = false;
     }
   }
 
@@ -239,16 +262,28 @@ class _LockWalletPageState extends State<LockWalletPage> {
                             ),
                             isUseBiometric
                                 ? InkWell(
-                                    onTap: _checkBiometricAuthenticate,
+                                    onTap: _isVerifyingPassword ? null : _checkBiometricAuthenticate,
                                     child: Column(
                                       children: [
                                         Container(
                                             margin: EdgeInsets.only(bottom: 10),
-                                            child: SvgPicture.asset(
-                                              "assets/images/public/icon_biometric.svg",
-                                              fit: BoxFit.contain,
-                                            )),
-                                        Text(dic.clickToVerification,
+                                            child: _isVerifyingPassword
+                                                ? SizedBox(
+                                                    width: 48,
+                                                    height: 48,
+                                                    child: CircularProgressIndicator(
+                                                      strokeWidth: 3,
+                                                      color: Theme.of(context).primaryColor,
+                                                    ),
+                                                  )
+                                                : SvgPicture.asset(
+                                                    "assets/images/public/icon_biometric.svg",
+                                                    fit: BoxFit.contain,
+                                                  )),
+                                        Text(
+                                            _isVerifyingPassword
+                                                ? dic.loading
+                                                : dic.clickToVerification,
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w400,

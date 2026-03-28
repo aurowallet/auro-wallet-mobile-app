@@ -1129,4 +1129,8 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get inputNonceError => 'Введіть дійсний nonce';
+
+  @override
+  String get biometricUpdateFailed =>
+      'Не вдалося оновити біометричні дані. Будь ласка, спробуйте ще раз.';
 }

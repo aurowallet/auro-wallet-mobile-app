@@ -1128,4 +1128,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get inputNonceError => 'Lütfen geçerli bir nonce girin';
+
+  @override
+  String get biometricUpdateFailed =>
+      'Biyometrik veriler güncellenemedi. Lütfen tekrar deneyin.';
 }

@@ -31,6 +31,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   bool _isConfirmButtonEnabled = false;
   bool _supportBiometric = false;
   bool isUseBiometric = true;
+  bool _isBiometricAuthenticating = false;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
     });
     bool isCorrect =
         await webApi.account.checkAccountPassword(widget.wallet, password);
+    if (!mounted) return;
     setState(() {
       _submitting = false;
     });
@@ -91,12 +93,17 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
   }
 
   Future<void> _checkBiometricAuthenticate() async {
+    if (_isBiometricAuthenticating) return;
     if (_supportBiometric) {
-      final result = await webApi.account.getBiometricPassStoreFile(context);
-      if (result != null) {
-        await _onOk(result);
-      } else {
-        print('biometric read null');
+      _isBiometricAuthenticating = true;
+      try {
+        final result = await webApi.account.getBiometricPassStoreFile(context);
+        if (!mounted) return;
+        if (result != null) {
+          await _onOk(result);
+        }
+      } finally {
+        _isBiometricAuthenticating = false;
       }
     }
   }

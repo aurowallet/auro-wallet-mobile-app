@@ -29,6 +29,9 @@ All notable changes to this project will be documented in this file.
 - Update Advance UI
 - Update transaction history fetch
 - Refactor token/staking refresh handling
+- Biometric authentication improvements
+- Password verification page improvements
+- App lock improvements
 
 ### Fixed
 - fetchScamInfo catch

@@ -50,6 +50,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
       return;
     }
     bool isPasswordCorrect = await webApi.account.checkAccountPassword(store.currentWallet, passOld);
+    if (!mounted) return;
     if (!isPasswordCorrect) {
       UI.toast(dic.passwordError);
       setState(() {
@@ -76,26 +77,31 @@ class _ChangePassword extends State<ChangePasswordPage> {
       final isBiometricAuthorized = webApi.account.getBiometricEnabled(); 
       if (isBiometricAuthorized) {
         try {
-          await webApi.account.replaceBiometricData(passNew);
+          final replaced = await webApi.account.replaceBiometricData(passNew);
+          if (!replaced) {
+            biometricFail = true;
+          }
         } catch(e) {
           biometricFail = true;
-          print('biometric fail' + e.toString());
         }
       }
     }
-    final isTransactionEnable =
-                  webApi.account.getTransactionPwdEnabled();
-    if(!isTransactionEnable){
-        store.setRuntimePwd(passNew);
-    }
     if (!biometricFail) {
       await store.updateAllWalletSeed(passOld, passNew);
+      if (!mounted) return;
+      if (!webApi.account.getTransactionPwdEnabled() && store.runtimePwd.isNotEmpty) {
+        store.setRuntimePwd(passNew);
+      }
       UI.toast(dic.pwdChangeSuccess);
       Navigator.of(context).pop();
+    } else {
+      UI.toast(dic.biometricUpdateFailed);
     }
-    setState(() {
-      _submitting = false;
-    });
+    if (mounted) {
+      setState(() {
+        _submitting = false;
+      });
+    }
   }
 
   @override
@@ -178,10 +184,10 @@ class _ChangePassword extends State<ChangePasswordPage> {
   }
   @override
   void dispose() {
-    super.dispose();
     _newPassCtrl.dispose();
     _newPass2Ctrl.dispose();
     _oldPassCtrl.dispose();
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {

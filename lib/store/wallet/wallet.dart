@@ -55,7 +55,6 @@ abstract class _WalletStore with Store {
   @observable
   ObservableList<WalletData> walletList = ObservableList<WalletData>();
 
-  @observable
   String runtimePwd = "";
 
   @computed
@@ -502,12 +501,10 @@ abstract class _WalletStore with Store {
     }
   }
 
-  @action
   void setRuntimePwd(String pwd) {
     runtimePwd = pwd;
   }
 
-  @action
   void clearRuntimePwd() {
     runtimePwd = "";
   }

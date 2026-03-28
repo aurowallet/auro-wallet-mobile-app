@@ -38,9 +38,10 @@ class ApiAccount {
   final store = globalAppStore;
 
   final LocalAuthentication auth = LocalAuthentication();
-  // Note: Removing custom options to maintain backward compatibility with existing stored data
-  // The default FlutterSecureStorage options should work for most cases
-  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+
+  static final FlutterSecureStorage _legacySecureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: false),
+  );
 
   final _biometricEnabledKey = 'biometric_enabled_v1';
   final _biometricEnabledKey_v2 = 'biometric_enabled_v2';
@@ -49,6 +50,11 @@ class ApiAccount {
 
   final _appAccessPasswordKey = 'app_access_password_';
   final _transactionsPasswordKey = 'transaction_password_';
+
+  bool _cachedAppAccessEnabled = false;
+  bool _cachedTransactionPwdEnabled = true; // default: require password
+  bool _cachedBiometricEnabled = false;
+  bool _securityFlagsInitialized = false;
 
   Future<void> changeCurrentAccount({
     String? pubKey,
@@ -708,57 +714,92 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return isCorrect;
   }
 
+  Future<void> initSecurityFlags() async {
+    if (_securityFlagsInitialized) return;
+
+    String? bioVal = await store.secureStorage.getKV('secure_$_biometricEnabledKey_v2');
+    if (bioVal == null) {
+      final legacyTimestamp = apiRoot.configStorage.read('$_biometricEnabledKey');
+      final legacyV2 = apiRoot.configStorage.read('$_biometricEnabledKey_v2');
+      if (legacyTimestamp != null) {
+        bioVal = 'enable';
+      } else if (legacyV2 != null) {
+        bioVal = legacyV2;
+      }
+      if (bioVal != null) {
+        await store.secureStorage.setKV('secure_$_biometricEnabledKey_v2', bioVal);
+        apiRoot.configStorage.remove('$_biometricEnabledKey');
+        apiRoot.configStorage.remove('$_biometricEnabledKey_v2');
+      }
+    }
+    _cachedBiometricEnabled = (bioVal == 'enable');
+
+    String? accessVal = await store.secureStorage.getKV('secure_$_appAccessPasswordKey');
+    if (accessVal == null) {
+      final legacy = apiRoot.configStorage.read('$_appAccessPasswordKey');
+      if (legacy != null) {
+        accessVal = legacy.toString();
+        await store.secureStorage.setKV('secure_$_appAccessPasswordKey', accessVal);
+        apiRoot.configStorage.remove('$_appAccessPasswordKey');
+      }
+    }
+    _cachedAppAccessEnabled = (accessVal == 'enable');
+
+    String? txVal = await store.secureStorage.getKV('secure_$_transactionsPasswordKey');
+    if (txVal == null) {
+      final legacy = apiRoot.configStorage.read('$_transactionsPasswordKey');
+      if (legacy != null) {
+        txVal = legacy.toString();
+        await store.secureStorage.setKV('secure_$_transactionsPasswordKey', txVal);
+        apiRoot.configStorage.remove('$_transactionsPasswordKey');
+      }
+    }
+    _cachedTransactionPwdEnabled = (txVal == null || txVal == 'enable');
+    _securityFlagsInitialized = true;
+  }
+
   void setBiometricEnabled() {
-    apiRoot.configStorage.write('$_biometricEnabledKey_v2', "enable");
+    _cachedBiometricEnabled = true;
+    store.secureStorage.setKV('secure_$_biometricEnabledKey_v2', 'enable').catchError((e) {});
   }
 
   void setBiometricDisabled() {
-    apiRoot.configStorage.write('$_biometricEnabledKey_v2', "disable"); 
+    _cachedBiometricEnabled = false;
+    store.secureStorage.setKV('secure_$_biometricEnabledKey_v2', 'disable').catchError((e) {});
+    store.secureStorage.storage.delete(key: _biometricPasswordKey).catchError((e) {});
+    _legacySecureStorage.delete(key: _biometricPasswordKey).catchError((_) {});
   }
 
   bool getBiometricEnabled() {
-    final timestamp = apiRoot.configStorage.read('$_biometricEnabledKey');
-    if(timestamp != null){
-      return true;
-    }
-    final enableStatus = apiRoot.configStorage.read('$_biometricEnabledKey_v2');
-    if (enableStatus != null) {
-      return enableStatus == "enable";
-    }
-    return false;
+    return _cachedBiometricEnabled;
   }
 
   void setAppAccessEnabled() {
-    apiRoot.configStorage.write('$_appAccessPasswordKey', "enable");
+    _cachedAppAccessEnabled = true;
+    store.secureStorage.setKV('secure_$_appAccessPasswordKey', 'enable').catchError((e) {});
   }
 
   void setAppAccessDisabled() {
-    apiRoot.configStorage.write('$_appAccessPasswordKey', "disable");
+    _cachedAppAccessEnabled = false;
+    store.secureStorage.setKV('secure_$_appAccessPasswordKey', 'disable').catchError((e) {});
   }
 
   bool getAppAccessEnabled() {
-    final enableStatus = apiRoot.configStorage.read('$_appAccessPasswordKey');
-    if (enableStatus != null) {
-      return enableStatus == "enable";
-    }
-    return false;
+    return _cachedAppAccessEnabled;
   }
 
   void setTransactionPwdEnabled() {
-    apiRoot.configStorage.write('$_transactionsPasswordKey', "enable");
+    _cachedTransactionPwdEnabled = true;
+    store.secureStorage.setKV('secure_$_transactionsPasswordKey', 'enable').catchError((e) {});
   }
 
   void setTransactionPwdDisabled() {
-    apiRoot.configStorage.write('$_transactionsPasswordKey', "disable");
+    _cachedTransactionPwdEnabled = false;
+    store.secureStorage.setKV('secure_$_transactionsPasswordKey', 'disable').catchError((e) {});
   }
 
   bool getTransactionPwdEnabled() {
-    final enableStatus =
-        apiRoot.configStorage.read('$_transactionsPasswordKey');
-    if (enableStatus != null) {
-      return enableStatus == "enable";
-    }
-    return true; // default ture
+    return _cachedTransactionPwdEnabled;
   }
 
   void setWatchModeWarned() {
@@ -777,44 +818,63 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       bool isAuth = await authenticate();
       if (isAuth) {
-        await secureStorage.write(
-            key: '$_biometricPasswordKey', value: password);
+        await store.secureStorage.setKV(_biometricPasswordKey, password);
+        final verify = await store.secureStorage.getKV(_biometricPasswordKey);
+        if (verify == null) return false;
       }
       return isAuth;
     } catch (e) {
-      print('saveBiometricPass==err,${e.toString()}');
       return false;
     }
   }
 
-  Future<String?> getBiometricPassStoreFile(
-    BuildContext context,
-  ) async {
+  Future<String?> getBiometricPassStoreFile(BuildContext context) async {
     try {
       bool isAuth = await authenticate();
       if (isAuth) {
-        final data = await secureStorage.read(key: '$_biometricPasswordKey');
+        var data = await store.secureStorage.getKV(_biometricPasswordKey);
+        if (data == null) {
+          try {
+            data = await _legacySecureStorage.read(key: _biometricPasswordKey);
+            if (data != null) {
+              await store.secureStorage.setKV(_biometricPasswordKey, data);
+              final verify = await store.secureStorage.getKV(_biometricPasswordKey);
+              if (verify != null) {
+                await _legacySecureStorage.delete(key: _biometricPasswordKey);
+              }
+            }
+          } catch (e) {}
+        }
         return data;
       }
-    } catch (e) {
-      print("getBiometricPassStoreFile===${e.toString()}");
-    }
+    } catch (e) {}
     return null;
   }
 
   Future<bool> canAuthenticateWithBiometrics() async {
-    final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
-    return canAuthenticateWithBiometrics;
+    final bool canCheck = await auth.canCheckBiometrics;
+    if (!canCheck) return false;
+    final bool isDeviceSupported = await auth.isDeviceSupported();
+    return isDeviceSupported;
   }
 
-  Future<void> replaceBiometricData(String newValue) async {
-    await secureStorage.write(key: '$_biometricPasswordKey', value: newValue);
+  Future<bool> replaceBiometricData(String newValue) async {
+    await store.secureStorage.setKV(_biometricPasswordKey, newValue);
+    final verify = await store.secureStorage.getKV(_biometricPasswordKey);
+    if (verify == null) return false;
+    try {
+      await _legacySecureStorage.delete(key: _biometricPasswordKey);
+    } catch (_) {}
+    return true;
   }
 
   Future<bool> authenticate() async {
     try {
-      return await auth.authenticate(
-        localizedReason: " ",
+      final canCheck = await auth.canCheckBiometrics;
+      final isDeviceSupported = await auth.isDeviceSupported();
+      if (!canCheck && !isDeviceSupported) return false;
+      final result = await auth.authenticate(
+        localizedReason: "Verify your identity",
         authMessages: [
           const AndroidAuthMessages(
             biometricHint: "Auro Wallet",
@@ -825,10 +885,12 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           stickyAuth: true,
         ),
       );
+      return result;
     } on PlatformException catch (e) {
-      print("authenticate==failed=${e.toString()}");
       String? showMsg = e.message != null ? e.message : e.toString();
       UI.toast(showMsg ?? "Verify Failed");
+      return false;
+    } catch (e) {
       return false;
     }
   }

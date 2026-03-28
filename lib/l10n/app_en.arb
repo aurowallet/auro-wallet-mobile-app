@@ -686,5 +686,7 @@
   "inputFeeError": "Please enter a valid network fee",
   "@inputFeeError": {},
   "inputNonceError": "Please enter a valid nonce",
-  "@inputNonceError": {}
+  "@inputNonceError": {},
+  "biometricUpdateFailed": "Biometric data update failed. Please try again.",
+  "@biometricUpdateFailed": {}
 }

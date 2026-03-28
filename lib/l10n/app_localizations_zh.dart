@@ -1090,4 +1090,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get inputNonceError => '请输入有效的nonce';
+
+  @override
+  String get biometricUpdateFailed => '生物识别数据更新失败，请重试。';
 }

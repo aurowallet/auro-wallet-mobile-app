@@ -1127,4 +1127,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inputNonceError => 'Please enter a valid nonce';
+
+  @override
+  String get biometricUpdateFailed =>
+      'Biometric data update failed. Please try again.';
 }

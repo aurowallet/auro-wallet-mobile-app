@@ -2209,6 +2209,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a valid nonce'**
   String get inputNonceError;
+
+  /// No description provided for @biometricUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric data update failed. Please try again.'**
+  String get biometricUpdateFailed;
 }
 
 class _AppLocalizationsDelegate

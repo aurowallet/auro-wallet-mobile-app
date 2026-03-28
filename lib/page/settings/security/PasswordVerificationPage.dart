@@ -18,113 +18,89 @@ class PasswordVerificationPage extends StatefulWidget {
 
 enum PwdSwitchType { transaction, appaccess }
 
-class _PasswordVerificationState extends State<PasswordVerificationPage>
-    with SingleTickerProviderStateMixin {
+class _PasswordVerificationState extends State<PasswordVerificationPage> {
   _PasswordVerificationState(this.store);
 
   final AppStore store;
   bool _isAppAccessEnable = false;
-  bool _isTransactionEnable = false;
-
-  late AnimationController _controller;
-  late Animation<Offset> _offsetAnimation;
-  late Animation<Color?> _colorAnimation;
+  bool _isTransactionPwdEnable = true;
 
   @override
   void initState() {
     super.initState();
     _checkPwdAuth();
-
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _controller.reset();
-        }
-      });
-
-    _offsetAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0.1, 0.0),
-    ).chain(CurveTween(curve: Curves.elasticIn)).animate(_controller);
-
-    _colorAnimation = ColorTween(
-      begin: Color(0xFF808080),
-      end: Color(0xFFD65A5A),
-    ).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   Future<void> _checkPwdAuth() async {
     final isAppAccessEnable = webApi.account.getAppAccessEnabled();
-    final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
-
+    final isTransactionPwdEnable = webApi.account.getTransactionPwdEnabled();
     setState(() {
       _isAppAccessEnable = isAppAccessEnable;
-      _isTransactionEnable = isTransactionEnable;
+      _isTransactionPwdEnable = isTransactionPwdEnable;
     });
   }
 
   void _onToggleAppAccess(bool isOn) async {
-    if (!isOn && !_isTransactionEnable) {
-      if (!_controller.isAnimating) {
-        _controller.forward();
+    if (!isOn) {
+      if (!_isTransactionPwdEnable) {
+        UI.toast(dic.pwdVerificationTip);
+        return;
+      }
+      String? password = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true);
+      if (password != null) {
+        if (!mounted) return;
+        webApi.account.setAppAccessDisabled();
+        store.wallet?.clearRuntimePwd();
+        setState(() {
+          _isAppAccessEnable = false;
+        });
       }
     } else {
-      if (!isOn) {
-        String? password = await UI.showPasswordDialog(
-            context: context,
-            wallet: store.wallet!.currentWallet,
-            inputPasswordRequired: true);
-        if (password != null) {
-          webApi.account.setAppAccessDisabled();
-        }
-      } else {
-        webApi.account.setAppAccessEnabled();
-      }
+      webApi.account.setAppAccessEnabled();
       setState(() {
-        _isAppAccessEnable = isOn;
+        _isAppAccessEnable = true;
       });
     }
   }
 
-  void _onToggleTransaction(bool isOn) async {
-    if (!isOn && !_isAppAccessEnable) {
-      if (!_controller.isAnimating) {
-        _controller.forward();
-      }
+  void _onToggleTransactionPwd(bool isOn) async {
+    if (isOn) {
+      webApi.account.setTransactionPwdEnabled();
+      store.wallet?.clearRuntimePwd();
+      setState(() {
+        _isTransactionPwdEnable = true;
+      });
     } else {
-      if (!isOn) {
-        String? password = await UI.showPasswordDialog(
-            context: context,
-            wallet: store.wallet!.currentWallet,
-            inputPasswordRequired: true);
-        if (password != null) {
-          store.wallet!.setRuntimePwd(password);
-          setState(() {
-            _isTransactionEnable = isOn;
-          });
-          webApi.account.setTransactionPwdDisabled();
-        }
-      } else {
-        store.wallet!.clearRuntimePwd();
-        webApi.account.setTransactionPwdEnabled();
+      // Only allow disabling when App Access is ON
+      if (!_isAppAccessEnable) {
+        UI.toast(dic.pwdVerificationTip);
+        return;
+      }
+      // Require password verification before disabling transaction password
+      // (aligns with MetaMask/Coinbase/Trust Wallet security practices)
+      String? password = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true);
+      if (password != null) {
+        if (!mounted) return;
+        webApi.account.setTransactionPwdDisabled();
+        store.wallet!.setRuntimePwd(password);
         setState(() {
-          _isTransactionEnable = isOn;
+          _isTransactionPwdEnable = false;
         });
       }
     }
   }
 
+  late AppLocalizations dic;
+
   @override
   Widget build(BuildContext context) {
-    AppLocalizations dic = AppLocalizations.of(context)!;
+    dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(dic.passwordVerification),
@@ -145,33 +121,9 @@ class _PasswordVerificationState extends State<PasswordVerificationPage>
                 ),
                 SwitchItem(
                   text: dic.transactions,
-                  onClick: _onToggleTransaction,
-                  isOn: this._isTransactionEnable,
+                  onClick: _onToggleTransactionPwd,
+                  isOn: this._isTransactionPwdEnable,
                 ),
-                Container(
-                    height: 54,
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            return SlideTransition(
-                              position: _offsetAnimation,
-                              child: Text(
-                                dic.pwdVerificationTip,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: _colorAnimation.value,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ))
               ],
             )),
       ),
