@@ -529,7 +529,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                 children: _buildListView(context, tx, params),
               ),
             ),
-            showExplorer && tx.hash.isNotEmpty && (_argExplorerUrl ?? widget.store.settings!.currentNode?.explorerUrl) != null
+            showExplorer && tx.hash.isNotEmpty && (_argExplorerUrl ?? widget.store.settings!.currentNode?.explorerUrl ?? '').isNotEmpty
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

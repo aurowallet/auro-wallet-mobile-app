@@ -61,18 +61,20 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
       );
     }));
     String? browserLink = store.settings!.currentNode?.explorerUrl;
-    res.add(Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: BrowserLink(
-              '$browserLink/account/$currentAddress/txs',
-              text: dic.goToExplorer,
-              launchMode: LaunchMode.inAppBrowserView,
-            ))
-      ],
-    ));
+    if (browserLink != null && browserLink.isNotEmpty) {
+      res.add(Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: BrowserLink(
+                '$browserLink/account/$currentAddress/txs',
+                text: dic.goToExplorer,
+                launchMode: LaunchMode.inAppBrowserView,
+              ))
+        ],
+      ));
+    }
     return Ink(
         color: Color(0xFFFFFFFF),
         child: ListView(
