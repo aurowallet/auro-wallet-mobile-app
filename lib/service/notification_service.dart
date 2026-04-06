@@ -14,6 +14,7 @@ class NotificationService {
 
   bool _isInitialized = false;
   static bool _coldStartChecked = false;
+  static const String _lastLaunchPayloadKey = 'last_launch_notification_payload';
   static const String _notificationEnabledKey = 'notification_enabled';
 
   bool get isNotificationEnabled {
@@ -90,12 +91,32 @@ class NotificationService {
           if (launchDetails != null &&
               launchDetails.didNotificationLaunchApp &&
               launchDetails.notificationResponse != null) {
-            _onNotificationResponse(launchDetails.notificationResponse!);
+            final payload = launchDetails.notificationResponse!.payload;
+            if (payload != null && !_isLaunchNotificationAlreadyProcessed(payload)) {
+              _markLaunchNotificationProcessed(payload);
+              _onNotificationResponse(launchDetails.notificationResponse!);
+            }
           }
         } catch (_) {}
       }
 
       _isInitialized = true;
+    } catch (_) {}
+  }
+
+  bool _isLaunchNotificationAlreadyProcessed(String payload) {
+    try {
+      final box = GetStorage('configuration');
+      return box.read(_lastLaunchPayloadKey) == payload;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _markLaunchNotificationProcessed(String payload) {
+    try {
+      final box = GetStorage('configuration');
+      box.write(_lastLaunchPayloadKey, payload);
     } catch (_) {}
   }
 
