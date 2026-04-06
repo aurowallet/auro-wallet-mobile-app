@@ -497,7 +497,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                       });
                     }
                     FlutterNativeSplash.remove();
-                    if (snapshot.data! > 0) {
+                    final walletCount = _appStore!.wallet!.walletListAll.length;
+                    if (walletCount > 0) {
                       bool isOpen = initLockCheck() && !_lockPagePushed;
                       if (isOpen) {
                         _inlineLockShowing = true;
