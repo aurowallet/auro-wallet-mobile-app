@@ -42,8 +42,6 @@ class NetworkFeeDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final shouldShowWarning = transferFees.isFeeExceedsCapValue(currentFee);
-
     return Container(
       margin: EdgeInsets.only(top: 20),
       child: Column(
@@ -70,21 +68,6 @@ class NetworkFeeDisplay extends StatelessWidget {
               ),
             ],
           ),
-          if (shouldShowWarning)
-            Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  dic.feeTooLarge,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFE8B30E),
-                  ),
-                ),
-              ),
-            ),
           Container(
             height: 0.5,
             margin: EdgeInsets.only(top: 10),
