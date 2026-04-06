@@ -981,12 +981,6 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bu cüzdanı silmek istediğinizden emin misiniz?';
 
   @override
-  String get walletDeleted => 'Cüzdan başarıyla silindi';
-
-  @override
-  String get walletRenamed => 'Cüzdan başarıyla yeniden adlandırıldı';
-
-  @override
   String get privateKeyWallet => 'Özel Anahtar';
 
   @override

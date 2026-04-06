@@ -983,12 +983,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы уверены, что хотите удалить этот кошелек?';
 
   @override
-  String get walletDeleted => 'Кошелек успешно удален';
-
-  @override
-  String get walletRenamed => 'Кошелек успешно переименован';
-
-  @override
   String get privateKeyWallet => 'Приватный ключ';
 
   @override

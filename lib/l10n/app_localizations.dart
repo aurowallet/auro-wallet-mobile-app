@@ -1928,18 +1928,6 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete this wallet?'**
   String get deleteWalletConfirm;
 
-  /// No description provided for @walletDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet deleted successfully'**
-  String get walletDeleted;
-
-  /// No description provided for @walletRenamed.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet renamed successfully'**
-  String get walletRenamed;
-
   /// No description provided for @privateKeyWallet.
   ///
   /// In en, this message translates to:

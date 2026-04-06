@@ -980,12 +980,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to delete this wallet?';
 
   @override
-  String get walletDeleted => 'Wallet deleted successfully';
-
-  @override
-  String get walletRenamed => 'Wallet renamed successfully';
-
-  @override
   String get privateKeyWallet => 'Private Key';
 
   @override

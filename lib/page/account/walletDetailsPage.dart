@@ -4,7 +4,7 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
-import 'package:auro_wallet/common/components/inputItem.dart';
+import 'package:auro_wallet/common/components/changeNameDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -39,127 +39,22 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
   bool get isHDWallet => wallet.walletType == WalletStore.seedTypeMnemonic;
 
   Future<void> _onRenameWallet() async {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    
-    final newName = await _showRenameDialog(walletName);
-    if (newName != null && newName.isNotEmpty && newName != walletName) {
-      setState(() => _isLoading = true);
-      
-      final success = await store.wallet!.renameWallet(wallet.id, newName);
-      
-      setState(() => _isLoading = false);
-      
-      if (success) {
-        setState(() {
-          walletName = newName;
-        });
-        UI.toast(dic.walletRenamed);
-      }
-    }
-  }
-
-  Future<String?> _showRenameDialog(String currentName) async {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: currentName);
-    
-    return showDialog<String>(
+    final newName = await showDialog<String>(
       context: context,
-      builder: (context) => Dialog(
-        clipBehavior: Clip.hardEdge,
-        backgroundColor: Colors.white,
-        insetPadding: EdgeInsets.symmetric(horizontal: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Text(
-                dic.changeWalletName,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
-              child: InputItem(
-                maxLength: 20,
-                initialValue: currentName,
-                placeholder: dic.walletNamePlaceholder,
-                padding: EdgeInsets.only(top: 20),
-                controller: controller,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 30),
-              height: 1,
-              color: Colors.black12,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 48,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      ),
-                      child: Text(
-                        dic.cancel,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 0.5,
-                  height: 48,
-                  color: Colors.black12,
-                ),
-                Expanded(
-                  child: SizedBox(
-                    height: 48,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      ),
-                      child: Text(
-                        dic.confirm,
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      onPressed: () {
-                        final text = controller.text.trim();
-                        if (text.isNotEmpty) {
-                          Navigator.of(context).pop(text);
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      builder: (_) {
+        return ChangeNameDialog(
+          title: AppLocalizations.of(context)!.changeWalletName,
+          placeholder: walletName,
+          maxLength: 20,
+        );
+      },
     );
+    if (newName != null && newName.isNotEmpty) {
+      await store.wallet!.renameWallet(wallet.id, newName);
+      setState(() {
+        walletName = newName;
+      });
+    }
   }
 
   Future<void> _onShowSeedPhrase() async {
@@ -219,8 +114,6 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
     setState(() => _isLoading = false);
     
     if (success) {
-      UI.toast(dic.walletDeleted);
-      // Go back to wallet manage page
       Navigator.of(context).pop(true);
     } else {
       UI.toast(dic.passwordError);
@@ -231,15 +124,15 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(dic.walletDetails),
-        centerTitle: true,
-      ),
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SafeArea(
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            title: Text(dic.walletDetails),
+            centerTitle: true,
+          ),
+          backgroundColor: Colors.white,
+          body: SafeArea(
             child: Observer(
               builder: (_) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,17 +176,18 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
               ),
             ),
           ),
-          
-          // Loading overlay
-          if (_isLoading)
-            Container(
+        ),
+        
+        if (_isLoading)
+          Positioned.fill(
+            child: Container(
               color: Colors.black45,
               child: Center(
                 child: CircularProgressIndicator(),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 

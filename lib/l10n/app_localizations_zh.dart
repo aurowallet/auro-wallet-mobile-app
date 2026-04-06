@@ -947,12 +947,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deleteWalletConfirm => '确定要删除此钱包吗？';
 
   @override
-  String get walletDeleted => '钱包删除成功';
-
-  @override
-  String get walletRenamed => '钱包重命名成功';
-
-  @override
   String get privateKeyWallet => '私钥';
 
   @override

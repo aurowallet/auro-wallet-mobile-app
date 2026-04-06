@@ -981,12 +981,6 @@ class AppLocalizationsUk extends AppLocalizations {
       'Ви впевнені, що хочете видалити цей гаманець?';
 
   @override
-  String get walletDeleted => 'Гаманець успішно видалено';
-
-  @override
-  String get walletRenamed => 'Гаманець успішно перейменовано';
-
-  @override
   String get privateKeyWallet => 'Приватний ключ';
 
   @override
