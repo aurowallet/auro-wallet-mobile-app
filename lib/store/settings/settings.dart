@@ -44,7 +44,7 @@ abstract class _SettingsStore with Store {
   bool testnetShowStatus = false;
 
   @observable
-  bool lockWalletStatus = true;
+  bool lockWalletStatus = false;
 
   @observable
   bool termsAgreed = false;
