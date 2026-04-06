@@ -934,67 +934,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationTxSuccess => 'Transaction Confirmed';
 
   @override
-  String get notificationTxFailed => 'Transaction Failed';
-
-  @override
   String get notificationTxSuccessBody =>
       'Your transaction has been confirmed.';
-
-  @override
-  String notificationTxSuccessBodyWithAmount(String amount, String symbol) {
-    return 'Your transaction of $amount $symbol has been confirmed.';
-  }
-
-  @override
-  String get notificationTxFailedBody =>
-      'Your transaction failed. Please try again.';
-
-  @override
-  String notificationSentTitle(String amount, String symbol) {
-    return 'Sent $amount $symbol';
-  }
-
-  @override
-  String notificationSentBody(String address) {
-    return 'To $address';
-  }
-
-  @override
-  String get notificationSendFailedTitle => 'Send Failed';
-
-  @override
-  String notificationSendFailedBody(String amount, String symbol) {
-    return '$amount $symbol send failed. Please try again.';
-  }
-
-  @override
-  String get notificationDelegationSuccessTitle => 'Delegation Confirmed';
-
-  @override
-  String notificationDelegationSuccessBody(String address) {
-    return 'Staked to $address';
-  }
-
-  @override
-  String get notificationDelegationFailedTitle => 'Delegation Failed';
-
-  @override
-  String get notificationDelegationFailedBody =>
-      'Your delegation failed. Please try again.';
-
-  @override
-  String get notificationZkAppSuccessTitle => 'zkApp Transaction Confirmed';
-
-  @override
-  String get notificationZkAppSuccessBody =>
-      'Your zkApp transaction has been confirmed.';
-
-  @override
-  String get notificationZkAppFailedTitle => 'zkApp Transaction Failed';
-
-  @override
-  String get notificationZkAppFailedBody =>
-      'Your zkApp transaction failed. Please try again.';
 
   @override
   String get renameWallet => 'Rename Wallet';
@@ -1178,6 +1119,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get biometricUpdateFailed =>
       'Biometric data update failed. Please try again.';
+
+  @override
+  String notificationSentTitle(String amount, String symbol) {
+    return 'Sent $amount $symbol';
+  }
+
+  @override
+  String notificationSentBody(String address) {
+    return 'To $address';
+  }
+
+  @override
+  String get notificationSendFailedTitle => 'Send Failed';
+
+  @override
+  String notificationSendFailedBody(String amount, String symbol) {
+    return '$amount $symbol send failed. Please try again.';
+  }
+
+  @override
+  String get notificationDelegationSuccessTitle => 'Delegation Confirmed';
+
+  @override
+  String notificationDelegationSuccessBody(String address) {
+    return 'Staked to $address';
+  }
+
+  @override
+  String get notificationDelegationFailedTitle => 'Delegation Failed';
+
+  @override
+  String get notificationDelegationFailedBody =>
+      'Your delegation failed. Please try again.';
+
+  @override
+  String get notificationZkAppSuccessTitle => 'zkApp Transaction Confirmed';
+
+  @override
+  String get notificationZkAppSuccessBody =>
+      'Your zkApp transaction has been confirmed.';
+
+  @override
+  String get notificationZkAppFailedTitle => 'zkApp Transaction Failed';
+
+  @override
+  String get notificationZkAppFailedBody =>
+      'Your zkApp transaction failed. Please try again.';
 
   @override
   String get notificationEnable => 'Transaction Notifications';

@@ -936,65 +936,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get notificationTxSuccess => 'İşlem Onaylandı';
 
   @override
-  String get notificationTxFailed => 'İşlem Başarısız';
-
-  @override
   String get notificationTxSuccessBody => 'İşleminiz onaylandı.';
-
-  @override
-  String notificationTxSuccessBodyWithAmount(String amount, String symbol) {
-    return '$amount $symbol tutarındaki işleminiz onaylandı.';
-  }
-
-  @override
-  String get notificationTxFailedBody =>
-      'İşleminiz başarısız oldu. Lütfen tekrar deneyin.';
-
-  @override
-  String notificationSentTitle(String amount, String symbol) {
-    return '$amount $symbol Gönderildi';
-  }
-
-  @override
-  String notificationSentBody(String address) {
-    return '$address adresine';
-  }
-
-  @override
-  String get notificationSendFailedTitle => 'Gönderim Başarısız';
-
-  @override
-  String notificationSendFailedBody(String amount, String symbol) {
-    return '$amount $symbol gönderilemedi. Lütfen tekrar deneyin.';
-  }
-
-  @override
-  String get notificationDelegationSuccessTitle => 'Delegasyon Onaylandı';
-
-  @override
-  String notificationDelegationSuccessBody(String address) {
-    return '$address adresine stake edildi';
-  }
-
-  @override
-  String get notificationDelegationFailedTitle => 'Delegasyon Başarısız';
-
-  @override
-  String get notificationDelegationFailedBody =>
-      'Delegasyonunuz başarısız oldu. Lütfen tekrar deneyin.';
-
-  @override
-  String get notificationZkAppSuccessTitle => 'zkApp İşlemi Onaylandı';
-
-  @override
-  String get notificationZkAppSuccessBody => 'zkApp işleminiz onaylandı.';
-
-  @override
-  String get notificationZkAppFailedTitle => 'zkApp İşlemi Başarısız';
-
-  @override
-  String get notificationZkAppFailedBody =>
-      'zkApp işleminiz başarısız oldu. Lütfen tekrar deneyin.';
 
   @override
   String get renameWallet => 'Cüzdanı Yeniden Adlandır';
@@ -1178,6 +1120,52 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get biometricUpdateFailed =>
       'Biyometrik veriler güncellenemedi. Lütfen tekrar deneyin.';
+
+  @override
+  String notificationSentTitle(String amount, String symbol) {
+    return '$amount $symbol Gönderildi';
+  }
+
+  @override
+  String notificationSentBody(String address) {
+    return '$address adresine';
+  }
+
+  @override
+  String get notificationSendFailedTitle => 'Gönderim Başarısız';
+
+  @override
+  String notificationSendFailedBody(String amount, String symbol) {
+    return '$amount $symbol gönderilemedi. Lütfen tekrar deneyin.';
+  }
+
+  @override
+  String get notificationDelegationSuccessTitle => 'Delegasyon Onaylandı';
+
+  @override
+  String notificationDelegationSuccessBody(String address) {
+    return '$address adresine stake edildi';
+  }
+
+  @override
+  String get notificationDelegationFailedTitle => 'Delegasyon Başarısız';
+
+  @override
+  String get notificationDelegationFailedBody =>
+      'Delegasyonunuz başarısız oldu. Lütfen tekrar deneyin.';
+
+  @override
+  String get notificationZkAppSuccessTitle => 'zkApp İşlemi Onaylandı';
+
+  @override
+  String get notificationZkAppSuccessBody => 'zkApp işleminiz onaylandı.';
+
+  @override
+  String get notificationZkAppFailedTitle => 'zkApp İşlemi Başarısız';
+
+  @override
+  String get notificationZkAppFailedBody =>
+      'zkApp işleminiz başarısız oldu. Lütfen tekrar deneyin.';
 
   @override
   String get notificationEnable => 'İşlem Bildirimleri';

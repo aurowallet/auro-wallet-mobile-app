@@ -905,62 +905,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notificationTxSuccess => '交易已确认';
 
   @override
-  String get notificationTxFailed => '交易失败';
-
-  @override
   String get notificationTxSuccessBody => '您的交易已确认。';
-
-  @override
-  String notificationTxSuccessBodyWithAmount(String amount, String symbol) {
-    return '您的 $amount $symbol 交易已确认。';
-  }
-
-  @override
-  String get notificationTxFailedBody => '您的交易失败，请重试。';
-
-  @override
-  String notificationSentTitle(String amount, String symbol) {
-    return '已发送 $amount $symbol';
-  }
-
-  @override
-  String notificationSentBody(String address) {
-    return '至 $address';
-  }
-
-  @override
-  String get notificationSendFailedTitle => '发送失败';
-
-  @override
-  String notificationSendFailedBody(String amount, String symbol) {
-    return '$amount $symbol 发送失败，请重试。';
-  }
-
-  @override
-  String get notificationDelegationSuccessTitle => '质押已确认';
-
-  @override
-  String notificationDelegationSuccessBody(String address) {
-    return '已质押至 $address';
-  }
-
-  @override
-  String get notificationDelegationFailedTitle => '质押失败';
-
-  @override
-  String get notificationDelegationFailedBody => '您的质押交易失败，请重试。';
-
-  @override
-  String get notificationZkAppSuccessTitle => 'zkApp 交易已确认';
-
-  @override
-  String get notificationZkAppSuccessBody => '您的 zkApp 交易已确认。';
-
-  @override
-  String get notificationZkAppFailedTitle => 'zkApp 交易失败';
-
-  @override
-  String get notificationZkAppFailedBody => '您的 zkApp 交易失败，请重试。';
 
   @override
   String get renameWallet => '重命名钱包';
@@ -1137,6 +1082,50 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get biometricUpdateFailed => '生物识别数据更新失败，请重试。';
+
+  @override
+  String notificationSentTitle(String amount, String symbol) {
+    return '已发送 $amount $symbol';
+  }
+
+  @override
+  String notificationSentBody(String address) {
+    return '至 $address';
+  }
+
+  @override
+  String get notificationSendFailedTitle => '发送失败';
+
+  @override
+  String notificationSendFailedBody(String amount, String symbol) {
+    return '$amount $symbol 发送失败，请重试。';
+  }
+
+  @override
+  String get notificationDelegationSuccessTitle => '质押已确认';
+
+  @override
+  String notificationDelegationSuccessBody(String address) {
+    return '已质押至 $address';
+  }
+
+  @override
+  String get notificationDelegationFailedTitle => '质押失败';
+
+  @override
+  String get notificationDelegationFailedBody => '您的质押交易失败，请重试。';
+
+  @override
+  String get notificationZkAppSuccessTitle => 'zkApp 交易已确认';
+
+  @override
+  String get notificationZkAppSuccessBody => '您的 zkApp 交易已确认。';
+
+  @override
+  String get notificationZkAppFailedTitle => 'zkApp 交易失败';
+
+  @override
+  String get notificationZkAppFailedBody => '您的 zkApp 交易失败，请重试。';
 
   @override
   String get notificationEnable => '交易通知';
