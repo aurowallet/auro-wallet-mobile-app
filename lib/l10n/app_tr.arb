@@ -609,17 +609,8 @@
   "response":"Yanıt",
   "retry":"Tekrar Dene",
   "scanTip":"Adres QR kodu ve WalletConnect desteği",
-  "notificationTxSuccess":"İşlem Başarılı",
-  "notificationTxFailed":"İşlem Başarısız",
+  "notificationTxSuccess":"İşlem Onaylandı",
   "notificationTxSuccessBody":"İşleminiz onaylandı.",
-  "notificationTxSuccessBodyWithAmount":"{amount} {symbol} tutarındaki işleminiz onaylandı.",
-  "@notificationTxSuccessBodyWithAmount": {
-    "placeholders": {
-      "amount": {"type": "String"},
-      "symbol": {"type": "String"}
-    }
-  },
-  "notificationTxFailedBody":"İşleminiz başarısız oldu. Lütfen tekrar deneyin.",
   "renameWallet": "Cüzdanı Yeniden Adlandır",
   "@renameWallet": {},
   "deleteWallet": "Cüzdanı Sil",
@@ -711,5 +702,40 @@
   "networkFee": "Ağ Ücreti",
   "inputFeeError": "Lütfen geçerli bir ağ ücreti girin",
   "inputNonceError": "Lütfen geçerli bir nonce girin",
-  "biometricUpdateFailed": "Biyometrik veriler güncellenemedi. Lütfen tekrar deneyin."
+  "biometricUpdateFailed": "Biyometrik veriler güncellenemedi. Lütfen tekrar deneyin.",
+  "notificationSentTitle":"{amount} {symbol} Gönderildi",
+  "@notificationSentTitle": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationSentBody":"{address} adresine",
+  "@notificationSentBody": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "notificationSendFailedTitle":"Gönderim Başarısız",
+  "notificationSendFailedBody":"{amount} {symbol} gönderilemedi. Lütfen tekrar deneyin.",
+  "@notificationSendFailedBody": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationDelegationSuccessTitle":"Delegasyon Onaylandı",
+  "notificationDelegationSuccessBody":"{address} adresine stake edildi",
+  "@notificationDelegationSuccessBody": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "notificationDelegationFailedTitle":"Delegasyon Başarısız",
+  "notificationDelegationFailedBody":"Delegasyonunuz başarısız oldu. Lütfen tekrar deneyin.",
+  "notificationZkAppSuccessTitle":"zkApp İşlemi Onaylandı",
+  "notificationZkAppSuccessBody":"zkApp işleminiz onaylandı.",
+  "notificationZkAppFailedTitle":"zkApp İşlemi Başarısız",
+  "notificationZkAppFailedBody":"zkApp işleminiz başarısız oldu. Lütfen tekrar deneyin.",
+  "notificationEnable": "İşlem Bildirimleri"
 }

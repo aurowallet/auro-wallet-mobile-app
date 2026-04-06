@@ -146,12 +146,10 @@ abstract class _WalletStore with Store {
     final wallet = walletList.firstWhereOrNull((w) =>
         w.accounts.indexWhere((account) => account.pubKey == pubKey) >= 0);
     if (wallet == null) {
-      print('setCurrentAccount: wallet not found for pubKey $pubKey');
       return;
     }
     final account = wallet.accounts.firstWhereOrNull((acc) => acc.pubKey == pubKey);
     if (account == null) {
-      print('setCurrentAccount: account not found for pubKey $pubKey');
       return;
     }
     wallet.currentAccountIndex = account.accountIndex;
@@ -172,13 +170,11 @@ abstract class _WalletStore with Store {
     AccountData newAccount = AccountData.fromJson(acc);
     final wallet = walletList.firstWhereOrNull((w) => w.id == newAccount.walletId);
     if (wallet == null) {
-      print('updateAccount: wallet not found for walletId ${newAccount.walletId}');
       return;
     }
     int index = wallet.accounts
         .indexWhere((account) => account.pubKey == newAccount.pubKey);
     if (index < 0) {
-      print('updateAccount: account not found for pubKey ${newAccount.pubKey}');
       return;
     }
     wallet.accounts.removeAt(index);
@@ -332,7 +328,6 @@ abstract class _WalletStore with Store {
   Future<void> removeAccount(AccountData acc) async {
     final wallet = walletList.firstWhereOrNull((w) => w.id == acc.walletId);
     if (wallet == null) {
-      print('removeAccount: wallet not found for walletId ${acc.walletId}');
       return;
     }
     wallet.accounts.removeWhere((account) => account.pubKey == acc.pubKey);
@@ -427,10 +422,7 @@ abstract class _WalletStore with Store {
         var wallet = walletList[i];
         await updateSeed(wallet.id, passwordOld, passwordNew);
       }
-    } catch (x) {
-      print('111');
-      print(x);
-    }
+    } catch (_) {}
   }
 
   Future<void> updateSeed(
@@ -699,8 +691,7 @@ abstract class _WalletStore with Store {
       await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
       await loadWallet();
       return true;
-    } catch (e) {
-      print('renameWallet error: $e');
+    } catch (_) {
       return false;
     }
   }
@@ -743,8 +734,7 @@ abstract class _WalletStore with Store {
       }
 
       return true;
-    } catch (e) {
-      print('deleteWallet error: $e');
+    } catch (_) {
       return false;
     }
   }
@@ -794,8 +784,7 @@ abstract class _WalletStore with Store {
             ? WalletStore.defaultAccountName(wallet.accounts.length + 1)
             : accountName,
       };
-    } catch (e) {
-      print('addAccountToWallet error: $e');
+    } catch (_) {
       return null;
     }
   }

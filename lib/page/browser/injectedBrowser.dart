@@ -51,8 +51,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   Map websiteInitInfo = {};
 
   Future<dynamic> _responseToZkApp(String method, Map resData) async {
-    print('respond ${method} to zkApp:');
-    print(resData);
     _signing = false;
     return _controller.evaluateJavascript(
         source: "onAppResponse(${jsonEncode(resData)})");
@@ -491,7 +489,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         _responseToZkApp(method, resData);
         return;
       default:
-        print('Unknown message from zkApp: ${method}');
         Map res = {"message": "Method not supported.", "code": 20006};
         return _responseToZkApp(method, res);
     }
@@ -524,13 +521,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     dynamic minaConfig =
         await _controller.evaluateJavascript(source: "window.mina?.isAuro");
     if (minaConfig.runtimeType == bool && minaConfig) {
-      print('mina provider injected success, $minaConfig');
     } else {
-      print('mina provider injected failed,$minaConfig');
       final minaJsProvider =
           await rootBundle.loadString('assets/webview/provider.js');
       await _controller.evaluateJavascript(source: minaJsProvider);
-      print('mina provider js code injected');
     }
 
     if (widget.onPageFinished != null) {
@@ -565,14 +559,12 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           url: WebUri(widget.initialUrl),
         ),
         onWebViewCreated: (controller) {
-          print('onWebViewCreated,');
           _controller = controller;
           controller.addWebMessageListener(WebMessageListener(
             jsObjectName: "AppProvider",
             onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
               try {
                 if (!isMainFrame) {
-                  print('msg is not from MainFrame');
                   return;
                 }
                 final msg = jsonDecode(message?.data);
@@ -590,29 +582,20 @@ class _WebViewInjectedState extends State<WebViewInjected> {
                     }
                   }
                 }
-              } catch (e) {
-                print('msg from error: ${e}');
-              }
+              } catch (_) {}
             },
           ));
           widget.onWebViewCreated!(controller);
         },
         onPageCommitVisible: (controller, url) async {
-          print('onPageCommitVisible Inject mina provider js code...');
           final minaJsProvider =
               await rootBundle.loadString('assets/webview/provider.js');
           await controller.evaluateJavascript(source: minaJsProvider);
-          print('onPageCommitVisible mina provider js code injected ');
         },
         onLoadStop: (controller, url) async {
           await _onFinishLoad(url.toString());
         },
-        // onConsoleMessage: (controller, consoleMessage) {
-        //   print("Console message: ${consoleMessage.message}");
-        // },
-        onReceivedError: (controller, request, error) {
-          print("Load error: $error");
-        },
+        onReceivedError: (controller, request, error) {},
         onProgressChanged: (controller, progress) {
           if (progress >= 99) {
             _onGetPageActionStatus();
@@ -629,7 +612,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             transparentBackground: true,
             allowsBackForwardNavigationGestures: true),
         onJsAlert: (controller, jsAlertRequest) async {
-          print("JS Alert: ${jsAlertRequest.message}");
           return JsAlertResponse(handledByClient: true);
         },
       ),

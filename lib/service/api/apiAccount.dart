@@ -170,9 +170,7 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
     GqlResult gqlResult = await apiRoot.gqlRequest(_options,
         context: context, customClient: customClient);
     if (gqlResult.error) {
-      print('payment broadcast error source: ${gqlResult.errorMessage}');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
-      print('[aurowallet] payment broadcast error: ${msg}');
       String nextMsg = msg.isEmpty ? gqlResult.errorMessage : msg;
       UI.toast(nextMsg);
       return null;
@@ -207,6 +205,8 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
         isZekoNet: store.settings!.isZekoNet,
         txUrl: store.settings!.currentNode?.txUrl,
         senderAddress: data.sender,
+        receiverAddress: data.receiver,
+        explorerUrl: store.settings!.currentNode?.explorerUrl,
       );
     }
     return data;
@@ -298,7 +298,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     GqlResult gqlResult = await apiRoot.gqlRequest(_options,
         context: context, customClient: customClient);
     if (gqlResult.error) {
-      print('质押广播出错了');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
       String nextMsg = msg.isEmpty ? gqlResult.errorMessage : msg;
       UI.toast(nextMsg);
@@ -329,6 +328,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         isZekoNet: store.settings!.isZekoNet,
         txUrl: store.settings!.currentNode?.txUrl,
         senderAddress: data.sender,
+        receiverAddress: data.receiver,
+        explorerUrl: store.settings!.currentNode?.explorerUrl,
       );
     }
     return data;
@@ -397,10 +398,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           validUntil: validUntil,
           rawSignature: rawSignature);
       return prepareBody;
-    } on LedgerException catch (e) {
-      print('ledger fail');
+    } on LedgerException catch (_) {
       AppLocalizations dic = AppLocalizations.of(context)!;
-      print(e);
       UI.toast(dic.ledgerReject);
       return null;
     }
@@ -561,8 +560,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchPendingZkTransactions(pubKey);
       webApi.assets.fetchFullTransactions(pubKey);
       return true;
-    } catch (e) {
-      print('network may not connected');
+    } catch (_) {
       return false;
     }
   }
@@ -607,8 +605,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       webApi.assets.fetchPendingZkTransactions(pubKey);
       webApi.assets.fetchFullTransactions(pubKey);
       return true;
-    } catch (e) {
-      print('network may not connected');
+    } catch (_) {
       return false;
     }
   }
@@ -702,9 +699,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       store.assets!.setAssetsLoading(true);
       webApi.assets.fetchAllTokenAssets();
-    } catch (e) {
-      print('network may not connected');
-    }
+    } catch (_) {}
   }
 
   Future<bool> checkAccountPassword(WalletData wallet, String pass) async {
@@ -1001,7 +996,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     GqlResult gqlResult = await apiRoot.gqlRequest(_options,
         context: context, customClient: customClient);
     if (gqlResult.error) {
-      print('zk broadcaset error：');
       String msg = getRealErrorMsg(gqlResult.errorMessage);
       String nextMsg = msg.isEmpty ? gqlResult.errorMessage : msg;
       UI.toast(nextMsg);
@@ -1043,6 +1037,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         isZekoNet: store.settings!.isZekoNet,
         txUrl: store.settings!.currentNode?.txUrl,
         senderAddress: data.sender,
+        receiverAddress: data.receiver,
+        explorerUrl: store.settings!.currentNode?.explorerUrl,
       );
     }
     return data;
@@ -1095,7 +1091,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       }
     } catch (e) {
       UI.toast(e.toString());
-      print('buildTokenBody Exception: $e');
       return null;
     }
   }
@@ -1131,7 +1126,6 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       }
     } catch (e) {
       UI.toast(e.toString());
-      print('postTokenResult Exception: $e');
       return null;
     }
   }

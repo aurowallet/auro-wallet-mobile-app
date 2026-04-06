@@ -582,17 +582,8 @@
   "response":"Response",
   "retry":"Retry",
   "scanTip":"Support address QR code and WalletConnect",
-  "notificationTxSuccess":"Transaction Successful",
-  "notificationTxFailed":"Transaction Failed",
+  "notificationTxSuccess":"Transaction Confirmed",
   "notificationTxSuccessBody":"Your transaction has been confirmed.",
-  "notificationTxSuccessBodyWithAmount":"Your transaction of {amount} {symbol} has been confirmed.",
-  "@notificationTxSuccessBodyWithAmount": {
-    "placeholders": {
-      "amount": {"type": "String"},
-      "symbol": {"type": "String"}
-    }
-  },
-  "notificationTxFailedBody":"Your transaction failed. Please try again.",
   "renameWallet": "Rename Wallet",
   "@renameWallet": {},
   "deleteWallet": "Delete Wallet",
@@ -688,5 +679,41 @@
   "inputNonceError": "Please enter a valid nonce",
   "@inputNonceError": {},
   "biometricUpdateFailed": "Biometric data update failed. Please try again.",
-  "@biometricUpdateFailed": {}
+  "@biometricUpdateFailed": {},
+  "notificationSentTitle":"Sent {amount} {symbol}",
+  "@notificationSentTitle": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationSentBody":"To {address}",
+  "@notificationSentBody": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "notificationSendFailedTitle":"Send Failed",
+  "notificationSendFailedBody":"{amount} {symbol} send failed. Please try again.",
+  "@notificationSendFailedBody": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationDelegationSuccessTitle":"Delegation Confirmed",
+  "notificationDelegationSuccessBody":"Staked to {address}",
+  "@notificationDelegationSuccessBody": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "notificationDelegationFailedTitle":"Delegation Failed",
+  "notificationDelegationFailedBody":"Your delegation failed. Please try again.",
+  "notificationZkAppSuccessTitle":"zkApp Transaction Confirmed",
+  "notificationZkAppSuccessBody":"Your zkApp transaction has been confirmed.",
+  "notificationZkAppFailedTitle":"zkApp Transaction Failed",
+  "notificationZkAppFailedBody":"Your zkApp transaction failed. Please try again.",
+  "notificationEnable": "Transaction Notifications",
+  "@notificationEnable": {}
 }

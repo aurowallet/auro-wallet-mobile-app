@@ -62,19 +62,6 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
       UI.toast(dic.passwordError);
       return;
     }
-    // bool isCorrect = await webApi.account.checkAccountPassword(widget.wallet, password);
-    // Tuple2 result = await widget.onOk(password);
-    // if (mounted) {
-    //   setState(() {
-    //     _submitting = false;
-    //   });
-    // }
-    // if (!result.item1) {
-    //   UI.toast(dic['passwordError']!);
-    //   return;
-    // } else {
-    //   Navigator.of(context).pop(result);
-    // }
     Navigator.of(context).pop(password);
   }
 
@@ -197,7 +184,6 @@ class _PasswordInputDialog extends State<PasswordInputDialog> {
                           _isConfirmButtonEnabled = value.isNotEmpty;
                         });
                       },
-                      // clearButtonMode: OverlayVisibilityMode.editing,
                     ),
                   ),
             showBioWidget && isUseBiometric

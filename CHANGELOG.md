@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file.
 - Biometric authentication improvements
 - Password verification page improvements
 - App lock improvements
+- Support load transaction detail by hash
 
 ### Fixed
 - fetchScamInfo catch

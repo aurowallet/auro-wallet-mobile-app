@@ -123,7 +123,6 @@ class _NodeEditPageState extends State<NodeEditPage> {
       matchingNode = null;
     }
 
-    print("back endpoint=3 ${matchingNode.toString()}");
     if (matchingNode != null) {
       endpoint.txUrl = matchingNode.txUrl;
       endpoint.explorerUrl = matchingNode.explorerUrl;

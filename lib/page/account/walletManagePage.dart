@@ -242,7 +242,6 @@ class _WalletManagePageState extends State<WalletManagePage> {
       // reset pwd verification
       webApi.account.setAppAccessDisabled();
       webApi.account.setTransactionPwdEnabled();
-      store.wallet!.clearRuntimePwd();
 
       Phoenix.rebirth(context);
     }

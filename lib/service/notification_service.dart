@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show Color;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_storage/get_storage.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -11,23 +13,52 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
-  
-  // Callback for handling notification taps
-  void Function(String? txHash)? _onNotificationTap;
-  
-  // Store pending notification hash when callback is not yet set
-  String? _pendingNotificationHash;
-  
-  // Setter for callback - also processes any pending notification
-  set onNotificationTap(void Function(String? txHash)? callback) {
-    _onNotificationTap = callback;
-    if (callback != null && _pendingNotificationHash != null) {
-      callback(_pendingNotificationHash);
-      _pendingNotificationHash = null;
+  static bool _coldStartChecked = false;
+  static const String _notificationEnabledKey = 'notification_enabled';
+
+  bool get isNotificationEnabled {
+    try {
+      final box = GetStorage('configuration');
+      final value = box.read(_notificationEnabledKey);
+      if (value == null) return true;
+      return value == true;
+    } catch (_) {
+      return false;
     }
   }
+
+  Future<void> setNotificationEnabled(bool enabled) async {
+    final box = GetStorage('configuration');
+    await box.write(_notificationEnabledKey, enabled);
+  }
   
-  void Function(String? txHash)? get onNotificationTap => _onNotificationTap;
+  void Function(Map<String, String> payload)? _onNotificationTap;
+  final List<String> _pendingNotificationPayloads = [];
+
+  set onNotificationTap(void Function(Map<String, String> payload)? callback) {
+    _onNotificationTap = callback;
+  }
+  
+  void Function(Map<String, String> payload)? get onNotificationTap => _onNotificationTap;
+
+  Map<String, String> _parsePayload(String raw) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return decoded.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''));
+      }
+    } catch (_) {}
+    return {'hash': raw};
+  }
+
+  void consumePendingNotification() {
+    if (_pendingNotificationPayloads.isNotEmpty && _onNotificationTap != null) {
+      final payloads = List<String>.from(_pendingNotificationPayloads);
+      _pendingNotificationPayloads.clear();
+      final parsed = _parsePayload(payloads.last);
+      _onNotificationTap!(parsed);
+    }
+  }
 
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -52,18 +83,28 @@ class NotificationService {
         onDidReceiveNotificationResponse: _onNotificationResponse,
       );
 
+      if (!_coldStartChecked) {
+        _coldStartChecked = true;
+        try {
+          final launchDetails = await _notificationsPlugin.getNotificationAppLaunchDetails();
+          if (launchDetails != null &&
+              launchDetails.didNotificationLaunchApp &&
+              launchDetails.notificationResponse != null) {
+            _onNotificationResponse(launchDetails.notificationResponse!);
+          }
+        } catch (_) {}
+      }
+
       _isInitialized = true;
-    } catch (e) {
-      // Ignore initialization errors
-    }
+    } catch (_) {}
   }
 
   void _onNotificationResponse(NotificationResponse response) {
     if (response.payload != null) {
       if (_onNotificationTap != null) {
-        _onNotificationTap!(response.payload);
+        _onNotificationTap!(_parsePayload(response.payload!));
       } else {
-        _pendingNotificationHash = response.payload;
+        _pendingNotificationPayloads.add(response.payload!);
       }
     }
   }
@@ -89,20 +130,61 @@ class NotificationService {
     return false;
   }
 
+  Future<bool> isPermissionGranted() async {
+    try {
+      if (Platform.isIOS) {
+        final iosPlugin = _notificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>();
+        if (iosPlugin != null) {
+          final settings = await iosPlugin.checkPermissions();
+          return settings?.isEnabled ?? false;
+        }
+      } else if (Platform.isAndroid) {
+        final androidPlugin = _notificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
+        if (androidPlugin != null) {
+          return await androidPlugin.areNotificationsEnabled() ?? false;
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  static int notificationIdForHash(String txHash) {
+    return txHash.hashCode & 0x7FFFFFFF;
+  }
+
   Future<void> showTransactionNotification({
-    required bool isSuccess,
     required String txHash,
-    required String successTitle,
-    required String failedTitle,
-    required String successBody,
-    required String failedBody,
+    String? txUrl,
+    String? explorerUrl,
+    String? senderAddress,
+    bool isZeko = false,
+    required String title,
+    required String body,
   }) async {
+    final payload = jsonEncode({
+      'hash': txHash,
+      if (txUrl != null && txUrl.isNotEmpty) 'txUrl': txUrl,
+      if (explorerUrl != null && explorerUrl.isNotEmpty) 'explorerUrl': explorerUrl,
+      if (senderAddress != null && senderAddress.isNotEmpty) 'senderAddress': senderAddress,
+      if (isZeko) 'isZeko': 'true',
+    });
     await _showNotification(
-      id: txHash.hashCode,
-      title: isSuccess ? successTitle : failedTitle,
-      body: isSuccess ? successBody : failedBody,
-      payload: txHash,
+      id: notificationIdForHash(txHash),
+      title: title,
+      body: body,
+      payload: payload,
     );
+  }
+
+  Future<void> cancelNotification(int id) async {
+    if (!_isInitialized) return;
+    try {
+      await _notificationsPlugin.cancel(id);
+    } catch (_) {}
   }
 
   Future<void> _showNotification({
@@ -111,6 +193,7 @@ class NotificationService {
     required String body,
     String? payload,
   }) async {
+    if (!isNotificationEnabled) return;
     if (!_isInitialized) {
       await initialize();
     }

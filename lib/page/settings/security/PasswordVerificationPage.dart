@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:auro_wallet/common/components/switchItem.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -53,7 +54,6 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
       if (password != null) {
         if (!mounted) return;
         webApi.account.setAppAccessDisabled();
-        store.wallet?.clearRuntimePwd();
         setState(() {
           _isAppAccessEnable = false;
         });
@@ -69,18 +69,14 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
   void _onToggleTransactionPwd(bool isOn) async {
     if (isOn) {
       webApi.account.setTransactionPwdEnabled();
-      store.wallet?.clearRuntimePwd();
       setState(() {
         _isTransactionPwdEnable = true;
       });
     } else {
-      // Only allow disabling when App Access is ON
       if (!_isAppAccessEnable) {
         UI.toast(dic.pwdVerificationTip);
         return;
       }
-      // Require password verification before disabling transaction password
-      // (aligns with MetaMask/Coinbase/Trust Wallet security practices)
       String? password = await UI.showPasswordDialog(
           context: context,
           wallet: store.wallet!.currentWallet,
@@ -88,7 +84,6 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
       if (password != null) {
         if (!mounted) return;
         webApi.account.setTransactionPwdDisabled();
-        store.wallet!.setRuntimePwd(password);
         setState(() {
           _isTransactionPwdEnable = false;
         });
@@ -128,47 +123,5 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
             )),
       ),
     );
-  }
-}
-
-class SwitchItem extends StatelessWidget {
-  SwitchItem({required this.text, required this.isOn, required this.onClick});
-
-  final String text;
-  final bool isOn;
-  final void Function(bool) onClick;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        height: 54,
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(text,
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600)),
-            Theme(
-              data: ThemeData(
-                useMaterial3: true,
-              ).copyWith(
-                colorScheme: Theme.of(context)
-                    .colorScheme
-                    .copyWith(outline: Color(0xFFE9E9E9)),
-              ),
-              child: Switch(
-                value: isOn,
-                onChanged: onClick,
-                activeThumbColor: Colors.white,
-                inactiveThumbColor: Colors.white,
-                activeTrackColor: Color(0xFF594AF1),
-                inactiveTrackColor: Color(0xFFE9E9E9),
-              ),
-            )
-          ],
-        ));
   }
 }

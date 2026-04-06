@@ -609,17 +609,8 @@
   "response":"响应",
   "retry":"重试",
   "scanTip":"支持地址二维码和 WalletConnect",
-  "notificationTxSuccess":"交易成功",
-  "notificationTxFailed":"交易失败",
+  "notificationTxSuccess":"交易已确认",
   "notificationTxSuccessBody":"您的交易已确认。",
-  "notificationTxSuccessBodyWithAmount":"您的 {amount} {symbol} 交易已确认。",
-  "@notificationTxSuccessBodyWithAmount": {
-    "placeholders": {
-      "amount": {"type": "String"},
-      "symbol": {"type": "String"}
-    }
-  },
-  "notificationTxFailedBody":"您的交易失败，请重试。",
   "renameWallet": "重命名钱包",
   "@renameWallet": {},
   "deleteWallet": "删除钱包",
@@ -715,5 +706,41 @@
   "inputNonceError": "请输入有效的nonce",
   "@inputNonceError": {},
   "biometricUpdateFailed": "生物识别数据更新失败，请重试。",
-  "@biometricUpdateFailed": {}
+  "@biometricUpdateFailed": {},
+  "notificationSentTitle":"已发送 {amount} {symbol}",
+  "@notificationSentTitle": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationSentBody":"至 {address}",
+  "@notificationSentBody": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "notificationSendFailedTitle":"发送失败",
+  "notificationSendFailedBody":"{amount} {symbol} 发送失败，请重试。",
+  "@notificationSendFailedBody": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "symbol": {"type": "String"}
+    }
+  },
+  "notificationDelegationSuccessTitle":"质押已确认",
+  "notificationDelegationSuccessBody":"已质押至 {address}",
+  "@notificationDelegationSuccessBody": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "notificationDelegationFailedTitle":"质押失败",
+  "notificationDelegationFailedBody":"您的质押交易失败，请重试。",
+  "notificationZkAppSuccessTitle":"zkApp 交易已确认",
+  "notificationZkAppSuccessBody":"您的 zkApp 交易已确认。",
+  "notificationZkAppFailedTitle":"zkApp 交易失败",
+  "notificationZkAppFailedBody":"您的 zkApp 交易失败，请重试。",
+  "notificationEnable": "交易通知",
+  "@notificationEnable": {}
 }

@@ -611,17 +611,8 @@
     "response": "Відповідь",
     "retry": "Повторити",
     "scanTip": "Підтримка QR-коду адреси та WalletConnect",
-    "notificationTxSuccess":"Транзакція успішна",
-    "notificationTxFailed":"Транзакція не вдалася",
+    "notificationTxSuccess":"Транзакцію підтверджено",
     "notificationTxSuccessBody":"Вашу транзакцію підтверджено.",
-    "notificationTxSuccessBodyWithAmount":"Вашу транзакцію на {amount} {symbol} підтверджено.",
-    "@notificationTxSuccessBodyWithAmount": {
-      "placeholders": {
-        "amount": {"type": "String"},
-        "symbol": {"type": "String"}
-      }
-    },
-    "notificationTxFailedBody":"Ваша транзакція не вдалася. Будь ласка, спробуйте ще раз.",
     "renameWallet": "Перейменувати гаманець",
     "@renameWallet": {},
     "deleteWallet": "Видалити гаманець",
@@ -713,5 +704,40 @@
     "networkFee": "Комісія мережі",
     "inputFeeError": "Введіть дійсну комісію мережі",
     "inputNonceError": "Введіть дійсний nonce",
-    "biometricUpdateFailed": "Не вдалося оновити біометричні дані. Будь ласка, спробуйте ще раз."
+    "biometricUpdateFailed": "Не вдалося оновити біометричні дані. Будь ласка, спробуйте ще раз.",
+    "notificationSentTitle":"Відправлено {amount} {symbol}",
+    "@notificationSentTitle": {
+      "placeholders": {
+        "amount": {"type": "String"},
+        "symbol": {"type": "String"}
+      }
+    },
+    "notificationSentBody":"До {address}",
+    "@notificationSentBody": {
+      "placeholders": {
+        "address": {"type": "String"}
+      }
+    },
+    "notificationSendFailedTitle":"Відправка не вдалася",
+    "notificationSendFailedBody":"{amount} {symbol} не відправлено. Спробуйте ще раз.",
+    "@notificationSendFailedBody": {
+      "placeholders": {
+        "amount": {"type": "String"},
+        "symbol": {"type": "String"}
+      }
+    },
+    "notificationDelegationSuccessTitle":"Делегування підтверджено",
+    "notificationDelegationSuccessBody":"Делеговано до {address}",
+    "@notificationDelegationSuccessBody": {
+      "placeholders": {
+        "address": {"type": "String"}
+      }
+    },
+    "notificationDelegationFailedTitle":"Делегування не вдалося",
+    "notificationDelegationFailedBody":"Делегування не вдалося. Спробуйте ще раз.",
+    "notificationZkAppSuccessTitle":"zkApp транзакцію підтверджено",
+    "notificationZkAppSuccessBody":"Вашу zkApp транзакцію підтверджено.",
+    "notificationZkAppFailedTitle":"zkApp транзакція не вдалася",
+    "notificationZkAppFailedBody":"Ваша zkApp транзакція не вдалася. Спробуйте ще раз.",
+    "notificationEnable": "Сповіщення про транзакції"
 }

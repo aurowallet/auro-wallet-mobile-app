@@ -15,7 +15,6 @@ import 'package:auro_wallet/page/browser/components/connectDialog.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
 import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
-import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
@@ -186,15 +185,6 @@ class UI {
     bool isTransaction = false,
     AppStore? store,
   }) {
-    if (isTransaction &&
-        !inputPasswordRequired &&
-        !webApi.account.getTransactionPwdEnabled()) {
-      final cachedPwd = globalAppStore.wallet?.runtimePwd ?? "";
-      if (cachedPwd.isNotEmpty) {
-        return Future.value(cachedPwd);
-      }
-    }
-
     return showDialog(
       context: context,
       barrierDismissible: false,

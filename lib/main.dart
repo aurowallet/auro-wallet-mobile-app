@@ -22,10 +22,8 @@ Future<void> main({bool testMode = false}) async {
   // get_storage dependency
   await GetStorage.init('configuration');
 
-  // Initialize notification service (skip permission requests in test mode)
   if (!isTestMode) {
     await NotificationService().initialize();
-    await NotificationService().requestPermission();
   }
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

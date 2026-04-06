@@ -935,7 +935,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanTip => 'Поддержка QR-кода адреса и WalletConnect';
 
   @override
-  String get notificationTxSuccess => 'Транзакция успешна';
+  String get notificationTxSuccess => 'Транзакция подтверждена';
 
   @override
   String get notificationTxFailed => 'Транзакция не удалась';
@@ -951,6 +951,53 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get notificationTxFailedBody =>
       'Ваша транзакция не удалась. Пожалуйста, попробуйте снова.';
+
+  @override
+  String notificationSentTitle(String amount, String symbol) {
+    return 'Отправлено $amount $symbol';
+  }
+
+  @override
+  String notificationSentBody(String address) {
+    return 'Кому $address';
+  }
+
+  @override
+  String get notificationSendFailedTitle => 'Отправка не удалась';
+
+  @override
+  String notificationSendFailedBody(String amount, String symbol) {
+    return '$amount $symbol не отправлено. Попробуйте снова.';
+  }
+
+  @override
+  String get notificationDelegationSuccessTitle => 'Делегирование подтверждено';
+
+  @override
+  String notificationDelegationSuccessBody(String address) {
+    return 'Делегировано $address';
+  }
+
+  @override
+  String get notificationDelegationFailedTitle => 'Делегирование не удалось';
+
+  @override
+  String get notificationDelegationFailedBody =>
+      'Делегирование не удалось. Попробуйте снова.';
+
+  @override
+  String get notificationZkAppSuccessTitle => 'zkApp транзакция подтверждена';
+
+  @override
+  String get notificationZkAppSuccessBody =>
+      'Ваша zkApp транзакция подтверждена.';
+
+  @override
+  String get notificationZkAppFailedTitle => 'zkApp транзакция не удалась';
+
+  @override
+  String get notificationZkAppFailedBody =>
+      'Ваша zkApp транзакция не удалась. Попробуйте снова.';
 
   @override
   String get renameWallet => 'Переименовать кошелек';
@@ -1135,4 +1182,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get biometricUpdateFailed =>
       'Не удалось обновить биометрические данные. Пожалуйста, попробуйте снова.';
+
+  @override
+  String get notificationEnable => 'Уведомления о транзакциях';
 }

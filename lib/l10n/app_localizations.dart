@@ -1841,7 +1841,7 @@ abstract class AppLocalizations {
   /// No description provided for @notificationTxSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Transaction Successful'**
+  /// **'Transaction Confirmed'**
   String get notificationTxSuccess;
 
   /// No description provided for @notificationTxFailed.
@@ -1867,6 +1867,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your transaction failed. Please try again.'**
   String get notificationTxFailedBody;
+
+  /// No description provided for @notificationSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {amount} {symbol}'**
+  String notificationSentTitle(String amount, String symbol);
+
+  /// No description provided for @notificationSentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To {address}'**
+  String notificationSentBody(String address);
+
+  /// No description provided for @notificationSendFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Failed'**
+  String get notificationSendFailedTitle;
+
+  /// No description provided for @notificationSendFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} {symbol} send failed. Please try again.'**
+  String notificationSendFailedBody(String amount, String symbol);
+
+  /// No description provided for @notificationDelegationSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delegation Confirmed'**
+  String get notificationDelegationSuccessTitle;
+
+  /// No description provided for @notificationDelegationSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Staked to {address}'**
+  String notificationDelegationSuccessBody(String address);
+
+  /// No description provided for @notificationDelegationFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delegation Failed'**
+  String get notificationDelegationFailedTitle;
+
+  /// No description provided for @notificationDelegationFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your delegation failed. Please try again.'**
+  String get notificationDelegationFailedBody;
+
+  /// No description provided for @notificationZkAppSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'zkApp Transaction Confirmed'**
+  String get notificationZkAppSuccessTitle;
+
+  /// No description provided for @notificationZkAppSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your zkApp transaction has been confirmed.'**
+  String get notificationZkAppSuccessBody;
+
+  /// No description provided for @notificationZkAppFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'zkApp Transaction Failed'**
+  String get notificationZkAppFailedTitle;
+
+  /// No description provided for @notificationZkAppFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your zkApp transaction failed. Please try again.'**
+  String get notificationZkAppFailedBody;
 
   /// No description provided for @renameWallet.
   ///
@@ -2215,6 +2287,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Biometric data update failed. Please try again.'**
   String get biometricUpdateFailed;
+
+  /// No description provided for @notificationEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Notifications'**
+  String get notificationEnable;
 }
 
 class _AppLocalizationsDelegate
