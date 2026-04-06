@@ -336,13 +336,18 @@ abstract class _WalletStore with Store {
     if (wallet.accounts.length == 0) {
       // remove encrypted seed after removing account
       await rootStore.localStorage.removeWallet(wallet.id);
-      deleteSeed(WalletStore.seedTypeMnemonic, wallet.id);
-      deleteSeed(WalletStore.seedTypePrivateKey, wallet.id);
-      if (walletList.length > 0) {
-        rootStore.localStorage.setCurrentWallet(walletList[0].id);
-          if(rootStore.wallet!.currentAddress != walletList[0].currentAccount.pubKey){
-            rootStore.walletConnectService?.emitAccountsChanged(walletList[0].currentAccount.pubKey);
-          }
+      await deleteSeed(WalletStore.seedTypeMnemonic, wallet.id);
+      await deleteSeed(WalletStore.seedTypePrivateKey, wallet.id);
+      final newCurrent = walletList.firstWhereOrNull((w) => w.id != wallet.id && w.accounts.isNotEmpty);
+      if (newCurrent != null) {
+        newCurrent.currentAccountIndex = newCurrent.accounts[0].accountIndex;
+        await rootStore.localStorage.updateWallet(WalletData.toJson(newCurrent));
+        await rootStore.localStorage.setCurrentWallet(newCurrent.id);
+        if(rootStore.wallet!.currentAddress != newCurrent.currentAccount.pubKey){
+          rootStore.walletConnectService?.emitAccountsChanged(newCurrent.currentAccount.pubKey);
+        }
+      } else {
+        await rootStore.localStorage.setCurrentWallet('');
       }
     } else {
       wallet.currentAccountIndex = wallet.accounts[0].accountIndex;
@@ -716,12 +721,15 @@ abstract class _WalletStore with Store {
       // Remove wallet from storage
       await rootStore.localStorage.removeWallet(wallet.id);
 
-      // If deleting current wallet, switch to first available wallet
-      if (walletId == currentWalletId && walletList.length > 1) {
+      if (walletId == currentWalletId) {
         final newCurrent =
-            walletList.firstWhereOrNull((w) => w.id != walletId);
+            walletList.firstWhereOrNull((w) => w.id != walletId && w.accounts.isNotEmpty);
         if (newCurrent != null) {
+          newCurrent.currentAccountIndex = newCurrent.accounts[0].accountIndex;
+          await rootStore.localStorage.updateWallet(WalletData.toJson(newCurrent));
           await rootStore.localStorage.setCurrentWallet(newCurrent.id);
+        } else {
+          await rootStore.localStorage.setCurrentWallet('');
         }
       }
 

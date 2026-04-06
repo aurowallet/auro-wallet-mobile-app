@@ -24,6 +24,7 @@ Future<void> main({bool testMode = false}) async {
 
   if (!isTestMode) {
     await NotificationService().initialize();
+    NotificationService().requestPermission().catchError((_) => false);
   }
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

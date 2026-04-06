@@ -34,7 +34,8 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
   Future<void> _initNotificationState() async {
     final storedEnabled = NotificationService().isNotificationEnabled;
-    if (storedEnabled) {
+    final wasExplicitlySet = NotificationService().isNotificationExplicitlySet;
+    if (storedEnabled && wasExplicitlySet) {
       final osGranted = await NotificationService().isPermissionGranted();
       if (!osGranted) {
         await NotificationService().setNotificationEnabled(false);
@@ -45,6 +46,15 @@ class _PreferencesPageState extends State<PreferencesPage> {
         }
         return;
       }
+    }
+    if (storedEnabled && !wasExplicitlySet) {
+      final osGranted = await NotificationService().isPermissionGranted();
+      if (mounted) {
+        setState(() {
+          _isNotificationEnabled = osGranted;
+        });
+      }
+      return;
     }
     if (mounted) {
       setState(() {

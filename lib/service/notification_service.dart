@@ -28,6 +28,15 @@ class NotificationService {
     }
   }
 
+  bool get isNotificationExplicitlySet {
+    try {
+      final box = GetStorage('configuration');
+      return box.read(_notificationEnabledKey) != null;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> setNotificationEnabled(bool enabled) async {
     final box = GetStorage('configuration');
     await box.write(_notificationEnabledKey, enabled);
@@ -214,7 +223,9 @@ class NotificationService {
     required String body,
     String? payload,
   }) async {
-    if (!isNotificationEnabled) return;
+    if (!isNotificationEnabled) {
+      return;
+    }
     if (!_isInitialized) {
       await initialize();
     }

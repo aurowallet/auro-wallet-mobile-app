@@ -174,14 +174,11 @@ class _LockWalletPageState extends State<LockWalletPage> {
     );
     if (confirmInput != null &&
         confirmInput.toLowerCase() == dic.delete.toLowerCase()) {
-      widget.store.wallet!.clearWallets();
-      widget.store.assets!.clearAccountCache();
-      webApi.account.setBiometricDisabled();
-
-      // reset pwd verification
-      webApi.account.setAppAccessDisabled();
-      webApi.account.setTransactionPwdEnabled();
+      await webApi.account.resetAllSecurityFlags();
+      if (!mounted) return;
       widget.store.wallet!.clearRuntimePwd();
+      widget.store.settings!.setLockWalletStatus(false);
+      widget.store.walletConnectService?.clearAllPairings();
 
       Phoenix.rebirth(context);
     }

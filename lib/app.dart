@@ -67,6 +67,8 @@ import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
 import 'package:app_links/app_links.dart';
 import 'package:auro_wallet/page/settings/preferences/preferencesPage.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:mobx/mobx.dart' as mobx;
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
@@ -92,7 +94,10 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   bool _lockPagePushed = false;
   bool _inlineLockShowing = false;
+  DateTime? _lastPausedTime;
+  static const int _lockThresholdSeconds = 3;
   Future<int>? _initFuture;
+  mobx.ReactionDisposer? _walletEmptyReaction;
 
   @override
   void initState() {
@@ -108,11 +113,20 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (!_storeReady) return;
     if (state == AppLifecycleState.paused) {
-      if (_appStore?.settings != null && webApi.account.getAppAccessEnabled()) {
-        _appStore!.settings!.setLockWalletStatus(true);
+      if (_appStore?.settings != null && webApi.account.getAppAccessEnabled() && !webApi.account.isBiometricInProgress) {
+        _lastPausedTime = DateTime.now();
       }
     } else if (state == AppLifecycleState.resumed) {
-      if (initLockCheck() && !_lockPagePushed && !_inlineLockShowing) {
+      if (_lastPausedTime != null && _appStore?.settings != null && webApi.account.getAppAccessEnabled() && !webApi.account.isBiometricInProgress) {
+        final elapsed = DateTime.now().difference(_lastPausedTime!).inSeconds;
+        if (elapsed >= _lockThresholdSeconds) {
+          _appStore!.settings!.setLockWalletStatus(true);
+        }
+        _lastPausedTime = null;
+      }
+      final lockCheck = initLockCheck();
+      final biometricActive = webApi.account.isBiometricInProgress;
+      if (lockCheck && !_lockPagePushed && !_inlineLockShowing && !biometricActive) {
         _lockPagePushed = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           final nav = _navigatorKey.currentState;
@@ -257,7 +271,25 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       TxStatusMonitor().ensureLifecycleObserving();
       _changeLang(context, _appStore!.settings!.localeCode);
       _storeReady = true;
+      if (webApi.account.getAppAccessEnabled()) {
+        _appStore!.settings!.setLockWalletStatus(true);
+      }
       NotificationService().onNotificationTap = _handleNotificationTap;
+      _walletEmptyReaction = mobx.reaction(
+        (_) => _appStore!.wallet!.walletList.isEmpty,
+        (bool isEmpty) {
+          if (isEmpty && mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (!mounted) return;
+              await webApi.account.resetAllSecurityFlags();
+              _appStore!.wallet!.clearRuntimePwd();
+              _appStore!.settings!.setLockWalletStatus(false);
+              _appStore!.walletConnectService?.clearAllPairings();
+              if (mounted) Phoenix.rebirth(context);
+            });
+          }
+        },
+      );
     }
     return _appStore!.wallet!.walletListAll.length;
   }
@@ -351,6 +383,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _walletEmptyReaction?.call();
     _navigatingResetTimer?.cancel();
     NotificationService().onNotificationTap = null;
     webApi.dispose();
@@ -513,7 +546,14 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                           _appStore!.settings!, _changeLang);
                     }
                   } else {
-                    return Container();
+                    return Container(
+                      color: Colors.white,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF594AF1),
+                        ),
+                      ),
+                    );
                   }
                 },
               ),

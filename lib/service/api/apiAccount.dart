@@ -797,6 +797,21 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return _cachedTransactionPwdEnabled;
   }
 
+  Future<void> resetAllSecurityFlags() async {
+    _cachedBiometricEnabled = false;
+    _cachedAppAccessEnabled = false;
+    _cachedTransactionPwdEnabled = true;
+    _securityFlagsInitialized = false;
+    await store.secureStorage.clearSeeds();
+    try {
+      await _legacySecureStorage.deleteAll();
+    } catch (_) {}
+    await store.localStorage.clearAll();
+    try {
+      apiRoot.configStorage.erase();
+    } catch (_) {}
+  }
+
   void setWatchModeWarned() {
     apiRoot.configStorage.write(_watchModeWarnedKey, true);
   }
@@ -863,11 +878,19 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     return true;
   }
 
+  bool _isBiometricInProgress = false;
+
+  bool get isBiometricInProgress => _isBiometricInProgress;
+
   Future<bool> authenticate() async {
+    _isBiometricInProgress = true;
     try {
       final canCheck = await auth.canCheckBiometrics;
       final isDeviceSupported = await auth.isDeviceSupported();
-      if (!canCheck && !isDeviceSupported) return false;
+      if (!canCheck && !isDeviceSupported) {
+        _isBiometricInProgress = false;
+        return false;
+      }
       final result = await auth.authenticate(
         localizedReason: "Verify your identity",
         authMessages: [
@@ -880,12 +903,15 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           stickyAuth: true,
         ),
       );
+      _isBiometricInProgress = false;
       return result;
     } on PlatformException catch (e) {
+      _isBiometricInProgress = false;
       String? showMsg = e.message != null ? e.message : e.toString();
       UI.toast(showMsg ?? "Verify Failed");
       return false;
     } catch (e) {
+      _isBiometricInProgress = false;
       return false;
     }
   }

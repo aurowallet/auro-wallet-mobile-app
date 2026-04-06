@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -7,6 +8,7 @@ import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 /// Wallet Details Page - similar to browser extension's WalletDetails
 /// Provides: rename wallet, show seed phrase, delete wallet
@@ -111,11 +113,22 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
     
     final success = await store.wallet!.deleteWallet(wallet.id, password);
     
-    setState(() => _isLoading = false);
+    if (!mounted) return;
     
     if (success) {
+      if (store.wallet!.walletList.isEmpty) {
+        await webApi.account.resetAllSecurityFlags();
+        if (!mounted) return;
+        store.wallet!.clearRuntimePwd();
+        store.settings!.setLockWalletStatus(false);
+        store.walletConnectService?.clearAllPairings();
+        Phoenix.rebirth(context);
+        return;
+      }
+      setState(() => _isLoading = false);
       Navigator.of(context).pop(true);
     } else {
+      setState(() => _isLoading = false);
       UI.toast(dic.passwordError);
     }
   }

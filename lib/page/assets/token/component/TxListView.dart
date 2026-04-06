@@ -145,7 +145,7 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
             textAlign: TextAlign.left,
           ),
         ),
-        Expanded(child: nextWidget)
+        Expanded(child: Container(color: Colors.white, child: nextWidget))
       ]),
     );
   }

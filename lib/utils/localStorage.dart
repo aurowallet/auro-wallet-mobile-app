@@ -26,6 +26,11 @@ class LocalStorage {
     return storage.clearList(walletsKey);
   }
 
+  Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
   Future<void> updateWallet(Map<String, dynamic> acc) async {
     return storage.updateItemInList(walletsKey, 'id', acc['id'], acc);
   }

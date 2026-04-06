@@ -736,7 +736,10 @@ class TxStatusMonitor with WidgetsBindingObserver {
   }
 
   AppLocalizations _getCurrentLocalization() {
-    final localeCode = globalAppStore.settings?.localeCode ?? 'en';
+    String localeCode = globalAppStore.settings?.localeCode ?? '';
+    if (localeCode.isEmpty) {
+      localeCode = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    }
     switch (localeCode.toLowerCase()) {
       case 'zh':
         return AppLocalizationsZh();

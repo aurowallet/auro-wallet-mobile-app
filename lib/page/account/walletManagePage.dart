@@ -235,13 +235,11 @@ class _WalletManagePageState extends State<WalletManagePage> {
     );
     if (confirmInput != null &&
         confirmInput.toLowerCase() == dic.delete.toLowerCase()) {
-      store.wallet!.clearWallets();
-      store.assets!.clearAccountCache();
-      webApi.account.setBiometricDisabled();
-
-      // reset pwd verification
-      webApi.account.setAppAccessDisabled();
-      webApi.account.setTransactionPwdEnabled();
+      await webApi.account.resetAllSecurityFlags();
+      if (!mounted) return;
+      store.wallet!.clearRuntimePwd();
+      store.settings!.setLockWalletStatus(false);
+      store.walletConnectService?.clearAllPairings();
 
       Phoenix.rebirth(context);
     }
