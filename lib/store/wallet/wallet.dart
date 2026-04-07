@@ -378,7 +378,7 @@ abstract class _WalletStore with Store {
         await encryption.encrypt(content: seed, password: password);
     Map stored = await rootStore.secureStorage.getSeeds(seedType);
     stored[pubKey] = encryptedSeed;
-    rootStore.secureStorage.setSeeds(seedType, stored);
+    await rootStore.secureStorage.setSeeds(seedType, stored);
   }
 
   @action
@@ -402,7 +402,7 @@ abstract class _WalletStore with Store {
   @action
   Future<bool> checkSeedExist(String seedType, String pubKey) async {
     Map stored = await rootStore.secureStorage.getSeeds(seedType);
-    String? encrypted = stored[pubKey];
+    dynamic encrypted = stored[pubKey];
     return encrypted != null;
   }
 
@@ -453,7 +453,7 @@ abstract class _WalletStore with Store {
     String? seed =
         await encryption.decrypt(data: encryptedSeed!, password: passwordOld);
     if (seed != null) {
-      encryptSeed(pubKey, seed, seedType, passwordNew);
+      await encryptSeed(pubKey, seed, seedType, passwordNew);
     }
   }
 
@@ -462,7 +462,7 @@ abstract class _WalletStore with Store {
     Map stored = await rootStore.secureStorage.getSeeds(seedType);
     if (stored[pubKey] != null) {
       stored.remove(pubKey);
-      rootStore.secureStorage.setSeeds(seedType, stored);
+      await rootStore.secureStorage.setSeeds(seedType, stored);
     }
   }
 
