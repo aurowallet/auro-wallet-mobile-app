@@ -60,7 +60,7 @@ class Encryption {
     encryptLibs.Key secret = generateSecret();
     encryptLibs.Key salt = encryptLibs.Key.fromSecureRandom(16);
     Uint8List rawKey = await password2Hash(password, salt.bytes);
-    final aesGcmPwdKey = await webcrypto.AesGcmSecretKey.importRawKey(rawKey);// 这里看一下能否替换掉，使用 sodium_libs
+    final aesGcmPwdKey = await webcrypto.AesGcmSecretKey.importRawKey(rawKey);
     final encryptedSecretBytes =
         await aesGcmPwdKey.encryptBytes(secret.bytes, iv.bytes, tagLength: 128);
 

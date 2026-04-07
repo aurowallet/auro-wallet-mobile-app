@@ -69,6 +69,7 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
   void _onToggleTransactionPwd(bool isOn) async {
     if (isOn) {
       webApi.account.setTransactionPwdEnabled();
+      store.wallet!.clearRuntimePwd();
       setState(() {
         _isTransactionPwdEnable = true;
       });
@@ -80,10 +81,12 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
       String? password = await UI.showPasswordDialog(
           context: context,
           wallet: store.wallet!.currentWallet,
-          inputPasswordRequired: true);
+          inputPasswordRequired: true,
+          store: store);
       if (password != null) {
         if (!mounted) return;
         webApi.account.setTransactionPwdDisabled();
+        store.wallet!.setRuntimePwd(password);
         setState(() {
           _isTransactionPwdEnable = false;
         });

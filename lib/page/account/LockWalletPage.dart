@@ -65,7 +65,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
       UI.toast(dic.passwordError);
       return;
     }
-    onCheckSuccess();
+    onCheckSuccess(passStr);
   }
 
   void _unFocus() {
@@ -78,7 +78,10 @@ class _LockWalletPageState extends State<LockWalletPage> {
     });
   }
 
-  void onCheckSuccess() {
+  void onCheckSuccess(String password) {
+    if (!webApi.account.getTransactionPwdEnabled()) {
+      widget.store.wallet!.setRuntimePwd(password);
+    }
     widget.store.settings!.setLockWalletStatus(false);
     final callback = widget.unLockCallBack;
     if (callback != null) {
@@ -111,7 +114,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
         UI.toast(dic.passwordError);
         return;
       }
-      onCheckSuccess();
+      onCheckSuccess(password);
     } finally {
       if (mounted) {
         setState(() {

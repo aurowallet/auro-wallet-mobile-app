@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
@@ -185,7 +186,13 @@ class UI {
     bool isTransaction = false,
     AppStore? store,
   }) {
-    return showDialog(
+    if (isTransaction &&
+        store != null &&
+        !webApi.account.getTransactionPwdEnabled() &&
+        store.wallet!.runtimePwd.isNotEmpty) {
+      return Future.value(store.wallet!.runtimePwd);
+    }
+    return showDialog<String?>(
       context: context,
       barrierDismissible: false,
       useRootNavigator: false,
@@ -193,7 +200,15 @@ class UI {
         return PasswordInputDialog(
             wallet: wallet, inputPasswordRequired: inputPasswordRequired);
       },
-    );
+    ).then((password) {
+      if (isTransaction &&
+          password != null &&
+          store != null &&
+          !webApi.account.getTransactionPwdEnabled()) {
+        store.wallet!.setRuntimePwd(password);
+      }
+      return password;
+    });
   }
 
   static TextInputFormatter decimalInputFormatter(int decimals) {

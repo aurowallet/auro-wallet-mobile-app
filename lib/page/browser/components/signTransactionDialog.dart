@@ -443,11 +443,29 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         privateKey = await webApi.account.getPrivateKey(
             nextWalletData, nextAccountData.accountIndex, password);
         if (privateKey == null) {
-          setState(() {
-            submitting = false;
-          });
-          UI.toast(dic.passwordError);
-          return false;
+          store.wallet!.clearRuntimePwd();
+          password = await UI.showPasswordDialog(
+              context: context,
+              wallet: nextWalletData,
+              inputPasswordRequired: true,
+              isTransaction: true,
+              store: store);
+          if (password == null) {
+            setState(() {
+              submitting = false;
+            });
+            return false;
+          }
+          privateKey = await webApi.account.getPrivateKey(
+              nextWalletData, nextAccountData.accountIndex, password);
+          if (privateKey == null) {
+            store.wallet!.clearRuntimePwd();
+            setState(() {
+              submitting = false;
+            });
+            UI.toast(dic.passwordError);
+            return false;
+          }
         }
       }
       int nextNonce = inputNonce;

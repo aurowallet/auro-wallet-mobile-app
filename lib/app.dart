@@ -113,14 +113,17 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (!_storeReady) return;
     if (state == AppLifecycleState.paused) {
-      if (_appStore?.settings != null && webApi.account.getAppAccessEnabled() && !webApi.account.isBiometricInProgress) {
+      if (_appStore?.settings != null && !webApi.account.isBiometricInProgress) {
         _lastPausedTime = DateTime.now();
       }
     } else if (state == AppLifecycleState.resumed) {
-      if (_lastPausedTime != null && _appStore?.settings != null && webApi.account.getAppAccessEnabled() && !webApi.account.isBiometricInProgress) {
+      if (_lastPausedTime != null && _appStore?.settings != null && !webApi.account.isBiometricInProgress) {
         final elapsed = DateTime.now().difference(_lastPausedTime!).inSeconds;
         if (elapsed >= _lockThresholdSeconds) {
-          _appStore!.settings!.setLockWalletStatus(true);
+          _appStore!.wallet!.clearRuntimePwd();
+          if (webApi.account.getAppAccessEnabled()) {
+            _appStore!.settings!.setLockWalletStatus(true);
+          }
         }
         _lastPausedTime = null;
       }

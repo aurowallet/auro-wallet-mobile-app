@@ -385,8 +385,25 @@ class _DelegatePageState extends State<DelegatePage>
                   store.wallet!.currentWallet.currentAccountIndex,
                   password);
               if (privateKey == null) {
-                UI.toast(dic.passwordError);
-                return false;
+                store.wallet!.clearRuntimePwd();
+                password = await UI.showPasswordDialog(
+                    context: context,
+                    wallet: store.wallet!.currentWallet,
+                    inputPasswordRequired: true,
+                    isTransaction: true,
+                    store: store);
+                if (password == null) {
+                  return false;
+                }
+                privateKey = await webApi.account.getPrivateKey(
+                    store.wallet!.currentWallet,
+                    store.wallet!.currentWallet.currentAccountIndex,
+                    password);
+                if (privateKey == null) {
+                  store.wallet!.clearRuntimePwd();
+                  UI.toast(dic.passwordError);
+                  return false;
+                }
               }
             }
             Map txInfo = {

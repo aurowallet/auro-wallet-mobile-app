@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
 - Password verification page improvements
 - App lock improvements
 - Support load transaction detail by hash
+- Improve transaction password/runtime password handling and prompts
 
 ### Fixed
 - fetchScamInfo catch

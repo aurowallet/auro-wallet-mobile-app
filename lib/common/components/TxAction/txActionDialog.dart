@@ -185,8 +185,25 @@ class _TxActionDialogState extends State<TxActionDialog> {
           widget.store.wallet!.currentWallet.currentAccountIndex,
           password);
       if (privateKey == null) {
-        UI.toast(dic.passwordError);
-        return false;
+        widget.store.wallet!.clearRuntimePwd();
+        password = await UI.showPasswordDialog(
+            context: context,
+            wallet: widget.store.wallet!.currentWallet,
+            inputPasswordRequired: true,
+            isTransaction: true,
+            store: widget.store);
+        if (password == null) {
+          return false;
+        }
+        privateKey = await webApi.account.getPrivateKey(
+            widget.store.wallet!.currentWallet,
+            widget.store.wallet!.currentWallet.currentAccountIndex,
+            password);
+        if (privateKey == null) {
+          widget.store.wallet!.clearRuntimePwd();
+          UI.toast(dic.passwordError);
+          return false;
+        }
       }
     }
     Map<String, dynamic> txInfo = {};
