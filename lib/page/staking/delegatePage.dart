@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:decimal/decimal.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
@@ -216,13 +217,11 @@ class _DelegatePageState extends State<DelegatePage>
     AppLocalizations dic = AppLocalizations.of(context)!;
     double? showBalance =
         store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
-    double availableBalanceStr =
-        (showBalance != null ? showBalance : 0) as double;
-    BigInt available =
-        BigInt.from(pow(10, COIN.decimals) * availableBalanceStr);
-    final int decimals = COIN.decimals;
+    Decimal availableBalance = Decimal.parse(
+        (showBalance != null ? showBalance : 0).toString());
     double fee = _getEffectiveFee();
-    if (available / BigInt.from(pow(10, decimals)) - fee <= 0) {
+    Decimal feeDecimal = Decimal.parse(fee.toString());
+    if (availableBalance - feeDecimal <= Decimal.zero) {
       return dic.balanceNotEnough;
     }
     return null;

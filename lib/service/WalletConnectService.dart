@@ -563,7 +563,8 @@ class WalletConnectService {
       }
     } else {
       await Future.delayed(const Duration(milliseconds: 300));
-      UI.showBottomTipDialog(context: _context!);
+      final validContext = _getValidContext();
+      UI.showBottomTipDialog(context: validContext);
     }
   }
 

@@ -27,7 +27,7 @@ class _ChangePassword extends State<ChangePasswordPage> {
   final TextEditingController _newPassCtrl = new TextEditingController();
   final TextEditingController _newPass2Ctrl = new TextEditingController();
   bool _submitting = false;
-  bool _submitDisabled = false;
+  bool _submitDisabled = true;
   bool lengthError = false;
   bool upCaseError = false;
   bool lowerCaseError = false;

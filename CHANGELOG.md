@@ -34,6 +34,8 @@ All notable changes to this project will be documented in this file.
 - App lock improvements
 - Support load transaction detail by hash
 - Improve transaction password/runtime password handling and prompts
+- Improve change-password UX
+- Use `Decimal` for staking balance calculations to avoid precision issues
 
 ### Fixed
 - fetchScamInfo catch
@@ -41,6 +43,7 @@ All notable changes to this project will be documented in this file.
 - TxList amount display
 - Fix node URL validation
 - Use `BigInt` for token amounts
+- Fix WalletConnect bottom-tip dialog context handling
 
 
 ## [2.2.2]
