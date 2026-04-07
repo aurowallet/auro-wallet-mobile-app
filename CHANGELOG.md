@@ -36,6 +36,7 @@ All notable changes to this project will be documented in this file.
 - Improve transaction password/runtime password handling and prompts
 - Improve change-password UX
 - Use `Decimal` for staking balance calculations to avoid precision issues
+- WebView bridge: propagate JS errors as exceptions to callers (completeError)
 
 ### Fixed
 - fetchScamInfo catch

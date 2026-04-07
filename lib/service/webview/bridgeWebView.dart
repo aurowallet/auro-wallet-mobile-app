@@ -82,7 +82,12 @@ class BridgeWebView {
             if (path == null) return;
             if (_msgCompleters[path] != null) {
               Completer handler = _msgCompleters[path]!;
-              handler.complete(msg['data']);
+              final data = msg['data'];
+              if (data is Map && data['__error'] == true) {
+                handler.completeError(Exception(data['message'] ?? 'Unknown JS error'));
+              } else {
+                handler.complete(data);
+              }
               if (path.contains('uid=')) {
                 _msgCompleters.remove(path);
               }
@@ -169,7 +174,7 @@ class BridgeWebView {
     final script = '$code.then(function(res) {'
         '  console.log(JSON.stringify({ path: "$method", data: res }));'
         '}).catch(function(err) {'
-        '  console.log(JSON.stringify({ path: "log", data: {call: "$method", error: err.message} }));'
+        '  console.log(JSON.stringify({ path: "$method", data: { __error: true, message: err.message || "Unknown JS error" } }));'
         '});';
     _web!.webViewController?.evaluateJavascript(source: script);
 
