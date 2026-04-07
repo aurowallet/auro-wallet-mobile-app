@@ -234,20 +234,20 @@ class _LocalStorage {
 
     ls.add(acc);
 
-    setKV(storeKey, jsonEncode(ls));
+    await setKV(storeKey, jsonEncode(ls));
   }
 
   Future<void> clearList(String storeKey) async {
     var ls = await getList(storeKey);
     ls.clear();
-    setKV(storeKey, jsonEncode(ls));
+    await setKV(storeKey, jsonEncode(ls));
   }
 
   Future<void> removeItemFromList(
       String storeKey, String itemKey, String itemValue) async {
     var ls = await getList(storeKey);
     ls.removeWhere((item) => item[itemKey] == itemValue);
-    setKV(storeKey, jsonEncode(ls));
+    await setKV(storeKey, jsonEncode(ls));
   }
 
   Future<void> updateItemInList(String storeKey, String itemKey,
@@ -257,7 +257,7 @@ class _LocalStorage {
     if (index >= 0) {
       ls.removeAt(index);
       ls.insert(index, itemNew);
-      setKV(storeKey, jsonEncode(ls));
+      await setKV(storeKey, jsonEncode(ls));
     }
   }
 
@@ -268,7 +268,7 @@ class _LocalStorage {
     if (index >= 0) {
       ls.removeAt(index);
       ls.insert(index, itemNew);
-      setKV(storeKey, jsonEncode(ls));
+      await setKV(storeKey, jsonEncode(ls));
     } else {
       await addItemToList(storeKey, itemNew);
     }

@@ -37,6 +37,7 @@ All notable changes to this project will be documented in this file.
 - Improve change-password UX
 - Use `Decimal` for staking balance calculations to avoid precision issues
 - WebView bridge: propagate JS errors as exceptions to callers (completeError)
+- Await seed storage operations to ensure persistence reliability
 
 ### Fixed
 - fetchScamInfo catch
