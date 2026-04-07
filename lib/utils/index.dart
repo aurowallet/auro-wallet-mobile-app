@@ -47,7 +47,7 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId,
   final String sender = sourceData['sender'];
   final String receiver = sourceData['receiver'];
   final num amount = sourceData['amount'];
-  final double sourceAmount = amount.toDouble();
+  final BigInt sourceAmount = BigInt.from(amount);
 
   bool senderVerified = false;
   bool receiverVerified = false;
@@ -58,7 +58,7 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId,
     final Map<String, dynamic> body = accountUpdate['body'];
     final String publicKey = body['publicKey'];
     final String balanceChangeMagnitude = body['balanceChange']['magnitude'];
-    final double changeBalance = double.parse(balanceChangeMagnitude);
+    final BigInt changeBalance = BigInt.parse(balanceChangeMagnitude);
     final String balanceChangeSgn = body['balanceChange']['sgn'];
     final String tokenId = body['tokenId'];
 

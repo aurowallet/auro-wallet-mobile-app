@@ -38,6 +38,8 @@ All notable changes to this project will be documented in this file.
 - fetchScamInfo catch
 - Token decimal
 - TxList amount display
+- Fix node URL validation
+- Use `BigInt` for token amounts
 
 
 ## [2.2.2]
