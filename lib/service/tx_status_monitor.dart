@@ -5,6 +5,7 @@ import 'package:auro_wallet/service/notification_service.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
+import 'package:auro_wallet/walletSdk/minaSDK.dart' show decodeMemo;
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/l10n/app_localizations_en.dart';
@@ -507,7 +508,7 @@ class TxStatusMonitor with WidgetsBindingObserver {
       ..nonce = _parseNonce(body['nonce']) ?? _parseNonce(txData['nonce'])
       ..sender = body['from']
       ..receiver = body['to']
-      ..memo = body['memo']
+      ..memo = decodeMemo(body['memo'])
       ..time = body['dateTime']
       ..status = failureReason == null ? 'applied' : 'failed'
       ..success = failureReason == null
@@ -537,7 +538,7 @@ class TxStatusMonitor with WidgetsBindingObserver {
       ..nonce = _parseNonce(feePayerBody?['nonce']) ?? _parseNonce(txData['nonce'])
       ..sender = feePayerBody?['publicKey']
       ..receiver = receiver
-      ..memo = zkappCommand['memo']
+      ..memo = decodeMemo(zkappCommand['memo'])
       ..time = zkAppBody['dateTime']
       ..status = isFailed ? 'failed' : 'applied'
       ..success = !isFailed

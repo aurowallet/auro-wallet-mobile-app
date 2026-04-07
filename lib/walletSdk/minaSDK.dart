@@ -31,6 +31,17 @@ String bs58Decode(String str) {
   return utf8.decode(bytes.sublist(3, 3 + bytes[2]));
 }
 
+String decodeMemo(dynamic rawMemo) {
+  if (rawMemo == null) return '';
+  final str = rawMemo.toString();
+  if (str.isEmpty) return '';
+  try {
+    return bs58Decode(str);
+  } catch (_) {
+    return str;
+  }
+}
+
 bool ifPrivateKeyValid(String private) {
   try {
     if (!private.toLowerCase().startsWith('ek')) {

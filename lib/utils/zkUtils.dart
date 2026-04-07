@@ -66,11 +66,7 @@ String getZkFee(String zkappCommand) {
 String getZkMemo(String zkappCommand) {
   try {
     Map<dynamic, dynamic> nextZkCommand = jsonDecode(zkappCommand);
-    var memo = nextZkCommand['memo'];
-    if (memo != null) {
-      memo = bs58Decode(memo);
-    }
-    return memo;
+    return decodeMemo(nextZkCommand['memo']);
   } catch (error) {
     return "";
   }

@@ -264,7 +264,7 @@ abstract class _AssetsStore with Store {
     if (rootStore.wallet!.currentAddress != address) return;
     if (ls == null) return;
     ls.forEach((i) {
-      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
+      i['memo'] = decodeMemo(i['memo']);
       TransferData tx = TransferData.fromPendingJson(i);
       pendingTxs.add(tx);
     });
@@ -278,11 +278,7 @@ abstract class _AssetsStore with Store {
     if (ls == null) return;
     ls.forEach((i) {
       try {
-        if (i['zkappCommand'] != null && i['zkappCommand']['memo'] != null) {
-          i['memo'] = bs58Decode(i['zkappCommand']['memo']);
-        } else {
-          i['memo'] = "";
-        }
+        i['memo'] = decodeMemo(i['zkappCommand']?['memo']);
       } catch (e) {
         i['memo'] = "";
       }
@@ -391,11 +387,7 @@ abstract class _AssetsStore with Store {
         if(i['kind'] == "zkApp"){
           dynamic realZkBody = i['zkAppBody'];
           try {
-            if (realZkBody['zkappCommand'] != null && realZkBody['zkappCommand']['memo'] != null) {
-              realZkBody['memo'] = bs58Decode(realZkBody['zkappCommand']['memo']);
-            } else {
-              realZkBody['memo'] = "";
-            }
+            realZkBody['memo'] = decodeMemo(realZkBody['zkappCommand']?['memo']);
           } catch (e) {
             realZkBody['memo'] = "";
           }
@@ -406,7 +398,7 @@ abstract class _AssetsStore with Store {
           tempZkTxList.add(tx);
         }else{
           dynamic realTxBody = i['body'];
-            realTxBody['memo'] = realTxBody['memo'] != null ? bs58Decode(realTxBody['memo']) : '';
+            realTxBody['memo'] = decodeMemo(realTxBody['memo']);
             TransferData tx = TransferData.fromGraphQLJson(realTxBody);
             tx.success = tx.status != 'failed';
             realTxBody['success'] = tx.success;

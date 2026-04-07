@@ -304,7 +304,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     if (!isValidMinaTxHash(txHash)) return;
     if (!_storeReady || _appStore == null) return;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    void doNavigate() {
       if (!mounted) return;
       final homeCtx = _homePageContext;
       if (homeCtx == null || !homeCtx.mounted) {
@@ -320,7 +320,13 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       }
 
       _navigateToTxDetail(homeCtx, payload);
-    });
+    }
+
+    if (_homePageContext != null && _homePageContext!.mounted && mounted) {
+      doNavigate();
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) => doNavigate());
+    }
   }
 
   void _navigateToTxDetail(BuildContext ctx, Map<String, String> payload) {
