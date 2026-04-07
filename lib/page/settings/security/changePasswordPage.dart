@@ -87,7 +87,17 @@ class _ChangePassword extends State<ChangePasswordPage> {
       }
     }
     if (!biometricFail) {
-      await store.updateAllWalletSeed(passOld, passNew);
+      try {
+        await store.updateAllWalletSeed(passOld, passNew);
+      } catch (e) {
+        if (mounted) {
+          UI.toast(dic.passwordError);
+          setState(() {
+            _submitting = false;
+          });
+        }
+        return;
+      }
       if (!mounted) return;
       if (!webApi.account.getTransactionPwdEnabled() && store.runtimePwd.isNotEmpty) {
         store.setRuntimePwd(passNew);

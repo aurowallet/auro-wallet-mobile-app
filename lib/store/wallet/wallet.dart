@@ -427,7 +427,9 @@ abstract class _WalletStore with Store {
         var wallet = walletList[i];
         await updateSeed(wallet.id, passwordOld, passwordNew);
       }
-    } catch (_) {}
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> updateSeed(
