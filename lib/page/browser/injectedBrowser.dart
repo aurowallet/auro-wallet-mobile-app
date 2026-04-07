@@ -12,6 +12,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -137,6 +138,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         } catch (e) {}
       }
 
+      try {
       await UI.showSignTransactionAction(
         context: context,
         signType: signType,
@@ -182,6 +184,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
               method, payload['id'], ErrorCodes.userRejectedRequest);
         },
       );
+      } catch (_) {
+        _signing = false;
+      }
     }
   }
 
@@ -200,6 +205,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
 
     Object message = params?["message"];
 
+    try {
     await UI.showSignatureAction(
       method: method,
       context: context,
@@ -216,6 +222,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             method, payload['id'], ErrorCodes.userRejectedRequest);
       },
     );
+    } catch (_) {
+      _signing = false;
+    }
   }
 
   void saveConnectStatus(url) {
@@ -234,6 +243,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   Future<void> switchChainByUrl(String method, Map<dynamic, dynamic>? siteInfo,
       String id, String realUrl) async {
     _signing = true;
+    try {
     await UI.showSwitchChainAction(
         context: context,
         networkID: "",
@@ -253,6 +263,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         onCancel: () {
           onHandleErrorReject(method, id, ErrorCodes.userRejectedRequest);
         });
+    } catch (_) {
+      _signing = false;
+    }
   }
 
   Future<dynamic> _msgHandler(Map msg, String origin) async {
@@ -348,10 +361,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         List<CustomNode> endpoints =
             List<CustomNode>.of(store.settings!.customNodeList);
         String realUrl = uri.toString();
-        if (endpoints.any((element) => element.url == realUrl) ||
-            defaultNetworkList.any((node) => node.url == realUrl)) {
+        if (endpoints.any((element) => element.url.toLowerCase() == realUrl.toLowerCase()) ||
+            defaultNetworkList.any((node) => node.url.toLowerCase() == realUrl.toLowerCase())) {
           CustomNode? currentNode = store.settings?.currentNode;
-          if (realUrl.toLowerCase() == currentNode?.url) {
+          if (realUrl.toLowerCase() == currentNode?.url.toLowerCase()) {
             Map chainInfoArgs = {
               "networkID": currentNode?.networkID,
             };
@@ -608,7 +621,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         initialSettings: InAppWebViewSettings(
             javaScriptEnabled: true,
             javaScriptCanOpenWindowsAutomatically: false,
-            isInspectable: true,
+            isInspectable: kDebugMode,
             transparentBackground: true,
             allowsBackForwardNavigationGestures: true),
         onJsAlert: (controller, jsAlertRequest) async {
