@@ -83,9 +83,7 @@ class LocalStorage {
   }
 
   Future<void> clearAccountsCache(String key) async {
-    Map? data = await getObject(key) as Map?;
-    data = {};
-    setObject(key, data);
+    await setObject(key, {});
   }
 
   Future<void> setAccountCache(
@@ -95,7 +93,7 @@ class LocalStorage {
       data = {};
     }
     data[accPubKey] = value;
-    setObject(key, data);
+    await setObject(key, data);
   }
 
   Future<Object?> getAccountCache(String accPubKey, String key) async {
