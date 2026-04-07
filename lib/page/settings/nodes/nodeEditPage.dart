@@ -176,7 +176,8 @@ class _NodeEditPageState extends State<NodeEditPage> {
     String? error;
     final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     final originEndpoint = args['address'] as String?;
-    if (uri == null || !uri.isAbsolute) {
+    if (uri == null || !uri.isAbsolute ||
+        !(uri.scheme == 'http' || uri.scheme == 'https')) {
       error = dic.urlError_1;
     }
     List<CustomNode> endpoints =
