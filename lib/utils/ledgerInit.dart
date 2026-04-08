@@ -36,7 +36,6 @@ class LedgerInit {
     await cancelScan?.cancel();
     // cancelScan = null;
     if (!recursion) {
-      await ledger.dispose();
       scaning = true;
     }
     try {
@@ -90,9 +89,8 @@ class LedgerInit {
     if (store.ledger?.ledgerInstance == null) {
       final options = LedgerOptions(
         maxScanDuration: const Duration(seconds: 15),
-        // prescanDuration: const Duration(seconds: 20),
-        // connectionTimeout: const Duration(seconds: 10),
-        // scanMode: ScanMode.balanced
+        prescanDuration: const Duration(seconds: 5),
+        connectionTimeout: const Duration(seconds: 10),
       );
       final ledger = Ledger(
         options: options,

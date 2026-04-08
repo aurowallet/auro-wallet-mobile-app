@@ -204,6 +204,8 @@
   "@openMinaApp": {},
   "unlockLedger": "Не удалось подключиться. Пожалуйста, убедитесь, что устройство Ledger разблокировано.",
   "@unlockLedger": {},
+  "ledgerPairingError": "Ошибка сопряжения Bluetooth. Перейдите в настройки Bluetooth вашего устройства, найдите устройство Ledger, нажмите и выберите \"Забыть это устройство\", затем попробуйте подключиться снова.",
+  "@ledgerPairingError": {},
   "ledgerSearching": "Поиск…",
   "@ledgerSearching": {},
   "ledgerSupport": "(<lightred>Поддерживает только Ledger Nano X</lightred>)",

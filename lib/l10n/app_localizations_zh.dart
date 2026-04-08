@@ -648,6 +648,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unlockLedger => '连接失败，请确保您的 Ledger 设备处于解锁状态。';
 
   @override
+  String get ledgerPairingError =>
+      '蓝牙配对失败。请前往设备的蓝牙设置，找到您的 Ledger 设备，点击并选择「忽略此设备」，然后重新连接。';
+
+  @override
   String get ledgerReject => 'Ledger 已拒绝';
 
   @override

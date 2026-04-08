@@ -429,6 +429,8 @@
   "@openMinaApp": {},
   "unlockLedger": "Failed to connect. Please make sure your Ledger device is unlocked.",
   "@unlockLedger": {},
+  "ledgerPairingError": "Bluetooth pairing failed. Please go to your device's Bluetooth settings, find your Ledger device, tap and select \"Forget This Device\", then try connecting again.",
+  "@ledgerPairingError": {},
   "ledgerReject": "Rejected by Ledger",
   "@ledgerReject": {},
   "ledgerSearching": "Searching…",

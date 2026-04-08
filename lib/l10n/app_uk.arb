@@ -429,6 +429,8 @@
     "@openMinaApp": {},
     "unlockLedger": "Не вдалося підключитися. Переконайтеся, що ваш пристрій Ledger розблоковано.",
     "@unlockLedger": {},
+    "ledgerPairingError": "Помилка з'єднання Bluetooth. Перейдіть до налаштувань Bluetooth вашого пристрою, знайдіть пристрій Ledger, натисніть та оберіть \"Забути цей пристрій\", потім спробуйте підключитися знову.",
+    "@ledgerPairingError": {},
     "ledgerReject": "Відхилено Ledger",
     "@ledgerReject": {},
     "ledgerSearching": "Пошук…",

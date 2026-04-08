@@ -307,6 +307,8 @@
   "@emptyAddress": {},
   "unlockLedger": "Bağlantı hatası. Lütfen Ledger cihazınızın kilidinin açık olduğundan emin olun.",
   "@unlockLedger": {},
+  "ledgerPairingError": "Bluetooth eşleştirme başarısız oldu. Lütfen cihazınızın Bluetooth ayarlarına gidin, Ledger cihazınızı bulun, dokunun ve \"Bu Aygıtı Unut\" seçeneğini seçin, ardından tekrar bağlanmayı deneyin.",
+  "@ledgerPairingError": {},
   "scan": "Tara",
   "@scan": {},
   "emptyDelegateDesc3": "Staking Kılavuzu",

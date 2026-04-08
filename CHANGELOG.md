@@ -47,6 +47,7 @@ All notable changes to this project will be documented in this file.
 - Block switching to HTTP custom nodes; show HTTP nodes as disabled (greyed-out with HTTP tag) in node list
 - Hide HTTP custom nodes from home page network picker
 - Use `Decimal` for transfer/fee conversions to avoid precision/rounding issues
+- Ledger connect
 
 ### Fixed
 - fetchScamInfo catch

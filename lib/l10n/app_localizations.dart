@@ -1352,6 +1352,12 @@ abstract class AppLocalizations {
   /// **'Failed to connect. Please make sure your Ledger device is unlocked.'**
   String get unlockLedger;
 
+  /// No description provided for @ledgerPairingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth pairing failed. Please go to your device\'s Bluetooth settings, find your Ledger device, tap and select \"Forget This Device\", then try connecting again.'**
+  String get ledgerPairingError;
+
   /// No description provided for @ledgerReject.
   ///
   /// In en, this message translates to:

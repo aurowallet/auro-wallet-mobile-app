@@ -674,6 +674,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Failed to connect. Please make sure your Ledger device is unlocked.';
 
   @override
+  String get ledgerPairingError =>
+      'Bluetooth pairing failed. Please go to your device\'s Bluetooth settings, find your Ledger device, tap and select \"Forget This Device\", then try connecting again.';
+
+  @override
   String get ledgerReject => 'Rejected by Ledger';
 
   @override

@@ -674,6 +674,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось подключиться. Пожалуйста, убедитесь, что устройство Ledger разблокировано.';
 
   @override
+  String get ledgerPairingError =>
+      'Ошибка сопряжения Bluetooth. Перейдите в настройки Bluetooth вашего устройства, найдите устройство Ledger, нажмите и выберите \"Забыть это устройство\", затем попробуйте подключиться снова.';
+
+  @override
   String get ledgerReject => 'Отклонено Ledger-ом';
 
   @override

@@ -315,49 +315,70 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   }
 
   void _connect() async {
-    print('start connect');
+    print('start connect attempt $_connectAttempt');
     _reconnectTimer?.cancel();
+    if (!mounted) return;
     setState(() {
       connecting = true;
+      unactive = false;
     });
-    bool finishConnecting = false;
     _connectAttempt++;
-    _reconnectTimer = Timer(Duration(seconds: 6), () {
-      if (!mounted) {
-        return;
-      }
-      if (!finishConnecting && _connectAttempt < _maxConnectAttempts) {
-        print('reconnect');
-        _connect();
-      }
-    });
     try {
-      // await ledgerInstance!.stopScanning();
-      // await ledgerInstance!.dispose();
-      await ledgerInstance!.connect(ledgerDevice!);
+      LedgerInit.cancelScan?.cancel();
+      LedgerInit.cancelScan = null;
+      await ledgerInstance!.stopScanning();
+      await Future.delayed(const Duration(milliseconds: 500));
+      await ledgerInstance!.connect(ledgerDevice!).timeout(
+        const Duration(seconds: 16),
+      );
       print('finish connect');
       if (!mounted) return;
       setState(() {
         unactive = false;
         connecting = false;
       });
-      finishConnecting = true;
       _connectAttempt = 0;
-    } on LedgerException catch (e) {
-      await ledgerInstance!.disconnect(ledgerDevice!);
-      store.ledger!.setDevice(null);
-      print('connect error');
-      print(e);
+      store.ledger!.setDevice(ledgerDevice);
+      widget.onConnected();
+    } catch (e) {
+      final errMsg = e is LedgerException ? e.message : '$e';
+      print('connect error: $errMsg');
+      try {
+        await ledgerInstance!.disconnect(ledgerDevice!);
+      } catch (_) {}
       if (!mounted) return;
-      setState(() {
-        unactive = true;
-        connecting = false;
-      });
-      finishConnecting = true;
-      return;
+      // Detect iOS BLE pairing mismatch (CBError Code 14)
+      final lowerMsg = errMsg.toLowerCase();
+      final isPairingError =
+          lowerMsg.contains('pairing') || lowerMsg.contains('code=14') || lowerMsg.contains('code 14');
+      if (isPairingError) {
+        store.ledger!.setDevice(null);
+        setState(() {
+          unactive = true;
+          connecting = false;
+        });
+        _connectAttempt = 0;
+        if (mounted) {
+          final dic = AppLocalizations.of(context);
+          UI.showAlertDialog(
+            context: context,
+            contents: [dic?.ledgerPairingError ?? errMsg],
+          );
+        }
+      } else if (_connectAttempt < _maxConnectAttempts) {
+        print('will retry after delay');
+        _reconnectTimer = Timer(const Duration(seconds: 2), () {
+          if (mounted) _connect();
+        });
+      } else {
+        store.ledger!.setDevice(null);
+        setState(() {
+          unactive = true;
+          connecting = false;
+        });
+        _connectAttempt = 0;
+      }
     }
-    store.ledger!.setDevice(ledgerDevice);
-    widget.onConnected();
   }
 
   onScanSuccess(LedgerDevice device) async {
@@ -470,7 +491,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
               ],
             ),
             onPressed: () {
-              if (ledgerDevice != null) {
+              if (ledgerDevice != null && !connecting) {
                 _connect();
               }
               // _onClick('import');

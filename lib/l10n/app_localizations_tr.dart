@@ -674,6 +674,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bağlantı hatası. Lütfen Ledger cihazınızın kilidinin açık olduğundan emin olun.';
 
   @override
+  String get ledgerPairingError =>
+      'Bluetooth eşleştirme başarısız oldu. Lütfen cihazınızın Bluetooth ayarlarına gidin, Ledger cihazınızı bulun, dokunun ve \"Bu Aygıtı Unut\" seçeneğini seçin, ardından tekrar bağlanmayı deneyin.';
+
+  @override
   String get ledgerReject => 'Ledger tarafından reddedildi';
 
   @override
