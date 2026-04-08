@@ -42,6 +42,7 @@ All notable changes to this project will be documented in this file.
 - iOS: disable ATS arbitrary loads (`NSAllowsArbitraryLoads`, `NSAllowsArbitraryLoadsInWebContent`, `NSAllowsLocalNetworking` → false)
 - Android: disable cleartext HTTP traffic (`usesCleartextTraffic=false`, `network_security_config`)
 - Android: exclude all app data from backup and device-transfer (`backup_rules`, `data_extraction_rules`)
+- iOS Keychain accessibility tightened to prevent cross-device recovery (ThisDeviceOnly)
 - Auto-fallback to Mainnet if current node is insecure HTTP on startup
 - Block switching to HTTP custom nodes; show HTTP nodes as disabled (greyed-out with HTTP tag) in node list
 - Hide HTTP custom nodes from home page network picker

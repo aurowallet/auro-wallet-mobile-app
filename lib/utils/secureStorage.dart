@@ -8,7 +8,7 @@ class SecureStorage {
       encryptedSharedPreferences: true,
     ),
     iOptions: IOSOptions(
-      accessibility: KeychainAccessibility.unlocked,
+      accessibility: KeychainAccessibility.first_unlock_this_device,
     ),
   );
   final seedKey = 'wallet_seed';
