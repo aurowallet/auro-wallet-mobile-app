@@ -87,7 +87,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   BuildContext? _homePageContext;
   bool _storeReady = false;
   bool _pendingNotificationConsumed = false;
-  bool _isNavigatingToTxDetail = false;
+  String? _navigatingTxHash;
   Timer? _navigatingResetTimer;
   Map<String, String>? _deferredLockedPayload;
   Map? appLinkRouteParams;
@@ -333,14 +333,14 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     final txHash = payload['hash'];
     if (txHash == null || txHash.isEmpty) return;
     if (!ctx.mounted) return;
-    if (_isNavigatingToTxDetail) {
+    if (_navigatingTxHash == txHash) {
       NotificationService().cancelNotification(NotificationService.notificationIdForHash(txHash));
       return;
     }
-    _isNavigatingToTxDetail = true;
+    _navigatingTxHash = txHash;
     _navigatingResetTimer?.cancel();
-    _navigatingResetTimer = Timer(const Duration(seconds: 10), () {
-      _isNavigatingToTxDetail = false;
+    _navigatingResetTimer = Timer(const Duration(seconds: 3), () {
+      _navigatingTxHash = null;
     });
 
     NotificationService().cancelNotification(NotificationService.notificationIdForHash(txHash));
@@ -361,14 +361,14 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         },
       ).then((_) {
         _navigatingResetTimer?.cancel();
-        _isNavigatingToTxDetail = false;
+        _navigatingTxHash = null;
       }).catchError((_) {
         _navigatingResetTimer?.cancel();
-        _isNavigatingToTxDetail = false;
+        _navigatingTxHash = null;
       });
     } catch (_) {
       _navigatingResetTimer?.cancel();
-      _isNavigatingToTxDetail = false;
+      _navigatingTxHash = null;
     }
   }
 
