@@ -7,6 +7,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 
 class NodeEditPage extends StatefulWidget {
@@ -172,12 +173,10 @@ class _NodeEditPageState extends State<NodeEditPage> {
 
   Future<bool> _validateAddress(String address) async {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var uri = Uri.tryParse(address);
     String? error;
     final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     final originEndpoint = args['address'] as String?;
-    if (uri == null || !uri.isAbsolute ||
-        !(uri.scheme == 'http' || uri.scheme == 'https')) {
+    if (!isValidHttpsNodeUrl(address)) {
       error = dic.urlError_1;
     }
     List<CustomNode> endpoints =

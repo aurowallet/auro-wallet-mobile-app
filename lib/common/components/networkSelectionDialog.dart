@@ -40,7 +40,7 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
     CustomNode mainnetConfig = defaultNetworkList
         .firstWhere((network) => network.networkID == networkIDMap.mainnet);
     topListTemp.add(mainnetConfig);
-    topListTemp.addAll(store.settings!.customNodeList);
+    topListTemp.addAll(store.settings!.secureCustomNodeList);
     setState(() {
       topList = topListTemp;
     });

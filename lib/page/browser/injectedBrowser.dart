@@ -351,10 +351,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         }
         _signing = true;
         String uri = Uri.decodeComponent(params?['url']);
-        Uri uriCheck = Uri.parse(uri);
 
-        if (!(uriCheck.scheme == 'http' || uriCheck.scheme == 'https') ||
-            uriCheck.host.isEmpty) {
+        if (!isValidHttpsNodeUrl(uri)) {
+          _signing = false;
           onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
           return;
         }

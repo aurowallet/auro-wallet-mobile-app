@@ -39,9 +39,11 @@
 		<key>NSAppTransportSecurity</key>
 		<dict>
 			<key>NSAllowsArbitraryLoads</key>
-			<true/>
+			<false/>
 			<key>NSAllowsArbitraryLoadsInWebContent</key>
-			<true/>
+			<false/>
+			<key>NSAllowsLocalNetworking</key>
+			<false/>
 		</dict>
 		<key>NSBluetoothAlwaysUsageDescription</key>
 		<string>This app uses bluetooth to find, connect and sign transactions with your Ledger Nano X</string>

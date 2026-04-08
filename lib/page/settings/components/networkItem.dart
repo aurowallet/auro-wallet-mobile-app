@@ -12,12 +12,14 @@ class NetworkItem extends StatelessWidget {
     required this.onChecked,
     this.isEditing,
     this.onEdit,
+    this.isDisabled = false,
     this.margin = const EdgeInsets.only(top: 0),
   });
 
   final store = globalAppStore;
 
   final bool? isEditing;
+  final bool isDisabled;
   final CustomNode endpoint;
   final void Function(bool, String) onChecked;
   final void Function(CustomNode)? onEdit;
@@ -26,6 +28,8 @@ class NetworkItem extends StatelessWidget {
   onPressed() {
     if (isEditing == true && onEdit != null) {
       onEdit!(endpoint);
+    } else if (isDisabled) {
+      return;
     } else {
       onChecked(!getNetworkCheckStatus(), endpoint.url);
     }
@@ -57,13 +61,15 @@ class NetworkItem extends StatelessWidget {
     var theme = Theme.of(context).textTheme;
     bool checked = getNetworkCheckStatus();
     bool editing = isEditing == true;
-    Color chainNameColor = getChainNameColor(checked, editing, editable);
+    Color chainNameColor = isDisabled
+        ? Colors.black.withValues(alpha: 0.3)
+        : getChainNameColor(checked, editing, editable);
     String? tagStr;
     if (editable) {
       tagStr = endpoint.networkID;
     }
 
-    return Padding(
+    Widget item = Padding(
       padding: margin,
       child: Container(
         clipBehavior: Clip.hardEdge,
@@ -125,7 +131,24 @@ class NetworkItem extends StatelessWidget {
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w500)),
                                         )
-                                      : Container()
+                                      : Container(),
+                                  if (isDisabled)
+                                    Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 4, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFD65A5A)
+                                            .withValues(alpha: 0.15),
+                                        borderRadius:
+                                            BorderRadius.circular(4.0),
+                                      ),
+                                      child: Text("HTTP",
+                                          style: TextStyle(
+                                              color: Color(0xFFD65A5A),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w500)),
+                                    ),
                                 ],
                               )),
                             ],
@@ -151,5 +174,10 @@ class NetworkItem extends StatelessWidget {
         ),
       ),
     );
+
+    if (isDisabled && !editing) {
+      return Opacity(opacity: 0.5, child: item);
+    }
+    return item;
   }
 }

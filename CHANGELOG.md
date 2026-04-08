@@ -38,6 +38,13 @@ All notable changes to this project will be documented in this file.
 - Use `Decimal` for staking balance calculations to avoid precision issues
 - WebView bridge: propagate JS errors as exceptions to callers (completeError)
 - Await seed storage operations to ensure persistence reliability
+- Enforce HTTPS-only for custom node URLs across all entry points (add/edit/DApp/API)
+- iOS: disable ATS arbitrary loads (`NSAllowsArbitraryLoads`, `NSAllowsArbitraryLoadsInWebContent`, `NSAllowsLocalNetworking` → false)
+- Android: disable cleartext HTTP traffic (`usesCleartextTraffic=false`, `network_security_config`)
+- Android: exclude all app data from backup and device-transfer (`backup_rules`, `data_extraction_rules`)
+- Auto-fallback to Mainnet if current node is insecure HTTP on startup
+- Block switching to HTTP custom nodes; show HTTP nodes as disabled (greyed-out with HTTP tag) in node list
+- Hide HTTP custom nodes from home page network picker
 
 ### Fixed
 - fetchScamInfo catch

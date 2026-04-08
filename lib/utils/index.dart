@@ -84,6 +84,17 @@ String getReadableNetworkId(String networkId) {
   return networkId.replaceAll(':', '_');
 }
 
+bool isValidHttpsNodeUrl(String? url) {
+  if (url == null || url.trim().isEmpty) {
+    return false;
+  }
+  final uri = Uri.tryParse(url.trim());
+  if (uri == null || !uri.isAbsolute) {
+    return false;
+  }
+  return uri.scheme.toLowerCase() == 'https' && uri.host.isNotEmpty;
+}
+
 bool isValidHttpUrl(String? url) {
   if (url == null || url.trim().isEmpty) {
     return false;

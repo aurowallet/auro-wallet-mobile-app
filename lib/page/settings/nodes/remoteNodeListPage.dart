@@ -10,6 +10,7 @@ import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -104,6 +105,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
             isEditing: isEditing,
             onEdit: _editNode,
             endpoint: endpoint,
+            isDisabled: !isValidHttpsNodeUrl(endpoint.url),
           ));
     }).toList();
     return Container(

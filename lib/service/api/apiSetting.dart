@@ -4,6 +4,7 @@ import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,6 +27,9 @@ class ApiSetting {
   }
 
   Future<String?> fetchNetworkId(String uri) async {
+    if (!isValidHttpsNodeUrl(uri)) {
+      return null;
+    }
     const String query = r'''
    query MyQuery {
       networkID

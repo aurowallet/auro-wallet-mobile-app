@@ -8,6 +8,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
 
 class AddChainDialog extends StatefulWidget {
@@ -43,11 +44,15 @@ class _AddChainDialogState extends State<AddChainDialog> {
   void _confirm() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
     final name = widget.nodeName;
-    final address = widget.nodeUrl;
+    final address = widget.nodeUrl.trim();
+    if (!isValidHttpsNodeUrl(address)) {
+      UI.toast(dic.urlError_1);
+      return;
+    }
     setState(() {
       submitting = true;
     });
-    String? networkID = await webApi.setting.fetchNetworkId(widget.nodeUrl);
+    String? networkID = await webApi.setting.fetchNetworkId(address);
 
     if (networkID == null) {
       setState(() {
@@ -174,7 +179,7 @@ class _AddChainDialogState extends State<AddChainDialog> {
                                           fontWeight: FontWeight.w700)),
                                 ),
                                 Container(
-                                  child: Text(widget.nodeUrl,
+                                  child: Text(widget.nodeUrl.trim(),
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontSize: 14,
