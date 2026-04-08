@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:auro_wallet/common/consts/enums.dart';
@@ -27,6 +26,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:decimal/decimal.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart';
 import 'package:sodium_libs/sodium_libs_sumo.dart';
@@ -358,11 +358,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       String? networkId}) async {
     final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
         accountIndex: txInfo["accountIndex"]);
-    final feeLarge =
-        BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
+    final feeLarge = _toNanoMina(txInfo['fee'], COIN.decimals);
     final amountLarge = isDelegation
         ? 0
-        : BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
+        : _toNanoMina(txInfo['amount'], COIN.decimals);
     final validUntil = "4294967295";
     try {
       int nextNetwork = -1;
@@ -409,10 +408,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       {required BuildContext context,
       String? networkId,
       String? gqlUrl}) async {
-    final feeLarge =
-        BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
-    final amountLarge =
-        BigInt.from(pow(10, COIN.decimals) * txInfo['amount']).toInt();
+    final feeLarge = _toNanoMina(txInfo['fee'], COIN.decimals);
+    final amountLarge = _toNanoMina(txInfo['amount'], COIN.decimals);
 
     final signedTx = await apiRoot.bridge.signPaymentTx({
       "network": getNextNetwork(networkId),
@@ -451,8 +448,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       {required BuildContext context,
       String? networkId,
       String? gqlUrl}) async {
-    final feeLarge =
-        BigInt.from(pow(10, COIN.decimals) * txInfo['fee']).toInt();
+    final feeLarge = _toNanoMina(txInfo['fee'], COIN.decimals);
     final signedTx = await apiRoot.bridge.signStakeDelegationTx({
       "network": getNextNetwork(networkId),
       "type": "delegation",
@@ -483,6 +479,12 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         broadcastBody['payload'], broadcastBody['signature'],
         context: context, gqlUrl: gqlUrl);
     return transferData;
+  }
+
+  static int _toNanoMina(dynamic value, int decimals) {
+    final d = Decimal.parse(value.toString());
+    final multiplier = Decimal.parse('1' + '0' * decimals);
+    return (d * multiplier).toBigInt().toInt();
   }
 
   Int8List _getUint8ListFromString(String str) {

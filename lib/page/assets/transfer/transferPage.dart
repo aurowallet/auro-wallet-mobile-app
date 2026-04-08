@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:auro_wallet/common/components/AddressSelect/AddressDropdownButton.dart';
 import 'package:auro_wallet/common/components/AddressSelect/AddressSelectionDropdown.dart';
 import 'package:auro_wallet/common/components/TimerManager.dart';
@@ -252,9 +251,9 @@ class _TransferPageState extends State<TransferPage> {
         await webApi.assets.getTokenState(txInfo['toAddress'], tokenId);
 
     bool fundNewAccountStatus = res == null;
-    final amountLarge = BigInt.from(
-            pow(10, int.parse(availableDecimals ?? "0")) * txInfo['amount'])
-        .toInt();
+    final amountDec = Decimal.parse(txInfo['amount'].toString());
+    final multiplier = Decimal.parse('1' + '0' * int.parse(availableDecimals ?? "0"));
+    final amountLarge = (amountDec * multiplier).toBigInt().toInt();
     Map<String, dynamic> buildInfo = {
       "sender": txInfo['fromAddress'],
       "receiver": txInfo['toAddress'],
