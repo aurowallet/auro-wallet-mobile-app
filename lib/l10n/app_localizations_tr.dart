@@ -1166,5 +1166,5 @@ class AppLocalizationsTr extends AppLocalizations {
       'zkApp işleminiz başarısız oldu. Lütfen tekrar deneyin.';
 
   @override
-  String get notificationEnable => 'İşlem Bildirimleri';
+  String get notificationEnable => 'Bildirimler';
 }

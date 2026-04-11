@@ -2,8 +2,7 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:auro_wallet/common/components/menuItem.dart';
 import 'package:auro_wallet/page/account/import/importMnemonicPage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
@@ -84,52 +83,11 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
           padding: EdgeInsets.only(top: 20),
           child: Column(
             children: <Widget>[
-              ImportItem(text: dic.mnemonicPhrase, onClick: _onMnemonic),
-              ImportItem(text: dic.privateKey, onClick: _onPrivateKey),
-              ImportItem(text: dic.keystoreWallet, onClick: _onKeyStore),
+              MenuItem(text: dic.mnemonicPhrase, onTap: _onMnemonic),
+              MenuItem(text: dic.privateKey, onTap: _onPrivateKey),
+              MenuItem(text: dic.keystoreWallet, onTap: _onKeyStore),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class ImportItem extends StatelessWidget {
-  ImportItem({required this.text, required this.onClick});
-
-  final String text;
-  final void Function() onClick;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onClick,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        decoration: BoxDecoration(
-          // border: Border(bottom: BorderSide(width: 1, color: ColorsUtil.hexColor(0xeeeeee))),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                color: ColorsUtil.hexColor(0x010000),
-              ),
-            ),
-            Container(
-              width: 6,
-              margin: EdgeInsets.only(left: 14),
-              child: SvgPicture.asset(
-                'assets/images/assets/right_arrow.svg',
-                width: 6,
-                height: 12,
-              ),
-            ),
-          ],
         ),
       ),
     );

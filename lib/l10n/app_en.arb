@@ -712,6 +712,6 @@
   "notificationZkAppSuccessBody":"Your zkApp transaction has been confirmed.",
   "notificationZkAppFailedTitle":"zkApp Transaction Failed",
   "notificationZkAppFailedBody":"Your zkApp transaction failed. Please try again.",
-  "notificationEnable": "Transaction Notifications",
+  "notificationEnable": "Notifications",
   "@notificationEnable": {}
 }

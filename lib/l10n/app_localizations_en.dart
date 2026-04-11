@@ -1166,5 +1166,5 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your zkApp transaction failed. Please try again.';
 
   @override
-  String get notificationEnable => 'Transaction Notifications';
+  String get notificationEnable => 'Notifications';
 }

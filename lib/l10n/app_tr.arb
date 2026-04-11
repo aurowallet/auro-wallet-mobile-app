@@ -735,5 +735,5 @@
   "notificationZkAppSuccessBody":"zkApp işleminiz onaylandı.",
   "notificationZkAppFailedTitle":"zkApp İşlemi Başarısız",
   "notificationZkAppFailedBody":"zkApp işleminiz başarısız oldu. Lütfen tekrar deneyin.",
-  "notificationEnable": "İşlem Bildirimleri"
+  "notificationEnable": "Bildirimler"
 }

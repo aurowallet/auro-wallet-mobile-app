@@ -2267,7 +2267,7 @@ abstract class AppLocalizations {
   /// No description provided for @notificationEnable.
   ///
   /// In en, this message translates to:
-  /// **'Transaction Notifications'**
+  /// **'Notifications'**
   String get notificationEnable;
 }
 

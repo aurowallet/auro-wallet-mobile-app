@@ -1126,5 +1126,5 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notificationZkAppFailedBody => '您的 zkApp 交易失败，请重试。';
 
   @override
-  String get notificationEnable => '交易通知';
+  String get notificationEnable => '通知';
 }

@@ -739,6 +739,6 @@
   "notificationZkAppSuccessBody":"您的 zkApp 交易已确认。",
   "notificationZkAppFailedTitle":"zkApp 交易失败",
   "notificationZkAppFailedBody":"您的 zkApp 交易失败，请重试。",
-  "notificationEnable": "交易通知",
+  "notificationEnable": "通知",
   "@notificationEnable": {}
 }

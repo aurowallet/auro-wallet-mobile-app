@@ -12,7 +12,7 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:auro_wallet/common/components/menuItem.dart';
 
 class AddAccountPage extends StatefulWidget {
   const AddAccountPage(this.store);
@@ -217,52 +217,12 @@ class _AddAccountPageState extends State<AddAccountPage> {
           padding: EdgeInsets.only(top: 20),
           child: Column(
             children: <Widget>[
-              MenuItem(text: dic.createAccount, onClick: _onCreate),
-              MenuItem(text: dic.privateKey, onClick: _onPrivateKey),
-              MenuItem(text: dic.keystoreWallet, onClick: _onKeyStore),
-              MenuItem(text: dic.hardwareWallet, onClick: _showLedgerImport),
+              MenuItem(text: dic.createAccount, onTap: _onCreate),
+              MenuItem(text: dic.privateKey, onTap: _onPrivateKey),
+              MenuItem(text: dic.keystoreWallet, onTap: _onKeyStore),
+              MenuItem(text: dic.hardwareWallet, onTap: _showLedgerImport),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class MenuItem extends StatelessWidget {
-  MenuItem({required this.text, required this.onClick});
-
-  final String text;
-  final void Function() onClick;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onClick,
-      child: Container(
-        height: 54,
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Container(
-              width: 6,
-              margin: EdgeInsets.only(left: 14),
-              child: SvgPicture.asset(
-                'assets/images/assets/right_arrow.svg',
-                width: 6,
-                height: 12,
-              ),
-            ),
-          ],
         ),
       ),
     );

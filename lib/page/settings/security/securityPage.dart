@@ -1,18 +1,14 @@
 import 'dart:async';
 
+import 'package:auro_wallet/common/components/menuItem.dart';
 import 'package:auro_wallet/common/components/switchItem.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/security/PasswordVerificationPage.dart';
 import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
-import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/wallet/types/walletData.dart';
-import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage(this.store);
@@ -115,11 +111,11 @@ class _SecurityPageState extends State<SecurityPage> {
               children: <Widget>[
                 MenuItem(
                   text: dic.changePassword,
-                  onClick: _onChangePassword,
+                  onTap: _onChangePassword,
                 ),
                 MenuItem(
                   text: dic.passwordVerification,
-                  onClick: _onSetPwdVerification,
+                  onTap: _onSetPwdVerification,
                 ),
                 _supportBiometric
                     ? SwitchItem(
@@ -132,40 +128,5 @@ class _SecurityPageState extends State<SecurityPage> {
             )),
       ),
     );
-  }
-}
-
-class MenuItem extends StatelessWidget {
-  MenuItem({required this.text, required this.onClick});
-
-  final String text;
-  final void Function() onClick;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-        onTap: onClick,
-        child: Container(
-            height: 54,
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(text,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600)),
-                Container(
-                    width: 6,
-                    margin: EdgeInsets.only(
-                      left: 14,
-                    ),
-                    child: SvgPicture.asset(
-                        'assets/images/assets/right_arrow.svg',
-                        width: 6,
-                        height: 12)),
-              ],
-            )));
   }
 }

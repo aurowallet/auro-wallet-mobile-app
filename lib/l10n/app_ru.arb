@@ -737,5 +737,5 @@
   "notificationZkAppSuccessBody":"Ваша zkApp транзакция подтверждена.",
   "notificationZkAppFailedTitle":"zkApp транзакция не удалась",
   "notificationZkAppFailedBody":"Ваша zkApp транзакция не удалась. Попробуйте снова.",
-  "notificationEnable": "Уведомления о транзакциях"
+  "notificationEnable": "Уведомления"
 }

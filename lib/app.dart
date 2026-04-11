@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
 import 'package:auro_wallet/page/account/selectHDPathPage.dart';
@@ -588,7 +587,6 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         LedgerAccountNamePage.route: (_) => LedgerAccountNamePage(_appStore!),
         ConnectHardwareWalletIntroPage.route: (_) => ConnectHardwareWalletIntroPage(_appStore!),
         SelectHDPathPage.route: (_) => SelectHDPathPage(_appStore!),
-        AddAccountPage.route: (_) => AddAccountPage(_appStore!),
         LockWalletPage.route: (_) => LockWalletPage(_appStore!),
         TransferPage.route: (_) => TransferPage(_appStore!),
         ReceivePage.route: (_) => ReceivePage(_appStore!),

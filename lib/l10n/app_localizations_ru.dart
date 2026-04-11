@@ -1170,5 +1170,5 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ваша zkApp транзакция не удалась. Попробуйте снова.';
 
   @override
-  String get notificationEnable => 'Уведомления о транзакциях';
+  String get notificationEnable => 'Уведомления';
 }

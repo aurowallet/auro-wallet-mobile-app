@@ -1168,5 +1168,5 @@ class AppLocalizationsUk extends AppLocalizations {
       'Ваша zkApp транзакція не вдалася. Спробуйте ще раз.';
 
   @override
-  String get notificationEnable => 'Сповіщення про транзакції';
+  String get notificationEnable => 'Сповіщення';
 }

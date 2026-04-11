@@ -8,7 +8,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:auro_wallet/common/components/menuItem.dart';
 
 class PreferencesPage extends StatefulWidget {
   const PreferencesPage(this.store);
@@ -123,13 +123,13 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     MenuItem(
                       text: dic.language,
                       value: languageConfig[languageCode],
-                      onClick: () =>
+                      onTap: () =>
                           Navigator.of(context).pushNamed(LocalesPage.route),
                     ),
                     MenuItem(
                       text: dic.currency,
                       value: store.settings?.currencyCode.toUpperCase(),
-                      onClick: () =>
+                      onTap: () =>
                           Navigator.of(context).pushNamed(CurrenciesPage.route),
                     ),
                   ],
@@ -138,58 +138,5 @@ class _PreferencesPageState extends State<PreferencesPage> {
         },
       ),
     );
-  }
-}
-
-class MenuItem extends StatelessWidget {
-  MenuItem({required this.text, required this.onClick, this.value});
-
-  final String text;
-  final void Function() onClick;
-  final String? value;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-        onTap: onClick,
-        child: Container(
-            height: 54,
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(text,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600)),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    value != null
-                        ? Text(
-                            value!,
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                color: Color(0x4D000000)),
-                          )
-                        : Container(),
-                    Container(
-                        width: 6,
-                        margin: EdgeInsets.only(
-                          left: 14,
-                        ),
-                        child: SvgPicture.asset(
-                            'assets/images/assets/right_arrow.svg',
-                            width: 6,
-                            height: 12,
-                            colorFilter: ColorFilter.mode(
-                                Color(0x4D000000), BlendMode.srcIn)))
-                  ],
-                )
-              ],
-            )));
   }
 }
