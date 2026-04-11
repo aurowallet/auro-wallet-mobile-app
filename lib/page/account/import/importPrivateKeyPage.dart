@@ -46,6 +46,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     String privateKey = _privateKeyCtrl.text.trim();
     bool isPrivateKeyValid = await webApi.account.isPrivateKeyValid(privateKey);
+    if (!mounted) return;
     if (!isPrivateKeyValid) {
       UI.toast(dic.privateError);
       return;
@@ -62,6 +63,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
           wallet: store.wallet!.currentWallet,
           inputPasswordRequired: true
       );
+      if (!mounted) return;
       if (dialogPassword == null) {
         return;
       }
@@ -72,15 +74,16 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
       submitting = true;
     });
     var isSuccess = await webApi.account.createWalletByPrivateKey(accountName, privateKey, password, context: context, source: WalletSource.outside);
+    if (!mounted) return;
     setState(() {
       submitting = false;
     });
     if(isSuccess) {
+      store.wallet!.resetNewWallet();
       // Check if coming from initialization flow or wallet management
       bool fromInitialization = params["fromInitialization"] == true;
       if (fromInitialization) {
         // From initialization - go to success page and clear navigation stack
-        store.wallet!.resetNewWallet();
         Navigator.pushNamedAndRemoveUntil(
           context, 
           ImportSuccessPage.route, 

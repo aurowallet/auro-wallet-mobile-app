@@ -46,6 +46,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
     String keyStore = _keyStoreCtrl.text.trim();
     String keyStorePassword = _keyStorePasswordCtrl.text.trim();
     String? privateKey = await webApi.account.getPrivateKeyFromKeyStore(keyStore, keyStorePassword, context: context);
+    if (!mounted) return;
     if (privateKey != null) {
       Map<String,dynamic> params = ModalRoute.of(context)!.settings.arguments as Map<String,dynamic>;
       String accountName = params["accountName"];
@@ -59,6 +60,7 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
             wallet: store.wallet!.currentWallet,
             inputPasswordRequired: true
         );
+        if (!mounted) return;
         if (dialogPassword == null) {
           return;
         }
@@ -69,15 +71,16 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
         submitting = true;
       });
       var isSuccess = await webApi.account.createWalletByPrivateKey(accountName, privateKey, password, context: context, source: WalletSource.outside);
+      if (!mounted) return;
       setState(() {
         submitting = false;
       });
       if(isSuccess) {
+        store.wallet!.resetNewWallet();
         // Check if coming from initialization flow or wallet management
         bool fromInitialization = params["fromInitialization"] == true;
         if (fromInitialization) {
           // From initialization - go to success page and clear navigation stack
-          store.wallet!.resetNewWallet();
           Navigator.pushNamedAndRemoveUntil(
             context, 
             ImportSuccessPage.route, 

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/page/account/import/importMnemonicPage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
@@ -48,26 +47,14 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
     return 'Imported $count';
   }
 
-  Future<void> _onMnemonic() async {
-    // Verify password first if wallet exists (force password input, no biometric)
-    if (store.wallet!.walletList.isNotEmpty) {
-      final currentWallet = store.wallet!.currentWallet;
-      final password = await UI.showPasswordDialog(
-        context: context,
-        wallet: currentWallet,
-        inputPasswordRequired: true,
-      );
-      if (password == null) return;
-      store.wallet!.setNewAccount(password);
-    }
-
-    // Set default wallet name and go directly to import page (skip name input)
+  void _onMnemonic() {
+    store.wallet!.resetNewWallet();
     store.wallet!.setNewWalletName(_getNextHDWalletName());
     Navigator.pushNamed(context, ImportMnemonicPage.route);
   }
 
   void _onPrivateKey() {
-    // Go directly to import page with default name (skip name input)
+    store.wallet!.resetNewWallet();
     Navigator.pushNamed(
       context,
       ImportPrivateKeyPage.route,
@@ -76,7 +63,7 @@ class _ImportWaysPageState extends State<ImportWaysPage> {
   }
 
   void _onKeyStore() {
-    // Go directly to import page with default name (skip name input)
+    store.wallet!.resetNewWallet();
     Navigator.pushNamed(
       context,
       ImportKeyStorePage.route,

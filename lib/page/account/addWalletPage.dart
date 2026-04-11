@@ -27,7 +27,7 @@ class AddWalletPage extends StatelessWidget {
   }
 
   void _onCreateWallet(BuildContext context) async {
-    // Verify password first (force password input, no biometric)
+    store.wallet!.resetNewWallet();
     final currentWallet = store.wallet!.currentWallet;
     final password = await UI.showPasswordDialog(
       context: context,
@@ -46,11 +46,12 @@ class AddWalletPage extends StatelessWidget {
   }
 
   void _onImportWallet(BuildContext context) {
+    store.wallet!.resetNewWallet();
     Navigator.pushNamed(context, ImportWaysPage.route);
   }
 
   void _onHardwareWallet(BuildContext context) {
-    // Go to Connect Hardware Wallet intro page
+    store.wallet!.resetNewWallet();
     Navigator.pushNamed(
       context,
       ConnectHardwareWalletIntroPage.route,

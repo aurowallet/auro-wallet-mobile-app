@@ -12,6 +12,7 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
+import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 
 class ImportMnemonicPage extends StatefulWidget {
@@ -91,7 +92,6 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
   }
   void _handleSubmit() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    // Normalize: replace all whitespace (including newlines, tabs, multiple spaces) with single space
     String mnemonic = _mnemonicCtrl.text.trim().replaceAll(RegExp(r'\s+'), ' ');
     bool isMnemonicValid = webApi.account.isMnemonicValid(mnemonic);
     if (!isMnemonicValid) {
@@ -105,6 +105,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     });
     widget.store.wallet!.setNewWalletSeed(mnemonic, WalletStore.seedTypeMnemonic);
     var acc = await webApi.account.importWalletByWalletParams();
+    if (!mounted) return;
     if(acc['error']!=null){
       UI.toast(acc['error']['message']);
        setState(() {
@@ -115,18 +116,47 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
 
     final duplicated = await _checkAccountDuplicate(acc);
     if (duplicated) {
+      setState(() {
+        submitting = false;
+      });
       return;
     }
+
+    Map? params = ModalRoute.of(context)?.settings.arguments as Map?;
+    bool fromInitialization = params?["fromInitialization"] == true;
+
+    String password = store.wallet!.newWalletParams.password;
+    if (password.isEmpty) {
+      final dialogPassword = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true
+      );
+      if (!mounted) return;
+      if (dialogPassword == null) {
+        setState(() {
+          submitting = false;
+        });
+        return;
+      }
+      store.wallet!.setNewAccount(dialogPassword);
+    }
+
     await webApi.account.saveWallet(
         acc,
         context: context,
         seedType: WalletStore.seedTypeMnemonic,
         walletSource:  WalletSource.outside
     );
+    if (!mounted) return;
     widget.store.wallet!.resetNewWallet();
-    await Navigator.pushNamedAndRemoveUntil(context, ImportSuccessPage.route, (Route<dynamic> route) => false, arguments: {
-      'type': 'restore'
-    });
+    if (fromInitialization) {
+      await Navigator.pushNamedAndRemoveUntil(context, ImportSuccessPage.route, (Route<dynamic> route) => false, arguments: {
+        'type': 'restore'
+      });
+    } else {
+      Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+    }
   }
   void selectWord(String word) {
     final text = _mnemonicCtrl.text.replaceAll(new RegExp(r'[\w]+$'), word + ' ');

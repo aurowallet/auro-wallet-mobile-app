@@ -109,7 +109,9 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
         // Set default wallet name for mnemonic import flow
         int hdCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) + 1;
         widget.store.wallet!.setNewWalletName('Wallet $hdCount');
-        Navigator.pushNamed(context, ImportMnemonicPage.route);
+        Navigator.pushNamed(context, ImportMnemonicPage.route, arguments: {
+          "fromInitialization": true
+        });
         break;
       case 'privateKey':
         // Get default name for private key import

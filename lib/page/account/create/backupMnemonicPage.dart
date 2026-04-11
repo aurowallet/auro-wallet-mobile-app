@@ -109,6 +109,7 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
         context: context,
         seedType: WalletStore.seedTypeMnemonic,
         walletSource: WalletSource.inside);
+    store.wallet!.resetNewWallet();
     await Navigator.pushNamedAndRemoveUntil(
         context, ImportSuccessPage.route, (Route<dynamic> route) => false,
         arguments: {'type': 'create'});
