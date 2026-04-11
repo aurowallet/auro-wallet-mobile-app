@@ -48,6 +48,7 @@ All notable changes to this project will be documented in this file.
 - Hide HTTP custom nodes from home page network picker
 - Use `Decimal` for transfer/fee conversions to avoid precision/rounding issues
 - Ledger connect
+- Replace `SwitchItem` with `MenuItem`
 
 ### Fixed
 - fetchScamInfo catch

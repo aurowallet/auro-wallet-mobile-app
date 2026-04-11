@@ -1,4 +1,3 @@
-import 'package:auro_wallet/common/components/switchItem.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/currenciesPage.dart';
@@ -115,10 +114,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
                 padding: EdgeInsets.only(top: 20),
                 child: Column(
                   children: <Widget>[
-                    SwitchItem(
+                    MenuItem(
                       text: dic.notificationEnable,
-                      onClick: (isOn) => _onToggleNotification(isOn),
-                      isOn: _isNotificationEnabled,
+                      switchValue: _isNotificationEnabled,
+                      onSwitchChanged: (isOn) => _onToggleNotification(isOn),
                     ),
                     MenuItem(
                       text: dic.language,

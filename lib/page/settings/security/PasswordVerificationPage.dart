@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:auro_wallet/common/components/switchItem.dart';
+import 'package:auro_wallet/common/components/menuItem.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -112,15 +112,15 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
             padding: EdgeInsets.only(top: 20),
             child: Column(
               children: <Widget>[
-                SwitchItem(
+                MenuItem(
                   text: dic.appAccess,
-                  onClick: _onToggleAppAccess,
-                  isOn: this._isAppAccessEnable,
+                  switchValue: _isAppAccessEnable,
+                  onSwitchChanged: _onToggleAppAccess,
                 ),
-                SwitchItem(
+                MenuItem(
                   text: dic.transactions,
-                  onClick: _onToggleTransactionPwd,
-                  isOn: this._isTransactionPwdEnable,
+                  switchValue: _isTransactionPwdEnable,
+                  onSwitchChanged: _onToggleTransactionPwd,
                 ),
               ],
             )),

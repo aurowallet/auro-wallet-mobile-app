@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:auro_wallet/common/components/menuItem.dart';
-import 'package:auro_wallet/common/components/switchItem.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/security/PasswordVerificationPage.dart';
 import 'package:auro_wallet/page/settings/security/changePasswordPage.dart';
@@ -117,13 +116,12 @@ class _SecurityPageState extends State<SecurityPage> {
                   text: dic.passwordVerification,
                   onTap: _onSetPwdVerification,
                 ),
-                _supportBiometric
-                    ? SwitchItem(
-                        text: dic.unlockBioEnable,
-                        onClick: _onToggleBiometric,
-                        isOn: this._isBiometricAuthorized,
-                      )
-                    : Container(),
+                if (_supportBiometric)
+                  MenuItem(
+                    text: dic.unlockBioEnable,
+                    switchValue: _isBiometricAuthorized,
+                    onSwitchChanged: _onToggleBiometric,
+                  ),
               ],
             )),
       ),
