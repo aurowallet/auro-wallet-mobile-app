@@ -1034,7 +1034,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ledgerIntroStep2 =>
-      'Open the Mina app in your Ledger device, Until you see <bold>Mina is ready</bold>.';
+      'Open the Mina app in your Ledger device, Until you see <semiBold>Mina is ready</semiBold>.';
 
   @override
   String get hdPathDesc =>

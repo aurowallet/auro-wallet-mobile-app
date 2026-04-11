@@ -671,7 +671,7 @@
   "@ledgerIntroDesc": {},
   "ledgerIntroStep1": "将 Ledger 与手机连接。",
   "@ledgerIntroStep1": {},
-  "ledgerIntroStep2": "在 Ledger 中打开 Mina 应用，直到看到 <bold>Mina is ready</bold>。",
+  "ledgerIntroStep2": "在 Ledger 中打开 Mina 应用，直到看到 <semiBold>Mina is ready</semiBold>。",
   "@ledgerIntroStep2": {},
   "hdPathDesc": "如果您不了解以下设置，无需修改。查看详细<link>说明</link>。",
   "@hdPathDesc": {},

@@ -22,6 +22,7 @@ class CustomStyledText extends StatelessWidget {
       textScaler: MediaQuery.of(context).textScaler,
       tags: {
         'bold': StyledTextTag(style: TextStyle(fontWeight: FontWeight.w900)),
+        'semiBold': StyledTextTag(style: TextStyle(fontWeight: FontWeight.w700)),
         'red': StyledTextTag(
             style: st.copyWith(color: Color(0xFFD65A5A), fontWeight: FontWeight.w900)),
         'lightred' :StyledTextTag(

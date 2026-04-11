@@ -1001,7 +1001,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ledgerIntroStep2 =>
-      '在 Ledger 中打开 Mina 应用，直到看到 <bold>Mina is ready</bold>。';
+      '在 Ledger 中打开 Mina 应用，直到看到 <semiBold>Mina is ready</semiBold>。';
 
   @override
   String get hdPathDesc => '如果您不了解以下设置，无需修改。查看详细<link>说明</link>。';

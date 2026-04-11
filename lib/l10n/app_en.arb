@@ -644,7 +644,7 @@
   "@ledgerIntroDesc": {},
   "ledgerIntroStep1": "Connect your Ledger to the phone.",
   "@ledgerIntroStep1": {},
-  "ledgerIntroStep2": "Open the Mina app in your Ledger device, Until you see <bold>Mina is ready</bold>.",
+  "ledgerIntroStep2": "Open the Mina app in your Ledger device, Until you see <semiBold>Mina is ready</semiBold>.",
   "@ledgerIntroStep2": {},
   "hdPathDesc": "If you don't know what this setting below is, you don't need to change it. View detailed <link>instructions</link>.",
   "@hdPathDesc": {},

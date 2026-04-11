@@ -673,7 +673,7 @@
   "@ledgerIntroDesc": {},
   "ledgerIntroStep1": "Подключите Ledger к телефону.",
   "@ledgerIntroStep1": {},
-  "ledgerIntroStep2": "Откройте приложение Mina на Ledger, пока не увидите <bold>Mina is ready</bold>.",
+  "ledgerIntroStep2": "Откройте приложение Mina на Ledger, пока не увидите <semiBold>Mina is ready</semiBold>.",
   "@ledgerIntroStep2": {},
   "hdPathDesc": "Если вы не знаете, что означает этот параметр, менять его не нужно. Подробные <link>инструкции</link>.",
   "@hdPathDesc": {},

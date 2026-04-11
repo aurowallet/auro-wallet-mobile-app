@@ -47,18 +47,16 @@ class ConnectHardwareWalletIntroPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 16),
+                      SizedBox(height: 20),
                       Text(
                         dic.ledgerTip3,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                          height: 1.4,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 16),
-                      // Ledger card
+                      SizedBox(height: 20),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
@@ -66,11 +64,10 @@ class ConnectHardwareWalletIntroPage extends StatelessWidget {
                             color: Color(0xFF594AF1),
                             width: 1,
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: AspectRatio(
-                          // Match the exported asset ratio so the logo card expands correctly.
                           aspectRatio: 335 / 50,
                           child: SvgPicture.asset(
                             'assets/images/ledger/ledger_logo.svg',
@@ -78,28 +75,25 @@ class ConnectHardwareWalletIntroPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(height: 32),
-                      // Get Started
+                      SizedBox(height: 40),
                       Text(
                         dic.getStarted,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 20),
                       Text(
                         dic.ledgerIntroDesc,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF666666),
-                          height: 1.5,
+                          color: Color(0xFF808080),
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      SizedBox(height: 24),
-                      // Step 1
+                      SizedBox(height: 20),
                       _StepItem(
                         num: '1',
                         text: dic.ledgerIntroStep1,
@@ -168,19 +162,19 @@ class _StepItem extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.white,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 8),
           Expanded(
             child: CustomStyledText(
               text: text,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 14,
-                height: 1.4,
+                height: 1.2,
                 fontWeight: FontWeight.w400,
               ),
             ),

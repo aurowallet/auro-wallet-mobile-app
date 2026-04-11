@@ -1038,7 +1038,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ledgerIntroStep2 =>
-      'Откройте приложение Mina на Ledger, пока не увидите <bold>Mina is ready</bold>.';
+      'Откройте приложение Mina на Ledger, пока не увидите <semiBold>Mina is ready</semiBold>.';
 
   @override
   String get hdPathDesc =>

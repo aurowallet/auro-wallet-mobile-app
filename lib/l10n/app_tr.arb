@@ -671,7 +671,7 @@
   "@ledgerIntroDesc": {},
   "ledgerIntroStep1": "Ledger'ınızı telefona bağlayın.",
   "@ledgerIntroStep1": {},
-  "ledgerIntroStep2": "Ledger cihazınızda Mina uygulamasını açın, <bold>Mina is ready</bold> yazısını görene kadar bekleyin.",
+  "ledgerIntroStep2": "Ledger cihazınızda Mina uygulamasını açın, <semiBold>Mina is ready</semiBold> yazısını görene kadar bekleyin.",
   "@ledgerIntroStep2": {},
   "hdPathDesc": "Aşağıdaki ayarın ne olduğunu bilmiyorsanız, değiştirmenize gerek yoktur. Ayrıntılı <link>talimatları</link> görüntüleyin.",
   "@hdPathDesc": {},
