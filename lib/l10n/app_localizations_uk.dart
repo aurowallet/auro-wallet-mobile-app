@@ -634,7 +634,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get ledgerTip2 =>
-      'Відкрийте програму Mina на своєму пристрої Ledger, доки не побачите <bold>Mina готова</bold>.';
+      'Відкрийте програму Mina на своєму пристрої Ledger, доки не побачите <semiBold>Mina готова</semiBold>.';
 
   @override
   String get ledgerTip3 =>

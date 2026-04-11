@@ -33,7 +33,8 @@ class InputItem extends StatefulWidget {
       this.textAlign = TextAlign.left,
       this.isError,
       this.contentPadding,
-      this.suffixIconConstraints});
+      this.suffixIconConstraints,
+      this.style});
 
   final int? maxLength;
   final bool autoFocus;
@@ -61,6 +62,7 @@ class InputItem extends StatefulWidget {
   final TextAlign textAlign;
   final Widget? suffixIcon;
   final BoxConstraints? suffixIconConstraints;
+  final TextStyle? style;
 
   @override
   _InputItemState createState() => _InputItemState();
@@ -188,6 +190,7 @@ class _InputItemState extends State<InputItem> {
               autofocus: widget.autoFocus,
               onChanged: widget.onChanged,
               textAlign: widget.textAlign,
+              style: widget.style,
               decoration: InputDecoration(
                 hintText: widget.placeholder,
                 hintStyle: TextStyle(

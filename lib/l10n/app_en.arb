@@ -407,7 +407,7 @@
   "@submitNode": {},
   "ledgerTip1": "Connect your Ledger to the phone.",
   "@ledgerTip1": {},
-  "ledgerTip2": "Open the Mina app in your Ledger device, Until you see <bold>Mina is ready</bold>.",
+  "ledgerTip2": "Open the Mina app in your Ledger device, Until you see <semiBold>Mina is ready</semiBold>.",
   "@ledgerTip2": {},
   "ledgerTip3": "Select a hardware wallet you‘d like to use with Auro Wallet.",
   "@ledgerTip3": {},

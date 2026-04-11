@@ -407,7 +407,7 @@
     "@submitNode": {},
     "ledgerTip1": "Підключіть Ledger до телефону.",
     "@ledgerTip1": {},
-    "ledgerTip2": "Відкрийте програму Mina на своєму пристрої Ledger, доки не побачите <bold>Mina готова</bold>.",
+    "ledgerTip2": "Відкрийте програму Mina на своєму пристрої Ledger, доки не побачите <semiBold>Mina готова</semiBold>.",
     "@ledgerTip2": {},
     "ledgerTip3": "Виберіть апаратний гаманець, який ви хочете використовувати з Auro Wallet.",
     "@ledgerTip3": {},

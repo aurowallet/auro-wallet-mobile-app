@@ -188,7 +188,7 @@
   "@submitNode": {},
   "ledgerTip1": "Подключите устройство Ledger к телефону.",
   "@ledgerTip1": {},
-  "ledgerTip2": "Откройте приложение Mina на своем устройстве Ledger, пока не увидите <bold>Mina is ready</bold>.",
+  "ledgerTip2": "Откройте приложение Mina на своем устройстве Ledger, пока не увидите <semiBold>Mina is ready</semiBold>.",
   "@ledgerTip2": {},
   "ledgerStatus": "Состояние Ledger",
   "@ledgerStatus": {},

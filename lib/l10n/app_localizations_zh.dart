@@ -614,7 +614,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ledgerTip2 =>
-      '在 Ledger 中打开 Mina 应用，直到看到 <bold>Mina is ready</bold>。';
+      '在 Ledger 中打开 Mina 应用，直到看到 <semiBold>Mina is ready</semiBold>。';
 
   @override
   String get ledgerTip3 => '选择您想要使用的硬件钱包。';

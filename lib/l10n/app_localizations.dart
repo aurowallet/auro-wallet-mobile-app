@@ -1289,7 +1289,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledgerTip2.
   ///
   /// In en, this message translates to:
-  /// **'Open the Mina app in your Ledger device, Until you see <bold>Mina is ready</bold>.'**
+  /// **'Open the Mina app in your Ledger device, Until you see <semiBold>Mina is ready</semiBold>.'**
   String get ledgerTip2;
 
   /// No description provided for @ledgerTip3.

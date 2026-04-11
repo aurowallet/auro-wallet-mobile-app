@@ -343,7 +343,7 @@
   "@deleteaddress": {},
   "copyToClipboard": "Panoya Kopyala",
   "@copyToClipboard": {},
-  "ledgerTip2": "<bold>Mina hazır</bold> mesajını görene kadar Ledger cihazınızda Mina uygulamasını açın.",
+  "ledgerTip2": "<semiBold>Mina hazır</semiBold> mesajını görene kadar Ledger cihazınızda Mina uygulamasını açın.",
   "@ledgerTip2": {},
   "manualAdd": "Blok Üreticisi düğüm adresini girin",
   "@manualAdd": {},

@@ -1,14 +1,16 @@
 import 'package:auro_wallet/page/account/walletManagePage.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
 
 class CustomStyledText extends StatelessWidget {
   CustomStyledText(
-      {required this.text, this.style, this.textAlign = TextAlign.left});
+      {required this.text, this.style, this.textAlign = TextAlign.left, this.onLinkTap});
 
   final String text;
   final TextStyle? style;
   final TextAlign textAlign;
+  final VoidCallback? onLinkTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,10 @@ class CustomStyledText extends StatelessWidget {
         'theme': StyledTextTag(style: st.copyWith(color: primaryColor)),
         'link': StyledTextActionTag(
           (String? text, Map<String?, String?> attrs) {
+            if (onLinkTap != null) {
+              onLinkTap!();
+              return;
+            }
             final String? link = attrs['href'];
             final String? route = attrs['route'];
             if (link == 'aurowallet://back') {
@@ -38,11 +44,14 @@ class CustomStyledText extends StatelessWidget {
               } else {
                 Navigator.of(context).pop();
               }
+            } else if (link != null && link.startsWith('http')) {
+              UI.launchURL(link);
             }
-            print('The "$link" link is tapped.');
           },
           style: TextStyle(
-              decoration: TextDecoration.underline, color: primaryColor),
+              decoration: TextDecoration.none,
+              color: Color(0xFF594AF1),
+              fontWeight: FontWeight.w500),
         ),
         'acmanage': StyledTextActionTag(
           (String? text, Map<String?, String?> attrs) {

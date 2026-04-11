@@ -30,3 +30,7 @@ final Map<String, String> languageConfig = {
 // ** language contrubute url
 final String contributeMoreLanguage =
     "https://hosted.weblate.org/projects/aurowallet/";
+
+
+final String ledgerHelpUrl =
+    "https://www.ledger.com/academy/crypto/what-are-hierarchical-deterministic-hd-wallets";

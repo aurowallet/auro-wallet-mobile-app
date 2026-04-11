@@ -1,5 +1,6 @@
 import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
+import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/homePage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
@@ -9,6 +10,7 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SelectHDPathParams {
   SelectHDPathParams({
@@ -96,8 +98,8 @@ class _SelectHDPathPageState extends State<SelectHDPathPage> {
         navigator.pushNamed(WalletManagePage.route);
       } else {
         // From wallet management - go back to WalletManagePage
-        Navigator.popUntil(context,
-            (route) => route.settings.name == WalletManagePage.route);
+        Navigator.popUntil(
+            context, (route) => route.settings.name == WalletManagePage.route);
       }
     }
 
@@ -134,13 +136,15 @@ class _SelectHDPathPageState extends State<SelectHDPathPage> {
                       text: dic.hdPathDesc,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF666666),
-                        height: 1.5,
-                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
                       ),
+                      onLinkTap: () {
+                        UI.launchURL(ledgerHelpUrl,
+                            mode: LaunchMode.inAppBrowserView);
+                      },
                     ),
                     SizedBox(height: 24),
-                    // HD Path selector
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -153,13 +157,20 @@ class _SelectHDPathPageState extends State<SelectHDPathPage> {
                           ),
                         ),
                         Container(
-                          width: 60,
+                          width: 72,
                           padding: EdgeInsets.symmetric(horizontal: 8),
                           child: InputItem(
                             controller: _accountIndexCtrl,
                             padding: EdgeInsets.zero,
                             borderRadius: 6,
                             textAlign: TextAlign.center,
+                            keyboardType: TextInputType.number,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                              height: 1.3,
+                            ),
                             inputFormatters: <TextInputFormatter>[
                               FilteringTextInputFormatter.digitsOnly
                             ],
