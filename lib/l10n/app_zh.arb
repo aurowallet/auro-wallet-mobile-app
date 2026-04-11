@@ -635,8 +635,6 @@
   "@walletNameLabel": {},
   "changeWalletName": "修改钱包名称",
   "@changeWalletName": {},
-  "seedPhrase": "助记词",
-  "@seedPhrase": {},
   "deleteWalletConfirm": "确定要删除此钱包吗？",
   "@deleteWalletConfirm": {},
   "privateKeyWallet": "私钥",

@@ -637,8 +637,6 @@
   "@walletNameLabel": {},
   "changeWalletName": "Изменить название кошелька",
   "@changeWalletName": {},
-  "seedPhrase": "Мнемоническая фраза",
-  "@seedPhrase": {},
   "deleteWalletConfirm": "Вы уверены, что хотите удалить этот кошелек?",
   "@deleteWalletConfirm": {},
   "privateKeyWallet": "Приватный ключ",

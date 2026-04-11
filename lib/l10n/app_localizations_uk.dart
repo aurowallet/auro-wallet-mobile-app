@@ -978,9 +978,6 @@ class AppLocalizationsUk extends AppLocalizations {
   String get changeWalletName => 'Змінити назву гаманця';
 
   @override
-  String get seedPhrase => 'Мнемонічна фраза';
-
-  @override
   String get deleteWalletConfirm =>
       'Ви впевнені, що хочете видалити цей гаманець?';
 

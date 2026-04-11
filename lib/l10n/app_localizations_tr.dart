@@ -978,9 +978,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get changeWalletName => 'Cüzdan Adını Değiştir';
 
   @override
-  String get seedPhrase => 'Tohum İfadesi';
-
-  @override
   String get deleteWalletConfirm =>
       'Bu cüzdanı silmek istediğinizden emin misiniz?';
 

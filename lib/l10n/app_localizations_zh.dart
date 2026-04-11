@@ -945,9 +945,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get changeWalletName => '修改钱包名称';
 
   @override
-  String get seedPhrase => '助记词';
-
-  @override
   String get deleteWalletConfirm => '确定要删除此钱包吗？';
 
   @override

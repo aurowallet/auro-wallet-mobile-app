@@ -635,8 +635,6 @@
   "@walletNameLabel": {},
   "changeWalletName": "Cüzdan Adını Değiştir",
   "@changeWalletName": {},
-  "seedPhrase": "Tohum İfadesi",
-  "@seedPhrase": {},
   "deleteWalletConfirm": "Bu cüzdanı silmek istediğinizden emin misiniz?",
   "@deleteWalletConfirm": {},
   "privateKeyWallet": "Özel Anahtar",

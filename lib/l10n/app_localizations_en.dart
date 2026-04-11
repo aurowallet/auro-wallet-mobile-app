@@ -977,9 +977,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changeWalletName => 'Change Wallet Name';
 
   @override
-  String get seedPhrase => 'Seed Phrase';
-
-  @override
   String get deleteWalletConfirm =>
       'Are you sure you want to delete this wallet?';
 

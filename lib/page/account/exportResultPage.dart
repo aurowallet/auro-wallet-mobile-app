@@ -33,7 +33,7 @@ class ExportResultPage extends StatelessWidget {
     final bool isMnemonic = args['type'] == 'mnemonic';
     final String? address = args['address'];
     return Scaffold(
-      appBar: AppBar(title: Text(isMnemonic ? dic.seedPhrase : dic.exportPrivateKey)),
+      appBar: AppBar(title: Text(isMnemonic ? dic.restoreSeed : dic.exportPrivateKey)),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(

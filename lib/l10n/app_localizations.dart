@@ -1922,12 +1922,6 @@ abstract class AppLocalizations {
   /// **'Change Wallet Name'**
   String get changeWalletName;
 
-  /// No description provided for @seedPhrase.
-  ///
-  /// In en, this message translates to:
-  /// **'Seed Phrase'**
-  String get seedPhrase;
-
   /// No description provided for @deleteWalletConfirm.
   ///
   /// In en, this message translates to:

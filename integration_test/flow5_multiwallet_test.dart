@@ -1610,7 +1610,7 @@ void main() {
         if (accountAddr.evaluate().isNotEmpty) {
           print('✅ Account mgmt page loaded');
           // Check for delete button (non-HD wallets only)
-          var deleteBtn = find.text(dic.accountDelete);
+          var deleteBtn = find.text(dic.delete);
           if (deleteBtn.evaluate().isNotEmpty) {
             print('✅ Found delete entry (non-HD wallet)');
           } else {
@@ -1928,18 +1928,18 @@ void main() {
       print('✅ Entered wallet details page');
       await ss.take(tester, '5.11.1_wallet_detail');
       
-      // Step 3: Tap "Seed Phrase" row
-      print('Step 3: Tap Seed Phrase');
-      var seedPhraseRow = find.text(dic.seedPhrase);
+      // Step 3: Tap "Backup Mnemonic Phrase" row
+      print('Step 3: Tap Backup Mnemonic Phrase');
+      var seedPhraseRow = find.text(dic.restoreSeed);
       
       if (seedPhraseRow.evaluate().isEmpty) {
-        testResults[testName] = 'FAIL - Seed Phrase entry not found';
+        testResults[testName] = 'FAIL - Backup Mnemonic Phrase entry not found';
         return;
       }
       await tester.tap(seedPhraseRow.first);
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
-      print('✅ Tapped Seed Phrase');
+      print('✅ Tapped Backup Mnemonic Phrase');
       
       // Step 4: Enter password
       print('Step 4: Enter password');
@@ -2003,17 +2003,17 @@ void main() {
       print('✅ Entered HD Wallet 2 details');
       await ss.take(tester, '5.11b.1_hd2_wallet_detail');
       
-      // Step 3: Tap "Seed Phrase"
-      print('Step 3: Tap Seed Phrase');
-      var seedPhraseRow = find.text(dic.seedPhrase);
+      // Step 3: Tap "Backup Mnemonic Phrase"
+      print('Step 3: Tap Backup Mnemonic Phrase');
+      var seedPhraseRow = find.text(dic.restoreSeed);
       if (seedPhraseRow.evaluate().isEmpty) {
-        testResults[testName] = 'FAIL - Seed Phrase entry not found';
+        testResults[testName] = 'FAIL - Backup Mnemonic Phrase entry not found';
         return;
       }
       await tester.tap(seedPhraseRow.first);
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
-      print('✅ Tapped Seed Phrase');
+      print('✅ Tapped Backup Mnemonic Phrase');
       
       // Step 4: Enter password
       print('Step 4: Enter password');
@@ -2748,7 +2748,7 @@ void main() {
       
       // Step 3: Verify Delete Account button exists (non-HD only)
       print('Step 3: Verify Delete Account button');
-      var deleteBtn = find.text(dic.accountDelete);
+      var deleteBtn = find.text(dic.delete);
       
       if (deleteBtn.evaluate().isNotEmpty) {
         print('✅ Found delete account button (expected for non-HD)');
@@ -3664,7 +3664,7 @@ void main() {
       
       // Step 3: Tap Delete Account
       print('Step 3: Tap delete account');
-      var deleteBtn = find.text(dic.accountDelete);
+      var deleteBtn = find.text(dic.delete);
       if (deleteBtn.evaluate().isEmpty) {
         testResults[testName] = 'FAIL - Delete button not found';
         return;
@@ -3785,7 +3785,7 @@ void main() {
       
       // Step 3: Tap Delete Account
       print('Step 3: Tap delete account');
-      var deleteBtn = find.text(dic.accountDelete);
+      var deleteBtn = find.text(dic.delete);
       if (deleteBtn.evaluate().isEmpty) {
         testResults[testName] = 'SKIP - Delete button not found (may be deleted in 5.19 or HD account)';
         return;

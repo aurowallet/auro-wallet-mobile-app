@@ -637,8 +637,6 @@
     "@walletNameLabel": {},
     "changeWalletName": "Змінити назву гаманця",
     "@changeWalletName": {},
-    "seedPhrase": "Мнемонічна фраза",
-    "@seedPhrase": {},
     "deleteWalletConfirm": "Ви впевнені, що хочете видалити цей гаманець?",
     "@deleteWalletConfirm": {},
     "privateKeyWallet": "Приватний ключ",

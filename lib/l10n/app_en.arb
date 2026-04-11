@@ -608,8 +608,6 @@
   "@walletNameLabel": {},
   "changeWalletName": "Change Wallet Name",
   "@changeWalletName": {},
-  "seedPhrase": "Seed Phrase",
-  "@seedPhrase": {},
   "deleteWalletConfirm": "Are you sure you want to delete this wallet?",
   "@deleteWalletConfirm": {},
   "privateKeyWallet": "Private Key",

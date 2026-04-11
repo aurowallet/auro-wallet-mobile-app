@@ -980,9 +980,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get changeWalletName => 'Изменить название кошелька';
 
   @override
-  String get seedPhrase => 'Мнемоническая фраза';
-
-  @override
   String get deleteWalletConfirm =>
       'Вы уверены, что хотите удалить этот кошелек?';
 

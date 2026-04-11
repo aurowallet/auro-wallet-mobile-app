@@ -9,9 +9,8 @@ import 'package:auro_wallet/common/components/changeNameDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-/// Wallet Details Page - similar to browser extension's WalletDetails
-/// Provides: rename wallet, show seed phrase, delete wallet
 class WalletDetailsPage extends StatefulWidget {
   const WalletDetailsPage(this.store);
 
@@ -53,6 +52,7 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
     );
     if (newName != null && newName.isNotEmpty) {
       await store.wallet!.renameWallet(wallet.id, newName);
+      if (!mounted) return;
       setState(() {
         walletName = newName;
       });
@@ -69,14 +69,17 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
     );
     
     if (password == null) return;
+    if (!mounted) return;
     
     final mnemonic = await store.wallet!.getMnemonic(wallet, password);
     if (mnemonic != null && mnemonic.isNotEmpty) {
+      if (!mounted) return;
       Navigator.of(context).pushNamed(
         ExportResultPage.route,
         arguments: {'key': mnemonic, 'type': 'mnemonic'},
       );
     } else {
+      if (!mounted) return;
       AppLocalizations dic = AppLocalizations.of(context)!;
       UI.toast(dic.passwordError);
     }
@@ -85,7 +88,6 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
   Future<void> _onDeleteWallet() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
     
-    // Show confirmation dialog
     bool? confirmed = await UI.showConfirmDialog(
       context: context,
       title: dic.deleteWallet,
@@ -97,7 +99,6 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
     
     if (confirmed != true) return;
     
-    // Get password (skip for watch-only wallets)
     String password = '';
     if (wallet.walletType != WalletStore.seedTypeNone) {
       String? pwd = await UI.showPasswordDialog(
@@ -160,29 +161,29 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
                   // Seed Phrase Row (only for HD wallets)
                   if (isHDWallet)
                     _buildInfoRow(
-                      title: dic.seedPhrase,
+                      title: dic.restoreSeed,
                       onTap: _onShowSeedPhrase,
                       showArrow: true,
                     ),
                   
-                  SizedBox(height: 16),
-                  
-                  // Delete button - left aligned red text
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: InkWell(
-                      onTap: _onDeleteWallet,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Text(
-                          dic.delete,
-                          style: TextStyle(
-                            color: Color(0xFFD65A5A),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    height: 1,
+                    decoration: BoxDecoration(
+                      color: Color(0x1A000000),
+                    ),
+                  ),
+                  TextButton(
+                    child: Text(dic.delete),
+                    onPressed: _onDeleteWallet,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      textStyle: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
+                      foregroundColor: Color(0xFFD65A5A),
+                      minimumSize: Size(double.infinity, 54),
+                      alignment: Alignment.centerLeft,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
                 ],
@@ -213,19 +214,21 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        constraints: BoxConstraints(minHeight: 55),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
                   ),
@@ -236,7 +239,9 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
                         value,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black.withValues(alpha: 0.3),
+                          height: 1.2,
                         ),
                       ),
                     ),
@@ -244,10 +249,18 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
               ),
             ),
             if (showArrow)
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-                size: 20,
+              Container(
+                width: 6,
+                margin: EdgeInsets.only(left: 14),
+                child: SvgPicture.asset(
+                  'assets/images/assets/right_arrow.svg',
+                  width: 6,
+                  height: 12,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withValues(alpha: 0.3),
+                    BlendMode.srcIn,
+                  ),
+                ),
               ),
           ],
         ),

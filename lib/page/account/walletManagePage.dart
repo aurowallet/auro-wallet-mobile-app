@@ -112,7 +112,6 @@ class _WalletManagePageState extends State<WalletManagePage> {
   }
 
   void _onGoToWalletDetails(UIKeyring keyring) {
-    // Only HD wallets have individual wallet details
     if (keyring.type != WalletStore.keyringTypeHD) return;
     final wallet = store.wallet!.walletList.firstWhereOrNull((w) => w.id == keyring.id);
     if (wallet != null) {
@@ -126,21 +125,18 @@ class _WalletManagePageState extends State<WalletManagePage> {
   }
 
   void _onAccountDetails(UIKeyringAccount account) {
-    // Find the wallet and account data for this UI account
     final wallet = store.wallet!.walletList.firstWhereOrNull((w) => w.id == account.walletId);
     if (wallet == null) return;
     
     final accountData = wallet.accounts.firstWhereOrNull((a) => a.pubKey == account.address);
     if (accountData == null) return;
     
-    // Navigate to account manage page with correct parameters
     Navigator.pushNamed(context, AccountManagePage.route, arguments: {
       'account': accountData,
       'wallet': wallet,
     });
   }
 
-  /// Build keyring-based UI list (React extension style)
   List<Widget> _renderKeyringList() {
     final keyringsList = store.wallet!.getKeyringsList();
     final currentAddress = store.wallet!.currentAddress;
@@ -148,7 +144,6 @@ class _WalletManagePageState extends State<WalletManagePage> {
     Map<String, WalletData> walletMap = store.wallet!.walletsMap;
     AppLocalizations dic = AppLocalizations.of(context)!;
     
-    // Build balance map
     final Map<String, BigInt> balanceMap = {};
     store.assets!.accountsInfo.forEach((key, value) {
       balanceMap[key] = value.total;
@@ -156,7 +151,6 @@ class _WalletManagePageState extends State<WalletManagePage> {
     
     List<Widget> items = [];
     
-    // Add keyring sections
     for (final keyring in keyringsList) {
       items.add(KeyringSection(
         keyring: keyring,
@@ -169,7 +163,6 @@ class _WalletManagePageState extends State<WalletManagePage> {
       ));
     }
     
-    // Watch mode accounts (not supported notice)
     if (watchModeAccounts.isNotEmpty) {
       items.add(Padding(
         padding: EdgeInsets.only(left: 28, top: 16),

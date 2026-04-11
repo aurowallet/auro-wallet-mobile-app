@@ -232,7 +232,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
                     : Container(),
                 !isMnemonicWallet
                     ? TextButton(
-                        child: Text(dic.accountDelete),
+                        child: Text(dic.delete),
                         onPressed: _deleteAccount,
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.symmetric(horizontal: 20),
