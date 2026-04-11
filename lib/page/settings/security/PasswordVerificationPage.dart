@@ -19,17 +19,58 @@ class PasswordVerificationPage extends StatefulWidget {
 
 enum PwdSwitchType { transaction, appaccess }
 
-class _PasswordVerificationState extends State<PasswordVerificationPage> {
+class _PasswordVerificationState extends State<PasswordVerificationPage>
+    with SingleTickerProviderStateMixin {
   _PasswordVerificationState(this.store);
 
   final AppStore store;
   bool _isAppAccessEnable = false;
   bool _isTransactionPwdEnable = true;
+  bool _isWarning = false;
+  AnimationController? _shakeController;
+  Animation<double> _shakeAnimation = const AlwaysStoppedAnimation(0.0);
+  Timer? _warningResetTimer;
 
   @override
   void initState() {
     super.initState();
+    final controller = AnimationController(
+      duration: Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _shakeController = controller;
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -8), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -8, end: 8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8, end: -5), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -5, end: 5), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 5, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOut,
+    ));
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _warningResetTimer?.cancel();
+        _warningResetTimer = Timer(Duration(milliseconds: 600), () {
+          if (mounted) setState(() => _isWarning = false);
+        });
+      }
+    });
     _checkPwdAuth();
+  }
+
+  @override
+  void dispose() {
+    _warningResetTimer?.cancel();
+    _shakeController?.dispose();
+    super.dispose();
+  }
+
+  void _triggerWarning() {
+    _warningResetTimer?.cancel();
+    setState(() => _isWarning = true);
+    _shakeController?.forward(from: 0);
   }
 
   Future<void> _checkPwdAuth() async {
@@ -44,7 +85,7 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
   void _onToggleAppAccess(bool isOn) async {
     if (!isOn) {
       if (!_isTransactionPwdEnable) {
-        UI.toast(dic.pwdVerificationTip);
+        _triggerWarning();
         return;
       }
       String? password = await UI.showPasswordDialog(
@@ -75,7 +116,7 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
       });
     } else {
       if (!_isAppAccessEnable) {
-        UI.toast(dic.pwdVerificationTip);
+        _triggerWarning();
         return;
       }
       String? password = await UI.showPasswordDialog(
@@ -121,6 +162,31 @@ class _PasswordVerificationState extends State<PasswordVerificationPage> {
                   text: dic.transactions,
                   switchValue: _isTransactionPwdEnable,
                   onSwitchChanged: _onToggleTransactionPwd,
+                ),
+                AnimatedBuilder(
+                  animation: _shakeAnimation,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(_shakeAnimation.value, 0),
+                      child: child,
+                    );
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        dic.pwdVerificationTip,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: _isWarning
+                              ? Color(0xFFD65A5A)
+                              : Color(0xFF808080),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             )),
