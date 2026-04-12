@@ -78,12 +78,18 @@ class CreateAccountEntryPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(vertical: 11,horizontal: 20),
               child: Text(
                 dic.importWallet,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
+            Divider(height: 0.5, thickness: 0.5, color: Colors.black.withValues(alpha: 0.1)),
+            SizedBox(height: 20),
             _RestoreOptionItem(
               title: dic.mnemonicPhrase,
               subtitle: dic.mnemonicImportDesc,
@@ -111,6 +117,7 @@ class CreateAccountEntryPage extends StatelessWidget {
             _RestoreOptionItem(
               title: dic.keystoreWallet,
               subtitle: dic.keystoreImportDesc,
+              isLastItem: true,
               onTap: () {
                 Navigator.pop(ctx);
                 Navigator.pushNamed(
@@ -120,7 +127,6 @@ class CreateAccountEntryPage extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 16),
           ],
         ),
       ),
@@ -154,39 +160,30 @@ class CreateAccountEntryPage extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: 50),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width - 40,
-                            margin: EdgeInsets.only(left: 20),
-                            child: SvgPicture.asset(
-                              "assets/images/entry/desc.svg",
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                      ],
+                    Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      child: SvgPicture.asset(
+                        "assets/images/entry/desc.svg",
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 60),
-                  child: Image.asset(
+              Padding(
+                padding: EdgeInsets.only(bottom: 60),
+                child: Image.asset(
                     "assets/images/entry/auro_logo.png",
                     width: MediaQuery.of(context).size.width * (245 / 375),
                     height:
                         MediaQuery.of(context).size.width *
                         (245 / 375) *
                         (221 / 245),
-                  ),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(left: 38, right: 38),
+                padding: EdgeInsets.symmetric(horizontal: 38),
                 child: ElevatedButton(
                   key: TestKeys.createWalletButton,
                   style: ElevatedButton.styleFrom(
@@ -247,17 +244,20 @@ class CreateAccountEntryPage extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 24),
+                padding: EdgeInsets.only(top: 20),
                 child: GestureDetector(
                   onTap: () {
                     _onConnectHardwareWallet(context);
                   },
-                  child: Text(
-                    dic.connectHardwareWallet,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Text(
+                      dic.connectHardwareWallet,
+                      style: TextStyle(
+                        color: Colors.black.withValues(alpha: 0.8),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -284,44 +284,53 @@ class _RestoreOptionItem extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.isLastItem = false,
   });
 
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final bool isLastItem;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(20, 10, 10, isLastItem ? 20 : 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
                       color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: ColorsUtil.hexColor(0x999999),
-                    ),
-                  ),
-                ],
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color: Colors.black.withValues(alpha: 0.2),
+                ),
+              ],
+            ),
+            SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: Colors.black.withValues(alpha: 0.3),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
               ),
             ),
-            Icon(Icons.chevron_right, color: ColorsUtil.hexColor(0xCCCCCC)),
           ],
         ),
       ),

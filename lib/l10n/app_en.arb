@@ -698,7 +698,7 @@
     }
   },
   "notificationDelegationSuccessTitle":"Delegation Confirmed",
-  "notificationDelegationSuccessBody":"Staked to {address}",
+  "notificationDelegationSuccessBody":"Delegated to {address}",
   "@notificationDelegationSuccessBody": {
     "placeholders": {
       "address": {"type": "String"}

@@ -2,7 +2,7 @@ import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/homePage.dart';
+import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
@@ -88,14 +88,13 @@ class _SelectHDPathPageState extends State<SelectHDPathPage> {
 
     if (generated == true) {
       if (params.fromInitialization) {
-        // From initialization - go to home, then push WalletManagePage
         widget.store.wallet!.resetNewWallet();
-        final navigator = Navigator.of(context);
-        navigator.pushNamedAndRemoveUntil(
-          HomePage.route,
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          ImportSuccessPage.route,
           (Route<dynamic> route) => false,
+          arguments: {'type': 'restore'},
         );
-        navigator.pushNamed(WalletManagePage.route);
       } else {
         // From wallet management - go back to WalletManagePage
         Navigator.popUntil(

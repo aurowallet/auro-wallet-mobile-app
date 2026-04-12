@@ -1101,7 +1101,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String notificationDelegationSuccessBody(String address) {
-    return '已质押至 $address';
+    return '已委托给 $address';
   }
 
   @override

@@ -1139,7 +1139,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String notificationDelegationSuccessBody(String address) {
-    return '$address adresine stake edildi';
+    return '$address adresine delegasyon yapıldı';
   }
 
   @override

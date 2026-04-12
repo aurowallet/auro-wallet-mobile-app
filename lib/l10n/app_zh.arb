@@ -725,7 +725,7 @@
     }
   },
   "notificationDelegationSuccessTitle":"质押已确认",
-  "notificationDelegationSuccessBody":"已质押至 {address}",
+  "notificationDelegationSuccessBody":"已委托给 {address}",
   "@notificationDelegationSuccessBody": {
     "placeholders": {
       "address": {"type": "String"}

@@ -721,7 +721,7 @@
     }
   },
   "notificationDelegationSuccessTitle":"Delegasyon Onaylandı",
-  "notificationDelegationSuccessBody":"{address} adresine stake edildi",
+  "notificationDelegationSuccessBody":"{address} adresine delegasyon yapıldı",
   "@notificationDelegationSuccessBody": {
     "placeholders": {
       "address": {"type": "String"}

@@ -14,6 +14,7 @@ import 'package:auro_wallet/store/wallet/types/uiKeyring.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -273,32 +274,13 @@ class _WalletManagePageState extends State<WalletManagePage> {
                   children: _renderKeyringList(),
                 ),
               ),
-              // Add Wallet button at bottom - purple solid button with proper spacing
               Container(
-                padding: EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 30),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    key: TestKeys.addWalletButton,
-                    onPressed: _onAddWallet,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF594AF1),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      dic.addWallet,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                padding: EdgeInsets.only(left: 38, right: 37, top: 12, bottom: 30),
+                child: NormalButton(
+                  key: TestKeys.addWalletButton,
+                  text: dic.addWallet,
+                  color: Color(0xFF594AF1),
+                  onPressed: _onAddWallet,
                 ),
               ),
             ],

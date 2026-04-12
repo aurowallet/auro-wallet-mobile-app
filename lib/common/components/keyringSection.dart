@@ -3,6 +3,7 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/store/wallet/types/uiKeyring.dart';
 
 /// Keyring section widget for displaying a group of accounts
@@ -36,8 +37,8 @@ class KeyringSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Keyring header - simple name with menu icon (only for HD wallets)
-        Container(
-          padding: EdgeInsets.only(left: 20, right: 8, top: 16, bottom: 8),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Row(
             children: [
               Expanded(
@@ -45,19 +46,25 @@ class KeyringSection extends StatelessWidget {
                   keyring.name,
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black.withValues(alpha: 0.8),
                   ),
                 ),
               ),
               // Menu icon for wallet details (only for HD wallets with real wallet id)
               if (isHDWallet && onWalletDetails != null)
-                IconButton(
-                  key: TestKeys.walletMoreButton,
-                  icon: Icon(Icons.more_horiz, color: Color(0xFF594AF1), size: 20),
-                  onPressed: onWalletDetails,
-                  padding: EdgeInsets.all(8),
-                  constraints: BoxConstraints(),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    key: TestKeys.walletMoreButton,
+                    onTap: onWalletDetails,
+                    borderRadius: BorderRadius.circular(15),
+                    child: SvgPicture.asset(
+                      'assets/images/assets/icon_more.svg',
+                      width: 30,
+                      height: 30,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -69,7 +76,7 @@ class KeyringSection extends StatelessWidget {
         // Add account button (only for HD wallets) - dashed border style
         if (keyring.canAddAccount && onAddAccount != null)
           Container(
-            margin: EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 4),
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: CustomPaint(
               painter: _DashedBorderPainter(
                 color: Color(0xFFE8E8E8),
@@ -82,14 +89,15 @@ class KeyringSection extends StatelessWidget {
                   key: TestKeys.addAccountButton,
                   onTap: onAddAccount,
                   borderRadius: BorderRadius.circular(12),
-                  child: Container(
+                  child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Center(
                       child: Text(
                         dic.addAccount,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF808080),
                         ),
                       ),
                     ),
@@ -98,6 +106,7 @@ class KeyringSection extends StatelessWidget {
               ),
             ),
           ),
+        SizedBox(height: 10),
       ],
     );
   }
@@ -117,14 +126,15 @@ class KeyringSection extends StatelessWidget {
     final balance = balanceMap?[account.address] ?? BigInt.zero;
     final balanceStr = Fmt.balance(balance.toString(), 9);
 
-    return Container(
-      margin: EdgeInsets.only(top: 10, right: 20, left: 20),
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+    return Padding(
+      padding: EdgeInsets.only(top: 10, left: 20, right: 20),
       child: Material(
         color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.hardEdge,
         child: InkWell(
           onTap: () => onAccountTap(account),
+          borderRadius: BorderRadius.circular(12),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: borderColor, width: 1),
@@ -136,11 +146,10 @@ class KeyringSection extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    flex: 1,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(padding: EdgeInsets.only(top: 5)),
+                        SizedBox(height: 5),
                         Text(
                           account.name.isNotEmpty 
                               ? account.name 
@@ -161,7 +170,7 @@ class KeyringSection extends StatelessWidget {
                             color: addressColor,
                           ),
                         ),
-                        Padding(padding: EdgeInsets.only(top: 8)),
+                        SizedBox(height: 8),
                         Text(
                           '$balanceStr MINA',
                           style: TextStyle(
@@ -175,19 +184,17 @@ class KeyringSection extends StatelessWidget {
                   ),
                   // More icon at bottom right - matching original WalletItem style
                   if (onAccountDetails != null)
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          key: TestKeys.accountMoreButton,
-                          onTap: () => onAccountDetails?.call(account),
-                          child: Icon(
-                            Icons.more_horiz,
-                            size: 20,
-                            color: textColor,
-                          ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: GestureDetector(
+                        key: TestKeys.accountMoreButton,
+                        onTap: () => onAccountDetails?.call(account),
+                        child: Icon(
+                          Icons.more_horiz,
+                          size: 20,
+                          color: textColor,
                         ),
-                      ],
+                      ),
                     ),
                 ],
               ),
@@ -242,9 +249,8 @@ class _DashedBorderPainter extends CustomPainter {
     for (final metric in source.computeMetrics()) {
       double distance = 0;
       while (distance < metric.length) {
-        final len = dashWidth;
         dashPath.addPath(
-          metric.extractPath(distance, distance + len),
+          metric.extractPath(distance, distance + dashWidth),
           Offset.zero,
         );
         distance += dashWidth + dashSpace;

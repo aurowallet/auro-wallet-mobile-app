@@ -1138,7 +1138,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String notificationDelegationSuccessBody(String address) {
-    return 'Staked to $address';
+    return 'Delegated to $address';
   }
 
   @override

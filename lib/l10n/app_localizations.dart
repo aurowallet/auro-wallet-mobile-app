@@ -2219,7 +2219,7 @@ abstract class AppLocalizations {
   /// No description provided for @notificationDelegationSuccessBody.
   ///
   /// In en, this message translates to:
-  /// **'Staked to {address}'**
+  /// **'Delegated to {address}'**
   String notificationDelegationSuccessBody(String address);
 
   /// No description provided for @notificationDelegationFailedTitle.
