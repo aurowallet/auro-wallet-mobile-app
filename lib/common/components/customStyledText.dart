@@ -58,7 +58,7 @@ class CustomStyledText extends StatelessWidget {
               Navigator.popUntil(context, ModalRoute.withName(WalletManagePage.route));
           },
           style: TextStyle(
-              decoration: TextDecoration.underline, color: primaryColor),
+              decoration: TextDecoration.none, color: primaryColor),
         ),
         'strongBlack':StyledTextTag(style: TextStyle(color: Color(0xCC000000))),
       },

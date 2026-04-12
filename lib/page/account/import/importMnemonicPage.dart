@@ -80,15 +80,11 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     _mnemonicCtrl.dispose();
   }
   Future<bool> _checkAccountDuplicate(Map<String, dynamic> acc) async {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    int index = store.wallet!.walletList.indexWhere((i) => i.id == acc['pubKey']);
-    if (index > -1) {
-      setState(() {
-        errorMsg = dic.improtRepeat;
-      });
-      return true;
-    }
-    return false;
+    return await UI.showDuplicateAccountAlertIfNeeded(
+      context: context,
+      walletStore: store.wallet!,
+      pubKey: acc['pubKey'],
+    );
   }
   void _handleSubmit() async {
     AppLocalizations dic = AppLocalizations.of(context)!;

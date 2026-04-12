@@ -30,6 +30,7 @@ class WalletStore extends _WalletStore with _$WalletStore {
   // Keyring group name constants
   static const String keyringGroupImported = 'Imported';
   static const String keyringGroupLedger = 'Ledger';
+  static const String keyringGroupWatch = 'Watch';
 
   /// Default account name for HD wallets: "Account 1", "Account 2", etc.
   static String defaultAccountName(int index) => 'Account $index';
@@ -582,10 +583,6 @@ abstract class _WalletStore with Store {
       keyrings.add(_mergeWalletsToUIKeyring(ledgerWalletList, WalletStore.keyringTypeLedger, WalletStore.keyringGroupLedger));
     }
 
-    // 4. Watch wallets (each separate, or could merge - keeping separate for now)
-    for (final wallet in watchWalletList) {
-      keyrings.add(_walletToUIKeyring(wallet, WalletStore.keyringTypeWatch));
-    }
 
     // 5. Sort all keyrings by creation time (earliest first)
     keyrings.sort((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -661,6 +658,19 @@ abstract class _WalletStore with Store {
         return 'WALLET_WATCH';
       default:
         return 'WALLET_INSIDE';
+    }
+  }
+
+  String getKeyringGroupName(WalletData wallet) {
+    switch (wallet.walletType) {
+      case 'priKey':
+        return WalletStore.keyringGroupImported;
+      case 'ledger':
+        return WalletStore.keyringGroupLedger;
+      case 'none':
+        return WalletStore.keyringGroupWatch;
+      default:
+        return getWalletDisplayName(wallet);
     }
   }
 

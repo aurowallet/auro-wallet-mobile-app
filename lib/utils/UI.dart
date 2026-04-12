@@ -29,6 +29,7 @@ import 'package:auro_wallet/common/components/passwordInputDialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/TimerManager.dart';
 
 class UI {
@@ -99,6 +100,45 @@ class UI {
             });
       },
     );
+  }
+
+  static Future<bool> showDuplicateAccountAlertIfNeeded({
+    required BuildContext context,
+    required WalletStore walletStore,
+    required String pubKey,
+  }) async {
+    if (!walletStore.isPubKeyExist(pubKey)) {
+      return false;
+    }
+    final wallet = walletStore.findWalletByAddress(pubKey);
+    if (wallet == null) {
+      AppLocalizations dic = AppLocalizations.of(context)!;
+      await UI.showAlertDialog(
+        context: context,
+        contents: [dic.importSameAccount_1(pubKey)],
+        confirm: dic.isee,
+      );
+      return true;
+    }
+
+    final matchedAccount = wallet.accounts.firstWhere(
+      (acc) => acc.pubKey == pubKey,
+    );
+
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    String groupName = walletStore.getKeyringGroupName(wallet);
+    String accountDisplayName = '$groupName - ${matchedAccount.name}';
+
+    await UI.showAlertDialog(
+      context: context,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      contents: [
+        dic.importSameAccount_1(matchedAccount.address) + "\n",
+        dic.importSameAccount_2(accountDisplayName)
+      ],
+      confirm: dic.isee,
+    );
+    return true;
   }
 
   static Future<void> showAlertDialog(

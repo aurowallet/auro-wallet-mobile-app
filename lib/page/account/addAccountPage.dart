@@ -5,7 +5,6 @@ import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
-import 'package:collection/collection.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -72,10 +71,11 @@ class _AddAccountPageState extends State<AddAccountPage> {
       UI.toast(dic.passwordError);
       return false;
     } else {
-      final existing = store.wallet!.accountListAll
-          .firstWhereOrNull((a) => a.pubKey == accountData['pubKey']);
-      if (existing != null) {
-        UI.toast(dic.improtRepeat);
+      if (await UI.showDuplicateAccountAlertIfNeeded(
+        context: context,
+        walletStore: store.wallet!,
+        pubKey: accountData['pubKey'],
+      )) {
         return false;
       }
       await store.wallet!.addAccount(accountData, accountName, wallet);

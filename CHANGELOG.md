@@ -59,6 +59,7 @@ All notable changes to this project will be documented in this file.
 - Fix node URL validation
 - Use `BigInt` for token amounts
 - Fix WalletConnect bottom-tip dialog context handling
+- Fix duplicate wallet import handling
 
 
 ## [2.2.2]

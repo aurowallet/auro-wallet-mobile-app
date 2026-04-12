@@ -538,6 +538,9 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       "pubKey": address,
       "hdIndex": hdIndex
     };
+    if (await UI.showDuplicateAccountAlertIfNeeded(context: context, walletStore: store.wallet!, pubKey: address)) {
+      return false;
+    }
     WalletResult res = await store.wallet!.addWallet(acc, password,
         seedType: seedType,
         context: context,
@@ -546,8 +549,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       if (res == WalletResult.addressExisted) {
         AppLocalizations dic = AppLocalizations.of(context)!;
         UI.toast(dic.urlError_2);
-        return false;
       }
+      return false;
     }
 
     store.assets!.loadAccountCache();
@@ -583,6 +586,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
 
   Future<bool> _addWalletBgPrivateKey(Map<String, dynamic> acc, String password,
       context, String walletSource) async {
+    String pubKey = acc['pubKey'];
+    if (await UI.showDuplicateAccountAlertIfNeeded(context: context, walletStore: store.wallet!, pubKey: pubKey)) {
+      return false;
+    }
     WalletResult res = await store.wallet!.addWallet(acc, password,
         seedType: WalletStore.seedTypePrivateKey,
         context: context,
@@ -591,8 +598,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       if (res == WalletResult.addressExisted) {
         AppLocalizations dic = AppLocalizations.of(context)!;
         UI.toast(dic.urlError_2);
-        return false;
       }
+      return false;
     }
 
     store.assets!.loadAccountCache();

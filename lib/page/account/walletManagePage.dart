@@ -83,19 +83,11 @@ class _WalletManagePageState extends State<WalletManagePage> {
     }
     
     // Check if account already exists
-    final matchedAccount = store.wallet!.accountListAll
-        .firstWhereOrNull((account) => account.pubKey == accountData['pubKey']);
-    
-    if (matchedAccount != null) {
-      UI.showAlertDialog(
-        context: context,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        contents: [
-          dic.importSameAccount_1(matchedAccount.address) + "\n",
-          dic.importSameAccount_2(matchedAccount.name)
-        ],
-        confirm: dic.isee,
-      );
+    if (await UI.showDuplicateAccountAlertIfNeeded(
+      context: context,
+      walletStore: store.wallet!,
+      pubKey: accountData['pubKey'],
+    )) {
       return;
     }
     
