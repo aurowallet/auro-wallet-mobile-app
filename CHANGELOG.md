@@ -50,6 +50,7 @@ All notable changes to this project will be documented in this file.
 - Ledger connect
 - Replace `SwitchItem` with `MenuItem`
 - Remove unused `path_provider` dependency and use `Directory.systemTemp` for temporary files
+- Add ScreenAwake for ledger
 
 ### Fixed
 - fetchScamInfo catch

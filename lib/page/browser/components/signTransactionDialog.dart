@@ -26,6 +26,7 @@ import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/Loading.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
@@ -112,6 +113,14 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   bool isZekoNet = false;
 
   TimerManager? timerManager;
+  late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
+
+  Future<void> _setLedgerScreenAwake(bool active) async {
+    if (!isLedger) {
+      return;
+    }
+    await _ledgerScreenAwakeHandle.setActive(active);
+  }
 
   double _getCurrentDefaultFee() {
     return store.assets?.transferFees.medium ?? DEFAULT_TRANSACTION_FEE;
@@ -120,6 +129,9 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   @override
   void initState() {
     super.initState();
+    _ledgerScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('sign_tx_ledger', this),
+    );
     final initialFee = _getCurrentDefaultFee();
     lastFee = initialFee;
     defaultNetFee = initialFee;
@@ -329,6 +341,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   @override
   void dispose() {
     timerManager?.dispose();
+    _setLedgerScreenAwake(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
     super.dispose();
   }
 
@@ -417,7 +431,6 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     }
 
     print('onConfirm');
-    bool exited = false;
     if (await _validate()) {
       if (isLedger && !await _ledgerCheck()) {
         return false;
@@ -425,160 +438,151 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       setState(() {
         submitting = true;
       });
+      await _setLedgerScreenAwake(true);
 
-      String? privateKey;
-      if (!isLedger) {
-        String? password = await UI.showPasswordDialog(
-            context: context,
-            wallet: nextWalletData,
-            inputPasswordRequired: false,
-            isTransaction: true,
-            store: store);
-        if (password == null) {
-          setState(() {
-            submitting = false;
-          });
-          return false;
-        }
-        privateKey = await webApi.account.getPrivateKey(
-            nextWalletData, nextAccountData.accountIndex, password);
-        if (privateKey == null) {
-          store.wallet!.clearRuntimePwd();
-          password = await UI.showPasswordDialog(
+      try {
+        String? privateKey;
+        if (!isLedger) {
+          String? password = await UI.showPasswordDialog(
               context: context,
               wallet: nextWalletData,
-              inputPasswordRequired: true,
+              inputPasswordRequired: false,
               isTransaction: true,
               store: store);
           if (password == null) {
-            setState(() {
-              submitting = false;
-            });
             return false;
           }
           privateKey = await webApi.account.getPrivateKey(
               nextWalletData, nextAccountData.accountIndex, password);
           if (privateKey == null) {
             store.wallet!.clearRuntimePwd();
-            setState(() {
-              submitting = false;
-            });
-            UI.toast(dic.passwordError);
-            return false;
+            password = await UI.showPasswordDialog(
+                context: context,
+                wallet: nextWalletData,
+                inputPasswordRequired: true,
+                isTransaction: true,
+                store: store);
+            if (password == null) {
+              return false;
+            }
+            privateKey = await webApi.account.getPrivateKey(
+                nextWalletData, nextAccountData.accountIndex, password);
+            if (privateKey == null) {
+              store.wallet!.clearRuntimePwd();
+              UI.toast(dic.passwordError);
+              return false;
+            }
           }
         }
-      }
-      int nextNonce = inputNonce;
-      if (!isManualNonce && zkNonceType != ZkAppValueEnum.recommed_site) {
-        int tempNonce = await webApi.assets
-            .fetchAccountNonce(nextAccountData.pubKey, gqlUrl: nextGqlUrl);
-        if (tempNonce != -1) {
-          nextNonce = tempNonce;
+        int nextNonce = inputNonce;
+        if (!isManualNonce && zkNonceType != ZkAppValueEnum.recommed_site) {
+          int tempNonce = await webApi.assets
+              .fetchAccountNonce(nextAccountData.pubKey, gqlUrl: nextGqlUrl);
+          if (tempNonce != -1) {
+            nextNonce = tempNonce;
+          }
         }
-      }
-      Map txInfo;
-      bool isDelagetion = false;
-      if (widget.signType == SignTxDialogType.zkApp) {
-        txInfo = {
-          "privateKey": privateKey,
-          "fromAddress": nextAccountData.pubKey,
-          "fee": lastFee,
-          "nonce": nextNonce,
-          "memo": lastMemo != null ? lastMemo : "",
-          "transaction": widget.transaction,
-          "zkOnlySign": zkOnlySign
-        };
-      } else {
-        txInfo = {
-          "privateKey": privateKey,
-          "accountIndex": nextAccountData.accountIndex,
-          "fromAddress": nextAccountData.pubKey,
-          "toAddress": widget.to,
-          "fee": lastFee,
-          "nonce": nextNonce,
-          "memo": lastMemo != null ? lastMemo : "",
-        };
-        if (widget.signType == SignTxDialogType.Payment) {
-          txInfo["amount"] = double.parse(widget.amount ?? "0");
-        } else if (widget.signType == SignTxDialogType.Delegation) {
-          isDelagetion = true;
-        }
-      }
-      dynamic data;
-      if (isLedger) {
-        print('start sign ledger');
-        final tx = await webApi.account.ledgerSign(txInfo,
-            context: context,
-            isDelegation: isDelagetion,
-            networkId: widget.walletConnectChainId);
-        if (tx == null) {
-          return false;
-        }
-        if (!exited) {
-          data = await webApi.account.sendTxBody(tx,
-              context: context, isDelegation: isDelagetion, gqlUrl: nextGqlUrl);
-        }
-      } else {
+        Map txInfo;
+        bool isDelagetion = false;
         if (widget.signType == SignTxDialogType.zkApp) {
-          data = await webApi.account.signAndSendZkTx(txInfo,
+          txInfo = {
+            "privateKey": privateKey,
+            "fromAddress": nextAccountData.pubKey,
+            "fee": lastFee,
+            "nonce": nextNonce,
+            "memo": lastMemo != null ? lastMemo : "",
+            "transaction": widget.transaction,
+            "zkOnlySign": zkOnlySign
+          };
+        } else {
+          txInfo = {
+            "privateKey": privateKey,
+            "accountIndex": nextAccountData.accountIndex,
+            "fromAddress": nextAccountData.pubKey,
+            "toAddress": widget.to,
+            "fee": lastFee,
+            "nonce": nextNonce,
+            "memo": lastMemo != null ? lastMemo : "",
+          };
+          if (widget.signType == SignTxDialogType.Payment) {
+            txInfo["amount"] = double.parse(widget.amount ?? "0");
+          } else if (widget.signType == SignTxDialogType.Delegation) {
+            isDelagetion = true;
+          }
+        }
+        dynamic data;
+        if (isLedger) {
+          print('start sign ledger');
+          final tx = await webApi.account.ledgerSign(txInfo,
               context: context,
-              networkId: widget.walletConnectChainId,
+              isDelegation: isDelagetion,
+              networkId: widget.walletConnectChainId);
+          if (tx == null) {
+            return false;
+          }
+          data = await webApi.account.sendTxBody(tx,
+              context: context,
+              isDelegation: isDelagetion,
               gqlUrl: nextGqlUrl);
         } else {
-          if (isDelagetion) {
-            data = await webApi.account.signAndSendDelegationTx(txInfo,
+          if (widget.signType == SignTxDialogType.zkApp) {
+            data = await webApi.account.signAndSendZkTx(txInfo,
                 context: context,
                 networkId: widget.walletConnectChainId,
                 gqlUrl: nextGqlUrl);
           } else {
-            data = await webApi.account.signAndSendTx(txInfo,
-                context: context,
-                networkId: widget.walletConnectChainId,
-                gqlUrl: nextGqlUrl);
+            if (isDelagetion) {
+              data = await webApi.account.signAndSendDelegationTx(txInfo,
+                  context: context,
+                  networkId: widget.walletConnectChainId,
+                  gqlUrl: nextGqlUrl);
+            } else {
+              data = await webApi.account.signAndSendTx(txInfo,
+                  context: context,
+                  networkId: widget.walletConnectChainId,
+                  gqlUrl: nextGqlUrl);
+            }
           }
         }
-      }
-      if (data == null) {
-        setState(() {
-          submitting = false;
-        });
+        if (data == null) {
+          return false;
+        }
+        String hash = "";
+        String signedData = "";
+        if (data.runtimeType == TransferData) {
+          hash = data.hash;
+        } else {
+          signedData = data["signedData"];
+        }
+        bool hashNotEmpty = hash.isNotEmpty;
+        bool signedDataNotEmpty = signedData.isNotEmpty;
+        if (hashNotEmpty || signedDataNotEmpty) {
+          if (mounted) {
+            int finalNonce = zkNonceType == ZkAppValueEnum.recommed_site
+                ? inputNonce + 10 // +10 for force refresh nonce
+                : nextNonce;
+            await widget.onConfirm({
+              "hash": data.runtimeType == TransferData ? data.hash : null,
+              "signedData": signedData,
+              "nonce": finalNonce,
+              "paymentId": data.runtimeType == TransferData ? data.paymentId : null,
+            });
+            store.triggerBalanceRefresh();
+            return true;
+          }
+        } else {
+          UI.toast("service error");
+        }
         return false;
-      }
-      String hash = "";
-      String signedData = "";
-      if (data.runtimeType == TransferData) {
-        hash = data.hash;
-      } else {
-        signedData = data["signedData"];
-      }
-      bool hashNotEmpty = hash.isNotEmpty;
-      bool signedDataNotEmpty = signedData.isNotEmpty;
-      if (hashNotEmpty || signedDataNotEmpty) {
-        if (mounted && !exited) {
-          int finalNonce = zkNonceType == ZkAppValueEnum.recommed_site
-              ? inputNonce + 10 // +10 for force refresh nonce
-              : nextNonce;
-          await widget.onConfirm({
-            "hash": data.runtimeType == TransferData ? data.hash : null,
-            "signedData": signedData,
-            "nonce": finalNonce,
-            "paymentId": data.runtimeType == TransferData ? data.paymentId : null,
-          });
+      } finally {
+        await _setLedgerScreenAwake(false);
+        if (mounted) {
           setState(() {
             submitting = false;
           });
-          store.triggerBalanceRefresh();
-          return true;
         }
-      } else {
-        UI.toast("service error");
       }
-      setState(() {
-        submitting = false;
-      });
-      return false;
     }
-    exited = true;
     return false;
   }
 

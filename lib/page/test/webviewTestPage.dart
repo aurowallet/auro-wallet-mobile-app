@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -6,6 +7,7 @@ import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/page/test/testTransactionData.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:flutter/material.dart';
 
 class WebviewBridgeTestPage extends StatefulWidget {
@@ -20,6 +22,7 @@ class WebviewBridgeTestPage extends StatefulWidget {
 class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   _WebviewBridgeTestPageState();
   AppStore store = globalAppStore;
+  static const int _defaultAwakeTestSeconds = 180;
 
   Map testAccount = {
     "mnemonic":
@@ -33,6 +36,9 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   bool createWalletStatus = false;
   bool signTransactionStatus = false;
   bool pageCreateWalletStatus = false;
+  bool screenAwakeEnabled = false;
+  int awakeCountdown = _defaultAwakeTestSeconds;
+  Timer? awakeTimer;
 
   String accountA = "B62qpjxUpgdjzwQfd8q2gzxi99wN7SCgmofpvw27MBkfNHfHoY2VH32";
   String accountB = "B62qr2zNMypNKXmzMYSVotChTBRfXzHRtshvbuEjAQZLq6aEa8RxLyD";
@@ -45,6 +51,11 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
   @override
   void dispose() {
+    awakeTimer?.cancel();
+    if (screenAwakeEnabled) {
+      ScreenAwake.release(ScreenAwakeKeys.webviewBridgeTestPage)
+          .catchError((e) => debugPrint('ScreenAwake.release failed: $e'));
+    }
     super.dispose();
   }
 
@@ -67,6 +78,148 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
           ],
         );
       },
+    );
+  }
+
+  String get _awakeCountdownLabel {
+    final minutes = awakeCountdown ~/ 60;
+    final seconds = awakeCountdown % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void _startAwakeCountdown({Future<void> Function()? onFinished}) {
+    awakeTimer?.cancel();
+    setState(() {
+      awakeCountdown = _defaultAwakeTestSeconds;
+    });
+    awakeTimer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (awakeCountdown <= 1) {
+        timer.cancel();
+        awakeTimer = null;
+        setState(() {
+          awakeCountdown = 0;
+        });
+        if (onFinished != null) {
+          await onFinished();
+        }
+        return;
+      }
+      setState(() {
+        awakeCountdown -= 1;
+      });
+    });
+  }
+
+  Future<void> enableScreenAwakeTest() async {
+    await ScreenAwake.acquire(ScreenAwakeKeys.webviewBridgeTestPage);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      screenAwakeEnabled = true;
+    });
+    _startAwakeCountdown(onFinished: disableScreenAwakeTest);
+  }
+
+  Future<void> disableScreenAwakeTest() async {
+    awakeTimer?.cancel();
+    awakeTimer = null;
+    await ScreenAwake.release(ScreenAwakeKeys.webviewBridgeTestPage);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      screenAwakeEnabled = false;
+    });
+    _startAwakeCountdown();
+  }
+
+  Widget buildScreenAwakeTestSection() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Color(0x1A000000)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Screen Awake Test',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Status: ${screenAwakeEnabled ? 'Enabled' : 'Disabled'}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: screenAwakeEnabled ? Color(0xFF0DB27C) : Color(0xFF808080),
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'Countdown: $_awakeCountdownLabel',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'Set your device auto-lock to 15s or 30s, tap Enable Awake, and compare whether the screen stays on past the system lock timeout.',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: Color(0xFF666666),
+              height: 1.4,
+            ),
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: NormalButton(
+                  text: 'Enable Awake',
+                  onPressed: enableScreenAwakeTest,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    side: BorderSide(color: Color(0x1A000000)),
+                  ),
+                  onPressed: disableScreenAwakeTest,
+                  child: Text(
+                    'Disable Awake',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF594AF1),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -545,41 +698,44 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
           ),
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              child: NormalButton(
-                text: "Get Version",
-                onPressed: getSdkVersion,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              child: NormalButton(
-                text: "Create Wallet",
-                onPressed: createWallet,
-                submitting: createWalletStatus,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              child: NormalButton(
-                text: "Sign Transaction",
-                onPressed: signTransaction,
-                submitting: signTransactionStatus,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              child: NormalButton(
-                text: "Page test create wallet",
-                onPressed: createWalletInDev,
-                submitting: pageCreateWalletStatus,
-              ),
-            ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                buildScreenAwakeTestSection(),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  child: NormalButton(
+                    text: "Get Version",
+                    onPressed: getSdkVersion,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  child: NormalButton(
+                    text: "Create Wallet",
+                    onPressed: createWallet,
+                    submitting: createWalletStatus,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  child: NormalButton(
+                    text: "Sign Transaction",
+                    onPressed: signTransaction,
+                    submitting: signTransactionStatus,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  child: NormalButton(
+                    text: "Page test create wallet",
+                    onPressed: createWalletInDev,
+                    submitting: pageCreateWalletStatus,
+                  ),
+                ),
             // Padding(
             //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
             //   child: NormalButton(
@@ -649,7 +805,9 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
             //     ),
             //   ),
             // )
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

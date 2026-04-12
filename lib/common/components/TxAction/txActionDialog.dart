@@ -10,6 +10,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:decimal/decimal.dart';
@@ -47,9 +48,21 @@ class _TxActionDialogState extends State<TxActionDialog> {
   double nextStateFee = 0;
   double preFee = 0;
   double speedUpFee = 0;
+  late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
+
+  Future<void> _setLedgerScreenAwake(bool active) async {
+    if (!isLedger) {
+      return;
+    }
+    await _ledgerScreenAwakeHandle.setActive(active);
+  }
+
   @override
   void initState() {
     super.initState();
+    _ledgerScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('tx_action_ledger', this),
+    );
     double nextPlusFee = widget.modalType == TxActionType.cancel
         ? 0.0001
         : widget.store.assets!.transferFees.speedUpBuffer;
@@ -67,6 +80,13 @@ class _TxActionDialogState extends State<TxActionDialog> {
         .toDouble();
     isLedger = widget.store.wallet!.currentWallet.walletType ==
         WalletStore.seedTypeLedger;
+  }
+
+  @override
+  void dispose() {
+    _setLedgerScreenAwake(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
+    super.dispose();
   }
 
   List<Widget> renderLedgerConfirm() {
@@ -441,10 +461,19 @@ class _TxActionDialogState extends State<TxActionDialog> {
                       setState(() {
                         submitting = true;
                       });
-                      await onClickNextStep();
-                      submitting = false;
-                      if (widget.onConfirm != null) {
-                        widget.onConfirm!();
+                      await _setLedgerScreenAwake(true);
+                      try {
+                        await onClickNextStep();
+                        if (widget.onConfirm != null) {
+                          widget.onConfirm!();
+                        }
+                      } finally {
+                        await _setLedgerScreenAwake(false);
+                        if (mounted) {
+                          setState(() {
+                            submitting = false;
+                          });
+                        }
                       }
                     },
                     submitting: submitting,

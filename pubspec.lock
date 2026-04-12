@@ -1898,6 +1898,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "15.0.2"
+  wakelock_plus:
+    dependency: "direct main"
+    description:
+      name: wakelock_plus
+      sha256: "8b12256f616346910c519a35606fb69b1fe0737c06b6a447c6df43888b097f39"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.5.1"
+  wakelock_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: wakelock_plus_platform_interface
+      sha256: "24b84143787220a403491c2e5de0877fbbb87baf3f0b18a2a988973863db4b03"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.4.0"
   wallet:
     dependency: transitive
     description:

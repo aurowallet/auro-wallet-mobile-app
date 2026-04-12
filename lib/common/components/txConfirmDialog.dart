@@ -7,6 +7,7 @@ import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -53,6 +54,29 @@ class TxConfirmDialog extends StatefulWidget {
 
 class _TxConfirmDialogState extends State<TxConfirmDialog> {
   bool submitting = false;
+  late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
+
+  Future<void> _setLedgerScreenAwake(bool active) async {
+    if (!widget.isLedger) {
+      return;
+    }
+    await _ledgerScreenAwakeHandle.setActive(active);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _ledgerScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('tx_confirm_ledger', this),
+    );
+  }
+
+  @override
+  void dispose() {
+    _setLedgerScreenAwake(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
+    super.dispose();
+  }
 
   Widget renderHead(String headerLabel, Widget headerValue) {
     return Padding(
@@ -231,8 +255,18 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                       setState(() {
                         submitting = true;
                       });
-                      if (widget.onConfirm != null) {
-                        widget.onConfirm!();
+                      await _setLedgerScreenAwake(true);
+                      try {
+                        if (widget.onConfirm != null) {
+                          await widget.onConfirm!();
+                        }
+                      } finally {
+                        await _setLedgerScreenAwake(false);
+                        if (mounted) {
+                          setState(() {
+                            submitting = false;
+                          });
+                        }
                       }
                     },
                     submitting: submitting,

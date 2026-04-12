@@ -14,6 +14,7 @@ import 'package:auro_wallet/utils/ledgerInit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 
 class ImportLedger extends StatefulWidget {
   ImportLedger(
@@ -209,10 +210,14 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
   @override
   void initState() {
     super.initState();
+    ScreenAwake.acquire(ScreenAwakeKeys.ledgerGetAddress)
+        .catchError((e) => debugPrint('ScreenAwake.acquire failed: $e'));
   }
 
   @override
   void dispose() {
+    ScreenAwake.release(ScreenAwakeKeys.ledgerGetAddress)
+        .catchError((e) => debugPrint('ScreenAwake.release failed: $e'));
     super.dispose();
   }
 
