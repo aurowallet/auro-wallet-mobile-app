@@ -693,7 +693,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         feePlaceHolder: lastFee,
         feeType: feeType,
         nonce: inputNonce,
-        showFeeButtons: !isZekoNet,
+        showFeeButtons: false,
         onConfirm: (double? fee, int nonce) {
           if (nonce != inputNonce) {
             setState(() {
