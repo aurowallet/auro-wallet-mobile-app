@@ -54,7 +54,6 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   safe_device: ^1.3.8
   encrypt: ^5.0.3
-  path_provider: ^2.1.5
   bip32: ^2.0.0
   hex: ^0.2.0
   webcrypto:

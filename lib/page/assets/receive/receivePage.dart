@@ -10,7 +10,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'dart:ui' as ui;
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:share_plus/share_plus.dart';
 
@@ -27,7 +26,7 @@ class ReceivePage extends StatelessWidget {
     ui.Image image = await boundary.toImage(pixelRatio: 3.0);
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     var pngBytes = byteData!.buffer.asUint8List();
-    Directory tempDir = await getTemporaryDirectory();
+    Directory tempDir = Directory.systemTemp;
     String storagePath = tempDir.path;
     var path = '$storagePath/${store.wallet!.currentAddress}.png';
     File file = File(path);

@@ -49,6 +49,7 @@ All notable changes to this project will be documented in this file.
 - Use `Decimal` for transfer/fee conversions to avoid precision/rounding issues
 - Ledger connect
 - Replace `SwitchItem` with `MenuItem`
+- Remove unused `path_provider` dependency and use `Directory.systemTemp` for temporary files
 
 ### Fixed
 - fetchScamInfo catch
