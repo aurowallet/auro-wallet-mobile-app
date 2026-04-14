@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/components/feeButtonGroup.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
@@ -191,24 +192,9 @@ class _AdvanceFeeModalState extends State<AdvanceFeeModal> {
                 width: double.infinity,
                 padding: EdgeInsets.only(
                     left: 38, right: 38, top: 30, bottom: 20),
-                child: ElevatedButton(
+                child: NormalButton(
+                  text: dic.confirm,
                   onPressed: _handleConfirm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF594AF1),
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    dic.confirm,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
               ),
             ],
