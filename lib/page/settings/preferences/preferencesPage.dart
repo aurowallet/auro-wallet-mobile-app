@@ -64,7 +64,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
   Future<void> _onToggleNotification(bool isOn) async {
     if (isOn) {
-      final granted = await NotificationService().requestPermission();
+      final alreadyGranted = await NotificationService().isPermissionGranted();
+      final granted = alreadyGranted
+          ? true
+          : await NotificationService().requestPermission();
       if (granted) {
         await NotificationService().setNotificationEnabled(true);
         if (mounted) {
