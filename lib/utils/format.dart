@@ -307,7 +307,8 @@ class Fmt {
 
   static String parseShowBalance(double balance, {int showLength = 4}) {
     try {
-      String formatted = balance.toStringAsFixed(showLength);
+      Decimal d = Decimal.parse(balance.toString());
+      String formatted = d.floor(scale: showLength).toStringAsFixed(showLength);
       formatted = formatted.contains('.')
           ? formatted
               .replaceFirst(RegExp(r'0*$'), '')

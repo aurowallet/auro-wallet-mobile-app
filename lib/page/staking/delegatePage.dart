@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:decimal/decimal.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
@@ -202,8 +201,7 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   String _floorToDecimals(double value, int decimals) {
-    double multiplier = pow(10, decimals).toDouble();
-    return ((value * multiplier).floor() / multiplier).toStringAsFixed(decimals);
+    return Fmt.parseShowBalance(value, showLength: decimals);
   }
 
   int? _parseNonce(dynamic value) {

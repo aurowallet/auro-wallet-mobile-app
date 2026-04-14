@@ -760,7 +760,7 @@ abstract class _AssetsStore with Store {
         double? tokenPrice = marketPrices[tokenId];
         if (tokenPrice != null) {
           tokenBaseInfo.showAmount = double.parse(
-              (tokenBaseInfo.showBalance! * tokenPrice).toStringAsFixed(2));
+              Fmt.parseShowBalance(tokenBaseInfo.showBalance! * tokenPrice, showLength: 2));
         }
         localConfig.tokenShowed = localShowedTokenIds.contains(tokenId);
 

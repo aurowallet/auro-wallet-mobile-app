@@ -215,7 +215,7 @@ class EarnOnMinaCard extends StatelessWidget {
           children: [
             _buildInfoRow(
               dic.available,
-              '${showBalance.toStringAsFixed(4)} ${COIN.coinSymbol}',
+              '${Fmt.parseShowBalance(showBalance, showLength: 4)} ${COIN.coinSymbol}',
             ),
             SizedBox(height: 12),
             _buildInfoRow(
@@ -327,7 +327,7 @@ class ActiveDelegationSection extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${showBalance.toStringAsFixed(4)} ${COIN.coinSymbol}',
+                        '${Fmt.parseShowBalance(showBalance, showLength: 4)} ${COIN.coinSymbol}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.black,
