@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
+import 'package:auro_wallet/common/components/ledgerWaitingContent.dart';
 import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -90,51 +91,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
   }
 
   List<Widget> renderLedgerConfirm() {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    return [
-      Container(
-        padding: EdgeInsets.only(top: 35),
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/images/public/pending_tip.svg',
-            width: 58,
-          ),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.only(top: 29),
-        child: Center(
-          child: Text(
-            dic.waitingLedger,
-            style: TextStyle(
-                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 7),
-        child: Text(
-          dic.waitingLedgerSign,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Colors.black.withValues(alpha: 0.5),
-              fontSize: 14,
-              fontWeight: FontWeight.w400),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.only(top: 14, bottom: 60),
-        child: Center(
-          child: StyledText(
-              text: dic.ledgerAddressTip3,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  height: 1.2,
-                  fontWeight: FontWeight.w400)),
-        ),
-      )
-    ];
+    return [LedgerWaitingContent()];
   }
 
   Future<bool> _ledgerCheck() async {
@@ -177,6 +134,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
         return TxAdvanceDialog(
           currentNonce: widget.txData.nonce!,
           nextStateFee: nextStateFee,
+          showFeeButtons: false,
         );
       },
     );
@@ -328,21 +286,32 @@ class _TxActionDialogState extends State<TxActionDialog> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(widget.title,
+                        Text(showLedgerConfirm ? dic.waitingLedger : widget.title,
                             style: TextStyle(
                                 color: Color(0xFF222222),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600)),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              isLedger ? LedgerStatusView() : Container(),
-                              SizedBox(width: 4),
-                              NetworkStatusView()
-                            ],
-                          ),
-                        )
+                        showLedgerConfirm
+                            ? GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => Navigator.pop(context),
+                                child: SvgPicture.asset(
+                                    'assets/images/public/icon_nav_close.svg',
+                                    width: 24,
+                                    height: 24,
+                                    colorFilter: ColorFilter.mode(
+                                        Colors.black, BlendMode.srcIn)),
+                              )
+                            : Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    isLedger ? LedgerStatusView() : Container(),
+                                    SizedBox(width: 4),
+                                    NetworkStatusView()
+                                  ],
+                                ),
+                              )
                       ],
                     ),
                   ),
@@ -447,37 +416,38 @@ class _TxActionDialogState extends State<TxActionDialog> {
                             ],
                     ),
                   ),
-                  ZkAppBottomButton(
-                    confirmBtnText: widget.buttonText ?? dic.confirm,
-                    onConfirm: () async {
-                      if (isLedger &&
-                          widget.txData.type.toLowerCase() == "zkapp") {
-                        UI.toast(dic.notSupportNow);
-                        return;
-                      }
-                      if (isLedger && !await _ledgerCheck()) {
-                        return;
-                      }
-                      setState(() {
-                        submitting = true;
-                      });
-                      await _setLedgerScreenAwake(true);
-                      try {
-                        await onClickNextStep();
-                        if (widget.onConfirm != null) {
-                          widget.onConfirm!();
+                  if (!showLedgerConfirm)
+                    ZkAppBottomButton(
+                      confirmBtnText: widget.buttonText ?? dic.confirm,
+                      onConfirm: () async {
+                        if (isLedger &&
+                            widget.txData.type.toLowerCase() == "zkapp") {
+                          UI.toast(dic.notSupportNow);
+                          return;
                         }
-                      } finally {
-                        await _setLedgerScreenAwake(false);
-                        if (mounted) {
-                          setState(() {
-                            submitting = false;
-                          });
+                        if (isLedger && !await _ledgerCheck()) {
+                          return;
                         }
-                      }
-                    },
-                    submitting: submitting,
-                  )
+                        setState(() {
+                          submitting = true;
+                        });
+                        await _setLedgerScreenAwake(true);
+                        try {
+                          await onClickNextStep();
+                          if (widget.onConfirm != null) {
+                            widget.onConfirm!();
+                          }
+                        } finally {
+                          await _setLedgerScreenAwake(false);
+                          if (mounted) {
+                            setState(() {
+                              submitting = false;
+                            });
+                          }
+                        }
+                      },
+                      submitting: submitting,
+                    )
                 ],
               ),
             ],

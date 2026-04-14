@@ -633,10 +633,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ledgerAddressTip3 =>
-      '<lightred>不要关闭本窗口。</lightred>Ledger 完成后，页面将自动跳转。';
+      '<yellowBold>请勿</yellowBold><yellow>离开此页面。\n</yellow>Ledger 完成后，页面将自动跳转。';
 
   @override
-  String get waitingLedger => '等待确认…';
+  String get waitingLedger => '等待签名';
 
   @override
   String get waitingLedgerSign => '请在 Ledger 硬件钱包中进行确认，签名可能会需要1-3分钟的时间。';

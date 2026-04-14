@@ -293,10 +293,14 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   Timer? _reconnectTimer;
   int _connectAttempt = 0;
   static const int _maxConnectAttempts = 3;
+  late final ScreenAwakeHandle _connectScreenAwakeHandle;
 
   @override
   void initState() {
     super.initState();
+    _connectScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('ledger_connect', this),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (store.ledger?.ledgerDevice == null) {
         _scanDevice();
@@ -314,6 +318,8 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   @override
   void dispose() {
     _reconnectTimer?.cancel();
+    _connectScreenAwakeHandle.setActive(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
     LedgerInit.cancelScan?.cancel();
     LedgerInit.offScanListener();
     super.dispose();
@@ -327,6 +333,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
       connecting = true;
       unactive = false;
     });
+    await _connectScreenAwakeHandle.setActive(true);
     _connectAttempt++;
     try {
       LedgerInit.cancelScan?.cancel();
@@ -343,6 +350,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
         connecting = false;
       });
       _connectAttempt = 0;
+      await _connectScreenAwakeHandle.setActive(false);
       store.ledger!.setDevice(ledgerDevice);
       widget.onConnected();
     } catch (e) {
@@ -358,6 +366,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
           lowerMsg.contains('pairing') || lowerMsg.contains('code=14') || lowerMsg.contains('code 14');
       if (isPairingError) {
         store.ledger!.setDevice(null);
+        await _connectScreenAwakeHandle.setActive(false);
         setState(() {
           unactive = true;
           connecting = false;
@@ -377,6 +386,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
         });
       } else {
         store.ledger!.setDevice(null);
+        await _connectScreenAwakeHandle.setActive(false);
         setState(() {
           unactive = true;
           connecting = false;
@@ -456,7 +466,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   @override
   Widget build(context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    bool isError = widget.locked || widget.minaNotOpened;
+    bool isError = widget.locked || widget.minaNotOpened || unactive;
     return Wrap(
       children: [
         LedgerTipItem(

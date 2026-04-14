@@ -60,6 +60,10 @@ class CustomStyledText extends StatelessWidget {
           style: TextStyle(
               decoration: TextDecoration.none, color: primaryColor),
         ),
+        'yellowBold': StyledTextTag(
+            style: st.copyWith(color: Color(0xFFE4B200), fontWeight: FontWeight.w700)),
+        'yellow': StyledTextTag(
+            style: st.copyWith(color: Color(0xFFE4B200), fontWeight: FontWeight.w500)),
         'strongBlack':StyledTextTag(style: TextStyle(color: Color(0xCC000000))),
       },
     );

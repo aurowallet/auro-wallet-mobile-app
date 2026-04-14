@@ -656,10 +656,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ledgerAddressTip3 =>
-      '<lightred>Do not close this window.</lightred> Once the Ledger is complete, the page will redirect automatically.';
+      '<yellowBold>DO NOT</yellowBold><yellow> exit this screen.\n</yellow>Once the Ledger is complete, the page will redirect automatically.';
 
   @override
-  String get waitingLedger => 'Waiting for confirmation…';
+  String get waitingLedger => 'Waiting for signature';
 
   @override
   String get waitingLedgerSign =>
