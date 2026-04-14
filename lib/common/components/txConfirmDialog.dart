@@ -54,6 +54,7 @@ class TxConfirmDialog extends StatefulWidget {
 
 class _TxConfirmDialogState extends State<TxConfirmDialog> {
   bool submitting = false;
+  bool checkingLedger = false;
   late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
 
   Future<void> _setLedgerScreenAwake(bool active) async {
@@ -112,25 +113,25 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
             accountIndex: 0);
         await Future.delayed(Duration(
             milliseconds: 400)); // avoid conflict with ledgerStatus Component
-        await minaApp.getVersion(widget.store.ledger!.ledgerDevice!);
+        await minaApp
+            .getVersion(widget.store.ledger!.ledgerDevice!)
+            .timeout(const Duration(seconds: 10));
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
       } on LedgerException {
+        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
+        showLedgerDialog = true;
+      } catch (e) {
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
         showLedgerDialog = true;
       }
     }
     if (showLedgerDialog) {
-      print('connect ledger');
       bool? connected = await UI.showImportLedgerDialog(context: context);
-      print('connected ledger');
-      print(connected);
-      // if (connected != true) {
-      //   print('return');
-      //   return false;
-      // }
-      // wait leger Status Version response
+      if (connected != true) {
+        return false;
+      }
       await Future.delayed(const Duration(milliseconds: 500));
-      return false;
+      return true;
     }
     return true;
   }
@@ -217,9 +218,25 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                       disabled: widget.disabled,
                       confirmBtnText: widget.buttonText ?? dic.confirm,
                       onConfirm: () async {
-                        if (widget.isLedger && !await _ledgerCheck()) {
-                          return;
+                        if (widget.isLedger) {
+                          setState(() {
+                            checkingLedger = true;
+                          });
+                          if (!await _ledgerCheck()) {
+                            if (mounted) {
+                              setState(() {
+                                checkingLedger = false;
+                              });
+                            }
+                            return;
+                          }
+                          if (mounted) {
+                            setState(() {
+                              checkingLedger = false;
+                            });
+                          }
                         }
+                        if (!mounted) return;
                         setState(() {
                           submitting = true;
                         });
@@ -237,7 +254,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                           }
                         }
                       },
-                      submitting: submitting,
+                      submitting: submitting || checkingLedger,
                     )
                 ],
               ),
