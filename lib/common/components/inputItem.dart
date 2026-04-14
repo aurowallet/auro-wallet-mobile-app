@@ -72,22 +72,30 @@ class _InputItemState extends State<InputItem> {
   bool _passwordVisibility = false;
   int specialCharsCount = 0;
   TextEditingController? _controller;
+  FocusNode? _internalFocusNode;
 
   @override
   void initState() {
     super.initState();
     _controller = widget.controller ?? new TextEditingController();
+    _internalFocusNode = widget.focusNode ?? FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialValue != null) {
         _controller!.text = widget.initialValue!;
       }
       _controller?.addListener(_onTextChange);
+      if (widget.autoFocus && mounted) {
+        _internalFocusNode?.requestFocus();
+      }
     });
   }
 
   @override
   void dispose() {
     _controller?.removeListener(_onTextChange);
+    if (widget.focusNode == null) {
+      _internalFocusNode?.dispose();
+    }
     // Only dispose if we created the controller
     if (widget.controller == null) {
       _controller?.dispose();
@@ -123,8 +131,7 @@ class _InputItemState extends State<InputItem> {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
-    var labelStyle = TextStyle(
+    TextStyle labelStyle = TextStyle(
         fontSize: 12,
         color: const Color(0xD9000000),
         fontWeight: FontWeight.w600);
@@ -183,9 +190,9 @@ class _InputItemState extends State<InputItem> {
               cursorColor: Theme.of(context).primaryColor,
               inputFormatters: widget.inputFormatters,
               keyboardType: widget.keyboardType,
-              controller: widget.controller,
+              controller: _controller,
               obscureText: widget.isPassword && !_passwordVisibility,
-              focusNode: widget.focusNode,
+              focusNode: _internalFocusNode,
               autocorrect: false,
               autofocus: widget.autoFocus,
               onChanged: widget.onChanged,
