@@ -711,7 +711,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String importSameAccount_2(String accountName) {
-    return 'Існуючий імпортований обліковий запис [$accountName] є дублікатом цієї адреси. Auro Wallet не підтримує створення дублікатів адрес облікових записів. Перейдіть до <acmanage>Керування обліковим записом</acmanage>, щоб видалити імпортований обліковий запис.';
+    return 'Існуючий імпортований обліковий запис [$accountName] є дублікатом цієї адреси. Auro Wallet не підтримує створення дублікатів адрес облікових записів. Перейдіть до <acmanage>Керування гаманцями</acmanage>, щоб видалити імпортований обліковий запис.';
   }
 
   @override

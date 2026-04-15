@@ -456,7 +456,7 @@
       }
     }
   },
-  "importSameAccount_2": "Mevcut bir içe aktarılmış hesap [{accountName}] bu adresin kopyasıdır. Auro Wallet, yinelenen hesap adreslerinin oluşturulmasını desteklemez. İçe aktarılan hesabı silmek için lütfen <acmanage>Hesap Yönetimi</acmanage>’ne gidin.",
+  "importSameAccount_2": "Mevcut bir içe aktarılmış hesap [{accountName}] bu adresin kopyasıdır. Auro Wallet, yinelenen hesap adreslerinin oluşturulmasını desteklemez. İçe aktarılan hesabı silmek için lütfen <acmanage>Cüzdan Yönetimi</acmanage>'ne gidin.",
   "@importSameAccount_2": {
     "placeholders": {
       "accountName": {

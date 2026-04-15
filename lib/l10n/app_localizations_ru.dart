@@ -712,7 +712,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String importSameAccount_2(String accountName) {
-    return 'Существующий импортированный счет [$accountName] является дубликатом этого адреса. Auro Wallet не поддерживает дублирование адресов счетов. Пожалуйста, перейдите в раздел <acmanage>Управление счетом</acmanage>, чтобы удалить импортированный счет.';
+    return 'Существующий импортированный счет [$accountName] является дубликатом этого адреса. Auro Wallet не поддерживает дублирование адресов счетов. Пожалуйста, перейдите в раздел <acmanage>Управление кошельками</acmanage>, чтобы удалить импортированный счет.';
   }
 
   @override

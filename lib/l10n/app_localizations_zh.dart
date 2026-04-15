@@ -685,7 +685,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String importSameAccount_2(String accountName) {
-    return '已存在导入账户【$accountName】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<acmanage>账户管理页</acmanage>将已导入的账户删除。';
+    return '已存在导入账户【$accountName】与此地址重复，Auro 钱包不支持账户地址重复创建，请前往<acmanage>钱包管理</acmanage>将已导入的账户删除。';
   }
 
   @override

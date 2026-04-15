@@ -1415,7 +1415,7 @@ abstract class AppLocalizations {
   /// No description provided for @importSameAccount_2.
   ///
   /// In en, this message translates to:
-  /// **'An existing imported account [{accountName}] is a duplicate of this address. Auro Wallet does not support the creation of duplicate account addresses. Please go to the <acmanage>Account Management</acmanage> to delete the imported account.'**
+  /// **'An existing imported account [{accountName}] is a duplicate of this address. Auro Wallet does not support the creation of duplicate account addresses. Please go to the <acmanage>Wallet Management</acmanage> to delete the imported account.'**
   String importSameAccount_2(String accountName);
 
   /// No description provided for @browser.
