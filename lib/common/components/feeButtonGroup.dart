@@ -65,7 +65,7 @@ class FeeButtonGroup extends StatelessWidget {
           dic.fee_slow,
           fees.slow,
           'slow',
-          Color(0x4D000000),
+          Colors.black.withValues(alpha: 0.3),
           Color(0xFF808080),
           selectedKey,
         ),

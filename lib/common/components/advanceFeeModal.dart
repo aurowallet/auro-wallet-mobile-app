@@ -123,19 +123,19 @@ class _AdvanceFeeModalState extends State<AdvanceFeeModal> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF222222),
+                        color: Colors.black,
                       ),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.of(context).pop(),
-                      child: Icon(Icons.close, size: 22, color: Color(0xFF222222)),
+                      child: Icon(Icons.close, size: 22, color: Colors.black),
                     ),
                   ],
                 ),
               ),
               Container(
                 height: 0.5,
-                color: Color(0xFFF2F2F2),
+                color: Color.fromRGBO(0, 0, 0, 0.10),
               ),
               Padding(
                 padding: EdgeInsets.only(left: 20, right: 20, top: 20),

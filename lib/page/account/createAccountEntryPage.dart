@@ -61,7 +61,7 @@ class CreateAccountEntryPage extends StatelessWidget {
       context: context,
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(

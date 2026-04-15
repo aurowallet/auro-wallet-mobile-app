@@ -5,7 +5,6 @@ import 'package:auro_wallet/page/settings/index.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

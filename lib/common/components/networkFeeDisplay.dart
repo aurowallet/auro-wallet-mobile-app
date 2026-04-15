@@ -54,7 +54,7 @@ class NetworkFeeDisplay extends StatelessWidget {
                 dic.networkFee,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xD9000000),
+                  color: Colors.black.withValues(alpha: 0.85),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -62,7 +62,7 @@ class NetworkFeeDisplay extends StatelessWidget {
                 Fmt.parseShowBalance(currentFee, showLength: COIN.decimals) + " " + COIN.coinSymbol,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0x80000000),
+                  color: Colors.black.withValues(alpha: 0.5),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -71,7 +71,7 @@ class NetworkFeeDisplay extends StatelessWidget {
           Container(
             height: 0.5,
             margin: EdgeInsets.only(top: 10),
-            decoration: BoxDecoration(color: Color(0x1A000000)),
+            decoration: BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.10)),
           ),
           if (showAdvanceButton)
             Align(

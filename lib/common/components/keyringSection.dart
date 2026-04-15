@@ -79,7 +79,7 @@ class KeyringSection extends StatelessWidget {
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: CustomPaint(
               painter: _DashedBorderPainter(
-                color: Color(0x1A000000),
+                color: Color.fromRGBO(0, 0, 0, 0.10),
                 borderRadius: 12,
               ),
               child: Material(

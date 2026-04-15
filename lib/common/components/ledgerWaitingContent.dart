@@ -17,7 +17,7 @@ class LedgerWaitingContent extends StatelessWidget {
           child: Center(
             child: RotatingCircle(
               size: 58,
-              color: Color(0xFF594AF1),
+              color: Theme.of(context).primaryColor,
             ),
           ),
         ),

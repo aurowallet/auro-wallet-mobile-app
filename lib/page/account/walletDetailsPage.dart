@@ -171,7 +171,7 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
                     margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     height: 1,
                     decoration: BoxDecoration(
-                      color: Color(0x1A000000),
+                      color: Color.fromRGBO(0, 0, 0, 0.10),
                     ),
                   ),
                   TextButton(

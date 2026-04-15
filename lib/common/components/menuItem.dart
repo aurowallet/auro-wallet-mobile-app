@@ -43,7 +43,7 @@ class MenuItem extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 14,
-                color: Color(0x4D000000),
+                color: Colors.black.withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -52,7 +52,7 @@ class MenuItem extends StatelessWidget {
           width: 6,
           height: 12,
           colorFilter: value != null
-              ? ColorFilter.mode(Color(0x4D000000), BlendMode.srcIn)
+              ? ColorFilter.mode(Colors.black.withValues(alpha: 0.3), BlendMode.srcIn)
               : null,
         ),
       ],
