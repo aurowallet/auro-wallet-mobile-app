@@ -271,7 +271,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
                 child: NormalButton(
                   key: TestKeys.addWalletButton,
                   text: dic.addWallet,
-                  color: Color(0xFF594AF1),
+                  color: Theme.of(context).primaryColor,
                   onPressed: _onAddWallet,
                 ),
               ),
@@ -325,7 +325,7 @@ class SvgBackgroundTextWidget extends StatelessWidget {
               Text(
                 text,
                 style: TextStyle(
-                  color: Color(0xFF594AF1),
+                  color: Theme.of(context).primaryColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),

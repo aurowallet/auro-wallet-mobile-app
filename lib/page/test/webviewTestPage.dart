@@ -211,7 +211,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF594AF1),
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                 ),

@@ -558,7 +558,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                     return Container(
                       color: Colors.white,
                       child: Center(
-                        child: RotatingCircle(size: 30, color: Color(0xFF594AF1)),
+                        child: RotatingCircle(size: 30, color: Theme.of(context).primaryColor),
                       ),
                     );
                   }

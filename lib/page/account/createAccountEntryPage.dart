@@ -188,7 +188,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                   key: TestKeys.createWalletButton,
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 48),
-                    backgroundColor: ColorsUtil.hexColor(0x594AF1),
+                    backgroundColor: Theme.of(context).primaryColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

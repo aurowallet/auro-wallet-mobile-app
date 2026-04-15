@@ -438,7 +438,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
               Text(
                 dic.retry,
                 style: TextStyle(
-                  color: Color(0xFF594AF1),
+                  color: Theme.of(context).primaryColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -497,7 +497,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         ),
         backgroundColor: Colors.white,
         body: Center(
-          child: RotatingCircle(size: 30, color: Color(0xFF594AF1)),
+          child: RotatingCircle(size: 30, color: Theme.of(context).primaryColor),
         ),
       );
     }

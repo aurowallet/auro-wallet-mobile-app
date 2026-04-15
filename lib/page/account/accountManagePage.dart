@@ -255,7 +255,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
             child: Container(
               color: Colors.black45,
               child: Center(
-                child: RotatingCircle(size: 30, color: Color(0xFF594AF1)),
+                child: RotatingCircle(size: 30, color: Theme.of(context).primaryColor),
               ),
             ),
           ),

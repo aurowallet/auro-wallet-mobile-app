@@ -3,7 +3,6 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/selectHDPathPage.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -61,7 +60,7 @@ class ConnectHardwareWalletIntroPage extends StatelessWidget {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: Color(0xFF594AF1),
+                            color: Theme.of(context).primaryColor,
                             width: 1,
                           ),
                           borderRadius: BorderRadius.circular(6),
@@ -111,7 +110,7 @@ class ConnectHardwareWalletIntroPage extends StatelessWidget {
                 padding:
                     EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                 child: NormalButton(
-                  color: ColorsUtil.hexColor(0x594AF1),
+                  color: Theme.of(context).primaryColor,
                   text: dic.next,
                   onPressed: () {
                     Navigator.pushNamed(
@@ -153,7 +152,7 @@ class _StepItem extends StatelessWidget {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: Color(0xFF594AF1),
+              color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(

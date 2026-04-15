@@ -6,7 +6,6 @@ import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
@@ -194,7 +193,7 @@ class _SelectHDPathPageState extends State<SelectHDPathPage> {
                 padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                 child: NormalButton(
                   submitting: _submitting,
-                  color: ColorsUtil.hexColor(0x594AF1),
+                  color: Theme.of(context).primaryColor,
                   text: dic.next,
                   onPressed: _handleNext,
                 ),

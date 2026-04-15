@@ -79,7 +79,7 @@ class KeyringSection extends StatelessWidget {
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: CustomPaint(
               painter: _DashedBorderPainter(
-                color: Color(0xFFE8E8E8),
+                color: Color(0x1A000000),
                 borderRadius: 12,
               ),
               child: Material(
@@ -113,13 +113,14 @@ class KeyringSection extends StatelessWidget {
 
   Widget _buildAccountItem(BuildContext context, UIKeyringAccount account) {
     final bool isSelected = account.address == currentAddress;
-    final Color bgColor = isSelected ? Color(0xFF594AF1) : Color(0xFFF9FAFC);
+    final Color primaryColor = Theme.of(context).primaryColor;
+    final Color bgColor = isSelected ? primaryColor : Color(0xFFF9FAFC);
     final Color textColor = isSelected ? Colors.white : Colors.black;
     final Color addressColor = isSelected 
         ? Colors.white.withValues(alpha: 0.5)
         : Colors.black.withValues(alpha: 0.3);
     final Color borderColor = isSelected 
-        ? Color(0xFF594AF1) 
+        ? primaryColor 
         : Colors.black.withValues(alpha: 0.05);
     
     // Get balance
