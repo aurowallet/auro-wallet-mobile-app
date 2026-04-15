@@ -81,7 +81,7 @@ class NetworkFeeDisplay extends StatelessWidget {
                 style: TextButton.styleFrom(
                   minimumSize: Size.zero,
                   padding: EdgeInsets.only(
-                      left: 10, right: 10, top: 10, bottom: 10),
+                      left: 10, right: 0, top: 10, bottom: 10),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   foregroundColor: Theme.of(context).primaryColor,
                 ),

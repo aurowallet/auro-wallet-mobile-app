@@ -712,7 +712,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String importSameAccount_2(String accountName) {
-    return 'Mevcut bir içe aktarılmış hesap [$accountName] bu adresin kopyasıdır. Auro Wallet, yinelenen hesap adreslerinin oluşturulmasını desteklemez. İçe aktarılan hesabı silmek için lütfen <acmanage>Cüzdan Yönetimi</acmanage>’ne gidin.';
+    return 'Mevcut bir içe aktarılmış hesap [$accountName] bu adresin kopyasıdır. Auro Wallet, yinelenen hesap adreslerinin oluşturulmasını desteklemez. İçe aktarılan hesabı silmek için lütfen <acmanage>Cüzdan Yönetimi</acmanage>\'ne gidin.';
   }
 
   @override
