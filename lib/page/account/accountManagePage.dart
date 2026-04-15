@@ -1,6 +1,7 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
@@ -254,7 +255,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
             child: Container(
               color: Colors.black45,
               child: Center(
-                child: CircularProgressIndicator(),
+                child: RotatingCircle(size: 30, color: Color(0xFF594AF1)),
               ),
             ),
           ),

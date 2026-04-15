@@ -6,6 +6,7 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
@@ -197,7 +198,7 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
             child: Container(
               color: Colors.black45,
               child: Center(
-                child: CircularProgressIndicator(),
+                child: RotatingCircle(size: 30, color: Color(0xFF594AF1)),
               ),
             ),
           ),

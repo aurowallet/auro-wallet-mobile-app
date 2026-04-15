@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
 import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
@@ -557,9 +558,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                     return Container(
                       color: Colors.white,
                       child: Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF594AF1),
-                        ),
+                        child: RotatingCircle(size: 30, color: Color(0xFF594AF1)),
                       ),
                     );
                   }

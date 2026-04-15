@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/customDivider.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
@@ -40,6 +41,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
   String? _argExplorerUrl;
   String? _argSenderAddress;
   bool _argIsZeko = false;
+  bool _hashIsValid = false;
 
   void _initFromArgs() {
     if (_initialized) return;
@@ -60,7 +62,8 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
       _txData = args['data'] as TransferData;
     } else if (args['txHash'] is String) {
       final hash = args['txHash'] as String;
-      if (isValidMinaTxHash(hash)) {
+      _hashIsValid = isValidMinaTxHash(hash);
+      if (_hashIsValid) {
         _isLoading = true;
         _loadTxByHash(hash);
       } else {
@@ -410,22 +413,25 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
 
   Widget _buildErrorView(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final bool canRetry = _retryCount < _maxRetries;
+    final bool canRetry = _hashIsValid && _retryCount < _maxRetries;
     return GestureDetector(
       onTap: canRetry ? _handleErrorTap : null,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Color(0xFF808080)),
-            SizedBox(height: 16),
+            SvgPicture.asset(
+              'assets/images/setting/empty_contact.svg',
+              width: 100,
+              height: 100,
+            ),
             Text(
               dic.txHistoryTip,
               style: TextStyle(
-                color: Color(0xFF808080),
-                fontSize: 14,
+                color: Colors.black.withValues(alpha: 0.3),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
               ),
-              textAlign: TextAlign.center,
             ),
             if (canRetry) ...[
               SizedBox(height: 12),
@@ -491,7 +497,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         ),
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: RotatingCircle(size: 30, color: Color(0xFF594AF1)),
         ),
       );
     }

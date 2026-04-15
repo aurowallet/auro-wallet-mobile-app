@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/customPromptDialog.dart';
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -240,7 +241,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
                                 Container(
                                   alignment: Alignment.center,
                                   child: Padding(
-                                      padding: EdgeInsets.only(bottom: 60),
+                                      padding: EdgeInsets.only(bottom: 100),
                                       child: ClipRRect(
                                         borderRadius:
                                             BorderRadius.circular(10.0),
@@ -262,14 +263,7 @@ class _LockWalletPageState extends State<LockWalletPage> {
                                         Container(
                                             margin: EdgeInsets.only(bottom: 10),
                                             child: _isVerifyingPassword
-                                                ? SizedBox(
-                                                    width: 48,
-                                                    height: 48,
-                                                    child: CircularProgressIndicator(
-                                                      strokeWidth: 3,
-                                                      color: Theme.of(context).primaryColor,
-                                                    ),
-                                                  )
+                                                ? RotatingCircle(size: 48, color: Theme.of(context).primaryColor)
                                                 : SvgPicture.asset(
                                                     "assets/images/public/icon_biometric.svg",
                                                     fit: BoxFit.contain,
