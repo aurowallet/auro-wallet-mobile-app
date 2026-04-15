@@ -656,6 +656,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ledgerAddressTip3 =>
+      '<lightred>Не закрывайте это окно.</lightred> После завершения работы с Ledger, страница автоматически перенаправится.';
+
+  @override
+  String get ledgerWaitingTip =>
       '<yellowBold>НЕ</yellowBold><yellow> покидайте этот экран.\n</yellow>После завершения работы с Ledger, страница автоматически перенаправится.';
 
   @override

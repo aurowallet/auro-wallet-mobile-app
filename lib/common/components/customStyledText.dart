@@ -1,5 +1,4 @@
 import 'package:auro_wallet/page/account/walletManagePage.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
@@ -64,7 +63,7 @@ class CustomStyledText extends StatelessWidget {
         'yellowBold': StyledTextTag(
             style: st.copyWith(color: Color(0xFFE4B200), fontWeight: FontWeight.w700)),
         'yellow': StyledTextTag(
-            style: st.copyWith(color: Color(0xFFE4B200), fontWeight: FontWeight.w700)),
+            style: st.copyWith(color: Color(0xFFE4B200), fontWeight: FontWeight.w500)),
         'strongBlack':StyledTextTag(style: TextStyle(color: Color(0xCC000000))),
       },
     );

@@ -656,6 +656,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get ledgerAddressTip3 =>
+      '<lightred>Bu pencereyi kapatmayın.</lightred> Ledger tamamlandığında sayfa otomatik olarak yönlendirilecektir.';
+
+  @override
+  String get ledgerWaitingTip =>
       '<yellowBold>SAKIN</yellowBold><yellow> bu ekrandan ayrılmayın.\n</yellow>Ledger tamamlandığında sayfa otomatik olarak yönlendirilecektir.';
 
   @override

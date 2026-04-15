@@ -37,7 +37,7 @@ class LedgerWaitingContent extends StatelessWidget {
           padding: EdgeInsets.only(top: 20, bottom: 40,left: 30,right: 30),
           child: Center(
             child: StyledText(
-                text: dic.ledgerAddressTip3,
+                text: dic.ledgerWaitingTip,
                 textAlign: TextAlign.center,
                 newLineAsBreaks: true,
                 style: TextStyle(

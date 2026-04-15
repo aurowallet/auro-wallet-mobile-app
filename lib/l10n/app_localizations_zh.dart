@@ -633,6 +633,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ledgerAddressTip3 =>
+      '<lightred>请勿关闭此窗口。</lightred>Ledger 完成后，页面将自动跳转。';
+
+  @override
+  String get ledgerWaitingTip =>
       '<yellowBold>请勿</yellowBold><yellow>离开此页面。\n</yellow>Ledger 完成后，页面将自动跳转。';
 
   @override

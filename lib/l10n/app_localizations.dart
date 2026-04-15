@@ -1325,8 +1325,14 @@ abstract class AppLocalizations {
   /// No description provided for @ledgerAddressTip3.
   ///
   /// In en, this message translates to:
-  /// **'<yellowBold>DO NOT</yellowBold><yellow> exit this screen.\n</yellow>Once the Ledger is complete, the page will redirect automatically.'**
+  /// **'<lightred>Do not close this window.</lightred> Once the Ledger is complete, the page will redirect automatically.'**
   String get ledgerAddressTip3;
+
+  /// No description provided for @ledgerWaitingTip.
+  ///
+  /// In en, this message translates to:
+  /// **'<yellowBold>DO NOT</yellowBold><yellow> exit this screen.\n</yellow>Once the Ledger is complete, the page will redirect automatically.'**
+  String get ledgerWaitingTip;
 
   /// No description provided for @waitingLedger.
   ///
