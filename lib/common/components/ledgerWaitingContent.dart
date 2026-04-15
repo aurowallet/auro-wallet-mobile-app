@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
@@ -14,16 +15,9 @@ class LedgerWaitingContent extends StatelessWidget {
         Container(
           padding: EdgeInsets.only(top: 30),
           child: Center(
-            child: SizedBox(
-              width: 58,
-              height: 58,
-              child: CircularProgressIndicator(
-                strokeWidth: 5,
-                strokeCap: StrokeCap.round,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(Color(0xFF594AF1)),
-                backgroundColor: Color(0xFF594AF1).withValues(alpha: 0.3),
-              ),
+            child: RotatingCircle(
+              size: 58,
+              color: Color(0xFF594AF1),
             ),
           ),
         ),
