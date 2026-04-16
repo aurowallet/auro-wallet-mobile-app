@@ -62,6 +62,7 @@ class _DelegatePageState extends State<DelegatePage>
   bool submitting = false;
   var _loading = Observable(true);
   bool inputDirty = false;
+  bool _navigating = false;
   double? currentFee;
   double? defaultFee;
 
@@ -70,15 +71,11 @@ class _DelegatePageState extends State<DelegatePage>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      DelegateParams params =
-          ModalRoute.of(context)!.settings.arguments as DelegateParams;
       _onFeeLoaded(store.assets!.transferFees);
       _monitorFeeDisposer =
           reaction((_) => store.assets!.transferFees, _onFeeLoaded);
       _feeCtrl.addListener(_onFeeInputChange);
-      if (params.manualAddValidator) {
-        _validatorCtrl.addListener(_monitorSummitStatus);
-      }
+      _validatorCtrl.addListener(_monitorSummitStatus);
       _updateSubmitState();
       _loadData();
     });
@@ -112,6 +109,9 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   void _monitorSummitStatus() {
+    DelegateParams params =
+        ModalRoute.of(context)!.settings.arguments as DelegateParams;
+    if (!params.manualAddValidator) return;
     if (_validatorCtrl.text.isEmpty) {
       if (!_submitDisabled) {
         setState(() {
@@ -684,17 +684,37 @@ class _DelegatePageState extends State<DelegatePage>
     ValidatorData? displayValidator = validatorData ?? defaultValidator;
     
     return GestureDetector(
-      onTap: () {
-        DelegateParams params =
-            ModalRoute.of(context)!.settings.arguments as DelegateParams;
-        Navigator.pushReplacementNamed(
-          context, 
-          ValidatorsPage.route,
-          arguments: {
-            'isRedelegate': params.isRedelegate,
-            'selectedValidatorAddress': displayValidator?.address,
-          },
-        );
+      onTap: () async {
+        if (_navigating) return;
+        _navigating = true;
+        try {
+          DelegateParams params =
+              ModalRoute.of(context)!.settings.arguments as DelegateParams;
+          final result = await Navigator.pushNamed(
+            context, 
+            ValidatorsPage.route,
+            arguments: {
+              'isRedelegate': params.isRedelegate,
+              'selectedValidatorAddress': displayValidator?.address,
+            },
+          );
+          if (!mounted) return;
+          if (result is ValidatorData) {
+            setState(() {
+              params.validatorData = result;
+              params.manualAddValidator = false;
+            });
+            _updateSubmitState();
+          } else if (result == 'manual_add') {
+            setState(() {
+              params.validatorData = null;
+              params.manualAddValidator = true;
+            });
+            _updateSubmitState();
+          }
+        } finally {
+          _navigating = false;
+        }
       },
       behavior: HitTestBehavior.opaque,
       child: Container(

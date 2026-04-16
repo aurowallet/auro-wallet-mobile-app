@@ -4,14 +4,11 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
-import '../delegatePage.dart';
-
 class ValidatorItem extends StatelessWidget {
-  ValidatorItem({required this.data, this.showSelected, this.isRedelegate = false});
+  ValidatorItem({required this.data, this.showSelected});
 
   final ValidatorData data;
   final bool? showSelected;
-  final bool isRedelegate;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +19,7 @@ class ValidatorItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: InkWell(
             onTap: () {
-              // Use pushReplacementNamed to avoid route stacking
-              Navigator.pushReplacementNamed(context, DelegatePage.route,
-                  arguments: DelegateParams(
-                      validatorData: data, 
-                      manualAddValidator: false,
-                      isRedelegate: isRedelegate));
+              Navigator.pop(context, data);
             },
             borderRadius: BorderRadius.circular(10),
             child: Container(
