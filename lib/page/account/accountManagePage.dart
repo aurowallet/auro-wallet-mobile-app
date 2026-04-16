@@ -232,17 +232,26 @@ class _AccountManagePageState extends State<AccountManagePage> {
                       )
                     : Container(),
                 !isMnemonicWallet
-                    ? TextButton(
-                        child: Text(dic.delete),
-                        onPressed: _deleteAccount,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          textStyle: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                          foregroundColor: Color(0xFFD65A5A),
-                          minimumSize: Size(double.infinity, 54),
+                    ? Padding(
+                        padding: EdgeInsets.only(left: 12, top: 4),
+                        child: Align(
                           alignment: Alignment.centerLeft,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          child: TextButton(
+                            child: Text(dic.delete),
+                            onPressed: _deleteAccount,
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                              textStyle: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600),
+                              foregroundColor: Color(0xFFD65A5A),
+                              minimumSize: Size(0, 44),
+                              tapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
                         ),
                       )
                     : Container(),

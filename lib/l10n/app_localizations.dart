@@ -2269,6 +2269,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications'**
   String get notificationEnable;
+
+  /// No description provided for @mnemonicWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not share your mnemonic phrase!'**
+  String get mnemonicWarningTitle;
+
+  /// No description provided for @mnemonicWarningContent.
+  ///
+  /// In en, this message translates to:
+  /// **'If someone has your mnemonic phrase, they will have full control of your wallet. Do not share it.'**
+  String get mnemonicWarningContent;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 }
 
 class _AppLocalizationsDelegate

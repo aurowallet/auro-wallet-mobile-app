@@ -4,7 +4,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/page/account/exportResultPage.dart';
+import 'package:auro_wallet/page/settings/security/exportMnemonicResultPage.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:flutter/material.dart';
@@ -76,8 +76,8 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
     if (mnemonic != null && mnemonic.isNotEmpty) {
       if (!mounted) return;
       Navigator.of(context).pushNamed(
-        ExportResultPage.route,
-        arguments: {'key': mnemonic, 'type': 'mnemonic'},
+        ExportMnemonicResultPage.route,
+        arguments: {'key': mnemonic},
       );
     } else {
       if (!mounted) return;
@@ -174,17 +174,25 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
                       color: Color.fromRGBO(0, 0, 0, 0.10),
                     ),
                   ),
-                  TextButton(
-                    child: Text(dic.delete),
-                    onPressed: _onDeleteWallet,
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      textStyle: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                      foregroundColor: Color(0xFFD65A5A),
-                      minimumSize: Size(double.infinity, 54),
+                  Padding(
+                    padding: EdgeInsets.only(left: 12, top: 4),
+                    child: Align(
                       alignment: Alignment.centerLeft,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      child: TextButton(
+                        child: Text(dic.delete),
+                        onPressed: _onDeleteWallet,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          textStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                          foregroundColor: Color(0xFFD65A5A),
+                          minimumSize: Size(0, 44),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
                     ),
                   ),
                 ],

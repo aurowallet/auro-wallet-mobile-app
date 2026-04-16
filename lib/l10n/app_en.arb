@@ -713,5 +713,11 @@
   "notificationZkAppFailedTitle":"zkApp Transaction Failed",
   "notificationZkAppFailedBody":"Your zkApp transaction failed. Please try again.",
   "notificationEnable": "Notifications",
-  "@notificationEnable": {}
+  "@notificationEnable": {},
+  "mnemonicWarningTitle": "Do not share your mnemonic phrase!",
+  "@mnemonicWarningTitle": {},
+  "mnemonicWarningContent": "If someone has your mnemonic phrase, they will have full control of your wallet. Do not share it.",
+  "@mnemonicWarningContent": {},
+  "done": "Done",
+  "@done": {}
 }

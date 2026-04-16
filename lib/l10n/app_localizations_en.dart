@@ -1168,4 +1168,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationEnable => 'Notifications';
+
+  @override
+  String get mnemonicWarningTitle => 'Do not share your mnemonic phrase!';
+
+  @override
+  String get mnemonicWarningContent =>
+      'If someone has your mnemonic phrase, they will have full control of your wallet. Do not share it.';
+
+  @override
+  String get done => 'Done';
 }

@@ -740,5 +740,11 @@
   "notificationZkAppFailedTitle":"zkApp 交易失败",
   "notificationZkAppFailedBody":"您的 zkApp 交易失败，请重试。",
   "notificationEnable": "通知",
-  "@notificationEnable": {}
+  "@notificationEnable": {},
+  "mnemonicWarningTitle": "请勿分享你的助记词！",
+  "@mnemonicWarningTitle": {},
+  "mnemonicWarningContent": "如果他人获取了你的助记词，将完全控制你的钱包。请勿分享。",
+  "@mnemonicWarningContent": {},
+  "done": "完成",
+  "@done": {}
 }

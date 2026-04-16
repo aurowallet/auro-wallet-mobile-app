@@ -735,5 +735,11 @@
   "notificationZkAppSuccessBody":"zkApp işleminiz onaylandı.",
   "notificationZkAppFailedTitle":"zkApp İşlemi Başarısız",
   "notificationZkAppFailedBody":"zkApp işleminiz başarısız oldu. Lütfen tekrar deneyin.",
-  "notificationEnable": "Bildirimler"
+  "notificationEnable": "Bildirimler",
+  "mnemonicWarningTitle": "Anımsatıcı kelimelerinizi paylaşmayın!",
+  "@mnemonicWarningTitle": {},
+  "mnemonicWarningContent": "Birisi anımsatıcı kelimelerinize sahip olursa, cüzdanınızın tam kontrolünü ele geçirir. Paylaşmayın.",
+  "@mnemonicWarningContent": {},
+  "done": "Tamam",
+  "@done": {}
 }

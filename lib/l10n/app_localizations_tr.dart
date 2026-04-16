@@ -1168,4 +1168,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get notificationEnable => 'Bildirimler';
+
+  @override
+  String get mnemonicWarningTitle => 'Anımsatıcı kelimelerinizi paylaşmayın!';
+
+  @override
+  String get mnemonicWarningContent =>
+      'Birisi anımsatıcı kelimelerinize sahip olursa, cüzdanınızın tam kontrolünü ele geçirir. Paylaşmayın.';
+
+  @override
+  String get done => 'Tamam';
 }

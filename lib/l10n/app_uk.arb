@@ -737,5 +737,11 @@
     "notificationZkAppSuccessBody":"Вашу zkApp транзакцію підтверджено.",
     "notificationZkAppFailedTitle":"zkApp транзакція не вдалася",
     "notificationZkAppFailedBody":"Ваша zkApp транзакція не вдалася. Спробуйте ще раз.",
-    "notificationEnable": "Сповіщення"
+    "notificationEnable": "Сповіщення",
+    "mnemonicWarningTitle": "Не діліться своєю мнемонічною фразою!",
+    "@mnemonicWarningTitle": {},
+    "mnemonicWarningContent": "Якщо хтось отримає вашу мнемонічну фразу, він матиме повний контроль над вашим гаманцем. Не діліться нею.",
+    "@mnemonicWarningContent": {},
+    "done": "Готово",
+    "@done": {}
 }

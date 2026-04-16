@@ -1128,4 +1128,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationEnable => '通知';
+
+  @override
+  String get mnemonicWarningTitle => '请勿分享你的助记词！';
+
+  @override
+  String get mnemonicWarningContent => '如果他人获取了你的助记词，将完全控制你的钱包。请勿分享。';
+
+  @override
+  String get done => '完成';
 }

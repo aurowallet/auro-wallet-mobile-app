@@ -448,8 +448,6 @@
   "@connectHardwareWallet": {},
   "selectHdPath": "Выберите путь HD",
   "@selectHdPath": {},
-  "ledgerAddressTip2": "Get Address > Generate > Approve",
-  "@ledgerAddressTip2": {},
   "ledgerReject": "Отклонено Ledger-ом",
   "@ledgerReject": {},
   "contributeLanguage": "Добавить язык",
@@ -737,5 +735,11 @@
   "notificationZkAppSuccessBody":"Ваша zkApp транзакция подтверждена.",
   "notificationZkAppFailedTitle":"zkApp транзакция не удалась",
   "notificationZkAppFailedBody":"Ваша zkApp транзакция не удалась. Попробуйте снова.",
-  "notificationEnable": "Уведомления"
+  "notificationEnable": "Уведомления",
+  "mnemonicWarningTitle": "Не делитесь своей мнемонической фразой!",
+  "@mnemonicWarningTitle": {},
+  "mnemonicWarningContent": "Если кто-то получит вашу мнемоническую фразу, он получит полный контроль над вашим кошельком. Не делитесь ею.",
+  "@mnemonicWarningContent": {},
+  "done": "Готово",
+  "@done": {}
 }

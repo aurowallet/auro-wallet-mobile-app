@@ -1172,4 +1172,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notificationEnable => 'Уведомления';
+
+  @override
+  String get mnemonicWarningTitle => 'Не делитесь своей мнемонической фразой!';
+
+  @override
+  String get mnemonicWarningContent =>
+      'Если кто-то получит вашу мнемоническую фразу, он получит полный контроль над вашим кошельком. Не делитесь ею.';
+
+  @override
+  String get done => 'Готово';
 }
