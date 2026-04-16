@@ -34,6 +34,10 @@
 		<false/>
 		<key>ITSEncryptionExportComplianceCode</key>
 		<string></string>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>cydia</string>
+		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>NSAppTransportSecurity</key>
@@ -74,8 +78,6 @@
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
-		<key>io.flutter.embedded_views_preview</key>
-		<string>YES</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>com.apple.developer.associated-domains</key>
