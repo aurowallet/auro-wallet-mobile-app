@@ -74,6 +74,21 @@ class TestKeys {
   static const confirmSendButton = Key('confirm_send_button');
   static const feeSelector = Key('fee_selector');
 
+  // ===== Webview JS Stability =====
+  static const bridgeStressButton = Key('bridge_stress_button');
+  static const bridgeStressStatus = Key('bridge_stress_status');
+  static const providerStatus = Key('provider_status');
+  static const providerSnapshot = Key('provider_snapshot');
+  static const providerDiagnostics = Key('provider_diagnostics');
+  static const providerRunAutoButton = Key('provider_run_auto_button');
+  static const providerReloadButton = Key('provider_reload_button');
+  static const providerRequestAccountsButton = Key('provider_request_accounts_button');
+  static const providerSignMessageButton = Key('provider_sign_message_button');
+  static const providerEmitAccountsChangedButton = Key('provider_emit_accounts_changed_button');
+  static const providerEmitChainChangedButton = Key('provider_emit_chain_changed_button');
+  static const providerEmitNetworkChangedButton = Key('provider_emit_network_changed_button');
+  static const providerClearLogButton = Key('provider_clear_log_button');
+
   // ===== Common =====
   static const confirmButton = Key('confirm_button');
   static const cancelButton = Key('cancel_button');

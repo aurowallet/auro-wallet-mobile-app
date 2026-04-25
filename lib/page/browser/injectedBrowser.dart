@@ -26,6 +26,7 @@ class WebViewInjected extends StatefulWidget {
     this.onPageFinished,
     this.onWebViewCreated,
     this.onWebInfoBack,
+    this.messageOriginFallback,
   });
 
   final String initialUrl;
@@ -36,6 +37,7 @@ class WebViewInjected extends StatefulWidget {
   final int Function() onGetNewestNonce;
   final Function(Map)? onWebInfoBack;
   final Function() onRefreshChain;
+  final String? messageOriginFallback;
 
   @override
   _WebViewInjectedState createState() => _WebViewInjectedState();
@@ -268,7 +270,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     }
   }
 
-  Future<dynamic> _msgHandler(Map msg, String origin) async {
+  Future<dynamic> _msgHandler(
+    Map msg,
+    String origin,
+  ) async {
     final String method = msg['action'];
     Map payload = msg['payload'];
     Map? siteInfo = payload['site'];
@@ -446,10 +451,29 @@ class _WebViewInjectedState extends State<WebViewInjected> {
 
       case "mina_verifyMessage":
       case "mina_verify_JsonMessage":
+        final dynamic rawSignature = params?['signature'];
+        dynamic parsedSignature;
+        if (rawSignature is String) {
+          if (rawSignature.isEmpty) {
+            onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
+            return;
+          }
+          try {
+            parsedSignature = jsonDecode(rawSignature);
+          } catch (_) {
+            onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
+            return;
+          }
+        } else if (rawSignature is Map || rawSignature is List) {
+          parsedSignature = rawSignature;
+        } else {
+          onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
+          return;
+        }
         Map verifyData = {
           "network": network,
           "publicKey": currentAccountAddress,
-          "signature": jsonDecode(params?['signature']),
+          "signature": parsedSignature,
           "verifyMessage": params?["data"],
         };
         bool res = await webApi.account.verifyMessage(
@@ -584,6 +608,16 @@ class _WebViewInjectedState extends State<WebViewInjected> {
                 String? id = payload?["id"];
 
                 String origin = sourceOrigin.toString();
+                if (origin.isEmpty ||
+                    origin == 'null' ||
+                    origin == 'about:blank' ||
+                    origin.startsWith('data:')) {
+                  final fallbackOrigin = widget.messageOriginFallback;
+                  if (fallbackOrigin == null || fallbackOrigin.isEmpty) {
+                    return;
+                  }
+                  origin = fallbackOrigin;
+                }
 
                 if (origin.isNotEmpty) {
                   if (id != null) {

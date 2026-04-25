@@ -515,7 +515,7 @@ class UI {
     required double feePlaceHolder,
     required ZkAppValueEnum feeType,
     required int nonce,
-    required Function(double?, int) onConfirm,
+    required Function(double? fee, int nonce) onConfirm,
     bool showFeeButtons = true,
   }) {
     return showDialog<void>(

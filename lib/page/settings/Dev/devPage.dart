@@ -1,6 +1,7 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/Dev/TransactionPage.dart';
 import 'package:auro_wallet/page/settings/Dev/constants.dart';
+import 'package:auro_wallet/page/test/webviewTestPage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -62,6 +63,12 @@ class _DevState extends State<DevPage> {
                 "type": DevPageTypes.balance,
                 "title": dic.tokens,
               },
+            ),
+          ),
+          DevItem(
+            title: 'Webview JS Test',
+            onTap: () => Navigator.of(context).pushNamed(
+              WebviewBridgeTestPage.route,
             ),
           ),
         ],
