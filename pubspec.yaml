@@ -136,6 +136,7 @@ flutter:
     ## images - mina
     - assets/images/assets/2x/top_header_bg@2x.png
     - assets/images/assets/wallet_manage.svg
+    - assets/images/assets/icon_arrow_unfold.svg
     - assets/images/assets/send.svg
     - assets/images/assets/receive.svg
     - assets/images/assets/2x/round_checked@2x.png

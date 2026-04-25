@@ -748,13 +748,26 @@ class _TransferPageState extends State<TransferPage> {
             shadowColor: Colors.transparent,
             centerTitle: true,
             actions: <Widget>[
-              IconButton(
-                icon: SvgPicture.asset('assets/images/assets/scanner.svg',
-                    width: 20,
-                    height: 20,
-                    colorFilter:
-                        ColorFilter.mode(Colors.black, BlendMode.srcIn)),
-                onPressed: _onScan,
+              Padding(
+                padding: const EdgeInsets.only(right: 14),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _onScan,
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: Center(
+                        child: SvgPicture.asset('assets/images/assets/scanner.svg',
+                            width: 20,
+                            height: 20,
+                            colorFilter:
+                                ColorFilter.mode(Colors.black, BlendMode.srcIn)),
+                      ),
+                    ),
+                  ),
+                ),
               )
             ],
           ),

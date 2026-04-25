@@ -118,24 +118,25 @@ class _ImportKeyStorePageState extends State<ImportKeyStorePage> {
                       key: TestKeys.keystoreInput,
                       padding: EdgeInsets.zero,
                       inputPadding: EdgeInsets.only(top: 20),
+                      labelStyle: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF000000).withValues(alpha: 0.8),
+                      ),
                       label: dic.pleaseInputKeyPair,
                       controller: _keyStoreCtrl,
                       maxLines: 8,
                     ),
                     InputItem(
                       key: TestKeys.keystorePasswordInput,
+                      labelStyle: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF000000).withValues(alpha: 0.8),
+                      ),
                       label: dic.pleaseInputKeyPairPwd,
                       controller: _keyStorePasswordCtrl,
                       isPassword: true,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10),
-                    ),
-                    Flexible(
-                      child: Text(dic.importAccount_2, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
-                    ),
-                    Flexible(
-                        child: Text(dic.importAccount_3, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
                     ),
                   ]
                 ),

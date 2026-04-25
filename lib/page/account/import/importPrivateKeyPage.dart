@@ -121,18 +121,14 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
                       key: TestKeys.privateKeyInput,
                       padding: EdgeInsets.zero,
                       inputPadding: EdgeInsets.only(top: 20),
+                      labelStyle: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF000000).withValues(alpha: 0.8),
+                      ),
                       label: dic.pleaseInputPriKey,
                       controller: _privateKeyCtrl,
                       maxLines: 3,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10),
-                    ),
-                    Flexible(
-                        child: Text(dic.importAccount_2, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
-                    ),
-                    Flexible(
-                        child: Text(dic.importAccount_3, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
                     ),
                   ],
                 ),

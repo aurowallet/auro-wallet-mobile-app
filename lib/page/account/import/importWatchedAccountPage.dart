@@ -74,6 +74,11 @@ class _ImportWatchedAccountPageState extends State<ImportWatchedAccountPage> {
               children: <Widget>[
                 Expanded(
                   child: InputItem(
+                    labelStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF000000).withValues(alpha: 0.8),
+                    ),
                     label: dic.textWatchModeAddress,
                     controller: _watchedAccountCtrl,
                     maxLines: 3,

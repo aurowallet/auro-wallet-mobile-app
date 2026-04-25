@@ -12,7 +12,6 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +32,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   final AppStore store;
   Timer? _refreshTimer;
+  bool _isNetworkDialogOpen = false;
   final GlobalKey<RefreshIndicatorState> _balanceRefreshKey =
       GlobalKey<RefreshIndicatorState>();
 
@@ -111,8 +111,20 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     }
   }
 
-  void _showNetworkDialog() {
-    UI.showNetworkSelectDialog(context: context);
+  Future<void> _showNetworkDialog() async {
+    if (_isNetworkDialogOpen) {
+      return;
+    }
+    setState(() {
+      _isNetworkDialogOpen = true;
+    });
+    await UI.showNetworkSelectDialog(context: context);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isNetworkDialogOpen = false;
+    });
   }
 
   Widget _buildNetworkEntry(BuildContext context) {
@@ -120,29 +132,42 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return InkWell(
         onTap: _showNetworkDialog,
         child: Container(
-          height: 30,
-          padding: const EdgeInsets.only(left: 14, right: 8),
+          padding: const EdgeInsets.only(left: 14, top: 6, right: 8, bottom: 6),
           decoration: BoxDecoration(
             border: new Border.all(color: Color(0x1A000000), width: 1),
-            borderRadius: BorderRadius.circular((15)),
+            borderRadius: BorderRadius.circular(45),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 Fmt.stringSlice(networkName, 12, withEllipsis: true),
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 14,
-                    height: 1,
+                    height: 1.4,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black),
+                    color: Color(0xFF000000)),
               ),
               SizedBox(
-                width: 4,
+                width: 8,
               ),
-              Icon(
-                Icons.expand_more,
-                size: 20,
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Center(
+                  child: AnimatedRotation(
+                    turns: _isNetworkDialogOpen ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeInOut,
+                    child: SvgPicture.asset(
+                      'assets/images/assets/icon_arrow_unfold.svg',
+                      width: 16,
+                      height: 16,
+                    ),
+                  ),
+                ),
               )
             ],
           ),
@@ -155,7 +180,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return Container(
       color: Color(0xFFEDEFF2),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: EdgeInsets.only(left: 20, top: 12, right: 15, bottom: 12),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,10 +188,11 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             Text(
               dic.myWallet,
               style: theme.displayLarge!.copyWith(
-                color: ColorsUtil.hexColor(0x020028),
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF000000),
               ),
-              textAlign: TextAlign.left,
+              textAlign: TextAlign.center,
             ),
             Expanded(
               child: Row(
@@ -174,23 +200,27 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(child: _buildNetworkEntry(context)),
-                  Container(
-                    width: 12,
+                  SizedBox(
+                    width: 8,
                   ),
-                  IconButton(
-                      key: TestKeys.walletManageIcon,
-                      iconSize: 30,
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                      icon: SvgPicture.asset(
+                  InkWell(
+                    key: TestKeys.walletManageIcon,
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Navigator.of(context).pushNamed(WalletManagePage.route);
+                    },
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: SvgPicture.asset(
                           'assets/images/assets/wallet_manage.svg',
-                          width: 30,
-                          height: 30),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(WalletManagePage.route);
-                      }
-                      // ,
+                          width: 40,
+                          height: 40,
+                        ),
                       ),
+                    ),
+                  ),
                 ],
               ),
             )
