@@ -524,7 +524,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
   }
 
-  Future<int> fetchAccountNonce(String publicKey, {String? gqlUrl}) async {
+  Future<int> fetchAccountNonce(String publicKey,
+      {String? gqlUrl, Duration queryTimeout = const Duration(seconds: 60)}) async {
     const String fetchNonceQuery =
         r'''query accountNonce($publicKey: PublicKey!) {
     account(publicKey: $publicKey) {
@@ -540,7 +541,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
         document: gql(fetchNonceQuery),
         variables: variables,
         fetchPolicy: FetchPolicy.noCache,
-        queryRequestTimeout: const Duration(seconds: 60));
+        queryRequestTimeout: queryTimeout);
 
     var graphQLClient;
     if (gqlUrl != null) {
@@ -557,10 +558,33 @@ ${List<String>.generate(pubkeys.length, (int index) {
       return -1;
     }
 
-    /// -1 is null account
-    String nonce = result.data?['account']?['inferredNonce'] ?? "-1";
+    String nonce = result.data?['account']?['inferredNonce'] ?? "0";
     print("nonce $nonce");
     return int.parse(nonce);
+  }
+
+  Future<int> fetchAccountNonceWithRetry(String publicKey,
+      {String? gqlUrl,
+      int maxAttempts = 3,
+      Duration retryDelay = const Duration(seconds: 1),
+      Duration queryTimeout = const Duration(seconds: 10)}) async {
+    int freshNonce = -1;
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        freshNonce = await fetchAccountNonce(publicKey,
+            gqlUrl: gqlUrl, queryTimeout: queryTimeout);
+      } catch (e) {
+        print('fetchAccountNonce error: $e');
+        freshNonce = -1;
+      }
+      if (freshNonce >= 0) {
+        return freshNonce;
+      }
+      if (attempt < maxAttempts - 1) {
+        await Future.delayed(retryDelay);
+      }
+    }
+    return -1;
   }
 
   Future<List<TokenAssetInfo>> fetchTokenAssets(String pubKey,

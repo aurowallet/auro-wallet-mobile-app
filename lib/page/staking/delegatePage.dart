@@ -21,6 +21,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 
@@ -65,6 +66,11 @@ class _DelegatePageState extends State<DelegatePage>
   bool _navigating = false;
   double? currentFee;
   double? defaultFee;
+  late String _initAddress;
+  late WalletData _initWallet;
+  late int _initAccountIndex;
+  int _loadedNonce = 0;
+  bool _nonceLoaded = false;
 
   @override
   void initState() {
@@ -76,6 +82,9 @@ class _DelegatePageState extends State<DelegatePage>
           reaction((_) => store.assets!.transferFees, _onFeeLoaded);
       _feeCtrl.addListener(_onFeeInputChange);
       _validatorCtrl.addListener(_monitorSummitStatus);
+      _initAddress = store.wallet!.currentAddress;
+      _initWallet = store.wallet!.currentWallet;
+      _initAccountIndex = _initWallet.currentAccountIndex;
       _updateSubmitState();
       _loadData();
     });
@@ -176,12 +185,12 @@ class _DelegatePageState extends State<DelegatePage>
     await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
-      webApi.assets.fetchPendingTokenList(
-          widget.store.wallet!.currentAddress,
-          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
-                  ?.inferredNonce ??
-              "0")
     ]);
+    if (!mounted) return;
+    int freshNonce = int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
+    await webApi.assets.fetchPendingTokenList(_initAddress, freshNonce.toString());
+    _loadedNonce = freshNonce;
+    _nonceLoaded = true;
     runInAction(() {
       _loading.value = false;
     });
@@ -213,10 +222,8 @@ class _DelegatePageState extends State<DelegatePage>
 
   String? _validateBalance() {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    double? showBalance =
-        store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
-    Decimal availableBalance = Decimal.parse(
-        (showBalance != null ? showBalance : 0).toString());
+    double showBalance = store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0;
+    Decimal availableBalance = Decimal.parse(showBalance.toString());
     double fee = _getEffectiveFee();
     Decimal feeDecimal = Decimal.parse(fee.toString());
     if (availableBalance - feeDecimal <= Decimal.zero) {
@@ -262,28 +269,26 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   void _handleSubmit() async {
+    if (submitting) return;
+    setState(() { submitting = true; });
+    _unFocus();
+    if (_nonceCtrl.text.isEmpty) {
+      if (_loading.value) {
+        await asyncWhen((r) => _loading.value == false);
+        if (!mounted) return;
+      }
+    }
     List<TokenPendingTx>? tempTxList = widget
-        .store.assets!.tokenPendingTxList[widget.store.wallet!.currentAddress];
+        .store.assets!.tokenPendingTxList[_initAddress];
 
     if (tempTxList != null && tempTxList.length > 0) {
       bool? isAgree =
           await UI.showTokenTxDialog(context: context, txList: tempTxList);
       if (isAgree == null || !isAgree) {
+        if (mounted) setState(() { submitting = false; });
         return;
       }
-    }
-    _unFocus();
-    if (_nonceCtrl.text.isEmpty && currentFee == null) {
-      if (_loading.value) {
-        // waiting nonce data from server
-        setState(() {
-          submitting = true;
-        });
-        await asyncWhen((r) => _loading.value == false);
-        setState(() {
-          submitting = false;
-        });
-      }
+      if (!mounted) return;
     }
     if (await _validate()) {
       AppLocalizations dic = AppLocalizations.of(context)!;
@@ -295,9 +300,18 @@ class _DelegatePageState extends State<DelegatePage>
         shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        inferredNonce = int.parse(
-            store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ??
-                "0");
+        int freshNonce = await webApi.assets.fetchAccountNonceWithRetry(
+          _initAddress,
+        );
+        if (!mounted) return;
+        if (freshNonce >= 0) {
+          inferredNonce = freshNonce;
+        } else if (_nonceLoaded) {
+          inferredNonce = _loadedNonce;
+        } else {
+          setState(() { submitting = false; });
+          return;
+        }
       }
       fee = _getEffectiveFee();
       DelegateParams params =
@@ -311,6 +325,7 @@ class _DelegatePageState extends State<DelegatePage>
       }
       if (!params.manualAddValidator && effectiveValidator == null) {
         UI.toast(dic.inputNodeAddress);
+        setState(() { submitting = false; });
         return;
       }
       String validatorAddress = params.manualAddValidator
@@ -327,7 +342,7 @@ class _DelegatePageState extends State<DelegatePage>
         ),
         TxItem(
           label: dic.fromAddress,
-          value: store.wallet!.currentAddress,
+          value: _initAddress,
         ),
         TxItem(
           label: dic.fee,
@@ -341,17 +356,16 @@ class _DelegatePageState extends State<DelegatePage>
         txItems.add(TxItem(label: dic.memo2, value: memo));
       }
       bool isWatchMode =
-          store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
+          _initWallet.walletType == WalletStore.seedTypeNone;
       String validateName;
       bool isLedger =
-          store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+          _initWallet.walletType == WalletStore.seedTypeLedger;
       if (params.manualAddValidator) {
         validateName = Fmt.address(validatorAddress, pad: 10);
       } else {
         validateName =
             effectiveValidator!.name ?? Fmt.address(validatorAddress, pad: 10);
       }
-      bool exited = false;
       await UI.showTxConfirm(
           context: context,
           title: dic.sendDetail,
@@ -370,7 +384,7 @@ class _DelegatePageState extends State<DelegatePage>
             if (!isLedger) {
               String? password = await UI.showPasswordDialog(
                   context: context,
-                  wallet: store.wallet!.currentWallet,
+                  wallet: _initWallet,
                   inputPasswordRequired: false,
                   isTransaction: true,
                   store: store);
@@ -378,14 +392,14 @@ class _DelegatePageState extends State<DelegatePage>
                 return false;
               }
               privateKey = await webApi.account.getPrivateKey(
-                  store.wallet!.currentWallet,
-                  store.wallet!.currentWallet.currentAccountIndex,
+                  _initWallet,
+                  _initAccountIndex,
                   password);
               if (privateKey == null) {
                 store.wallet!.clearRuntimePwd();
                 password = await UI.showPasswordDialog(
                     context: context,
-                    wallet: store.wallet!.currentWallet,
+                    wallet: _initWallet,
                     inputPasswordRequired: true,
                     isTransaction: true,
                     store: store);
@@ -393,8 +407,8 @@ class _DelegatePageState extends State<DelegatePage>
                   return false;
                 }
                 privateKey = await webApi.account.getPrivateKey(
-                    store.wallet!.currentWallet,
-                    store.wallet!.currentWallet.currentAccountIndex,
+                    _initWallet,
+                    _initAccountIndex,
                     password);
                 if (privateKey == null) {
                   store.wallet!.clearRuntimePwd();
@@ -405,8 +419,8 @@ class _DelegatePageState extends State<DelegatePage>
             }
             Map txInfo = {
               "privateKey": privateKey,
-              "accountIndex": store.wallet!.currentWallet.currentAccountIndex,
-              "fromAddress": store.wallet!.currentAddress,
+              "accountIndex": _initAccountIndex,
+              "fromAddress": _initAddress,
               "toAddress": validatorAddress,
               "fee": fee,
               "nonce": inferredNonce,
@@ -422,7 +436,7 @@ class _DelegatePageState extends State<DelegatePage>
               if (tx == null) {
                 return false;
               }
-              if (!exited) {
+              if (mounted) {
                 data = await webApi.account
                     .sendTxBody(tx, context: context, isDelegation: true);
               }
@@ -446,9 +460,10 @@ class _DelegatePageState extends State<DelegatePage>
             }
             return false;
           });
-      exited = true;
+      if (mounted) setState(() { submitting = false; });
       return;
     }
+    if (mounted) setState(() { submitting = false; });
   }
 
   @override
@@ -516,6 +531,7 @@ class _DelegatePageState extends State<DelegatePage>
                         child: NormalButton(
                           color: ColorsUtil.hexColor(0x6D5FFE),
                           text: dic.next,
+                          submitting: submitting,
                           disabled: _submitDisabled,
                           onPressed: _handleSubmit,
                         ),
@@ -577,6 +593,7 @@ class _DelegatePageState extends State<DelegatePage>
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: dic.next,
+                        submitting: submitting,
                         disabled: _submitDisabled,
                         onPressed: _handleSubmit,
                       ),
@@ -596,7 +613,7 @@ class _DelegatePageState extends State<DelegatePage>
       currentFee: currentFee ?? fees.medium,
       transferFees: fees,
       onAdvanceConfirm: _onAdvanceConfirm,
-      currentNonce: _parseNonce(store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce),
+      currentNonce: _parseNonce(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce),
       advanceFee: _feeCtrl.text,
       advanceNonce: _nonceCtrl.text,
       showFeeButtons: !store.settings!.isZekoNet,

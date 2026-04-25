@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:auro_wallet/common/components/loadingCircle.dart';
 
 class TimerManager extends ValueNotifier<TimerState> {
   Timer? _timer;
@@ -40,10 +39,17 @@ class TimerManager extends ValueNotifier<TimerState> {
     });
   }
 
+  static const int _refreshTimeoutSeconds = 30;
+
   Future<void> _handleRefresh() async {
     print('Starting refresh');
     try {
-      await onCountdownEnd(); // Wait for async callback to complete
+      await onCountdownEnd().timeout(
+        const Duration(seconds: _refreshTimeoutSeconds),
+        onTimeout: () {
+          print('Refresh timed out after $_refreshTimeoutSeconds seconds');
+        },
+      );
     } catch (e) {
       print('Refresh failed: $e');
     }
@@ -127,48 +133,14 @@ class _CountdownTimerState extends State<CountdownTimer>
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<TimerState>(
-      valueListenable: widget.timerManager,
-      builder: (context, state, child) {
-        if (state.intervalTime <= 0) {
+    return AnimatedBuilder(
+      animation: widget.timerManager,
+      builder: (context, child) {
+        if (widget.timerManager.value.intervalTime <= 0) {
           return const SizedBox.shrink();
         }
         return const SizedBox.shrink();
-        // return SizedBox(
-        //   width: 30,
-        //   child: Container(
-        //     height: 24,
-        //     alignment: Alignment.centerRight,
-        //     child: state.isRefreshing
-        //         ? _buildRefreshIcon()
-        //         : Text(
-        //             ' (${state.countdown})',
-        //             style: const TextStyle(
-        //               fontSize: 12,
-        //               color: Color(0x80000000),
-        //               fontWeight: FontWeight.w600,
-        //             ),
-        //             textAlign: TextAlign.right,
-        //           ),
-        //   ),
-        // );
       },
-    );
-  }
-
-  Widget _buildRefreshIcon() {
-    return Container(
-      width: 22,
-      height: 22,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.transparent,
-      ),
-      child: Center(
-        child: RotatingCircle(
-          size: 14,
-        ),
-      ),
     );
   }
 }

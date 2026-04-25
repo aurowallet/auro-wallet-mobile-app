@@ -102,7 +102,6 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
         ),
       ),
     );
-    ;
   }
 
   @override
@@ -110,25 +109,24 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      nextUseInferredNonce = int.parse(
-          store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
+      nextUseInferredNonce =
+          int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
       _loadData();
       onCheckFav();
     });
   }
 
   Future<void> _loadData() async {
+    String loadAddress = widget.store.wallet!.currentAddress;
     await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
-      webApi.assets.fetchPendingTokenList(
-          widget.store.wallet!.currentAddress,
-          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
-                  ?.inferredNonce ??
-              "0")
     ]);
-    nextUseInferredNonce = int.parse(
-        store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
+    if (!mounted) return;
+    nextUseInferredNonce =
+        int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
+    await webApi.assets.fetchPendingTokenList(
+        loadAddress, nextUseInferredNonce.toString());
   }
 
   void onCheckFav() async {
@@ -195,6 +193,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
       _controller.evaluateJavascript(
           source: "onAppResponse(${jsonEncode(resData)})");
       _controller.reload();
+      _loadData();
     }
     Navigator.of(context).pop();
   }

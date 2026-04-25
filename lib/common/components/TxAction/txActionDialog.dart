@@ -11,6 +11,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -51,6 +52,9 @@ class _TxActionDialogState extends State<TxActionDialog> {
   double preFee = 0;
   double speedUpFee = 0;
   late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
+  late WalletData _initWallet;
+  late int _initAccountIndex;
+  late String _initAddress;
 
   Future<void> _setLedgerScreenAwake(bool active) async {
     if (!isLedger) {
@@ -80,8 +84,10 @@ class _TxActionDialogState extends State<TxActionDialog> {
     nextStateFee = (Decimal.parse(nextPlusFee.toString()) +
             Decimal.parse(preFee.toString()))
         .toDouble();
-    isLedger = widget.store.wallet!.currentWallet.walletType ==
-        WalletStore.seedTypeLedger;
+    _initWallet = widget.store.wallet!.currentWallet;
+    _initAccountIndex = _initWallet.currentAccountIndex;
+    _initAddress = widget.store.wallet!.currentAddress;
+    isLedger = _initWallet.walletType == WalletStore.seedTypeLedger;
   }
 
   @override
@@ -145,14 +151,13 @@ class _TxActionDialogState extends State<TxActionDialog> {
   }
 
   Future<bool> onClickNextStep() async {
-    bool exited = false;
     bool isDelagetion = false;
     AppLocalizations dic = AppLocalizations.of(context)!;
     String? privateKey;
     if (!isLedger) {
       String? password = await UI.showPasswordDialog(
           context: context,
-          wallet: widget.store.wallet!.currentWallet,
+          wallet: _initWallet,
           inputPasswordRequired: false,
           isTransaction: true,
           store: widget.store);
@@ -160,14 +165,14 @@ class _TxActionDialogState extends State<TxActionDialog> {
         return false;
       }
       privateKey = await webApi.account.getPrivateKey(
-          widget.store.wallet!.currentWallet,
-          widget.store.wallet!.currentWallet.currentAccountIndex,
+          _initWallet,
+          _initAccountIndex,
           password);
       if (privateKey == null) {
         widget.store.wallet!.clearRuntimePwd();
         password = await UI.showPasswordDialog(
             context: context,
-            wallet: widget.store.wallet!.currentWallet,
+            wallet: _initWallet,
             inputPasswordRequired: true,
             isTransaction: true,
             store: widget.store);
@@ -175,8 +180,8 @@ class _TxActionDialogState extends State<TxActionDialog> {
           return false;
         }
         privateKey = await webApi.account.getPrivateKey(
-            widget.store.wallet!.currentWallet,
-            widget.store.wallet!.currentWallet.currentAccountIndex,
+            _initWallet,
+            _initAccountIndex,
             password);
         if (privateKey == null) {
           widget.store.wallet!.clearRuntimePwd();
@@ -190,9 +195,9 @@ class _TxActionDialogState extends State<TxActionDialog> {
     if (widget.modalType == TxActionType.cancel) {
       txInfo = {
         "privateKey": privateKey,
-        "accountIndex": widget.store.wallet!.currentWallet.currentAccountIndex,
-        "fromAddress": widget.store.wallet!.currentAddress,
-        "toAddress": widget.store.wallet!.currentAddress,
+        "accountIndex": _initAccountIndex,
+        "fromAddress": _initAddress,
+        "toAddress": _initAddress,
         "amount": 0.0,
         "fee": nextStateFee,
         "nonce": widget.txData.nonce,
@@ -203,22 +208,21 @@ class _TxActionDialogState extends State<TxActionDialog> {
       if (txType == 'zkapp') {
         txInfo = {
           "privateKey": privateKey,
-          "fromAddress": widget.store.wallet!.currentAddress,
+          "fromAddress": _initAddress,
           "fee": nextStateFee,
           "nonce": widget.txData.nonce,
-          "memo": memo!.isNotEmpty ? memo : "",
+          "memo": (memo != null && memo.isNotEmpty) ? memo : "",
           "transaction": widget.txData.transaction
         };
       } else {
         txInfo = {
           "privateKey": privateKey,
-          "accountIndex":
-              widget.store.wallet!.currentWallet.currentAccountIndex,
-          "fromAddress": widget.store.wallet!.currentAddress,
+          "accountIndex": _initAccountIndex,
+          "fromAddress": _initAddress,
           "toAddress": widget.txData.receiver,
           "fee": nextStateFee,
           "nonce": widget.txData.nonce,
-          "memo": memo!.isNotEmpty ? memo : "",
+          "memo": (memo != null && memo.isNotEmpty) ? memo : "",
         };
         if (txType == 'payment') {
           double amount = double.parse(Fmt.balance(
@@ -237,7 +241,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       if (tx == null) {
         return false;
       }
-      if (!exited) {
+      if (mounted) {
         data = await webApi.account
             .sendTxBody(tx, context: context, isDelegation: isDelagetion);
       }
@@ -256,11 +260,10 @@ class _TxActionDialogState extends State<TxActionDialog> {
     if (data == null) {
       return false;
     }
-    if (mounted && !exited) {
+    if (mounted) {
       widget.store.triggerBalanceRefresh();
       return true;
     }
-    exited = true;
     return false;
   }
 
@@ -450,8 +453,8 @@ class _TxActionDialogState extends State<TxActionDialog> {
                         });
                         await _setLedgerScreenAwake(true);
                         try {
-                          await onClickNextStep();
-                          if (widget.onConfirm != null) {
+                          final success = await onClickNextStep();
+                          if (success && widget.onConfirm != null) {
                             widget.onConfirm!();
                           }
                         } finally {

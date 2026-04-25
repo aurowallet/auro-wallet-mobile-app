@@ -18,11 +18,13 @@ import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
+import 'package:collection/collection.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -62,14 +64,17 @@ class _TransferPageState extends State<TransferPage> {
 
   var _loading = Observable(true);
   late Token token;
+  late String _initAddress;
+  late WalletData _initWallet;
+  late int _initAccountIndex;
+  int _loadedNonce = 0;
+  bool _nonceLoaded = false;
 
   String tokenSymbol = '';
   bool isSendMainToken = false;
   double? availableBalance;
-  double? mainTokenBalance;
   String? availableDecimals;
   String? tokenPublicKey;
-  late Token mainTokenNetInfo;
   String tokenId = "";
   bool isFromModal = false;
   double? zekoNetFee;
@@ -87,6 +92,10 @@ class _TransferPageState extends State<TransferPage> {
       _toAddressCtrl.addListener(_monitorSummitStatus);
       _toAddressCtrl.addListener(_onAddressChange);
       _feeCtrl.addListener(_onFeeInputChange);
+
+      _initAddress = store.wallet!.currentAddress;
+      _initWallet = store.wallet!.currentWallet;
+      _initAccountIndex = _initWallet.currentAccountIndex;
 
       dynamic params = ModalRoute.of(context)!.settings.arguments;
       token = store.assets!.nextToken;
@@ -116,8 +125,6 @@ class _TransferPageState extends State<TransferPage> {
         tokenPublicKey = tokenNetInfo?.publicKey;
       }
       availableBalance = tokenBaseInfo?.showBalance;
-      mainTokenNetInfo = store.assets!.mainTokenNetInfo;
-      mainTokenBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance;
       tokenId = tokenAssestInfo?.tokenId ?? "";
 
       int intervalTime = _feeCtrl.text.isNotEmpty
@@ -260,8 +267,8 @@ class _TransferPageState extends State<TransferPage> {
       "tokenAddress": tokenPublicKey,
       "amount": amountLarge,
       "isNewAccount": fundNewAccountStatus.toString(),
-      "gqlUrl": store.settings!.currentNode!.url,
-      "networkID": store.settings!.currentNode!.networkID,
+      "gqlUrl": store.settings!.currentNode?.url ?? '',
+      "networkID": store.settings!.currentNode?.networkID ?? '',
       "nonce": txInfo['nonce'],
       "memo": txInfo['memo'],
     };
@@ -300,27 +307,26 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   void _handleSubmit() async {
+    if (submitting) return;
+    setState(() { submitting = true; });
+    _unFocus();
+    if (_nonceCtrl.text.isEmpty) {
+      if (_loading.value) {
+        await asyncWhen((r) => _loading.value == false);
+        if (!mounted) return;
+      }
+    }
     List<TokenPendingTx>? tempTxList = widget
-        .store.assets!.tokenPendingTxList[widget.store.wallet!.currentAddress];
+        .store.assets!.tokenPendingTxList[_initAddress];
 
     if (isSendMainToken && (tempTxList != null && tempTxList.length > 0)) {
       bool? isAgree =
           await UI.showTokenTxDialog(context: context, txList: tempTxList);
       if (isAgree == null || !isAgree) {
+        if (mounted) setState(() { submitting = false; });
         return;
       }
-    }
-    _unFocus();
-    if (_nonceCtrl.text.isEmpty && currentFee == null) {
-      if (_loading.value) {
-        setState(() {
-          submitting = true;
-        });
-        await asyncWhen((r) => _loading.value == false);
-        setState(() {
-          submitting = false;
-        });
-      }
+      if (!mounted) return;
     }
     if (await _validate()) {
       double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
@@ -333,10 +339,25 @@ class _TransferPageState extends State<TransferPage> {
         shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        inferredNonce =
-            int.parse(mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
-        if (!isSendMainToken && (tempTxList != null && tempTxList.length > 0)) {
-          inferredNonce = tempTxList[0].nonce + 1;
+        int freshNonce = await webApi.assets.fetchAccountNonceWithRetry(
+          _initAddress,
+        );
+        if (!mounted) return;
+        if (freshNonce >= 0) {
+          inferredNonce = freshNonce;
+        } else if (_nonceLoaded) {
+          inferredNonce = _loadedNonce;
+        } else {
+          setState(() { submitting = false; });
+          return;
+        }
+        List<TokenPendingTx>? freshTxList = widget
+            .store.assets!.tokenPendingTxList[_initAddress];
+        if (!isSendMainToken && (freshTxList != null && freshTxList.length > 0)) {
+          int pendingNonce = freshTxList[0].nonce + 1;
+          if (pendingNonce > inferredNonce) {
+            inferredNonce = pendingNonce;
+          }
           shouldShowNonce = true;
         }
       }
@@ -356,7 +377,7 @@ class _TransferPageState extends State<TransferPage> {
         TxItem(label: dic.toAddress, value: toAddress),
         TxItem(
           label: dic.fromAddress,
-          value: store.wallet!.currentAddress,
+          value: _initAddress,
         ),
         TxItem(
             label: dic.fee,
@@ -370,14 +391,14 @@ class _TransferPageState extends State<TransferPage> {
         txItems.add(TxItem(label: dic.memo2, value: memo));
       }
       final isWatchMode =
-          store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
+          _initWallet.walletType == WalletStore.seedTypeNone;
       final isLedger =
-          store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+          _initWallet.walletType == WalletStore.seedTypeLedger;
       if (isLedger && !isSendMainToken) {
         UI.toast(dic.notSupportNow);
+        setState(() { submitting = false; });
         return;
       }
-      bool exited = false;
       await UI.showTxConfirm(
           context: context,
           title: dic.sendDetail,
@@ -416,7 +437,7 @@ class _TransferPageState extends State<TransferPage> {
             if (!isLedger) {
               String? password = await UI.showPasswordDialog(
                   context: context,
-                  wallet: store.wallet!.currentWallet,
+                  wallet: _initWallet,
                   inputPasswordRequired: false,
                   isTransaction: true,
                   store: store);
@@ -424,14 +445,14 @@ class _TransferPageState extends State<TransferPage> {
                 return false;
               }
               privateKey = await webApi.account.getPrivateKey(
-                  store.wallet!.currentWallet,
-                  store.wallet!.currentWallet.currentAccountIndex,
+                  _initWallet,
+                  _initAccountIndex,
                   password);
               if (privateKey == null) {
                 store.wallet!.clearRuntimePwd();
                 password = await UI.showPasswordDialog(
                     context: context,
-                    wallet: store.wallet!.currentWallet,
+                    wallet: _initWallet,
                     inputPasswordRequired: true,
                     isTransaction: true,
                     store: store);
@@ -439,8 +460,8 @@ class _TransferPageState extends State<TransferPage> {
                   return false;
                 }
                 privateKey = await webApi.account.getPrivateKey(
-                    store.wallet!.currentWallet,
-                    store.wallet!.currentWallet.currentAccountIndex,
+                    _initWallet,
+                    _initAccountIndex,
                     password);
                 if (privateKey == null) {
                   store.wallet!.clearRuntimePwd();
@@ -451,8 +472,8 @@ class _TransferPageState extends State<TransferPage> {
             }
             Map txInfo = {
               "privateKey": privateKey,
-              "accountIndex": store.wallet!.currentWallet.currentAccountIndex,
-              "fromAddress": store.wallet!.currentAddress,
+              "accountIndex": _initAccountIndex,
+              "fromAddress": _initAddress,
               "toAddress": toAddress,
               "amount": amountToTransfer,
               "fee": fee,
@@ -467,7 +488,7 @@ class _TransferPageState extends State<TransferPage> {
               if (tx == null) {
                 return false;
               }
-              if (!exited) {
+              if (mounted) {
                 data = await webApi.account
                     .sendTxBody(tx, context: context, isDelegation: false);
               }
@@ -485,6 +506,9 @@ class _TransferPageState extends State<TransferPage> {
                 txInfo["zkOnlySign"] = true;
                 dynamic signedRes = await webApi.account
                     .signAndSendZkTx(txInfo, context: context);
+                if (signedRes == null) {
+                  return false;
+                }
                 dynamic signedData = signedRes["signedData"];
                 Map<String, dynamic> nextData = {
                   "buildHash": buildBody['buildHash'],
@@ -492,7 +516,7 @@ class _TransferPageState extends State<TransferPage> {
                   'sender': txInfo['fromAddress'],
                   'receiver': txInfo['toAddress'],
                   'tokenAddress': tokenPublicKey,
-                  'networkID': store.settings!.currentNode!.networkID,
+                  'networkID': store.settings!.currentNode?.networkID ?? '',
                 };
                 Map<String, dynamic> realUnSignTxStr = await webApi.bridge
                     .encryptData(jsonEncode(nextData), center_public_keys);
@@ -513,7 +537,7 @@ class _TransferPageState extends State<TransferPage> {
             if (data == null) {
               return false;
             }
-            if (mounted && !exited) {
+            if (mounted) {
               if (isFromModal) {
                 Navigator.pop(context);
                 Navigator.pushReplacementNamed(
@@ -528,8 +552,25 @@ class _TransferPageState extends State<TransferPage> {
             }
             return false;
           });
-      exited = true;
+      if (mounted) setState(() { submitting = false; });
       return;
+    }
+    if (mounted) setState(() { submitting = false; });
+  }
+
+  void _updateAvailableBalance() {
+    Token? freshToken;
+    if (isSendMainToken) {
+      freshToken = store.assets!.mainTokenNetInfo;
+    } else {
+      freshToken = store.assets!.tokenList.firstWhereOrNull(
+          (t) => t.tokenAssestInfo?.tokenId == tokenId);
+    }
+    if (freshToken != null && freshToken.tokenBaseInfo?.showBalance != null) {
+      setState(() {
+        availableBalance = freshToken!.tokenBaseInfo!.showBalance;
+      });
+      store.assets!.setNextToken(freshToken);
     }
   }
 
@@ -537,20 +578,22 @@ class _TransferPageState extends State<TransferPage> {
     List data = await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
-      webApi.assets.fetchPendingTokenList(
-          widget.store.wallet!.currentAddress,
-          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
-                  ?.inferredNonce ??
-              "0"),
       webApi.assets
           .getZekoNetFee(weight: store.settings!.isZekoNet ? feeWeight + 1 : 0)
     ]);
-    if (store.settings!.isZekoNet && data[3] != null) {
+    if (!mounted) return;
+    _updateAvailableBalance();
+    int freshNonce = int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
+    await webApi.assets.fetchPendingTokenList(_initAddress, freshNonce.toString());
+    if (!mounted) return;
+    if (store.settings!.isZekoNet && data[2] != null) {
       setState(() {
-        zekoNetFee = Fmt.parsedZekoFee(data[3]);
+        zekoNetFee = Fmt.parsedZekoFee(data[2]);
         currentFee = zekoNetFee;
       });
     }
+    _loadedNonce = freshNonce;
+    _nonceLoaded = true;
     runInAction(() {
       _loading.value = false;
     });
@@ -565,7 +608,7 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   Future<void> _loadAddressData() async {
-    var currentAddress = store.wallet!.currentAddress;
+    var currentAddress = _initAddress;
     var accountList = store.wallet!.accountListAll
         .map((accountItem) => {
               "name": Fmt.accountName(accountItem),
@@ -680,8 +723,9 @@ class _TransferPageState extends State<TransferPage> {
 
   @override
   Widget build(BuildContext context) {
-    int nonceHolder = int.parse(
-        store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
+    int nonceHolder = int.tryParse(
+            store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ??
+        0;
     return Observer(
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;

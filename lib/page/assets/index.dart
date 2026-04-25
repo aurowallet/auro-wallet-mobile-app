@@ -4,7 +4,6 @@ import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
@@ -19,7 +18,6 @@ import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 
 class Assets extends StatefulWidget {
   Assets(this.store);
@@ -37,57 +35,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   Timer? _refreshTimer;
   final GlobalKey<RefreshIndicatorState> _balanceRefreshKey =
       GlobalKey<RefreshIndicatorState>();
-
-  @override
-  void ledgerSetup() async {
-    final options = LedgerOptions(
-      maxScanDuration: const Duration(milliseconds: 5000),
-    );
-
-    final ledger = Ledger(
-      options: options,
-      // onPermissionRequest: (status) async {
-      //   // Location was granted, now request BLE
-      //   Map<Permission, PermissionStatus> statuses = await [
-      //     Permission.bluetoothScan,
-      //     Permission.bluetoothConnect,
-      //     Permission.bluetoothAdvertise,
-      //   ].request();
-      //
-      //   if (status != BleStatus.ready) {
-      //     return false;
-      //   }
-      //
-      //   return statuses.values.where((status) => status.isDenied).isEmpty;
-      // },
-    );
-    await ledger.close(ConnectionType.ble);
-    await ledger.dispose();
-    final subscription = ledger.scan().listen((device) async {
-      print('found device');
-      print(device.name);
-      ledger.stopScanning();
-      print('start connect');
-      await ledger.disconnect(device);
-      await ledger.connect(device);
-      print('connected');
-      try {
-        final minaApp = MinaLedgerApp(ledger);
-        print(minaApp);
-        // final ledgerApp = await minaApp.getAppName(device);
-        // print(ledgerApp.name);
-        // print(ledgerApp.version);
-        final version = await minaApp.getVersion(device);
-        print(version.versionName);
-        // final version = await minaApp.getAccounts(device);
-        // print(version);
-      } on LedgerException catch (e) {
-        print('出错了');
-        print(e.message);
-        await ledger.disconnect(device);
-      }
-    });
-  }
 
   @override
   void initState() {
@@ -158,8 +105,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             ],
             confirm: dic.deleteWatch,
             onConfirm: () {
-              // await store.wallet!.deleteWatchModeWallets();
-              // _onRefresh(showIndicator: true);
               this._onConfirmDeleteWatchWallet();
             });
       });
@@ -215,9 +160,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Container(
-            //   width: 10,
-            // ),
             Text(
               dic.myWallet,
               style: theme.displayLarge!.copyWith(
@@ -231,7 +173,6 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Flexible(child: Container(),),
                   Container(child: _buildNetworkEntry(context)),
                   Container(
                     width: 12,
