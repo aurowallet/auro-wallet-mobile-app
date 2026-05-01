@@ -82,6 +82,11 @@ class TestKeys {
   static const providerDiagnostics = Key('provider_diagnostics');
   static const providerRunAutoButton = Key('provider_run_auto_button');
   static const providerReloadButton = Key('provider_reload_button');
+  static const providerHandshakeProbeButton =
+      Key('provider_handshake_probe_button');
+  static const providerTransportProbeButton =
+      Key('provider_transport_probe_button');
+  static const providerReloadProbeButton = Key('provider_reload_probe_button');
   static const providerRequestAccountsButton = Key('provider_request_accounts_button');
   static const providerSignMessageButton = Key('provider_sign_message_button');
   static const providerEmitAccountsChangedButton = Key('provider_emit_accounts_changed_button');

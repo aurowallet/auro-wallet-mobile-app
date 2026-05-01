@@ -51,6 +51,7 @@ All notable changes to this project will be documented in this file.
 - Replace `SwitchItem` with `MenuItem`
 - Remove unused `path_provider` dependency and use `Directory.systemTemp` for temporary files
 - Add ScreenAwake for ledger
+- Update WebView bridge and provider bundles for in-app stability testing improvements
 
 ### Fixed
 - fetchScamInfo catch

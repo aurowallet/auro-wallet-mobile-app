@@ -59,6 +59,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
   String providerResultContent = '';
   bool providerResultIsError = false;
   bool providerActionRunning = false;
+  List<String> providerHistoryEntries = [];
 
   String accountA = "B62qpjxUpgdjzwQfd8q2gzxi99wN7SCgmofpvw27MBkfNHfHoY2VH32";
   String accountB = "B62qr2zNMypNKXmzMYSVotChTBRfXzHRtshvbuEjAQZLq6aEa8RxLyD";
@@ -288,6 +289,59 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     return 'Running: $lastAction';
   }
 
+  String _buildProviderDiagnostics(Map<String, dynamic> snapshot) {
+    final announcementCount = (snapshot['announcementCount'] as num?)?.toInt() ?? 0;
+    final requestProviderCount =
+        (snapshot['requestProviderCount'] as num?)?.toInt() ?? 0;
+    final messageCount = (snapshot['messageCount'] as num?)?.toInt() ?? 0;
+    final lastAction = snapshot['lastAction']?.toString() ?? '-';
+    final lastPostedMessage = _decodeProviderMap(snapshot['lastPostedMessage']);
+    final lastAnnouncement = _decodeProviderMap(snapshot['lastAnnouncement']);
+    final announcementInfo = _decodeProviderMap(lastAnnouncement?['info']);
+    return [
+      'announceProvider: $announcementCount',
+      'requestProvider: $requestProviderCount',
+      'posted messages: $messageCount',
+      'last action: $lastAction',
+      'last posted action: ${lastPostedMessage?['action']?.toString() ?? '-'}',
+      'last announced wallet: ${announcementInfo?['name']?.toString() ?? '-'}',
+    ].join('\n');
+  }
+
+  String _createProviderHistoryEntry(String label, [dynamic details]) {
+    final now = DateTime.now();
+    final hour = now.hour.toString().padLeft(2, '0');
+    final minute = now.minute.toString().padLeft(2, '0');
+    final second = now.second.toString().padLeft(2, '0');
+    final prefix = '[$hour:$minute:$second] $label';
+    if (details == null) {
+      return prefix;
+    }
+    return '$prefix\n${_formatDialogValue(details)}';
+  }
+
+  void _appendProviderHistory(String label, [dynamic details]) {
+    final entry = _createProviderHistoryEntry(label, details);
+    final nextEntries = [entry, ...providerHistoryEntries];
+    if (nextEntries.length > 80) {
+      nextEntries.removeRange(80, nextEntries.length);
+    }
+    if (mounted) {
+      setState(() {
+        providerHistoryEntries = nextEntries;
+      });
+    } else {
+      providerHistoryEntries = nextEntries;
+    }
+  }
+
+  String _buildProviderHistoryText() {
+    if (providerHistoryEntries.isEmpty) {
+      return 'No provider events recorded yet.';
+    }
+    return providerHistoryEntries.join('\n\n');
+  }
+
   void _showProviderResultPanel(
     String content, {
     String title = 'Provider Result',
@@ -296,6 +350,10 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     if (!mounted) {
       return;
     }
+    _appendProviderHistory(
+      '$title ${isError ? 'failed' : 'completed'}',
+      content,
+    );
     setState(() {
       providerResultVisible = true;
       providerResultTitle = title;
@@ -375,6 +433,11 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
             networkChanged: 0,
           },
           methods: {},
+          announcementCount: 0,
+          requestProviderCount: 0,
+          messageCount: 0,
+          lastAnnouncement: null,
+          lastPostedMessage: null,
         };
 
         function safeJson(value) {
@@ -424,8 +487,48 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         }
 
         let eventsAttached = false;
+        let providerLifecycleAttached = false;
+        let transportListenerAttached = false;
 
         function attachEvents() {
+          if (!providerLifecycleAttached) {
+            window.addEventListener('mina:announceProvider', function (event) {
+              const detail = event && event.detail ? event.detail : {};
+              state.announcementCount += 1;
+              state.lastAnnouncement = {
+                info: detail.info || null,
+                hasProvider: !!detail.provider,
+              };
+              pushLog('event mina:announceProvider: ' + safeJson(state.lastAnnouncement));
+              refresh();
+            });
+            window.addEventListener('mina:requestProvider', function () {
+              state.requestProviderCount += 1;
+              pushLog('event mina:requestProvider');
+              refresh();
+            });
+            providerLifecycleAttached = true;
+          }
+          if (!transportListenerAttached) {
+            window.addEventListener('message', function (event) {
+              const data = event && event.data;
+              if ((event.source === window || event.source === null) &&
+                  data && typeof data === 'object' && data.isAuro) {
+                const message = data.message && typeof data.message === 'object'
+                  ? data.message
+                  : {};
+                state.messageCount += 1;
+                state.lastPostedMessage = {
+                  source: data.source || '',
+                  action: message.action || '',
+                  hasData: Object.prototype.hasOwnProperty.call(message, 'data'),
+                };
+                pushLog('event window.message: ' + safeJson(state.lastPostedMessage));
+                refresh();
+              }
+            });
+            transportListenerAttached = true;
+          }
           if (eventsAttached || !window.mina || typeof window.mina.on !== 'function') {
             return refresh();
           }
@@ -499,6 +602,55 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
                 requestNetwork: hasMethod('requestNetwork') ? await window.mina.requestNetwork() : 'unavailable',
                 getAccounts: hasMethod('getAccounts') ? await window.mina.getAccounts() : 'unavailable',
               };
+            });
+          },
+          probeProviderHandshake: function () {
+            return runAction('probeProviderHandshake', async function () {
+              attachEvents();
+              const beforeAnnouncements = state.announcementCount;
+              const beforeRequests = state.requestProviderCount;
+              window.dispatchEvent(new Event('mina:requestProvider'));
+              await new Promise(function (resolve) {
+                setTimeout(resolve, 80);
+              });
+              const result = {
+                requestProviderCount: state.requestProviderCount,
+                announcementCount: state.announcementCount,
+                deltaRequests: state.requestProviderCount - beforeRequests,
+                deltaAnnouncements: state.announcementCount - beforeAnnouncements,
+                lastAnnouncement: state.lastAnnouncement,
+              };
+              if (result.deltaRequests <= 0 ||
+                  result.deltaAnnouncements <= 0 ||
+                  !result.lastAnnouncement ||
+                  !result.lastAnnouncement.hasProvider) {
+                throw new Error('Provider announce was not observed after requestProvider');
+              }
+              return result;
+            });
+          },
+          probePostMessageTransport: function () {
+            return runAction('probePostMessageTransport', async function () {
+              attachEvents();
+              const beforeCount = state.messageCount;
+              if (!window.mina || typeof window.mina.getWalletInfo !== 'function') {
+                throw new Error('getWalletInfo unavailable');
+              }
+              await window.mina.getWalletInfo();
+              await new Promise(function (resolve) {
+                setTimeout(resolve, 80);
+              });
+              const result = {
+                messageCount: state.messageCount,
+                deltaMessages: state.messageCount - beforeCount,
+                lastPostedMessage: state.lastPostedMessage,
+              };
+              if (result.deltaMessages <= 0 ||
+                  !result.lastPostedMessage ||
+                  !result.lastPostedMessage.action) {
+                throw new Error('window.postMessage transport was not observed');
+              }
+              return result;
             });
           },
           invoke: function (name, params) {
@@ -632,6 +784,21 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     return false;
   }
 
+  Future<bool> _waitForProviderReady({
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      await _pullProviderSnapshot();
+      if (_isProviderHarnessReady) {
+        return true;
+      }
+      await Future.delayed(Duration(milliseconds: 300));
+    }
+    await _pullProviderSnapshot();
+    return _isProviderHarnessReady;
+  }
+
   void _showProviderActionResultDialog(
     String expectedAction, {
     bool timedOut = false,
@@ -707,6 +874,27 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         });
       }
     } catch (_) {}
+  }
+
+  Future<Map<String, dynamic>> _executeProviderHarnessAction(
+    String source, {
+    required String expectedAction,
+  }) async {
+    await _pullProviderSnapshot();
+    final previousRunCount = (providerSnapshot['runCount'] as num?)?.toInt() ?? 0;
+    final previousSettledAt =
+        (providerSnapshot['lastSettledAt'] as num?)?.toInt() ?? 0;
+    await _providerController!.evaluateJavascript(source: source);
+    final completed = await _waitForProviderActionCompletion(
+      expectedAction,
+      previousRunCount: previousRunCount,
+      previousSettledAt: previousSettledAt,
+    );
+    if (!completed) {
+      throw Exception('Timed out waiting for $expectedAction');
+    }
+    await _pullProviderSnapshot();
+    return Map<String, dynamic>.from(providerSnapshot);
   }
 
   Future<void> _runProviderAction(
@@ -915,6 +1103,179 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     );
   }
 
+  Future<void> _probeProviderHandshake() async {
+    await _runProviderAction(
+      'window.providerHarness && window.providerHarness.probeProviderHandshake()',
+      'Running provider handshake probe',
+      expectedAction: 'probeProviderHandshake',
+    );
+  }
+
+  Future<void> _probeProviderTransport() async {
+    await _runProviderAction(
+      'window.providerHarness && window.providerHarness.probePostMessageTransport()',
+      'Running provider transport probe',
+      expectedAction: 'probePostMessageTransport',
+    );
+  }
+
+  Future<void> _runProviderReloadProbe() async {
+    if (!_ensureProviderWallet()) {
+      return;
+    }
+    if (_providerController == null) {
+      _showProviderResultPanel(
+        'Provider harness is not ready yet.',
+        title: 'Provider Reload Probe',
+        isError: true,
+      );
+      return;
+    }
+    if (providerActionRunning) {
+      return;
+    }
+    final sections = <String>[];
+    bool hasError = false;
+    _appendProviderHistory('Provider Reload Probe started');
+    setState(() {
+      providerActionRunning = true;
+      providerStatusMessage = 'Running provider reload probe';
+    });
+    try {
+      for (int round = 1; round <= 3; round++) {
+        if (!mounted) {
+          return;
+        }
+        _appendProviderHistory('Provider Reload Probe round $round started');
+        setState(() {
+          providerStatusMessage = 'Reloading provider harness $round/3';
+        });
+        providerSnapshot = {};
+        _appendProviderHistory('Provider Reload Probe round $round reloading harness');
+        await _providerController!.loadUrl(
+          urlRequest: URLRequest(url: WebUri(_providerHarnessUrl)),
+        );
+        _appendProviderHistory('Provider Reload Probe round $round waiting for provider ready');
+        final ready = await _waitForProviderReady();
+        if (!ready) {
+          hasError = true;
+          final readyFailure = {
+            'message': 'Provider harness not ready after reload',
+            'status': providerStatusMessage,
+            'snapshot': providerSnapshot,
+          };
+          sections.add('Round $round ready failed:\n${_formatDialogValue(readyFailure)}');
+          _appendProviderHistory('Provider Reload Probe round $round ready timeout', readyFailure);
+          break;
+        }
+        _appendProviderHistory(
+          'Provider Reload Probe round $round provider ready',
+          _buildProviderDiagnostics(providerSnapshot),
+        );
+        _appendProviderHistory('Provider Reload Probe round $round handshake started');
+        late final Map<String, dynamic> handshakeSnapshot;
+        try {
+          handshakeSnapshot = await _executeProviderHarnessAction(
+            'window.providerHarness && window.providerHarness.probeProviderHandshake()',
+            expectedAction: 'probeProviderHandshake',
+          );
+        } catch (error) {
+          hasError = true;
+          await _pullProviderSnapshot();
+          final handshakeFailure = {
+            'error': error.toString(),
+            'snapshot': providerSnapshot,
+          };
+          sections.add(
+            'Round $round handshake failed:\n${_formatDialogValue(handshakeFailure)}',
+          );
+          _appendProviderHistory(
+            'Provider Reload Probe round $round handshake failed',
+            handshakeFailure,
+          );
+          break;
+        }
+        if (handshakeSnapshot['lastError'] != null) {
+          hasError = true;
+          sections.add(
+            'Round $round handshake failed:\n${_formatDialogValue(handshakeSnapshot['lastError'])}',
+          );
+          _appendProviderHistory(
+            'Provider Reload Probe round $round handshake returned error',
+            handshakeSnapshot,
+          );
+          break;
+        }
+        _appendProviderHistory(
+          'Provider Reload Probe round $round handshake completed',
+          handshakeSnapshot['lastResult'],
+        );
+        _appendProviderHistory('Provider Reload Probe round $round smoke started');
+        late final Map<String, dynamic> smokeSnapshot;
+        try {
+          smokeSnapshot = await _executeProviderHarnessAction(
+            'window.providerHarness && window.providerHarness.smoke()',
+            expectedAction: 'smoke',
+          );
+        } catch (error) {
+          hasError = true;
+          await _pullProviderSnapshot();
+          final smokeFailure = {
+            'error': error.toString(),
+            'snapshot': providerSnapshot,
+          };
+          sections.add(
+            'Round $round smoke failed:\n${_formatDialogValue(smokeFailure)}',
+          );
+          _appendProviderHistory(
+            'Provider Reload Probe round $round smoke failed',
+            smokeFailure,
+          );
+          break;
+        }
+        if (smokeSnapshot['lastError'] != null) {
+          hasError = true;
+          sections.add(
+            'Round $round smoke failed:\n${_formatDialogValue(smokeSnapshot['lastError'])}',
+          );
+          _appendProviderHistory(
+            'Provider Reload Probe round $round smoke returned error',
+            smokeSnapshot,
+          );
+          break;
+        }
+        _appendProviderHistory(
+          'Provider Reload Probe round $round smoke completed',
+          smokeSnapshot['lastResult'],
+        );
+        sections.add(
+          'Round $round handshake:\n${_formatDialogValue(handshakeSnapshot['lastResult'])}\n\nRound $round smoke:\n${_formatDialogValue(smokeSnapshot['lastResult'])}',
+        );
+      }
+    } catch (error) {
+      hasError = true;
+      sections.add(error.toString());
+      _appendProviderHistory('Provider Reload Probe unexpected exception', error.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          providerActionRunning = false;
+        });
+      } else {
+        providerActionRunning = false;
+      }
+      await _pullProviderSnapshot();
+    }
+    if (!hasError) {
+      _appendProviderHistory('Provider Reload Probe finished successfully');
+    }
+    _showProviderResultPanel(
+      sections.join('\n\n'),
+      title: 'Provider Reload Probe',
+      isError: hasError,
+    );
+  }
+
   Future<void> _invokeProviderMethod(String name, [Map<String, dynamic>? params]) async {
     final source = params == null
         ? 'window.providerHarness && window.providerHarness.invoke(${jsonEncode(name)})'
@@ -983,6 +1344,18 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
       'Provider log cleared',
       showResultDialog: false,
     );
+    if (mounted) {
+      setState(() {
+        providerHistoryEntries = [];
+        providerResultVisible = false;
+        providerResultContent = '';
+      });
+    } else {
+      providerHistoryEntries = [];
+      providerResultVisible = false;
+      providerResultContent = '';
+    }
+    _appendProviderHistory('Provider history cleared');
   }
 
   Widget _buildProviderActionButton({
@@ -1041,7 +1414,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
           ),
           SizedBox(height: 8),
           Text(
-            'Use the buttons below to test provider.js. Results are shown in popups after each action finishes.',
+            'Use the buttons below to test provider.js. Results appear in popups and are also recorded in Provider History below for later review.',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
@@ -1063,6 +1436,21 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
                 key: TestKeys.providerReloadButton,
                 text: 'Reload Harness',
                 onPressed: _reloadProviderHarness,
+              ),
+              _buildProviderActionButton(
+                key: TestKeys.providerHandshakeProbeButton,
+                text: 'Probe Handshake',
+                onPressed: _probeProviderHandshake,
+              ),
+              _buildProviderActionButton(
+                key: TestKeys.providerTransportProbeButton,
+                text: 'Probe Transport',
+                onPressed: _probeProviderTransport,
+              ),
+              _buildProviderActionButton(
+                key: TestKeys.providerReloadProbeButton,
+                text: 'Reload Probe x3',
+                onPressed: _runProviderReloadProbe,
               ),
               _buildProviderActionButton(
                 text: 'Get Wallet Info',
@@ -1172,6 +1560,82 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: Color(0xCC000000),
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          Container(
+            key: TestKeys.providerDiagnostics,
+            width: double.infinity,
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Color(0x14000000)),
+            ),
+            child: Text(
+              _buildProviderDiagnostics(providerSnapshot),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xCC000000),
+                height: 1.45,
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          Container(
+            key: TestKeys.providerSnapshot,
+            width: double.infinity,
+            constraints: BoxConstraints(maxHeight: 180),
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Color(0x14000000)),
+            ),
+            child: SingleChildScrollView(
+              child: SelectableText(
+                _formatDialogValue(
+                  providerSnapshot.isEmpty
+                      ? {'status': 'Provider snapshot unavailable yet'}
+                      : providerSnapshot,
+                ),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Color(0xCC000000),
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Provider History',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            constraints: BoxConstraints(maxHeight: 220),
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Color(0x14000000)),
+            ),
+            child: SingleChildScrollView(
+              child: SelectableText(
+                _buildProviderHistoryText(),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Color(0xCC000000),
+                  height: 1.4,
+                ),
               ),
             ),
           ),
@@ -1422,7 +1886,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         mainnetSignPaymentRes["signature"]['scalar'] !=
             expectMainnetSignPaymentData['signature']['scalar']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m mainnetSignPaymentRes failed: ${jsonEncode(mainnetSignPaymentRes)} \u001b[0m');
     }
@@ -1437,7 +1900,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         testnetSignPaymentRes["signature"]['scalar'] !=
             expectTestnetSignPaymentData['signature']['scalar']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetSignPaymentRes failed: ${jsonEncode(testnetSignPaymentRes)} \u001b[0m');
     }
@@ -1462,7 +1924,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         mainnetSignStakeTransactionRes["signature"]['scalar'] !=
             expectMainnetSignStakeTransactionData['signature']['scalar']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m mainnetSignStakeTransactionRes failed: ${jsonEncode(mainnetSignStakeTransactionRes)} \u001b[0m');
     }
@@ -1479,7 +1940,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         testnetSignStakeTransactionRes["signature"]['scalar'] !=
             expectTestnetSignStakeTransactionData['signature']['scalar']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetSignStakeTransactionRes failed: ${jsonEncode(testnetSignStakeTransactionRes)} \u001b[0m');
     }
@@ -1499,7 +1959,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     if (testnetSignZkTransactionRes["signature"] !=
         expectTestnetSignZkTransactionData['signature']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetSignZkTransactionRes failed: ${jsonEncode(testnetSignZkTransactionRes)} \u001b[0m');
     }
@@ -1522,7 +1981,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         mainnetSignRes["signature"]['scalar'] !=
             expectMainnetSignData['signature']['scalar']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m mainnetSignRes failed: ${jsonEncode(mainnetSignRes)} \u001b[0m');
     }
@@ -1539,7 +1997,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     print('mainnetVerifyRes${jsonEncode(mainnetVerifyRes)}');
     if (!mainnetVerifyRes) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m mainnetVerifyRes failed: ${jsonEncode(mainnetVerifyRes)} \u001b[0m');
     }
@@ -1555,7 +2012,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
         testnetSignRes["signature"]['scalar'] !=
             expectTestnetSignData['signature']['scalar']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetSignRes failed: ${jsonEncode(testnetSignRes)} \u001b[0m');
     }
@@ -1572,7 +2028,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     print('testnetVerifyRes, ${jsonEncode(testnetVerifyRes)}');
     if (!testnetVerifyRes) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetVerifyRes failed: ${jsonEncode(testnetVerifyRes)} \u001b[0m');
     }
@@ -1592,7 +2047,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     Map expectMainnetSignData = signData["mainnet"]["signResult"];
     if (mainnetSignRes["signature"] != expectMainnetSignData['signature']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m mainnetSignRes failed: ${jsonEncode(mainnetSignRes)} \u001b[0m');
     }
@@ -1609,7 +2063,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     print('mainnetVerifyRes, ${jsonEncode(mainnetVerifyRes)}');
     if (!mainnetVerifyRes) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m mainnetVerifyRes failed: ${jsonEncode(mainnetVerifyRes)} \u001b[0m');
     }
@@ -1622,7 +2075,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     Map expectTestnetSignData = signData["testnet"]["signResult"];
     if (testnetSignRes["signature"] != expectTestnetSignData['signature']) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetSignRes failed: ${jsonEncode(testnetSignRes)} \u001b[0m');
     }
@@ -1639,7 +2091,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     print('testnetVerifyRes, ${jsonEncode(testnetVerifyRes)}');
     if (!testnetVerifyRes) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetVerifyRes failed: ${jsonEncode(testnetVerifyRes)} \u001b[0m');
     }
@@ -1656,7 +2107,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     if (mainnetNullifierRes["private"].isEmpty) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m mainnetNullifierRes failed: ${jsonEncode(mainnetNullifierRes)} \u001b[0m');
     }
@@ -1666,7 +2116,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
 
     if (testnetNullifierRes["private"].isEmpty) {
       checkFailedCount++;
-
       debugPrint(
           '\u001b[31m testnetNullifierRes failed: ${jsonEncode(testnetNullifierRes)} \u001b[0m');
     }
