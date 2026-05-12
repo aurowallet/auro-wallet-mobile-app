@@ -5,6 +5,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 
 class Fmt {
@@ -220,12 +221,12 @@ class Fmt {
   }
 
   static bool checkPassword(String pass) {
-    var reg = RegExp(r'^(?![0-9]+$)(?![a-zA-Z]+$)[\S]{6,20}$');
+    var reg = RegExp(r'^(?![0-9]+$)(?![a-zA-Z]+$)[\S]{8,20}$');
     return reg.hasMatch(pass);
   }
 
   static String accountName(AccountData acc) {
-    return '${acc.name.isNotEmpty ? acc.name : 'Account ${acc.accountIndex + 1}'}';
+    return '${acc.name.isNotEmpty ? acc.name : WalletStore.defaultAccountName(acc.accountIndex + 1)}';
   }
 
   static String validatorName(BuildContext ctx, String? name) {
@@ -306,7 +307,8 @@ class Fmt {
 
   static String parseShowBalance(double balance, {int showLength = 4}) {
     try {
-      String formatted = balance.toStringAsFixed(showLength);
+      Decimal d = Decimal.parse(balance.toString());
+      String formatted = d.floor(scale: showLength).toStringAsFixed(showLength);
       formatted = formatted.contains('.')
           ? formatted
               .replaceFirst(RegExp(r'0*$'), '')

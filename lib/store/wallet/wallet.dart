@@ -9,6 +9,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/utils/encryption.dart';
 import 'package:auro_wallet/store/wallet/types/seedData.dart';
+import 'package:auro_wallet/store/wallet/types/uiKeyring.dart';
 import 'package:collection/collection.dart';
 
 part 'wallet.g.dart';
@@ -19,6 +20,20 @@ class WalletStore extends _WalletStore with _$WalletStore {
   static const String seedTypePrivateKey = 'priKey';
   static const String seedTypeLedger = 'ledger';
   static const String seedTypeNone = 'none';
+  
+  // Keyring type constants for UI grouping
+  static const String keyringTypeHD = 'hd';
+  static const String keyringTypeImported = 'imported';
+  static const String keyringTypeLedger = 'ledger';
+  static const String keyringTypeWatch = 'watch';
+  
+  // Keyring group name constants
+  static const String keyringGroupImported = 'Imported';
+  static const String keyringGroupLedger = 'Ledger';
+  static const String keyringGroupWatch = 'Watch';
+
+  /// Default account name for HD wallets: "Account 1", "Account 2", etc.
+  static String defaultAccountName(int index) => 'Account $index';
 }
 
 abstract class _WalletStore with Store {
@@ -41,7 +56,6 @@ abstract class _WalletStore with Store {
   @observable
   ObservableList<WalletData> walletList = ObservableList<WalletData>();
 
-  @observable
   String runtimePwd = "";
 
   @computed
@@ -113,6 +127,11 @@ abstract class _WalletStore with Store {
   }
 
   @action
+  void setNewWalletName(String name) {
+    newWalletParams.name = name;
+  }
+
+  @action
   void setNewWalletSeed(String seed, String seedType) {
     newWalletParams.seed = seed;
     newWalletParams.seedType = seedType;
@@ -125,9 +144,15 @@ abstract class _WalletStore with Store {
 
   @action
   Future<void> setCurrentAccount(String pubKey) async {
-    WalletData wallet = walletList.firstWhere((w) =>
+    final wallet = walletList.firstWhereOrNull((w) =>
         w.accounts.indexWhere((account) => account.pubKey == pubKey) >= 0);
-    var account = wallet.accounts.firstWhere((acc) => acc.pubKey == pubKey);
+    if (wallet == null) {
+      return;
+    }
+    final account = wallet.accounts.firstWhereOrNull((acc) => acc.pubKey == pubKey);
+    if (account == null) {
+      return;
+    }
     wallet.currentAccountIndex = account.accountIndex;
     await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
     await rootStore.localStorage.setCurrentWallet(wallet.id);
@@ -144,10 +169,15 @@ abstract class _WalletStore with Store {
   @action
   Future<void> updateAccount(Map<String, dynamic> acc) async {
     AccountData newAccount = AccountData.fromJson(acc);
-    WalletData wallet =
-        walletList.firstWhere((wallet) => wallet.id == newAccount.walletId);
+    final wallet = walletList.firstWhereOrNull((w) => w.id == newAccount.walletId);
+    if (wallet == null) {
+      return;
+    }
     int index = wallet.accounts
         .indexWhere((account) => account.pubKey == newAccount.pubKey);
+    if (index < 0) {
+      return;
+    }
     wallet.accounts.removeAt(index);
     wallet.accounts.insert(index, newAccount);
     await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
@@ -161,6 +191,8 @@ abstract class _WalletStore with Store {
     await rootStore.secureStorage.clearSeeds();
     await loadWallet();
     rootStore.walletConnectService?.clearAllPairings();
+    // Reset new wallet params to ensure clean state
+    resetNewWallet();
   }
 
   @action
@@ -271,7 +303,7 @@ abstract class _WalletStore with Store {
 
     var accountData = new AccountData()
       ..pubKey = pubKey
-      ..name = name ?? ""
+      ..name = seedType == WalletStore.seedTypeMnemonic ? WalletStore.defaultAccountName(1) : (name ?? "")
       ..walletId = pubKey
       ..createTime = DateTime.now().millisecondsSinceEpoch
       ..accountIndex = hdIndex;
@@ -295,21 +327,28 @@ abstract class _WalletStore with Store {
 
   @action
   Future<void> removeAccount(AccountData acc) async {
-    WalletData wallet =
-        walletList.firstWhere((wallet) => wallet.id == acc.walletId);
+    final wallet = walletList.firstWhereOrNull((w) => w.id == acc.walletId);
+    if (wallet == null) {
+      return;
+    }
     wallet.accounts.removeWhere((account) => account.pubKey == acc.pubKey);
 
     // delete wallet if no account left
     if (wallet.accounts.length == 0) {
       // remove encrypted seed after removing account
       await rootStore.localStorage.removeWallet(wallet.id);
-      deleteSeed(WalletStore.seedTypeMnemonic, wallet.id);
-      deleteSeed(WalletStore.seedTypePrivateKey, wallet.id);
-      if (walletList.length > 0) {
-        rootStore.localStorage.setCurrentWallet(walletList[0].id);
-          if(rootStore.wallet!.currentAddress != walletList[0].currentAccount.pubKey){
-            rootStore.walletConnectService?.emitAccountsChanged(walletList[0].currentAccount.pubKey);
-          }
+      await deleteSeed(WalletStore.seedTypeMnemonic, wallet.id);
+      await deleteSeed(WalletStore.seedTypePrivateKey, wallet.id);
+      final newCurrent = walletList.firstWhereOrNull((w) => w.id != wallet.id && w.accounts.isNotEmpty);
+      if (newCurrent != null) {
+        newCurrent.currentAccountIndex = newCurrent.accounts[0].accountIndex;
+        await rootStore.localStorage.updateWallet(WalletData.toJson(newCurrent));
+        await rootStore.localStorage.setCurrentWallet(newCurrent.id);
+        if(rootStore.wallet!.currentAddress != newCurrent.currentAccount.pubKey){
+          rootStore.walletConnectService?.emitAccountsChanged(newCurrent.currentAccount.pubKey);
+        }
+      } else {
+        await rootStore.localStorage.setCurrentWallet('');
       }
     } else {
       wallet.currentAccountIndex = wallet.accounts[0].accountIndex;
@@ -340,7 +379,7 @@ abstract class _WalletStore with Store {
         await encryption.encrypt(content: seed, password: password);
     Map stored = await rootStore.secureStorage.getSeeds(seedType);
     stored[pubKey] = encryptedSeed;
-    rootStore.secureStorage.setSeeds(seedType, stored);
+    await rootStore.secureStorage.setSeeds(seedType, stored);
   }
 
   @action
@@ -364,7 +403,7 @@ abstract class _WalletStore with Store {
   @action
   Future<bool> checkSeedExist(String seedType, String pubKey) async {
     Map stored = await rootStore.secureStorage.getSeeds(seedType);
-    String? encrypted = stored[pubKey];
+    dynamic encrypted = stored[pubKey];
     return encrypted != null;
   }
 
@@ -389,9 +428,8 @@ abstract class _WalletStore with Store {
         var wallet = walletList[i];
         await updateSeed(wallet.id, passwordOld, passwordNew);
       }
-    } catch (x) {
-      print('111');
-      print(x);
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -416,7 +454,7 @@ abstract class _WalletStore with Store {
     String? seed =
         await encryption.decrypt(data: encryptedSeed!, password: passwordOld);
     if (seed != null) {
-      encryptSeed(pubKey, seed, seedType, passwordNew);
+      await encryptSeed(pubKey, seed, seedType, passwordNew);
     }
   }
 
@@ -425,7 +463,7 @@ abstract class _WalletStore with Store {
     Map stored = await rootStore.secureStorage.getSeeds(seedType);
     if (stored[pubKey] != null) {
       stored.remove(pubKey);
-      rootStore.secureStorage.setSeeds(seedType, stored);
+      await rootStore.secureStorage.setSeeds(seedType, stored);
     }
   }
 
@@ -463,13 +501,326 @@ abstract class _WalletStore with Store {
     }
   }
 
-  @action
   void setRuntimePwd(String pwd) {
     runtimePwd = pwd;
   }
 
-  @action
   void clearRuntimePwd() {
     runtimePwd = "";
   }
+
+  // ============ Multi-Wallet UI Logic ============
+
+  /// Get wallet list sorted by creation time
+  @computed
+  List<WalletData> get sortedWalletList {
+    final list = walletList.toList();
+    list.sort((a, b) => a.createTime.compareTo(b.createTime));
+    return list;
+  }
+
+  /// Get all HD wallet list
+  @computed
+  List<WalletData> get hdWalletList {
+    return sortedWalletList
+        .where((w) => w.walletType == WalletStore.seedTypeMnemonic)
+        .toList();
+  }
+
+  /// Get all imported private key wallet list
+  @computed
+  List<WalletData> get importedWalletList {
+    return sortedWalletList
+        .where((w) => w.walletType == WalletStore.seedTypePrivateKey)
+        .toList();
+  }
+
+  /// Get all Ledger wallet list
+  @computed
+  List<WalletData> get ledgerWalletList {
+    return sortedWalletList
+        .where((w) => w.walletType == WalletStore.seedTypeLedger)
+        .toList();
+  }
+
+  /// Get all watch wallet list
+  @computed
+  List<WalletData> get watchWalletList {
+    return sortedWalletList
+        .where((w) => w.walletType == WalletStore.seedTypeNone)
+        .toList();
+  }
+
+  /// Get HD wallet count
+  int get hdWalletCount => hdWalletList.length;
+
+  /// Get next HD wallet default name
+  String getNextHDWalletName() {
+    final nextIndex = getNextWalletIndexOfType(WalletStore.seedTypeMnemonic);
+    return 'Wallet ${nextIndex + 1}';
+  }
+
+  /// Convert to UI Keyring list (matching React display logic)
+  /// HD wallets: each is a separate group
+  /// Imported wallets: all merged into one "Imported" group  
+  /// Ledger wallets: all merged into one "Ledger" group
+  /// All groups sorted by creation time
+  List<UIKeyring> getKeyringsList() {
+    final keyrings = <UIKeyring>[];
+
+    // 1. Add all HD wallets (each HD wallet is an independent Keyring)
+    for (final wallet in hdWalletList) {
+      keyrings.add(_walletToUIKeyring(wallet, WalletStore.keyringTypeHD));
+    }
+
+    // 2. Merge all imported wallets into one "Imported" group
+    if (importedWalletList.isNotEmpty) {
+      keyrings.add(_mergeWalletsToUIKeyring(importedWalletList, WalletStore.keyringTypeImported, WalletStore.keyringGroupImported));
+    }
+
+    // 3. Merge all Ledger wallets into one "Ledger" group
+    if (ledgerWalletList.isNotEmpty) {
+      keyrings.add(_mergeWalletsToUIKeyring(ledgerWalletList, WalletStore.keyringTypeLedger, WalletStore.keyringGroupLedger));
+    }
+
+
+    // 5. Sort all keyrings by creation time (earliest first)
+    keyrings.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    return keyrings;
+  }
+
+  /// Merge multiple wallets into a single UIKeyring group
+  UIKeyring _mergeWalletsToUIKeyring(List<WalletData> wallets, String type, String groupName) {
+    final allAccounts = <UIKeyringAccount>[];
+    int earliestCreatedAt = wallets.first.createTime;
+    
+    for (final wallet in wallets) {
+      if (wallet.createTime < earliestCreatedAt) {
+        earliestCreatedAt = wallet.createTime;
+      }
+      for (final acc in wallet.accounts) {
+        allAccounts.add(UIKeyringAccount(
+          address: acc.pubKey,
+          name: acc.name.isNotEmpty ? acc.name : getWalletDisplayName(wallet),
+          hdIndex: acc.accountIndex,
+          type: _getAccountType(wallet.walletType),
+          walletId: wallet.id,
+        ));
+      }
+    }
+    
+    return UIKeyring(
+      id: '${type}_group',
+      type: type,
+      name: groupName,
+      createdAt: earliestCreatedAt,
+      canAddAccount: false,
+      currentAddress: null,
+      accounts: allAccounts,
+    );
+  }
+
+  UIKeyring _walletToUIKeyring(WalletData wallet, String type) {
+    // Safe access to currentAccount - returns empty string if no accounts
+    final currentAddr = wallet.accounts.isNotEmpty 
+        ? wallet.currentAccount.pubKey 
+        : null;
+    
+    return UIKeyring(
+      id: wallet.id,
+      type: type,
+      name: getWalletDisplayName(wallet),
+      createdAt: wallet.createTime,
+      canAddAccount: wallet.walletType == WalletStore.seedTypeMnemonic,
+      currentAddress: currentAddr,
+      accounts: wallet.accounts
+          .map((acc) => UIKeyringAccount(
+                address: acc.pubKey,
+                name: acc.name,
+                hdIndex: acc.accountIndex,
+                type: _getAccountType(wallet.walletType),
+                walletId: wallet.id,
+              ))
+          .toList(),
+    );
+  }
+
+  String _getAccountType(String walletType) {
+    switch (walletType) {
+      case 'mnemonic':
+        return 'WALLET_INSIDE';
+      case 'priKey':
+        return 'WALLET_OUTSIDE';
+      case 'ledger':
+        return 'WALLET_LEDGER';
+      case 'none':
+        return 'WALLET_WATCH';
+      default:
+        return 'WALLET_INSIDE';
+    }
+  }
+
+  String getKeyringGroupName(WalletData wallet) {
+    switch (wallet.walletType) {
+      case 'priKey':
+        return WalletStore.keyringGroupImported;
+      case 'ledger':
+        return WalletStore.keyringGroupLedger;
+      case 'none':
+        return WalletStore.keyringGroupWatch;
+      default:
+        return getWalletDisplayName(wallet);
+    }
+  }
+
+  /// Get wallet display name
+  String getWalletDisplayName(WalletData wallet) {
+    // If has custom name, use custom name
+    if (wallet.meta['name'] != null) {
+      return wallet.meta['name'];
+    }
+
+    // Otherwise generate default name based on type
+    switch (wallet.walletType) {
+      case 'mnemonic':
+        return 'Wallet ${wallet.walletTypeIndex + 1}';
+      case 'priKey':
+        return 'Imported ${wallet.walletTypeIndex + 1}';
+      case 'ledger':
+        return 'Ledger ${wallet.walletTypeIndex + 1}';
+      case 'none':
+        return 'Watch ${wallet.walletTypeIndex + 1}';
+      default:
+        return 'Wallet ${wallet.walletTypeIndex + 1}';
+    }
+  }
+
+  /// Rename wallet
+  @action
+  Future<bool> renameWallet(String walletId, String newName) async {
+    try {
+      final wallet = walletList.firstWhereOrNull((w) => w.id == walletId);
+      if (wallet == null) return false;
+
+      wallet.meta['name'] = newName;
+
+      await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
+      await loadWallet();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Delete entire wallet (including all accounts)
+  @action
+  Future<bool> deleteWallet(String walletId, String password) async {
+    try {
+      final wallet = walletList.firstWhereOrNull((w) => w.id == walletId);
+      if (wallet == null) return false;
+
+      // Verify password (Watch wallet doesn't need password)
+      if (wallet.walletType != WalletStore.seedTypeNone) {
+        final isValid =
+            await checkPassword(wallet.id, wallet.walletType, password);
+        if (!isValid) return false;
+      }
+
+      // Delete seed data
+      await deleteSeed(wallet.walletType, wallet.id);
+
+      // Remove wallet from storage
+      await rootStore.localStorage.removeWallet(wallet.id);
+
+      if (walletId == currentWalletId) {
+        final newCurrent =
+            walletList.firstWhereOrNull((w) => w.id != walletId && w.accounts.isNotEmpty);
+        if (newCurrent != null) {
+          newCurrent.currentAccountIndex = newCurrent.accounts[0].accountIndex;
+          await rootStore.localStorage.updateWallet(WalletData.toJson(newCurrent));
+          await rootStore.localStorage.setCurrentWallet(newCurrent.id);
+        } else {
+          await rootStore.localStorage.setCurrentWallet('');
+        }
+      }
+
+      await loadWallet();
+
+      // Notify DApp of address change (only if wallet still exists)
+      if (walletList.isNotEmpty && currentWallet.id.isNotEmpty) {
+        rootStore.walletConnectService
+            ?.emitAccountsChanged(currentWallet.currentAccount.pubKey);
+      }
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Get mnemonic for specified wallet
+  Future<String?> getWalletMnemonic(String walletId, String password) async {
+    final wallet = walletList.firstWhereOrNull((w) => w.id == walletId);
+    if (wallet == null || wallet.walletType != WalletStore.seedTypeMnemonic) {
+      return null;
+    }
+    return await decryptSeed(walletId, WalletStore.seedTypeMnemonic, password);
+  }
+
+  /// Add new account to specified HD wallet
+  /// Returns derivation params for caller to handle
+  @action
+  Future<Map<String, dynamic>?> addAccountToWallet(
+    String walletId,
+    String accountName,
+    String password,
+  ) async {
+    try {
+      final wallet = walletList.firstWhereOrNull((w) => w.id == walletId);
+      if (wallet == null || wallet.walletType != WalletStore.seedTypeMnemonic) {
+        return null;
+      }
+
+      // Verify password
+      final isValid =
+          await checkPassword(walletId, WalletStore.seedTypeMnemonic, password);
+      if (!isValid) return null;
+
+      // Get mnemonic
+      final mnemonic =
+          await decryptSeed(walletId, WalletStore.seedTypeMnemonic, password);
+      if (mnemonic == null) return null;
+
+      // Calculate next HD index
+      final nextIndex = getNextWalletAccountIndex(wallet);
+
+      // Return derivation result for caller to handle
+      return {
+        'walletId': walletId,
+        'mnemonic': mnemonic,
+        'nextIndex': nextIndex,
+        'accountName': accountName.isEmpty
+            ? WalletStore.defaultAccountName(wallet.accounts.length + 1)
+            : accountName,
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Check if address exists in any wallet
+  bool isAddressExist(String address) {
+    return walletList
+        .any((wallet) => wallet.accounts.any((acc) => acc.pubKey == address));
+  }
+
+  /// Find wallet by account address
+  WalletData? findWalletByAddress(String address) {
+    return walletList.firstWhereOrNull((wallet) =>
+        wallet.accounts.any((acc) => acc.pubKey == address));
+  }
+
+  /// Get current keyring ID (wallet ID)
+  String? get currentKeyringId => currentWalletId;
 }

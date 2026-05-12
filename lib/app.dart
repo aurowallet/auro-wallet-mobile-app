@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/account/addAccountPage.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
+import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
+import 'package:auro_wallet/page/account/selectHDPathPage.dart';
 import 'package:auro_wallet/page/account/LockWalletPage.dart';
 import 'package:auro_wallet/page/assets/token/TokenDetail.dart';
 import 'package:auro_wallet/page/browser/browserSearchPage.dart';
@@ -15,6 +17,8 @@ import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
 import 'package:auro_wallet/page/settings/WalletConnectPage.dart';
 import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/page/test/webviewTestPage.dart';
+import 'package:auro_wallet/service/tx_status_monitor.dart';
+import 'package:auro_wallet/service/notification_service.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/foundation.dart' as Foundation;
@@ -25,6 +29,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:auro_wallet/common/components/willPopScopWrapper.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
+import 'package:auro_wallet/page/account/walletDetailsPage.dart';
+import 'package:auro_wallet/page/account/addWalletPage.dart';
 import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
 import 'package:auro_wallet/page/account/import/importWaysPage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
@@ -61,6 +67,8 @@ import 'package:auro_wallet/page/rootAlertPage.dart';
 import 'package:safe_device/safe_device.dart';
 import 'package:app_links/app_links.dart';
 import 'package:auro_wallet/page/settings/preferences/preferencesPage.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:mobx/mobx.dart' as mobx;
 
 class WalletApp extends StatefulWidget {
   const WalletApp();
@@ -76,16 +84,71 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   bool _isDangerous = false;
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
-  late BuildContext _homePageContext;
+  BuildContext? _homePageContext;
+  bool _storeReady = false;
+  bool _pendingNotificationConsumed = false;
+  String? _navigatingTxHash;
+  Timer? _navigatingResetTimer;
+  Map<String, String>? _deferredLockedPayload;
   Map? appLinkRouteParams;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  bool _lockPagePushed = false;
+  bool _inlineLockShowing = false;
+  DateTime? _lastPausedTime;
+  static const int _lockThresholdSeconds = 3;
+  Future<int>? _initFuture;
+  mobx.ReactionDisposer? _walletEmptyReaction;
 
   @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
     initDeepLinks();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _detectDanger();
     });
-    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_storeReady) return;
+    if (state == AppLifecycleState.paused) {
+      if (_appStore?.settings != null && !webApi.account.isBiometricInProgress) {
+        _lastPausedTime = DateTime.now();
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      if (_lastPausedTime != null && _appStore?.settings != null && !webApi.account.isBiometricInProgress) {
+        final elapsed = DateTime.now().difference(_lastPausedTime!).inSeconds;
+        if (elapsed >= _lockThresholdSeconds) {
+          _appStore!.wallet!.clearRuntimePwd();
+          if (webApi.account.getAppAccessEnabled()) {
+            _appStore!.settings!.setLockWalletStatus(true);
+          }
+        }
+        _lastPausedTime = null;
+      }
+      final lockCheck = initLockCheck();
+      final biometricActive = webApi.account.isBiometricInProgress;
+      if (lockCheck && !_lockPagePushed && !_inlineLockShowing && !biometricActive) {
+        _lockPagePushed = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final nav = _navigatorKey.currentState;
+          if (nav != null) {
+            try {
+              nav.pushNamed(LockWalletPage.route).then((_) {
+                _lockPagePushed = false;
+              }).catchError((e) {
+                _lockPagePushed = false;
+              });
+            } catch (e) {
+              _lockPagePushed = false;
+            }
+          } else {
+            _lockPagePushed = false;
+          }
+        });
+      }
+    }
   }
 
   Future<void> initDeepLinks() async {
@@ -103,6 +166,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
     if (!isValidHttpUrl(decodedURL)) {
       print('Not valid URL');
       return null;
+    }
+    if (_appStore?.settings == null) {
+      return {"action": action, "url": decodedURL, "networkId": null};
     }
     String? nextNetworkId;
     String? networkId = uri.queryParameters['networkid'];
@@ -201,26 +267,149 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   Future<int> _initStore(BuildContext context) async {
     if (_appStore == null) {
       _appStore = globalAppStore;
-      print('initializing app state');
-      print('sys locale: ${Localizations.localeOf(context)}');
       await _appStore!.init(Localizations.localeOf(context).toString());
       _appStore!.walletConnectService!.setContext(context);
       webApi = Api(context, _appStore!);
       await webApi.init();
+      TxStatusMonitor().ensureLifecycleObserving();
       _changeLang(context, _appStore!.settings!.localeCode);
+      _storeReady = true;
+      if (webApi.account.getAppAccessEnabled()) {
+        _appStore!.settings!.setLockWalletStatus(true);
+      }
+      NotificationService().onNotificationTap = _handleNotificationTap;
+      _walletEmptyReaction = mobx.reaction(
+        (_) => _appStore!.wallet!.walletList.isEmpty,
+        (bool isEmpty) {
+          if (isEmpty && mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (!mounted) return;
+              await webApi.account.resetAllSecurityFlags();
+              _appStore!.wallet!.clearRuntimePwd();
+              _appStore!.settings!.setLockWalletStatus(false);
+              _appStore!.walletConnectService?.clearAllPairings();
+              if (mounted) Phoenix.rebirth(context);
+            });
+          }
+        },
+      );
     }
     return _appStore!.wallet!.walletListAll.length;
   }
 
+  void _handleNotificationTap(Map<String, String> payload, [int attempt = 0]) {
+    const maxAttempts = 10;
+    final txHash = payload['hash'];
+    if (txHash == null || txHash.isEmpty) return;
+    if (!isValidMinaTxHash(txHash)) return;
+    if (!_storeReady || _appStore == null) return;
+
+    void doNavigate() {
+      if (!mounted) return;
+      final homeCtx = _homePageContext;
+      if (homeCtx == null || !homeCtx.mounted) {
+        if (attempt < maxAttempts) {
+          _handleNotificationTap(payload, attempt + 1);
+        }
+        return;
+      }
+
+      if (initLockCheck()) {
+        _deferredLockedPayload = payload;
+        return;
+      }
+
+      _navigateToTxDetail(homeCtx, payload);
+    }
+
+    if (_homePageContext != null && _homePageContext!.mounted && mounted) {
+      doNavigate();
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) => doNavigate());
+    }
+  }
+
+  void _navigateToTxDetail(BuildContext ctx, Map<String, String> payload) {
+    final txHash = payload['hash'];
+    if (txHash == null || txHash.isEmpty) return;
+    if (!ctx.mounted) return;
+    if (_navigatingTxHash == txHash) {
+      NotificationService().cancelNotification(NotificationService.notificationIdForHash(txHash));
+      return;
+    }
+    _navigatingTxHash = txHash;
+    _navigatingResetTimer?.cancel();
+    _navigatingResetTimer = Timer(const Duration(seconds: 3), () {
+      _navigatingTxHash = null;
+    });
+
+    NotificationService().cancelNotification(NotificationService.notificationIdForHash(txHash));
+
+    try {
+      Navigator.of(ctx).pushNamed(
+        TransactionDetailPage.route,
+        arguments: {
+          'txHash': txHash,
+          if (payload['txUrl'] != null && payload['txUrl']!.isNotEmpty)
+            'txUrl': payload['txUrl'],
+          if (payload['explorerUrl'] != null && payload['explorerUrl']!.isNotEmpty)
+            'explorerUrl': payload['explorerUrl'],
+          if (payload['senderAddress'] != null && payload['senderAddress']!.isNotEmpty)
+            'senderAddress': payload['senderAddress'],
+          if (payload['isZeko'] == 'true')
+            'isZeko': true,
+        },
+      ).then((_) {
+        _navigatingResetTimer?.cancel();
+        _navigatingTxHash = null;
+      }).catchError((_) {
+        _navigatingResetTimer?.cancel();
+        _navigatingTxHash = null;
+      });
+    } catch (_) {
+      _navigatingResetTimer?.cancel();
+      _navigatingTxHash = null;
+    }
+  }
+
+  void _replayDeferredPayload(Map<String, String> payload, [int attempt = 0]) {
+    const maxAttempts = 10;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (initLockCheck()) {
+        _deferredLockedPayload = payload;
+        return;
+      }
+      final homeCtx = _homePageContext;
+      if (homeCtx != null && homeCtx.mounted) {
+        _navigateToTxDetail(homeCtx, payload);
+      } else if (attempt < maxAttempts) {
+        _replayDeferredPayload(payload, attempt + 1);
+      }
+    });
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _walletEmptyReaction?.call();
+    _navigatingResetTimer?.cancel();
+    NotificationService().onNotificationTap = null;
     webApi.dispose();
     _linkSubscription?.cancel();
     super.dispose();
   }
 
   Future<void> _doAutoRouting(BuildContext context, bool isFromLockPage) async {
+    final bool hadAppLink = appLinkRouteParams != null;
     if (appLinkRouteParams != null) {
+      if (!_storeReady || _appStore == null) {
+        return;
+      }
+      final homeCtx = _homePageContext;
+      if (homeCtx == null) {
+        return;
+      }
       int walletLength = _appStore!.wallet!.walletListAll.length;
       if (walletLength == 0) {
         return;
@@ -231,9 +420,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           return;
         }
       }
-      AppLocalizations dic = AppLocalizations.of(_homePageContext)!;
+      AppLocalizations dic = AppLocalizations.of(homeCtx)!;
       bool? rejected = await UI.showConfirmDialog(
-          context: _homePageContext,
+          context: homeCtx,
           title: dic.zkAppTipTitle,
           contents: [appLinkRouteParams!['url'] + '\n', dic.zkAppTipContent],
           okText: dic.isee,
@@ -242,19 +431,19 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         return;
       }
       bool isBrowserWrapperPageOpened = false;
-      Navigator.of(_homePageContext).popUntil((route) {
+      Navigator.of(homeCtx).popUntil((route) {
         if (route.settings.name == BrowserWrapperPage.route) {
           isBrowserWrapperPageOpened = true;
         }
         return true;
       });
       if (isBrowserWrapperPageOpened) {
-        Navigator.of(_homePageContext).pushReplacementNamed(
+        Navigator.of(homeCtx).pushReplacementNamed(
           BrowserWrapperPage.route,
           arguments: {"url": appLinkRouteParams!['url']},
         );
       } else {
-        Navigator.of(_homePageContext).pushNamed(
+        Navigator.of(homeCtx).pushNamed(
           BrowserWrapperPage.route,
           arguments: {"url": appLinkRouteParams!['url']},
         );
@@ -263,7 +452,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       if (appLinkRouteParams!['networkId'] != null &&
           currentNetworkID != appLinkRouteParams!['networkId']) {
         await UI.showSwitchChainAction(
-            context: _homePageContext,
+            context: homeCtx,
             networkID: appLinkRouteParams!['networkId'],
             url: appLinkRouteParams!['url'],
             iconUrl: null,
@@ -278,18 +467,28 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       }
       appLinkRouteParams = null;
     }
+
+    if (_deferredLockedPayload != null && isFromLockPage && !hadAppLink) {
+      final payload = _deferredLockedPayload!;
+      _deferredLockedPayload = null;
+      _replayDeferredPayload(payload);
+    }
   }
 
   bool initLockCheck() {
+    if (_appStore?.settings == null) return false;
     final isAppAccessOpen = webApi.account.getAppAccessEnabled();
     return isAppAccessOpen && _appStore!.settings!.lockWalletStatus;
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _doAutoRouting(context, false));
+    if (appLinkRouteParams != null) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _doAutoRouting(context, false));
+    }
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Auro Wallet',
       locale: _locale,
       debugShowCheckedModeBanner: false,
@@ -305,7 +504,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       builder: EasyLoading.init(builder: (BuildContext context, Widget? child) {
         final size = MediaQuery.of(context).size;
         final factor = max(min(size.width / 375, 2.0), 1.0);
-        return GestureDetector(
+        final mainContent = GestureDetector(
           onTap: () {
             FocusScopeNode currentFocus = FocusScope.of(context);
             if (!currentFocus.hasPrimaryFocus &&
@@ -322,23 +521,33 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
             ),
           ),
         );
+        return mainContent;
       }),
       routes: {
         HomePage.route: (context) => WillPopScopWrapper(
               child: FutureBuilder<int>(
-                future: _initStore(context),
+                future: _initFuture ??= _initStore(context),
                 builder: (_, AsyncSnapshot<int> snapshot) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _homePageContext = context;
                   });
                   if (snapshot.hasData) {
+                    if (!_pendingNotificationConsumed) {
+                      _pendingNotificationConsumed = true;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        NotificationService().consumePendingNotification();
+                      });
+                    }
                     FlutterNativeSplash.remove();
-                    if (snapshot.data! > 0) {
-                      bool isOpen = initLockCheck();
+                    final walletCount = _appStore!.wallet!.walletListAll.length;
+                    if (walletCount > 0) {
+                      bool isOpen = initLockCheck() && !_lockPagePushed;
                       if (isOpen) {
+                        _inlineLockShowing = true;
                         return LockWalletPage(_appStore!,
                             unLockCallBack: _doAutoRouting);
                       } else {
+                        _inlineLockShowing = false;
                         return HomePage(_appStore!);
                       }
                     } else {
@@ -346,7 +555,12 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
                           _appStore!.settings!, _changeLang);
                     }
                   } else {
-                    return Container();
+                    return Container(
+                      color: Colors.white,
+                      child: Center(
+                        child: RotatingCircle(size: 30, color: Theme.of(context).primaryColor),
+                      ),
+                    );
                   }
                 },
               ),
@@ -357,6 +571,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
             SetNewWalletPasswordPage(_appStore!),
         BackupMnemonicTipsPage.route: (_) => BackupMnemonicTipsPage(_appStore!),
         WalletManagePage.route: (_) => WalletManagePage(_appStore!),
+        WalletDetailsPage.route: (_) => WalletDetailsPage(_appStore!),
+        AddWalletPage.route: (_) => AddWalletPage(_appStore!),
         ImportPrivateKeyPage.route: (_) => ImportPrivateKeyPage(_appStore!),
         ImportKeyStorePage.route: (_) => ImportKeyStorePage(_appStore!),
         ImportWaysPage.route: (_) => ImportWaysPage(_appStore!),
@@ -368,7 +584,8 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
         ImportWatchedAccountPage.route: (_) =>
             ImportWatchedAccountPage(_appStore!),
         LedgerAccountNamePage.route: (_) => LedgerAccountNamePage(_appStore!),
-        AddAccountPage.route: (_) => AddAccountPage(_appStore!),
+        ConnectHardwareWalletIntroPage.route: (_) => ConnectHardwareWalletIntroPage(_appStore!),
+        SelectHDPathPage.route: (_) => SelectHDPathPage(_appStore!),
         LockWalletPage.route: (_) => LockWalletPage(_appStore!),
         TransferPage.route: (_) => TransferPage(_appStore!),
         ReceivePage.route: (_) => ReceivePage(_appStore!),

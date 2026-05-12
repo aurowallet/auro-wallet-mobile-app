@@ -17,7 +17,7 @@ const int DAYS_PER_THREE_MONTHS = 90;
 const int DAYS_PER_SIX_MONTHS = 180;
 
 /// app versions
-const String app_version = 'v2.2.2(1189)';
+const String app_version = 'v2.3.0(1197)';
 
 final Map<String, String> languageConfig = {
   "en": 'English',
@@ -30,3 +30,7 @@ final Map<String, String> languageConfig = {
 // ** language contrubute url
 final String contributeMoreLanguage =
     "https://hosted.weblate.org/projects/aurowallet/";
+
+
+final String ledgerHelpUrl =
+    "https://www.ledger.com/academy/crypto/what-are-hierarchical-deterministic-hd-wallets";

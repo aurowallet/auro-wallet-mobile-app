@@ -11,6 +11,18 @@ class BridgeService {
   ///For multiple use at the same time
   int _retainCount = 0;
 
+  Map<String, dynamic> _normalizeMapResult(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return value.map((key, value) => MapEntry(key.toString(), value));
+    }
+    return {
+      'value': value,
+    };
+  }
+
   Future<void> init({String? jsCode}) async {
     final c = Completer();
     if (_runner == null) {
@@ -57,7 +69,7 @@ class BridgeService {
     var paramsStr = json.encode(params);
     final res = await _runner
         ?.evalJavascript('account.importWalletByPrivateKey($paramsStr)');
-    return res;
+    return _normalizeMapResult(res);
   }
 
   Future<dynamic> createWalletByMnemonic(
@@ -71,45 +83,45 @@ class BridgeService {
       'needPrivateKey': needPrivateKey,
     };
     var paramsStr = json.encode(params);
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'account.importWalletByMnemonic($paramsStr)',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
   Future<Map<String, dynamic>> signPaymentTx(Map txInfo) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'auroSignLib.signTransaction(${jsonEncode(txInfo)})',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
   // signStakeDelegationTx
   Future<Map<String, dynamic>> signStakeDelegationTx(Map txInfo) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'auroSignLib.signTransaction(${jsonEncode(txInfo)})',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
   // signZkTransaction
   Future<Map<String, dynamic>> signZkTransaction(Map txInfo) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'auroSignLib.signTransaction(${jsonEncode(txInfo)})',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
 // signMessage
   Future<Map<String, dynamic>> signMessage(Map messageInfo) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'auroSignLib.signTransaction(${jsonEncode(messageInfo)})',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
   Future<bool> verifyMessage(Map messageInfo) async {
@@ -122,10 +134,10 @@ class BridgeService {
 
   Future<Map<String, dynamic>> signFields(Map fieldsInfo) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'auroSignLib.signFields(${jsonEncode(fieldsInfo)})',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
   Future<bool> verifyFields(Map fieldsInfo) async {
@@ -138,35 +150,49 @@ class BridgeService {
 
   Future<Map<String, dynamic>> createNullifier(Map info) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'auroSignLib.createNullifier(${jsonEncode(info)})',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
   Future<Map<String, dynamic>> encryptData(String info, String pubKey) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
+    final res = await _runner?.evalJavascript(
         'webEncryption.encryptData(${jsonEncode({
               "targetData": info,
               "pubKey": pubKey
             })})',
         allowRepeat: true);
-    return res;
+    return _normalizeMapResult(res);
   }
 
   Future<Map<String, dynamic>> decryptData(
       Map info, String privateKey) async {
     assert(_runner != null, 'bridge not init');
-    Map<String, dynamic> res = await _runner?.evalJavascript(
-        'webEncryption.decryptData(${
+    final raw = await _runner?.evalJavascript(
+        'webEncryption.decryptData(${ 
           jsonEncode({
               "targetData": info,
               "privateKey": privateKey
             })
         })',
         allowRepeat: true);
-    return res;
+    if (raw is String) {
+      return {
+        'decryptedData': raw,
+      };
+    }
+    final res = _normalizeMapResult(raw);
+    if (res['decryptedData'] != null) {
+      return res;
+    }
+    if (res['error'] != null) {
+      return res;
+    }
+    return {
+      'decryptedData': res,
+    };
   }
 
   int getEvalJavascriptUID() {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:auro_wallet/common/components/menuItem.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -24,107 +25,121 @@ class _PasswordVerificationState extends State<PasswordVerificationPage>
 
   final AppStore store;
   bool _isAppAccessEnable = false;
-  bool _isTransactionEnable = false;
-
-  late AnimationController _controller;
-  late Animation<Offset> _offsetAnimation;
-  late Animation<Color?> _colorAnimation;
+  bool _isTransactionPwdEnable = true;
+  bool _isWarning = false;
+  AnimationController? _shakeController;
+  Animation<double> _shakeAnimation = const AlwaysStoppedAnimation(0.0);
+  Timer? _warningResetTimer;
 
   @override
   void initState() {
     super.initState();
-    _checkPwdAuth();
-
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+    final controller = AnimationController(
+      duration: Duration(milliseconds: 400),
       vsync: this,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _controller.reset();
-        }
-      });
-
-    _offsetAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0.1, 0.0),
-    ).chain(CurveTween(curve: Curves.elasticIn)).animate(_controller);
-
-    _colorAnimation = ColorTween(
-      begin: Color(0xFF808080),
-      end: Color(0xFFD65A5A),
-    ).animate(_controller);
+    );
+    _shakeController = controller;
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -8), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -8, end: 8), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 8, end: -5), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -5, end: 5), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 5, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOut,
+    ));
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _warningResetTimer?.cancel();
+        _warningResetTimer = Timer(Duration(milliseconds: 600), () {
+          if (mounted) setState(() => _isWarning = false);
+        });
+      }
+    });
+    _checkPwdAuth();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _warningResetTimer?.cancel();
+    _shakeController?.dispose();
     super.dispose();
+  }
+
+  void _triggerWarning() {
+    _warningResetTimer?.cancel();
+    setState(() => _isWarning = true);
+    _shakeController?.forward(from: 0);
   }
 
   Future<void> _checkPwdAuth() async {
     final isAppAccessEnable = webApi.account.getAppAccessEnabled();
-    final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
-
+    final isTransactionPwdEnable = webApi.account.getTransactionPwdEnabled();
     setState(() {
       _isAppAccessEnable = isAppAccessEnable;
-      _isTransactionEnable = isTransactionEnable;
+      _isTransactionPwdEnable = isTransactionPwdEnable;
     });
   }
 
   void _onToggleAppAccess(bool isOn) async {
-    if (!isOn && !_isTransactionEnable) {
-      if (!_controller.isAnimating) {
-        _controller.forward();
+    if (!isOn) {
+      if (!_isTransactionPwdEnable) {
+        _triggerWarning();
+        return;
+      }
+      String? password = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true);
+      if (password != null) {
+        if (!mounted) return;
+        webApi.account.setAppAccessDisabled();
+        setState(() {
+          _isAppAccessEnable = false;
+        });
       }
     } else {
-      if (!isOn) {
-        String? password = await UI.showPasswordDialog(
-            context: context,
-            wallet: store.wallet!.currentWallet,
-            inputPasswordRequired: true);
-        if (password != null) {
-          webApi.account.setAppAccessDisabled();
-        }
-      } else {
-        webApi.account.setAppAccessEnabled();
-      }
+      webApi.account.setAppAccessEnabled();
       setState(() {
-        _isAppAccessEnable = isOn;
+        _isAppAccessEnable = true;
       });
     }
   }
 
-  void _onToggleTransaction(bool isOn) async {
-    if (!isOn && !_isAppAccessEnable) {
-      if (!_controller.isAnimating) {
-        _controller.forward();
-      }
+  void _onToggleTransactionPwd(bool isOn) async {
+    if (isOn) {
+      webApi.account.setTransactionPwdEnabled();
+      store.wallet!.clearRuntimePwd();
+      setState(() {
+        _isTransactionPwdEnable = true;
+      });
     } else {
-      if (!isOn) {
-        String? password = await UI.showPasswordDialog(
-            context: context,
-            wallet: store.wallet!.currentWallet,
-            inputPasswordRequired: true);
-        if (password != null) {
-          store.wallet!.setRuntimePwd(password);
-          setState(() {
-            _isTransactionEnable = isOn;
-          });
-          webApi.account.setTransactionPwdDisabled();
-        }
-      } else {
-        store.wallet!.clearRuntimePwd();
-        webApi.account.setTransactionPwdEnabled();
+      if (!_isAppAccessEnable) {
+        _triggerWarning();
+        return;
+      }
+      String? password = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true,
+          store: store);
+      if (password != null) {
+        if (!mounted) return;
+        webApi.account.setTransactionPwdDisabled();
+        store.wallet!.setRuntimePwd(password);
         setState(() {
-          _isTransactionEnable = isOn;
+          _isTransactionPwdEnable = false;
         });
       }
     }
   }
 
+  late AppLocalizations dic;
+
   @override
   Widget build(BuildContext context) {
-    AppLocalizations dic = AppLocalizations.of(context)!;
+    dic = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(dic.passwordVerification),
@@ -138,85 +153,44 @@ class _PasswordVerificationState extends State<PasswordVerificationPage>
             padding: EdgeInsets.only(top: 20),
             child: Column(
               children: <Widget>[
-                SwitchItem(
+                MenuItem(
                   text: dic.appAccess,
-                  onClick: _onToggleAppAccess,
-                  isOn: this._isAppAccessEnable,
+                  switchValue: _isAppAccessEnable,
+                  onSwitchChanged: _onToggleAppAccess,
                 ),
-                SwitchItem(
+                MenuItem(
                   text: dic.transactions,
-                  onClick: _onToggleTransaction,
-                  isOn: this._isTransactionEnable,
+                  switchValue: _isTransactionPwdEnable,
+                  onSwitchChanged: _onToggleTransactionPwd,
                 ),
-                Container(
-                    height: 54,
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            return SlideTransition(
-                              position: _offsetAnimation,
-                              child: Text(
-                                dic.pwdVerificationTip,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: _colorAnimation.value,
-                                ),
-                              ),
-                            );
-                          },
+                AnimatedBuilder(
+                  animation: _shakeAnimation,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(_shakeAnimation.value, 0),
+                      child: child,
+                    );
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        dic.pwdVerificationTip,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: _isWarning
+                              ? Color(0xFFD65A5A)
+                              : Color(0xFF808080),
                         ),
-                      ],
-                    ))
+                      ),
+                    ),
+                  ),
+                ),
               ],
             )),
       ),
     );
-  }
-}
-
-class SwitchItem extends StatelessWidget {
-  SwitchItem({required this.text, required this.isOn, required this.onClick});
-
-  final String text;
-  final bool isOn;
-  final void Function(bool) onClick;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        height: 54,
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(text,
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600)),
-            Theme(
-              data: ThemeData(
-                useMaterial3: true,
-              ).copyWith(
-                colorScheme: Theme.of(context)
-                    .colorScheme
-                    .copyWith(outline: Color(0xFFE9E9E9)),
-              ),
-              child: Switch(
-                value: isOn,
-                onChanged: onClick,
-                activeColor: Colors.white,
-                inactiveThumbColor: Colors.white,
-                activeTrackColor: Color(0xFF594AF1),
-                inactiveTrackColor: Color(0xFFE9E9E9),
-              ),
-            )
-          ],
-        ));
   }
 }

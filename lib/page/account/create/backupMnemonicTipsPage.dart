@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -86,12 +87,14 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
               child: Column(
                 children: [
                   CheckItem(
+                    key: TestKeys.backupTipsCheckbox1,
                     onChecked: _onValue1Checked,
                     checked: value1Checked,
                     text: dic.mnemonicLost,
                   ),
                   Container(height: 20,),
                   CheckItem(
+                    key: TestKeys.backupTipsCheckbox2,
                     onChecked: _onValue2Checked,
                     checked: value2Checked,
                     text: dic.protectMnemonic,
@@ -100,6 +103,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
                   Container(
                     padding: EdgeInsets.only(left: 18, right: 18, top: 12, bottom: 30),
                     child: NormalButton(
+                      key: TestKeys.backupTipsNextButton,
                       disabled: !value1Checked || !value2Checked,
                       text: dic.next,
                       onPressed: () => _onNext(),
@@ -117,6 +121,7 @@ class _BackupMnemonicTipsPageState extends State<BackupMnemonicTipsPage> {
 
 class CheckItem extends StatelessWidget {
   CheckItem({
+    super.key,
     required this.text,
     required this.checked,
     required this.onChecked,

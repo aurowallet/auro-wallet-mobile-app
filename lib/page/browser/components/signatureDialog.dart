@@ -98,8 +98,23 @@ class _SignatureDialogState extends State<SignatureDialog> {
     privateKey = await webApi.account
         .getPrivateKey(nextWalletData, nextAccountData.accountIndex, password);
     if (privateKey == null) {
-      UI.toast(dic.passwordError);
-      return false;
+      store.wallet!.clearRuntimePwd();
+      password = await UI.showPasswordDialog(
+          context: context,
+          wallet: nextWalletData,
+          inputPasswordRequired: true,
+          isTransaction: true,
+          store: store);
+      if (password == null) {
+        return false;
+      }
+      privateKey = await webApi.account
+          .getPrivateKey(nextWalletData, nextAccountData.accountIndex, password);
+      if (privateKey == null) {
+        store.wallet!.clearRuntimePwd();
+        UI.toast(dic.passwordError);
+        return false;
+      }
     }
     setState(() {
       submitting = true;

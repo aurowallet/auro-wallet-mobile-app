@@ -46,3 +46,9 @@ release-package
 
 # FVM Version Cache
 .fvm/
+
+# Test config (machine-specific)
+.test_config
+
+# Test screenshots
+integration_test/screenshots/

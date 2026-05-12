@@ -1,16 +1,24 @@
+import 'package:collection/collection.dart';
 import 'package:auro_wallet/common/components/accountItem.dart';
 import 'package:auro_wallet/common/components/customPromptDialog.dart';
+import 'package:auro_wallet/common/components/keyringSection.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/account/addAccountPage.dart';
+import 'package:auro_wallet/page/account/accountManagePage.dart';
+import 'package:auro_wallet/page/account/addWalletPage.dart';
+import 'package:auro_wallet/page/account/walletDetailsPage.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/store/wallet/types/uiKeyring.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 
 class WalletManagePage extends StatefulWidget {
   const WalletManagePage(this.store);
@@ -41,50 +49,137 @@ class _WalletManagePageState extends State<WalletManagePage> {
     super.dispose();
   }
 
-  void onClickAddAccount() {
-    Navigator.pushNamed(context, AddAccountPage.route);
+  void _onAddWallet() {
+    Navigator.pushNamed(context, AddWalletPage.route);
   }
 
-  List<Widget> _renderAccountList() {
-    Map<String, WalletData> walletMap = store.wallet!.walletsMap;
-    List<Widget> items = [];
-    final watchModeAccounts = store.wallet!.watchModeAccountListAll;
+  /// Add account directly with password dialog (no navigation)
+  Future<void> _onAddAccountToKeyring(String keyringId) async {
+    final wallet = store.wallet!.walletList.firstWhereOrNull((w) => w.id == keyringId);
+    if (wallet == null) return;
+    
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final renderItem = (account) {
-      AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
-      print('balancesInfo');
-      print(balancesInfo?.total);
-      return WalletItem(
-        account: account,
-        balance: balancesInfo?.total ?? BigInt.from(0),
-        store: store,
-        wallet: walletMap[account.walletId]!,
-      );
-    };
-    items.addAll(store.wallet!.accountListAll.map((account) {
-      return renderItem(account);
-    }));
-    items.add(Container(
-        child: Center(
-      child: SvgBackgroundTextWidget(
-          svgAssetPath: "assets/images/assets/icon_add_border.svg",
-          text: dic.addAccount,
-          onClick: onClickAddAccount),
-    )));
-    if (watchModeAccounts.length > 0) {
+    
+    // Show password dialog
+    String? password = await UI.showPasswordDialog(
+      context: context,
+      wallet: wallet,
+      inputPasswordRequired: true,
+    );
+    if (password == null) return;
+    
+    // Create account with next HD index
+    final accountName = WalletStore.defaultAccountName(store.wallet!.getNextWalletAccountIndex(wallet) + 1);
+    final accountData = await webApi.account.createAccountByAccountIndex(wallet, accountName, password);
+    
+    if (accountData?['error'] != null) {
+      UI.toast(accountData?['error']['message']);
+      return;
+    }
+    
+    if (accountData == null) {
+      UI.toast(dic.passwordError);
+      return;
+    }
+    
+    // Check if account already exists
+    if (await UI.showDuplicateAccountAlertIfNeeded(
+      context: context,
+      walletStore: store.wallet!,
+      pubKey: accountData['pubKey'],
+    )) {
+      return;
+    }
+    
+    // Add account
+    await store.wallet!.addAccount(accountData, accountName, wallet);
+    store.walletConnectService?.emitAccountsChanged(accountData['pubKey']);
+    store.assets!.loadAccountCache();
+    store.assets!.setAssetsLoading(true);
+    webApi.assets.fetchAllTokenAssets();
+    
+    // Refresh balance for new account
+    webApi.assets.fetchBatchAccountsInfo(
+      store.wallet!.accountListAll.map((acc) => acc.pubKey).toList(),
+    );
+  }
+
+  void _onGoToWalletDetails(UIKeyring keyring) {
+    if (keyring.type != WalletStore.keyringTypeHD) return;
+    final wallet = store.wallet!.walletList.firstWhereOrNull((w) => w.id == keyring.id);
+    if (wallet != null) {
+      Navigator.pushNamed(context, WalletDetailsPage.route, arguments: {'wallet': wallet});
+    }
+  }
+
+  void _onAccountTap(UIKeyringAccount account) async {
+    await webApi.account.changeCurrentAccount(pubKey: account.address, fetchData: true);
+    Navigator.of(context).pop();
+  }
+
+  void _onAccountDetails(UIKeyringAccount account) {
+    final wallet = store.wallet!.walletList.firstWhereOrNull((w) => w.id == account.walletId);
+    if (wallet == null) return;
+    
+    final accountData = wallet.accounts.firstWhereOrNull((a) => a.pubKey == account.address);
+    if (accountData == null) return;
+    
+    Navigator.pushNamed(context, AccountManagePage.route, arguments: {
+      'account': accountData,
+      'wallet': wallet,
+    });
+  }
+
+  List<Widget> _renderKeyringList() {
+    final keyringsList = store.wallet!.getKeyringsList();
+    final currentAddress = store.wallet!.currentAddress;
+    final watchModeAccounts = store.wallet!.watchModeAccountListAll;
+    Map<String, WalletData> walletMap = store.wallet!.walletsMap;
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    
+    final Map<String, BigInt> balanceMap = {};
+    store.assets!.accountsInfo.forEach((key, value) {
+      balanceMap[key] = value.total;
+    });
+    
+    List<Widget> items = [];
+    
+    for (final keyring in keyringsList) {
+      items.add(KeyringSection(
+        keyring: keyring,
+        currentAddress: currentAddress,
+        balanceMap: balanceMap,
+        onAccountTap: _onAccountTap,
+        onAccountDetails: _onAccountDetails,
+        onAddAccount: keyring.canAddAccount ? () => _onAddAccountToKeyring(keyring.id) : null,
+        onWalletDetails: keyring.type == WalletStore.keyringTypeHD ? () => _onGoToWalletDetails(keyring) : null,
+      ));
+    }
+    
+    if (watchModeAccounts.isNotEmpty) {
       items.add(Padding(
-        padding: EdgeInsets.only(left: 28),
+        padding: EdgeInsets.only(left: 28, top: 16),
         child: Text(
           dic.noMoreSupported,
           style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black),
+            fontSize: 14, 
+            fontWeight: FontWeight.w600, 
+            color: Colors.black,
+          ),
         ),
       ));
+      
       items.addAll(watchModeAccounts.map((account) {
-        return renderItem(account);
+        AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
+        return WalletItem(
+          account: account,
+          balance: balancesInfo?.total ?? BigInt.from(0),
+          store: store,
+          wallet: walletMap[account.walletId]!,
+        );
       }));
     }
-
+    
     return items;
   }
 
@@ -126,14 +221,11 @@ class _WalletManagePageState extends State<WalletManagePage> {
     );
     if (confirmInput != null &&
         confirmInput.toLowerCase() == dic.delete.toLowerCase()) {
-      store.wallet!.clearWallets();
-      store.assets!.clearAccountCache();
-      webApi.account.setBiometricDisabled();
-
-      // reset pwd verification
-      webApi.account.setAppAccessDisabled();
-      webApi.account.setTransactionPwdEnabled();
+      await webApi.account.resetAllSecurityFlags();
+      if (!mounted) return;
       store.wallet!.clearRuntimePwd();
+      store.settings!.setLockWalletStatus(false);
+      store.walletConnectService?.clearAllPairings();
 
       Phoenix.rebirth(context);
     }
@@ -146,7 +238,7 @@ class _WalletManagePageState extends State<WalletManagePage> {
       appBar: AppBar(
         foregroundColor: Colors.black,
         title: Text(
-          dic.accountManage,
+          dic.walletManagement,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
@@ -171,7 +263,16 @@ class _WalletManagePageState extends State<WalletManagePage> {
             children: <Widget>[
               Expanded(
                 child: ListView(
-                  children: _renderAccountList(),
+                  children: _renderKeyringList(),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(left: 38, right: 37, top: 12, bottom: 30),
+                child: NormalButton(
+                  key: TestKeys.addWalletButton,
+                  text: dic.addWallet,
+                  color: Theme.of(context).primaryColor,
+                  onPressed: _onAddWallet,
                 ),
               ),
             ],
@@ -224,7 +325,7 @@ class SvgBackgroundTextWidget extends StatelessWidget {
               Text(
                 text,
                 style: TextStyle(
-                  color: Color(0xFF594AF1),
+                  color: Theme.of(context).primaryColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),

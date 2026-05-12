@@ -1,12 +1,17 @@
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/inputErrorTip.dart';
 import 'package:auro_wallet/page/account/create/backupMnemonicTipsPage.dart';
 import 'package:auro_wallet/page/account/import/importMnemonicPage.dart';
+import 'package:auro_wallet/page/account/import/importPrivateKeyPage.dart';
+import 'package:auro_wallet/page/account/import/importKeyStorePage.dart';
+import 'package:auro_wallet/page/account/connectHardwareWalletIntroPage.dart';
 
 class SetNewWalletPasswordPage extends StatefulWidget {
   const SetNewWalletPasswordPage(this.store);
@@ -32,6 +37,10 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
   bool unRepeatError = false;
   bool _submitDisabled = true;
 
+  int _getNextImportedWalletCount() {
+    return widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypePrivateKey) + 1;
+  }
+
 
   @override
   void initState() {
@@ -44,10 +53,10 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
 
   @override
   void dispose() {
-    super.dispose();
     _pass2Ctrl.dispose();
     _passCtrl.dispose();
     _pass2Focus.dispose();
+    super.dispose();
   }
 
 
@@ -85,12 +94,49 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
     ) {
       return;
     }
-    widget.store.wallet!.setNewAccount(_passCtrl.text);
+    widget.store.wallet!.setNewAccount(passStr);
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
-    if (params['type'] == 'create') {
-      Navigator.pushNamed(context, BackupMnemonicTipsPage.route);
-    } else {
-      Navigator.pushNamed(context, ImportMnemonicPage.route);
+    String type = params['type'] ?? 'create';
+    
+    switch (type) {
+      case 'create':
+        // Set default wallet name for create flow
+        int count = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) + 1;
+        widget.store.wallet!.setNewWalletName('Wallet $count');
+        Navigator.pushNamed(context, BackupMnemonicTipsPage.route);
+        break;
+      case 'import':
+        // Set default wallet name for mnemonic import flow
+        int hdCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeMnemonic) + 1;
+        widget.store.wallet!.setNewWalletName('Wallet $hdCount');
+        Navigator.pushNamed(context, ImportMnemonicPage.route, arguments: {
+          "fromInitialization": true
+        });
+        break;
+      case 'privateKey':
+        // Get default name for private key import
+        int pkCount = _getNextImportedWalletCount();
+        Navigator.pushNamed(context, ImportPrivateKeyPage.route, arguments: {
+          "accountName": "Imported $pkCount",
+          "fromInitialization": true
+        });
+        break;
+      case 'keystore':
+        // Get default name for keystore import
+        int ksCount = _getNextImportedWalletCount();
+        Navigator.pushNamed(context, ImportKeyStorePage.route, arguments: {
+          "accountName": "Imported $ksCount",
+          "fromInitialization": true
+        });
+        break;
+      case 'ledger':
+        // Get default name for ledger import
+        int ledgerCount = widget.store.wallet!.getNextWalletIndexOfType(WalletStore.seedTypeLedger) + 1;
+        Navigator.pushNamed(context, ConnectHardwareWalletIntroPage.route,
+            arguments: ConnectHardwareWalletIntroParams(defaultName: 'Ledger $ledgerCount', fromInitialization: true));
+        break;
+      default:
+        Navigator.pushNamed(context, BackupMnemonicTipsPage.route);
     }
   }
 
@@ -198,6 +244,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                     ),
                   ),
                         InputItem(
+                          key: TestKeys.passwordInput,
                           label: dic.password,
                           initialValue: '',
                           controller: _passCtrl,
@@ -249,6 +296,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                           validate: _validateNumber,
                         ),
                         InputItem(
+                          key: TestKeys.confirmPasswordInput,
                           label: dic.confirmPasswordShort,
                           initialValue: '',
                           controller: _pass2Ctrl,
@@ -297,6 +345,7 @@ class _SetNewWalletPasswordPageState extends State<SetNewWalletPasswordPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 38, vertical: 30),
                   child: NormalButton(
+                    key: TestKeys.nextButton,
                     disabled: _isFormError() || _submitDisabled,
                     text: dic.next,
                     onPressed: _onSubmit,

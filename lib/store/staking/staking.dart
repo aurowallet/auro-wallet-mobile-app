@@ -16,7 +16,7 @@ abstract class _StakingStore with Store {
 
   final String localStorageValidatorsV2Key = 'validators_v2';
   final String localStorageOverviewKey = 'staking_overview';
-  final String localStorageStakingAPYKey = 'staking_apy';
+  final String localStorageStakingAPRKey = 'staking_apr';
   final String localStorageDelegationCacheKey = 'delegation_cache';
 
   @observable
@@ -29,7 +29,7 @@ abstract class _StakingStore with Store {
   OverviewData overviewData = OverviewData();
 
   @observable
-  double? stakingAPY;
+  double? stakingAPR;
 
   /// Track the last loaded account/network key to avoid unnecessary loading
   @observable
@@ -64,16 +64,16 @@ abstract class _StakingStore with Store {
     }
   }
   @action
-  void setStakingAPY(double apy, {bool shouldCache = true}) {
-    stakingAPY = apy;
+  void setStakingAPR(double apr, {bool shouldCache = true}) {
+    stakingAPR = apr;
     if (shouldCache) {
-      rootStore.localStorage.setObject(localStorageStakingAPYKey, apy);
+      rootStore.localStorage.setObject(localStorageStakingAPRKey, apr);
     }
   }
 
   @action
-  void clearStakingAPY() {
-    stakingAPY = null;
+  void clearStakingAPR() {
+    stakingAPR = null;
   }
 
   @action
@@ -145,7 +145,7 @@ abstract class _StakingStore with Store {
     List cacheData = await Future.wait([
       rootStore.localStorage.getObject(localStorageValidatorsV2Key),
       rootStore.localStorage.getObject(localStorageOverviewKey),
-      rootStore.localStorage.getObject(localStorageStakingAPYKey),
+      rootStore.localStorage.getObject(localStorageStakingAPRKey),
       rootStore.localStorage.getObject(localStorageDelegationCacheKey),
     ]);
     if (cacheData[0] != null) {
@@ -165,10 +165,11 @@ abstract class _StakingStore with Store {
     if (cacheData[1] != null) {
       setOverviewInfo(cacheData[1], shouldCache: false);
     }
-    if (cacheData[2] != null) {
-      // Only load cached APY if on mainnet to avoid showing stale data
+    final cachedApr = cacheData[2];
+    if (cachedApr != null) {
+      // Only load cached APR if on mainnet to avoid showing stale mainnet data.
       if (rootStore.settings?.isMainnet == true) {
-        stakingAPY = (cacheData[2] as num).toDouble();
+        stakingAPR = (cachedApr as num).toDouble();
       }
     }
     if (cacheData[3] != null) {

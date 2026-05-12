@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:convert' as convert;
 
-import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
+import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/assets/types/tokenInfoData.dart';
@@ -64,6 +64,9 @@ class ApiAssets {
 //   }
 
   Future<dynamic> fetchPendingTransactions(pubKey, {isDev = false}) async {
+    if (store.settings!.isZekoNet) {
+      return [];
+    }
     const String query = r'''
       query fetchPendingListQuery($pubKey: PublicKey!) {
         pooledUserCommands(publicKey: $pubKey) {
@@ -112,6 +115,9 @@ class ApiAssets {
   }
 
   Future<dynamic> fetchPendingZkTransactions(publicKey, {isDev = false}) async {
+    if (store.settings!.isZekoNet) {
+      return [];
+    }
     const String query = r'''
       query pendingZkTx($publicKey: PublicKey) {
   pooledZkappCommands(publicKey: $publicKey) {
@@ -366,25 +372,29 @@ class ApiAssets {
   //   //   // await store.assets!.addZkTxs(list, publicKey, tokenId, shouldCache: true);
   //   // }
 
-  Future<void> queryTxFees() async {
-    var feeUrl = "$BASE_INFO_URL/minter_fee.json";
-    var response = await http.get(Uri.parse(feeUrl));
-    print('fee response' + response.statusCode.toString());
-    if (response.statusCode == 200) {
-      var feeList = convert.jsonDecode(response.body);
-      if (feeList.length >= 6) {
-        store.assets!.setFeesMap({
-          'slow': double.parse(feeList[0]['value']),
-          'medium': double.parse(feeList[1]['value']),
-          'fast': double.parse(feeList[2]['value']),
-          'cap': double.parse(feeList[3]['value']),
-          'speedup': double.parse(feeList[4]['value']),
-          'accountupdate': double.parse(feeList[5]['value']),
-        });
+  Future<Fees?> _fetchFeeConfig(String feeUrl) async {
+    try {
+      final response = await http.get(Uri.parse(feeUrl));
+      print('fee response $feeUrl ${response.statusCode}');
+      if (response.statusCode != 200) {
+        return null;
       }
-    } else {
-      store.assets!.setFeesMap(defaultTxFeesMap);
+
+      final dynamic feeData = convert.jsonDecode(response.body);
+      return Fees.tryParse(feeData);
+    } catch (e) {
+      print('query fee config error $feeUrl $e');
+      return null;
     }
+  }
+
+  Future<void> queryTxFees() async {
+    final feeUrl = "$BASE_INFO_URL/fee_config.json";
+    final Fees? parsedFees = await _fetchFeeConfig(feeUrl);
+    if (parsedFees != null) {
+      await store.assets!.setFeesConfig(parsedFees);
+    }
+    // If fetch failed, keep existing transferFees (either cached or default from init)
   }
 
   Future<dynamic> fetchBatchAccountsInfo(List<String> pubkeys,
@@ -493,24 +503,29 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (!store.settings!.isMainnet) {
       return;
     }
-    String txUrl = "$BASE_INFO_URL/scam_list";
-    var response = await http.get(Uri.parse(txUrl));
-    if (response.statusCode == 200) {
-      List<dynamic> scamList = convert.jsonDecode(response.body);
+    try {
+      String txUrl = "$BASE_INFO_URL/scam_list";
+      var response = await http.get(Uri.parse(txUrl));
+      if (response.statusCode == 200) {
+        List<dynamic> scamList = convert.jsonDecode(response.body);
 
-      List<ScamItem> scamItemList = scamList.map((item) {
-        return ScamItem.fromJson(item);
-      }).toList();
+        List<ScamItem> scamItemList = scamList.map((item) {
+          return ScamItem.fromJson(item);
+        }).toList();
 
-      if (scamItemList.length > 0) {
-        store.assets!.setLocalScamList(scamItemList);
+        if (scamItemList.length > 0) {
+          store.assets!.setLocalScamList(scamItemList);
+        }
+      } else {
+        print('Request scam failed with status: ${response.statusCode}.');
       }
-    } else {
-      print('Request scam failed with status: ${response.statusCode}.');
+    } catch (e) {
+      print('fetchScamInfo error: $e');
     }
   }
 
-  Future<int> fetchAccountNonce(String publicKey, {String? gqlUrl}) async {
+  Future<int> fetchAccountNonce(String publicKey,
+      {String? gqlUrl, Duration queryTimeout = const Duration(seconds: 60)}) async {
     const String fetchNonceQuery =
         r'''query accountNonce($publicKey: PublicKey!) {
     account(publicKey: $publicKey) {
@@ -526,7 +541,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
         document: gql(fetchNonceQuery),
         variables: variables,
         fetchPolicy: FetchPolicy.noCache,
-        queryRequestTimeout: const Duration(seconds: 60));
+        queryRequestTimeout: queryTimeout);
 
     var graphQLClient;
     if (gqlUrl != null) {
@@ -543,10 +558,33 @@ ${List<String>.generate(pubkeys.length, (int index) {
       return -1;
     }
 
-    /// -1 is null account
-    String nonce = result.data?['account']?['inferredNonce'] ?? "-1";
+    String nonce = result.data?['account']?['inferredNonce'] ?? "0";
     print("nonce $nonce");
     return int.parse(nonce);
+  }
+
+  Future<int> fetchAccountNonceWithRetry(String publicKey,
+      {String? gqlUrl,
+      int maxAttempts = 3,
+      Duration retryDelay = const Duration(seconds: 1),
+      Duration queryTimeout = const Duration(seconds: 10)}) async {
+    int freshNonce = -1;
+    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        freshNonce = await fetchAccountNonce(publicKey,
+            gqlUrl: gqlUrl, queryTimeout: queryTimeout);
+      } catch (e) {
+        print('fetchAccountNonce error: $e');
+        freshNonce = -1;
+      }
+      if (freshNonce >= 0) {
+        return freshNonce;
+      }
+      if (attempt < maxAttempts - 1) {
+        await Future.delayed(retryDelay);
+      }
+    }
+    return -1;
   }
 
   Future<List<TokenAssetInfo>> fetchTokenAssets(String pubKey,
@@ -787,6 +825,9 @@ ${List<String>.generate(pubkeys.length, (int index) {
   Future<dynamic> fetchFullTransactions(publicKey,
       {tokenId = ZK_DEFAULT_TOKEN_ID, isDev = false}) async {
     String requestUrl = apiRoot.getTxRecordsApiUrl();
+    if (requestUrl.isEmpty) {
+      return [];
+    }
     final client = GraphQLClient(
         link: HttpLink(requestUrl),
         cache: GraphQLCache(),

@@ -6,8 +6,14 @@ import 'package:auro_wallet/app.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:auro_wallet/service/notification_service.dart';
 
-Future<void> main() async {
+/// Test mode flag - skip operations that may block tests (e.g. notification permission requests)
+bool isTestMode = false;
+
+Future<void> main({bool testMode = false}) async {
+  isTestMode = testMode;
+  
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -15,6 +21,11 @@ Future<void> main() async {
 
   // get_storage dependency
   await GetStorage.init('configuration');
+
+  if (!isTestMode) {
+    await NotificationService().initialize();
+    NotificationService().requestPermission().catchError((_) => false);
+  }
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarIconBrightness: Brightness.dark,

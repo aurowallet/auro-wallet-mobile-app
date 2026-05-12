@@ -4,6 +4,7 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
+import 'package:auro_wallet/utils/index.dart';
 import 'package:mobx/mobx.dart';
 
 part 'settings.g.dart';
@@ -22,6 +23,7 @@ abstract class _SettingsStore with Store {
   final String localStorageAboutUsKey = 'about_us';
   final String localStorageCustomNodeList = 'custom_node_list';
   final String localStorageCurrentNodeKey = 'current_node';
+  final String localStorageTermsAgreedKey = 'terms_agreed';
 
   final String cacheTestnetShowStatusKey = 'network_testnet_status';
 
@@ -43,7 +45,10 @@ abstract class _SettingsStore with Store {
   bool testnetShowStatus = false;
 
   @observable
-  bool lockWalletStatus = true;
+  bool lockWalletStatus = false;
+
+  @observable
+  bool termsAgreed = false;
 
   bool get isSupportTxHistory {
     return currentNode?.txUrl != null && currentNode!.txUrl!.isNotEmpty;
@@ -81,6 +86,19 @@ abstract class _SettingsStore with Store {
     return [...defaultNetworkList, ...customNodeList];
   }
 
+  List<CustomNode> get secureCustomNodeList {
+    return customNodeList.where((node) => _isSecureCustomNode(node)).toList();
+  }
+
+  CustomNode get _mainnetNode {
+    return defaultNetworkList
+        .firstWhere((network) => network.networkID == networkIDMap.mainnet);
+  }
+
+  bool _isSecureCustomNode(CustomNode node) {
+    return isValidHttpsNodeUrl(node.url);
+  }
+
   @observable
   String networkName = '';
 
@@ -100,6 +118,7 @@ abstract class _SettingsStore with Store {
     await loadTestnetShowStatus();
     await loadAboutUs();
     await loadContacts();
+    await loadTermsAgreed();
   }
 
   @action
@@ -205,6 +224,9 @@ abstract class _SettingsStore with Store {
 
   @action
   Future<void> setCurrentNode(CustomNode value) async {
+    if (!value.isDefaultNode && !_isSecureCustomNode(value)) {
+      value = _mainnetNode;
+    }
     currentNode = value;
     await rootStore.localStorage.setObject(localStorageCurrentNodeKey, value);
   }
@@ -226,14 +248,19 @@ abstract class _SettingsStore with Store {
   Future<void> loadCurrentNode() async {
     Map<String, dynamic>? cacheNode = await rootStore.localStorage
         .getObject(localStorageCurrentNodeKey) as Map<String, dynamic>?;
-    CustomNode mainnetConfig = defaultNetworkList
-        .firstWhere((network) => network.networkID == networkIDMap.mainnet);
+    CustomNode mainnetConfig = _mainnetNode;
     if (cacheNode == null) {
       currentNode = mainnetConfig;
     } else {
       try {
-        // if parse error , use default
-        currentNode = CustomNode.fromJson(cacheNode);
+        final nextNode = CustomNode.fromJson(cacheNode);
+        if (nextNode.isDefaultNode || _isSecureCustomNode(nextNode)) {
+          currentNode = nextNode;
+        } else {
+          currentNode = mainnetConfig;
+          await rootStore.localStorage
+              .setObject(localStorageCurrentNodeKey, mainnetConfig);
+        }
       } catch (e) {
         print('loadCurrentNode error ${e.toString()}');
         currentNode = mainnetConfig;
@@ -292,5 +319,18 @@ abstract class _SettingsStore with Store {
   @action
   Future<void> setLockWalletStatus(bool status) async {
     lockWalletStatus = status;
+  }
+
+  @action
+  Future<void> setTermsAgreed(bool agreed) async {
+    termsAgreed = agreed;
+    await rootStore.localStorage.setObject(localStorageTermsAgreedKey, agreed);
+  }
+
+  @action
+  Future<void> loadTermsAgreed() async {
+    bool? agreed = await rootStore.localStorage
+        .getObject(localStorageTermsAgreedKey) as bool?;
+    termsAgreed = agreed == true;
   }
 }

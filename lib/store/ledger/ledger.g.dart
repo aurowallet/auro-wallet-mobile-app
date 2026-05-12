@@ -9,8 +9,10 @@ part of 'ledger.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$LedgerStore on LedgerBase, Store {
-  late final _$ledgerDeviceAtom =
-      Atom(name: 'LedgerBase.ledgerDevice', context: context);
+  late final _$ledgerDeviceAtom = Atom(
+    name: 'LedgerBase.ledgerDevice',
+    context: context,
+  );
 
   @override
   LedgerDevice? get ledgerDevice {
@@ -25,8 +27,10 @@ mixin _$LedgerStore on LedgerBase, Store {
     });
   }
 
-  late final _$ledgerInstanceAtom =
-      Atom(name: 'LedgerBase.ledgerInstance', context: context);
+  late final _$ledgerInstanceAtom = Atom(
+    name: 'LedgerBase.ledgerInstance',
+    context: context,
+  );
 
   @override
   Ledger? get ledgerInstance {
@@ -41,8 +45,10 @@ mixin _$LedgerStore on LedgerBase, Store {
     });
   }
 
-  late final _$ledgerStatusAtom =
-      Atom(name: 'LedgerBase.ledgerStatus', context: context);
+  late final _$ledgerStatusAtom = Atom(
+    name: 'LedgerBase.ledgerStatus',
+    context: context,
+  );
 
   @override
   LedgerStatusTypes get ledgerStatus {
@@ -57,13 +63,16 @@ mixin _$LedgerStore on LedgerBase, Store {
     });
   }
 
-  late final _$LedgerBaseActionController =
-      ActionController(name: 'LedgerBase', context: context);
+  late final _$LedgerBaseActionController = ActionController(
+    name: 'LedgerBase',
+    context: context,
+  );
 
   @override
   void setDevice(LedgerDevice? device) {
-    final _$actionInfo =
-        _$LedgerBaseActionController.startAction(name: 'LedgerBase.setDevice');
+    final _$actionInfo = _$LedgerBaseActionController.startAction(
+      name: 'LedgerBase.setDevice',
+    );
     try {
       return super.setDevice(device);
     } finally {
@@ -73,8 +82,9 @@ mixin _$LedgerStore on LedgerBase, Store {
 
   @override
   void setLedger(Ledger? ledger) {
-    final _$actionInfo =
-        _$LedgerBaseActionController.startAction(name: 'LedgerBase.setLedger');
+    final _$actionInfo = _$LedgerBaseActionController.startAction(
+      name: 'LedgerBase.setLedger',
+    );
     try {
       return super.setLedger(ledger);
     } finally {
@@ -85,7 +95,8 @@ mixin _$LedgerStore on LedgerBase, Store {
   @override
   void setLedgerStatus(LedgerStatusTypes status) {
     final _$actionInfo = _$LedgerBaseActionController.startAction(
-        name: 'LedgerBase.setLedgerStatus');
+      name: 'LedgerBase.setLedgerStatus',
+    );
     try {
       return super.setLedgerStatus(status);
     } finally {

@@ -1,6 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
-import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
@@ -91,10 +90,8 @@ class _ValidatorsPageState extends State<ValidatorsPage>
         : null;
     
     dynamic args = ModalRoute.of(context)?.settings.arguments;
-    bool isRedelegate = false;
     String? selectedValidatorAddress;
     if (args is Map) {
-      isRedelegate = args['isRedelegate'] == true;
       selectedValidatorAddress = args['selectedValidatorAddress'] as String?;
     }
     
@@ -125,17 +122,15 @@ class _ValidatorsPageState extends State<ValidatorsPage>
                           _buildSectionHeader(dic.active),
                           ...activeList.map((validator) => ValidatorItem(
                               data: validator,
-                              showSelected: displaySelectedAddress == validator.address,
-                              isRedelegate: isRedelegate)),
+                              showSelected: displaySelectedAddress == validator.address)),
                         ],
                         if (inactiveList.isNotEmpty) ...[
                           _buildSectionHeader(dic.inactive),
                           ...inactiveList.map((validator) => ValidatorItem(
                               data: validator,
-                              showSelected: displaySelectedAddress == validator.address,
-                              isRedelegate: isRedelegate)),
+                              showSelected: displaySelectedAddress == validator.address)),
                         ],
-                        ManualAddValidatorButton(isRedelegate: isRedelegate),
+                        ManualAddValidatorButton(),
                         SubmitNodeButton(),
                       ],
                     ))));
@@ -143,10 +138,8 @@ class _ValidatorsPageState extends State<ValidatorsPage>
 }
 
 class ManualAddValidatorButton extends StatelessWidget {
-  ManualAddValidatorButton({this.isRedelegate = false});
-  
-  final bool isRedelegate;
-  
+  ManualAddValidatorButton();
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -154,11 +147,7 @@ class ManualAddValidatorButton extends StatelessWidget {
         padding: EdgeInsets.only(top: 20),
         child: GestureDetector(
             onTap: () {
-              Navigator.pushReplacementNamed(context, DelegatePage.route,
-                  arguments: DelegateParams(
-                      validatorData: null, 
-                      manualAddValidator: true,
-                      isRedelegate: isRedelegate));
+              Navigator.pop(context, 'manual_add');
             },
             behavior: HitTestBehavior.opaque,
             child: Container(

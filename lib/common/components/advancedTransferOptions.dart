@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
@@ -12,12 +13,12 @@ class AdvancedTransferOptions extends StatefulWidget {
       required this.feeCtrl,
       this.noncePlaceHolder,
       this.feePlaceHolder,
-      required this.cap});
+      required this.transferFees});
   final TextEditingController nonceCtrl;
   final TextEditingController feeCtrl;
   final int? noncePlaceHolder;
   final double? feePlaceHolder;
-  final double cap;
+  final Fees transferFees;
 
   @override
   _AdvancedTransferOptionsState createState() =>
@@ -35,13 +36,7 @@ class _AdvancedTransferOptionsState extends State<AdvancedTransferOptions> {
   }
 
   bool _validateFee(String fee) {
-    bool res = true;
-    if (fee.isNotEmpty && double.parse(fee) >= widget.cap) {
-      res = false;
-    } else {
-      res = true;
-    }
-    return res;
+    return !widget.transferFees.isFeeExceedsCap(fee);
   }
 
   @override

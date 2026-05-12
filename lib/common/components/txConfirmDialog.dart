@@ -1,5 +1,5 @@
 import 'package:auro_wallet/common/components/TimerManager.dart';
-import 'package:auro_wallet/common/components/customStyledText.dart';
+import 'package:auro_wallet/common/components/ledgerWaitingContent.dart';
 import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -7,9 +7,10 @@ import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/flutter_svg.dart' show SvgPicture;
 import 'package:ledger_flutter/ledger_flutter.dart';
 
 enum TxItemTypes { showTimer }
@@ -53,6 +54,30 @@ class TxConfirmDialog extends StatefulWidget {
 
 class _TxConfirmDialogState extends State<TxConfirmDialog> {
   bool submitting = false;
+  bool checkingLedger = false;
+  late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
+
+  Future<void> _setLedgerScreenAwake(bool active) async {
+    if (!widget.isLedger) {
+      return;
+    }
+    await _ledgerScreenAwakeHandle.setActive(active);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _ledgerScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('tx_confirm_ledger', this),
+    );
+  }
+
+  @override
+  void dispose() {
+    _setLedgerScreenAwake(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
+    super.dispose();
+  }
 
   Widget renderHead(String headerLabel, Widget headerValue) {
     return Padding(
@@ -75,51 +100,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
   }
 
   List<Widget> renderLedgerConfirm() {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    return [
-      Container(
-        padding: EdgeInsets.only(top: 35),
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/images/public/pending_tip.svg',
-            width: 58,
-          ),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.only(top: 29),
-        child: Center(
-          child: Text(
-            dic.waitingLedger,
-            style: TextStyle(
-                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 7),
-        child: Text(
-          dic.waitingLedgerSign,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Colors.black.withValues(alpha: 0.5),
-              fontSize: 14,
-              fontWeight: FontWeight.w400),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.only(top: 14, bottom: 60),
-        child: Center(
-          child: CustomStyledText(
-              text: dic.ledgerAddressTip3,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  height: 1.2,
-                  fontWeight: FontWeight.w400)),
-        ),
-      )
-    ];
+    return [LedgerWaitingContent()];
   }
 
   Future<bool> _ledgerCheck() async {
@@ -132,25 +113,25 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
             accountIndex: 0);
         await Future.delayed(Duration(
             milliseconds: 400)); // avoid conflict with ledgerStatus Component
-        await minaApp.getVersion(widget.store.ledger!.ledgerDevice!);
+        await minaApp
+            .getVersion(widget.store.ledger!.ledgerDevice!)
+            .timeout(const Duration(seconds: 10));
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
       } on LedgerException {
+        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
+        showLedgerDialog = true;
+      } catch (e) {
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
         showLedgerDialog = true;
       }
     }
     if (showLedgerDialog) {
-      print('connect ledger');
       bool? connected = await UI.showImportLedgerDialog(context: context);
-      print('connected ledger');
-      print(connected);
-      // if (connected != true) {
-      //   print('return');
-      //   return false;
-      // }
-      // wait leger Status Version response
+      if (connected != true) {
+        return false;
+      }
       await Future.delayed(const Duration(milliseconds: 500));
-      return false;
+      return true;
     }
     return true;
   }
@@ -178,23 +159,34 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(widget.title,
+                        Text(showLedgerConfirm ? dic.waitingLedger : widget.title,
                             style: TextStyle(
                                 color: Color(0xFF222222),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600)),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              widget.isLedger
-                                  ? LedgerStatusView()
-                                  : Container(),
-                              SizedBox(width: 4),
-                              NetworkStatusView()
-                            ],
-                          ),
-                        )
+                        showLedgerConfirm
+                            ? GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => Navigator.pop(context),
+                                child: SvgPicture.asset(
+                                    'assets/images/public/icon_nav_close.svg',
+                                    width: 24,
+                                    height: 24,
+                                    colorFilter: ColorFilter.mode(
+                                        Colors.black, BlendMode.srcIn)),
+                              )
+                            : Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    widget.isLedger
+                                        ? LedgerStatusView()
+                                        : Container(),
+                                    SizedBox(width: 4),
+                                    NetworkStatusView()
+                                  ],
+                                ),
+                              )
                       ],
                     ),
                   ),
@@ -221,22 +213,49 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                       ],
                     ),
                   ),
-                  ZkAppBottomButton(
-                    disabled: widget.disabled,
-                    confirmBtnText: widget.buttonText ?? dic.confirm,
-                    onConfirm: () async {
-                      if (widget.isLedger && !await _ledgerCheck()) {
-                        return;
-                      }
-                      setState(() {
-                        submitting = true;
-                      });
-                      if (widget.onConfirm != null) {
-                        widget.onConfirm!();
-                      }
-                    },
-                    submitting: submitting,
-                  )
+                  if (!showLedgerConfirm)
+                    ZkAppBottomButton(
+                      disabled: widget.disabled,
+                      confirmBtnText: widget.buttonText ?? dic.confirm,
+                      onConfirm: () async {
+                        if (widget.isLedger) {
+                          setState(() {
+                            checkingLedger = true;
+                          });
+                          if (!await _ledgerCheck()) {
+                            if (mounted) {
+                              setState(() {
+                                checkingLedger = false;
+                              });
+                            }
+                            return;
+                          }
+                          if (mounted) {
+                            setState(() {
+                              checkingLedger = false;
+                            });
+                          }
+                        }
+                        if (!mounted) return;
+                        setState(() {
+                          submitting = true;
+                        });
+                        await _setLedgerScreenAwake(true);
+                        try {
+                          if (widget.onConfirm != null) {
+                            await widget.onConfirm!();
+                          }
+                        } finally {
+                          await _setLedgerScreenAwake(false);
+                          if (mounted) {
+                            setState(() {
+                              submitting = false;
+                            });
+                          }
+                        }
+                      },
+                      submitting: submitting || checkingLedger,
+                    )
                 ],
               ),
             ],

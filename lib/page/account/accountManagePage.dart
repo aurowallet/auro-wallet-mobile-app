@@ -1,6 +1,7 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/common/components/changeNameDialog.dart';
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
@@ -12,6 +13,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/page/account/exportResultPage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class AccountManagePage extends StatefulWidget {
   const AccountManagePage(this.store);
@@ -32,6 +34,7 @@ class _AccountManagePageState extends State<AccountManagePage> {
   bool isWatchedOrLedgerAccount = false;
   bool isLedgerAccount = false;
   String ledgerAccountPath = "";
+  bool _isDeleting = false;
 
   @override
   void initState() {
@@ -108,6 +111,17 @@ class _AccountManagePageState extends State<AccountManagePage> {
     if (isWatchedOrLedgerAccount) {
       await store.wallet!.removeAccount(account);
       print('account removed');
+      if (!mounted) return;
+      if (store.wallet!.walletList.isEmpty) {
+        setState(() => _isDeleting = true);
+        await webApi.account.resetAllSecurityFlags();
+        if (!mounted) return;
+        store.wallet!.clearRuntimePwd();
+        store.settings!.setLockWalletStatus(false);
+        store.walletConnectService?.clearAllPairings();
+        Phoenix.rebirth(context);
+        return;
+      }
       Navigator.of(context).pop();
     } else {
       await UI.showAlertDialog(
@@ -123,6 +137,17 @@ class _AccountManagePageState extends State<AccountManagePage> {
       await store.assets!.loadAccountCache();
       store.triggerBalanceRefresh();
       print('account removed');
+      if (!mounted) return;
+      if (store.wallet!.walletList.isEmpty) {
+        setState(() => _isDeleting = true);
+        await webApi.account.resetAllSecurityFlags();
+        if (!mounted) return;
+        store.wallet!.clearRuntimePwd();
+        store.settings!.setLockWalletStatus(false);
+        store.walletConnectService?.clearAllPairings();
+        Phoenix.rebirth(context);
+        return;
+      }
       Navigator.of(context).pop();
     }
   }
@@ -143,7 +168,9 @@ class _AccountManagePageState extends State<AccountManagePage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     final bool isMnemonicWallet =
         wallet.walletType == WalletStore.seedTypeMnemonic;
-    return Scaffold(
+    return Stack(
+      children: [
+        Scaffold(
       appBar: AppBar(
         title: Text(dic.accountInfo),
         centerTitle: true,
@@ -205,23 +232,43 @@ class _AccountManagePageState extends State<AccountManagePage> {
                       )
                     : Container(),
                 !isMnemonicWallet
-                    ? TextButton(
-                        child: Text(dic.accountDelete),
-                        onPressed: _deleteAccount,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          textStyle: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                          foregroundColor: Color(0xFFD65A5A),
-                          minimumSize: Size(double.infinity, 54),
+                    ? Padding(
+                        padding: EdgeInsets.only(left: 12, top: 4),
+                        child: Align(
                           alignment: Alignment.centerLeft,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          child: TextButton(
+                            child: Text(dic.delete),
+                            onPressed: _deleteAccount,
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                              textStyle: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600),
+                              foregroundColor: Color(0xFFD65A5A),
+                              minimumSize: Size(0, 44),
+                              tapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
                         ),
                       )
                     : Container(),
               ],
             )),
       ),
+    ),
+        if (_isDeleting)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black45,
+              child: Center(
+                child: RotatingCircle(size: 30, color: Theme.of(context).primaryColor),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -41,6 +41,10 @@ class Api {
         clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
             .value;
 
+    // Load security flags from SecureStorage (with GetStorage migration)
+    // before any flag reads (e.g. initLockCheck in app.dart).
+    await account.initSecurityFlags();
+
     bridge = BridgeService();
     await launchWebview();
     fetchInitialInfo();
@@ -71,10 +75,13 @@ class Api {
 
   String getTxRecordsApiUrl() {
     String? txUrl = store.settings!.currentNode?.txUrl;
-    if (txUrl != null) {
+    if (txUrl != null && txUrl.isNotEmpty) {
       return txUrl;
     }
-    return MAIN_TX_RECORDS_GQL_URL;
+    if (store.settings!.isMainnet) {
+      return MAIN_TX_RECORDS_GQL_URL;
+    }
+    return '';
   }
 
   Future<GqlResult> gqlRequest(dynamic options,

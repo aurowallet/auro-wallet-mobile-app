@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
+import 'package:auro_wallet/common/components/ledgerWaitingContent.dart';
 import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -10,6 +11,8 @@ import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:decimal/decimal.dart';
@@ -43,78 +46,59 @@ class TxActionDialog extends StatefulWidget {
 
 class _TxActionDialogState extends State<TxActionDialog> {
   bool submitting = false;
+  bool checkingLedger = false;
   bool isLedger = false;
   double nextStateFee = 0;
   double preFee = 0;
   double speedUpFee = 0;
+  late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
+  late WalletData _initWallet;
+  late int _initAccountIndex;
+  late String _initAddress;
+
+  Future<void> _setLedgerScreenAwake(bool active) async {
+    if (!isLedger) {
+      return;
+    }
+    await _ledgerScreenAwakeHandle.setActive(active);
+  }
+
   @override
   void initState() {
     super.initState();
+    _ledgerScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('tx_action_ledger', this),
+    );
     double nextPlusFee = widget.modalType == TxActionType.cancel
         ? 0.0001
-        : widget.store.assets!.transferFees.speedup;
+        : widget.store.assets!.transferFees.speedUpBuffer;
 
     preFee = double.parse(widget.txData.fee as String);
     preFee = double.parse(Fmt.balance(
         widget.txData.fee.toString(), COIN.decimals,
         maxLength: COIN.decimals));
 
-    speedUpFee = widget.store.assets!.transferFees.speedup;
+    speedUpFee = widget.store.assets!.transferFees.speedUpBuffer;
     speedUpFee = speedUpFee.isNegative ? 0 : speedUpFee;
 
     nextStateFee = (Decimal.parse(nextPlusFee.toString()) +
             Decimal.parse(preFee.toString()))
         .toDouble();
-    isLedger = widget.store.wallet!.currentWallet.walletType ==
-        WalletStore.seedTypeLedger;
+    _initWallet = widget.store.wallet!.currentWallet;
+    _initAccountIndex = _initWallet.currentAccountIndex;
+    _initAddress = widget.store.wallet!.currentAddress;
+    isLedger = _initWallet.walletType == WalletStore.seedTypeLedger;
+  }
+
+  @override
+  void dispose() {
+    _setLedgerScreenAwake(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
+    super.dispose();
   }
 
   List<Widget> renderLedgerConfirm() {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    return [
-      Container(
-        padding: EdgeInsets.only(top: 35),
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/images/public/pending_tip.svg',
-            width: 58,
-          ),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.only(top: 29),
-        child: Center(
-          child: Text(
-            dic.waitingLedger,
-            style: TextStyle(
-                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 7),
-        child: Text(
-          dic.waitingLedgerSign,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Colors.black.withValues(alpha: 0.5),
-              fontSize: 14,
-              fontWeight: FontWeight.w400),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.only(top: 14, bottom: 60),
-        child: Center(
-          child: StyledText(
-              text: dic.ledgerAddressTip3,
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  height: 1.2,
-                  fontWeight: FontWeight.w400)),
-        ),
-      )
-    ];
+    return [LedgerWaitingContent()];
   }
 
   Future<bool> _ledgerCheck() async {
@@ -127,25 +111,25 @@ class _TxActionDialogState extends State<TxActionDialog> {
             accountIndex: 0);
         await Future.delayed(Duration(
             milliseconds: 400)); // avoid conflict with ledgerStatus Component
-        await minaApp.getVersion(widget.store.ledger!.ledgerDevice!);
+        await minaApp
+            .getVersion(widget.store.ledger!.ledgerDevice!)
+            .timeout(const Duration(seconds: 10));
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
       } on LedgerException {
+        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
+        showLedgerDialog = true;
+      } catch (e) {
         widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
         showLedgerDialog = true;
       }
     }
     if (showLedgerDialog) {
-      print('connect ledger');
       bool? connected = await UI.showImportLedgerDialog(context: context);
-      print('connected ledger');
-      print(connected);
-      // if (connected != true) {
-      //   print('return');
-      //   return false;
-      // }
-      // wait leger Status Version response
+      if (connected != true) {
+        return false;
+      }
       await Future.delayed(const Duration(milliseconds: 500));
-      return false;
+      return true;
     }
     return true;
   }
@@ -157,23 +141,23 @@ class _TxActionDialogState extends State<TxActionDialog> {
         return TxAdvanceDialog(
           currentNonce: widget.txData.nonce!,
           nextStateFee: nextStateFee,
+          showFeeButtons: false,
         );
       },
     );
-    if (nextFee!.isNotEmpty) {
+    if (nextFee != null && nextFee.isNotEmpty) {
       nextStateFee = double.parse(nextFee);
     }
   }
 
   Future<bool> onClickNextStep() async {
-    bool exited = false;
     bool isDelagetion = false;
     AppLocalizations dic = AppLocalizations.of(context)!;
     String? privateKey;
     if (!isLedger) {
       String? password = await UI.showPasswordDialog(
           context: context,
-          wallet: widget.store.wallet!.currentWallet,
+          wallet: _initWallet,
           inputPasswordRequired: false,
           isTransaction: true,
           store: widget.store);
@@ -181,12 +165,29 @@ class _TxActionDialogState extends State<TxActionDialog> {
         return false;
       }
       privateKey = await webApi.account.getPrivateKey(
-          widget.store.wallet!.currentWallet,
-          widget.store.wallet!.currentWallet.currentAccountIndex,
+          _initWallet,
+          _initAccountIndex,
           password);
       if (privateKey == null) {
-        UI.toast(dic.passwordError);
-        return false;
+        widget.store.wallet!.clearRuntimePwd();
+        password = await UI.showPasswordDialog(
+            context: context,
+            wallet: _initWallet,
+            inputPasswordRequired: true,
+            isTransaction: true,
+            store: widget.store);
+        if (password == null) {
+          return false;
+        }
+        privateKey = await webApi.account.getPrivateKey(
+            _initWallet,
+            _initAccountIndex,
+            password);
+        if (privateKey == null) {
+          widget.store.wallet!.clearRuntimePwd();
+          UI.toast(dic.passwordError);
+          return false;
+        }
       }
     }
     Map<String, dynamic> txInfo = {};
@@ -194,9 +195,9 @@ class _TxActionDialogState extends State<TxActionDialog> {
     if (widget.modalType == TxActionType.cancel) {
       txInfo = {
         "privateKey": privateKey,
-        "accountIndex": widget.store.wallet!.currentWallet.currentAccountIndex,
-        "fromAddress": widget.store.wallet!.currentAddress,
-        "toAddress": widget.store.wallet!.currentAddress,
+        "accountIndex": _initAccountIndex,
+        "fromAddress": _initAddress,
+        "toAddress": _initAddress,
         "amount": 0.0,
         "fee": nextStateFee,
         "nonce": widget.txData.nonce,
@@ -207,22 +208,21 @@ class _TxActionDialogState extends State<TxActionDialog> {
       if (txType == 'zkapp') {
         txInfo = {
           "privateKey": privateKey,
-          "fromAddress": widget.store.wallet!.currentAddress,
+          "fromAddress": _initAddress,
           "fee": nextStateFee,
           "nonce": widget.txData.nonce,
-          "memo": memo!.isNotEmpty ? memo : "",
+          "memo": (memo != null && memo.isNotEmpty) ? memo : "",
           "transaction": widget.txData.transaction
         };
       } else {
         txInfo = {
           "privateKey": privateKey,
-          "accountIndex":
-              widget.store.wallet!.currentWallet.currentAccountIndex,
-          "fromAddress": widget.store.wallet!.currentAddress,
+          "accountIndex": _initAccountIndex,
+          "fromAddress": _initAddress,
           "toAddress": widget.txData.receiver,
           "fee": nextStateFee,
           "nonce": widget.txData.nonce,
-          "memo": memo!.isNotEmpty ? memo : "",
+          "memo": (memo != null && memo.isNotEmpty) ? memo : "",
         };
         if (txType == 'payment') {
           double amount = double.parse(Fmt.balance(
@@ -241,7 +241,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       if (tx == null) {
         return false;
       }
-      if (!exited) {
+      if (mounted) {
         data = await webApi.account
             .sendTxBody(tx, context: context, isDelegation: isDelagetion);
       }
@@ -260,11 +260,10 @@ class _TxActionDialogState extends State<TxActionDialog> {
     if (data == null) {
       return false;
     }
-    if (mounted && !exited) {
+    if (mounted) {
       widget.store.triggerBalanceRefresh();
       return true;
     }
-    exited = true;
     return false;
   }
 
@@ -291,21 +290,32 @@ class _TxActionDialogState extends State<TxActionDialog> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(widget.title,
+                        Text(showLedgerConfirm ? dic.waitingLedger : widget.title,
                             style: TextStyle(
                                 color: Color(0xFF222222),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600)),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              isLedger ? LedgerStatusView() : Container(),
-                              SizedBox(width: 4),
-                              NetworkStatusView()
-                            ],
-                          ),
-                        )
+                        showLedgerConfirm
+                            ? GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => Navigator.pop(context),
+                                child: SvgPicture.asset(
+                                    'assets/images/public/icon_nav_close.svg',
+                                    width: 24,
+                                    height: 24,
+                                    colorFilter: ColorFilter.mode(
+                                        Colors.black, BlendMode.srcIn)),
+                              )
+                            : Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    isLedger ? LedgerStatusView() : Container(),
+                                    SizedBox(width: 4),
+                                    NetworkStatusView()
+                                  ],
+                                ),
+                              )
                       ],
                     ),
                   ),
@@ -410,28 +420,54 @@ class _TxActionDialogState extends State<TxActionDialog> {
                             ],
                     ),
                   ),
-                  ZkAppBottomButton(
-                    confirmBtnText: widget.buttonText ?? dic.confirm,
-                    onConfirm: () async {
-                      if (isLedger &&
-                          widget.txData.type.toLowerCase() == "zkapp") {
-                        UI.toast(dic.notSupportNow);
-                        return;
-                      }
-                      if (isLedger && !await _ledgerCheck()) {
-                        return;
-                      }
-                      setState(() {
-                        submitting = true;
-                      });
-                      await onClickNextStep();
-                      submitting = false;
-                      if (widget.onConfirm != null) {
-                        widget.onConfirm!();
-                      }
-                    },
-                    submitting: submitting,
-                  )
+                  if (!showLedgerConfirm)
+                    ZkAppBottomButton(
+                      confirmBtnText: widget.buttonText ?? dic.confirm,
+                      onConfirm: () async {
+                        if (isLedger &&
+                            widget.txData.type.toLowerCase() == "zkapp") {
+                          UI.toast(dic.notSupportNow);
+                          return;
+                        }
+                        if (isLedger) {
+                          setState(() {
+                            checkingLedger = true;
+                          });
+                          if (!await _ledgerCheck()) {
+                            if (mounted) {
+                              setState(() {
+                                checkingLedger = false;
+                              });
+                            }
+                            return;
+                          }
+                          if (mounted) {
+                            setState(() {
+                              checkingLedger = false;
+                            });
+                          }
+                        }
+                        if (!mounted) return;
+                        setState(() {
+                          submitting = true;
+                        });
+                        await _setLedgerScreenAwake(true);
+                        try {
+                          final success = await onClickNextStep();
+                          if (success && widget.onConfirm != null) {
+                            widget.onConfirm!();
+                          }
+                        } finally {
+                          await _setLedgerScreenAwake(false);
+                          if (mounted) {
+                            setState(() {
+                              submitting = false;
+                            });
+                          }
+                        }
+                      },
+                      submitting: submitting || checkingLedger,
+                    )
                 ],
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter/material.dart';
 
 class ExportMnemonicResultPage extends StatelessWidget {
@@ -83,6 +84,66 @@ class ExportMnemonicResultPage extends StatelessWidget {
                     child: this.buildWords(context),
                   ),
                 ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 20, right: 20, bottom: 10),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(bottom: 26),
+                decoration: BoxDecoration(
+                  color: Color(0xFFD65A5A).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Color(0xFFD65A5A),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(top: 2),
+                          child: Icon(
+                            Icons.error,
+                            color: Color(0xFFD65A5A),
+                            size: 18,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            dic.mnemonicWarningTitle,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFFD65A5A),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      dic.mnemonicWarningContent,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFFD65A5A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 38, right: 38, top: 12, bottom: 30),
+              child: NormalButton(
+                text: dic.done,
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ),
           ],

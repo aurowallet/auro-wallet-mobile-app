@@ -1,11 +1,9 @@
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
 
 class TxActionRow extends StatefulWidget {
   TxActionRow({required this.store, required this.data});
@@ -18,32 +16,6 @@ class TxActionRow extends StatefulWidget {
 }
 
 class _TxActionRowState extends State<TxActionRow> {
-  late ReactionDisposer _monitorFeeDisposer;
-  double? currentFee;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _monitorFeeDisposer =
-          reaction((_) => widget.store.assets!.transferFees, _onFeeLoaded);
-    });
-  }
-
-  void _onFeeLoaded(Fees fees) {
-    print('_onFeeLoaded');
-    setState(() {
-      currentFee = fees.speedup;
-      print('set fee ctr');
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _monitorFeeDisposer();
-  }
-
   void onOpenModal(bool isSpeedUp) async {
     AppLocalizations dic = AppLocalizations.of(context)!;
     var title = isSpeedUp ? dic.speedUpTitle : dic.cancelTransaction;

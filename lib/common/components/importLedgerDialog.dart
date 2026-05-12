@@ -14,6 +14,7 @@ import 'package:auro_wallet/utils/ledgerInit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 
 class ImportLedger extends StatefulWidget {
   ImportLedger(
@@ -85,6 +86,9 @@ class _ImportLedgerState extends State<ImportLedger> {
       return;
     }
     store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
+    if (!mounted) {
+      return;
+    }
     setState(() {
       connected = true;
     });
@@ -96,7 +100,7 @@ class _ImportLedgerState extends State<ImportLedger> {
       if (accountIndex == null || widget.accountName == null) {
         return;
       }
-      List<String>? accounts;
+      late final List<String> accounts;
       try {
         final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
             accountIndex: accountIndex);
@@ -112,7 +116,7 @@ class _ImportLedgerState extends State<ImportLedger> {
         }
         return;
       }
-      if (accounts.length == 0) {
+      if (accounts.isEmpty) {
         return;
       }
       print('accounts');
@@ -124,11 +128,10 @@ class _ImportLedgerState extends State<ImportLedger> {
           seedType: WalletStore.seedTypeLedger,
           hdIndex: accountIndex,
           password: widget.password);
-      if (isSuccess == true) {
-        Navigator.of(context).pop(true);
-      } else {
-        Navigator.of(context).pop(false);
+      if (!mounted) {
+        return;
       }
+      Navigator.of(context).pop(isSuccess == true);
     }
   }
 
@@ -205,6 +208,20 @@ class LedgerGetAddress extends StatefulWidget {
 
 class _LedgerGetAddressState extends State<LedgerGetAddress> {
   @override
+  void initState() {
+    super.initState();
+    ScreenAwake.acquire(ScreenAwakeKeys.ledgerGetAddress)
+        .catchError((e) => debugPrint('ScreenAwake.acquire failed: $e'));
+  }
+
+  @override
+  void dispose() {
+    ScreenAwake.release(ScreenAwakeKeys.ledgerGetAddress)
+        .catchError((e) => debugPrint('ScreenAwake.release failed: $e'));
+    super.dispose();
+  }
+
+  @override
   Widget build(context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Wrap(
@@ -273,10 +290,17 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   LedgerDevice? ledgerDevice;
   Ledger? ledgerInstance;
   StreamSubscription<LedgerDevice>? cancelScan;
+  Timer? _reconnectTimer;
+  int _connectAttempt = 0;
+  static const int _maxConnectAttempts = 3;
+  late final ScreenAwakeHandle _connectScreenAwakeHandle;
 
   @override
   void initState() {
     super.initState();
+    _connectScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('ledger_connect', this),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (store.ledger?.ledgerDevice == null) {
         _scanDevice();
@@ -293,53 +317,88 @@ class _ConnectLedgerState extends State<ConnectLedger> {
 
   @override
   void dispose() {
-    super.dispose();
+    _reconnectTimer?.cancel();
+    _connectScreenAwakeHandle.setActive(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
     LedgerInit.cancelScan?.cancel();
     LedgerInit.offScanListener();
+    super.dispose();
   }
 
   void _connect() async {
-    print('start connect');
+    print('start connect attempt $_connectAttempt');
+    _reconnectTimer?.cancel();
+    if (!mounted) return;
     setState(() {
       connecting = true;
+      unactive = false;
     });
-    bool finishConnecting = false;
-    Future.delayed(Duration(seconds: 6), () {
-      if (mounted) {
-        if (!finishConnecting) {
-          print('reconnect');
-          this._connect();
-        }
-      }
-    });
+    await _connectScreenAwakeHandle.setActive(true);
+    _connectAttempt++;
     try {
-      // await ledgerInstance!.stopScanning();
-      // await ledgerInstance!.dispose();
-      await ledgerInstance!.connect(ledgerDevice!);
+      LedgerInit.cancelScan?.cancel();
+      LedgerInit.cancelScan = null;
+      await ledgerInstance!.stopScanning();
+      await Future.delayed(const Duration(milliseconds: 500));
+      await ledgerInstance!.connect(ledgerDevice!).timeout(
+        const Duration(seconds: 16),
+      );
       print('finish connect');
+      if (!mounted) return;
       setState(() {
         unactive = false;
         connecting = false;
       });
-      finishConnecting = true;
-    } on LedgerException catch (e) {
-      await ledgerInstance!.disconnect(ledgerDevice!);
-      store.ledger!.setDevice(null);
-      print('connect error');
-      print(e);
-      setState(() {
-        unactive = true;
-        connecting = false;
-      });
-      finishConnecting = true;
-      return;
+      _connectAttempt = 0;
+      await _connectScreenAwakeHandle.setActive(false);
+      store.ledger!.setDevice(ledgerDevice);
+      widget.onConnected();
+    } catch (e) {
+      final errMsg = e is LedgerException ? e.message : '$e';
+      print('connect error: $errMsg');
+      try {
+        await ledgerInstance!.disconnect(ledgerDevice!);
+      } catch (_) {}
+      if (!mounted) return;
+      // Detect iOS BLE pairing mismatch (CBError Code 14)
+      final lowerMsg = errMsg.toLowerCase();
+      final isPairingError =
+          lowerMsg.contains('pairing') || lowerMsg.contains('code=14') || lowerMsg.contains('code 14');
+      if (isPairingError) {
+        store.ledger!.setDevice(null);
+        await _connectScreenAwakeHandle.setActive(false);
+        setState(() {
+          unactive = true;
+          connecting = false;
+        });
+        _connectAttempt = 0;
+        if (mounted) {
+          final dic = AppLocalizations.of(context);
+          UI.showAlertDialog(
+            context: context,
+            contents: [dic?.ledgerPairingError ?? errMsg],
+          );
+        }
+      } else if (_connectAttempt < _maxConnectAttempts) {
+        print('will retry after delay');
+        _reconnectTimer = Timer(const Duration(seconds: 2), () {
+          if (mounted) _connect();
+        });
+      } else {
+        store.ledger!.setDevice(null);
+        await _connectScreenAwakeHandle.setActive(false);
+        setState(() {
+          unactive = true;
+          connecting = false;
+        });
+        _connectAttempt = 0;
+      }
     }
-    store.ledger!.setDevice(ledgerDevice);
-    widget.onConnected();
   }
 
   onScanSuccess(LedgerDevice device) async {
     print('scaned a device' + DateTime.now().toUtc().toString());
+    if (!mounted) return;
     setState(() {
       ledgerDevice = device;
       searching = false;
@@ -378,7 +437,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   }
 
   Widget renderError() {
-    late String errorStr;
+    String errorStr = '';
     AppLocalizations dic = AppLocalizations.of(context)!;
     if (unactive || widget.locked) {
       errorStr = dic.unlockLedger;
@@ -407,11 +466,11 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   @override
   Widget build(context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    bool isError = widget.locked || widget.minaNotOpened;
+    bool isError = widget.locked || widget.minaNotOpened || unactive;
     return Wrap(
       children: [
         LedgerTipItem(
-            num: '1', text: dic.ledgerTip1, descText: dic.ledgerSupport),
+            num: '1', text: dic.ledgerTip1),
         LedgerTipItem(
           num: '2',
           text: dic.ledgerTip2,
@@ -447,7 +506,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
               ],
             ),
             onPressed: () {
-              if (ledgerDevice != null) {
+              if (ledgerDevice != null && !connecting) {
                 _connect();
               }
               // _onClick('import');

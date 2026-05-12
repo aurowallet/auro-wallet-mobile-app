@@ -1,14 +1,16 @@
 import 'package:auro_wallet/page/account/walletManagePage.dart';
+import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
 
 class CustomStyledText extends StatelessWidget {
   CustomStyledText(
-      {required this.text, this.style, this.textAlign = TextAlign.left});
+      {required this.text, this.style, this.textAlign = TextAlign.left, this.onLinkTap});
 
   final String text;
   final TextStyle? style;
   final TextAlign textAlign;
+  final VoidCallback? onLinkTap;
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +21,10 @@ class CustomStyledText extends StatelessWidget {
       style: st,
       textAlign: textAlign,
       newLineAsBreaks: true,
-      textScaleFactor: MediaQuery.of(context).textScaleFactor,
+      textScaler: MediaQuery.of(context).textScaler,
       tags: {
         'bold': StyledTextTag(style: TextStyle(fontWeight: FontWeight.w900)),
+        'semiBold': StyledTextTag(style: TextStyle(fontWeight: FontWeight.w700)),
         'red': StyledTextTag(
             style: st.copyWith(color: Color(0xFFD65A5A), fontWeight: FontWeight.w900)),
         'lightred' :StyledTextTag(
@@ -29,6 +32,10 @@ class CustomStyledText extends StatelessWidget {
         'theme': StyledTextTag(style: st.copyWith(color: primaryColor)),
         'link': StyledTextActionTag(
           (String? text, Map<String?, String?> attrs) {
+            if (onLinkTap != null) {
+              onLinkTap!();
+              return;
+            }
             final String? link = attrs['href'];
             final String? route = attrs['route'];
             if (link == 'aurowallet://back') {
@@ -37,19 +44,26 @@ class CustomStyledText extends StatelessWidget {
               } else {
                 Navigator.of(context).pop();
               }
+            } else if (link != null && link.startsWith('http')) {
+              UI.launchURL(link);
             }
-            print('The "$link" link is tapped.');
           },
           style: TextStyle(
-              decoration: TextDecoration.underline, color: primaryColor),
+              decoration: TextDecoration.none,
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w500),
         ),
         'acmanage': StyledTextActionTag(
           (String? text, Map<String?, String?> attrs) {
               Navigator.popUntil(context, ModalRoute.withName(WalletManagePage.route));
           },
           style: TextStyle(
-              decoration: TextDecoration.underline, color: primaryColor),
+              decoration: TextDecoration.none, color: primaryColor),
         ),
+        'yellowBold': StyledTextTag(
+            style: st.copyWith(color: Color(0xFFE4B200), fontWeight: FontWeight.w700)),
+        'yellow': StyledTextTag(
+            style: st.copyWith(color: Color(0xFFE4B200), fontWeight: FontWeight.w500)),
         'strongBlack':StyledTextTag(style: TextStyle(color: Color(0xCC000000))),
       },
     );

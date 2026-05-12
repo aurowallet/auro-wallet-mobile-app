@@ -7,7 +7,8 @@ import 'package:auro_wallet/utils/colorsUtil.dart';
 
 class InputItem extends StatefulWidget {
   InputItem(
-      {this.label,
+      {super.key,
+      this.label,
       this.initialValue,
       this.onChanged,
       this.rightWidget,
@@ -31,7 +32,9 @@ class InputItem extends StatefulWidget {
       this.autoFocus = false,
       this.textAlign = TextAlign.left,
       this.isError,
-      this.contentPadding});
+      this.contentPadding,
+      this.suffixIconConstraints,
+      this.style});
 
   final int? maxLength;
   final bool autoFocus;
@@ -58,6 +61,8 @@ class InputItem extends StatefulWidget {
   final double borderRadius;
   final TextAlign textAlign;
   final Widget? suffixIcon;
+  final BoxConstraints? suffixIconConstraints;
+  final TextStyle? style;
 
   @override
   _InputItemState createState() => _InputItemState();
@@ -67,20 +72,39 @@ class _InputItemState extends State<InputItem> {
   bool _passwordVisibility = false;
   int specialCharsCount = 0;
   TextEditingController? _controller;
+  FocusNode? _internalFocusNode;
 
   @override
   void initState() {
     super.initState();
     _controller = widget.controller ?? new TextEditingController();
+    _internalFocusNode = widget.focusNode ?? FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialValue != null) {
         _controller!.text = widget.initialValue!;
       }
       _controller?.addListener(_onTextChange);
+      if (widget.autoFocus && mounted) {
+        _internalFocusNode?.requestFocus();
+      }
     });
   }
 
+  @override
+  void dispose() {
+    _controller?.removeListener(_onTextChange);
+    if (widget.focusNode == null) {
+      _internalFocusNode?.dispose();
+    }
+    // Only dispose if we created the controller
+    if (widget.controller == null) {
+      _controller?.dispose();
+    }
+    super.dispose();
+  }
+
   _onTextChange() {
+    if (!mounted) return;
     final value = _controller!.text;
     int counter = 0;
     for (int i = 0; i < value.length; i++) {
@@ -107,8 +131,7 @@ class _InputItemState extends State<InputItem> {
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context).textTheme;
-    var labelStyle = TextStyle(
+    TextStyle labelStyle = TextStyle(
         fontSize: 12,
         color: const Color(0xD9000000),
         fontWeight: FontWeight.w600);
@@ -167,13 +190,14 @@ class _InputItemState extends State<InputItem> {
               cursorColor: Theme.of(context).primaryColor,
               inputFormatters: widget.inputFormatters,
               keyboardType: widget.keyboardType,
-              controller: widget.controller,
+              controller: _controller,
               obscureText: widget.isPassword && !_passwordVisibility,
-              focusNode: widget.focusNode,
+              focusNode: _internalFocusNode,
               autocorrect: false,
               autofocus: widget.autoFocus,
               onChanged: widget.onChanged,
               textAlign: widget.textAlign,
+              style: widget.style,
               decoration: InputDecoration(
                 hintText: widget.placeholder,
                 hintStyle: TextStyle(
@@ -194,6 +218,7 @@ class _InputItemState extends State<InputItem> {
                 suffixIcon: widget.isPassword
                     ? _buildSuffixIcon()
                     : (widget.suffixIcon ?? null),
+                suffixIconConstraints: widget.suffixIconConstraints,
                 // enabledBorder: InputBorder.none,
                 focusedBorder: border.copyWith(
                     borderSide: BorderSide(

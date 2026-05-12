@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
 import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
@@ -15,7 +16,6 @@ import 'package:auro_wallet/page/browser/components/connectDialog.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/page/browser/components/signatureDialog.dart';
 import 'package:auro_wallet/page/browser/components/switchChainDialog.dart';
-import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
@@ -29,6 +29,7 @@ import 'package:auro_wallet/common/components/passwordInputDialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/TimerManager.dart';
 
 class UI {
@@ -93,12 +94,51 @@ class UI {
             timerManager: timerManager,
             onConfirm: () async {
               bool? success = await onConfirm();
-              if (success == false) {
+              if (success != true && context.mounted) {
                 Navigator.of(context).pop();
               }
             });
       },
     );
+  }
+
+  static Future<bool> showDuplicateAccountAlertIfNeeded({
+    required BuildContext context,
+    required WalletStore walletStore,
+    required String pubKey,
+  }) async {
+    if (!walletStore.isPubKeyExist(pubKey)) {
+      return false;
+    }
+    final wallet = walletStore.findWalletByAddress(pubKey);
+    if (wallet == null) {
+      AppLocalizations dic = AppLocalizations.of(context)!;
+      await UI.showAlertDialog(
+        context: context,
+        contents: [dic.importSameAccount_1(pubKey)],
+        confirm: dic.isee,
+      );
+      return true;
+    }
+
+    final matchedAccount = wallet.accounts.firstWhere(
+      (acc) => acc.pubKey == pubKey,
+    );
+
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    String groupName = walletStore.getKeyringGroupName(wallet);
+    String accountDisplayName = '$groupName - ${matchedAccount.name}';
+
+    await UI.showAlertDialog(
+      context: context,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      contents: [
+        dic.importSameAccount_1(matchedAccount.address) + "\n",
+        dic.importSameAccount_2(accountDisplayName)
+      ],
+      confirm: dic.isee,
+    );
+    return true;
   }
 
   static Future<void> showAlertDialog(
@@ -114,8 +154,8 @@ class UI {
       barrierDismissible: barrierDismissible,
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;
-        return WillPopScope(
-          onWillPop: () async => !disableBack,
+        return PopScope(
+          canPop: !disableBack,
           child: CustomAlertDialog(
             title: dic.prompt,
             confirm: confirm,
@@ -186,17 +226,13 @@ class UI {
     bool isTransaction = false,
     AppStore? store,
   }) {
-    if (isTransaction) {
-      final isTransactionEnable = webApi.account.getTransactionPwdEnabled();
-      if (!isTransactionEnable && store != null) {
-        String pwd = store.wallet!.runtimePwd;
-        if (pwd.isNotEmpty) {
-          return Future.value(pwd);
-        }
-      }
+    if (isTransaction &&
+        store != null &&
+        !webApi.account.getTransactionPwdEnabled() &&
+        store.wallet!.runtimePwd.isNotEmpty) {
+      return Future.value(store.wallet!.runtimePwd);
     }
-
-    return showDialog(
+    return showDialog<String?>(
       context: context,
       barrierDismissible: false,
       useRootNavigator: false,
@@ -204,7 +240,15 @@ class UI {
         return PasswordInputDialog(
             wallet: wallet, inputPasswordRequired: inputPasswordRequired);
       },
-    );
+    ).then((password) {
+      if (isTransaction &&
+          password != null &&
+          store != null &&
+          !webApi.account.getTransactionPwdEnabled()) {
+        store.wallet!.setRuntimePwd(password);
+      }
+      return password;
+    });
   }
 
   static TextInputFormatter decimalInputFormatter(int decimals) {
@@ -471,7 +515,8 @@ class UI {
     required double feePlaceHolder,
     required ZkAppValueEnum feeType,
     required int nonce,
-    required Function(double, int) onConfirm,
+    required Function(double? fee, int nonce) onConfirm,
+    bool showFeeButtons = true,
   }) {
     return showDialog<void>(
       context: context,
@@ -482,7 +527,8 @@ class UI {
           feePlaceHolder: feePlaceHolder,
           feeType: feeType,
           nonce: nonce,
-          onConfirm: (double fee, int nonce) {
+          showFeeButtons: showFeeButtons,
+          onConfirm: (double? fee, int nonce) {
             onConfirm(fee, nonce);
           },
         );
@@ -571,8 +617,4 @@ class UI {
   }
 }
 
-final GlobalKey<RefreshIndicatorState> globalStakingRefreshKey =
-    new GlobalKey<RefreshIndicatorState>();
 
-final GlobalKey<RefreshIndicatorState> globalTokenRefreshKey =
-    new GlobalKey<RefreshIndicatorState>();

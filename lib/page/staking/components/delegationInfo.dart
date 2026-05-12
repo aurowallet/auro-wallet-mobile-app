@@ -1,7 +1,6 @@
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/page/staking/delegatePage.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
@@ -202,7 +201,7 @@ class EarnOnMinaCard extends StatelessWidget {
     return Observer(builder: (_) {
       Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
       double showBalance = mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0.0;
-      double? stakingAPY = store.staking!.stakingAPY;
+      double? stakingAPR = store.staking!.stakingAPR;
       return Container(
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -215,12 +214,12 @@ class EarnOnMinaCard extends StatelessWidget {
           children: [
             _buildInfoRow(
               dic.available,
-              '${showBalance.toStringAsFixed(4)} ${COIN.coinSymbol}',
+              '${Fmt.parseShowBalance(showBalance, showLength: 4)} ${COIN.coinSymbol}',
             ),
             SizedBox(height: 12),
             _buildInfoRow(
               dic.apr,
-              stakingAPY != null ? '${stakingAPY.toStringAsFixed(2)}%' : '--',
+              stakingAPR != null ? '${stakingAPR.toStringAsFixed(2)}%' : '--',
             ),
             SizedBox(height: 12),
             _buildInfoRow(
@@ -327,7 +326,7 @@ class ActiveDelegationSection extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${showBalance.toStringAsFixed(4)} ${COIN.coinSymbol}',
+                        '${Fmt.parseShowBalance(showBalance, showLength: 4)} ${COIN.coinSymbol}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.black,
@@ -373,7 +372,7 @@ class StakeActionButton extends StatelessWidget {
         context,
         DelegatePage.route,
         arguments: DelegateParams(
-          manualAddValidator: false,
+          manualAddValidator: !_isMainnet,
           validatorData: targetValidator,
           isRedelegate: true,
         ),
@@ -394,11 +393,15 @@ class StakeActionButton extends StatelessWidget {
           ),
         );
       } else {
-        // Non-mainnet: Go to validators list first
+        // Non-mainnet: no validator list, go directly to manual input
         Navigator.pushNamed(
           context,
-          ValidatorsPage.route,
-          arguments: {'isRedelegate': false},
+          DelegatePage.route,
+          arguments: DelegateParams(
+            manualAddValidator: true,
+            validatorData: null,
+            isRedelegate: false,
+          ),
         );
       }
     }
@@ -409,8 +412,7 @@ class StakeActionButton extends StatelessWidget {
     AppLocalizations dic = AppLocalizations.of(context)!;
     // Use border-bottom style like Chrome extension's actionLinkBordered
     return Container(
-      margin: EdgeInsets.only(top: 16, left: 10, right: 10),
-      padding: EdgeInsets.symmetric(vertical: 4,horizontal: 6),
+      margin: EdgeInsets.only(top: 8, left: 4, right: 0),
       decoration: BoxDecoration(
         border: isDelegated
             ? null
@@ -423,23 +425,27 @@ class StakeActionButton extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () => _onTap(context),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              isDelegated ? dic.redelegate : dic.stake,
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.w500,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.only(top: 12, bottom: 12, left: 6, right: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                isDelegated ? dic.redelegate : dic.stake,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.black.withValues(alpha: 0.3),
-              size: 20,
-            ),
-          ],
+              Icon(
+                Icons.chevron_right,
+                color: Colors.black.withValues(alpha: 0.3),
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -19,29 +19,29 @@ class ApiStaking {
     }
     fetchStakingOverview();
     fetchValidators();
-    fetchStakingAPY();
+    fetchStakingAPR();
   }
 
-  Future<double?> fetchStakingAPY() async {
+  Future<double?> fetchStakingAPR() async {
     if (!store.settings!.isMainnet) {
-      // Clear APY when not on mainnet to avoid showing stale mainnet data
-      store.staking!.clearStakingAPY();
+      // Clear APR when not on mainnet to avoid showing stale mainnet data
+      store.staking!.clearStakingAPR();
       return null;
     }
-    String url = "$BASE_INFO_URL/staking/apy";
+    String url = "$BASE_INFO_URL/staking/apr";
     try {
       var response = await http.get(Uri.parse(url),
           headers: {'Content-Type': 'application/json; charset=utf-8'});
       if (response.statusCode == 200) {
         Map<String, dynamic> data = convert.jsonDecode(utf8.decode(response.bodyBytes));
-        double? apy = (data['apr'] as num?)?.toDouble();
-        if (apy != null) {
-          store.staking!.setStakingAPY(apy);
+        double? apr = (data['apr'] as num?)?.toDouble();
+        if (apr != null) {
+          store.staking!.setStakingAPR(apr);
         }
-        return apy;
+        return apr;
       }
     } catch (e) {
-      print('Request staking APY failed: $e');
+      print('Request staking APR failed: $e');
     }
     return null;
   }

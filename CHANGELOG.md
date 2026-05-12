@@ -3,6 +3,65 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+## [2.3.0]
+### Enhancements
+- Upgrade Flutter version to 3.38.8
+- Upgrade Dart version to 3.10.7
+- Upgrade dependencies:
+  - mobile_scanner: 6.0.10 → 7.1.4
+  - fluttertoast: 8.2.12 → 9.0.0
+  - permission_handler: 11.4.0 → 12.0.1
+  - share_plus: 10.1.4 → 12.0.1
+  - styled_text: 8.1.0 → 9.0.0
+  - freezed: 2.5.8 → 3.2.4
+  - sodium_libs: 3.4.3+2 → 3.4.6+4
+- Update deprecated APIs (WillPopScope → PopScope, textScaleFactor → textScaler, etc.)
+- Update Android build configuration (AGP 8.7.3, Gradle 8.13, compileSdk 36)
+- Support Android 16kb
+- Add notification support
+- Add test cases to wallet
+- Support multi-wallet
+- Add integration test
+- Ledger process
+- Restore process
+- Update API of staking APR
+- Upgrade network fee config
+- Update Advance UI
+- Update transaction history fetch
+- Refactor token/staking refresh handling
+- Biometric authentication improvements
+- Password verification page improvements
+- App lock improvements
+- Support load transaction detail by hash
+- Improve transaction password/runtime password handling and prompts
+- Improve change-password UX
+- Use `Decimal` for staking balance calculations to avoid precision issues
+- WebView bridge: propagate JS errors as exceptions to callers (completeError)
+- Await seed storage operations to ensure persistence reliability
+- Enforce HTTPS-only for custom node URLs across all entry points (add/edit/DApp/API)
+- iOS: disable ATS arbitrary loads (`NSAllowsArbitraryLoads`, `NSAllowsArbitraryLoadsInWebContent`, `NSAllowsLocalNetworking` → false)
+- Android: disable cleartext HTTP traffic (`usesCleartextTraffic=false`, `network_security_config`)
+- Android: exclude all app data from backup and device-transfer (`backup_rules`, `data_extraction_rules`)
+- iOS Keychain accessibility tightened to prevent cross-device recovery (ThisDeviceOnly)
+- Auto-fallback to Mainnet if current node is insecure HTTP on startup
+- Block switching to HTTP custom nodes; show HTTP nodes as disabled (greyed-out with HTTP tag) in node list
+- Hide HTTP custom nodes from home page network picker
+- Use `Decimal` for transfer/fee conversions to avoid precision/rounding issues
+- Ledger connect
+- Replace `SwitchItem` with `MenuItem`
+- Remove unused `path_provider` dependency and use `Directory.systemTemp` for temporary files
+- Add ScreenAwake for ledger
+- Update WebView bridge and provider bundles for in-app stability testing improvements
+
+### Fixed
+- fetchScamInfo catch
+- Token decimal
+- TxList amount display
+- Fix node URL validation
+- Use `BigInt` for token amounts
+- Fix WalletConnect bottom-tip dialog context handling
+- Fix duplicate wallet import handling
+
 
 ## [2.2.2]
 ### Enhancements

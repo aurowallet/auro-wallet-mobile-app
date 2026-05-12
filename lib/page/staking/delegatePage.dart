@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'package:decimal/decimal.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
-import 'package:auro_wallet/common/components/feeSelector.dart';
+import 'package:auro_wallet/common/components/networkFeeDisplay.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
@@ -21,10 +21,9 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
-import 'package:auro_wallet/common/components/advancedTransferOptions.dart';
+import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:mobx/mobx.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
-import 'package:auro_wallet/common/consts/index.dart' as consts;
 
 class DelegateParams {
   DelegateParams({
@@ -59,26 +58,33 @@ class _DelegatePageState extends State<DelegatePage>
   final TextEditingController _feeCtrl = new TextEditingController();
   final TextEditingController _memoCtrl = new TextEditingController();
   final TextEditingController _validatorCtrl = new TextEditingController();
-  late ReactionDisposer _monitorFeeDisposer;
+  ReactionDisposer? _monitorFeeDisposer;
   bool _submitDisabled = true;
   bool submitting = false;
   var _loading = Observable(true);
   bool inputDirty = false;
+  bool _navigating = false;
   double? currentFee;
   double? defaultFee;
+  late String _initAddress;
+  late WalletData _initWallet;
+  late int _initAccountIndex;
+  int _loadedNonce = 0;
+  bool _nonceLoaded = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      DelegateParams params =
-          ModalRoute.of(context)!.settings.arguments as DelegateParams;
+      if (!mounted) return;
+      _onFeeLoaded(store.assets!.transferFees);
       _monitorFeeDisposer =
           reaction((_) => store.assets!.transferFees, _onFeeLoaded);
       _feeCtrl.addListener(_onFeeInputChange);
-      if (params.manualAddValidator) {
-        _validatorCtrl.addListener(_monitorSummitStatus);
-      }
+      _validatorCtrl.addListener(_monitorSummitStatus);
+      _initAddress = store.wallet!.currentAddress;
+      _initWallet = store.wallet!.currentWallet;
+      _initAccountIndex = _initWallet.currentAccountIndex;
       _updateSubmitState();
       _loadData();
     });
@@ -90,7 +96,7 @@ class _DelegatePageState extends State<DelegatePage>
     _nonceCtrl.dispose();
     _feeCtrl.dispose();
     _validatorCtrl.dispose();
-    _monitorFeeDisposer();
+    _monitorFeeDisposer?.call();
     super.dispose();
   }
 
@@ -112,6 +118,9 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   void _monitorSummitStatus() {
+    DelegateParams params =
+        ModalRoute.of(context)!.settings.arguments as DelegateParams;
+    if (!params.manualAddValidator) return;
     if (_validatorCtrl.text.isEmpty) {
       if (!_submitDisabled) {
         setState(() {
@@ -152,7 +161,7 @@ class _DelegatePageState extends State<DelegatePage>
     if (fees.medium > 0) {
       defaultFee = fees.medium;
     }
-    if (!inputDirty && currentFee == null) {
+    if (!inputDirty) {
       setState(() {
         currentFee = fees.medium;
       });
@@ -169,37 +178,39 @@ class _DelegatePageState extends State<DelegatePage>
     if (currentFee != null) {
       return currentFee!;
     }
-    return consts.defaultTxFees.medium;
+    return store.assets!.transferFees.medium;
   }
 
   Future<void> _loadData() async {
     await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
-      webApi.assets.fetchPendingTokenList(
-          widget.store.wallet!.currentAddress,
-          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
-                  ?.inferredNonce ??
-              "0")
     ]);
+    if (!mounted) return;
+    int freshNonce = int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
+    await webApi.assets.fetchPendingTokenList(_initAddress, freshNonce.toString());
+    _loadedNonce = freshNonce;
+    _nonceLoaded = true;
     runInAction(() {
       _loading.value = false;
     });
   }
 
-  void _onChooseFee(double fee) {
-    if (_feeCtrl.text.isNotEmpty) {
+  void _onAdvanceConfirm(String fee, String nonce) {
+    if (fee.isNotEmpty) {
+      _feeCtrl.text = fee;
+    } else {
       _feeCtrl.clear();
     }
-    setState(() {
-      inputDirty = false;
-      currentFee = fee;
-    });
+    if (nonce.isNotEmpty) {
+      _nonceCtrl.text = nonce;
+    } else {
+      _nonceCtrl.clear();
+    }
   }
 
   String _floorToDecimals(double value, int decimals) {
-    double multiplier = pow(10, decimals).toDouble();
-    return ((value * multiplier).floor() / multiplier).toStringAsFixed(decimals);
+    return Fmt.parseShowBalance(value, showLength: decimals);
   }
 
   int? _parseNonce(dynamic value) {
@@ -211,15 +222,11 @@ class _DelegatePageState extends State<DelegatePage>
 
   String? _validateBalance() {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    double? showBalance =
-        store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance;
-    double availableBalanceStr =
-        (showBalance != null ? showBalance : 0) as double;
-    BigInt available =
-        BigInt.from(pow(10, COIN.decimals) * availableBalanceStr);
-    final int decimals = COIN.decimals;
+    double showBalance = store.assets!.mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0;
+    Decimal availableBalance = Decimal.parse(showBalance.toString());
     double fee = _getEffectiveFee();
-    if (available / BigInt.from(pow(10, decimals)) - fee <= 0) {
+    Decimal feeDecimal = Decimal.parse(fee.toString());
+    if (availableBalance - feeDecimal <= Decimal.zero) {
       return dic.balanceNotEnough;
     }
     return null;
@@ -262,28 +269,26 @@ class _DelegatePageState extends State<DelegatePage>
   }
 
   void _handleSubmit() async {
+    if (submitting) return;
+    setState(() { submitting = true; });
+    _unFocus();
+    if (_nonceCtrl.text.isEmpty) {
+      if (_loading.value) {
+        await asyncWhen((r) => _loading.value == false);
+        if (!mounted) return;
+      }
+    }
     List<TokenPendingTx>? tempTxList = widget
-        .store.assets!.tokenPendingTxList[widget.store.wallet!.currentAddress];
+        .store.assets!.tokenPendingTxList[_initAddress];
 
     if (tempTxList != null && tempTxList.length > 0) {
       bool? isAgree =
           await UI.showTokenTxDialog(context: context, txList: tempTxList);
       if (isAgree == null || !isAgree) {
+        if (mounted) setState(() { submitting = false; });
         return;
       }
-    }
-    _unFocus();
-    if (_nonceCtrl.text.isEmpty && currentFee == null) {
-      if (_loading.value) {
-        // waiting nonce data from server
-        setState(() {
-          submitting = true;
-        });
-        await asyncWhen((r) => _loading.value == false);
-        setState(() {
-          submitting = false;
-        });
-      }
+      if (!mounted) return;
     }
     if (await _validate()) {
       AppLocalizations dic = AppLocalizations.of(context)!;
@@ -295,9 +300,18 @@ class _DelegatePageState extends State<DelegatePage>
         shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        inferredNonce = int.parse(
-            store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ??
-                "0");
+        int freshNonce = await webApi.assets.fetchAccountNonceWithRetry(
+          _initAddress,
+        );
+        if (!mounted) return;
+        if (freshNonce >= 0) {
+          inferredNonce = freshNonce;
+        } else if (_nonceLoaded) {
+          inferredNonce = _loadedNonce;
+        } else {
+          setState(() { submitting = false; });
+          return;
+        }
       }
       fee = _getEffectiveFee();
       DelegateParams params =
@@ -311,6 +325,7 @@ class _DelegatePageState extends State<DelegatePage>
       }
       if (!params.manualAddValidator && effectiveValidator == null) {
         UI.toast(dic.inputNodeAddress);
+        setState(() { submitting = false; });
         return;
       }
       String validatorAddress = params.manualAddValidator
@@ -327,7 +342,7 @@ class _DelegatePageState extends State<DelegatePage>
         ),
         TxItem(
           label: dic.fromAddress,
-          value: store.wallet!.currentAddress,
+          value: _initAddress,
         ),
         TxItem(
           label: dic.fee,
@@ -341,17 +356,16 @@ class _DelegatePageState extends State<DelegatePage>
         txItems.add(TxItem(label: dic.memo2, value: memo));
       }
       bool isWatchMode =
-          store.wallet!.currentWallet.walletType == WalletStore.seedTypeNone;
+          _initWallet.walletType == WalletStore.seedTypeNone;
       String validateName;
       bool isLedger =
-          store.wallet!.currentWallet.walletType == WalletStore.seedTypeLedger;
+          _initWallet.walletType == WalletStore.seedTypeLedger;
       if (params.manualAddValidator) {
         validateName = Fmt.address(validatorAddress, pad: 10);
       } else {
         validateName =
             effectiveValidator!.name ?? Fmt.address(validatorAddress, pad: 10);
       }
-      bool exited = false;
       await UI.showTxConfirm(
           context: context,
           title: dic.sendDetail,
@@ -370,7 +384,7 @@ class _DelegatePageState extends State<DelegatePage>
             if (!isLedger) {
               String? password = await UI.showPasswordDialog(
                   context: context,
-                  wallet: store.wallet!.currentWallet,
+                  wallet: _initWallet,
                   inputPasswordRequired: false,
                   isTransaction: true,
                   store: store);
@@ -378,18 +392,35 @@ class _DelegatePageState extends State<DelegatePage>
                 return false;
               }
               privateKey = await webApi.account.getPrivateKey(
-                  store.wallet!.currentWallet,
-                  store.wallet!.currentWallet.currentAccountIndex,
+                  _initWallet,
+                  _initAccountIndex,
                   password);
               if (privateKey == null) {
-                UI.toast(dic.passwordError);
-                return false;
+                store.wallet!.clearRuntimePwd();
+                password = await UI.showPasswordDialog(
+                    context: context,
+                    wallet: _initWallet,
+                    inputPasswordRequired: true,
+                    isTransaction: true,
+                    store: store);
+                if (password == null) {
+                  return false;
+                }
+                privateKey = await webApi.account.getPrivateKey(
+                    _initWallet,
+                    _initAccountIndex,
+                    password);
+                if (privateKey == null) {
+                  store.wallet!.clearRuntimePwd();
+                  UI.toast(dic.passwordError);
+                  return false;
+                }
               }
             }
             Map txInfo = {
               "privateKey": privateKey,
-              "accountIndex": store.wallet!.currentWallet.currentAccountIndex,
-              "fromAddress": store.wallet!.currentAddress,
+              "accountIndex": _initAccountIndex,
+              "fromAddress": _initAddress,
               "toAddress": validatorAddress,
               "fee": fee,
               "nonce": inferredNonce,
@@ -405,7 +436,7 @@ class _DelegatePageState extends State<DelegatePage>
               if (tx == null) {
                 return false;
               }
-              if (!exited) {
+              if (mounted) {
                 data = await webApi.account
                     .sendTxBody(tx, context: context, isDelegation: true);
               }
@@ -418,7 +449,7 @@ class _DelegatePageState extends State<DelegatePage>
             }
             if (mounted) {
               widget.store.triggerBalanceRefresh();
-              globalTokenRefreshKey.currentState?.show();
+              widget.store.triggerStakingRefresh();
               await widget.store.assets!.setNextToken(widget.store.assets!.mainTokenNetInfo);
               Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -429,9 +460,10 @@ class _DelegatePageState extends State<DelegatePage>
             }
             return false;
           });
-      exited = true;
+      if (mounted) setState(() { submitting = false; });
       return;
     }
+    if (mounted) setState(() { submitting = false; });
   }
 
   @override
@@ -490,25 +522,7 @@ class _DelegatePageState extends State<DelegatePage>
                                 ],
                               ),
                             ),
-                            FeeSelector(
-                              fees: fees,
-                              value: currentFee,
-                              onChoose: _onChooseFee,
-                            ),
-                            Container(
-                              height: 0.5,
-                              margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Color(0x1A000000),
-                              ),
-                            ),
-                            AdvancedTransferOptions(
-                              feeCtrl: _feeCtrl,
-                              nonceCtrl: _nonceCtrl,
-                              noncePlaceHolder: _parseNonce(store.assets!.accountsInfo[store.wallet!.currentAddress]?.inferredNonce),
-                              feePlaceHolder: currentFee,
-                              cap: fees.cap,
-                            ),
+                            _buildNetworkFeeDisplay(fees),
                           ],
                         ),
                       ),
@@ -517,6 +531,7 @@ class _DelegatePageState extends State<DelegatePage>
                         child: NormalButton(
                           color: ColorsUtil.hexColor(0x6D5FFE),
                           text: dic.next,
+                          submitting: submitting,
                           disabled: _submitDisabled,
                           onPressed: _handleSubmit,
                         ),
@@ -568,8 +583,7 @@ class _DelegatePageState extends State<DelegatePage>
                           ),
                           SizedBox(height: 8),
                           _buildToValidatorCard(context, validatorData, params.manualAddValidator),
-                          if (!isRedelegate)
-                            _buildApyEstimates(context),
+                          if (!isRedelegate) _buildAprEstimates(context),
                         ],
                       ),
                     ),
@@ -579,6 +593,7 @@ class _DelegatePageState extends State<DelegatePage>
                       child: NormalButton(
                         color: ColorsUtil.hexColor(0x6D5FFE),
                         text: dic.next,
+                        submitting: submitting,
                         disabled: _submitDisabled,
                         onPressed: _handleSubmit,
                       ),
@@ -590,6 +605,19 @@ class _DelegatePageState extends State<DelegatePage>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildNetworkFeeDisplay(Fees fees, {bool showAdvanceButton = true}) {
+    return NetworkFeeDisplay(
+      currentFee: currentFee ?? fees.medium,
+      transferFees: fees,
+      onAdvanceConfirm: _onAdvanceConfirm,
+      currentNonce: _parseNonce(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce),
+      advanceFee: _feeCtrl.text,
+      advanceNonce: _nonceCtrl.text,
+      showFeeButtons: !store.settings!.isZekoNet,
+      showAdvanceButton: showAdvanceButton,
     );
   }
 
@@ -673,17 +701,37 @@ class _DelegatePageState extends State<DelegatePage>
     ValidatorData? displayValidator = validatorData ?? defaultValidator;
     
     return GestureDetector(
-      onTap: () {
-        DelegateParams params =
-            ModalRoute.of(context)!.settings.arguments as DelegateParams;
-        Navigator.pushReplacementNamed(
-          context, 
-          ValidatorsPage.route,
-          arguments: {
-            'isRedelegate': params.isRedelegate,
-            'selectedValidatorAddress': displayValidator?.address,
-          },
-        );
+      onTap: () async {
+        if (_navigating) return;
+        _navigating = true;
+        try {
+          DelegateParams params =
+              ModalRoute.of(context)!.settings.arguments as DelegateParams;
+          final result = await Navigator.pushNamed(
+            context, 
+            ValidatorsPage.route,
+            arguments: {
+              'isRedelegate': params.isRedelegate,
+              'selectedValidatorAddress': displayValidator?.address,
+            },
+          );
+          if (!mounted) return;
+          if (result is ValidatorData) {
+            setState(() {
+              params.validatorData = result;
+              params.manualAddValidator = false;
+            });
+            _updateSubmitState();
+          } else if (result == 'manual_add') {
+            setState(() {
+              params.validatorData = null;
+              params.manualAddValidator = true;
+            });
+            _updateSubmitState();
+          }
+        } finally {
+          _navigating = false;
+        }
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
@@ -749,11 +797,11 @@ class _DelegatePageState extends State<DelegatePage>
     );
   }
 
-  Widget _buildApyEstimates(BuildContext context) {
+  Widget _buildAprEstimates(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     bool isMainnet = store.settings!.isMainnet;
     
-    double? apy = store.staking!.stakingAPY;
+    double? apr = store.staking!.stakingAPR;
     Token mainTokenNetInfo = store.assets!.mainTokenNetInfo;
     double balance = mainTokenNetInfo.tokenBaseInfo?.showBalance ?? 0.0;
     
@@ -761,12 +809,12 @@ class _DelegatePageState extends State<DelegatePage>
     String threeMonthEst = '--';
     String sixMonthEst = '--';
     
-    if (isMainnet && apy != null && apy > 0 && balance > 0) {
-      double apyDecimal = apy / 100;
+    if (isMainnet && apr != null && apr > 0 && balance > 0) {
+      double aprDecimal = apr / 100;
       
-      double oneEpochValue = balance * apyDecimal * (DAYS_PER_EPOCH / DAYS_PER_YEAR);
-      double threeMonthValue = balance * apyDecimal * (DAYS_PER_THREE_MONTHS / DAYS_PER_YEAR);
-      double sixMonthValue = balance * apyDecimal * (DAYS_PER_SIX_MONTHS / DAYS_PER_YEAR);
+      double oneEpochValue = balance * aprDecimal * (DAYS_PER_EPOCH / DAYS_PER_YEAR);
+      double threeMonthValue = balance * aprDecimal * (DAYS_PER_THREE_MONTHS / DAYS_PER_YEAR);
+      double sixMonthValue = balance * aprDecimal * (DAYS_PER_SIX_MONTHS / DAYS_PER_YEAR);
       
       oneEpochEst = _floorToDecimals(oneEpochValue, 4);
       threeMonthEst = _floorToDecimals(threeMonthValue, 4);

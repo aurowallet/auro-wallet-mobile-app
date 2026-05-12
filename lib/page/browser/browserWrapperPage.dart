@@ -102,7 +102,6 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
         ),
       ),
     );
-    ;
   }
 
   @override
@@ -110,25 +109,24 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      nextUseInferredNonce = int.parse(
-          store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
+      nextUseInferredNonce =
+          int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
       _loadData();
       onCheckFav();
     });
   }
 
   Future<void> _loadData() async {
+    String loadAddress = widget.store.wallet!.currentAddress;
     await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
-      webApi.assets.fetchPendingTokenList(
-          widget.store.wallet!.currentAddress,
-          widget.store.assets!.mainTokenNetInfo.tokenAssestInfo
-                  ?.inferredNonce ??
-              "0")
     ]);
-    nextUseInferredNonce = int.parse(
-        store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? "0");
+    if (!mounted) return;
+    nextUseInferredNonce =
+        int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
+    await webApi.assets.fetchPendingTokenList(
+        loadAddress, nextUseInferredNonce.toString());
   }
 
   void onCheckFav() async {
@@ -195,6 +193,7 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
       _controller.evaluateJavascript(
           source: "onAppResponse(${jsonEncode(resData)})");
       _controller.reload();
+      _loadData();
     }
     Navigator.of(context).pop();
   }
@@ -206,7 +205,17 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
     Color disableBtnColor =
         ColorsUtil.hexColor(0x808080).withValues(alpha: 0.5);
     Color enableBtnColor = ColorsUtil.hexColor(0x000000).withValues(alpha: 0.8);
-    return WillPopScope(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
+        final canGoBack = await _controller.canGoBack();
+        if (canGoBack) {
+          _controller.goBack();
+        } else {
+          if (context.mounted) Navigator.of(context).pop();
+        }
+      },
       child: _buildScaffold(
           onBack: () async {
             bool? canGoBack = await _controller.canGoBack();
@@ -350,15 +359,6 @@ class _BrowserWrapperPageState extends State<BrowserWrapperPage> {
               ],
             ),
           )),
-      onWillPop: () async {
-        final canGoBack = await _controller.canGoBack();
-        if (canGoBack ?? false) {
-          _controller.goBack();
-          return false;
-        } else {
-          return true;
-        }
-      },
     );
   }
 }

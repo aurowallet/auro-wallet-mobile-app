@@ -11,10 +11,12 @@ class AccountNameParams {
     this.redirect,
     this.callback,
     this.placeholder,
+    this.extraArgs,
   });
   final String? redirect;
   final String? placeholder;
   final Future<bool> Function(String accountName)? callback;
+  final Map<String, dynamic>? extraArgs; // Additional args to pass to redirect page
 }
 
 class AccountNamePage extends StatefulWidget {
@@ -69,7 +71,8 @@ class _AccountNamePageState extends State<AccountNamePage> {
       return;
     }
     if (params.redirect != null && params.redirect!.isNotEmpty) {
-      Navigator.pushReplacementNamed(context, params.redirect!, arguments: {"accountName": accountName});
+      final args = {"accountName": accountName, ...?params.extraArgs};
+      Navigator.pushReplacementNamed(context, params.redirect!, arguments: args);
     }
   }
   @override

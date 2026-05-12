@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
+import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 
 class ImportMnemonicPage extends StatefulWidget {
@@ -78,19 +80,15 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     _mnemonicCtrl.dispose();
   }
   Future<bool> _checkAccountDuplicate(Map<String, dynamic> acc) async {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    int index = store.wallet!.walletList.indexWhere((i) => i.id == acc['pubKey']);
-    if (index > -1) {
-      setState(() {
-        errorMsg = dic.improtRepeat;
-      });
-      return true;
-    }
-    return false;
+    return await UI.showDuplicateAccountAlertIfNeeded(
+      context: context,
+      walletStore: store.wallet!,
+      pubKey: acc['pubKey'],
+    );
   }
   void _handleSubmit() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    String mnemonic = _mnemonicCtrl.text.trim().split(RegExp(r"(\s)")).join(' ');
+    String mnemonic = _mnemonicCtrl.text.trim().replaceAll(RegExp(r'\s+'), ' ');
     bool isMnemonicValid = webApi.account.isMnemonicValid(mnemonic);
     if (!isMnemonicValid) {
       setState(() {
@@ -103,6 +101,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     });
     widget.store.wallet!.setNewWalletSeed(mnemonic, WalletStore.seedTypeMnemonic);
     var acc = await webApi.account.importWalletByWalletParams();
+    if (!mounted) return;
     if(acc['error']!=null){
       UI.toast(acc['error']['message']);
        setState(() {
@@ -113,18 +112,47 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
 
     final duplicated = await _checkAccountDuplicate(acc);
     if (duplicated) {
+      setState(() {
+        submitting = false;
+      });
       return;
     }
+
+    Map? params = ModalRoute.of(context)?.settings.arguments as Map?;
+    bool fromInitialization = params?["fromInitialization"] == true;
+
+    String password = store.wallet!.newWalletParams.password;
+    if (password.isEmpty) {
+      final dialogPassword = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true
+      );
+      if (!mounted) return;
+      if (dialogPassword == null) {
+        setState(() {
+          submitting = false;
+        });
+        return;
+      }
+      store.wallet!.setNewAccount(dialogPassword);
+    }
+
     await webApi.account.saveWallet(
         acc,
         context: context,
         seedType: WalletStore.seedTypeMnemonic,
         walletSource:  WalletSource.outside
     );
+    if (!mounted) return;
     widget.store.wallet!.resetNewWallet();
-    await Navigator.pushNamedAndRemoveUntil(context, ImportSuccessPage.route, (Route<dynamic> route) => false, arguments: {
-      'type': 'restore'
-    });
+    if (fromInitialization) {
+      await Navigator.pushNamedAndRemoveUntil(context, ImportSuccessPage.route, (Route<dynamic> route) => false, arguments: {
+        'type': 'restore'
+      });
+    } else {
+      Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+    }
   }
   void selectWord(String word) {
     final text = _mnemonicCtrl.text.replaceAll(new RegExp(r'[\w]+$'), word + ' ');
@@ -188,9 +216,12 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                       child: Wrap(
                         children: [
                           InputItem(
+                            key: TestKeys.mnemonicInput,
                             initialValue: '',
                             labelStyle: TextStyle(
-                                fontSize: 14
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF000000).withValues(alpha: 0.8),
                             ),
                             label: dic.inputSeed,
                             controller: _mnemonicCtrl,
@@ -214,6 +245,7 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
                     Padding(
                         padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                         child: NormalButton(
+                          key: TestKeys.confirmButton,
                           submitting: submitting,
                           color: ColorsUtil.hexColor(0x6D5FFE),
                           text: dic.confirm,

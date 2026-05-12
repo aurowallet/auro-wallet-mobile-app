@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 
 
 class ImportSuccessPage extends StatefulWidget {
@@ -71,6 +72,7 @@ class _ImportSuccessPageState extends State<ImportSuccessPage> {
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 30),
                   child: NormalButton(
+                    key: TestKeys.startHomeButton,
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: dic.startHome,
                     onPressed: _handleSubmit,

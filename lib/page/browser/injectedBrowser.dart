@@ -12,6 +12,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -25,6 +26,7 @@ class WebViewInjected extends StatefulWidget {
     this.onPageFinished,
     this.onWebViewCreated,
     this.onWebInfoBack,
+    this.messageOriginFallback,
   });
 
   final String initialUrl;
@@ -35,6 +37,7 @@ class WebViewInjected extends StatefulWidget {
   final int Function() onGetNewestNonce;
   final Function(Map)? onWebInfoBack;
   final Function() onRefreshChain;
+  final String? messageOriginFallback;
 
   @override
   _WebViewInjectedState createState() => _WebViewInjectedState();
@@ -51,8 +54,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   Map websiteInitInfo = {};
 
   Future<dynamic> _responseToZkApp(String method, Map resData) async {
-    print('respond ${method} to zkApp:');
-    print(resData);
     _signing = false;
     return _controller.evaluateJavascript(
         source: "onAppResponse(${jsonEncode(resData)})");
@@ -139,6 +140,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         } catch (e) {}
       }
 
+      try {
       await UI.showSignTransactionAction(
         context: context,
         signType: signType,
@@ -184,6 +186,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
               method, payload['id'], ErrorCodes.userRejectedRequest);
         },
       );
+      } catch (_) {
+        _signing = false;
+      }
     }
   }
 
@@ -202,6 +207,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
 
     Object message = params?["message"];
 
+    try {
     await UI.showSignatureAction(
       method: method,
       context: context,
@@ -218,6 +224,9 @@ class _WebViewInjectedState extends State<WebViewInjected> {
             method, payload['id'], ErrorCodes.userRejectedRequest);
       },
     );
+    } catch (_) {
+      _signing = false;
+    }
   }
 
   void saveConnectStatus(url) {
@@ -236,6 +245,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   Future<void> switchChainByUrl(String method, Map<dynamic, dynamic>? siteInfo,
       String id, String realUrl) async {
     _signing = true;
+    try {
     await UI.showSwitchChainAction(
         context: context,
         networkID: "",
@@ -255,9 +265,15 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         onCancel: () {
           onHandleErrorReject(method, id, ErrorCodes.userRejectedRequest);
         });
+    } catch (_) {
+      _signing = false;
+    }
   }
 
-  Future<dynamic> _msgHandler(Map msg, String origin) async {
+  Future<dynamic> _msgHandler(
+    Map msg,
+    String origin,
+  ) async {
     final String method = msg['action'];
     Map payload = msg['payload'];
     Map? siteInfo = payload['site'];
@@ -340,20 +356,19 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         }
         _signing = true;
         String uri = Uri.decodeComponent(params?['url']);
-        Uri uriCheck = Uri.parse(uri);
 
-        if (!(uriCheck.scheme == 'http' || uriCheck.scheme == 'https') ||
-            uriCheck.host.isEmpty) {
+        if (!isValidHttpsNodeUrl(uri)) {
+          _signing = false;
           onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
           return;
         }
         List<CustomNode> endpoints =
             List<CustomNode>.of(store.settings!.customNodeList);
         String realUrl = uri.toString();
-        if (endpoints.any((element) => element.url == realUrl) ||
-            defaultNetworkList.any((node) => node.url == realUrl)) {
+        if (endpoints.any((element) => element.url.toLowerCase() == realUrl.toLowerCase()) ||
+            defaultNetworkList.any((node) => node.url.toLowerCase() == realUrl.toLowerCase())) {
           CustomNode? currentNode = store.settings?.currentNode;
-          if (realUrl.toLowerCase() == currentNode?.url) {
+          if (realUrl.toLowerCase() == currentNode?.url.toLowerCase()) {
             Map chainInfoArgs = {
               "networkID": currentNode?.networkID,
             };
@@ -436,10 +451,29 @@ class _WebViewInjectedState extends State<WebViewInjected> {
 
       case "mina_verifyMessage":
       case "mina_verify_JsonMessage":
+        final dynamic rawSignature = params?['signature'];
+        dynamic parsedSignature;
+        if (rawSignature is String) {
+          if (rawSignature.isEmpty) {
+            onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
+            return;
+          }
+          try {
+            parsedSignature = jsonDecode(rawSignature);
+          } catch (_) {
+            onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
+            return;
+          }
+        } else if (rawSignature is Map || rawSignature is List) {
+          parsedSignature = rawSignature;
+        } else {
+          onHandleErrorReject(method, payload['id'], ErrorCodes.invalidParams);
+          return;
+        }
         Map verifyData = {
           "network": network,
           "publicKey": currentAccountAddress,
-          "signature": jsonDecode(params?['signature']),
+          "signature": parsedSignature,
           "verifyMessage": params?["data"],
         };
         bool res = await webApi.account.verifyMessage(
@@ -491,7 +525,6 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         _responseToZkApp(method, resData);
         return;
       default:
-        print('Unknown message from zkApp: ${method}');
         Map res = {"message": "Method not supported.", "code": 20006};
         return _responseToZkApp(method, res);
     }
@@ -524,13 +557,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     dynamic minaConfig =
         await _controller.evaluateJavascript(source: "window.mina?.isAuro");
     if (minaConfig.runtimeType == bool && minaConfig) {
-      print('mina provider injected success, $minaConfig');
     } else {
-      print('mina provider injected failed,$minaConfig');
       final minaJsProvider =
           await rootBundle.loadString('assets/webview/provider.js');
       await _controller.evaluateJavascript(source: minaJsProvider);
-      print('mina provider js code injected');
     }
 
     if (widget.onPageFinished != null) {
@@ -565,14 +595,12 @@ class _WebViewInjectedState extends State<WebViewInjected> {
           url: WebUri(widget.initialUrl),
         ),
         onWebViewCreated: (controller) {
-          print('onWebViewCreated,');
           _controller = controller;
           controller.addWebMessageListener(WebMessageListener(
             jsObjectName: "AppProvider",
             onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
               try {
                 if (!isMainFrame) {
-                  print('msg is not from MainFrame');
                   return;
                 }
                 final msg = jsonDecode(message?.data);
@@ -580,6 +608,16 @@ class _WebViewInjectedState extends State<WebViewInjected> {
                 String? id = payload?["id"];
 
                 String origin = sourceOrigin.toString();
+                if (origin.isEmpty ||
+                    origin == 'null' ||
+                    origin == 'about:blank' ||
+                    origin.startsWith('data:')) {
+                  final fallbackOrigin = widget.messageOriginFallback;
+                  if (fallbackOrigin == null || fallbackOrigin.isEmpty) {
+                    return;
+                  }
+                  origin = fallbackOrigin;
+                }
 
                 if (origin.isNotEmpty) {
                   if (id != null) {
@@ -590,29 +628,20 @@ class _WebViewInjectedState extends State<WebViewInjected> {
                     }
                   }
                 }
-              } catch (e) {
-                print('msg from error: ${e}');
-              }
+              } catch (_) {}
             },
           ));
           widget.onWebViewCreated!(controller);
         },
         onPageCommitVisible: (controller, url) async {
-          print('onPageCommitVisible Inject mina provider js code...');
           final minaJsProvider =
               await rootBundle.loadString('assets/webview/provider.js');
           await controller.evaluateJavascript(source: minaJsProvider);
-          print('onPageCommitVisible mina provider js code injected ');
         },
         onLoadStop: (controller, url) async {
           await _onFinishLoad(url.toString());
         },
-        // onConsoleMessage: (controller, consoleMessage) {
-        //   print("Console message: ${consoleMessage.message}");
-        // },
-        onReceivedError: (controller, request, error) {
-          print("Load error: $error");
-        },
+        onReceivedError: (controller, request, error) {},
         onProgressChanged: (controller, progress) {
           if (progress >= 99) {
             _onGetPageActionStatus();
@@ -625,11 +654,10 @@ class _WebViewInjectedState extends State<WebViewInjected> {
         initialSettings: InAppWebViewSettings(
             javaScriptEnabled: true,
             javaScriptCanOpenWindowsAutomatically: false,
-            isInspectable: true,
+            isInspectable: kDebugMode,
             transparentBackground: true,
             allowsBackForwardNavigationGestures: true),
         onJsAlert: (controller, jsAlertRequest) async {
-          print("JS Alert: ${jsAlertRequest.message}");
           return JsAlertResponse(handledByClient: true);
         },
       ),

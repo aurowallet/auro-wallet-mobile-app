@@ -1,4 +1,3 @@
-import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -28,7 +27,7 @@ abstract class _AssetsStore with Store {
 
   final String localStorageBlocksKey = 'blocks';
 
-  final String localStorageFeesKey = 'fees';
+  final String localStorageFeesKey = 'fee_config_v1';
   final String cacheBalanceKey = 'balance';
   final String cachePriceKey = 'coin_price_v2';
 
@@ -49,7 +48,7 @@ abstract class _AssetsStore with Store {
       ObservableMap<String, AccountInfo>();
 
   @observable
-  Fees transferFees = defaultTxFees;
+  Fees transferFees = Fees.fromDefault();
 
   @observable
   ObservableList<TransferData> pendingTxs = ObservableList<TransferData>();
@@ -104,16 +103,19 @@ abstract class _AssetsStore with Store {
     int count = 0;
     try {
       for (var token in tokenList) {
-        if (token.localConfig == null ||
+        if (token.localConfig != null &&
             token.localConfig!.tokenShowed != true) {
           if (token.tokenAssestInfo != null &&
               token.tokenAssestInfo!.tokenId != ZK_DEFAULT_TOKEN_ID) {
-            count++;
+            if (token.localConfig!.hideToken == true) {
+              count++;
+            }
           }
         }
       }
     } catch (e) {
       print('newTokenCount calc error ${e.toString()}.');
+      return 0;
     }
     return count;
   }
@@ -261,11 +263,11 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> addPendingTxs(List<dynamic>? ls, String address) async {
-    pendingTxs.clear();
     if (rootStore.wallet!.currentAddress != address) return;
+    pendingTxs.clear();
     if (ls == null) return;
     ls.forEach((i) {
-      i['memo'] = i['memo'] != null ? bs58Decode(i['memo']) : '';
+      i['memo'] = decodeMemo(i['memo']);
       TransferData tx = TransferData.fromPendingJson(i);
       pendingTxs.add(tx);
     });
@@ -274,16 +276,12 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> addPendingZkTxs(List<dynamic>? ls, String address) async {
-    pendingZkTxs.clear();
     if (rootStore.wallet!.currentAddress != address) return;
+    pendingZkTxs.clear();
     if (ls == null) return;
     ls.forEach((i) {
       try {
-        if (i['zkappCommand'] != null && i['zkappCommand']['memo'] != null) {
-          i['memo'] = bs58Decode(i['zkappCommand']['memo']);
-        } else {
-          i['memo'] = "";
-        }
+        i['memo'] = decodeMemo(i['zkappCommand']?['memo']);
       } catch (e) {
         i['memo'] = "";
       }
@@ -392,11 +390,7 @@ abstract class _AssetsStore with Store {
         if(i['kind'] == "zkApp"){
           dynamic realZkBody = i['zkAppBody'];
           try {
-            if (realZkBody['zkappCommand'] != null && realZkBody['zkappCommand']['memo'] != null) {
-              realZkBody['memo'] = bs58Decode(realZkBody['zkappCommand']['memo']);
-            } else {
-              realZkBody['memo'] = "";
-            }
+            realZkBody['memo'] = decodeMemo(realZkBody['zkappCommand']?['memo']);
           } catch (e) {
             realZkBody['memo'] = "";
           }
@@ -407,7 +401,7 @@ abstract class _AssetsStore with Store {
           tempZkTxList.add(tx);
         }else{
           dynamic realTxBody = i['body'];
-            realTxBody['memo'] = realTxBody['memo'] != null ? bs58Decode(realTxBody['memo']) : '';
+            realTxBody['memo'] = decodeMemo(realTxBody['memo']);
             TransferData tx = TransferData.fromGraphQLJson(realTxBody);
             tx.success = tx.status != 'failed';
             realTxBody['success'] = tx.success;
@@ -431,9 +425,9 @@ abstract class _AssetsStore with Store {
   }
 
   @action
-  Future<void> setFeesMap(Map<String, double> fees) async {
-    transferFees = Fees.fromJson(fees);
-    rootStore.localStorage.setObject(localStorageFeesKey, transferFees);
+  Future<void> setFeesConfig(Fees fees) async {
+    transferFees = fees;
+    await rootStore.localStorage.setObject(localStorageFeesKey, transferFees);
   }
 
   @action
@@ -512,13 +506,17 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadFeesCache() async {
-    Map<String, dynamic>? fees = await rootStore.localStorage
-        .getObject(localStorageFeesKey) as Map<String, dynamic>?;
-    if (fees != null) {
-      transferFees = Fees.fromJson(fees);
-    } else {
-      transferFees = Fees.fromDefault();
+    try {
+      Map<String, dynamic>? fees = await rootStore.localStorage
+          .getObject(localStorageFeesKey) as Map<String, dynamic>?;
+      if (fees != null) {
+        transferFees = Fees.fromJson(fees);
+        return;
+      }
+    } catch (e) {
+      print('load fee cache error $e');
     }
+    transferFees = Fees.fromDefault();
   }
 
   @action
@@ -593,13 +591,16 @@ abstract class _AssetsStore with Store {
           token.tokenAssestInfo!.tokenId == tokenId) {
         if (token.localConfig == null) {
           token.localConfig = TokenLocalConfig(hideToken: false);
-        } else {
-          token.localConfig!.hideToken =
-              !(token.localConfig!.hideToken ?? false);
         }
+        token.localConfig!.hideToken =
+            !(token.localConfig!.hideToken ?? false);
+        token.localConfig!.tokenShowed = true;
         localHideTokenMap[tokenId] = {
           'hideToken': token.localConfig!.hideToken ?? false
         };
+        if (!localShowedTokenIds.contains(tokenId)) {
+          localShowedTokenIds.add(tokenId);
+        }
         break;
       }
     }
@@ -628,14 +629,16 @@ abstract class _AssetsStore with Store {
         token.localConfig = TokenLocalConfig(tokenShowed: true);
       }
 
-      if (token.localConfig?.tokenShowed == true &&
-          token.tokenAssestInfo != null) {
+      if (token.tokenAssestInfo != null &&
+          token.tokenAssestInfo!.tokenId != ZK_DEFAULT_TOKEN_ID) {
         tokenShowedList.add(token.tokenAssestInfo!.tokenId);
       }
       tempTokenList.add(token);
     }
     tokenList.clear();
     tokenList = ObservableList.of(tempTokenList);
+
+    localShowedTokenIds = ObservableList<String>.of(tokenShowedList);
 
     updateTokenLocalConfig(address,
         tokenShowedList: tokenShowedList,
@@ -669,8 +672,8 @@ abstract class _AssetsStore with Store {
   @action
   void updateTokenAssets(List<Token> ls, String address,
       {bool shouldCache = false}) {
-    tokenList.clear();
     if (rootStore.wallet!.currentAddress != address) return;
+    tokenList.clear();
     if (ls.isEmpty) {
       Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
       tokenList = ObservableList.of([mainTokenDefaultConfig]);
@@ -683,21 +686,17 @@ abstract class _AssetsStore with Store {
 
         String tokenId = tokenItem.tokenAssestInfo?.tokenId ?? "";
 
-        TokenInfoData? foundToken;
-        try {
-          foundToken = tokenInfoList.firstWhere(
-            (token) => token.tokenId == tokenId,
-          );
-        } catch (e) {
-          foundToken = null;
-        }
+        final matchedTokens =
+            tokenInfoList.where((token) => token.tokenId == tokenId);
+        TokenInfoData? foundToken =
+            matchedTokens.isNotEmpty ? matchedTokens.first : null;
 
         TokenLocalConfig localConfig = TokenLocalConfig.fromJson({
           ...sourceLocalConfig.toJson(),
         });
         if (localHideTokenMap.containsKey(tokenId)) {
           Map localConfigMap = localHideTokenMap[tokenId];
-          localConfig.hideToken = localConfigMap['hideToken'] ?? true;
+          localConfig.hideToken = localConfigMap['hideToken'] ?? false;
         } else {
           localConfig.hideToken = foundToken == null;
         }
@@ -723,7 +722,9 @@ abstract class _AssetsStore with Store {
         if (tokenNetPublicKey.isNotEmpty) {
           List<String> zkappState = tokenItem.tokenNetInfo?.zkappState ?? [];
           try {
-            if (zkappState.isNotEmpty) {
+            if (foundToken != null && foundToken.decimal.isNotEmpty) {
+              decimals = foundToken.decimal;
+            } else if (zkappState.isNotEmpty) {
               decimals = zkappState[0];
             }
             tokenBaseInfo.decimals = decimals;
@@ -749,6 +750,9 @@ abstract class _AssetsStore with Store {
             ));
             tokenBaseInfo.iconUrl = "assets/images/stake/icon_mina_color.svg";
           } else {
+            if (foundToken != null && foundToken.decimal.isNotEmpty) {
+              decimals = foundToken.decimal;
+            }
             tokenBaseInfo.decimals = decimals;
             tokenBaseInfo.showBalance = double.parse(Fmt.amountDecimals(
               totalBalance.toString(),
@@ -760,7 +764,7 @@ abstract class _AssetsStore with Store {
         double? tokenPrice = marketPrices[tokenId];
         if (tokenPrice != null) {
           tokenBaseInfo.showAmount = double.parse(
-              (tokenBaseInfo.showBalance! * tokenPrice).toStringAsFixed(2));
+              Fmt.parseShowBalance(tokenBaseInfo.showBalance! * tokenPrice, showLength: 2));
         }
         localConfig.tokenShowed = localShowedTokenIds.contains(tokenId);
 
@@ -810,10 +814,9 @@ abstract class _AssetsStore with Store {
     localShowedTokenIds.clear();
     tokenInfoList.clear();
 
-    rootStore.localStorage.setAccountCache(
-        rootStore.wallet!.currentWallet.pubKey, cacheFullTxsKey, {});
-    rootStore.localStorage.setAccountCache(
-        rootStore.wallet!.currentWallet.pubKey, cacheTokensKey, []);
+    rootStore.localStorage.clearAccountsCache(cacheFullTxsKey);
+    rootStore.localStorage.clearAccountsCache(cacheTokensKey);
+    rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
   }
 
   @action
@@ -872,9 +875,9 @@ abstract class _AssetsStore with Store {
 
     if (localConfig != null) {
       localShowedTokenIds = ObservableList<String>.of(
-          List<String>.from(localConfig['localShowedTokenIds']));
+          List<String>.from(localConfig['localShowedTokenIds'] ?? []));
       localHideTokenMap = ObservableMap<String, dynamic>.of(
-          (localConfig['localHideTokenList']));
+          Map<String, dynamic>.from(localConfig['localHideTokenList'] ?? {}));
     }
   }
 

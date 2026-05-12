@@ -26,6 +26,11 @@ class LocalStorage {
     return storage.clearList(walletsKey);
   }
 
+  Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
   Future<void> updateWallet(Map<String, dynamic> acc) async {
     return storage.updateItemInList(walletsKey, 'id', acc['id'], acc);
   }
@@ -78,9 +83,7 @@ class LocalStorage {
   }
 
   Future<void> clearAccountsCache(String key) async {
-    Map? data = await getObject(key) as Map?;
-    data = {};
-    setObject(key, data);
+    await setObject(key, {});
   }
 
   Future<void> setAccountCache(
@@ -90,7 +93,7 @@ class LocalStorage {
       data = {};
     }
     data[accPubKey] = value;
-    setObject(key, data);
+    await setObject(key, data);
   }
 
   Future<Object?> getAccountCache(String accPubKey, String key) async {
@@ -231,20 +234,20 @@ class _LocalStorage {
 
     ls.add(acc);
 
-    setKV(storeKey, jsonEncode(ls));
+    await setKV(storeKey, jsonEncode(ls));
   }
 
   Future<void> clearList(String storeKey) async {
     var ls = await getList(storeKey);
     ls.clear();
-    setKV(storeKey, jsonEncode(ls));
+    await setKV(storeKey, jsonEncode(ls));
   }
 
   Future<void> removeItemFromList(
       String storeKey, String itemKey, String itemValue) async {
     var ls = await getList(storeKey);
     ls.removeWhere((item) => item[itemKey] == itemValue);
-    setKV(storeKey, jsonEncode(ls));
+    await setKV(storeKey, jsonEncode(ls));
   }
 
   Future<void> updateItemInList(String storeKey, String itemKey,
@@ -254,7 +257,7 @@ class _LocalStorage {
     if (index >= 0) {
       ls.removeAt(index);
       ls.insert(index, itemNew);
-      setKV(storeKey, jsonEncode(ls));
+      await setKV(storeKey, jsonEncode(ls));
     }
   }
 
@@ -265,7 +268,7 @@ class _LocalStorage {
     if (index >= 0) {
       ls.removeAt(index);
       ls.insert(index, itemNew);
-      setKV(storeKey, jsonEncode(ls));
+      await setKV(storeKey, jsonEncode(ls));
     } else {
       await addItemToList(storeKey, itemNew);
     }

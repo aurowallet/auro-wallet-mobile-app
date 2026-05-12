@@ -61,18 +61,20 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
       );
     }));
     String? browserLink = store.settings!.currentNode?.explorerUrl;
-    res.add(Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: BrowserLink(
-              '$browserLink/account/$currentAddress/txs',
-              text: dic.goToExplorer,
-              launchMode: LaunchMode.inAppBrowserView,
-            ))
-      ],
-    ));
+    if (browserLink != null && browserLink.isNotEmpty) {
+      res.add(Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: BrowserLink(
+                '$browserLink/account/$currentAddress/txs',
+                text: dic.goToExplorer,
+                launchMode: LaunchMode.inAppBrowserView,
+              ))
+        ],
+      ));
+    }
     return Ink(
         color: Color(0xFFFFFFFF),
         child: ListView(
@@ -143,7 +145,7 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
             textAlign: TextAlign.left,
           ),
         ),
-        Expanded(child: nextWidget)
+        Expanded(child: Container(color: Colors.white, child: nextWidget))
       ]),
     );
   }
@@ -346,7 +348,6 @@ class TransferListItem extends StatelessWidget {
                                 Flexible(
                                     flex: 1,
                                     child: Container(
-                                        height: 20,
                                         child: Text(
                                           '$showAmount',
                                           softWrap: true,

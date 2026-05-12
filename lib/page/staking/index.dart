@@ -7,7 +7,6 @@ import 'package:auro_wallet/page/staking/components/delegationInfo.dart';
 import 'package:auro_wallet/page/staking/components/stakingOverview.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 
 class Staking extends StatefulWidget {
@@ -26,6 +25,8 @@ class _StakingState extends State<Staking> {
   bool loading = true;
   Timer? _refreshTimer;
   ReactionDisposer? _storeChangeDisposer;
+  final GlobalKey<RefreshIndicatorState> _stakingRefreshKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _StakingState extends State<Staking> {
     final hasCachedData = store.assets!.mainTokenNetInfo.tokenBaseInfo != null;
     loading = store.staking!.lastLoadedDataKey != currentKey || !hasCachedData;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      store.setStakingRefreshKey(_stakingRefreshKey);
       _fetchData();
       _refreshTimer = Timer.periodic(Duration(minutes: 3), (timer) {
         _onRefresh();
@@ -56,7 +58,7 @@ class _StakingState extends State<Staking> {
       webApi.staking.fetchValidators(),
       webApi.assets.fetchAllTokenAssets(),
       webApi.staking.fetchStakingOverview(),
-      webApi.staking.fetchStakingAPY(),
+      webApi.staking.fetchStakingAPR(),
     ]);
     if (mounted) {
       store.staking!.lastLoadedDataKey = '${store.wallet!.currentAddress}_${store.settings!.currentNode?.networkID}';
@@ -67,13 +69,14 @@ class _StakingState extends State<Staking> {
   }
 
   Future<void> _onRefresh() async {
-    await webApi.staking.fetchStakingOverview();
+    await Future.wait([webApi.staking.fetchStakingOverview(), webApi.staking.fetchStakingAPR()]);
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
     _storeChangeDisposer?.call();
+    store.setStakingRefreshKey(null);
     super.dispose();
   }
 
@@ -99,7 +102,7 @@ class _StakingState extends State<Staking> {
         child: RefreshIndicator(
             backgroundColor: Colors.white,
             color: Theme.of(context).primaryColor,
-            key: globalStakingRefreshKey,
+            key: _stakingRefreshKey,
             onRefresh: _fetchData,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

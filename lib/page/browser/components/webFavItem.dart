@@ -1,9 +1,24 @@
-
 import 'package:auro_wallet/store/browser/types/webConfig.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+
+String _normalizedBrowserLogoUrl(String? dataIcon) {
+  var logoUrl = '';
+  if (dataIcon != null && dataIcon.isNotEmpty) {
+    bool isFirstCharLetter = RegExp(r'^[a-zA-Z]').hasMatch(dataIcon[0]);
+
+    if (!isFirstCharLetter) {
+      if (dataIcon.length >= 5) {
+        logoUrl = dataIcon.substring(1, dataIcon.length - 1);
+      }
+    } else {
+      logoUrl = dataIcon;
+    }
+  }
+  return logoUrl.trim();
+}
 
 class WebFavItem extends StatelessWidget {
   WebFavItem({required this.data, this.onClickItem, this.onClickDelete});
@@ -116,23 +131,63 @@ class ItemLogo extends StatefulWidget {
 }
 
 class ItemLogoState extends State<ItemLogo> {
+  String _normalizedLogoUrl() {
+    return _normalizedBrowserLogoUrl(widget.dataIcon);
+  }
+
+  String _fallbackInitial() {
+    final trimmedName = widget.name?.trim() ?? '';
+    if (trimmedName.isEmpty) {
+      return 'U';
+    }
+    return trimmedName.characters.first.toUpperCase();
+  }
+
+  Widget _buildFallbackLogo(bool showHolderIcon) {
+    if (showHolderIcon) {
+      return SvgPicture.asset(
+        "assets/images/public/tab/tab_browser_active.svg",
+        colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+      );
+    }
+    return Container(
+        decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        width: 20,
+        height: 20,
+        child: Center(
+          child: Text(
+            _fallbackInitial(),
+            style: TextStyle(fontSize: 14, color: Colors.white),
+          ),
+        ));
+  }
+
+  bool _canLoadNetworkImage(String logoUrl) {
+    if (logoUrl.isEmpty) {
+      return false;
+    }
+    final uri = Uri.tryParse(logoUrl);
+    if (uri == null) {
+      return false;
+    }
+    return uri.scheme == 'http' || uri.scheme == 'https';
+  }
+
   @override
   Widget build(BuildContext context) {
     bool showHolderIcon = widget.showHolderIcon == true;
+    final logoUrl = _normalizedLogoUrl();
+    final fallbackLogo = _buildFallbackLogo(showHolderIcon);
 
-    String logoUrl = "";
-    if (widget.dataIcon != null && widget.dataIcon!.isNotEmpty) {
-      bool isFirstCharLetter =
-          RegExp(r'^[a-zA-Z]').hasMatch(widget.dataIcon![0]);
-
-      if (!isFirstCharLetter) {
-        if (widget.dataIcon!.length >= 5) {
-          logoUrl = widget.dataIcon!.substring(1, widget.dataIcon!.length - 1);
-        }
-      } else {
-        logoUrl = widget.dataIcon!;
-      }
+    if (!_canLoadNetworkImage(logoUrl)) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(widget.radius ?? 0),
+        child: fallbackLogo,
+      );
     }
+
     return ClipRRect(
         borderRadius: BorderRadius.circular(widget.radius ?? 0),
         child: CachedNetworkImage(
@@ -140,33 +195,13 @@ class ItemLogoState extends State<ItemLogo> {
             height: widget.width,
             imageUrl: logoUrl.trim(),
             placeholder: (context, url) {
-              return Text(
-                widget.name?.substring(0, 1).toUpperCase() ?? 'U',
-                style: TextStyle(fontSize: 14, color: Colors.white),
-              );
+              return fallbackLogo;
             },
             errorListener: (value) {
               print('browser icon load faile ,${value}');
             },
             errorWidget: (context, url, error) {
-              if (showHolderIcon) {
-                return SvgPicture.asset(
-                  "assets/images/public/tab/tab_browser_active.svg",
-                  colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)
-                );
-              }
-              return Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  width: 20,
-                  height: 20,
-                  child: Center(
-                    child: Text(
-                      widget.name?.substring(0, 1).toUpperCase() ?? 'U',
-                      style: TextStyle(fontSize: 14, color: Colors.white),
-                    ),
-                  ));
+              return fallbackLogo;
             }));
   }
 }

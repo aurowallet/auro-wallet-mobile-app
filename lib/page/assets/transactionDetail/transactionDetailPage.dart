@@ -1,12 +1,14 @@
 import 'dart:convert';
 
 import 'package:auro_wallet/common/components/browserLink.dart';
+import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/customDivider.dart';
 import 'package:auro_wallet/common/components/scamTag.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/service/tx_status_monitor.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
@@ -16,11 +18,145 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class TransactionDetailPage extends StatelessWidget {
+class TransactionDetailPage extends StatefulWidget {
   TransactionDetailPage(this.store);
 
   static final String route = '/assets/tx';
   final AppStore store;
+
+  @override
+  State<TransactionDetailPage> createState() => _TransactionDetailPageState();
+}
+
+class _TransactionDetailPageState extends State<TransactionDetailPage> {
+  bool _isLoading = false;
+  bool _hasError = false;
+  bool _isFetching = false;
+  TransferData? _txData;
+  bool _initialized = false;
+  int _retryCount = 0;
+  static const int _maxRetries = 3;
+
+  String? _argTxUrl;
+  String? _argExplorerUrl;
+  String? _argSenderAddress;
+  bool _argIsZeko = false;
+  bool _hashIsValid = false;
+
+  void _initFromArgs() {
+    if (_initialized) return;
+    _initialized = true;
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is! Map) {
+      _hasError = true;
+      return;
+    }
+
+    _argTxUrl = args['txUrl'] is String ? args['txUrl'] as String : null;
+    _argExplorerUrl = args['explorerUrl'] is String ? args['explorerUrl'] as String : null;
+    _argSenderAddress = args['senderAddress'] is String ? args['senderAddress'] as String : null;
+    _argIsZeko = args['isZeko'] == true;
+
+    if (args['data'] is TransferData) {
+      _txData = args['data'] as TransferData;
+    } else if (args['txHash'] is String) {
+      final hash = args['txHash'] as String;
+      _hashIsValid = isValidMinaTxHash(hash);
+      if (_hashIsValid) {
+        _isLoading = true;
+        _loadTxByHash(hash);
+      } else {
+        _hasError = true;
+      }
+    } else {
+      _hasError = true;
+    }
+  }
+
+  Future<void> _loadTxByHash(String hash) async {
+    if (_isFetching) return;
+    _isFetching = true;
+    if (mounted && _retryCount > 0) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    } else {
+      _isLoading = true;
+      _hasError = false;
+    }
+    try {
+      final archiveUrl = (_argTxUrl != null && _argTxUrl!.isNotEmpty)
+          ? _argTxUrl!
+          : (TxStatusMonitor().getArchiveUrl() ?? '');
+      if (archiveUrl.isEmpty) {
+        _isFetching = false;
+        if (mounted) {
+          setState(() {
+            _hasError = true;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+      TransferData? txData;
+      if (_argIsZeko && _argSenderAddress != null && _argSenderAddress!.isNotEmpty) {
+        txData = await TxStatusMonitor().fetchZekoTransactionByHash(hash, archiveUrl, _argSenderAddress!);
+      } else if (_argIsZeko) {
+        _isFetching = false;
+        if (mounted) {
+          setState(() {
+            _hasError = true;
+            _isLoading = false;
+          });
+        }
+        return;
+      } else {
+        txData = await TxStatusMonitor().fetchTransactionByHash(hash, archiveUrl);
+      }
+      _isFetching = false;
+      if (!mounted) return;
+      if (txData != null) {
+        _retryCount = 0;
+        setState(() {
+          _txData = txData;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _hasError = true;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      _isFetching = false;
+      if (!mounted) return;
+      setState(() {
+        _hasError = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initFromArgs();
+  }
+
+  void _handleErrorTap() {
+    if (_isLoading) return;
+    if (_retryCount >= _maxRetries) return;
+    _retryCount++;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map && args.containsKey('txHash') && args['txHash'] is String) {
+      final hash = args['txHash'] as String;
+      if (isValidMinaTxHash(hash)) {
+        _loadTxByHash(hash);
+      }
+    }
+  }
 
   Widget _buildLabel(String name) {
     return Container(
@@ -39,21 +175,27 @@ class TransactionDetailPage extends StatelessWidget {
     return s;
   }
 
-  List<Widget> _buildListView(BuildContext context) {
+  List<Widget> _buildListView(BuildContext context, TransferData tx, Map params) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    Map params = ModalRoute.of(context)!.settings.arguments as Map;
-    TransferData tx = params['data'];
     String txKindLow = tx.type.toLowerCase();
 
-    String tokenId = params['tokenId'];
-    int tokenDecimal = params['tokenDecimal'];
-    String tokenSymbol = params['tokenSymbol'];
+    String tokenId = params['tokenId'] ?? ZK_DEFAULT_TOKEN_ID;
+    int tokenDecimal = (params['tokenDecimal'] is int)
+        ? params['tokenDecimal'] as int
+        : (params['tokenDecimal'] is String)
+            ? (int.tryParse(params['tokenDecimal'] as String) ?? COIN.decimals)
+            : COIN.decimals;
+    String tokenSymbol = params['tokenSymbol'] ?? COIN.coinSymbol;
 
     bool isMainToken = tokenId == ZK_DEFAULT_TOKEN_ID;
 
     String symbol = isMainToken ? COIN.coinSymbol : tokenSymbol;
     int decimals = isMainToken ? COIN.decimals : tokenDecimal;
     Map? tokenTxData;
+
+    final myAddress = (_argSenderAddress != null && _argSenderAddress!.isNotEmpty)
+        ? _argSenderAddress!
+        : widget.store.wallet!.currentAddress;
 
     String? showToAddress = "";
     String showAmount;
@@ -65,25 +207,30 @@ class TransactionDetailPage extends StatelessWidget {
             " " +
             tokenSymbol;
         tokenTxData = {"isZkReceive": false};
-      } else {
+      } else if (tx.transaction != null && tx.transaction!.isNotEmpty) {
         Map txData = jsonDecode(tx.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
         Map<String, dynamic> updateInfo = getZkAppUpdateInfo(accountUpdates,
-            store.wallet!.currentAddress, tx.sender ?? "", tokenId);
+            myAddress, tx.sender ?? "", tokenId);
         tokenTxData = updateInfo;
         showToAddress = updateInfo['to'];
         String amount = Fmt.balance(
             updateInfo['totalBalanceChange'], tokenDecimal,
             minLength: 4, maxLength: tokenDecimal);
         showAmount = amount + " " + tokenSymbol;
+      } else {
+        showToAddress = tx.receiver;
+        showAmount = Fmt.balance(tx.amount, decimals,
+                minLength: 4, maxLength: decimals) +
+            " " + symbol;
       }
     } else {
-      if (txKindLow == "zkapp") {
+      if (txKindLow == "zkapp" && tx.transaction != null && tx.transaction!.isNotEmpty) {
         Map txData = jsonDecode(tx.transaction!);
         List<dynamic> accountUpdates = txData['accountUpdates'];
         Map<String, dynamic> updateInfo = getZkAppUpdateInfo(
           accountUpdates,
-          store.wallet!.currentAddress,
+          myAddress,
           tx.sender ?? "",
           tokenId,
         );
@@ -135,7 +282,7 @@ class TransactionDetailPage extends StatelessWidget {
     if (txKindLow == "zkapp_token") {
       txType = "zkApp Token";
     }
-    bool isOut = tx.sender == store.wallet!.currentAddress;
+    bool isOut = tx.sender == myAddress;
     switch (txKindLow) {
       case 'delegation':
       case 'stake_delegation':
@@ -264,6 +411,45 @@ class TransactionDetailPage extends StatelessWidget {
     return list;
   }
 
+  Widget _buildErrorView(BuildContext context) {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    final bool canRetry = _hashIsValid && _retryCount < _maxRetries;
+    return GestureDetector(
+      onTap: canRetry ? _handleErrorTap : null,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/images/setting/empty_contact.svg',
+              width: 100,
+              height: 100,
+            ),
+            Text(
+              dic.txHistoryTip,
+              style: TextStyle(
+                color: Colors.black.withValues(alpha: 0.3),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            if (canRetry) ...[
+              SizedBox(height: 12),
+              Text(
+                dic.retry,
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRiskTip(BuildContext context, TransferData tx) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Container(
@@ -303,10 +489,36 @@ class TransactionDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
 
-    Map params = ModalRoute.of(context)!.settings.arguments as Map;
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('${dic.details}'),
+          centerTitle: true,
+        ),
+        backgroundColor: Colors.white,
+        body: Center(
+          child: RotatingCircle(size: 30, color: Theme.of(context).primaryColor),
+        ),
+      );
+    }
 
-    TransferData tx = params['data'];
+    if (_hasError || _txData == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('${dic.details}'),
+          centerTitle: true,
+        ),
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: _buildErrorView(context),
+        ),
+      );
+    }
+
+    Map params = ModalRoute.of(context)?.settings.arguments as Map? ?? {};
+    TransferData tx = _txData!;
     bool showExplorer = tx.type != "zkapp_token";
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('${dic.details}'),
@@ -320,23 +532,21 @@ class TransactionDetailPage extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: EdgeInsets.only(bottom: 30, right: 20, left: 20),
-                children: _buildListView(context),
+                children: _buildListView(context, tx, params),
               ),
             ),
-            showExplorer
+            showExplorer && tx.hash.isNotEmpty && (_argExplorerUrl ?? widget.store.settings!.currentNode?.explorerUrl ?? '').isNotEmpty
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      tx.hash.isNotEmpty
-                          ? Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 30)
-                                  .copyWith(bottom: 30),
-                              child: BrowserLink(
-                                '${store.settings!.currentNode?.explorerUrl}/tx/${tx.hash}',
-                                text: dic.goToExplrer,
-                                launchMode: LaunchMode.inAppBrowserView,
-                              ))
-                          : Container()
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30)
+                              .copyWith(bottom: 30),
+                          child: BrowserLink(
+                            '${(_argExplorerUrl ?? widget.store.settings!.currentNode?.explorerUrl ?? '').replaceAll(RegExp(r'/+$'), '')}/tx/${tx.hash}',
+                            text: dic.goToExplrer,
+                            launchMode: LaunchMode.inAppBrowserView,
+                          ))
                     ],
                   )
                 : SizedBox(

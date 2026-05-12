@@ -1,4 +1,6 @@
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/page/account/import/importSuccessPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -44,30 +46,54 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     String privateKey = _privateKeyCtrl.text.trim();
     bool isPrivateKeyValid = await webApi.account.isPrivateKeyValid(privateKey);
+    if (!mounted) return;
     if (!isPrivateKeyValid) {
       UI.toast(dic.privateError);
       return;
     }
     Map params = ModalRoute.of(context)!.settings.arguments as Map;
     String accountName = params["accountName"];
-    String? password = await UI.showPasswordDialog(
-        context: context,
-        wallet: store.wallet!.currentWallet,
-        inputPasswordRequired: true
-    );
-    if (password == null) {
-      return;
+    
+    // Check if password is already set (from initialization flow)
+    String password = store.wallet!.newWalletParams.password;
+    if (password.isEmpty) {
+      // Password not set, show dialog (from wallet management flow)
+      final dialogPassword = await UI.showPasswordDialog(
+          context: context,
+          wallet: store.wallet!.currentWallet,
+          inputPasswordRequired: true
+      );
+      if (!mounted) return;
+      if (dialogPassword == null) {
+        return;
+      }
+      password = dialogPassword;
     }
+    
     setState(() {
       submitting = true;
     });
     var isSuccess = await webApi.account.createWalletByPrivateKey(accountName, privateKey, password, context: context, source: WalletSource.outside);
+    if (!mounted) return;
     setState(() {
       submitting = false;
     });
     if(isSuccess) {
-      // UI.toast(dic['backup_success_restore']!);
-      Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+      store.wallet!.resetNewWallet();
+      // Check if coming from initialization flow or wallet management
+      bool fromInitialization = params["fromInitialization"] == true;
+      if (fromInitialization) {
+        // From initialization - go to success page and clear navigation stack
+        Navigator.pushNamedAndRemoveUntil(
+          context, 
+          ImportSuccessPage.route, 
+          (Route<dynamic> route) => false,
+          arguments: {'type': 'restore'}
+        );
+      } else {
+        // From wallet management
+        Navigator.popUntil(context, (route) => route.settings.name == WalletManagePage.route);
+      }
     }
   }
   @override
@@ -92,20 +118,17 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputItem(
+                      key: TestKeys.privateKeyInput,
                       padding: EdgeInsets.zero,
                       inputPadding: EdgeInsets.only(top: 20),
+                      labelStyle: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF000000).withValues(alpha: 0.8),
+                      ),
                       label: dic.pleaseInputPriKey,
                       controller: _privateKeyCtrl,
                       maxLines: 3,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10),
-                    ),
-                    Flexible(
-                        child: Text(dic.importAccount_2, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
-                    ),
-                    Flexible(
-                        child: Text(dic.importAccount_3, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0x4D000000), height: 1.2),)
                     ),
                   ],
                 ),
@@ -113,6 +136,7 @@ class _ImportPrivateKeyPageState extends State<ImportPrivateKeyPage> {
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 30),
                   child: NormalButton(
+                    key: TestKeys.importButton,
                     submitting: submitting,
                     color: ColorsUtil.hexColor(0x6D5FFE),
                     text: dic.confirm,

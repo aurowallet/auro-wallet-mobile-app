@@ -34,14 +34,20 @@
 		<false/>
 		<key>ITSEncryptionExportComplianceCode</key>
 		<string></string>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>cydia</string>
+		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>NSAppTransportSecurity</key>
 		<dict>
 			<key>NSAllowsArbitraryLoads</key>
-			<true/>
+			<false/>
 			<key>NSAllowsArbitraryLoadsInWebContent</key>
-			<true/>
+			<false/>
+			<key>NSAllowsLocalNetworking</key>
+			<false/>
 		</dict>
 		<key>NSBluetoothAlwaysUsageDescription</key>
 		<string>This app uses bluetooth to find, connect and sign transactions with your Ledger Nano X</string>
@@ -72,8 +78,6 @@
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
-		<key>io.flutter.embedded_views_preview</key>
-		<string>YES</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>com.apple.developer.associated-domains</key>

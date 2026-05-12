@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/service/tx_status_monitor.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
@@ -44,6 +45,8 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   int tokenDecimal = COIN.decimals;
   String? tokenPublicKey;
   Timer? _refreshTimer;
+  final GlobalKey<RefreshIndicatorState> _tokenRefreshKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -86,6 +89,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       showStakingEntry = true;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.store.setTokenRefreshKey(_tokenRefreshKey);
       List<TransferData> txs = [
         ...widget.store.assets!.getTotalPendingTxs(tokenId!),
         ...widget.store.assets!.getTotalTxs(tokenId!)
@@ -100,18 +104,29 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       _onRefresh();
     });
 
+    // Register callback for transaction confirmation refresh
+    TxStatusMonitor().addOnTxConfirmedListener(_onTxConfirmedRefresh);
+
     super.initState();
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    widget.store.setTokenRefreshKey(null);
+    TxStatusMonitor().removeOnTxConfirmedListener(_onTxConfirmedRefresh);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  void _onTxConfirmedRefresh(String gqlUrl) {
+    if (mounted) {
+      _onRefresh();
+    }
+  }
+
   Future<void> _onRefresh({showIndicator = false}) async {
-    if (showIndicator) {
+    if (showIndicator && mounted) {
       setState(() {
         isLoading = true;
       });
@@ -120,15 +135,16 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
       _fetchTransactions(showIndicator),
     ]);
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _fetchTransactions(showIndicator) async {
     if (isMainToken) {
       await Future.wait([
-        webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
         webApi.assets
             .fetchPendingTransactions(widget.store.wallet!.currentAddress),
         webApi.assets
@@ -137,7 +153,6 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       ]);
     } else {
       await Future.wait([
-        webApi.assets.fetchAllTokenAssets(showIndicator: showIndicator),
         webApi.assets
             .fetchPendingZkTransactions(widget.store.wallet!.currentAddress),
         webApi.assets.fetchFullTransactions(widget.store.wallet!.currentAddress,
@@ -194,7 +209,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       body: RefreshIndicator(
           backgroundColor: Colors.white,
           color: Theme.of(context).primaryColor,
-          key: globalTokenRefreshKey,
+          key: _tokenRefreshKey,
           onRefresh: _onRefresh,
           child: SafeArea(
             maintainBottomViewPadding: true,

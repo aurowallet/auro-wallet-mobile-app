@@ -30,8 +30,10 @@ class ExportResultPage extends StatelessWidget {
     AppLocalizations dic = AppLocalizations.of(context)!;
     final Map args = ModalRoute.of(context)!.settings.arguments as Map;
     var textTheme = Theme.of(context).textTheme;
+    final bool isMnemonic = args['type'] == 'mnemonic';
+    final String? address = args['address'];
     return Scaffold(
-      appBar: AppBar(title: Text(dic.exportPrivateKey)),
+      appBar: AppBar(title: Text(isMnemonic ? dic.restoreSeed : dic.exportPrivateKey)),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -43,9 +45,11 @@ class ExportResultPage extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 children: <Widget>[
-                  Text(dic.walletAddress, style: textTheme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x666666))),
-                  Padding(padding: EdgeInsets.only(top: 10),),
-                  Text(args['address'], style: textTheme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x333333))),
+                  if (address != null) ...[
+                    Text(dic.walletAddress, style: textTheme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x666666))),
+                    Padding(padding: EdgeInsets.only(top: 10),),
+                    Text(address, style: textTheme.headlineMedium!.copyWith(color: ColorsUtil.hexColor(0x333333))),
+                  ],
                   Container(
                     decoration: BoxDecoration(
                         color: Color(0xFFF9FAFC),

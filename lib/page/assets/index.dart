@@ -4,7 +4,6 @@ import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
@@ -13,12 +12,11 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
-import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 
 class Assets extends StatefulWidget {
   Assets(this.store);
@@ -34,59 +32,9 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
 
   final AppStore store;
   Timer? _refreshTimer;
+  bool _isNetworkDialogOpen = false;
   final GlobalKey<RefreshIndicatorState> _balanceRefreshKey =
       GlobalKey<RefreshIndicatorState>();
-
-  @override
-  void ledgerSetup() async {
-    final options = LedgerOptions(
-      maxScanDuration: const Duration(milliseconds: 5000),
-    );
-
-    final ledger = Ledger(
-      options: options,
-      // onPermissionRequest: (status) async {
-      //   // Location was granted, now request BLE
-      //   Map<Permission, PermissionStatus> statuses = await [
-      //     Permission.bluetoothScan,
-      //     Permission.bluetoothConnect,
-      //     Permission.bluetoothAdvertise,
-      //   ].request();
-      //
-      //   if (status != BleStatus.ready) {
-      //     return false;
-      //   }
-      //
-      //   return statuses.values.where((status) => status.isDenied).isEmpty;
-      // },
-    );
-    await ledger.close(ConnectionType.ble);
-    await ledger.dispose();
-    final subscription = ledger.scan().listen((device) async {
-      print('found device');
-      print(device.name);
-      ledger.stopScanning();
-      print('start connect');
-      await ledger.disconnect(device);
-      await ledger.connect(device);
-      print('connected');
-      try {
-        final minaApp = MinaLedgerApp(ledger);
-        print(minaApp);
-        // final ledgerApp = await minaApp.getAppName(device);
-        // print(ledgerApp.name);
-        // print(ledgerApp.version);
-        final version = await minaApp.getVersion(device);
-        print(version.versionName);
-        // final version = await minaApp.getAccounts(device);
-        // print(version);
-      } on LedgerException catch (e) {
-        print('出错了');
-        print(e.message);
-        await ledger.disconnect(device);
-      }
-    });
-  }
 
   @override
   void initState() {
@@ -157,16 +105,26 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
             ],
             confirm: dic.deleteWatch,
             onConfirm: () {
-              // await store.wallet!.deleteWatchModeWallets();
-              // _onRefresh(showIndicator: true);
               this._onConfirmDeleteWatchWallet();
             });
       });
     }
   }
 
-  void _showNetworkDialog() {
-    UI.showNetworkSelectDialog(context: context);
+  Future<void> _showNetworkDialog() async {
+    if (_isNetworkDialogOpen) {
+      return;
+    }
+    setState(() {
+      _isNetworkDialogOpen = true;
+    });
+    await UI.showNetworkSelectDialog(context: context);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isNetworkDialogOpen = false;
+    });
   }
 
   Widget _buildNetworkEntry(BuildContext context) {
@@ -174,29 +132,42 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return InkWell(
         onTap: _showNetworkDialog,
         child: Container(
-          height: 30,
-          padding: const EdgeInsets.only(left: 14, right: 8),
+          padding: const EdgeInsets.only(left: 14, top: 6, right: 8, bottom: 6),
           decoration: BoxDecoration(
             border: new Border.all(color: Color(0x1A000000), width: 1),
-            borderRadius: BorderRadius.circular((15)),
+            borderRadius: BorderRadius.circular(45),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 Fmt.stringSlice(networkName, 12, withEllipsis: true),
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 14,
-                    height: 1,
+                    height: 1.4,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black),
+                    color: Color(0xFF000000)),
               ),
               SizedBox(
-                width: 4,
+                width: 8,
               ),
-              Icon(
-                Icons.expand_more,
-                size: 20,
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Center(
+                  child: AnimatedRotation(
+                    turns: _isNetworkDialogOpen ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeInOut,
+                    child: SvgPicture.asset(
+                      'assets/images/assets/icon_arrow_unfold.svg',
+                      width: 16,
+                      height: 16,
+                    ),
+                  ),
+                ),
               )
             ],
           ),
@@ -209,45 +180,47 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     return Container(
       color: Color(0xFFEDEFF2),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: EdgeInsets.only(left: 20, top: 12, right: 15, bottom: 12),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Container(
-            //   width: 10,
-            // ),
             Text(
               dic.myWallet,
               style: theme.displayLarge!.copyWith(
-                color: ColorsUtil.hexColor(0x020028),
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF000000),
               ),
-              textAlign: TextAlign.left,
+              textAlign: TextAlign.center,
             ),
             Expanded(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Flexible(child: Container(),),
                   Container(child: _buildNetworkEntry(context)),
-                  Container(
-                    width: 12,
+                  SizedBox(
+                    width: 8,
                   ),
-                  IconButton(
-                      iconSize: 30,
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                      icon: SvgPicture.asset(
+                  InkWell(
+                    key: TestKeys.walletManageIcon,
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Navigator.of(context).pushNamed(WalletManagePage.route);
+                    },
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: SvgPicture.asset(
                           'assets/images/assets/wallet_manage.svg',
-                          width: 30,
-                          height: 30),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(WalletManagePage.route);
-                      }
-                      // ,
+                          width: 40,
+                          height: 40,
+                        ),
                       ),
+                    ),
+                  ),
                 ],
               ),
             )
@@ -361,6 +334,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       children: [
                         Text(
                           showAmount,
+                          key: TestKeys.balanceDisplay,
                           style: TextStyle(
                               fontSize: 32,
                               color: amountColor,
@@ -382,6 +356,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                       height: 40.0,
                       // constraints: BoxConstraints(maxWidth: 140),
                       child: NormalButton(
+                        key: TestKeys.sendButton,
                         color: Colors.white,
                         text: dic.send,
                         textStyle: buttonTextStyle,
