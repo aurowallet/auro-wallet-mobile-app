@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
   - Show dedicated Zeko Mainnet icons and chain color on the assets page and network list
 - Update network selection and remote node list grouping so Mainnet/Zeko/custom nodes are shown above testnets
 - Improve network list item layout with a minimum row height
+- Update bridge signer network resolution for Zeko Mainnet
 
 ### Fixed
 - Refresh staking data automatically after switching network node
