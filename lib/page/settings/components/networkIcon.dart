@@ -19,8 +19,9 @@ class NetworkIcon extends StatelessWidget {
       if (endpoint.networkID == networkIDMap.mainnet) {
         iconUrl = "assets/images/stake/icon_mina_color.svg";
       } else {
-        bool isZekoNet = endpoint.networkID.startsWith("zeko");
-        if (isZekoNet) {
+        if (endpoint.networkID == networkIDMap.zeko) {
+          iconUrl = 'assets/images/setting/icon_zeko_network.svg';
+        } else if (endpoint.networkID == networkIDMap.zekotestnet) {
           iconUrl = 'assets/images/setting/icon_zeko_testnet.svg';
         } else {
           iconUrl = 'assets/images/stake/icon_mina_gray.svg';

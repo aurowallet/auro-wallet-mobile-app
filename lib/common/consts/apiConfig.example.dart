@@ -30,6 +30,9 @@ String center_public_keys = """
 -----END PUBLIC KEY-----
 """;
 
+const String GRAPH_QL_ZEKO_MAINNET_NODE_URL = "";
+const String ZEKO_MAINNET_TX_RECORDS_GQL_URL = "";
+const String ZEKO_MAINNET_TRANSACTIONS_EXPLORER_URL = "";
 const String GRAPH_QL_ZEKO_TESTNET_NODE_URL = "";
 const String ZEKO_TESTNET_TX_RECORDS_GQL_URL = "";
 const String ZEKO_TESTNET_TRANSACTIONS_EXPLORER_URL = "";

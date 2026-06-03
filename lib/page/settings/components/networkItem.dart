@@ -81,6 +81,7 @@ class NetworkItem extends StatelessWidget {
           child: InkWell(
               onTap: onPressed,
               child: Container(
+                  constraints: const BoxConstraints(minHeight: 68),
                   padding: EdgeInsets.all(16).copyWith(bottom: 12),
                   decoration: BoxDecoration(
                       color: checked && !editing

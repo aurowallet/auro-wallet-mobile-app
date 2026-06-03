@@ -5,7 +5,6 @@ import 'package:auro_wallet/page/settings/components/networkItem.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +20,7 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
   final store = globalAppStore;
   bool _isCheck = false;
   List<CustomNode> topList = [];
+  List<CustomNode> testnetList = [];
 
   @override
   void initState() {
@@ -37,12 +37,34 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
 
   void initShowList() {
     List<CustomNode> topListTemp = [];
-    CustomNode mainnetConfig = defaultNetworkList
-        .firstWhere((network) => network.networkID == networkIDMap.mainnet);
-    topListTemp.add(mainnetConfig);
-    topListTemp.addAll(store.settings!.secureCustomNodeList);
+    List<CustomNode> testnetListTemp = [];
+    CustomNode? defaultMainConfig;
+    final allNodeList = [
+      ...defaultNetworkList,
+      ...store.settings!.secureCustomNodeList,
+    ];
+
+    allNodeList.forEach((item) {
+      if (item.isDefaultNode) {
+        if (item.networkID == networkIDMap.mainnet) {
+          defaultMainConfig = item;
+        } else if (item.networkID == networkIDMap.zeko) {
+          topListTemp.add(item);
+        } else {
+          testnetListTemp.add(item);
+        }
+      } else {
+        topListTemp.add(item);
+      }
+    });
+
+    if (defaultMainConfig != null) {
+      topListTemp.insert(0, defaultMainConfig!);
+    }
+
     setState(() {
       topList = topListTemp;
+      testnetList = testnetListTemp;
     });
   }
 
@@ -147,21 +169,20 @@ class _NetworkSelectionDialogState extends State<NetworkSelectionDialog> {
               _isCheck
                   ? Container(
                       padding: EdgeInsets.only(left: 20, right: 20, top: 10),
-                      child: Column(children: [
-                        NetworkItem(
-                          endpoint: defaultNetworkList.firstWhere((network) =>
-                              network.networkID == networkIDMap.testnet),
-                          onChecked: onSelectNode,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        NetworkItem(
-                          endpoint: defaultNetworkList.firstWhere((network) =>
-                              network.networkID == networkIDMap.zekotestnet),
-                          onChecked: onSelectNode,
-                        )
-                      ]),
+                      child: Column(
+                        children: [
+                          for (int i = 0; i < testnetList.length; i++) ...[
+                            NetworkItem(
+                              endpoint: testnetList[i],
+                              onChecked: onSelectNode,
+                            ),
+                            if (i < testnetList.length - 1)
+                              SizedBox(
+                                height: 10,
+                              ),
+                          ]
+                        ],
+                      ),
                     )
                   : Container()
             ],

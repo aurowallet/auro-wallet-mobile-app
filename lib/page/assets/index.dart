@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
@@ -252,12 +253,19 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var currencySymbol = currency.symbol;
     Color amountColor =
         (store.assets!.isAssetsLoading) ? Color(0xFFDDDDDD) : Color(0xFFFFFFFF);
+    String networkID = store.settings!.currentNode?.networkID ?? "";
     bool isZekoNet = store.settings!.isZekoNet;
     String nextNetIcon = isZekoNet
-        ? "assets/images/assets/icon_zeko.svg"
+        ? "assets/images/assets/icon_zeko_mainnet.svg"
         : "assets/images/assets/icon_mina.svg";
 
-    int chainColor = store.settings!.isMainnet ? 0xFF594AF1 : 0x4C000000;
+    int chainColor = 0x4C000000;
+    if (networkID == networkIDMap.mainnet) {
+      chainColor = 0xFF594AF1;
+    } else if (networkID == networkIDMap.zeko) {
+      chainColor = 0xFFE7B13F;
+      nextNetIcon = "assets/images/assets/icon_zeko_mainnet.svg";
+    }
 
     final buttonTextStyle = TextStyle(
         fontSize: 16,

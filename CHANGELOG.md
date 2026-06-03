@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+## [2.3.1]
+
+### Enhancements
+- Add Zeko Mainnet network support (network ID `zeko:mainnet`)
+  - Add Zeko Mainnet to the default network list and sample API config
+  - Add Zeko Mainnet asset and settings icons, and register them in `pubspec.yaml`
+  - Show dedicated Zeko Mainnet icons and chain color on the assets page and network list
+- Update network selection and remote node list grouping so Mainnet/Zeko/custom nodes are shown above testnets
+- Improve network list item layout with a minimum row height
+
+### Fixed
+- Refresh staking data automatically after switching network node
+
 ## [2.3.0]
 ### Enhancements
 - Upgrade Flutter version to 3.38.8

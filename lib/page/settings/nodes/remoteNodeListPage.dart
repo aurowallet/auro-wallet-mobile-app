@@ -8,7 +8,6 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +58,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
 
       await widget.settingStore.setCurrentNode(mainnetEndpoint);
       webApi.updateGqlClient(mainnetEndpoint.url);
+      webApi.staking.refreshStaking();
 
       await widget.store.assets!.loadTokenLocalConfigCache();
       await widget.store.assets!.loadTokenInfoCache();
@@ -79,6 +79,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
         widget.store.assets!.setAssetsLoading(true);
         await widget.settingStore.setCurrentNode(node);
         webApi.updateGqlClient(key);
+        webApi.staking.refreshStaking();
         await widget.store.assets!
             .loadTokenLocalConfigCache();
         await widget.store.assets!.loadTokenInfoCache();
@@ -90,29 +91,63 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
     }
   }
 
-  Widget _renderCustomNodeList(BuildContext context, bool isEditing) {
-    List<CustomNode> endpoints =
-        List<CustomNode>.of(widget.settingStore.customNodeList);
-    if (endpoints.length == 0) {
+  Map<String, List<CustomNode>> _buildNodeGroup() {
+    List<CustomNode> topList = [];
+    List<CustomNode> testnetList = [];
+    CustomNode? defaultMainConfig;
+    final allNodeList = List<CustomNode>.of(widget.settingStore.allNodes);
+
+    allNodeList.forEach((item) {
+      if (item.isDefaultNode) {
+        if (item.networkID == networkIDMap.mainnet) {
+          defaultMainConfig = item;
+        } else if (item.networkID == networkIDMap.zeko) {
+          topList.add(item);
+        } else {
+          testnetList.add(item);
+        }
+      } else {
+        topList.add(item);
+      }
+    });
+
+    if (defaultMainConfig != null) {
+      topList.insert(0, defaultMainConfig!);
+    }
+
+    return {
+      'top': topList,
+      'testnet': testnetList,
+    };
+  }
+
+  Widget _renderNodeGroup(List<CustomNode> endpoints, bool isEditing) {
+    if (endpoints.isEmpty) {
       return Container();
     }
-    List<Widget> list = endpoints.map((endpoint) {
-      return Padding(
-          key: Key(endpoint.url),
-          padding: EdgeInsets.only(top: 10, left: 20, right: 20),
-          child: NetworkItem(
-            onChecked: onChangeEndpoint,
-            isEditing: isEditing,
-            onEdit: _editNode,
-            endpoint: endpoint,
-            isDisabled: !isValidHttpsNodeUrl(endpoint.url),
-          ));
-    }).toList();
-    return Container(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [...list],
-    ));
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int i = 0; i < endpoints.length; i++) ...[
+            NetworkItem(
+              onChecked: onChangeEndpoint,
+              isEditing: isEditing,
+              onEdit: endpoints[i].isDefaultNode == true ? null : _editNode,
+              endpoint: endpoints[i],
+              isDisabled: endpoints[i].isDefaultNode == true
+                  ? false
+                  : !isValidHttpsNodeUrl(endpoints[i].url),
+            ),
+            if (i < endpoints.length - 1)
+              SizedBox(
+                height: 10,
+              ),
+          ]
+        ],
+      ),
+    );
   }
 
   _onEdit() {
@@ -124,7 +159,6 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final theme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -153,30 +187,14 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
       body: SafeArea(
         maintainBottomViewPadding: true,
         child: Observer(builder: (_) {
-          CustomNode mainnetConfig = defaultNetworkList.firstWhere(
-              (network) => network.networkID == networkIDMap.mainnet);
-          CustomNode devnetConfig = defaultNetworkList.firstWhere(
-              (network) => network.networkID == networkIDMap.testnet);
-          CustomNode zekotestnetConfig = defaultNetworkList.firstWhere(
-              (network) => network.networkID == networkIDMap.zekotestnet);
+          final groupMap = _buildNodeGroup();
+          final topNodeList = groupMap['top'] ?? [];
+          final testnetNodeList = groupMap['testnet'] ?? [];
           return Column(
             children: [
               Expanded(
                 child: ListView(padding: EdgeInsets.only(top: 20), children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        NetworkItem(
-                          onChecked: onChangeEndpoint,
-                          isEditing: isEditing,
-                          endpoint: mainnetConfig,
-                        ),
-                      ],
-                    ),
-                  ),
-                  _renderCustomNodeList(context, isEditing),
+                  _renderNodeGroup(topNodeList, isEditing),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     height: 20,
@@ -201,27 +219,7 @@ class _RemoteNodeListPageState extends State<RemoteNodeListPage> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        NetworkItem(
-                          onChecked: onChangeEndpoint,
-                          isEditing: isEditing,
-                          endpoint: devnetConfig,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        NetworkItem(
-                          onChecked: onChangeEndpoint,
-                          isEditing: isEditing,
-                          endpoint: zekotestnetConfig,
-                        ),
-                      ],
-                    ),
-                  ),
+                  _renderNodeGroup(testnetNodeList, isEditing),
                 ]),
               ),
               Container(

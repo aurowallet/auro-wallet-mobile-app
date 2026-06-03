@@ -5,11 +5,13 @@ Map<String, String> networkIDMap = {
   "mainnet": "mina:mainnet",
   "testnet": "mina:devnet",
   "zekotestnet": "zeko:testnet",
+  "zeko": "zeko:mainnet",
 };
 
 extension NetworkIDMapExtension on Map<String, String> {
   String get mainnet => this["mainnet"]!;
   String get testnet => this["testnet"]!;
+  String get zeko => this["zeko"]!;
   String get zekotestnet => this["zekotestnet"]!;
 }
 
@@ -29,6 +31,14 @@ final List<CustomNode> defaultNetworkList = [
     name: "Devnet",
     isDefaultNode: true,
     networkID: networkIDMap.testnet,
+  ),
+  CustomNode(
+    explorerUrl: ZEKO_MAINNET_TRANSACTIONS_EXPLORER_URL,
+    txUrl: ZEKO_MAINNET_TX_RECORDS_GQL_URL,
+    url: GRAPH_QL_ZEKO_MAINNET_NODE_URL,
+    name: "Zeko",
+    isDefaultNode: true,
+    networkID: networkIDMap.zeko,
   ),
   CustomNode(
     explorerUrl: ZEKO_TESTNET_TRANSACTIONS_EXPLORER_URL,
