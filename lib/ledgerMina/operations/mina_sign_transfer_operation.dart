@@ -33,18 +33,10 @@ class MinaSignTransferOperation extends LedgerOperation<String> {
 
   @override
   Future<String> read(ByteDataReader reader) async {
-    // Read the signature
-    print('sign transfer back');
     final fieldBytes = reader.read(32);
     final scalarBytes = reader.read(32);
-    // final bytes = reader.read(reader.remainingLength);
-    print('backdata');
-    print(hex.encode(fieldBytes));
-    print(hex.encode(scalarBytes));
     final res = hex.encode(fieldBytes.reversed.toList()) +
         hex.encode(scalarBytes.reversed.toList());
-    print(res);
     return res;
-    // return reader.read(reader.remainingLength);
   }
 }

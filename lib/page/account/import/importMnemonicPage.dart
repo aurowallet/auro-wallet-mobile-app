@@ -51,8 +51,6 @@ class _ImportMnemonicPageState extends State<ImportMnemonicPage> {
     }
     final before = selection.textBefore(text);
     final after = selection.textAfter(text);
-    print('after: $after');
-    print('before: $before');
     if (errorMsg != null) {
       setState(() {
         errorMsg = null;

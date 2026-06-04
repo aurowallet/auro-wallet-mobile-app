@@ -14,10 +14,12 @@ All notable changes to this project will be documented in this file.
 - Improve network list item layout with a minimum row height
 - Update bridge signer network resolution for Zeko Mainnet
 - Remove tracked iOS build artifacts and ignore `ios/build/`
+- Remove unuse log
 
 ### Fixed
 - Refresh staking data automatically after switching network node
 - Fix `flutter analyze` warnings
+
 
 ## [2.3.0]
 ### Enhancements

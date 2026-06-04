@@ -13,6 +13,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
@@ -27,6 +28,12 @@ class WalletConnectService {
 
   WalletConnectService(this.appStore);
 
+  void _debugLog(String message) {
+    if (kDebugMode) {
+      debugPrint(message);
+    }
+  }
+
   ReownWalletKit get walletKit {
     if (!_isInitialized) {
       throw StateError(
@@ -38,9 +45,6 @@ class WalletConnectService {
   bool get isInitialized => _isInitialized;
   void setContext(BuildContext context) async {
     _context = context;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      print("[aurowallet] Context bound after frame: $_context");
-    });
   }
 
   void setTempScheme(String? scheme) {
@@ -69,7 +73,7 @@ class WalletConnectService {
 
     _setupListeners();
     await _walletKit.init();
-    print("[aurowallet] _walletKit init success");
+    _debugLog("[aurowallet] _walletKit init success");
     _isInitialized = true;
     getAllPairedLinks();
   }
@@ -77,7 +81,7 @@ class WalletConnectService {
   List<String> getAllSupportChains() {
     List<String> currentSupportChainList =
         appStore.settings!.getSupportNetworkIDs();
-    print("[aurowallet] currentSupportChainList: ${currentSupportChainList}");
+    _debugLog("[aurowallet] support chain count: ${currentSupportChainList.length}");
     return currentSupportChainList;
   }
 
@@ -432,36 +436,35 @@ class WalletConnectService {
         }
         return;
       } catch (e) {
-        print("[aurowallet] onSessionRequest failed, event:  ${event}");
-        print("[aurowallet] onSessionRequest failed, error: ${e}");
+        _debugLog("[aurowallet] onSessionRequest failed: $e");
       }
     }
   }
 
   void _logListener(String event) {
-    debugPrint('[WalletKit] $event');
+    _debugLog('[WalletKit] event received');
   }
 
   void _onRelayClientError(ErrorEvent? args) {
-    debugPrint('[WalletConnect] _onRelayClientError ${args?.error}');
+    _debugLog('[WalletConnect] relay client error: ${args?.error}');
   }
 
   void _onPairingInvalid(PairingInvalidEvent? args) {
-    debugPrint('[WalletConnect] _onPairingInvalid $args');
+    _debugLog('[WalletConnect] pairing invalid');
   }
 
   void _onPairingCreate(PairingEvent? args) {
-    debugPrint('[WalletConnect] _onPairingCreate $args');
+    _debugLog('[WalletConnect] pairing created');
   }
 
   void _onRelayClientMessage(MessageEvent? event) async {
     if (event != null) {
-      debugPrint('[WalletConnect] _onRelayClientMessage $event');
+      _debugLog('[WalletConnect] relay client message received');
     }
   }
 
   void _onSessionProposalError(SessionProposalErrorEvent? args) {
-    debugPrint('[WalletConnect] _onSessionProposalError $args');
+    _debugLog('[WalletConnect] session proposal error: ${args?.error.code}');
     if (args != null) {
       String errorMessage = args.error.message;
       if (args.error.code == 5100) {
@@ -479,13 +482,12 @@ class WalletConnectService {
 
   void _onSessionConnect(SessionConnect? args) {
     if (args != null) {
-      debugPrint(
-          '[WalletConnect] _onSessionConnect ${jsonEncode(args.session.toJson())}');
+      _debugLog('[WalletConnect] session connected');
     }
   }
 
   void _onSessionProposal(SessionProposalEvent? args) async {
-    debugPrint('[SampleWallet] _onSessionProposal ${jsonEncode(args?.params)}');
+    _debugLog('[WalletConnect] session proposal received');
 
     if (args != null && _context != null) {
       final proposer = args.params.proposer;
