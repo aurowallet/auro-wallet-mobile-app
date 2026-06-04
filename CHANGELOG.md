@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Update network selection and remote node list grouping so Mainnet/Zeko/custom nodes are shown above testnets
 - Improve network list item layout with a minimum row height
 - Update bridge signer network resolution for Zeko Mainnet
+- Remove tracked iOS build artifacts and ignore `ios/build/`
 
 ### Fixed
 - Refresh staking data automatically after switching network node
