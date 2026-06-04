@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Refresh staking data automatically after switching network node
+- Fix `flutter analyze` warnings
 
 ## [2.3.0]
 ### Enhancements

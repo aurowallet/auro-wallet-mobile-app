@@ -16,8 +16,6 @@ class LedgerInit {
 
   static Future<void> scanLoop(Ledger ledger,
       {void Function(LedgerDevice)? onScanSuccess, recursion = false}) async {
-    final store = globalAppStore;
-
     if (!recursion &&
         !scanListeners.contains(onScanSuccess) &&
         onScanSuccess != null) {

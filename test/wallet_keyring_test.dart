@@ -180,8 +180,8 @@ void main() {
 
       // Simulate getWalletDisplayName logic
       String getDisplayName(WalletData w) {
-        if (w.meta != null && w.meta!['name'] != null) {
-          return w.meta!['name'];
+        if (w.meta['name'] != null) {
+          return w.meta['name'];
         }
         switch (w.walletType) {
           case 'mnemonic':
@@ -209,8 +209,8 @@ void main() {
         ..accounts = [];
 
       String getDisplayName(WalletData w) {
-        if (w.meta != null && w.meta!['name'] != null) {
-          return w.meta!['name'];
+        if (w.meta['name'] != null) {
+          return w.meta['name'];
         }
         return 'Wallet ${w.walletTypeIndex + 1}';
       }

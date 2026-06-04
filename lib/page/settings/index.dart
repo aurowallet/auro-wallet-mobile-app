@@ -1,12 +1,9 @@
 import 'package:auro_wallet/common/components/tabPageTitle.dart';
-import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/settings/WalletConnectPage.dart';
 import 'package:auro_wallet/page/settings/aboutPage.dart';
 import 'package:auro_wallet/page/settings/components/settingItem.dart';
 import 'package:auro_wallet/page/settings/contact/contactListPage.dart';
-import 'package:auro_wallet/page/settings/currenciesPage.dart';
-import 'package:auro_wallet/page/settings/localesPage.dart';
 import 'package:auro_wallet/page/settings/nodes/RemoteNodeListPage.dart';
 import 'package:auro_wallet/page/settings/security/securityPage.dart';
 import 'package:auro_wallet/page/settings/zkAppConnectPage.dart';
@@ -24,9 +21,6 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
       AppLocalizations dic = AppLocalizations.of(context)!;
-      var languageCode = store.settings!.localeCode.isNotEmpty
-          ? store.settings!.localeCode
-          : dic.localeName.toLowerCase();
       return Scaffold(
         appBar: AppBar(
           leading: null,

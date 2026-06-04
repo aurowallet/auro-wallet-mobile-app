@@ -26,7 +26,6 @@ class _AboutPage extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    var theme = Theme.of(context).textTheme;
     var languageCode = widget.store.settings!.localeCode.isNotEmpty
         ? widget.store.settings!.localeCode
         : dic.localeName.toLowerCase();

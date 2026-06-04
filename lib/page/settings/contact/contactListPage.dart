@@ -3,7 +3,6 @@ import 'package:auro_wallet/page/settings/contact/contactEditPage.dart';
 import 'package:flutter/material.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auro_wallet/store/settings/types/contactData.dart';
@@ -65,17 +64,6 @@ class _ContactListPageState extends State<ContactListPage> {
       "address": address
     });
   }
-  void _removeContact (ContactData contact) async {
-    AppLocalizations dic = AppLocalizations.of(context)!;
-    bool? rejected = await UI.showConfirmDialog(context: context, contents: [
-      dic.confirmDeleteNode
-    ], okText: dic.confirm, cancelText: dic.cancel);
-    if (rejected != true) {
-      return;
-    }
-    widget.store.removeContact(contact);
-  }
-
   Widget _renderEmpty() {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Column(
@@ -181,9 +169,8 @@ class ContactItem extends StatelessWidget {
   final EdgeInsetsGeometry margin;
   final Function? showEditDialog;
   final SettingsStore store;
-  BuildContext? _ctx;
 
-  void _onClick () async {
+  void _onClick (BuildContext context) async {
     if (this.showEditDialog != null) {
       var nameAndAddressMap = await this.showEditDialog!(this.name, this.address);
       if (nameAndAddressMap == null) {
@@ -194,12 +181,11 @@ class ContactItem extends StatelessWidget {
       this.store.updateContact(ContactData(name: name, address: address), this.address);
     } else {
       var contact = this.store.contactList.firstWhere((element) => element.address == this.address);
-      Navigator.of(this._ctx!).pop(contact);
+      Navigator.of(context).pop(contact);
     }
   }
   @override
   Widget build(BuildContext context) {
-    _ctx = context;
     return Container(
         margin: margin,
         padding: EdgeInsets.zero,
@@ -219,7 +205,7 @@ class ContactItem extends StatelessWidget {
                 color: Colors.black.withValues(alpha: 0.3), fontWeight: FontWeight.w500
             )),
           ),
-          onTap: _onClick,
+          onTap: () => _onClick(context),
         )
     );
   }

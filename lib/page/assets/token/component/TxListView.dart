@@ -90,8 +90,6 @@ class _TxListViewState extends State<TxListView> with WidgetsBindingObserver {
     Widget nextWidget = SizedBox(
       height: 0,
     );
-    String currentAddress = store.wallet!.currentAddress;
-
     if (widget.isLoading) {
       if (widget.txList.length > 0) {
         nextWidget = _buildTxList(widget.txList, context);

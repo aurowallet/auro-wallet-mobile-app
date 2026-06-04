@@ -1,6 +1,5 @@
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
-import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenIcon.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
@@ -30,8 +29,6 @@ class TokenItemView extends StatelessWidget {
     // String? delegationText;
     // bool isDelegation = false;
     bool isMinaNet = false;
-    AppLocalizations dic = AppLocalizations.of(context)!;
-
     TokenAssetInfo? tokenAssestInfo = tokenItem.tokenAssestInfo;
 
     TokenNetInfo? tokenNetInfo = tokenItem.tokenNetInfo;

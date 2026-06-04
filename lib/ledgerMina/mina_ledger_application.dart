@@ -165,8 +165,6 @@ extension TxTypeExtension on TxType {
         return 0x00;
       case TxType.DELEGATION:
         return 0x04;
-      default:
-        return -1;
     }
   }
 }
@@ -180,8 +178,6 @@ extension NetworksExtension on Networks {
         return 0x01;
       case Networks.DEVNET:
         return 0x00;
-      default:
-        return -1;
     }
   }
 }

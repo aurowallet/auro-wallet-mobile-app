@@ -366,7 +366,6 @@ class TokenActionItem extends StatelessWidget {
         nextRouter = Staking.route;
         actionIconUrl = "assets/images/assets/delegation.svg";
         break;
-      default:
     }
 
     return GestureDetector(
@@ -383,13 +382,13 @@ class TokenActionItem extends StatelessWidget {
                 color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(48),
               ),
-              child: SvgPicture.asset(actionIconUrl!,
+              child: SvgPicture.asset(actionIconUrl,
                   width: 14,
                   colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
             ),
             SizedBox(height: 4),
             Text(
-              title!,
+              title,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w400,

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:convert/convert.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 

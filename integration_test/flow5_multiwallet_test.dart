@@ -3979,8 +3979,7 @@ void main() {
         print('✅ HD wallet group deleted');
         testResults[testName] = 'PASS';
       } else {
-        // toast: walletDeleted
-        var deletedToast = find.textContaining(dic.walletDeleted);
+        var deletedToast = find.textContaining(dic.deleteWallet);
         if (deletedToast.evaluate().isNotEmpty) {
           testResults[testName] = 'PASS';
         } else {

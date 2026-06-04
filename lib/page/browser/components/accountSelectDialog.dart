@@ -1,5 +1,4 @@
 import 'package:auro_wallet/common/components/accountItem.dart';
-import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -47,7 +46,6 @@ class _AccountSelectDialogState extends State<AccountSelectDialog> {
   List<Widget> _renderAccountList() {
     Map<String, WalletData> walletMap = store.wallet!.walletsMap;
     List<Widget> items = [];
-    AppLocalizations dic = AppLocalizations.of(context)!;
     final renderItem = (account) {
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
       print(balancesInfo?.total);

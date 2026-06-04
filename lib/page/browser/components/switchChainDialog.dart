@@ -5,7 +5,6 @@ import 'package:auro_wallet/page/browser/components/zkAppWebsite.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
-import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';

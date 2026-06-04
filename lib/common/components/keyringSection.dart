@@ -81,6 +81,9 @@ class KeyringSection extends StatelessWidget {
               painter: _DashedBorderPainter(
                 color: Color.fromRGBO(0, 0, 0, 0.10),
                 borderRadius: 12,
+                dashWidth: 5,
+                dashSpace: 3,
+                strokeWidth: 1,
               ),
               child: Material(
                 color: Colors.white,
@@ -223,9 +226,9 @@ class _DashedBorderPainter extends CustomPainter {
   _DashedBorderPainter({
     required this.color,
     required this.borderRadius,
-    this.dashWidth = 5,
-    this.dashSpace = 3,
-    this.strokeWidth = 1,
+    required this.dashWidth,
+    required this.dashSpace,
+    required this.strokeWidth,
   });
 
   @override
