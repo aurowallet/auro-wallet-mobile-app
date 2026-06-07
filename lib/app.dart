@@ -309,7 +309,9 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       final homeCtx = _homePageContext;
       if (homeCtx == null || !homeCtx.mounted) {
         if (attempt < maxAttempts) {
-          _handleNotificationTap(payload, attempt + 1);
+          Future.delayed(const Duration(milliseconds: 150), () {
+            _handleNotificationTap(payload, attempt + 1);
+          });
         }
         return;
       }

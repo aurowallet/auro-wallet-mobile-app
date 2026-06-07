@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Update bridge signer network resolution for Zeko Mainnet
 - Remove tracked iOS build artifacts and ignore `ios/build/`
 - Remove unuse log
+- Improve notification tap retry after cold start or before home context is mounted
 
 ### Fixed
 - Refresh staking data automatically after switching network node

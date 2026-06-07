@@ -13,6 +13,9 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
+  static const String _primaryAndroidIcon = 'ic_notification';
+  static const String _fallbackAndroidIcon = 'launcher_icon';
+  String _activeAndroidIcon = _primaryAndroidIcon;
   static bool _coldStartChecked = false;
   static const String _lastLaunchPayloadKey = 'last_launch_notification_payload';
   static const String _notificationEnabledKey = 'notification_enabled';
@@ -65,33 +68,44 @@ class NotificationService {
     if (_pendingNotificationPayloads.isNotEmpty && _onNotificationTap != null) {
       final payloads = List<String>.from(_pendingNotificationPayloads);
       _pendingNotificationPayloads.clear();
-      final parsed = _parsePayload(payloads.last);
-      _onNotificationTap!(parsed);
+      for (final raw in payloads) {
+        _onNotificationTap!(_parsePayload(raw));
+      }
     }
+  }
+
+  Future<void> _initializePlugin(String androidIcon) async {
+    final AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings(androidIcon);
+
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
+    final InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await _notificationsPlugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: _onNotificationResponse,
+    );
+    _activeAndroidIcon = androidIcon;
   }
 
   Future<void> initialize() async {
     if (_isInitialized) return;
 
     try {
-      const AndroidInitializationSettings androidSettings =
-          AndroidInitializationSettings('@drawable/ic_notification');
-
-      const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-      );
-
-      const InitializationSettings initSettings = InitializationSettings(
-        android: androidSettings,
-        iOS: iosSettings,
-      );
-
-      await _notificationsPlugin.initialize(
-        initSettings,
-        onDidReceiveNotificationResponse: _onNotificationResponse,
-      );
+      try {
+        await _initializePlugin(_primaryAndroidIcon);
+      } catch (_) {
+        await _initializePlugin(_fallbackAndroidIcon);
+      }
 
       if (!_coldStartChecked) {
         _coldStartChecked = true;
@@ -230,35 +244,46 @@ class NotificationService {
       await initialize();
     }
 
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'auro_wallet_channel',
-      'Auro Wallet Notifications',
-      channelDescription: 'Notifications for transaction updates',
-      importance: Importance.high,
-      priority: Priority.high,
-      showWhen: true,
-      icon: '@drawable/ic_notification',
-      color: Color(0xFF594AF1),
-      colorized: true,
-    );
-
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: false,
       presentSound: true,
     );
 
-    const NotificationDetails notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+    Future<void> showWithIcon(String icon) async {
+      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        'auro_wallet_channel',
+        'Auro Wallet Notifications',
+        channelDescription: 'Notifications for transaction updates',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+        icon: icon,
+        color: const Color(0xFF594AF1),
+        colorized: true,
+      );
 
-    await _notificationsPlugin.show(
-      id,
-      title,
-      body,
-      notificationDetails,
-      payload: payload,
-    );
+      final NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _notificationsPlugin.show(
+        id,
+        title,
+        body,
+        notificationDetails,
+        payload: payload,
+      );
+    }
+
+    try {
+      await showWithIcon(_activeAndroidIcon);
+    } catch (_) {
+      if (_activeAndroidIcon != _fallbackAndroidIcon) {
+        await showWithIcon(_fallbackAndroidIcon);
+        _activeAndroidIcon = _fallbackAndroidIcon;
+      }
+    }
   }
 }
