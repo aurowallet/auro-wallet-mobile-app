@@ -1,4 +1,5 @@
 import 'package:auro_wallet/common/consts/browser.dart';
+import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 
@@ -47,20 +48,49 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId,
   final String sender = sourceData['sender'];
   final String receiver = sourceData['receiver'];
   final num amount = sourceData['amount'];
+  final bool isNewAccount = sourceData['isNewAccount'] == true ||
+      sourceData['isNewAccount'] == 'true';
   final BigInt sourceAmount = BigInt.from(amount);
 
   bool senderVerified = false;
   bool receiverVerified = false;
+  int accountCreationFeeUpdates = 0;
 
-  List<dynamic> accountUpdates = buildZkCommand['accountUpdates'];
+  final List<dynamic>? accountUpdates = buildZkCommand['accountUpdates'];
+  final int expectedAccountUpdateCount = isNewAccount ? 4 : 3;
+  if (accountUpdates == null ||
+      accountUpdates.length != expectedAccountUpdateCount) {
+    return false;
+  }
+
+  final feePayerBody = buildZkCommand['feePayer']?['body'];
+  if (feePayerBody is! Map || feePayerBody['publicKey'] != sender) {
+    return false;
+  }
+  final feePayerFee = BigInt.tryParse(feePayerBody['fee']?.toString() ?? '');
+  if (feePayerFee == null || feePayerFee < BigInt.zero) {
+    return false;
+  }
 
   for (var accountUpdate in accountUpdates) {
-    final Map<String, dynamic> body = accountUpdate['body'];
-    final String publicKey = body['publicKey'];
-    final String balanceChangeMagnitude = body['balanceChange']['magnitude'];
-    final BigInt changeBalance = BigInt.parse(balanceChangeMagnitude);
-    final String balanceChangeSgn = body['balanceChange']['sgn'];
-    final String tokenId = body['tokenId'];
+    final body = accountUpdate['body'];
+    if (body is! Map) {
+      return false;
+    }
+    final publicKey = body['publicKey']?.toString();
+    final tokenId = body['tokenId']?.toString();
+    final balanceChange = body['balanceChange'];
+    if (publicKey == null || tokenId == null || balanceChange is! Map) {
+      return false;
+    }
+    final balanceChangeMagnitude =
+        balanceChange['magnitude']?.toString();
+    final balanceChangeSgn = balanceChange['sgn']?.toString();
+    final changeBalance =
+        BigInt.tryParse(balanceChangeMagnitude ?? '');
+    if (changeBalance == null || balanceChangeSgn == null) {
+      return false;
+    }
 
     if (tokenId == sendTokenId) {
       if (publicKey == sender) {
@@ -74,7 +104,26 @@ bool verifyTokenCommand(Map<String, dynamic> sourceData, String sendTokenId,
           receiverVerified = true;
         }
       }
+    } else {
+      final isAccountCreationFeeUpdate = isNewAccount &&
+          sendTokenId != ZK_DEFAULT_TOKEN_ID &&
+          publicKey == sender &&
+          tokenId == ZK_DEFAULT_TOKEN_ID &&
+          balanceChangeSgn == 'Negative' &&
+          changeBalance > BigInt.zero;
+      if (isAccountCreationFeeUpdate) {
+        accountCreationFeeUpdates += 1;
+        continue;
+      }
+      if (changeBalance != BigInt.zero ||
+          (balanceChangeSgn != 'Positive' && balanceChangeSgn != 'Negative')) {
+        return false;
+      }
     }
+  }
+
+  if (isNewAccount && accountCreationFeeUpdates != 1) {
+    return false;
   }
 
   return senderVerified && receiverVerified;

@@ -13,6 +13,7 @@ import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/components/networkFeeDisplay.dart';
 import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
@@ -360,6 +361,14 @@ class _DelegatePageState extends State<DelegatePage>
       String validateName;
       bool isLedger =
           _initWallet.walletType == WalletStore.seedTypeLedger;
+      if (isLedger &&
+          store.settings?.currentNode?.networkID == networkIDMap.zeko) {
+        UI.toast(dic.notSupportNow);
+        setState(() {
+          submitting = false;
+        });
+        return;
+      }
       if (params.manualAddValidator) {
         validateName = Fmt.address(validatorAddress, pad: 10);
       } else {

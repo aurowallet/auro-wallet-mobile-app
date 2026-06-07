@@ -179,8 +179,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         intervalTime: intervalTime,
         onCountdownEnd: () async {
           if (isZekoNet && feeType == ZkAppValueEnum.recommed_default) {
-            dynamic zekoFee =
-                await webApi.assets.getZekoNetFee(weight: weight + 1);
+            dynamic zekoFee = await webApi.assets
+                .getZekoNetFee(weight: weight + 1, gqlUrl: nextGqlUrl);
             double nextFee = Fmt.parsedZekoFee(zekoFee);
             setState(() {
               zekoNetFee = nextFee;
@@ -220,13 +220,18 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
       AccountInfo? balancesInfo_2 = accountsInfo[nextAccountData.pubKey];
       EasyLoading.dismiss();
       customNetNonce = balancesInfo_2?.inferredNonce ?? -1;
-      customNetBalance = double.parse(Fmt.amountDecimals(
-        balancesInfo_2!.total.toString(),
-        decimal: COIN.decimals,
-      ));
+      if (balancesInfo_2 != null) {
+        customNetBalance = double.parse(Fmt.amountDecimals(
+          balancesInfo_2.total.toString(),
+          decimal: COIN.decimals,
+        ));
+      } else {
+        customNetBalance = 0;
+      }
     }
     if (isZekoNet && feeType == ZkAppValueEnum.recommed_default) {
-      dynamic zekoFee = await webApi.assets.getZekoNetFee(weight: weight + 1);
+      dynamic zekoFee = await webApi.assets
+          .getZekoNetFee(weight: weight + 1, gqlUrl: nextGqlUrl);
       double nextFee = Fmt.parsedZekoFee(zekoFee);
       setState(() {
         zekoNetFee = nextFee;
@@ -318,7 +323,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     if (webFee != null && Fmt.isNumber(webFee)) {
       final parsedWebFee = double.parse(webFee.toString());
       tempFeeType = ZkAppValueEnum.recommed_site;
-      final feeExceedsCap = store.assets!.transferFees.isFeeExceedsCapValue(parsedWebFee);
+      final feeExceedsCap =
+          store.assets!.transferFees.isFeeExceedsCapValue(parsedWebFee);
       setState(() {
         lastFee = parsedWebFee;
         feeType = tempFeeType;
@@ -413,6 +419,12 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   Future<bool> onConfirm() async {
     AppLocalizations dic = AppLocalizations.of(context)!;
     if (isLedger && widget.signType == SignTxDialogType.zkApp) {
+      UI.toast(dic.notSupportNow);
+      return false;
+    }
+    String ledgerTargetNetworkId =
+        widget.walletConnectChainId ?? store.settings?.currentNode?.networkID ?? '';
+    if (isLedger && ledgerTargetNetworkId == networkIDMap.zeko) {
       UI.toast(dic.notSupportNow);
       return false;
     }
@@ -705,7 +717,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           if (fee != null) {
             setState(() {
               lastFee = fee;
-              showFeeErrorTip = store.assets!.transferFees.isFeeExceedsCapValue(fee);
+              showFeeErrorTip =
+                  store.assets!.transferFees.isFeeExceedsCapValue(fee);
               feeType = ZkAppValueEnum.recommed_custom;
               timerManager?.setIntervalTime(0);
             });

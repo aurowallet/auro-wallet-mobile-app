@@ -323,20 +323,23 @@ class Fmt {
   static double parsedZekoFee(dynamic fee, {double buffer = 0.1}) {
     double backFee = DEFAULT_TRANSACTION_FEE;
     try {
-      if (fee.runtimeType != double && fee.runtimeType != String) {
+      if (fee == null || fee.toString().isEmpty) {
         return DEFAULT_TRANSACTION_FEE;
       }
       String feePerWeightUnit = fee.toString();
       feePerWeightUnit = amountDecimals(fee.toString(), decimal: COIN.decimals);
+      final originalFee = Decimal.parse(feePerWeightUnit);
+      if (originalFee <= Decimal.zero) {
+        return DEFAULT_TRANSACTION_FEE;
+      }
       if (buffer > 0) {
-        final feeDecimal = Decimal.parse(feePerWeightUnit);
         final bufferDecimal = Decimal.parse((buffer + 1).toString());
-        feePerWeightUnit = (feeDecimal * bufferDecimal).toString();
+        feePerWeightUnit = (originalFee * bufferDecimal).toString();
       }
 
-      // Round down to 4 decimal places
       final feeDecimal = Decimal.parse(feePerWeightUnit);
-      feePerWeightUnit = feeDecimal.toStringAsFixed(4);
+      feePerWeightUnit =
+          feeDecimal.floor(scale: COIN.decimals).toStringAsFixed(COIN.decimals);
 
       backFee = double.parse(feePerWeightUnit);
     } catch (e) {

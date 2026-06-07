@@ -2,6 +2,7 @@ import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
 import 'package:auro_wallet/common/components/ledgerWaitingContent.dart';
 import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
@@ -153,6 +154,11 @@ class _TxActionDialogState extends State<TxActionDialog> {
   Future<bool> onClickNextStep() async {
     bool isDelagetion = false;
     AppLocalizations dic = AppLocalizations.of(context)!;
+    if (isLedger &&
+        widget.store.settings?.currentNode?.networkID == networkIDMap.zeko) {
+      UI.toast(dic.notSupportNow);
+      return false;
+    }
     String? privateKey;
     if (!isLedger) {
       String? password = await UI.showPasswordDialog(
@@ -426,6 +432,12 @@ class _TxActionDialogState extends State<TxActionDialog> {
                       onConfirm: () async {
                         if (isLedger &&
                             widget.txData.type.toLowerCase() == "zkapp") {
+                          UI.toast(dic.notSupportNow);
+                          return;
+                        }
+                        if (isLedger &&
+                            widget.store.settings?.currentNode?.networkID ==
+                                networkIDMap.zeko) {
                           UI.toast(dic.notSupportNow);
                           return;
                         }

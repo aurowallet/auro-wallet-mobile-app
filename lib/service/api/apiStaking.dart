@@ -105,6 +105,10 @@ class ApiStaking {
   }
 
   Future<void> fetchStakingOverview() async {
+    if (store.settings!.isZekoNet) {
+      store.staking!.clearOverviewData();
+      return;
+    }
     const String query = r'''
    query daemonStatus {
     daemonStatus {

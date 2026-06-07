@@ -290,7 +290,8 @@ class _WebViewInjectedState extends State<WebViewInjected> {
     bool isConnect =
         store.browser?.zkAppConnectingList.contains(siteInfo?['origin']) ??
             false;
-    String network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    String currentNetworkId = store.settings?.currentNode?.networkID ?? '';
+    String network = resolveSignerNetwork(currentNetworkId);
     switch (method) {
       case "mina_requestAccounts":
         if (isConnect) {

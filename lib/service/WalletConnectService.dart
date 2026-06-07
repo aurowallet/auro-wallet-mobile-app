@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:auro_wallet/common/consts/browser.dart';
-import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/browser/components/signTransactionDialog.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -390,9 +389,6 @@ class WalletConnectService {
           case "mina_verifyMessage":
           case "mina_verify_JsonMessage":
             Map verifyData = {
-              "network": event.chainId == networkIDMap['mainnet']
-                  ? "mainnet"
-                  : "testnet",
               "publicKey": params["from"],
               "signature": params['signature'],
               "verifyMessage": params["data"],
@@ -400,6 +396,7 @@ class WalletConnectService {
             bool res = await webApi.account.verifyMessage(
               verifyData,
               context: _getValidContext(),
+              networkId: event.chainId,
             );
             _walletKit.respondSessionRequest(
               topic: event.topic,
@@ -412,9 +409,6 @@ class WalletConnectService {
             break;
           case "mina_verifyFields":
             Map verifyData = {
-              "network": event.chainId == networkIDMap['mainnet']
-                  ? "mainnet"
-                  : "testnet",
               "publicKey": params["from"],
               "signature": params['signature'],
               "fields": params["data"],
@@ -422,6 +416,7 @@ class WalletConnectService {
             bool res = await webApi.account.verifyFields(
               verifyData,
               context: _getValidContext(),
+              networkId: event.chainId,
             );
             _walletKit.respondSessionRequest(
               topic: event.topic,
@@ -571,7 +566,7 @@ class WalletConnectService {
   }
 
   Future<void> pair(Uri uri) async {
-    PairingInfo info = await _walletKit.pair(uri: uri);
+    await _walletKit.pair(uri: uri);
   }
 
   Future<void> disconnect(String topic) async {
@@ -641,18 +636,24 @@ class WalletConnectService {
       final minaNamespace = session.namespaces['mina'];
       if (minaNamespace != null) {
         // Emit the accountsChanged event for each supported chain
-        final supportedChains = minaNamespace.accounts
-            .map((account) =>
-                account.split(':')[1]) // Extract chain (e.g., mainnet, devnet)
+        final supportedChainIds = minaNamespace.accounts
+            .map((account) {
+              final segments = account.split(':');
+              if (segments.length >= 2) {
+                return '${segments[0]}:${segments[1]}';
+              }
+              return '';
+            })
+            .where((chainId) => chainId.isNotEmpty)
             .toSet()
             .toList();
-        for (var chain in supportedChains) {
+        for (var chainId in supportedChainIds) {
           _walletKit.emitSessionEvent(
             topic: topic,
-            chainId: 'mina:$chain',
+            chainId: chainId,
             event: SessionEventParams(
               name: 'accountsChanged',
-              data: ['mina:$chain:$newAccount'],
+              data: ['$chainId:$newAccount'],
             ),
           );
         }

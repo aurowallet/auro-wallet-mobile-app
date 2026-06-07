@@ -189,13 +189,12 @@ $validUntil: UInt32, $scalar: String!, $field: String!) {
       ..success = false
       ..receiver = paymentData["to"];
     
-    if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
+    if (data.hash.isNotEmpty && data.paymentId != null) {
       final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
-      final formattedAmount = data.amount != null 
-          ? Fmt.balance(data.amount.toString(), COIN.decimals, maxLength: COIN.decimals)
-          : null;
+      final formattedAmount = Fmt.balance(data.amount.toString(), COIN.decimals,
+          maxLength: COIN.decimals);
       TxStatusMonitor().addPendingTx(
-        hash: data.hash!,
+        hash: data.hash,
         paymentId: data.paymentId,
         amount: formattedAmount,
         tokenSymbol: COIN.coinSymbol,
@@ -316,10 +315,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       ..success = false
       ..receiver = paymentData["to"];
     
-    if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
+    if (data.hash.isNotEmpty && data.paymentId != null) {
       final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
       TxStatusMonitor().addPendingTx(
-        hash: data.hash!,
+        hash: data.hash,
         paymentId: data.paymentId,
         tokenSymbol: COIN.coinSymbol,
         txType: MonitorTxType.delegation,
@@ -356,6 +355,11 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       {required BuildContext context,
       isDelegation = false,
       String? networkId}) async {
+    if (_isZekoMainnetNetworkId(networkId)) {
+      AppLocalizations dic = AppLocalizations.of(context)!;
+      UI.toast(dic.notSupportNow);
+      return null;
+    }
     final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
         accountIndex: txInfo["accountIndex"]);
     final feeLarge = _toNanoMina(txInfo['fee'], COIN.decimals);
@@ -366,12 +370,12 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     try {
       int nextNetwork = -1;
       if (networkId != null) {
-        nextNetwork = networkId == networkIDMap['mainnet']
+        nextNetwork = _isMainnetLikeNetworkId(networkId)
             ? Networks.MAINNET.value
             : Networks.DEVNET.value;
       }
       if (nextNetwork == -1) {
-        nextNetwork = store.settings!.isMainnet
+        nextNetwork = _isMainnetLikeNetworkId(store.settings?.currentNode?.networkID)
             ? Networks.MAINNET.value
             : Networks.DEVNET.value;
       }
@@ -485,6 +489,23 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     final d = Decimal.parse(value.toString());
     final multiplier = Decimal.parse('1' + '0' * decimals);
     return (d * multiplier).toBigInt().toInt();
+  }
+
+  bool _isMainnetLikeNetworkId(String? networkId) {
+    if (networkId == null || networkId.isEmpty) {
+      return store.settings?.currentNode?.networkID == networkIDMap.mainnet ||
+          store.settings?.currentNode?.networkID == networkIDMap.zeko;
+    }
+    return networkId == networkIDMap.mainnet ||
+        networkId == networkIDMap.zeko ||
+        networkId.endsWith(':mainnet');
+  }
+
+  bool _isZekoMainnetNetworkId(String? networkId) {
+    final targetNetworkId = networkId?.isNotEmpty == true
+        ? networkId
+        : store.settings?.currentNode?.networkID;
+    return targetNetworkId == networkIDMap.zeko;
   }
 
   Int8List _getUint8ListFromString(String str) {
@@ -928,28 +949,31 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<Map<String, dynamic>> signMessage(Map signInfo,
       {required BuildContext context, String? networkId}) async {
     Map<String, dynamic> signed = await apiRoot.bridge.signMessage({
-      "network": getNextNetwork(networkId),
       ...signInfo,
+      "network": getNextNetwork(networkId),
     });
     return signed;
   }
 
   String getNextNetwork(String? networkId) {
-    String network = "";
-    if (networkId != null) {
-      network = networkId == networkIDMap['mainnet'] ? "mainnet" : "testnet";
+    String targetNetworkId = "";
+    if (networkId != null && networkId.isNotEmpty) {
+      targetNetworkId = networkId;
     }
-    if (network.isEmpty) {
-      network = store.settings!.isMainnet ? "mainnet" : "testnet";
+    if (targetNetworkId.isEmpty) {
+      targetNetworkId = store.settings?.currentNode?.networkID ?? "";
     }
-    return network;
+    if (targetNetworkId == networkIDMap.zeko) {
+      return "zeko-mainnet";
+    }
+    return _isMainnetLikeNetworkId(targetNetworkId) ? "mainnet" : "testnet";
   }
 
   Future<bool> verifyMessage(Map signedInfo,
       {required BuildContext context, String? networkId}) async {
     bool verifyRes = await apiRoot.bridge.verifyMessage({
-      "network": getNextNetwork(networkId),
       ...signedInfo,
+      "network": getNextNetwork(networkId),
     });
     return verifyRes;
   }
@@ -957,8 +981,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<Map<String, dynamic>> signFields(Map signInfo,
       {required BuildContext context, String? networkId}) async {
     Map<String, dynamic> signed = await apiRoot.bridge.signFields({
-      "network": getNextNetwork(networkId),
       ...signInfo,
+      "network": getNextNetwork(networkId),
     });
     return signed;
   }
@@ -966,8 +990,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<bool> verifyFields(Map signedInfo,
       {required BuildContext context, String? networkId}) async {
     bool verifyRes = await apiRoot.bridge.verifyFields({
-      "network": getNextNetwork(networkId),
       ...signedInfo,
+      "network": getNextNetwork(networkId),
     });
     return verifyRes;
   }
@@ -975,8 +999,8 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<Map<String, dynamic>> createNullifier(Map signInfo,
       {required BuildContext context, String? networkId}) async {
     Map<String, dynamic> signed = await apiRoot.bridge.createNullifier({
-      "network": getNextNetwork(networkId),
       ...signInfo,
+      "network": getNextNetwork(networkId),
     });
     return signed;
   }
@@ -1060,10 +1084,10 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       ..success = false
       ..receiver = receiver;
     
-    if (data.hash != null && data.hash!.isNotEmpty && data.paymentId != null) {
+    if (data.hash.isNotEmpty && data.paymentId != null) {
       final currentGqlUrl = gqlUrl ?? store.settings!.currentNode!.url;
       TxStatusMonitor().addPendingTx(
-        hash: data.hash!,
+        hash: data.hash,
         paymentId: data.paymentId,
         tokenSymbol: 'zkApp',
         txType: MonitorTxType.zkApp,

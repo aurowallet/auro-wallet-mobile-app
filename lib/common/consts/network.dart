@@ -15,6 +15,22 @@ extension NetworkIDMapExtension on Map<String, String> {
   String get zekotestnet => this["zekotestnet"]!;
 }
 
+bool isMainnetLikeNetworkID(String? networkID) {
+  if (networkID == null || networkID.isEmpty) {
+    return false;
+  }
+  return networkID == networkIDMap.mainnet ||
+      networkID == networkIDMap.zeko ||
+      networkID.endsWith(':mainnet');
+}
+
+String resolveSignerNetwork(String? networkID) {
+  if (networkID == networkIDMap.zeko) {
+    return "zeko-mainnet";
+  }
+  return isMainnetLikeNetworkID(networkID) ? "mainnet" : "testnet";
+}
+
 final List<CustomNode> defaultNetworkList = [
   CustomNode(
     explorerUrl: MAINNET_TRANSACTIONS_EXPLORER_URL,

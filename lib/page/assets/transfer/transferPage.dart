@@ -7,6 +7,7 @@ import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/consts/index.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
@@ -79,6 +80,8 @@ class _TransferPageState extends State<TransferPage> {
   bool isFromModal = false;
   double? zekoNetFee;
   int feeWeight = 0;
+  bool _isTokenNewAccount = false;
+  int _tokenAccountCheckSeq = 0;
 
   @override
   void initState() {
@@ -135,7 +138,7 @@ class _TransferPageState extends State<TransferPage> {
         onCountdownEnd: () async {
           if (store.settings!.isZekoNet && _feeCtrl.text.isEmpty) {
             dynamic zekoFee =
-                await webApi.assets.getZekoNetFee(weight: feeWeight + 1);
+                await webApi.assets.getZekoNetFee(weight: _zekoFeeWeight);
             if (_feeCtrl.text.isEmpty) {
               setState(() {
                 zekoNetFee = Fmt.parsedZekoFee(zekoFee);
@@ -194,6 +197,58 @@ class _TransferPageState extends State<TransferPage> {
           contactName = null;
         });
       }
+    }
+    _checkTokenNewAccountForZekoFee();
+  }
+
+  int get _zekoFeeWeight {
+    return feeWeight + (_isTokenNewAccount ? 1 : 0) + 1;
+  }
+
+  Future<void> _refreshZekoFee() async {
+    if (!store.settings!.isZekoNet || _feeCtrl.text.isNotEmpty) {
+      return;
+    }
+    dynamic zekoFee =
+        await webApi.assets.getZekoNetFee(weight: _zekoFeeWeight);
+    if (!mounted || _feeCtrl.text.isNotEmpty) {
+      return;
+    }
+    setState(() {
+      zekoNetFee = Fmt.parsedZekoFee(zekoFee);
+      currentFee = zekoNetFee;
+    });
+  }
+
+  Future<void> _checkTokenNewAccountForZekoFee() async {
+    final int seq = ++_tokenAccountCheckSeq;
+    if (!store.settings!.isZekoNet || isSendMainToken) {
+      return;
+    }
+    final String toAddress = _toAddressCtrl.text.trim();
+    final bool isValid = await webApi.account.isAddressValid(toAddress);
+    if (!mounted || seq != _tokenAccountCheckSeq) {
+      return;
+    }
+    if (!isValid) {
+      if (_isTokenNewAccount) {
+        setState(() {
+          _isTokenNewAccount = false;
+        });
+        await _refreshZekoFee();
+      }
+      return;
+    }
+    final tokenState = await webApi.assets.getTokenState(toAddress, tokenId);
+    if (!mounted || seq != _tokenAccountCheckSeq) {
+      return;
+    }
+    final bool nextIsTokenNewAccount = tokenState == null;
+    if (_isTokenNewAccount != nextIsTokenNewAccount) {
+      setState(() {
+        _isTokenNewAccount = nextIsTokenNewAccount;
+      });
+      await _refreshZekoFee();
     }
   }
 
@@ -399,6 +454,12 @@ class _TransferPageState extends State<TransferPage> {
         setState(() { submitting = false; });
         return;
       }
+      if (isLedger &&
+          store.settings?.currentNode?.networkID == networkIDMap.zeko) {
+        UI.toast(dic.notSupportNow);
+        setState(() { submitting = false; });
+        return;
+      }
       await UI.showTxConfirm(
           context: context,
           title: dic.sendDetail,
@@ -579,7 +640,7 @@ class _TransferPageState extends State<TransferPage> {
       webApi.assets.fetchAllTokenAssets(),
       webApi.assets.queryTxFees(),
       webApi.assets
-          .getZekoNetFee(weight: store.settings!.isZekoNet ? feeWeight + 1 : 0)
+          .getZekoNetFee(weight: store.settings!.isZekoNet ? _zekoFeeWeight : 0)
     ]);
     if (!mounted) return;
     _updateAvailableBalance();

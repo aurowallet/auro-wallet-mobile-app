@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:convert' as convert;
 
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/service/api/api.dart';
@@ -476,7 +477,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 
   Future<void> _fetchMarketPrice() async {
-    if (!store.settings!.isMainnet) {
+    final networkID = store.settings!.currentNode?.networkID;
+    final supportMainCoinPrice = networkID == networkIDMap.mainnet ||
+        networkID == networkIDMap.zeko;
+    if (!supportMainCoinPrice) {
       return;
     }
     String txUrl =
@@ -652,9 +656,30 @@ ${List<String>.generate(pubkeys.length, (int index) {
   ''';
   }
 
-  Future<dynamic> fetchAllTokenInfo(
+  TokenNetInfo? _parseTokenNetInfo(dynamic source) {
+    if (source == null || source is! Map) {
+      return null;
+    }
+    final zkappStateSource = source['zkappState'];
+    final zkappState = zkappStateSource is List
+        ? zkappStateSource
+            .where((item) => item != null)
+            .map((item) => item.toString())
+            .toList()
+        : <String>[];
+    return TokenNetInfo(
+      publicKey: source['publicKey']?.toString() ?? '',
+      tokenSymbol: source['tokenSymbol']?.toString() ?? '',
+      zkappState: zkappState,
+    );
+  }
+
+  Future<Map<String, dynamic>> fetchAllTokenInfo(
     List<String> tokenIds,
   ) async {
+    if (tokenIds.isEmpty) {
+      return {};
+    }
     String queryFields = generateTokenInfoQuery(tokenIds);
 
     final QueryOptions _options = QueryOptions(
@@ -667,9 +692,9 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (result.hasException) {
       print('request all token info failed');
       print(result.exception.toString());
-      return [];
+      return {};
     }
-    return result.data;
+    return result.data ?? {};
   }
 
   /// get balance and delegate info
@@ -688,12 +713,12 @@ ${List<String>.generate(pubkeys.length, (int index) {
         List<String> tokenIds =
             tokenAssets.map((token) => token.tokenId).toList();
         if (tokenIds.length > 0) {
-          dynamic tokenNetInfos = await fetchAllTokenInfo(tokenIds);
+          Map<String, dynamic> tokenNetInfos =
+              await fetchAllTokenInfo(tokenIds);
 
           List<Token> tokens = tokenAssets.map((assetInfo) {
-            TokenNetInfo? netInfo = tokenNetInfos[assetInfo.tokenId] != null
-                ? TokenNetInfo.fromJson(tokenNetInfos[assetInfo.tokenId])
-                : null;
+            TokenNetInfo? netInfo =
+                _parseTokenNetInfo(tokenNetInfos[assetInfo.tokenId]);
 
             return Token(
               tokenAssestInfo: assetInfo,
@@ -746,7 +771,13 @@ ${List<String>.generate(pubkeys.length, (int index) {
       print(result.exception.toString());
       return null;
     }
-    Map tokenAccount = result.data!['account'];
+    final tokenAccount = result.data?['account'];
+    if (tokenAccount == null) {
+      return null;
+    }
+    if (tokenAccount is! Map) {
+      return null;
+    }
     return tokenAccount;
   }
 
@@ -925,7 +956,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
     return list;
   }
 
-  Future<dynamic> getZekoNetFee({weight = 1, isDev = false}) async {
+  Future<dynamic> getZekoNetFee(
+      {weight = 1, isDev = false, String? gqlUrl}) async {
     if (weight == 0) {
       return 0;
     }
@@ -940,7 +972,15 @@ ${List<String>.generate(pubkeys.length, (int index) {
         },
         queryRequestTimeout: const Duration(seconds: 60));
 
-    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    final GraphQLClient graphQLClient;
+    if (gqlUrl != null && gqlUrl.isNotEmpty) {
+      final link = HttpLink(gqlUrl);
+      graphQLClient = GraphQLClient(link: link, cache: GraphQLCache());
+    } else {
+      graphQLClient = apiRoot.graphQLClient;
+    }
+
+    final QueryResult result = await graphQLClient.query(_options);
     if (result.hasException) {
       print('request zeko fee request');
       print(result.exception.toString());
