@@ -21,6 +21,7 @@ import 'package:auro_wallet/store/settings/types/contactData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/accountNonceManager.dart';
 import 'package:auro_wallet/utils/camera.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
@@ -68,8 +69,7 @@ class _TransferPageState extends State<TransferPage> {
   late String _initAddress;
   late WalletData _initWallet;
   late int _initAccountIndex;
-  int _loadedNonce = 0;
-  bool _nonceLoaded = false;
+  AccountNonceManager? _nonceManager;
 
   String tokenSymbol = '';
   bool isSendMainToken = false;
@@ -99,6 +99,13 @@ class _TransferPageState extends State<TransferPage> {
       _initAddress = store.wallet!.currentAddress;
       _initWallet = store.wallet!.currentWallet;
       _initAccountIndex = _initWallet.currentAccountIndex;
+      _nonceManager = AccountNonceManager(
+        store: store,
+        publicKey: _initAddress,
+        onChanged: () {
+          if (mounted) setState(() {});
+        },
+      );
 
       dynamic params = ModalRoute.of(context)!.settings.arguments;
       token = store.assets!.nextToken;
@@ -151,6 +158,7 @@ class _TransferPageState extends State<TransferPage> {
       );
       _loadData();
       _loadAddressData();
+      _nonceManager?.start();
     });
   }
 
@@ -162,6 +170,7 @@ class _TransferPageState extends State<TransferPage> {
     _nonceCtrl.dispose();
     _feeCtrl.dispose();
     _monitorFeeDisposer?.call();
+    _nonceManager?.dispose();
     timerManager?.dispose();
     super.dispose();
   }
@@ -363,7 +372,6 @@ class _TransferPageState extends State<TransferPage> {
 
   void _handleSubmit() async {
     if (submitting) return;
-    setState(() { submitting = true; });
     _unFocus();
     if (_nonceCtrl.text.isEmpty) {
       if (_loading.value) {
@@ -371,6 +379,7 @@ class _TransferPageState extends State<TransferPage> {
         if (!mounted) return;
       }
     }
+    setState(() { submitting = true; });
     List<TokenPendingTx>? tempTxList = widget
         .store.assets!.tokenPendingTxList[_initAddress];
 
@@ -394,18 +403,8 @@ class _TransferPageState extends State<TransferPage> {
         shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        int freshNonce = await webApi.assets.fetchAccountNonceWithRetry(
-          _initAddress,
-        );
-        if (!mounted) return;
-        if (freshNonce >= 0) {
-          inferredNonce = freshNonce;
-        } else if (_nonceLoaded) {
-          inferredNonce = _loadedNonce;
-        } else {
-          setState(() { submitting = false; });
-          return;
-        }
+        inferredNonce = _nonceManager?.nonce ??
+            AccountNonceManager.cachedMainAccountNonce(store);
         List<TokenPendingTx>? freshTxList = widget
             .store.assets!.tokenPendingTxList[_initAddress];
         if (!isSendMainToken && (freshTxList != null && freshTxList.length > 0)) {
@@ -644,8 +643,7 @@ class _TransferPageState extends State<TransferPage> {
     ]);
     if (!mounted) return;
     _updateAvailableBalance();
-    int freshNonce = int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
-    await webApi.assets.fetchPendingTokenList(_initAddress, freshNonce.toString());
+    await _nonceManager?.fetchPendingTokenListOnce();
     if (!mounted) return;
     if (store.settings!.isZekoNet && data[2] != null) {
       setState(() {
@@ -653,8 +651,6 @@ class _TransferPageState extends State<TransferPage> {
         currentFee = zekoNetFee;
       });
     }
-    _loadedNonce = freshNonce;
-    _nonceLoaded = true;
     runInAction(() {
       _loading.value = false;
     });
@@ -784,9 +780,8 @@ class _TransferPageState extends State<TransferPage> {
 
   @override
   Widget build(BuildContext context) {
-    int nonceHolder = int.tryParse(
-            store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ??
-        0;
+    int nonceHolder = _nonceManager?.nonce ??
+        AccountNonceManager.cachedMainAccountNonce(store);
     return Observer(
       builder: (_) {
         AppLocalizations dic = AppLocalizations.of(context)!;

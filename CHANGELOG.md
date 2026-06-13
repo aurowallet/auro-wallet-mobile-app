@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - Improve Android release packaging for 16KB page size compatibility and stable AAB size by excluding native debug symbols
 - Improve release packaging script reliability with FVM Flutter selection, lockfile enforcement, official artifact sources, and fail-fast behavior
 - Add bottom safe-area spacing to the browser account selection dialog
+- Add Transaction fee manage
 
 ### Fixed
 - Refresh staking data automatically after switching network node

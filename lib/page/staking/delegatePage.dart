@@ -19,6 +19,7 @@ import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/utils/UI.dart';
+import 'package:auro_wallet/utils/accountNonceManager.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
@@ -70,8 +71,7 @@ class _DelegatePageState extends State<DelegatePage>
   late String _initAddress;
   late WalletData _initWallet;
   late int _initAccountIndex;
-  int _loadedNonce = 0;
-  bool _nonceLoaded = false;
+  AccountNonceManager? _nonceManager;
 
   @override
   void initState() {
@@ -86,8 +86,16 @@ class _DelegatePageState extends State<DelegatePage>
       _initAddress = store.wallet!.currentAddress;
       _initWallet = store.wallet!.currentWallet;
       _initAccountIndex = _initWallet.currentAccountIndex;
+      _nonceManager = AccountNonceManager(
+        store: store,
+        publicKey: _initAddress,
+        onChanged: () {
+          if (mounted) setState(() {});
+        },
+      );
       _updateSubmitState();
       _loadData();
+      _nonceManager?.start();
     });
   }
 
@@ -98,6 +106,7 @@ class _DelegatePageState extends State<DelegatePage>
     _feeCtrl.dispose();
     _validatorCtrl.dispose();
     _monitorFeeDisposer?.call();
+    _nonceManager?.dispose();
     super.dispose();
   }
 
@@ -188,10 +197,8 @@ class _DelegatePageState extends State<DelegatePage>
       webApi.assets.queryTxFees(),
     ]);
     if (!mounted) return;
-    int freshNonce = int.tryParse(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce ?? '0') ?? 0;
-    await webApi.assets.fetchPendingTokenList(_initAddress, freshNonce.toString());
-    _loadedNonce = freshNonce;
-    _nonceLoaded = true;
+    await _nonceManager?.fetchPendingTokenListOnce();
+    if (!mounted) return;
     runInAction(() {
       _loading.value = false;
     });
@@ -212,13 +219,6 @@ class _DelegatePageState extends State<DelegatePage>
 
   String _floorToDecimals(double value, int decimals) {
     return Fmt.parseShowBalance(value, showLength: decimals);
-  }
-
-  int? _parseNonce(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value);
-    return null;
   }
 
   String? _validateBalance() {
@@ -301,18 +301,8 @@ class _DelegatePageState extends State<DelegatePage>
         shouldShowNonce = true;
         inferredNonce = int.parse(_nonceCtrl.text);
       } else {
-        int freshNonce = await webApi.assets.fetchAccountNonceWithRetry(
-          _initAddress,
-        );
-        if (!mounted) return;
-        if (freshNonce >= 0) {
-          inferredNonce = freshNonce;
-        } else if (_nonceLoaded) {
-          inferredNonce = _loadedNonce;
-        } else {
-          setState(() { submitting = false; });
-          return;
-        }
+        inferredNonce = _nonceManager?.nonce ??
+            AccountNonceManager.cachedMainAccountNonce(store);
       }
       fee = _getEffectiveFee();
       DelegateParams params =
@@ -622,7 +612,8 @@ class _DelegatePageState extends State<DelegatePage>
       currentFee: currentFee ?? fees.medium,
       transferFees: fees,
       onAdvanceConfirm: _onAdvanceConfirm,
-      currentNonce: _parseNonce(store.assets!.mainTokenNetInfo.tokenAssestInfo?.inferredNonce),
+      currentNonce: _nonceManager?.nonce ??
+          AccountNonceManager.cachedMainAccountNonce(store),
       advanceFee: _feeCtrl.text,
       advanceNonce: _nonceCtrl.text,
       showFeeButtons: !store.settings!.isZekoNet,
