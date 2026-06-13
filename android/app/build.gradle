@@ -81,6 +81,9 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
+            ndk {
+                debugSymbolLevel 'NONE'
+            }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguar-rules.pro'
 
             // TODO: Add your own signing config for the release build.
@@ -155,4 +158,3 @@ dependencies {
 //         }
 //     }
 // }
-

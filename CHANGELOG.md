@@ -16,10 +16,20 @@ All notable changes to this project will be documented in this file.
 - Remove tracked iOS build artifacts and ignore `ios/build/`
 - Remove unuse log
 - Improve notification tap retry after cold start or before home context is mounted
+- Upgrade Flutter to 3.44.0 and Dart to 3.12.0
+- Upgrade Android build tooling to AGP 8.11.1, Kotlin 2.2.20, Gradle 8.14, and document JDK 17 requirements
+- Add iOS UIScene lifecycle support and keep iOS plugins on CocoaPods for release build compatibility
+- Improve Android release packaging for 16KB page size compatibility and stable AAB size by excluding native debug symbols
+- Improve release packaging script reliability with FVM Flutter selection, lockfile enforcement, official artifact sources, and fail-fast behavior
+- Add bottom safe-area spacing to the browser account selection dialog
 
 ### Fixed
 - Refresh staking data automatically after switching network node
 - Fix `flutter analyze` warnings
+- Fix Android release plugin registrant generation when development-only `integration_test` is present
+- Fix startup blocking by moving WalletConnect initialization out of the critical startup path and only showing the Flutter loading fallback when startup initialization takes longer than expected
+- Fix WalletConnect scan and deeplink pairing races by waiting for WalletConnect initialization and app store dependencies with a global loading state
+- Fix iOS release build failures caused by mixed Swift Package Manager and CocoaPods plugin integration
 
 
 ## [2.3.0]

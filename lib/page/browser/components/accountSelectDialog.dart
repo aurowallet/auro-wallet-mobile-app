@@ -48,7 +48,6 @@ class _AccountSelectDialogState extends State<AccountSelectDialog> {
     List<Widget> items = [];
     final renderItem = (account) {
       AccountInfo? balancesInfo = store.assets!.accountsInfo[account.pubKey];
-      print(balancesInfo?.total);
       return WalletItem(
           account: account,
           balance: balancesInfo?.total ?? BigInt.from(0),
@@ -76,17 +75,19 @@ class _AccountSelectDialogState extends State<AccountSelectDialog> {
               topRight: Radius.circular(12),
               topLeft: Radius.circular(12),
             )),
-        child: SafeArea(child: Observer(builder: (BuildContext context) {
-          return Column(
-            children: [
-              renderDrapbar(),
-              Expanded(
-                child: ListView(
-                  children: _renderAccountList(),
-                ),
-              ),
-            ],
-          );
-        })));
+        child: SafeArea(
+            minimum: EdgeInsets.only(bottom: 16),
+            child: Observer(builder: (BuildContext context) {
+              return Column(
+                children: [
+                  renderDrapbar(),
+                  Expanded(
+                    child: ListView(
+                      children: _renderAccountList(),
+                    ),
+                  ),
+                ],
+              );
+            })));
   }
 }

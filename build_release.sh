@@ -1,4 +1,7 @@
 #!/bin/bash
+set -euo pipefail
+
+FLUTTER_BIN="${FLUTTER_BIN:-.fvm/flutter_sdk/bin/flutter}"
 
 # 1. add script permission
 # `chmod +x build_release.sh`
@@ -27,16 +30,23 @@ release_package_directory="release-package"
 target_directory="${release_package_directory}/${main_version}"
 mkdir -p $target_directory
 
+# Use the checked-in lockfile for reproducible release builds.
+env -u FLUTTER_STORAGE_BASE_URL -u PUB_HOSTED_URL "$FLUTTER_BIN" pub get --enforce-lockfile
+
 # Build the Android APK
-flutter build apk --release
+env -u FLUTTER_STORAGE_BASE_URL -u PUB_HOSTED_URL "$FLUTTER_BIN" build apk --release
 mv build/app/outputs/flutter-apk/app-release.apk $target_directory/$android_apk_package
 
-# Build the Android App Bundle
-flutter build appbundle --release
+# Build the Android App Bundle. Use Gradle directly so release AABs do not
+# embed native debug symbols in BUNDLE-METADATA.
+(
+  cd android
+  ./gradlew :app:bundleRelease
+)
 mv build/app/outputs/bundle/release/app-release.aab $target_directory/$android_aab_package
 
 # Build the iOS release package
-flutter build ipa --release
+env -u FLUTTER_STORAGE_BASE_URL -u PUB_HOSTED_URL "$FLUTTER_BIN" build ipa --release
 mv build/ios/ipa/Aurowallet.ipa $target_directory/$ios_package
 
 # Compress the packages into a single archive
