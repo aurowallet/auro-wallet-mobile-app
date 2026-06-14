@@ -2205,18 +2205,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     return checkFailedCount;
   }
 
-  Future<int> _expectBridgeReject(
-      Future<dynamic> Function() action, String label) async {
-    try {
-      await action();
-      debugPrint(
-          '\u001b[31m $label expected rejection but succeeded \u001b[0m');
-      return 1;
-    } catch (_) {
-      return 0;
-    }
-  }
-
   Future<int> _expectBridgeErrorResult(
       Future<Map<String, dynamic>> Function() action, String label) async {
     try {
@@ -2243,7 +2231,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     final paymentMissingPrivateKey = Map<String, dynamic>.from(
         testTransactionData['signPayment']['mainnet']['signParams']);
     paymentMissingPrivateKey.remove('privateKey');
-    checkFailedCount += await _expectBridgeReject(
+    checkFailedCount += await _expectBridgeErrorResult(
       () => webApi.bridge.signPaymentTx(paymentMissingPrivateKey),
       'bridge signPaymentTx missing privateKey',
     );
@@ -2251,7 +2239,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     final delegationMissingPrivateKey = Map<String, dynamic>.from(
         testTransactionData['signStakeTransaction']['mainnet']['signParams']);
     delegationMissingPrivateKey.remove('privateKey');
-    checkFailedCount += await _expectBridgeReject(
+    checkFailedCount += await _expectBridgeErrorResult(
       () => webApi.bridge.signStakeDelegationTx(delegationMissingPrivateKey),
       'bridge signStakeDelegationTx missing privateKey',
     );
@@ -2259,7 +2247,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     final messageMissingPrivateKey = Map<String, dynamic>.from(
         testTransactionData['signMessageTransaction']['mainnet']['signParams']);
     messageMissingPrivateKey.remove('privateKey');
-    checkFailedCount += await _expectBridgeReject(
+    checkFailedCount += await _expectBridgeErrorResult(
       () => webApi.bridge.signMessage(messageMissingPrivateKey),
       'bridge signMessage missing privateKey',
     );
@@ -2275,7 +2263,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     final fieldsMissingPrivateKey = Map<String, dynamic>.from(
         testTransactionData['signFiledsData']['mainnet']['signParams']);
     fieldsMissingPrivateKey.remove('privateKey');
-    checkFailedCount += await _expectBridgeReject(
+    checkFailedCount += await _expectBridgeErrorResult(
       () => webApi.bridge.signFields(fieldsMissingPrivateKey),
       'bridge signFields missing privateKey',
     );
@@ -2322,7 +2310,7 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
     final nullifierMissingPrivateKey = Map<String, dynamic>.from(
         testTransactionData['nullifierData']['mainnet']['signParams']);
     nullifierMissingPrivateKey.remove('privateKey');
-    checkFailedCount += await _expectBridgeReject(
+    checkFailedCount += await _expectBridgeErrorResult(
       () => webApi.bridge.createNullifier(nullifierMissingPrivateKey),
       'bridge createNullifier missing privateKey',
     );
@@ -2461,6 +2449,40 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
       totalFailed += 1;
       resultMessage =
           'Bridge stress interrupted in ${stopwatch.elapsed.inSeconds}s: $error';
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      bridgeStressRunning = false;
+      bridgeStressMessage = resultMessage;
+    });
+    showConfirmDialog(resultMessage);
+  }
+
+  Future<void> runBridgeFullSuiteOnce() async {
+    setState(() {
+      bridgeStressRunning = true;
+      bridgeStressMessage = 'Running full bridge suite once';
+    });
+
+    int totalFailed = 0;
+    String resultMessage = '';
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      totalFailed = await _runBridgeSuiteOnce(1, 0);
+      stopwatch.stop();
+      resultMessage = totalFailed > 0
+          ? 'Bridge suite completed in ${stopwatch.elapsed.inSeconds}s with $totalFailed failures'
+          : 'Bridge suite all success in ${stopwatch.elapsed.inSeconds}s';
+    } catch (error) {
+      stopwatch.stop();
+      totalFailed = 1;
+      resultMessage =
+          'Bridge suite interrupted in ${stopwatch.elapsed.inSeconds}s: $error';
     }
 
     if (!mounted) {
@@ -2654,6 +2676,14 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                       child: NormalButton(
+                        text: "Bridge Full Suite Once",
+                        onPressed: runBridgeFullSuiteOnce,
+                        submitting: bridgeStressRunning,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                      child: NormalButton(
                         key: TestKeys.bridgeStressButton,
                         text: "Bridge Stability Stress x10",
                         onPressed: runBridgeStabilityStress,
@@ -2713,53 +2743,6 @@ class _WebviewBridgeTestPageState extends State<WebviewBridgeTestPage> {
             //   ),
             // ),
             // Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-            //   child: NormalButton(
-            //     text: "ClearConnect",
-            //     onPressed: clearConnect,
-            //   ),
-            // ),
-            // // Switch Account Button
-            // Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-            //   child: NormalButton(
-            //     text: "SwitchAccount",
-            //     onPressed: switchAccount,
-            //   ),
-            // ),
-            // Observer to show the current account connections
-
-            // Center(
-            //   child: Container(
-            //     constraints: BoxConstraints(
-            //       minHeight: 200.0,
-            //       maxHeight: 300.0,
-            //     ),
-            //     decoration: BoxDecoration(
-            //       border: Border.all(color: Colors.blue, width: 2.0),
-            //       borderRadius: BorderRadius.circular(8.0),
-            //     ),
-            //     child: Expanded(
-            //       child: Observer(
-            //         builder: (BuildContext context) {
-            //           print(
-            //               'test zk length=== ${store.browser?.zkAppConnectingList.length}');
-            //           return ListView.builder(
-            //             shrinkWrap: true,
-            //             itemCount:
-            //                 store.browser?.zkAppConnectingList.length ?? 0,
-            //             itemBuilder: (context, index) {
-            //               return Text((index + 1).toString() +
-            //                   " : " +
-            //                   (store.browser?.zkAppConnectingList[index] ??
-            //                       ""));
-            //             },
-            //           );
-            //         },
-            //       ),
-            //     ),
-            //   ),
-            // )
                   ],
                 ),
               ),

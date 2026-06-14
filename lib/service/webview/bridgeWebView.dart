@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class BridgeWebView {
+  static const String _bridgePromptMessage = '__AuroBridgeMessage__';
+
   HeadlessInAppWebView? _web;
   Function? _onLaunched;
 
@@ -36,7 +38,9 @@ class BridgeWebView {
       _web = new HeadlessInAppWebView(
         windowId: 2,
         initialSettings: InAppWebViewSettings(
-            clearCache: true, useOnRenderProcessGone: true),
+          clearCache: true,
+          useOnRenderProcessGone: true,
+        ),
         onRenderProcessGone: (webView, detail) async {
           if (_web?.webViewController == webView) {
             webViewLoaded = false;
@@ -45,10 +49,22 @@ class BridgeWebView {
           }
         },
         initialUrlRequest: URLRequest(url: WebUri("about:blank")),
+        onJsPrompt: (controller, jsPromptRequest) async {
+          if (jsPromptRequest.message == _bridgePromptMessage) {
+            _handleBridgeMessage(jsPromptRequest.defaultValue ?? '');
+            return JsPromptResponse(
+              handledByClient: true,
+              action: JsPromptResponseAction.CONFIRM,
+              value: '',
+            );
+          }
+          return null;
+        },
         onWebViewCreated: (controller) async {
           // https://github.com/pichillilorenzo/flutter_inappwebview/issues/586
           await controller.loadFile(
-              assetFilePath: "assets/webview/bridge.html");
+            assetFilePath: "assets/webview/bridge.html",
+          );
         },
         onConsoleMessage: (controller, message) {
           if (jsCodeStarted < 0) {
@@ -75,30 +91,7 @@ class BridgeWebView {
           final msgStr = message.message.trim();
           if (!msgStr.startsWith('{')) return;
 
-          try {
-            var msg = jsonDecode(msgStr);
-
-            final String? path = msg['path'];
-            if (path == null) return;
-            if (_msgCompleters[path] != null) {
-              Completer handler = _msgCompleters[path]!;
-              final data = msg['data'];
-              if (data is Map && data['__error'] == true) {
-                handler.completeError(Exception(data['message'] ?? 'Unknown JS error'));
-              } else {
-                handler.complete(data);
-              }
-              if (path.contains('uid=')) {
-                _msgCompleters.remove(path);
-              }
-            }
-            if (_msgHandlers[path] != null) {
-              Function handler = _msgHandlers[path]!;
-              handler(msg['data']);
-            }
-          } catch (err) {
-            // Silently ignore non-JSON messages
-          }
+          _handleBridgeMessage(msgStr);
         },
         onLoadStop: (controller, url) async {
           if (webViewLoaded) return;
@@ -126,6 +119,36 @@ class BridgeWebView {
   void _handleReloaded() {
     _webViewReloadTimer?.cancel();
     webViewLoaded = true;
+  }
+
+  void _handleBridgeMessage(dynamic rawMessage) {
+    try {
+      final msg = rawMessage is String ? jsonDecode(rawMessage) : rawMessage;
+      if (msg is! Map) return;
+
+      final String? path = msg['path'];
+      if (path == null) return;
+      if (_msgCompleters[path] != null) {
+        Completer handler = _msgCompleters[path]!;
+        final data = msg['data'];
+        if (data is Map && data['__error'] == true) {
+          handler.completeError(
+            Exception(data['message'] ?? 'Unknown JS error'),
+          );
+        } else {
+          handler.complete(data);
+        }
+        if (path.contains('uid=')) {
+          _msgCompleters.remove(path);
+        }
+      }
+      if (_msgHandlers[path] != null) {
+        Function handler = _msgHandlers[path]!;
+        handler(msg['data']);
+      }
+    } catch (err) {
+      // Silently ignore messages that are not bridge payloads.
+    }
   }
 
   Future<void> _startJSCode() async {
@@ -160,8 +183,9 @@ class BridgeWebView {
     }
 
     if (!wrapPromise) {
-      final res =
-          await _web!.webViewController?.evaluateJavascript(source: code);
+      final res = await _web!.webViewController?.evaluateJavascript(
+        source: code,
+      );
       return res;
     }
 
@@ -171,12 +195,30 @@ class BridgeWebView {
     final method = 'uid=$uid;${code.split('(')[0]}';
     _msgCompleters[method] = c;
 
-    final script = '$code.then(function(res) {'
-        '  console.log(JSON.stringify({ path: "$method", data: res }));'
-        '}).catch(function(err) {'
-        '  console.log(JSON.stringify({ path: "$method", data: { __error: true, message: err.message || "Unknown JS error" } }));'
-        '});';
-    _web!.webViewController?.evaluateJavascript(source: script);
+    final promptMessage = jsonEncode(_bridgePromptMessage);
+    final methodName = jsonEncode(method);
+    final script =
+        '''
+Promise.resolve($code).then(function(res) {
+  prompt($promptMessage, JSON.stringify({ path: $methodName, data: res }));
+}).catch(function(err) {
+  prompt($promptMessage, JSON.stringify({
+    path: $methodName,
+    data: {
+      __error: true,
+      message: err && err.message ? err.message : "Unknown JS error"
+    }
+  }));
+});
+''';
+    _web!.webViewController?.evaluateJavascript(source: script).catchError((
+      err,
+    ) {
+      _handleBridgeMessage({
+        'path': method,
+        'data': {'__error': true, 'message': err.toString()},
+      });
+    });
 
     return c.future;
   }
