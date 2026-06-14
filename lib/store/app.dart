@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auro_wallet/service/WalletConnectService.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -80,7 +82,6 @@ abstract class _AppStore with Store {
   Future<void> init(String sysLocaleCode) async {
     
     walletConnectService = WalletConnectService(this as AppStore);
-    await walletConnectService!.init();
 
     try {
       settings = SettingsStore(this as AppStore);
@@ -113,5 +114,13 @@ abstract class _AppStore with Store {
 
     await assets!.loadCache();
     isReady = true;
+    unawaited(_initWalletConnectInBackground());
+  }
+
+  Future<void> _initWalletConnectInBackground() async {
+    try {
+      await walletConnectService?.init();
+    } catch (e) {
+    }
   }
 }

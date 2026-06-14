@@ -3,23 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class EasyLoading {
+  static void show(BuildContext context) {
+    AppLoading.show(context);
+  }
+
+  static void dismiss() {
+    AppLoading.dismiss();
+  }
+}
+
+class AppLoading {
   static OverlayEntry? _overlayEntry;
 
-  // Show the loading dialog
   static void show(BuildContext context) {
-    // Remove any existing overlay if it exists
     dismiss();
 
-    // Create the overlay entry with the loading dialog
     _overlayEntry = OverlayEntry(
       builder: (context) => LoadingWidget(),
     );
 
-    // Insert the overlay into the widget tree
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  // Dismiss the loading dialog
   static void dismiss() {
     _overlayEntry?.remove();
     _overlayEntry = null;

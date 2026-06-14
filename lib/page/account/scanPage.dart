@@ -101,6 +101,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     final String data = txt.trim();
 
     if (isScanWc && data.length > 0) {
+      store.walletConnectService?.debugLogScannedValue('scanner decoded', data);
       if (data.startsWith("wc:")) {
         Navigator.of(context)
             .pop(QRCodeAddressResult(address: data, chainType: ''));
@@ -144,9 +145,10 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     if (mounted) {
       if (barcodes.barcodes.isNotEmpty) {
         final firstBarcode = barcodes.barcodes.first;
-        if (firstBarcode.displayValue != null) {
+        final value = firstBarcode.rawValue ?? firstBarcode.displayValue;
+        if (value != null) {
           controller.stop();
-          _onScan(firstBarcode.displayValue);
+          _onScan(value);
         }
       }
     }

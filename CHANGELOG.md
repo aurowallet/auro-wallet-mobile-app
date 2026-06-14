@@ -23,6 +23,9 @@ All notable changes to this project will be documented in this file.
 - Improve release packaging script reliability with FVM Flutter selection, lockfile enforcement, official artifact sources, and fail-fast behavior
 - Add bottom safe-area spacing to the browser account selection dialog
 - Add Transaction fee manage
+- Add reusable app loading overlay entry for WalletConnect initialization waits using the existing loading UI
+- Add redacted WalletConnect debug logs for QR scanning, initialization, pairing, and scan-flow failures
+- Remove sensitive/noisy deeplink and WalletConnect logs from normal flow while keeping debug-only redacted diagnostics
 
 ### Fixed
 - Refresh staking data automatically after switching network node

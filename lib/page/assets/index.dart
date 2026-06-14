@@ -12,6 +12,7 @@ import 'package:auro_wallet/page/assets/token/component/TokenListView.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
+import 'package:auro_wallet/utils/Loading.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/common/consts/testKeys.dart';
@@ -239,10 +240,32 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     );
     if (result == null) return;
     String address = (result as QRCodeAddressResult).address;
-    if (!store.walletConnectService!.isInitialized) {
-      await store.walletConnectService!.init();
+    final walletConnectService = store.walletConnectService!;
+    walletConnectService.debugLogScannedValue('scan result received', address);
+    try {
+      if (!walletConnectService.isInitialized) {
+        bool loadingShown = false;
+        final loadingTimer = Timer(const Duration(milliseconds: 200), () {
+          if (!mounted) return;
+          AppLoading.show(context);
+          loadingShown = true;
+        });
+        try {
+          await walletConnectService.init();
+        } finally {
+          loadingTimer.cancel();
+          if (loadingShown) {
+            AppLoading.dismiss();
+          }
+        }
+        if (!mounted) return;
+      }
+      await walletConnectService.pair(Uri.parse(address));
+    } catch (error, stackTrace) {
+      walletConnectService.debugLogError(
+          '[WalletConnect] scan flow failed', error, stackTrace);
+      rethrow;
     }
-    await store.walletConnectService!.pair(Uri.parse(address));
   }
 
   Widget _buildTopCard(BuildContext context) {

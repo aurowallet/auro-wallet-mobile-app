@@ -23,6 +23,7 @@ class WalletConnectService {
   final AppStore appStore;
   BuildContext? _context;
   bool _isInitialized = false;
+  Future<void>? _initFuture;
   String? tempScheme;
 
   WalletConnectService(this.appStore);
@@ -31,6 +32,58 @@ class WalletConnectService {
     if (kDebugMode) {
       debugPrint(message);
     }
+  }
+
+  void _debugError(String message, Object error, StackTrace stackTrace) {
+    if (kDebugMode) {
+      debugPrint('$message: $error');
+      debugPrint(stackTrace.toString());
+    }
+  }
+
+  String _preview(String value, {int edge = 8}) {
+    if (value.length <= edge * 2) return value;
+    return '${value.substring(0, edge)}...${value.substring(value.length - edge)}';
+  }
+
+  String _redactWalletConnectValue(String value) {
+    return value.replaceAll(RegExp(r'symKey=[^&]+'), 'symKey=<redacted>');
+  }
+
+  String _describeUri(Uri uri) {
+    final path = uri.path;
+    final atIndex = path.indexOf('@');
+    final topic = atIndex >= 0 ? path.substring(0, atIndex) : path;
+    final version = atIndex >= 0 ? path.substring(atIndex + 1) : null;
+    final symKey = uri.queryParameters['symKey'] == null ? 'none' : '<redacted>';
+    final uriPreview = _preview(_redactWalletConnectValue(uri.toString()));
+    return 'scheme=${uri.scheme}, hasAt=${atIndex >= 0}, version=$version, '
+        'topic=${_preview(topic)}, relay=${uri.queryParameters['relay-protocol']}, '
+        'symKey=$symKey, uri=$uriPreview';
+  }
+
+  String _describeScannedValue(String value) {
+    final trimmed = value.trim();
+    if (trimmed.startsWith('wc:')) {
+      final uri = Uri.tryParse(trimmed);
+      if (uri == null) {
+        return 'isWc=true, parseable=false, '
+            'value=${_preview(_redactWalletConnectValue(trimmed))}';
+      }
+      return 'isWc=true, ${_describeUri(uri)}';
+    }
+    if (Fmt.isAddress(trimmed)) {
+      return 'isWc=false, address=${_preview(trimmed)}';
+    }
+    return 'isWc=false, value=${_preview(trimmed)}';
+  }
+
+  void debugLogScannedValue(String source, String value) {
+    _debugLog('[WalletConnect] $source: ${_describeScannedValue(value)}');
+  }
+
+  void debugLogError(String message, Object error, StackTrace stackTrace) {
+    _debugError(message, error, stackTrace);
   }
 
   ReownWalletKit get walletKit {
@@ -50,8 +103,24 @@ class WalletConnectService {
     tempScheme = scheme;
   }
 
-  Future<void> init() async {
-    if (_isInitialized) return;
+  Future<void> init() {
+    if (_isInitialized) {
+      _debugLog('[WalletConnect] init skipped: already initialized');
+      return Future.value();
+    }
+    final pendingInit = _initFuture;
+    if (pendingInit != null) {
+      _debugLog('[WalletConnect] init pending: reuse existing future');
+      return pendingInit;
+    }
+    _debugLog('[WalletConnect] init started');
+    _initFuture = _init().whenComplete(() {
+      _initFuture = null;
+    });
+    return _initFuture!;
+  }
+
+  Future<void> _init() async {
     _walletKit = ReownWalletKit(
       core: ReownCore(
         projectId: projectId,
@@ -71,16 +140,20 @@ class WalletConnectService {
     );
 
     _setupListeners();
-    await _walletKit.init();
-    _debugLog("[aurowallet] _walletKit init success");
+    try {
+      await _walletKit.init();
+    } catch (error, stackTrace) {
+      _debugError('[WalletConnect] init failed', error, stackTrace);
+      rethrow;
+    }
     _isInitialized = true;
+    _debugLog('[WalletConnect] init completed');
     getAllPairedLinks();
   }
 
   List<String> getAllSupportChains() {
     List<String> currentSupportChainList =
         appStore.settings!.getSupportNetworkIDs();
-    _debugLog("[aurowallet] support chain count: ${currentSupportChainList.length}");
     return currentSupportChainList;
   }
 
@@ -96,16 +169,6 @@ class WalletConnectService {
   }
 
   void _setupListeners() {
-    _walletKit.core.addLogListener(_logListener);
-    _walletKit.core.pairing.onPairingInvalid.subscribe(_onPairingInvalid);
-    _walletKit.core.pairing.onPairingCreate.subscribe(_onPairingCreate);
-    _walletKit.core.relayClient.onRelayClientError
-        .subscribe(_onRelayClientError);
-    _walletKit.core.relayClient.onRelayClientMessage
-        .subscribe(_onRelayClientMessage);
-    _walletKit.onSessionProposalError.subscribe(_onSessionProposalError);
-    _walletKit.onSessionConnect.subscribe(_onSessionConnect);
-    _walletKit.onSessionAuthRequest.subscribe(_onSessionAuthRequest);
     _walletKit.onSessionProposal.subscribe(_onSessionProposal);
     _walletKit.onSessionRequest.subscribe(onSessionRequest);
   }
@@ -430,60 +493,13 @@ class WalletConnectService {
           default:
         }
         return;
-      } catch (e) {
-        _debugLog("[aurowallet] onSessionRequest failed: $e");
+      } catch (_) {
+        // Keep request listener failures from escaping the WalletConnect callback.
       }
-    }
-  }
-
-  void _logListener(String event) {
-    _debugLog('[WalletKit] event received');
-  }
-
-  void _onRelayClientError(ErrorEvent? args) {
-    _debugLog('[WalletConnect] relay client error: ${args?.error}');
-  }
-
-  void _onPairingInvalid(PairingInvalidEvent? args) {
-    _debugLog('[WalletConnect] pairing invalid');
-  }
-
-  void _onPairingCreate(PairingEvent? args) {
-    _debugLog('[WalletConnect] pairing created');
-  }
-
-  void _onRelayClientMessage(MessageEvent? event) async {
-    if (event != null) {
-      _debugLog('[WalletConnect] relay client message received');
-    }
-  }
-
-  void _onSessionProposalError(SessionProposalErrorEvent? args) {
-    _debugLog('[WalletConnect] session proposal error: ${args?.error.code}');
-    if (args != null) {
-      String errorMessage = args.error.message;
-      if (args.error.code == 5100) {
-        errorMessage =
-            errorMessage.replaceFirst('Requested:', '\n\nRequested:');
-        errorMessage =
-            errorMessage.replaceFirst('Supported:', '\n\nSupported:');
-      }
-    }
-  }
-
-  void _onSessionAuthRequest(SessionAuthRequest? args) {
-    if (args != null) {}
-  }
-
-  void _onSessionConnect(SessionConnect? args) {
-    if (args != null) {
-      _debugLog('[WalletConnect] session connected');
     }
   }
 
   void _onSessionProposal(SessionProposalEvent? args) async {
-    _debugLog('[WalletConnect] session proposal received');
-
     if (args != null && _context != null) {
       final proposer = args.params.proposer;
       List<String> supportChains = getAllSupportChains();
@@ -528,7 +544,7 @@ class WalletConnectService {
               );
               handleRedirect(tempScheme);
             } catch (error) {
-              print('showConnectAction===0,${error}');
+              // Keep approval failures local to the connect sheet action.
             }
           },
           onCancel: () async {
@@ -552,8 +568,7 @@ class WalletConnectService {
         try {
           await _channel
               .invokeMethod('openBrowser', {'packageName': targetPackageName});
-        } on PlatformException catch (e) {
-          print("Failed to open browser: '${e.message}'");
+        } on PlatformException {
           final validContext = _getValidContext();
           UI.showBottomTipDialog(context: validContext);
         }
@@ -566,7 +581,14 @@ class WalletConnectService {
   }
 
   Future<void> pair(Uri uri) async {
-    await _walletKit.pair(uri: uri);
+    _debugLog('[WalletConnect] pair started: ${_describeUri(uri)}');
+    try {
+      await _walletKit.pair(uri: uri);
+      _debugLog('[WalletConnect] pair completed');
+    } catch (error, stackTrace) {
+      _debugError('[WalletConnect] pair failed', error, stackTrace);
+      rethrow;
+    }
   }
 
   Future<void> disconnect(String topic) async {
@@ -588,36 +610,8 @@ class WalletConnectService {
       return [];
     }
 
-    // for (var pairing in pairings) {
-    //   final metadata = pairing.peerMetadata;
-    //   if (metadata != null) {
-    //     print('Paired Link Information:');
-    //     print('Name: ${metadata.name}');
-    //     print('Description: ${metadata.description}');
-    //     print('URL: ${metadata.url}');
-    //     print('Icons: ${metadata.icons.join(', ')}');
-    //     print('Redirect Native: ${metadata.redirect?.native ?? 'N/A'}');
-    //     print('Redirect Universal: ${metadata.redirect?.universal ?? 'N/A'}');
-    //     print('Topic: ${pairing.topic}');
-    //     print(
-    //         'Expiry: ${DateTime.fromMillisecondsSinceEpoch(pairing.expiry * 1000)}');
-    //     print('---');
-    //   }
-    // }
     return pairings;
   }
-  // void getAllSessionLinks() {
-  //   final sessions = _walletKit.sessions.getAll();
-  //   for (var session in sessions) {
-  //     print('Session Information:');
-  //     print('Topic: ${session.topic}');
-  //     print('Peer ID: ${session.peer.toString()}');
-  //     print('Peer Metadata: ${session.peer.metadata}');
-  //     print('Namespaces: ${session.namespaces}');
-  //     print('---');
-
-  //   }
-  // }
 
   Future<void> dispatchEnvelope(String uri) async {
     await _walletKit.dispatchEnvelope(uri);

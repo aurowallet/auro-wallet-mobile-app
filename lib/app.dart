@@ -154,7 +154,6 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
   Future<void> initDeepLinks() async {
     _appLinks = AppLinks();
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      debugPrint('onAppLink: $uri');
       openAppLink(uri);
     });
   }
