@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+
+## [2.3.2]
+### Enhancements
+- Expand account detail hit area.
+- Return when tapping the current account.
+- Add regression tests.
+
+### Fixed
+- Fix lowest-nonce speed-up selection.
+- Reduce speed-up flag rewrites.
+- Keep the current account name in rename.
+
 ## [2.3.1]
 
 ### Enhancements

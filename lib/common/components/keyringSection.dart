@@ -144,64 +144,79 @@ class KeyringSection extends StatelessWidget {
               border: Border.all(color: borderColor, width: 1),
               borderRadius: BorderRadius.circular(12),
             ),
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: IntrinsicHeight(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(height: 5),
-                        Text(
-                          account.name.isNotEmpty 
-                              ? account.name 
-                              : WalletStore.defaultAccountName((account.hdIndex ?? 0) + 1),
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
-                            height: 1.2,
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 5),
+                              Text(
+                                account.name.isNotEmpty 
+                                    ? account.name 
+                                    : WalletStore.defaultAccountName((account.hdIndex ?? 0) + 1),
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                  height: 1.2,
+                                ),
+                              ),
+                              Text(
+                                _formatAddress(account.address),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: addressColor,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                '$balanceStr MINA',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          _formatAddress(account.address),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: addressColor,
+                        if (onAccountDetails != null)
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Icon(
+                              Icons.more_horiz,
+                              size: 20,
+                              color: textColor,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          '$balanceStr MINA',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
-                          ),
-                        ),
                       ],
                     ),
                   ),
-                  // More icon at bottom right - matching original WalletItem style
-                  if (onAccountDetails != null)
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: GestureDetector(
-                        key: TestKeys.accountMoreButton,
-                        onTap: () => onAccountDetails?.call(account),
-                        child: Icon(
-                          Icons.more_horiz,
-                          size: 20,
-                          color: textColor,
-                        ),
+                ),
+                if (onAccountDetails != null)
+                  Positioned(
+                    right: 10,
+                    bottom: 0,
+                    child: GestureDetector(
+                      key: TestKeys.accountMoreButton,
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => onAccountDetails?.call(account),
+                      child: Container(
+                        width: 40,
+                        height: 40,
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),

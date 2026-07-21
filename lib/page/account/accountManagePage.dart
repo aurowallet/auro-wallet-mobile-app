@@ -92,7 +92,9 @@ class _AccountManagePageState extends State<AccountManagePage> {
     String? accountName = await showDialog<String>(
       context: context,
       builder: (_) {
-        return ChangeNameDialog();
+        return ChangeNameDialog(
+          placeholder: Fmt.accountName(account),
+        );
       },
     );
     if (accountName != null && accountName.isNotEmpty) {

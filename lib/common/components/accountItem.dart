@@ -54,6 +54,14 @@ class WalletItem extends StatelessWidget {
         _viewAccountInfo(context);
         return;
       }
+      if (account.address == store.wallet!.currentAddress) {
+        if (hideOption == true) {
+          onSelectAccount?.call("");
+        } else {
+          Navigator.of(context).pop();
+        }
+        return;
+      }
       _changeCurrentAccount(
           account.address != store.wallet!.currentAddress, context);
     });
@@ -94,15 +102,17 @@ class WalletItem extends StatelessWidget {
                         : Colors.black.withValues(alpha: 0.05),
                     width: 1),
                 borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: IntrinsicHeight(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: Column(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
@@ -167,43 +177,56 @@ class WalletItem extends StatelessWidget {
                             style: TextStyle(
                                 color: textColor,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 12),
+                            fontSize: 12),
                           ),
                         ],
                       ),
+                        ),
+                        hideOption == true
+                            ? Container()
+                            : Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                    isObserve && !isChecked
+                                        ? IconButton(
+                                            icon: Icon(
+                                              Icons.info,
+                                              color: Colors.red,
+                                              size: 30,
+                                            ),
+                                            onPressed: () =>
+                                                _viewAccountInfo(context),
+                                          )
+                                        : Container(),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 10),
+                                    ),
+                                    Icon(
+                                      Icons.more_horiz,
+                                      size: 20,
+                                      color: textColor,
+                                    )
+                                  ])
+                      ],
                     ),
-                    hideOption == true
-                        ? Container()
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                                isObserve && !isChecked
-                                    ? IconButton(
-                                        icon: Icon(
-                                          Icons.info,
-                                          color: Colors.red,
-                                          size: 30,
-                                        ),
-                                        onPressed: () =>
-                                            _viewAccountInfo(context),
-                                      )
-                                    : Container(),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                ),
-                                GestureDetector(
-                                  child: Icon(
-                                    Icons.more_horiz,
-                                    size: 20,
-                                    color: textColor,
-                                  ),
-                                  onTap: () => _viewAccountInfo(context),
-                                )
-                              ])
-                  ],
+                  ),
                 ),
-              ),
+                if (hideOption != true)
+                  Positioned(
+                    right: 10,
+                    bottom: 0,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                      ),
+                      onTap: () => _viewAccountInfo(context),
+                    ),
+                  )
+              ],
             ),
           ),
         ),

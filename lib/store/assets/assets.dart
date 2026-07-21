@@ -192,6 +192,7 @@ abstract class _AssetsStore with Store {
 
   @action
   List<TransferData> getTotalPendingTxs(String tokenId) {
+    _refreshPendingSpeedUpFlags();
     List<TransferData> totals = [];
     List<TransferData> sourceTotals = [...pendingTxs, ...pendingZkTxs];
     sourceTotals.forEach((i) {
@@ -212,9 +213,6 @@ abstract class _AssetsStore with Store {
       }
       return 0;
     });
-    if (totals.isNotEmpty) {
-      totals[totals.length - 1].showSpeedUp = true;
-    }
     List<TransferData> nextTotals;
     if (tokenId == ZK_DEFAULT_TOKEN_ID) {
       nextTotals = totals;
@@ -222,6 +220,31 @@ abstract class _AssetsStore with Store {
       nextTotals = tokenHistoryFilter(totals, tokenId);
     }
     return nextTotals;
+  }
+
+  void _refreshPendingSpeedUpFlags() {
+    final allTxs = [...pendingTxs, ...pendingZkTxs];
+    TransferData? speedUpTx;
+
+    for (var tx in allTxs) {
+      if (!_canShowPendingTxActions(tx)) continue;
+      if (speedUpTx == null || tx.nonce! < speedUpTx.nonce!) {
+        speedUpTx = tx;
+      }
+    }
+
+    for (var tx in allTxs) {
+      final shouldShowSpeedUp = speedUpTx != null && identical(tx, speedUpTx);
+      if (tx.showSpeedUp != shouldShowSpeedUp) {
+        tx.showSpeedUp = shouldShowSpeedUp;
+      }
+    }
+  }
+
+  bool _canShowPendingTxActions(TransferData tx) {
+    return tx.status == 'pending' &&
+        tx.type != 'zkapp_token' &&
+        tx.nonce != null;
   }
 
   @action
@@ -265,20 +288,27 @@ abstract class _AssetsStore with Store {
   Future<void> addPendingTxs(List<dynamic>? ls, String address) async {
     if (rootStore.wallet!.currentAddress != address) return;
     pendingTxs.clear();
-    if (ls == null) return;
+    if (ls == null) {
+      _refreshPendingSpeedUpFlags();
+      return;
+    }
     ls.forEach((i) {
       i['memo'] = decodeMemo(i['memo']);
       TransferData tx = TransferData.fromPendingJson(i);
       pendingTxs.add(tx);
     });
     pendingTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
+    _refreshPendingSpeedUpFlags();
   }
 
   @action
   Future<void> addPendingZkTxs(List<dynamic>? ls, String address) async {
     if (rootStore.wallet!.currentAddress != address) return;
     pendingZkTxs.clear();
-    if (ls == null) return;
+    if (ls == null) {
+      _refreshPendingSpeedUpFlags();
+      return;
+    }
     ls.forEach((i) {
       try {
         i['memo'] = decodeMemo(i['zkappCommand']?['memo']);
@@ -290,6 +320,7 @@ abstract class _AssetsStore with Store {
       pendingZkTxs.add(tx);
     });
     pendingZkTxs.sort((tx1, tx2) => tx2.nonce! - tx1.nonce!);
+    _refreshPendingSpeedUpFlags();
   }
 
   @action

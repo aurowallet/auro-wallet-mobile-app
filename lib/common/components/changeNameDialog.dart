@@ -34,6 +34,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
 
   @override
   void dispose() {
+    _nameCtrl.dispose();
     super.dispose();
   }
 

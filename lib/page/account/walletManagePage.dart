@@ -113,7 +113,12 @@ class _WalletManagePageState extends State<WalletManagePage> {
   }
 
   void _onAccountTap(UIKeyringAccount account) async {
+    if (account.address == store.wallet!.currentAddress) {
+      Navigator.of(context).pop();
+      return;
+    }
     await webApi.account.changeCurrentAccount(pubKey: account.address, fetchData: true);
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 
