@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 ### Enhancements
 - Expand account detail hit area.
 - Return when tapping the current account.
+- Show speed-up time from network slot duration.
 - Add regression tests.
 
 ### Fixed

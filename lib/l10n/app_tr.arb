@@ -214,8 +214,28 @@
   "@privateKeyTip_1": {},
   "staking": "Staking",
   "@staking": {},
-  "speedUpTip": "Normalde bir işlemin onaylanması <light>3 dakika</light> sürer. Ancak ağın yoğun olduğu ve işleminizin 3 dakikadan uzun sürebildiği durumlarda işlem ücretini artırarak işlem sürecini hızlandırabilirsiniz.",
-  "@speedUpTip": {},
+  "speedUpTip": "Normalde bir işlemin onaylanması <light>{slotTime}</light> sürer. Ancak ağ yoğun olduğunda işleminiz {slotTime} veya daha uzun sürebilir. İşlem ücretini artırarak süreci hızlandırabilirsiniz.",
+  "@speedUpTip": {
+    "placeholders": {
+      "slotTime": {
+        "type": "String",
+        "example": "1,5 dakika"
+      }
+    }
+  },
+  "nMinutes": "{count, plural, one{{formattedMinutes} dakika} other{{formattedMinutes} dakika}}",
+  "@nMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "example": "1.5"
+      },
+      "formattedMinutes": {
+        "type": "String",
+        "example": "1,5"
+      }
+    }
+  },
   "waitingLedgerSign": "Lütfen Ledger donanım cüzdanında onaylayın, imzanın atılması 1-3 dakika sürebilir.",
   "@waitingLedgerSign": {},
   "scam": "sahtekarlık",

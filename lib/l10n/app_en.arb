@@ -367,8 +367,28 @@
   "@speedUpTitle": {},
   "cancelTransaction": "Cancel Transaction",
   "@cancelTransaction": {},
-  "speedUpTip": "Normally, a transaction takes <light>3 minutes</light> to confirm. However, when the network is congested and your transaction may take longer than 3 minutes or more, you can speed up the transaction process by increasing the transaction fee.",
-  "@speedUpTip": {},
+  "speedUpTip": "Normally, a transaction takes <light>{slotTime}</light> to confirm. When the network is congested, your transaction may take {slotTime} or longer. You can speed up the transaction process by increasing the transaction fee.",
+  "@speedUpTip": {
+    "placeholders": {
+      "slotTime": {
+        "type": "String",
+        "example": "1.5 minutes"
+      }
+    }
+  },
+  "nMinutes": "{count, plural, one{{formattedMinutes} minute} other{{formattedMinutes} minutes}}",
+  "@nMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "example": "1.5"
+      },
+      "formattedMinutes": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
   "transactionCancelTip": "Cancel the transaction by sending a transaction with the same Nonce to yourself address. The fee will be greater than the current transaction fee (+0.0001 MINA) .",
   "@transactionCancelTip": {},
   "currentFee": "Current Fee",

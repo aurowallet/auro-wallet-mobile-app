@@ -571,8 +571,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cancelTransaction => 'İşlemi İptal Et';
 
   @override
-  String get speedUpTip =>
-      'Normalde bir işlemin onaylanması <light>3 dakika</light> sürer. Ancak ağın yoğun olduğu ve işleminizin 3 dakikadan uzun sürebildiği durumlarda işlem ücretini artırarak işlem sürecini hızlandırabilirsiniz.';
+  String speedUpTip(String slotTime) {
+    return 'Normalde bir işlemin onaylanması <light>$slotTime</light> sürer. Ancak ağ yoğun olduğunda işleminiz $slotTime veya daha uzun sürebilir. İşlem ücretini artırarak süreci hızlandırabilirsiniz.';
+  }
+
+  @override
+  String nMinutes(num count, String formattedMinutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formattedMinutes dakika',
+      one: '$formattedMinutes dakika',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get transactionCancelTip =>

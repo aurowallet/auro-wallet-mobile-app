@@ -367,8 +367,28 @@
   "@speedUpTitle": {},
   "cancelTransaction": "取消交易",
   "@cancelTransaction": {},
-  "speedUpTip": "通常情况下，一笔交易需要<light>3分钟</light>才能确认。 但是，当网络拥堵时，您的交易可能需要花费大于3分钟或者更久的时间，您可以通过提高交易费用来加快交易过程。",
-  "@speedUpTip": {},
+  "speedUpTip": "通常情况下，一笔交易需要<light>{slotTime}</light>才能确认。 但是，当网络拥堵时，您的交易可能需要{slotTime}或者更久。 您可以通过提高交易费用来加快交易过程。",
+  "@speedUpTip": {
+    "placeholders": {
+      "slotTime": {
+        "type": "String",
+        "example": "1.5分钟"
+      }
+    }
+  },
+  "nMinutes": "{count, plural, one{{formattedMinutes}分钟} other{{formattedMinutes}分钟}}",
+  "@nMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "example": "1.5"
+      },
+      "formattedMinutes": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
   "transactionCancelTip": "通过给自己的地址发送一笔相同 Nonce 的交易来取消之前的交易。 该费用将高于当前的交易费用（+0.0001 MINA）。",
   "@transactionCancelTip": {},
   "currentFee": "当前交易费",

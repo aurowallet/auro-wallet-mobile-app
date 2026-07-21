@@ -551,8 +551,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancelTransaction => '取消交易';
 
   @override
-  String get speedUpTip =>
-      '通常情况下，一笔交易需要<light>3分钟</light>才能确认。 但是，当网络拥堵时，您的交易可能需要花费大于3分钟或者更久的时间，您可以通过提高交易费用来加快交易过程。';
+  String speedUpTip(String slotTime) {
+    return '通常情况下，一笔交易需要<light>$slotTime</light>才能确认。 但是，当网络拥堵时，您的交易可能需要$slotTime或者更久。 您可以通过提高交易费用来加快交易过程。';
+  }
+
+  @override
+  String nMinutes(num count, String formattedMinutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formattedMinutes分钟',
+      one: '$formattedMinutes分钟',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get transactionCancelTip =>

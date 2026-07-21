@@ -571,8 +571,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancelTransaction => 'Отменить транзакцию';
 
   @override
-  String get speedUpTip =>
-      'Обычно подтверждение транзакции занимает <light>3 минуты</light>. Однако если сеть перегружена, ваша транзакция может занять 3 минуты и более, вы можете ускорить процесс, увеличив комиссию за транзакцию.';
+  String speedUpTip(String slotTime) {
+    return 'Обычно подтверждение транзакции занимает <light>$slotTime</light>. Однако если сеть перегружена, подтверждение может занять $slotTime или дольше. Вы можете ускорить процесс, увеличив комиссию за транзакцию.';
+  }
+
+  @override
+  String nMinutes(num count, String formattedMinutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formattedMinutes минут',
+      one: '$formattedMinutes минута',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get transactionCancelTip =>

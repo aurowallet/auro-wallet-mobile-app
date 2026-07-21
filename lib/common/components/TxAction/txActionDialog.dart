@@ -18,6 +18,7 @@ import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:styled_text/styled_text.dart';
@@ -337,7 +338,16 @@ class _TxActionDialogState extends State<TxActionDialog> {
                           : [
                               Padding(
                                   padding: EdgeInsets.only(top: 20, bottom: 20),
-                                  child: TxActionTip(type: widget.modalType!)),
+                                  child: Observer(
+                                    builder: (_) {
+                                      final slotTimeText =
+                                          Fmt.slotDurationText(context,
+                                              widget.store.staking?.overviewData.slotDuration);
+                                      return TxActionTip(
+                                          type: widget.modalType!,
+                                          slotTime: slotTimeText);
+                                    },
+                                  )),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -489,9 +499,10 @@ class _TxActionDialogState extends State<TxActionDialog> {
 }
 
 class TxActionTip extends StatelessWidget {
-  TxActionTip({required this.type});
+  TxActionTip({required this.type, required this.slotTime});
 
   final TxActionType type;
+  final String slotTime;
 
   @override
   Widget build(BuildContext context) {
@@ -506,7 +517,7 @@ class TxActionTip extends StatelessWidget {
       );
     } else {
       return new StyledText(
-          text: dic.speedUpTip,
+          text: dic.speedUpTip(slotTime),
           style: TextStyle(
               color: Color(0xFF808080),
               fontSize: 14,

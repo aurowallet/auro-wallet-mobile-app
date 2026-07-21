@@ -1169,8 +1169,14 @@ abstract class AppLocalizations {
   /// No description provided for @speedUpTip.
   ///
   /// In en, this message translates to:
-  /// **'Normally, a transaction takes <light>3 minutes</light> to confirm. However, when the network is congested and your transaction may take longer than 3 minutes or more, you can speed up the transaction process by increasing the transaction fee.'**
-  String get speedUpTip;
+  /// **'Normally, a transaction takes <light>{slotTime}</light> to confirm. When the network is congested, your transaction may take {slotTime} or longer. You can speed up the transaction process by increasing the transaction fee.'**
+  String speedUpTip(String slotTime);
+
+  /// No description provided for @nMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{formattedMinutes} minute} other{{formattedMinutes} minutes}}'**
+  String nMinutes(num count, String formattedMinutes);
 
   /// No description provided for @transactionCancelTip.
   ///

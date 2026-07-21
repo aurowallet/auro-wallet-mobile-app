@@ -570,8 +570,20 @@ class AppLocalizationsUk extends AppLocalizations {
   String get cancelTransaction => 'Скасувати транзакцію';
 
   @override
-  String get speedUpTip =>
-      'Зазвичай для підтвердження транзакції потрібно <light>3 хвилини</light>. Однак, якщо мережа перевантажена і ваша транзакція може тривати довше, ніж 3 хвилини або більше, ви можете пришвидшити процес транзакції, збільшивши комісію за транзакцію.';
+  String speedUpTip(String slotTime) {
+    return 'Зазвичай для підтвердження транзакції потрібно <light>$slotTime</light>. Однак, якщо мережа перевантажена, підтвердження може тривати $slotTime або довше. Ви можете пришвидшити процес, збільшивши комісію за транзакцію.';
+  }
+
+  @override
+  String nMinutes(num count, String formattedMinutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formattedMinutes хвилин',
+      one: '$formattedMinutes хвилина',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get transactionCancelTip =>

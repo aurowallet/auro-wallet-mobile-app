@@ -367,8 +367,28 @@
     "@speedUpTitle": {},
     "cancelTransaction": "Скасувати транзакцію",
     "@cancelTransaction": {},
-    "speedUpTip": "Зазвичай для підтвердження транзакції потрібно <light>3 хвилини</light>. Однак, якщо мережа перевантажена і ваша транзакція може тривати довше, ніж 3 хвилини або більше, ви можете пришвидшити процес транзакції, збільшивши комісію за транзакцію.",
-    "@speedUpTip": {},
+    "speedUpTip": "Зазвичай для підтвердження транзакції потрібно <light>{slotTime}</light>. Однак, якщо мережа перевантажена, підтвердження може тривати {slotTime} або довше. Ви можете пришвидшити процес, збільшивши комісію за транзакцію.",
+    "@speedUpTip": {
+      "placeholders": {
+        "slotTime": {
+          "type": "String",
+          "example": "1,5 хвилини"
+        }
+      }
+    },
+    "nMinutes": "{count, plural, one{{formattedMinutes} хвилина} other{{formattedMinutes} хвилин}}",
+    "@nMinutes": {
+      "placeholders": {
+        "count": {
+          "type": "num",
+          "example": "1.5"
+        },
+        "formattedMinutes": {
+          "type": "String",
+          "example": "1,5"
+        }
+      }
+    },
     "transactionCancelTip": "Скасуйте транзакцію, надіславши транзакцію з тим самим Nonce на свою адресу. Комісія буде більшою, ніж поточна комісія за транзакцію (0,0001 MINA).",
     "@transactionCancelTip": {},
     "currentFee": "Поточна комісія",

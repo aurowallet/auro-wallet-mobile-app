@@ -168,8 +168,28 @@
   "@renameAccountName": {},
   "cancelTransaction": "Отменить транзакцию",
   "@cancelTransaction": {},
-  "speedUpTip": "Обычно подтверждение транзакции занимает <light>3 минуты</light>. Однако если сеть перегружена, ваша транзакция может занять 3 минуты и более, вы можете ускорить процесс, увеличив комиссию за транзакцию.",
-  "@speedUpTip": {},
+  "speedUpTip": "Обычно подтверждение транзакции занимает <light>{slotTime}</light>. Однако если сеть перегружена, подтверждение может занять {slotTime} или дольше. Вы можете ускорить процесс, увеличив комиссию за транзакцию.",
+  "@speedUpTip": {
+    "placeholders": {
+      "slotTime": {
+        "type": "String",
+        "example": "1,5 минуты"
+      }
+    }
+  },
+  "nMinutes": "{count, plural, one{{formattedMinutes} минута} other{{formattedMinutes} минут}}",
+  "@nMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "example": "1.5"
+      },
+      "formattedMinutes": {
+        "type": "String",
+        "example": "1,5"
+      }
+    }
+  },
   "transactionCancelTip": "Отмените транзакцию, отправив транзакцию с тем же Nonce на свой адрес. Комиссия будет больше, чем текущая комиссия за транзакцию (+0,0001 MINA).",
   "@transactionCancelTip": {},
   "currentFee": "Текущая комиссия",
