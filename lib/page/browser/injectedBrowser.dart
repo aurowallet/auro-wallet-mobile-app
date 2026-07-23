@@ -60,6 +60,7 @@ class _WebViewInjectedState extends State<WebViewInjected> {
   }
 
   void onHandleErrorReject(String method, String id, int code) {
+    _signing = false;
     Map<String, dynamic> rejectData = {
       "result": {
         "code": code,

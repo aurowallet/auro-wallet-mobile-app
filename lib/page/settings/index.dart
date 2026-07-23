@@ -17,6 +17,14 @@ class Profile extends StatelessWidget {
 
   final AppStore store;
 
+  int _walletConnectSessionCount() {
+    return store.walletConnectService
+            ?.getAllPairedLinks()
+            .where((pairing) => pairing.peerMetadata != null)
+            .length ??
+        0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
@@ -64,7 +72,7 @@ class Profile extends StatelessWidget {
                        SettingItem(
                         icon: 'assets/images/setting/icon_walletconnect.svg',
                         title: dic.walletConnectTitle,
-                        value: (store.walletConnectService?.getAllPairedLinks().length ?? 0).toString(),
+                        value: _walletConnectSessionCount().toString(),
                         onTap: () => Navigator.of(context)
                             .pushNamed(WalletConnectPage.route)
                                   .then((_) {

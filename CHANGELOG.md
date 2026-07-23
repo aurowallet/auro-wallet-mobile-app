@@ -11,11 +11,16 @@ All notable changes to this project will be documented in this file.
 - Show speed-up time from network slot duration.
 - Autofocus rename dialogs.
 - Add regression tests.
+- Upgrade mina-signer to 4.1.0
+- Update WebView bridge signer.
+- Align WalletConnect empty state.
+- Count valid WalletConnect sessions.
 
 ### Fixed
 - Fix lowest-nonce speed-up selection.
 - Reduce speed-up flag rewrites.
 - Keep names when renaming accounts and wallets.
+- Reset signing state on rejects.
 
 ## [2.3.1]
 

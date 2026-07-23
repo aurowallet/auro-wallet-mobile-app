@@ -63,11 +63,14 @@ class _WalletConnectPageState extends State<WalletConnectPage>
   }
 
   Widget _renderConnectList(BuildContext context) {
-    if (_pairedLinks.isEmpty) {
+    final pairedLinks = _pairedLinks
+        .where((pairing) => pairing.peerMetadata != null)
+        .toList();
+    if (pairedLinks.isEmpty) {
       return _renderEmpty();
     }
     return ListView.separated(
-      itemCount: _pairedLinks.length,
+      itemCount: pairedLinks.length,
       padding: EdgeInsets.only(top: 20),
       separatorBuilder: (BuildContext context, int index) => Container(
         color: Colors.black.withValues(alpha: 0.1),
@@ -75,7 +78,7 @@ class _WalletConnectPageState extends State<WalletConnectPage>
         margin: EdgeInsets.symmetric(vertical: 0),
       ),
       itemBuilder: (BuildContext context, int index) {
-        final pairing = _pairedLinks[index];
+        final pairing = pairedLinks[index];
         return Padding(
           key: Key(pairing.topic),
           padding: EdgeInsets.zero,
@@ -129,13 +132,9 @@ class WalletConnectItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations dic = AppLocalizations.of(context)!;
     final metadata = pairing.peerMetadata;
     if (metadata == null) {
-      return Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-        child: Text(dic.noWalletConnectSession),
-      );
+      return SizedBox.shrink();
     }
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
