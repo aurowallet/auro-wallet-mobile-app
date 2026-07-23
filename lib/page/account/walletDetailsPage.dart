@@ -34,20 +34,31 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    wallet = args['wallet'] as WalletData;
+    wallet = _getLatestWallet(args['wallet'] as WalletData);
     walletName = store.wallet!.getWalletDisplayName(wallet);
   }
 
   bool get isHDWallet => wallet.walletType == WalletStore.seedTypeMnemonic;
 
+  WalletData _getLatestWallet(WalletData fallback) {
+    return store.wallet!.walletsMap[fallback.id] ?? fallback;
+  }
+
+  void _syncLatestWallet() {
+    wallet = _getLatestWallet(wallet);
+    walletName = store.wallet!.getWalletDisplayName(wallet);
+  }
+
   Future<void> _onRenameWallet() async {
+    _syncLatestWallet();
     final newName = await showDialog<String>(
       context: context,
       builder: (_) {
         return ChangeNameDialog(
-          title: AppLocalizations.of(context)!.changeWalletName,
-          placeholder: walletName,
+          title: AppLocalizations.of(context)!.walletNameLabel,
+          initialValue: walletName,
           maxLength: 20,
+          autoFocus: true,
         );
       },
     );
@@ -55,7 +66,7 @@ class _WalletDetailsPageState extends State<WalletDetailsPage> {
       await store.wallet!.renameWallet(wallet.id, newName);
       if (!mounted) return;
       setState(() {
-        walletName = newName;
+        _syncLatestWallet();
       });
     }
   }

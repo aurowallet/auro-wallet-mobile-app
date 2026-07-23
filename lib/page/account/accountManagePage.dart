@@ -51,14 +51,29 @@ class _AccountManagePageState extends State<AccountManagePage> {
     super.didChangeDependencies();
     Map<String, dynamic> params =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    account = params['account'];
-    wallet = params['wallet'];
+    account = _getLatestAccount(params['account']);
+    wallet = _getLatestWallet(params['wallet']);
     isWatchedOrLedgerAccount = wallet.walletType == WalletStore.seedTypeNone ||
         wallet.walletType == WalletStore.seedTypeLedger;
     isLedgerAccount = wallet.walletType == WalletStore.seedTypeLedger;
     ledgerAccountPath = isLedgerAccount
         ? "m / 44' / 12586'/ ${wallet.currentAccountIndex} ' / 0 / 0"
         : "";
+  }
+
+  WalletData _getLatestWallet(WalletData fallback) {
+    return store.wallet!.walletsMap[fallback.id] ?? fallback;
+  }
+
+  AccountData _getLatestAccount(AccountData fallback) {
+    final latestWallet = store.wallet!.walletsMap[fallback.walletId];
+    if (latestWallet == null) {
+      return fallback;
+    }
+    return latestWallet.accounts.firstWhere(
+      (acc) => acc.pubKey == fallback.pubKey,
+      orElse: () => fallback,
+    );
   }
 
   void _onExportPrivateKey() async {
@@ -89,20 +104,23 @@ class _AccountManagePageState extends State<AccountManagePage> {
   }
 
   void _changeAccountName() async {
+    account = _getLatestAccount(account);
     String? accountName = await showDialog<String>(
       context: context,
       builder: (_) {
         return ChangeNameDialog(
-          placeholder: Fmt.accountName(account),
+          title: AppLocalizations.of(context)!.accountName,
+          initialValue: Fmt.accountName(account),
+          autoFocus: true,
         );
       },
     );
     if (accountName != null && accountName.isNotEmpty) {
       await store.wallet!.updateAccountName(account, accountName);
       print('accountName:$accountName');
+      if (!mounted) return;
       setState(() {
-        account = store.wallet!.walletsMap[account.walletId]!.accounts
-            .firstWhere((acc) => acc.pubKey == account.pubKey);
+        account = _getLatestAccount(account);
       });
     }
   }

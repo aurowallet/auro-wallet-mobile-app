@@ -9,12 +9,13 @@ All notable changes to this project will be documented in this file.
 - Expand account detail hit area.
 - Return when tapping the current account.
 - Show speed-up time from network slot duration.
+- Autofocus rename dialogs.
 - Add regression tests.
 
 ### Fixed
 - Fix lowest-nonce speed-up selection.
 - Reduce speed-up flag rewrites.
-- Keep the current account name in rename.
+- Keep names when renaming accounts and wallets.
 
 ## [2.3.1]
 

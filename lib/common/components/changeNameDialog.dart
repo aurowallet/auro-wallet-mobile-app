@@ -10,6 +10,7 @@ class ChangeNameDialog extends StatefulWidget {
     this.title,
     this.placeholder,
     this.maxLength = 16,
+    this.autoFocus = false,
   });
 
   final Function? onOk;
@@ -18,6 +19,7 @@ class ChangeNameDialog extends StatefulWidget {
   final String? title;
   final String? placeholder;
   final int maxLength;
+  final bool autoFocus;
 
   @override
   _ChangeNameDialogDialogState createState() => _ChangeNameDialogDialogState();
@@ -30,6 +32,7 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.initialValue ?? '');
+    _nameCtrl.selection = TextSelection.collapsed(offset: _nameCtrl.text.length);
   }
 
   @override
@@ -64,10 +67,10 @@ class _ChangeNameDialogDialogState extends State<ChangeNameDialog> {
                 padding: EdgeInsets.symmetric(horizontal: 30),
                 child: InputItem(
                   maxLength: widget.maxLength,
-                  initialValue: widget.initialValue ?? '',
                   placeholder: widget.placeholder ?? dic.accountNameLimit,
                   padding: EdgeInsets.only(top: 20),
                   controller: _nameCtrl,
+                  autoFocus: widget.autoFocus,
                 ),
               ),
               Container(
