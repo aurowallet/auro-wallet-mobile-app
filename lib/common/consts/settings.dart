@@ -17,7 +17,7 @@ const int DAYS_PER_THREE_MONTHS = 90;
 const int DAYS_PER_SIX_MONTHS = 180;
 
 /// app versions
-const String app_version = 'v2.3.1(1198)';
+const String app_version = 'v2.3.2(1199)';
 
 final Map<String, String> languageConfig = {
   "en": 'English',

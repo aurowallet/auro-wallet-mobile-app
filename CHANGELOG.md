@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Autofocus rename dialogs.
 - Add regression tests.
 - Upgrade mina-signer to 4.1.0
+- Update Target Android 16 API 36.
 - Update WebView bridge signer.
 - Align WalletConnect empty state.
 - Count valid WalletConnect sessions.
