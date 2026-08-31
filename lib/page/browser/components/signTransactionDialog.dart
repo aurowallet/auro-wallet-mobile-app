@@ -517,7 +517,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
             "memo": lastMemo != null ? lastMemo : "",
           };
           if (widget.signType == SignTxDialogType.Payment) {
-            txInfo["amount"] = double.parse(widget.amount ?? "0");
+            txInfo["amount"] = Fmt.parseNumber(widget.amount ?? "0");
           } else if (widget.signType == SignTxDialogType.Delegation) {
             isDelagetion = true;
           }

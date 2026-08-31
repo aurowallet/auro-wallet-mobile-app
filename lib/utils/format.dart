@@ -75,10 +75,19 @@ class Fmt {
       return BigInt.zero;
     }
     if (raw.contains(',') || raw.contains('.')) {
-      return BigInt.from(NumberFormat(",##0.000").parse(raw));
+      final normalized = raw.trim().replaceAll(',', '');
+      return Decimal.parse(normalized).toBigInt();
     } else {
-      return BigInt.parse(raw);
+      return BigInt.parse(raw.trim());
     }
+  }
+
+  static Decimal _atomicToDecimal(BigInt value, int decimals) {
+    if (decimals < 0) {
+      throw ArgumentError.value(decimals, 'decimals');
+    }
+    final divisor = Decimal.fromBigInt(BigInt.from(10).pow(decimals));
+    return (Decimal.fromBigInt(value) / divisor).toDecimal();
   }
 
   /// number transform 2:
@@ -111,26 +120,32 @@ class Fmt {
     if (raw == null || raw.length == 0) {
       return '~';
     }
-    double balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
     try {
-      Decimal nextBalance = Decimal.parse(balanceBigInt.toString());
-      balanceBigInt = nextBalance.floor(scale: maxLength).toDouble();
+      final atomicValue = balanceInt(raw);
+      final balanceValue = _atomicToDecimal(atomicValue, decimals);
+      return _formatFlooredDecimal(balanceValue,
+          lengthFixed: minLength, lengthMax: maxLength);
     } catch (e) {
       print('balance error ${e}');
     }
 
     NumberFormat f = NumberFormat(
         ",##0.${'0' * minLength}${'#' * (maxLength - minLength)}", "en_US");
-    return f.format(balanceBigInt);
+    return f.format(0);
   }
 
   static String balanceToInteger(String? raw, int decimals) {
     if (raw == null || raw.length == 0) {
       return '~';
     }
-    var balanceBigInt = bigIntToDouble(balanceInt(raw), decimals);
-    NumberFormat f = NumberFormat(",##0", "en_US");
-    return f.format(balanceBigInt);
+    try {
+      final decimalValue = _atomicToDecimal(balanceInt(raw), decimals);
+      return _formatFlooredDecimal(decimalValue,
+          lengthFixed: 0, lengthMax: 0);
+    } catch (e) {
+      print('balanceToInteger error $e');
+      return '0';
+    }
   }
 
   /// combined number transform 1-2:
@@ -150,14 +165,8 @@ class Fmt {
     if (value == null) {
       return '~';
     }
-    final int x = pow(10, lengthMax ?? lengthFixed) as int;
-    final double price = (value * x).ceilToDouble() / x;
-    final String tailDecimals =
-        lengthMax == null ? '' : "#" * (lengthMax - lengthFixed);
-    return NumberFormat(
-            ",##0${lengthFixed > 0 ? '.' : ''}${"0" * lengthFixed}$tailDecimals",
-            "en_US")
-        .format(price);
+    return _formatCeiledDecimal(Decimal.parse(value.toString()),
+        lengthFixed: lengthFixed, lengthMax: lengthMax);
   }
 
   /// number transform 6:
@@ -171,14 +180,93 @@ class Fmt {
     if (value == null) {
       return '~';
     }
-    final int x = pow(10, lengthMax ?? lengthFixed) as int;
-    final double price = (value * x).floorToDouble() / x;
-    final String tailDecimals =
-        lengthMax == null ? '' : "#" * (lengthMax - lengthFixed);
-    return NumberFormat(
-            ",##0${lengthFixed > 0 ? '.' : ''}${"0" * lengthFixed}$tailDecimals",
-            "en_US")
-        .format(price);
+    return _formatFlooredDecimal(Decimal.parse(value.toString()),
+        lengthFixed: lengthFixed, lengthMax: lengthMax);
+  }
+
+  /// Formats a decimal amount without binary floating point arithmetic.
+  static String priceFloorString(
+    String? value, {
+    int lengthFixed = 2,
+    int? lengthMax,
+    bool useGrouping = true,
+  }) {
+    if (value == null || value.isEmpty) {
+      return '~';
+    }
+    try {
+      return _formatFlooredDecimal(Decimal.parse(parseNumber(value)),
+          lengthFixed: lengthFixed,
+          lengthMax: lengthMax,
+          useGrouping: useGrouping);
+    } catch (_) {
+      return value;
+    }
+  }
+
+  static String _formatFlooredDecimal(
+    Decimal decimal, {
+    required int lengthFixed,
+    required int? lengthMax,
+    bool useGrouping = true,
+  }) {
+    final maxDecimals = lengthMax ?? lengthFixed;
+    final minDecimals = lengthFixed > maxDecimals ? maxDecimals : lengthFixed;
+    return _formatDecimal(decimal.floor(scale: maxDecimals),
+        minDecimals: minDecimals,
+        maxDecimals: maxDecimals,
+        useGrouping: useGrouping);
+  }
+
+  static String _formatCeiledDecimal(
+    Decimal decimal, {
+    required int lengthFixed,
+    required int? lengthMax,
+    bool useGrouping = true,
+  }) {
+    final maxDecimals = lengthMax ?? lengthFixed;
+    final minDecimals = lengthFixed > maxDecimals ? maxDecimals : lengthFixed;
+    return _formatDecimal(decimal.ceil(scale: maxDecimals),
+        minDecimals: minDecimals,
+        maxDecimals: maxDecimals,
+        useGrouping: useGrouping);
+  }
+
+  static String _formatDecimal(
+    Decimal decimal, {
+    required int minDecimals,
+    required int maxDecimals,
+    required bool useGrouping,
+  }) {
+    final fixed = decimal.toStringAsFixed(maxDecimals);
+    final isNegative = fixed.startsWith('-');
+    final unsigned = isNegative ? fixed.substring(1) : fixed;
+    final parts = unsigned.split('.');
+    final integerPart = parts.first;
+    var fractionPart = parts.length > 1 ? parts[1] : '';
+
+    while (fractionPart.length > minDecimals && fractionPart.endsWith('0')) {
+      fractionPart = fractionPart.substring(0, fractionPart.length - 1);
+    }
+    while (fractionPart.length < minDecimals) {
+      fractionPart += '0';
+    }
+
+    var groupedInteger = integerPart;
+    if (useGrouping) {
+      groupedInteger = '';
+      for (var index = 0; index < integerPart.length; index++) {
+        if (index > 0 && (integerPart.length - index) % 3 == 0) {
+          groupedInteger += ',';
+        }
+        groupedInteger += integerPart[index];
+      }
+    }
+
+    final sign = isNegative ? '-' : '';
+    return fractionPart.isEmpty
+        ? '$sign$groupedInteger'
+        : '$sign$groupedInteger.$fractionPart';
   }
 
   /// number transform 7:
@@ -197,7 +285,8 @@ class Fmt {
     if (value == null) {
       return '~';
     }
-    return priceCeil(Fmt.bigIntToDouble(value, decimals),
+    final decimalValue = _atomicToDecimal(value, decimals);
+    return _formatCeiledDecimal(decimalValue,
         lengthFixed: lengthFixed, lengthMax: lengthMax);
   }
 
@@ -210,7 +299,8 @@ class Fmt {
     if (value == null) {
       return '~';
     }
-    return priceFloor(Fmt.bigIntToDouble(value, decimals),
+    final decimalValue = _atomicToDecimal(value, decimals);
+    return _formatFlooredDecimal(decimalValue,
         lengthFixed: lengthFixed, lengthMax: lengthMax);
   }
 
@@ -314,10 +404,7 @@ class Fmt {
     if (BigInt.parse(nextDecimals.toString()) > BigInt.from(100)) {
       nextDecimals = 0;
     }
-    Decimal amout1 = Decimal.parse(amount);
-    Decimal amout2 = Decimal.fromBigInt(BigInt.from(10).pow(nextDecimals));
-    double realBalance = (amout1 / amout2).toDouble();
-    return realBalance.toString();
+    return _atomicToDecimal(BigInt.parse(amount), nextDecimals).toString();
   }
 
   static String parseShowBalance(double balance, {int showLength = 4}) {

@@ -75,10 +75,9 @@ class _TxActionDialogState extends State<TxActionDialog> {
         ? 0.0001
         : widget.store.assets!.transferFees.speedUpBuffer;
 
-    preFee = double.parse(widget.txData.fee as String);
-    preFee = double.parse(Fmt.balance(
-        widget.txData.fee.toString(), COIN.decimals,
-        maxLength: COIN.decimals));
+    preFee = double.parse(Fmt.amountDecimals(
+        widget.txData.fee as String,
+        decimal: COIN.decimals));
 
     speedUpFee = widget.store.assets!.transferFees.speedUpBuffer;
     speedUpFee = speedUpFee.isNegative ? 0 : speedUpFee;
@@ -232,10 +231,9 @@ class _TxActionDialogState extends State<TxActionDialog> {
           "memo": (memo != null && memo.isNotEmpty) ? memo : "",
         };
         if (txType == 'payment') {
-          double amount = double.parse(Fmt.balance(
-              widget.txData.amount.toString(), COIN.decimals,
-              maxLength: COIN.decimals));
-          txInfo["amount"] = amount;
+          txInfo["amount"] = Fmt.amountDecimals(
+              widget.txData.amount.toString(),
+              decimal: COIN.decimals);
         } else {
           isDelagetion = true;
         }

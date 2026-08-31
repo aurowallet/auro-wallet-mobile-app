@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
+## [2.3.3]
+### Enhancements
+- Improve native coin and token amount handling with precise decimal arithmetic across formatting, transfers, WalletConnect payments, and token fiat-value totals.
+
+### Fixed
+- Fix floating-point precision errors in amount formatting and conversion, including confirmation amount display and precision loss for atomic or large amounts.
+- Fix parsing failures in transaction speed-up and cancellation flows caused by grouped balance strings.
+
 ## [2.3.2]
 ### Enhancements
 - Expand account detail hit area.

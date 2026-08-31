@@ -306,13 +306,16 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   bool _isAllTransfer() {
-    if (availableBalance != null) {
-      double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
-      if (amount == availableBalance) {
-        return true;
-      }
+    if (availableBalance == null || _amountCtrl.text.trim().isEmpty) {
+      return false;
     }
-    return false;
+    try {
+      final amount = Decimal.parse(Fmt.parseNumber(_amountCtrl.text));
+      final balance = Decimal.parse(availableBalance.toString());
+      return amount.compareTo(balance) == 0;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<Map<String, dynamic>?> getTokenBuildBody(
@@ -393,7 +396,7 @@ class _TransferPageState extends State<TransferPage> {
       if (!mounted) return;
     }
     if (await _validate()) {
-      double amount = double.parse(Fmt.parseNumber(_amountCtrl.text));
+      final amount = Decimal.parse(Fmt.parseNumber(_amountCtrl.text));
       String toAddress = _toAddressCtrl.text.trim();
       String memo = _memoCtrl.text.trim();
       double fee;
@@ -416,11 +419,10 @@ class _TransferPageState extends State<TransferPage> {
         }
       }
       fee = currentFee ?? store.assets!.transferFees.medium;
-      double amountToTransfer = amount;
+      Decimal amountToTransfer = amount;
       if (isSendMainToken && _isAllTransfer()) {
         amountToTransfer =
-            (Decimal.parse(amount.toString()) - Decimal.parse(fee.toString()))
-                .toDouble();
+            amount - Decimal.parse(fee.toString());
       }
       AppLocalizations dic = AppLocalizations.of(context)!;
       bool showTimer = false;
@@ -474,7 +476,7 @@ class _TransferPageState extends State<TransferPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                Fmt.priceFloor(amountToTransfer,
+                Fmt.priceFloorString(amountToTransfer.toString(),
                     lengthFixed: 2,
                     lengthMax: int.parse(availableDecimals ?? "0")),
                 style: TextStyle(
@@ -535,7 +537,7 @@ class _TransferPageState extends State<TransferPage> {
               "accountIndex": _initAccountIndex,
               "fromAddress": _initAddress,
               "toAddress": toAddress,
-              "amount": amountToTransfer,
+              "amount": amountToTransfer.toString(),
               "fee": fee,
               "nonce": inferredNonce,
               "memo": memo,

@@ -12,6 +12,7 @@ import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
+import 'package:decimal/decimal.dart';
 import 'package:mobx/mobx.dart';
 
 part 'assets.g.dart';
@@ -121,13 +122,14 @@ abstract class _AssetsStore with Store {
   }
 
   String getTokenTotalAmount() {
-    double totalShowAmount = 0;
-    double tokenAmount;
+    Decimal totalShowAmount = Decimal.zero;
 
     for (var token in tokenList) {
       if (token.localConfig == null || token.localConfig!.hideToken != true) {
-        tokenAmount = token.tokenBaseInfo?.showAmount ?? 0;
-        totalShowAmount += tokenAmount;
+        final tokenAmount = token.tokenBaseInfo?.showAmount;
+        if (tokenAmount != null) {
+          totalShowAmount += Decimal.parse(tokenAmount.toString());
+        }
       }
     }
 
@@ -794,8 +796,13 @@ abstract class _AssetsStore with Store {
 
         double? tokenPrice = marketPrices[tokenId];
         if (tokenPrice != null) {
-          tokenBaseInfo.showAmount = double.parse(
-              Fmt.parseShowBalance(tokenBaseInfo.showBalance! * tokenPrice, showLength: 2));
+          final amount = Decimal.parse(tokenBaseInfo.showBalance!.toString()) *
+              Decimal.parse(tokenPrice.toString());
+          tokenBaseInfo.showAmount = double.parse(Fmt.priceFloorString(
+              amount.toString(),
+              lengthFixed: 0,
+              lengthMax: 2,
+              useGrouping: false));
         }
         localConfig.tokenShowed = localShowedTokenIds.contains(tokenId);
 
