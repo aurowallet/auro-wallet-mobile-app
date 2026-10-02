@@ -147,14 +147,14 @@ class _SignatureDialogState extends State<SignatureDialog> {
       return false;
     } finally {
       _cancelLedgerSigning = null;
-      await _ledgerScreenAwakeHandle.setActive(false)
-          .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
       if (mounted) {
         setState(() {
           submitting = false;
           ledgerInteractionStarted = false;
         });
       }
+      await _ledgerScreenAwakeHandle.setActive(false)
+          .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
     }
   }
 

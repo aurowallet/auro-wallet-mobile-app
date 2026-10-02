@@ -263,6 +263,29 @@ void main() {
     expect(await gateway.sendOperation<int>(Probe()), 8);
   });
 
+  test('missing native write acknowledgement fails signing and releases queued work', () async {
+    await gateway.disconnect();
+    gateway = AppLedgerGattGateway(
+      bleManager: ble,
+      ledger: DiscoveredLedger(device: device, subscription: null, services: services),
+      writeTimeout: const Duration(milliseconds: 30),
+    );
+    await gateway.start();
+    final ack = Completer<void>();
+    ble.onWrite = () {
+      ble.respond([7, 0x90, 0]);
+      return ack.future;
+    };
+    final signing = expectLater(gateway.sendOperation<int>(Probe()),
+        throwsA(isA<TimeoutException>()));
+    final queued = expectLater(gateway.sendOperation<int>(Probe()), throwsA(ledgerError));
+    await Future.wait([signing, queued]);
+    expect(ble.packets, hasLength(1));
+    ack.complete();
+    await flush();
+    expect(ble.packets, hasLength(1));
+  });
+
   test('serializes APDUs until the first response is received', () async {
     await gateway.start();
     final first = gateway.sendOperation<int>(Probe());

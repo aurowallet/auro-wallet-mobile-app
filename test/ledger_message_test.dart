@@ -521,6 +521,47 @@ void main() {
     });
   }
 
+  for (final rejected in [false, true]) {
+    testWidgets('message ${rejected ? "rejection" : "success"} clears loading before wakelock release', (tester) async {
+      tester.view.physicalSize = const Size(1800, 2700);
+      addTearDown(tester.view.resetPhysicalSize);
+      final release = Completer<ByteData?>();
+      var calls = 0;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMessageHandler(
+            'dev.flutter.pigeon.wakelock_plus_platform_interface.WakelockPlusApi.toggle',
+            (_) async => ++calls == 1
+                ? const StandardMessageCodec().encodeMessage([null])
+                : await release.future,
+          );
+      ledger.messageGate = Completer<void>();
+      if (rejected) {
+        ledger.messageFailure = LedgerException(errorCode: LedgerStatusCode.userRejected);
+      }
+      await tester.pumpWidget(host(SignatureDialog(
+        method: 'mina_signMessage',
+        content: 'hello',
+        url: 'https://example.com',
+        onConfirm: (_) {},
+      )));
+      final pending = tester.widget<ZkAppBottomButton>(find.byType(ZkAppBottomButton))
+          .onConfirm() as Future<bool>;
+      await pumpFlow(tester);
+      expect(find.byType(LedgerWaitingContent), findsOneWidget);
+      ledger.messageGate!.complete();
+      await pumpFlow(tester);
+      expect(calls, 2);
+      expect(release.isCompleted, isFalse);
+      expect(find.byType(LedgerWaitingContent), findsNothing);
+      expect(tester.widget<ZkAppBottomButton>(find.byType(ZkAppBottomButton)).submitting, isFalse);
+      await tester.pump(const Duration(seconds: 5));
+      expect(await pending, !rejected);
+      release.complete(const StandardMessageCodec().encodeMessage([null]));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final stage in ['address timeout', 'signature disconnect']) {
     testWidgets(
       '$stage still reports failure after the BLE session is cleared',

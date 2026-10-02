@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fix Ledger Bluetooth connection, Mina app detection, and response parsing.
 - Synchronize Ledger status and improve transaction loading, retry, and error feedback.
+- Fix Ledger loading hangs and delayed reset after message signing.
 - Validate Ledger zkApp accounts and networks, and preserve transaction expiry.
 - Show token transaction build and submission errors.
 - Fix amount display and conversion precision errors.

@@ -480,9 +480,9 @@ class _ConnectLedgerState extends State<ConnectLedger> {
       connecting = true;
       connectionHandedOff = false;
     });
-    await _connectScreenAwakeHandle.setActive(true);
     _connectAttempt++;
     try {
+      await _connectScreenAwakeHandle.setActive(true);
       await LedgerInit.stopScanLoop(ledger: ledgerInstance);
       await Future.delayed(const Duration(milliseconds: 500));
       if (!_isActive) return;

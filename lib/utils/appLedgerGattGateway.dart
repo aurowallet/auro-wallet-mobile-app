@@ -35,6 +35,7 @@ class AppLedgerGattGateway extends GattGateway {
   final _disconnected = Completer<void>();
   final Duration probeTimeout;
   final Duration publicKeyTimeout;
+  final Duration writeTimeout;
   final void Function(Object error)? onTransportError;
 
   AppLedgerGattGateway({
@@ -45,6 +46,7 @@ class AppLedgerGattGateway extends GattGateway {
     int mtu = 23,
     this.probeTimeout = const Duration(seconds: 10),
     this.publicKeyTimeout = const Duration(minutes: 2),
+    this.writeTimeout = const Duration(seconds: 30),
     this.onTransportError,
   }) : _bleManager = bleManager,
        _ledger = ledger,
@@ -185,7 +187,7 @@ class AppLedgerGattGateway extends GattGateway {
             await _bleManager.writeCharacteristicWithResponse(
               characteristic,
               value: packet,
-            );
+            ).timeout(writeTimeout);
           }
         }
         finished.complete();
