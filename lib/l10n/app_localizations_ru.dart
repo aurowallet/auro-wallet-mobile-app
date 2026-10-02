@@ -1111,7 +1111,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get selectValidator => 'Выбрать';
 
   @override
-  String get epochEstimate => '15 дней (1 эпоха) прогноз';
+  String epochEstimate(String days) {
+    return '$days дней (1 эпоха) прогноз';
+  }
 
   @override
   String get threeMonthsEstimate => '3 месяца прогноз';

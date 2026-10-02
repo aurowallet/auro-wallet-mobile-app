@@ -2153,8 +2153,8 @@ abstract class AppLocalizations {
   /// No description provided for @epochEstimate.
   ///
   /// In en, this message translates to:
-  /// **'15 days (1 epoch) est.'**
-  String get epochEstimate;
+  /// **'{days} days (1 epoch) est.'**
+  String epochEstimate(String days);
 
   /// No description provided for @threeMonthsEstimate.
   ///

@@ -1,6 +1,5 @@
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/staking/types/overviewData.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -12,29 +11,9 @@ class StakingOverview extends StatelessWidget {
 
   final AppStore store;
 
-  List<String> _getTime() {
-    OverviewData data = store.staking!.overviewData;
-    if (data.slotsPerEpoch != 0) {
-      double lastTime =
-          (data.slotsPerEpoch - data.slot) * data.slotDuration / 1000;
-      int days = (lastTime / 60 / 60 / 24).floor();
-      double leave1 = (lastTime % (24 * 3600));
-      int hours = (leave1 / (3600)).floor();
-      double leave2 = leave1 % 3600;
-      int minutes = (leave2 / 60).floor();
-      return [
-        days.toString().padLeft(2, '0'),
-        hours.toString().padLeft(2, '0'),
-        minutes.toString().padLeft(2, '0')
-      ];
-    }
-    return ['', '', ''];
-  }
-
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    OverviewData data = store.staking!.overviewData;
     TextStyle labelStyle = TextStyle(
         fontSize: 12,
         color: Colors.black.withValues(alpha: 0.5),
@@ -45,7 +24,13 @@ class StakingOverview extends StatelessWidget {
       fontWeight: FontWeight.w500,
     );
     return Observer(builder: (_) {
-      List<String> time = _getTime();
+      final data = store.staking!.overviewData;
+      final remaining = data.epochTimeRemaining;
+      final time = remaining == null ? ['--', '--', '--'] : [
+        remaining.days.toString().padLeft(2, '0'),
+        remaining.hours.toString().padLeft(2, '0'),
+        remaining.minutes.toString().padLeft(2, '0'),
+      ];
       return Container(
           margin: EdgeInsets.only(top: 10, left: 20, right: 20),
           child: Column(
@@ -90,7 +75,7 @@ class StakingOverview extends StatelessWidget {
                           style: labelStyle,
                         ),
                         Text(
-                          data.epoch.toString(),
+                          data.hasEpochInfo ? data.epoch.toString() : '--',
                           style: valueStyle,
                         ),
                         Padding(padding: EdgeInsets.only(top: 10)),
@@ -106,8 +91,8 @@ class StakingOverview extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text(data.slot.toString(), style: valueStyle),
-                            Text(' / ${data.slotsPerEpoch.toString()}',
+                            Text(data.hasEpochInfo ? data.boundedSlot.toString() : '--', style: valueStyle),
+                            Text(' / ${data.slotsPerEpoch > 0 ? data.slotsPerEpoch.toString() : '--'}',
                                 style: valueStyle.copyWith(
                                     fontSize: 12,
                                     color: ColorsUtil.hexColor(0xb1b3be))),
@@ -130,9 +115,7 @@ class StakingOverview extends StatelessWidget {
                       ],
                     ),
                     PercentageCircle(
-                      percentage: data.slotsPerEpoch != 0
-                          ? (data.slot / data.slotsPerEpoch)
-                          : 0,
+                      percentage: data.epochProgress,
                     )
                   ],
                 ),

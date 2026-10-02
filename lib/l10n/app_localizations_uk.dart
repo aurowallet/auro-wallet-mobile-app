@@ -1109,7 +1109,9 @@ class AppLocalizationsUk extends AppLocalizations {
   String get selectValidator => 'Вибрати';
 
   @override
-  String get epochEstimate => '15 днів (1 епоха) прогноз';
+  String epochEstimate(String days) {
+    return '$days днів (1 епоха) прогноз';
+  }
 
   @override
   String get threeMonthsEstimate => '3 місяці прогноз';

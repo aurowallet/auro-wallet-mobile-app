@@ -715,7 +715,7 @@
     "toValidator": "До валідатора",
     "currentValidator": "Поточний валідатор",
     "selectValidator": "Вибрати",
-    "epochEstimate": "15 днів (1 епоха) прогноз",
+    "epochEstimate": "{days} днів (1 епоха) прогноз",
     "threeMonthsEstimate": "3 місяці прогноз",
     "sixMonthsEstimate": "6 місяців прогноз",
     "staked": "Застейкано",

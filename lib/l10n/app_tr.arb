@@ -713,7 +713,7 @@
   "toValidator": "Yeni Doğrulayıcı",
   "currentValidator": "Mevcut Doğrulayıcı",
   "selectValidator": "Seç",
-  "epochEstimate": "15 gün (1 dönem) tahmini",
+  "epochEstimate": "{days} gün (1 dönem) tahmini",
   "threeMonthsEstimate": "3 ay tahmini",
   "sixMonthsEstimate": "6 ay tahmini",
   "staked": "Stake Edildi",

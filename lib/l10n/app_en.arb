@@ -686,7 +686,10 @@
   "toValidator": "To Validator",
   "currentValidator": "Current Validator",
   "selectValidator": "Select",
-  "epochEstimate": "15 days (1 epoch) est.",
+  "epochEstimate": "{days} days (1 epoch) est.",
+  "@epochEstimate": {
+    "placeholders": { "days": { "type": "String" } }
+  },
   "threeMonthsEstimate": "3 months est.",
   "sixMonthsEstimate": "6 months est.",
   "staked": "Staked",

@@ -71,7 +71,8 @@ class ApiStaking {
     }
   }
 
-  Future<Map<String, dynamic>> fetchBlockInfo(String stateHash) async {
+  Future<Map<String, dynamic>?> fetchBlockInfo(String stateHash,
+      {GraphQLClient? client}) async {
     String query = r'''
   query blockInfo($stateHash: String!) {
     block(stateHash: $stateHash) {
@@ -90,21 +91,22 @@ class ApiStaking {
       variables: {'stateHash': stateHash},
       queryRequestTimeout: const Duration(seconds: 60)
     );
-    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    final QueryResult result = await (client ?? apiRoot.graphQLClient).query(_options);
     if (result.hasException) {
       print('fetch epoch error');
       print(result.exception.toString());
-      return {"epoch": 0, "slot": 0};
+      return null;
     }
-    Map consensusState =
-        result.data!['block']['protocolState']['consensusState'];
+    final consensusState = result.data?['block']?['protocolState']?['consensusState'];
+    if (consensusState is! Map) return null;
     return {
-      "epoch": int.parse(consensusState['epoch']),
-      "slot": int.parse(consensusState['slot'])
+      "epoch": int.tryParse(consensusState['epoch'].toString()) ?? -1,
+      "slot": int.tryParse(consensusState['slot'].toString()) ?? -1
     };
   }
 
   Future<void> fetchStakingOverview() async {
+    final client = apiRoot.graphQLClient;
     if (store.settings!.isZekoNet) {
       store.staking!.clearOverviewData();
       return;
@@ -129,22 +131,30 @@ class ApiStaking {
       queryRequestTimeout: const Duration(seconds: 60)
     );
 
-    final QueryResult result = await apiRoot.graphQLClient.query(_options);
-    if (result.hasException) {
-      print(result.exception.toString());
-      return;
+    try {
+      final result = await client.query(_options);
+      final daemonStatus = result.data?['daemonStatus'];
+      if (result.hasException || daemonStatus is! Map ||
+          daemonStatus['consensusConfiguration'] is! Map ||
+          daemonStatus['stateHash'] is! String) {
+        store.staking!.clearOverviewData();
+        return;
+      }
+      final stateHash = daemonStatus['stateHash'] as String;
+      final consensusState = await fetchBlockInfo(stateHash, client: client);
+      if (consensusState == null || consensusState['epoch'] < 0 || consensusState['slot'] < 0) {
+        store.staking!.clearOverviewData();
+        return;
+      }
+      store.staking!.setOverviewInfo({
+        ...Map<String, dynamic>.from(daemonStatus['consensusConfiguration']),
+        ...consensusState,
+        'stateHash': stateHash,
+        'blockchainLength': daemonStatus['blockchainLength'],
+      });
+    } catch (error) {
+      store.staking!.clearOverviewData();
+      print('Request staking overview failed: $error');
     }
-    Map<String, dynamic> daemonStatus = result.data!['daemonStatus'];
-    String stateHash = daemonStatus['stateHash'];
-    Map consensusState = await fetchBlockInfo(stateHash);
-    Map<String, dynamic> overviewData = {
-      ...daemonStatus['consensusConfiguration'],
-      ...consensusState,
-      'stateHash': stateHash,
-      'blockchainLength': daemonStatus['daemonStatus'],
-    };
-    // await fetchDelegationInfo(consensusState['epoch']);
-    store.staking!.setOverviewInfo(overviewData);
-    print('overview cached');
   }
 }

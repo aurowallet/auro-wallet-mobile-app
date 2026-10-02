@@ -1107,7 +1107,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectValidator => 'Select';
 
   @override
-  String get epochEstimate => '15 days (1 epoch) est.';
+  String epochEstimate(String days) {
+    return '$days days (1 epoch) est.';
+  }
 
   @override
   String get threeMonthsEstimate => '3 months est.';

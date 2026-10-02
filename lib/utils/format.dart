@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:decimal/decimal.dart';
+import 'package:auro_wallet/utils/stakingMath.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
@@ -10,9 +11,6 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 
 class Fmt {
-  static const int _defaultSlotDurationMs = 90000;
-  static const int _millisecondsPerMinute = 60000;
-
   static String address(String? addr, {int pad = 4, bool padSame = false}) {
     if (addr == null || addr.length == 0) {
       return '';
@@ -345,10 +343,7 @@ class Fmt {
 
   static String slotDurationText(BuildContext context, int? slotDurationMs) {
     final localeCode = Localizations.localeOf(context).languageCode;
-    final durationMs = slotDurationMs != null && slotDurationMs > 0
-        ? slotDurationMs
-        : _defaultSlotDurationMs;
-    final minutes = (durationMs / _millisecondsPerMinute * 10).round() / 10;
+    final minutes = StakingMath.slotMinutes(slotDurationMs);
     final formattedMinutes =
         NumberFormat.decimalPattern(localeCode).format(minutes);
     return AppLocalizations.of(context)!.nMinutes(minutes, formattedMinutes);

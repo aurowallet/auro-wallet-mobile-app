@@ -1108,7 +1108,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get selectValidator => 'Seç';
 
   @override
-  String get epochEstimate => '15 gün (1 dönem) tahmini';
+  String epochEstimate(String days) {
+    return '$days gün (1 dönem) tahmini';
+  }
 
   @override
   String get threeMonthsEstimate => '3 ay tahmini';

@@ -713,7 +713,7 @@
   "toValidator": "К валидатору",
   "currentValidator": "Текущий валидатор",
   "selectValidator": "Выбрать",
-  "epochEstimate": "15 дней (1 эпоха) прогноз",
+  "epochEstimate": "{days} дней (1 эпоха) прогноз",
   "threeMonthsEstimate": "3 месяца прогноз",
   "sixMonthsEstimate": "6 месяцев прогноз",
   "staked": "Застейкано",

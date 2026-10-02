@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Retain Android native symbol tables for release diagnostics.
 - Add Ledger regression tests.
 - Improve native coin and token amount precision.
+- Share staking calculations and adapt epoch estimates and labels to Mesa network timing.
 
 ### Fixed
 - Fix Ledger Bluetooth connection, Mina app detection, and response parsing.
@@ -20,6 +21,8 @@ All notable changes to this project will be documented in this file.
 - Show token transaction build and submission errors.
 - Fix amount display and conversion precision errors.
 - Fix transaction speed-up and cancellation with formatted balances.
+- Show unknown staking overview values when queries fail instead of Epoch 0.
+- Handle invalid staking values and prevent calculation overflow and rounding errors.
 
 ## [2.3.2]
 ### Enhancements

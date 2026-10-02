@@ -1071,7 +1071,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get selectValidator => '选择';
 
   @override
-  String get epochEstimate => '15天 (1 epoch) 预估';
+  String epochEstimate(String days) {
+    return '$days天 (1 epoch) 预估';
+  }
 
   @override
   String get threeMonthsEstimate => '3个月预估';

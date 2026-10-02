@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:auro_wallet/utils/stakingMath.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/staking/validatorsPage.dart';
 import 'package:auro_wallet/page/staking/components/validatorItem.dart';
@@ -215,10 +216,6 @@ class _DelegatePageState extends State<DelegatePage>
     } else {
       _nonceCtrl.clear();
     }
-  }
-
-  String _floorToDecimals(double value, int decimals) {
-    return Fmt.parseShowBalance(value, showLength: decimals);
   }
 
   String? _validateBalance() {
@@ -812,15 +809,12 @@ class _DelegatePageState extends State<DelegatePage>
     String sixMonthEst = '--';
     
     if (isMainnet && apr != null && apr > 0 && balance > 0) {
-      double aprDecimal = apr / 100;
-      
-      double oneEpochValue = balance * aprDecimal * (DAYS_PER_EPOCH / DAYS_PER_YEAR);
-      double threeMonthValue = balance * aprDecimal * (DAYS_PER_THREE_MONTHS / DAYS_PER_YEAR);
-      double sixMonthValue = balance * aprDecimal * (DAYS_PER_SIX_MONTHS / DAYS_PER_YEAR);
-      
-      oneEpochEst = _floorToDecimals(oneEpochValue, 4);
-      threeMonthEst = _floorToDecimals(threeMonthValue, 4);
-      sixMonthEst = _floorToDecimals(sixMonthValue, 4);
+      oneEpochEst = StakingMath.estimateRewards(balance: balance, apr: apr,
+          days: store.staking!.overviewData.epochDays) ?? '--';
+      threeMonthEst = StakingMath.estimateRewards(balance: balance, apr: apr,
+          days: DAYS_PER_THREE_MONTHS) ?? '--';
+      sixMonthEst = StakingMath.estimateRewards(balance: balance, apr: apr,
+          days: DAYS_PER_SIX_MONTHS) ?? '--';
     }
     
     return Container(
@@ -833,7 +827,7 @@ class _DelegatePageState extends State<DelegatePage>
       ),
       child: Column(
         children: [
-          _buildEstimateRow(dic.epochEstimate, '$oneEpochEst ${COIN.coinSymbol}'),
+          _buildEstimateRow(dic.epochEstimate(store.staking!.overviewData.epochDaysText), '$oneEpochEst ${COIN.coinSymbol}'),
           SizedBox(height: 12),
           _buildEstimateRow(dic.threeMonthsEstimate, '$threeMonthEst ${COIN.coinSymbol}'),
           SizedBox(height: 12),
