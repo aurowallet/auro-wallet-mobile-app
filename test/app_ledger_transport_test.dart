@@ -5,6 +5,7 @@ import 'package:auro_wallet/ledgerMina/ledger_error.dart';
 import 'package:auro_wallet/ledgerMina/mina_transformer.dart';
 import 'package:auro_wallet/ledgerMina/operations/mina_public_key_operation.dart';
 import 'package:auro_wallet/ledgerMina/operations/mina_name_operation.dart';
+import 'package:auro_wallet/ledgerMina/operations/mina_sign_message_operation.dart';
 import 'package:auro_wallet/ledgerMina/operations/mina_version_operation.dart';
 import 'package:auro_wallet/utils/appLedgerBleConnectionManager.dart';
 import 'package:auro_wallet/utils/appLedgerGattGateway.dart';
@@ -356,6 +357,23 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 60));
     ble.respond([...ledgerAddress.codeUnits, 0x90, 0]);
     expect(await response, [ledgerAddress]);
+  });
+
+  test('message signing waits beyond probe timeout and parses the complete BLE response', () async {
+    await gateway.start();
+    final response = gateway.sendOperation(
+      MinaSignMessageOperation(accountIndex: 7, networkId: 1, message: 'hello'),
+      transformer: const MinaTransformer(),
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    final message = 'Message : hello'.codeUnits;
+    ble.respond([
+      ...List.filled(31, 0), 1, ...List.filled(31, 0), 2,
+      message.length, ...message, 0x90, 0,
+    ]);
+    expect(await response, {
+      'data': 'Message : hello', 'signature': {'field': '1', 'scalar': '2'},
+    });
   });
 
   test(

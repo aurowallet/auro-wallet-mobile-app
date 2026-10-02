@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:auro_wallet/common/components/ledgerWaitingContent.dart';
+import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/ledgerMina/ledger_error.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/browserTab.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
@@ -15,6 +19,7 @@ import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:auro_wallet/utils/format.dart';
+import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:flutter/material.dart';
 
 class SignatureDialog extends StatefulWidget {
@@ -48,12 +53,21 @@ class _SignatureDialogState extends State<SignatureDialog> {
   final store = globalAppStore;
   bool formatStatus = true;
   bool submitting = false;
+  bool ledgerInteractionStarted = false;
+  VoidCallback? _cancelLedgerSigning;
+  late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
   late WalletData nextWalletData;
   late AccountData nextAccountData;
+
+  bool get _isLedger => nextWalletData.walletType == WalletStore.seedTypeLedger;
+  bool get _isActive => mounted && ModalRoute.of(context)?.isCurrent != false;
 
   @override
   void initState() {
     super.initState();
+    _ledgerScreenAwakeHandle = ScreenAwakeHandle(
+      ScreenAwakeKeys.scoped('ledger_message', this),
+    );
 
     nextWalletData = widget.signWallet != null
         ? widget.signWallet!
@@ -70,11 +84,82 @@ class _SignatureDialogState extends State<SignatureDialog> {
 
   @override
   void dispose() {
+    _cancelLedgerSigning?.call();
+    _ledgerScreenAwakeHandle.setActive(false)
+        .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
     super.dispose();
   }
 
+  Future<bool> _signMessageWithLedger() async {
+    final dic = AppLocalizations.of(context)!;
+    if (widget.method != 'mina_signMessage' && widget.method != 'mina_sign_JsonMessage') {
+      UI.toast(dic.notSupportNow);
+      return false;
+    }
+    final message = widget.method == 'mina_sign_JsonMessage'
+        ? jsonEncode(widget.content) : widget.content;
+    if (message is! String) {
+      UI.toast(dic.buildFailed);
+      return false;
+    }
+    final networkId = resolveEffectiveNetworkID(
+      widget.walletConnectChainId, store.settings?.currentNode?.networkID,
+    );
+    if (isZekoNetworkID(networkId) ||
+        !store.settings!.getSupportNetworkIDs().contains(networkId)) {
+      UI.toast(dic.notSupportNow);
+      return false;
+    }
+    setState(() => submitting = true);
+    try {
+      await _ledgerScreenAwakeHandle.setActive(true);
+      if (!_isActive) return false;
+      if (!await UI.ensureLedgerReady(
+          context: context, ledgerStore: store.ledger!,
+          stage: 'Ledger message readiness')) return false;
+      if (!_isActive) return false;
+      final data = await webApi.account.ledgerSignMessage(
+        context: context, message: message,
+        accountIndex: nextAccountData.accountIndex,
+        fromAddress: nextAccountData.pubKey, networkId: networkId,
+        onLedgerInteraction: () {
+          if (!_isActive) return false;
+          final ledger = store.ledger!.ledgerInstance;
+          final device = store.ledger!.ledgerDevice;
+          if (ledger != null && device != null) {
+            _cancelLedgerSigning = () {
+              unawaited(store.ledger!.disconnectSession(ledger, device));
+            };
+          }
+          if (!ledgerInteractionStarted) {
+            setState(() => ledgerInteractionStarted = true);
+          }
+          return true;
+        },
+      );
+      if (!_isActive || data == null) return false;
+      _cancelLedgerSigning = null;
+      await widget.onConfirm(data);
+      return true;
+    } catch (error, stackTrace) {
+      ledgerErrorLog('Ledger message confirmation', error, stackTrace: stackTrace);
+      if (_isActive) UI.toast(dic.buildFailed);
+      return false;
+    } finally {
+      _cancelLedgerSigning = null;
+      await _ledgerScreenAwakeHandle.setActive(false)
+          .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
+      if (mounted) {
+        setState(() {
+          submitting = false;
+          ledgerInteractionStarted = false;
+        });
+      }
+    }
+  }
+
   Future<bool> onConfirm() async {
-    print('onConfirm');
+    if (!_isActive || submitting) return false;
     AppLocalizations dic = AppLocalizations.of(context)!;
     final isLedger = nextWalletData.walletType == WalletStore.seedTypeLedger;
     if (!formatStatus) {
@@ -82,8 +167,7 @@ class _SignatureDialogState extends State<SignatureDialog> {
       return false;
     }
     if (isLedger) {
-      UI.toast(dic.ledgerNotSupportSign);
-      return false;
+      return _signMessageWithLedger();
     }
     String? privateKey;
     String? password = await UI.showPasswordDialog(
@@ -154,7 +238,8 @@ class _SignatureDialogState extends State<SignatureDialog> {
     });
       return false;
     }
-    await widget.onConfirm(data); 
+    await widget.onConfirm(data);
+    if (!mounted) return true;
     setState(() {
       submitting = false;
     });
@@ -162,6 +247,8 @@ class _SignatureDialogState extends State<SignatureDialog> {
   }
 
   void onCancel() {
+    _cancelLedgerSigning?.call();
+    _cancelLedgerSigning = null;
     final onCancel = widget.onCancel;
     if (onCancel != null) {
       onCancel();
@@ -252,9 +339,17 @@ class _SignatureDialogState extends State<SignatureDialog> {
               Wrap(
                 children: [
                   BrowserDialogTitleRow(
-                      title: dic.signatureRequest,
-                      showChainType: true,
+                      title: ledgerInteractionStarted ? dic.waitingLedger : dic.signatureRequest,
+                      showLedgerStatus: _isLedger && !ledgerInteractionStarted,
+                      showCloseIcon: ledgerInteractionStarted,
+                      showChainType: !ledgerInteractionStarted,
                       chainId: widget.walletConnectChainId),
+                  if (ledgerInteractionStarted)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: LedgerWaitingContent(),
+                    )
+                  else
                   Padding(
                       padding: EdgeInsets.only(top: 20, left: 20, right: 20),
                       child: Column(
@@ -333,7 +428,8 @@ class _SignatureDialogState extends State<SignatureDialog> {
                               ))
                         ],
                       )),
-                  ZkAppBottomButton(
+                  if (!ledgerInteractionStarted)
+                    ZkAppBottomButton(
                       onConfirm: onConfirm,
                       onCancel: onCancel,
                       submitting: submitting)

@@ -409,6 +409,57 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
     }, canContinue: onLedgerInteraction);
   }
 
+  Future<Map<String, dynamic>?> ledgerSignMessage({
+    required BuildContext context,
+    required String message,
+    required int accountIndex,
+    required String fromAddress,
+    String? networkId,
+    bool Function()? onLedgerInteraction,
+  }) async {
+    final dic = AppLocalizations.of(context)!;
+    // Capture the network before any device interaction or recovery dialog.
+    final targetNetwork = resolveEffectiveNetworkID(
+      networkId, store.settings?.currentNode?.networkID,
+    );
+    if (isZekoNetworkID(targetNetwork) ||
+        !store.settings!.getSupportNetworkIDs().contains(targetNetwork)) {
+      UI.toast(dic.notSupportNow);
+      return null;
+    }
+    if (accountIndex < 0 || accountIndex > 0xffffffff || fromAddress.isEmpty) {
+      UI.toast(dic.buildFailed);
+      return null;
+    }
+    try {
+      return await _withLedgerRecovery(context, 'Ledger message signing', (isCurrent) async {
+        final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!, accountIndex: accountIndex);
+        // SIGN_MSG contains no public key, so bind the device account to the request.
+        final accounts = await minaApp.getAccounts(
+          store.ledger!.ledgerDevice!, showAddressInDevice: false,
+        );
+        if (!isCurrent()) return null;
+        if (accounts.isEmpty || accounts.first != fromAddress) {
+          UI.toast(dic.ledgerAccountMismatch);
+          return null;
+        }
+        final signed = await minaApp.signMessage(
+          store.ledger!.ledgerDevice!, message: message,
+          networkId: isMainnetLikeNetworkID(targetNetwork)
+              ? Networks.MAINNET.value : Networks.DEVNET.value,
+        );
+        if (!isCurrent()) return null;
+        return {...signed, 'publicKey': fromAddress};
+      }, canContinue: onLedgerInteraction);
+    } catch (error, stackTrace) {
+      ledgerErrorLog('Ledger message signing', error, stackTrace: stackTrace);
+      if (context.mounted && ModalRoute.of(context)?.isCurrent != false) {
+        UI.toast(dic.buildFailed);
+      }
+      return null;
+    }
+  }
+
   Future<dynamic> ledgerSignAndSendZkTx(
     Map txInfo, {
     required BuildContext context,
@@ -633,8 +684,19 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         if (canContinue?.call() == false) return null;
         if (!await _presentLedgerFailure(context, error,
             allowReconnect: attempt == 0)) return null;
-      } catch (_) {
-        if (!isCurrent()) return null;
+      } catch (error, stackTrace) {
+        // A transport failure may clear the device before its pending APDU
+        // fails. Report that error while the request is still active.
+        if (!isActive() || !identical(store.ledger!.ledgerInstance, ledger) ||
+            (store.ledger!.ledgerDevice != null &&
+                !identical(store.ledger!.ledgerDevice, device)) ||
+            canContinue?.call() == false) return null;
+        if (store.ledger!.ledgerDevice == null) {
+          ledgerErrorLog(stage, error, stackTrace: stackTrace);
+          store.ledger!.recordFailure(error);
+          await _presentLedgerFailure(context, error, allowReconnect: false);
+          return null;
+        }
         rethrow;
       }
     }

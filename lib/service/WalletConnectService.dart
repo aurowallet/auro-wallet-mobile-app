@@ -328,10 +328,8 @@ class WalletConnectService {
     if (event != null) {
       Map? params = event.params;
       Object message = params?["message"];
-      String? nextChainId;
-      if (event.chainId != appStore.settings?.currentNode?.networkID) {
-        nextChainId = event.chainId;
-      }
+      final nextChainId = event.chainId;
+      final messageWallet = signWallet ?? appStore.wallet!.currentWallet;
       String iconUrl = "";
       String zkUrl = "";
       if (dAppMetadata == null) {
@@ -351,7 +349,7 @@ class WalletConnectService {
           iconUrl: iconUrl,
           url: zkUrl,
           walletConnectChainId: nextChainId,
-          signWallet: signWallet,
+          signWallet: messageWallet,
           fromAddress: params?["from"],
           onConfirm: (Map data) async {
             await _walletKit.respondSessionRequest(

@@ -1622,6 +1622,29 @@ void main() {
     });
   }
 
+  for (final delegation in [false, true]) {
+    testWidgets('${delegation ? "staking" : "MINA"} transport timeout remains a handled failure after disconnect', (tester) async {
+      ledger.signingGate = Completer<void>();
+      ledger.signingFailure = TimeoutException('Ledger transport timed out.');
+      await tester.pumpWidget(host(const Text('Overview')));
+      final context = tester.element(find.text('Overview'));
+      final account = ApiAccount(FakeApi(context));
+      final pending = account.ledgerSign({
+        'accountIndex': 0, 'fromAddress': 'sender', 'toAddress': 'receiver',
+        'fee': '0.1', 'amount': '1', 'nonce': 0, 'memo': '',
+      }, context: context, isDelegation: delegation, networkId: 'mina:mainnet');
+      await pumpFlow(tester);
+      globalAppStore.ledger!.setDevice(null);
+      ledger.signingGate!.complete();
+      expect(await pending, isNull);
+      await pumpFlow(tester);
+      expect(toasts, [AppLocalizations.of(context)!.buildFailed]);
+      expect(find.byType(ImportLedger), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pump(const Duration(seconds: 1));
+    });
+  }
+
   testWidgets('cancelled MINA signature is not returned for broadcast', (tester) async {
     ledger.signingGate = Completer<void>();
     ledger.transferSignature = '0' * 128;

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2.3.3]
 ### Enhancements
+- Add Ledger message and JSON message signing for dApps and WalletConnect.
 - Add Ledger zkApp signing for token transfers, dApps, WalletConnect, and transaction speed-up.
 - Remove Zeko networks from the default network list.
 - Retain Android native symbol tables for release diagnostics.

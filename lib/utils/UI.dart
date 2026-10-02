@@ -465,6 +465,7 @@ class UI {
     Function()? onCancel,
     String? buttonText,
   }) {
+    bool completed = false;
     return showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -481,16 +482,35 @@ class UI {
             signWallet: signWallet,
             fromAddress: fromAddress,
             onConfirm: (Map data) async {
-              await onConfirm(data);
-              Navigator.of(context).pop();
+              if (completed || !context.mounted ||
+                  ModalRoute.of(context)?.isCurrent == false) return;
+              completed = true;
+              try {
+                await onConfirm(data);
+              } catch (_) {
+                if (context.mounted && ModalRoute.of(context)?.isActive != false) {
+                  completed = false;
+                }
+                rethrow;
+              }
+              if (context.mounted && ModalRoute.of(context)?.isCurrent != false) {
+                Navigator.of(context).pop();
+              }
             },
             onCancel: () {
+              if (completed) return;
+              completed = true;
               if (onCancel != null) {
                 onCancel();
               }
             });
       },
-    );
+    ).whenComplete(() {
+      if (!completed) {
+        completed = true;
+        onCancel?.call();
+      }
+    });
   }
 
   static Future<void> showSignTransactionAction({

@@ -11,6 +11,7 @@ import 'mina_transformer.dart';
 import 'mina_version.dart';
 import 'operations/mina_public_key_operation.dart';
 import 'operations/mina_sign_field_element_operation.dart';
+import 'operations/mina_sign_message_operation.dart';
 import 'operations/mina_sign_msgpack_operation.dart';
 import 'operations/mina_version_operation.dart';
 
@@ -139,6 +140,19 @@ class MinaLedgerApp extends LedgerApp {
       device,
       MinaSignTransferOperation(
         transaction: transaction,
+      ),
+      transformer: transformer,
+    );
+  }
+
+  Future<Map<String, dynamic>> signMessage(LedgerDevice device, {
+    required String message,
+    required int networkId,
+  }) {
+    return ledger.sendOperation<Map<String, dynamic>>(
+      device,
+      MinaSignMessageOperation(
+        accountIndex: accountIndex, networkId: networkId, message: message,
       ),
       transformer: transformer,
     );
