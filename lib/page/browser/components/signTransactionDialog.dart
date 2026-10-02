@@ -8,7 +8,6 @@ import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/browser/components/browserBaseUI.dart';
 import 'package:auro_wallet/page/browser/components/browserTab.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
@@ -20,7 +19,6 @@ import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/tokenPendingTx.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
-import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -34,7 +32,6 @@ import 'package:auro_wallet/utils/zkUtils.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 
 enum SignTxDialogType { Payment, Delegation, zkApp }
 
@@ -95,6 +92,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
   ZkAppValueEnum zkNonceType = ZkAppValueEnum.recommed_default;
   bool showFeeErrorTip = false;
   bool submitting = false;
+  bool checkingLedger = false;
   late String showToAddress = "";
   String sourceData = "";
   List<DataItem> rawData = [];
@@ -213,6 +211,11 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           widget.walletConnectChainId,
         );
         nextGqlUrl = nextEndpoint?.url;
+        if (nextEndpoint == null) {
+          customNetNonce = -1;
+          customNetBalance = 0;
+          return;
+        }
       }
       EasyLoading.show(context);
       Map<String, AccountInfo> accountsInfo = await webApi.assets
@@ -383,48 +386,15 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     return true;
   }
 
-  Future<bool> _ledgerCheck() async {
-    bool showLedgerDialog = false;
-    if (store.ledger!.ledgerDevice == null) {
-      showLedgerDialog = true;
-    } else {
-      try {
-        final minaApp =
-            MinaLedgerApp(store.ledger!.ledgerInstance!, accountIndex: 0);
-        await Future.delayed(Duration(
-            milliseconds: 400)); // avoid conflict with ledgerStatus Component
-        await minaApp.getVersion(store.ledger!.ledgerDevice!);
-        store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
-      } on LedgerException {
-        store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
-        showLedgerDialog = true;
-      }
-    }
-    if (showLedgerDialog) {
-      print('connect ledger');
-      bool? connected = await UI.showImportLedgerDialog(context: context);
-      print('connected ledger');
-      print(connected);
-      // if (connected != true) {
-      //   print('return');
-      //   return false;
-      // }
-      // wait leger Status Version response
-      await Future.delayed(const Duration(milliseconds: 500));
-      return false;
-    }
-    return true;
-  }
-
   Future<bool> onConfirm() async {
+    if (!mounted || submitting || checkingLedger) return false;
     AppLocalizations dic = AppLocalizations.of(context)!;
-    if (isLedger && widget.signType == SignTxDialogType.zkApp) {
+    if (widget.walletConnectChainId != null &&
+        (nextGqlUrl == null || nextGqlUrl!.isEmpty)) {
       UI.toast(dic.notSupportNow);
       return false;
     }
-    String ledgerTargetNetworkId =
-        widget.walletConnectChainId ?? store.settings?.currentNode?.networkID ?? '';
-    if (isLedger && ledgerTargetNetworkId == networkIDMap.zeko) {
+    if (isLedger && isZekoNet) {
       UI.toast(dic.notSupportNow);
       return false;
     }
@@ -444,9 +414,19 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
 
     print('onConfirm');
     if (await _validate()) {
-      if (isLedger && !await _ledgerCheck()) {
-        return false;
+      if (!mounted || submitting || checkingLedger) return false;
+      if (isLedger) {
+        setState(() => checkingLedger = true);
+        try {
+          if (!await UI.ensureLedgerReady(
+              context: context,
+              ledgerStore: store.ledger!,
+              stage: 'Ledger dApp signing readiness')) return false;
+        } finally {
+          if (mounted) setState(() => checkingLedger = false);
+        }
       }
+      if (!mounted) return false;
       setState(() {
         submitting = true;
       });
@@ -499,6 +479,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
         if (widget.signType == SignTxDialogType.zkApp) {
           txInfo = {
             "privateKey": privateKey,
+            "accountIndex": nextAccountData.accountIndex,
             "fromAddress": nextAccountData.pubKey,
             "fee": lastFee,
             "nonce": nextNonce,
@@ -523,35 +504,45 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
           }
         }
         dynamic data;
+        final targetNetworkId = widget.walletConnectChainId ?? store.settings?.currentNode?.networkID;
         if (isLedger) {
           print('start sign ledger');
-          final tx = await webApi.account.ledgerSign(txInfo,
+          if (widget.signType == SignTxDialogType.zkApp) {
+            data = await webApi.account.ledgerSignAndSendZkTx(
+              txInfo,
               context: context,
-              isDelegation: isDelagetion,
-              networkId: widget.walletConnectChainId);
-          if (tx == null) {
-            return false;
+              networkId: targetNetworkId,
+              gqlUrl: nextGqlUrl,
+            );
+          } else {
+            final tx = await webApi.account.ledgerSign(txInfo,
+                context: context,
+                isDelegation: isDelagetion,
+                networkId: targetNetworkId);
+            if (tx == null) {
+              return false;
+            }
+            data = await webApi.account.sendTxBody(tx,
+                context: context,
+                isDelegation: isDelagetion,
+                gqlUrl: nextGqlUrl);
           }
-          data = await webApi.account.sendTxBody(tx,
-              context: context,
-              isDelegation: isDelagetion,
-              gqlUrl: nextGqlUrl);
         } else {
           if (widget.signType == SignTxDialogType.zkApp) {
             data = await webApi.account.signAndSendZkTx(txInfo,
                 context: context,
-                networkId: widget.walletConnectChainId,
+                networkId: targetNetworkId,
                 gqlUrl: nextGqlUrl);
           } else {
             if (isDelagetion) {
               data = await webApi.account.signAndSendDelegationTx(txInfo,
                   context: context,
-                  networkId: widget.walletConnectChainId,
+                  networkId: targetNetworkId,
                   gqlUrl: nextGqlUrl);
             } else {
               data = await webApi.account.signAndSendTx(txInfo,
                   context: context,
-                  networkId: widget.walletConnectChainId,
+                  networkId: targetNetworkId,
                   gqlUrl: nextGqlUrl);
             }
           }
@@ -1018,6 +1009,29 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
     );
   }
 
+  Widget _buildLedgerZkAppTip() {
+    final dic = AppLocalizations.of(context)!;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Color(0xFFE4B200).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Color(0xFFE4B200), width: 1),
+      ),
+      child: Text(
+        dic.ledgerZkAppBlindSigningTip,
+        style: TextStyle(
+          color: Color(0xFF6B5700),
+          fontSize: 13,
+          height: 1.4,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -1057,6 +1071,8 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   isRiskAddress ? _buildRiskTip() : Container(),
+                                  if (isLedger && widget.signType == SignTxDialogType.zkApp)
+                                    _buildLedgerZkAppTip(),
                                   ZkAppWebsite(
                                       icon: widget.iconUrl, url: widget.url),
                                   SizedBox(
@@ -1072,7 +1088,7 @@ class _SignTransactionDialogState extends State<SignTransactionDialog> {
                   ZkAppBottomButton(
                       onConfirm: onConfirm,
                       onCancel: onCancel,
-                      submitting: submitting)
+                      submitting: submitting || checkingLedger)
                 ],
               ),
             ],

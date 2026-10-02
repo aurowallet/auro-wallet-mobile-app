@@ -26,7 +26,7 @@ class MinaSignTransferOperation extends LedgerOperation<String> {
     writer.writeUint8(0x03); // INS_SIGN_TX
     writer.writeUint8(0x00); // P1_FIRST
     writer.writeUint8(0x00); // P2_LAST
-    writer.writeUint8(transaction.length); // P2_LAST
+    writer.writeUint8(transaction.length); // Lc
     writer.write(transaction); // Account index as bytearray
     return [writer.toBytes()];
   }

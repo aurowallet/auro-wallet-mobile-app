@@ -763,5 +763,14 @@
     "mnemonicWarningContent": "Якщо хтось отримає вашу мнемонічну фразу, він матиме повний контроль над вашим гаманцем. Не діліться нею.",
     "@mnemonicWarningContent": {},
     "done": "Готово",
-    "@done": {}
+    "@done": {},
+    "ledgerConnectionError": "Не вдалося зв’язатися з Ledger. Перевірте Bluetooth, розблокуйте Ledger, відкрийте застосунок Mina та спробуйте ще раз.",
+    "ledgerBusyTip": "Ledger зайнятий. Будь ласка, повторіть спробу.",
+    "@ledgerBusyTip": {},
+    "ledgerAccountMismatch": "Підключений обліковий запис Ledger не відповідає цьому обліковому запису гаманця.",
+    "@ledgerAccountMismatch": {},
+    "ledgerZkAppUpdateRequired": "Оновіть застосунок Mina на пристрої Ledger до останньої версії.",
+    "@ledgerZkAppUpdateRequired": {},
+    "ledgerZkAppBlindSigningTip": "Будь ласка, увімкніть Blind signing на Ledger.",
+    "@ledgerZkAppBlindSigningTip": {}
 }

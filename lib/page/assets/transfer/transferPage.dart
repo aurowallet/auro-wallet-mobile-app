@@ -7,7 +7,6 @@ import 'package:auro_wallet/common/components/inputItem.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:auro_wallet/common/components/txConfirmDialog.dart';
 import 'package:auro_wallet/common/consts/index.dart';
-import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/scanPage.dart';
@@ -318,8 +317,7 @@ class _TransferPageState extends State<TransferPage> {
     }
   }
 
-  Future<Map<String, dynamic>?> getTokenBuildBody(
-      Map txInfo, String privateKey) async {
+  Future<Map<String, dynamic>?> getTokenBuildBody(Map txInfo) async {
     AppLocalizations dic = AppLocalizations.of(context)!;
     dynamic res =
         await webApi.assets.getTokenState(txInfo['toAddress'], tokenId);
@@ -450,13 +448,7 @@ class _TransferPageState extends State<TransferPage> {
           _initWallet.walletType == WalletStore.seedTypeNone;
       final isLedger =
           _initWallet.walletType == WalletStore.seedTypeLedger;
-      if (isLedger && !isSendMainToken) {
-        UI.toast(dic.notSupportNow);
-        setState(() { submitting = false; });
-        return;
-      }
-      if (isLedger &&
-          store.settings?.currentNode?.networkID == networkIDMap.zeko) {
+      if (isLedger && store.settings?.isZekoNet == true) {
         UI.toast(dic.notSupportNow);
         setState(() { submitting = false; });
         return;
@@ -465,6 +457,7 @@ class _TransferPageState extends State<TransferPage> {
           context: context,
           title: dic.sendDetail,
           isLedger: isLedger,
+          ledgerZkApp: isLedger && !isSendMainToken,
           items: txItems,
           disabled: isWatchMode,
           buttonText: isWatchMode ? dic.watchMode : dic.confirm,
@@ -494,7 +487,7 @@ class _TransferPageState extends State<TransferPage> {
               ),
             ],
           ),
-          onConfirm: () async {
+          onConfirm: (onLedgerInteraction) async {
             String? privateKey;
             if (!isLedger) {
               String? password = await UI.showPasswordDialog(
@@ -543,57 +536,64 @@ class _TransferPageState extends State<TransferPage> {
               "memo": memo,
             };
             dynamic data;
-            if (isLedger) {
-              print('start sign ledger');
-              final tx = await webApi.account
-                  .ledgerSign(txInfo, context: context, isDelegation: false);
-              if (tx == null) {
-                return false;
-              }
-              if (mounted) {
-                data = await webApi.account
-                    .sendTxBody(tx, context: context, isDelegation: false);
-              }
-            } else {
-              if (isSendMainToken) {
+            if (isSendMainToken) {
+              if (isLedger) {
+                final tx = await webApi.account.ledgerSign(txInfo,
+                    context: context,
+                    isDelegation: false,
+                    onLedgerInteraction: onLedgerInteraction);
+                if (tx == null) {
+                  return false;
+                }
+                if (mounted) {
+                  data = await webApi.account
+                      .sendTxBody(tx, context: context, isDelegation: false);
+                }
+              } else {
                 data = await webApi.account
                     .signAndSendTx(txInfo, context: context);
-              } else {
-                Map<String, dynamic>? buildBody =
-                    await getTokenBuildBody(txInfo, privateKey ?? "");
-                if (buildBody == null) {
-                  return false;
-                }
-                txInfo["transaction"] = buildBody['zkCommand'];
-                txInfo["zkOnlySign"] = true;
-                dynamic signedRes = await webApi.account
-                    .signAndSendZkTx(txInfo, context: context);
-                if (signedRes == null) {
-                  return false;
-                }
-                dynamic signedData = signedRes["signedData"];
-                Map<String, dynamic> nextData = {
-                  "buildHash": buildBody['buildHash'],
-                  "signedData": signedData,
-                  'sender': txInfo['fromAddress'],
-                  'receiver': txInfo['toAddress'],
-                  'tokenAddress': tokenPublicKey,
-                  'networkID': store.settings!.currentNode?.networkID ?? '',
-                };
-                Map<String, dynamic> realUnSignTxStr = await webApi.bridge
-                    .encryptData(jsonEncode(nextData), center_public_keys);
-                data = await webApi.account.postTokenResult(realUnSignTxStr);
-                if (data == null) {
-                  return false;
-                }
-                dynamic parsedData = jsonDecode(data);
-                if (parsedData['error'] != null) {
-                  String msg = parsedData['error'] != null
-                      ? parsedData['error'].toString()
-                      : data;
-                  UI.toast(msg);
-                  return false;
-                }
+              }
+            } else {
+              final buildBody = await getTokenBuildBody(txInfo);
+              if (buildBody == null) {
+                return false;
+              }
+              txInfo["transaction"] = buildBody['zkCommand'];
+              txInfo["zkOnlySign"] = true;
+              final targetNode = store.settings!.currentNode;
+              dynamic signedRes = isLedger
+                  ? await webApi.account.ledgerSignAndSendZkTx(
+                      txInfo,
+                      context: context,
+                      networkId: targetNode?.networkID,
+                      gqlUrl: targetNode?.url,
+                      onLedgerInteraction: onLedgerInteraction,
+                    )
+                  : await webApi.account.signAndSendZkTx(txInfo,
+                      context: context,
+                      networkId: targetNode?.networkID,
+                      gqlUrl: targetNode?.url);
+              if (signedRes == null) {
+                return false;
+              }
+              dynamic signedData = signedRes["signedData"];
+              Map<String, dynamic> nextData = {
+                "buildHash": buildBody['buildHash'],
+                "signedData": signedData,
+                'sender': txInfo['fromAddress'],
+                'receiver': txInfo['toAddress'],
+                'tokenAddress': tokenPublicKey,
+                'networkID': store.settings!.currentNode?.networkID ?? '',
+              };
+              Map<String, dynamic> realUnSignTxStr = await webApi.bridge
+                  .encryptData(jsonEncode(nextData), center_public_keys);
+              data = await webApi.account.postTokenResult(realUnSignTxStr);
+              if (data == null) {
+                return false;
+              }
+              if (data['error'] != null || data['code'] != 200) {
+                UI.toast(data['error']?.toString() ?? dic.buildFailed);
+                return false;
               }
             }
             if (data == null) {

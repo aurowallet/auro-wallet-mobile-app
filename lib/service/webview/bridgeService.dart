@@ -115,6 +115,15 @@ class BridgeService {
     return _normalizeMapResult(res);
   }
 
+  Future<Map<String, dynamic>> getZkappCommandCommitments(Map input) async {
+    assert(_runner != null, 'bridge not init');
+    final res = await _runner?.evalJavascript(
+      'zkAppSigner.getZkappCommandCommitments(${jsonEncode(input)})',
+      allowRepeat: true,
+    );
+    return _normalizeMapResult(res);
+  }
+
 // signMessage
   Future<Map<String, dynamic>> signMessage(Map messageInfo) async {
     assert(_runner != null, 'bridge not init');

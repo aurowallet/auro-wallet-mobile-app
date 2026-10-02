@@ -2293,6 +2293,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get done;
+
+  /// No description provided for @ledgerConnectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to communicate with Ledger. Check the Bluetooth connection, unlock Ledger, open the Mina app, and try again.'**
+  String get ledgerConnectionError;
+
+  /// No description provided for @ledgerBusyTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger is busy. Please try again.'**
+  String get ledgerBusyTip;
+
+  /// No description provided for @ledgerAccountMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The connected Ledger account does not match this wallet account.'**
+  String get ledgerAccountMismatch;
+
+  /// No description provided for @ledgerZkAppUpdateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please update the Mina app on your Ledger hardware to the latest version.'**
+  String get ledgerZkAppUpdateRequired;
+
+  /// No description provided for @ledgerZkAppBlindSigningTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable Blind signing on your Ledger.'**
+  String get ledgerZkAppBlindSigningTip;
 }
 
 class _AppLocalizationsDelegate

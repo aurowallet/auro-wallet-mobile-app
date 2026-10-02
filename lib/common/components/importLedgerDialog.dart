@@ -4,6 +4,8 @@ import 'package:auro_wallet/common/components/customStyledText.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/ledgerMina/ledger_error.dart';
+import 'package:auro_wallet/ledgerMina/ledger_error_message.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -21,118 +23,194 @@ class ImportLedger extends StatefulWidget {
       {this.generateAddress = false,
       this.accountIndex,
       this.accountName,
-      this.password = ""});
+      this.password = "",
+      this.initialLedgerFailure});
 
   final bool generateAddress;
   final int? accountIndex;
   final String? accountName;
   final String password;
+  final LedgerFailureType? initialLedgerFailure;
 
   @override
   _ImportLedgerState createState() => new _ImportLedgerState();
 }
 
+enum _AddressRequestState { idle, pending, closed }
+
 class _ImportLedgerState extends State<ImportLedger> {
   final store = globalAppStore;
   bool connected = false;
-  bool locked = false;
-  bool minaNotOpened = false;
+  LedgerFailureType? connectionFailure;
+  _AddressRequestState addressRequest = _AddressRequestState.idle;
+  Ledger? _addressLedger;
+  LedgerDevice? _addressDevice;
+
+  bool get _isActive => mounted &&
+      ModalRoute.of(context)?.isCurrent != false;
 
   @override
   void initState() {
     super.initState();
+    connectionFailure = widget.initialLedgerFailure;
   }
 
-  void onConnected() async {
-    print('onConnected');
-    final minaApp =
-        MinaLedgerApp(store.ledger!.ledgerInstance!, accountIndex: 0);
+  Future<void> _closeAddressSession() async {
+    if (addressRequest != _AddressRequestState.pending) return;
+    addressRequest = _AddressRequestState.closed;
+    final ledger = _addressLedger;
+    final device = _addressDevice;
+    if (ledger == null || device == null) return;
+    await store.ledger!.disconnectSession(ledger, device);
+  }
+
+  void _closeDialog() {
+    if (!_isActive) return;
+    unawaited(_closeAddressSession());
+    Navigator.of(context).pop();
+  }
+
+  @override
+  void dispose() {
+    unawaited(_closeAddressSession());
+    super.dispose();
+  }
+
+  Future<void> onConnected(VoidCallback onSessionHandoff) async {
+    if (!_isActive) return;
+    final ledger = store.ledger!.ledgerInstance;
+    final device = store.ledger!.ledgerDevice;
+    if (ledger == null || device == null) return;
+    bool isCurrent() => _isActive &&
+        identical(store.ledger!.ledgerInstance, ledger) &&
+        identical(store.ledger!.ledgerDevice, device);
+    setState(() {
+      connectionFailure = null;
+      addressRequest = _AddressRequestState.idle;
+    });
     try {
-      await minaApp.getVersion(store.ledger!.ledgerDevice!);
-    } on LedgerException catch (e) {
-      print(e.errorCode);
-      print(e.message);
-      switch (e.errorCode) {
-        case 25873:
-          setState(() {
-            locked = false;
-            minaNotOpened = true;
-          });
-          break;
-        case 21781:
-          setState(() {
-            minaNotOpened = false;
-            locked = true;
-          });
-          break;
+      await MinaLedgerApp(ledger).ensureMinaAppReadyWithRetry(
+        device,
+        isCurrent: isCurrent,
+      );
+    } catch (error) {
+      if (!isCurrent()) return;
+      final failure = classifyLedgerError(error);
+      _onConnectionFailure(failure);
+      if (failure == LedgerFailureType.other ||
+          failure == LedgerFailureType.pairing) {
+        try {
+          await ledger.disconnect(device);
+        } catch (error, stackTrace) {
+          ledgerErrorLog('Ledger stale-session disconnect', error,
+              stackTrace: stackTrace);
+        }
+        if (!_isActive ||
+            !identical(store.ledger!.ledgerInstance, ledger) ||
+            (store.ledger!.ledgerDevice != null &&
+                !identical(store.ledger!.ledgerDevice, device))) return;
+        if (identical(store.ledger!.ledgerDevice, device)) {
+          store.ledger!.setDevice(null);
+        }
       }
-      print('returned');
-      await store.ledger!.ledgerInstance!
-          .disconnect(store.ledger!.ledgerDevice!);
-      store.ledger!.setDevice(null);
       store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
-      return;
-    } on Exception catch (e) {
-      setState(() {
-        minaNotOpened = false;
-        locked = true;
-      });
-      await store.ledger!.ledgerInstance!
-          .disconnect(store.ledger!.ledgerDevice!);
-      store.ledger!.setDevice(null);
-      store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
-      print('get version faield11');
-      print(e);
       return;
     }
+    if (!isCurrent()) return;
     store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
-    if (!mounted) {
-      return;
-    }
+    onSessionHandoff();
     setState(() {
       connected = true;
+      addressRequest = widget.generateAddress
+          ? _AddressRequestState.pending : _AddressRequestState.idle;
     });
     if (!widget.generateAddress) {
       Navigator.of(context).pop(true);
     } else {
       final accountIndex = widget.accountIndex;
       final accountName = widget.accountName;
-      if (accountIndex == null || widget.accountName == null) {
+      if (accountIndex == null || accountName == null) {
+        addressRequest = _AddressRequestState.idle;
+        UI.toast(AppLocalizations.of(context)!.buildFailed);
+        Navigator.of(context).pop(false);
         return;
       }
-      late final List<String> accounts;
+      _addressLedger = ledger;
+      _addressDevice = device;
+      List<String> accounts = const [];
+      Object? accountFailure;
       try {
-        final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
-            accountIndex: accountIndex);
-        print(minaApp);
-        accounts = await minaApp.getAccounts(store.ledger!.ledgerDevice!);
-      } on LedgerException catch (e) {
-        print(e.errorCode);
-        print(e.message);
-        if (mounted) {
+        final minaApp = MinaLedgerApp(ledger, accountIndex: accountIndex);
+        accounts = await minaApp.getAccounts(device);
+      } catch (error, stackTrace) {
+        ledgerErrorLog('Ledger address import GET_PUBLIC_KEY', error,
+            stackTrace: stackTrace);
+        accountFailure = error;
+      }
+      if (addressRequest == _AddressRequestState.closed) return;
+      addressRequest = _AddressRequestState.idle;
+      if (!_isActive ||
+          !identical(store.ledger!.ledgerInstance, ledger) ||
+          (store.ledger!.ledgerDevice != null &&
+              !identical(store.ledger!.ledgerDevice, device))) return;
+      if (accountFailure == null &&
+          !identical(store.ledger!.ledgerDevice, device)) return;
+      if (accountFailure != null || accounts.isEmpty) {
+        final failure = accountFailure == null
+            ? LedgerFailureType.other : classifyLedgerError(accountFailure);
+        if (failure == LedgerFailureType.appNotOpen) {
+          if (_isActive) {
+            setState(() {
+              connected = false;
+              connectionFailure = failure;
+            });
+          }
+          store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
+          return;
+        }
+        if (_isActive) {
           AppLocalizations dic = AppLocalizations.of(context)!;
-          UI.toast(dic.ledgerReject);
+          final message = ledgerFailureMessage(dic, failure);
+          UI.toast(message);
           Navigator.of(context).pop(false);
         }
         return;
       }
-      if (accounts.isEmpty) {
-        return;
-      }
-      print('accounts');
-      print(accounts[0]);
       var isSuccess = await webApi.account.createExternalWallet(
-          accountName!, accounts[0],
+          accountName, accounts[0],
           context: context,
           source: WalletSource.outside,
           seedType: WalletStore.seedTypeLedger,
           hdIndex: accountIndex,
           password: widget.password);
-      if (!mounted) {
+      if (!_isActive) {
         return;
       }
       Navigator.of(context).pop(isSuccess == true);
     }
+  }
+
+  void _onConnectionFailure(LedgerFailureType failure) {
+    if (!_isActive) return;
+    store.ledger!.lastFailure = failure;
+    store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
+    if (failure == LedgerFailureType.rejected) {
+      setState(() { connectionFailure = null; });
+      UI.toast(AppLocalizations.of(context)!.ledgerReject);
+      return;
+    }
+    setState(() {
+      connectionFailure = failure;
+    });
+  }
+
+  void _resumeSearchAfterConnectionFailure() {
+    if (!_isActive) return;
+    setState(() {
+      if (connectionFailure != LedgerFailureType.pairing) {
+        connectionFailure = LedgerFailureType.other;
+      }
+    });
   }
 
   @override
@@ -172,7 +250,7 @@ class _ImportLedgerState extends State<ImportLedger> {
                                 height: 24,
                                 colorFilter: ColorFilter.mode(
                                     Colors.black, BlendMode.srcIn)),
-                            onTap: () => Navigator.pop(context),
+                            onTap: _closeDialog,
                           )
                         ],
                       )),
@@ -187,8 +265,10 @@ class _ImportLedgerState extends State<ImportLedger> {
                         ? LedgerGetAddress()
                         : ConnectLedger(
                             onConnected: this.onConnected,
-                            locked: locked,
-                            minaNotOpened: minaNotOpened,
+                            onConnectionFailure: _onConnectionFailure,
+                            onSessionInvalidated:
+                                _resumeSearchAfterConnectionFailure,
+                            failure: connectionFailure,
                           ),
                   )
                 ],
@@ -226,13 +306,20 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
     AppLocalizations dic = AppLocalizations.of(context)!;
     return Wrap(
       children: [
-        Text(
-          dic.ledgerAddressTip1,
-          style: TextStyle(
-              fontSize: 14,
-              color: Colors.black,
-              height: 1.2,
-              fontWeight: FontWeight.w400),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                dic.ledgerAddressTip1,
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    height: 1.2,
+                    fontWeight: FontWeight.w400),
+              ),
+            ),
+          ],
         ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: 20),
@@ -270,13 +357,17 @@ class _LedgerGetAddressState extends State<LedgerGetAddress> {
 class ConnectLedger extends StatefulWidget {
   ConnectLedger({
     required this.onConnected,
-    this.locked = false,
-    this.minaNotOpened = false,
+    this.onConnectionFailure,
+    this.onSessionInvalidated,
+    this.failure,
   });
 
-  final void Function() onConnected;
-  final bool locked;
-  final bool minaNotOpened;
+  final Future<void> Function(VoidCallback onSessionHandoff) onConnected;
+  final void Function(LedgerFailureType failure)? onConnectionFailure;
+  final VoidCallback? onSessionInvalidated;
+  final LedgerFailureType? failure;
+
+  bool get requiresUserAction => failure?.requiresConnectionAction ?? false;
 
   @override
   _ConnectLedgerState createState() => _ConnectLedgerState();
@@ -286,14 +377,20 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   final store = globalAppStore;
   bool searching = true;
   bool connecting = false;
-  bool unactive = false;
+  bool connectionHandedOff = false;
   LedgerDevice? ledgerDevice;
   Ledger? ledgerInstance;
-  StreamSubscription<LedgerDevice>? cancelScan;
   Timer? _reconnectTimer;
   int _connectAttempt = 0;
   static const int _maxConnectAttempts = 3;
   late final ScreenAwakeHandle _connectScreenAwakeHandle;
+
+  bool get _isActive => mounted &&
+      ModalRoute.of(context)?.isCurrent != false;
+
+  bool get _hasActiveSession => ledgerDevice != null &&
+      identical(store.ledger?.ledgerInstance, ledgerInstance) &&
+      identical(store.ledger?.ledgerDevice, ledgerDevice);
 
   @override
   void initState() {
@@ -302,6 +399,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
       ScreenAwakeKeys.scoped('ledger_connect', this),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isActive) return;
       if (store.ledger?.ledgerDevice == null) {
         _scanDevice();
       } else {
@@ -310,7 +408,9 @@ class _ConnectLedgerState extends State<ConnectLedger> {
           ledgerDevice = store.ledger?.ledgerDevice;
           ledgerInstance = store.ledger?.ledgerInstance;
         });
-        widget.onConnected();
+        if (!widget.requiresUserAction) {
+          unawaited(_checkExistingSession());
+        }
       }
     });
   }
@@ -318,87 +418,167 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   @override
   void dispose() {
     _reconnectTimer?.cancel();
+    if (connecting &&
+        !connectionHandedOff &&
+        ledgerDevice != null &&
+        ledgerInstance != null) {
+      unawaited(store.ledger!.disconnectSession(ledgerInstance!, ledgerDevice!));
+    }
     _connectScreenAwakeHandle.setActive(false)
         .catchError((e) => debugPrint('ScreenAwake release failed: $e'));
-    LedgerInit.cancelScan?.cancel();
-    LedgerInit.offScanListener();
+    unawaited(LedgerInit.stopScanLoop(ledger: ledgerInstance));
     super.dispose();
   }
 
-  void _connect() async {
-    print('start connect attempt $_connectAttempt');
-    _reconnectTimer?.cancel();
-    if (!mounted) return;
+  @override
+  void didUpdateWidget(covariant ConnectLedger oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.requiresUserAction && !oldWidget.requiresUserAction) {
+      _reconnectTimer?.cancel();
+      _reconnectTimer = null;
+      _connectAttempt = 0;
+    }
+  }
+
+  Future<void> _checkExistingSession() async {
+    if (!_isActive || connecting || !_hasActiveSession) return;
     setState(() {
       connecting = true;
-      unactive = false;
+      connectionHandedOff = false;
+    });
+    bool shouldResumeSearch = false;
+    try {
+      await _connectScreenAwakeHandle.setActive(true);
+      await widget.onConnected(() {
+        connectionHandedOff = true;
+      });
+      shouldResumeSearch = !connectionHandedOff &&
+          identical(store.ledger?.ledgerInstance, ledgerInstance) &&
+          store.ledger?.ledgerDevice == null;
+    } finally {
+      if (shouldResumeSearch && _isActive) {
+        widget.onSessionInvalidated?.call();
+        setState(() {
+          ledgerDevice = null;
+          searching = true;
+          connecting = false;
+        });
+        _scanDevice();
+      } else if (_isActive && !connectionHandedOff) {
+        setState(() {
+          connecting = false;
+        });
+      }
+      await _connectScreenAwakeHandle.setActive(false);
+    }
+  }
+
+  void _connect() async {
+    _reconnectTimer?.cancel();
+    if (!_isActive) return;
+    setState(() {
+      connecting = true;
+      connectionHandedOff = false;
     });
     await _connectScreenAwakeHandle.setActive(true);
     _connectAttempt++;
     try {
-      LedgerInit.cancelScan?.cancel();
-      LedgerInit.cancelScan = null;
-      await ledgerInstance!.stopScanning();
+      await LedgerInit.stopScanLoop(ledger: ledgerInstance);
       await Future.delayed(const Duration(milliseconds: 500));
-      await ledgerInstance!.connect(ledgerDevice!).timeout(
-        const Duration(seconds: 16),
-      );
-      print('finish connect');
-      if (!mounted) return;
-      setState(() {
-        unactive = false;
-        connecting = false;
+      if (!_isActive) return;
+      await ledgerInstance!.connect(ledgerDevice!);
+      if (!_isActive) return;
+      store.ledger!.setDevice(ledgerDevice);
+      await widget.onConnected(() {
+        connectionHandedOff = true;
       });
+      final sessionInvalidated = !connectionHandedOff &&
+          identical(store.ledger?.ledgerInstance, ledgerInstance) &&
+          store.ledger?.ledgerDevice == null;
+      if (sessionInvalidated) {
+        _connectAttempt = 0;
+        await _connectScreenAwakeHandle.setActive(false);
+        if (!_isActive) return;
+        widget.onSessionInvalidated?.call();
+        setState(() {
+          ledgerDevice = null;
+          searching = true;
+          connecting = false;
+        });
+        _scanDevice();
+        return;
+      }
       _connectAttempt = 0;
       await _connectScreenAwakeHandle.setActive(false);
-      store.ledger!.setDevice(ledgerDevice);
-      widget.onConnected();
-    } catch (e) {
-      final errMsg = e is LedgerException ? e.message : '$e';
-      print('connect error: $errMsg');
+      if (!_isActive) return;
+      setState(() {
+        connecting = false;
+      });
+    } catch (e, stackTrace) {
+      ledgerErrorLog('Ledger BLE connect', e, stackTrace: stackTrace);
+      if (connectionHandedOff) {
+        await _connectScreenAwakeHandle.setActive(false);
+        return;
+      }
+      if (!_isActive) return;
+      final ledgerFailure = classifyLedgerError(e);
+      if (ledgerFailure != LedgerFailureType.other &&
+          ledgerFailure != LedgerFailureType.pairing) {
+        widget.onConnectionFailure?.call(ledgerFailure);
+        _reconnectTimer?.cancel();
+        _reconnectTimer = null;
+        _connectAttempt = 0;
+        await _connectScreenAwakeHandle.setActive(false);
+        if (_isActive) {
+          setState(() {
+            connecting = false;
+          });
+        }
+        return;
+      }
       try {
         await ledgerInstance!.disconnect(ledgerDevice!);
-      } catch (_) {}
-      if (!mounted) return;
-      // Detect iOS BLE pairing mismatch (CBError Code 14)
-      final lowerMsg = errMsg.toLowerCase();
-      final isPairingError =
-          lowerMsg.contains('pairing') || lowerMsg.contains('code=14') || lowerMsg.contains('code 14');
-      if (isPairingError) {
+      } catch (error, disconnectStackTrace) {
+        ledgerErrorLog(
+          'Ledger BLE connect cleanup',
+          error,
+          stackTrace: disconnectStackTrace,
+        );
+      }
+      if (!_isActive) return;
+      if (ledgerFailure == LedgerFailureType.pairing) {
         store.ledger!.setDevice(null);
         await _connectScreenAwakeHandle.setActive(false);
+        if (!_isActive) return;
         setState(() {
-          unactive = true;
           connecting = false;
         });
         _connectAttempt = 0;
-        if (mounted) {
-          final dic = AppLocalizations.of(context);
-          UI.showAlertDialog(
-            context: context,
-            contents: [dic?.ledgerPairingError ?? errMsg],
-          );
-        }
+        widget.onConnectionFailure?.call(LedgerFailureType.pairing);
       } else if (_connectAttempt < _maxConnectAttempts) {
-        print('will retry after delay');
-        _reconnectTimer = Timer(const Duration(seconds: 2), () {
-          if (mounted) _connect();
+        _reconnectTimer = Timer(const Duration(seconds: 1), () {
+          if (_isActive) _connect();
         });
       } else {
         store.ledger!.setDevice(null);
+        store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
+        widget.onConnectionFailure?.call(LedgerFailureType.other);
+        widget.onSessionInvalidated?.call();
         await _connectScreenAwakeHandle.setActive(false);
+        if (!_isActive) return;
         setState(() {
-          unactive = true;
+          ledgerDevice = null;
+          searching = true;
           connecting = false;
         });
         _connectAttempt = 0;
+        _scanDevice();
       }
     }
   }
 
-  onScanSuccess(LedgerDevice device) async {
-    print('scaned a device' + DateTime.now().toUtc().toString());
-    if (!mounted) return;
+  void onScanSuccess(LedgerDevice device) {
+    if (!_isActive) return;
     setState(() {
       ledgerDevice = device;
       searching = false;
@@ -406,45 +586,24 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   }
 
   Future<void> scan(Ledger ledger) async {
-    print('start scan in import ledger dialog');
-    if (!mounted) {
+    if (!_isActive) {
       return;
     }
-    // await LedgerInit.dispose();
-    LedgerInit.scanLoop(ledger, onScanSuccess: onScanSuccess);
-    // await ledger.stopScanning();
+    await LedgerInit.scanLoop(ledger, onScanSuccess: onScanSuccess);
   }
 
   void _scanDevice() async {
-    ledgerInstance = await _initLedger();
-    print('start scan' + DateTime.now().toUtc().toString());
+    if (!_isActive) return;
+    ledgerInstance = await LedgerInit.init();
+    if (!_isActive || (widget.requiresUserAction && ledgerDevice != null)) return;
     await this.scan(ledgerInstance!);
-    // ledgerInstance!.statusStateChanges.listen((event) {
-    //   print('statusStateChanges');
-    //   print(event.name);
-    //   print(ledgerInstance!.devices.length);
-    // });
-    // ledgerInstance!.deviceStateChanges.listen((event) {
-    //   print('deviceStateChanges');
-    //   print(event.connectionState);
-    //   print(ledgerInstance!.devices.length);
-    // });
-  }
-
-  Future<Ledger> _initLedger() async {
-    final ledger = await LedgerInit.init();
-    return ledger;
   }
 
   Widget renderError() {
-    String errorStr = '';
     AppLocalizations dic = AppLocalizations.of(context)!;
-    if (unactive || widget.locked) {
-      errorStr = dic.unlockLedger;
-    }
-    if (widget.minaNotOpened) {
-      errorStr = dic.openMinaApp;
-    }
+    final errorStr = widget.failure == LedgerFailureType.other
+        ? dic.ledgerConnectionError
+        : ledgerFailureMessage(dic, widget.failure!);
     return Container(
       margin: EdgeInsets.only(top: 35),
       padding: EdgeInsets.all(10),
@@ -453,6 +612,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
         border: Border.all(color: Color(0xFFD65A5A), width: 1),
         borderRadius: BorderRadius.circular(10),
       ),
+      width: double.infinity,
       child: Text(
         errorStr,
         style: TextStyle(
@@ -466,7 +626,8 @@ class _ConnectLedgerState extends State<ConnectLedger> {
   @override
   Widget build(context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    bool isError = widget.locked || widget.minaNotOpened || unactive;
+    final isError = !connecting && widget.failure != null &&
+        widget.failure != LedgerFailureType.rejected;
     return Wrap(
       children: [
         LedgerTipItem(
@@ -479,7 +640,7 @@ class _ConnectLedgerState extends State<ConnectLedger> {
           num: '3',
           text: dic.ledgerTip3,
         ),
-        isError ? this.renderError() : Container(),
+        if (isError) renderError(),
         Padding(
           padding: EdgeInsets.only(top: isError ? 20 : 49, left: 0, right: 0),
           child: OutlinedButton(
@@ -497,17 +658,23 @@ class _ConnectLedgerState extends State<ConnectLedger> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  (ledgerDevice == null
+                  ledgerDevice == null
                       ? dic.ledgerSearching
-                      : ledgerDevice!.name),
+                      : ledgerDevice!.name,
                   style: TextStyle(color: Colors.black, fontSize: 14),
                 ),
-                connecting || searching ? RotatingCircle(size: 20) : Container()
+                connecting || (!isError && searching)
+                    ? RotatingCircle(size: 20)
+                    : Container()
               ],
             ),
             onPressed: () {
               if (ledgerDevice != null && !connecting) {
-                _connect();
+                if (_hasActiveSession) {
+                  _checkExistingSession();
+                } else {
+                  _connect();
+                }
               }
               // _onClick('import');
             },

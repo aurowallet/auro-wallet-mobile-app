@@ -1192,4 +1192,23 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get done => 'Готово';
+
+  @override
+  String get ledgerConnectionError =>
+      'Не вдалося зв’язатися з Ledger. Перевірте Bluetooth, розблокуйте Ledger, відкрийте застосунок Mina та спробуйте ще раз.';
+
+  @override
+  String get ledgerBusyTip => 'Ledger зайнятий. Будь ласка, повторіть спробу.';
+
+  @override
+  String get ledgerAccountMismatch =>
+      'Підключений обліковий запис Ledger не відповідає цьому обліковому запису гаманця.';
+
+  @override
+  String get ledgerZkAppUpdateRequired =>
+      'Оновіть застосунок Mina на пристрої Ledger до останньої версії.';
+
+  @override
+  String get ledgerZkAppBlindSigningTip =>
+      'Будь ласка, увімкніть Blind signing на Ledger.';
 }

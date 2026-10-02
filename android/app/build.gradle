@@ -82,7 +82,7 @@ android {
             minifyEnabled true
             shrinkResources true
             ndk {
-                debugSymbolLevel 'NONE'
+                debugSymbolLevel 'SYMBOL_TABLE'
             }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguar-rules.pro'
 

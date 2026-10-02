@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:ledger_flutter/ledger_flutter.dart';
 
+import 'ledger_status_code.dart';
+
 class MinaTransformer extends LedgerTransformer {
   const MinaTransformer();
 
@@ -11,17 +13,18 @@ class MinaTransformer extends LedgerTransformer {
       throw LedgerException(message: 'No response data from Ledger.');
     }
 
-    final lastItem = transform.last;
-    if (lastItem.length == 2) {
-      final errorCode = ByteData.sublistView(lastItem).getInt16(0);
-      throw LedgerException(errorCode: errorCode);
-    }
-
     final output = <Uint8List>[];
 
     for (var data in transform) {
-      int offset = (data.length >= 2) ? 2 : 0;
-      output.add(data.sublist(0, data.length - offset));
+      if (data.length < 2) {
+        throw FormatException('Missing Ledger response status.');
+      }
+      final payloadLength = data.length - 2;
+      final status = ByteData.sublistView(data).getUint16(payloadLength);
+      if (status != LedgerStatusCode.success) {
+        throw LedgerException(errorCode: status);
+      }
+      output.add(data.sublist(0, payloadLength));
     }
 
     return Uint8List.fromList(output.expand((e) => e).toList());

@@ -24,7 +24,7 @@ mixin _$LedgerStore on LedgerBase, Store {
   set ledgerDevice(LedgerDevice? value) {
     _$ledgerDeviceAtom.reportWrite(value, super.ledgerDevice, () {
       super.ledgerDevice = value;
-    });
+    }, equals: _sameLedgerDevice);
   }
 
   late final _$ledgerInstanceAtom = Atom(

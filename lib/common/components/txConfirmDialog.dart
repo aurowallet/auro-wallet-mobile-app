@@ -3,15 +3,13 @@ import 'package:auro_wallet/common/components/ledgerWaitingContent.dart';
 import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
+import 'package:auro_wallet/ledgerMina/ledger_error.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/store/app.dart';
-import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/utils/screenAwake.dart';
 import 'package:auro_wallet/utils/UI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart' show SvgPicture;
-import 'package:ledger_flutter/ledger_flutter.dart';
 
 enum TxItemTypes { showTimer }
 
@@ -30,6 +28,7 @@ class TxConfirmDialog extends StatefulWidget {
     this.onConfirm,
     this.disabled = false,
     this.isLedger = false,
+    this.ledgerZkApp = false,
     this.buttonText,
     this.headerLabel,
     this.headerValue,
@@ -43,7 +42,9 @@ class TxConfirmDialog extends StatefulWidget {
   final String? buttonText;
   final bool disabled;
   final bool isLedger;
-  final Function()? onConfirm;
+  final bool ledgerZkApp;
+  final Future<dynamic> Function(bool Function() onLedgerInteraction)?
+      onConfirm;
   final TimerManager? timerManager;
 
   final store = globalAppStore;
@@ -55,6 +56,7 @@ class TxConfirmDialog extends StatefulWidget {
 class _TxConfirmDialogState extends State<TxConfirmDialog> {
   bool submitting = false;
   bool checkingLedger = false;
+  bool ledgerInteractionStarted = false;
   late final ScreenAwakeHandle _ledgerScreenAwakeHandle;
 
   Future<void> _setLedgerScreenAwake(bool active) async {
@@ -99,47 +101,17 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
     );
   }
 
-  List<Widget> renderLedgerConfirm() {
-    return [LedgerWaitingContent()];
-  }
-
-  Future<bool> _ledgerCheck() async {
-    bool showLedgerDialog = false;
-    if (widget.store.ledger!.ledgerDevice == null) {
-      showLedgerDialog = true;
-    } else {
-      try {
-        final minaApp = MinaLedgerApp(widget.store.ledger!.ledgerInstance!,
-            accountIndex: 0);
-        await Future.delayed(Duration(
-            milliseconds: 400)); // avoid conflict with ledgerStatus Component
-        await minaApp
-            .getVersion(widget.store.ledger!.ledgerDevice!)
-            .timeout(const Duration(seconds: 10));
-        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
-      } on LedgerException {
-        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
-        showLedgerDialog = true;
-      } catch (e) {
-        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
-        showLedgerDialog = true;
-      }
-    }
-    if (showLedgerDialog) {
-      bool? connected = await UI.showImportLedgerDialog(context: context);
-      if (connected != true) {
-        return false;
-      }
-      await Future.delayed(const Duration(milliseconds: 500));
-      return true;
-    }
+  bool _onLedgerInteraction() {
+    if (!mounted || ModalRoute.of(context)?.isCurrent == false) return false;
+    setState(() => ledgerInteractionStarted = true);
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
-    final showLedgerConfirm = submitting && widget.isLedger;
+    final showLedgerConfirm =
+        submitting && widget.isLedger && ledgerInteractionStarted;
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -205,7 +177,7 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                     child: Wrap(
                       children: [
                         ...(showLedgerConfirm
-                            ? this.renderLedgerConfirm()
+                            ? [LedgerWaitingContent(zkApp: widget.ledgerZkApp)]
                             : widget.items.map((e) {
                                 return TxConfirmItem(
                                     data: e, timerManager: widget.timerManager);
@@ -218,40 +190,50 @@ class _TxConfirmDialogState extends State<TxConfirmDialog> {
                       disabled: widget.disabled,
                       confirmBtnText: widget.buttonText ?? dic.confirm,
                       onConfirm: () async {
+                        if (!mounted || submitting || checkingLedger) return;
                         if (widget.isLedger) {
                           setState(() {
                             checkingLedger = true;
                           });
-                          if (!await _ledgerCheck()) {
-                            if (mounted) {
-                              setState(() {
-                                checkingLedger = false;
-                              });
-                            }
-                            return;
-                          }
-                          if (mounted) {
-                            setState(() {
-                              checkingLedger = false;
-                            });
+                          try {
+                            if (!await UI.ensureLedgerReady(
+                                context: context,
+                                ledgerStore: widget.store.ledger!,
+                                stage:
+                                    'Ledger transaction confirmation readiness'))
+                              return;
+                          } finally {
+                            if (mounted) setState(() => checkingLedger = false);
                           }
                         }
                         if (!mounted) return;
                         setState(() {
                           submitting = true;
                         });
-                        await _setLedgerScreenAwake(true);
                         try {
+                          await _setLedgerScreenAwake(true);
+                          if (!mounted ||
+                              ModalRoute.of(context)?.isCurrent == false)
+                            return;
                           if (widget.onConfirm != null) {
-                            await widget.onConfirm!();
+                            await widget.onConfirm!(_onLedgerInteraction);
                           }
+                        } catch (error, stackTrace) {
+                          if (!widget.isLedger || !widget.ledgerZkApp) rethrow;
+                          ledgerErrorLog(
+                            'Ledger token transaction confirmation',
+                            error,
+                            stackTrace: stackTrace,
+                          );
+                          if (mounted) UI.toast(dic.buildFailed);
                         } finally {
-                          await _setLedgerScreenAwake(false);
                           if (mounted) {
                             setState(() {
                               submitting = false;
+                              ledgerInteractionStarted = false;
                             });
                           }
+                          await _setLedgerScreenAwake(false);
                         }
                       },
                       submitting: submitting || checkingLedger,

@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:styled_text/styled_text.dart';
 
 class LedgerWaitingContent extends StatelessWidget {
-  const LedgerWaitingContent({super.key});
+  const LedgerWaitingContent(
+      {super.key, this.zkApp = false, this.preparing = false});
+
+  final bool zkApp;
+  final bool preparing;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +28,7 @@ class LedgerWaitingContent extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(top: 20, left: 10, right: 10),
           child: Text(
-            dic.waitingLedgerSign,
+            preparing ? dic.loading : dic.waitingLedgerSign,
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: Color(0xFF808080),
@@ -33,6 +37,19 @@ class LedgerWaitingContent extends StatelessWidget {
                 fontWeight: FontWeight.w500),
           ),
         ),
+        if (zkApp)
+          Padding(
+            padding: EdgeInsets.only(top: 16, left: 20, right: 20),
+            child: Text(
+              dic.ledgerZkAppBlindSigningTip,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Color(0xFFE4B200),
+                  fontSize: 14,
+                  height: 1.4,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
         Container(
           padding: EdgeInsets.only(top: 20, bottom: 40,left: 30,right: 30),
           child: Center(

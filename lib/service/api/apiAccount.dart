@@ -6,6 +6,9 @@ import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:auro_wallet/ledgerMina/ledger_error.dart';
+import 'package:auro_wallet/ledgerMina/ledger_error_message.dart';
+import 'package:auro_wallet/ledgerMina/ledger_zkapp.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
@@ -354,20 +357,21 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   Future<Map?> ledgerSign(Map txInfo,
       {required BuildContext context,
       isDelegation = false,
-      String? networkId}) async {
-    if (_isZekoMainnetNetworkId(networkId)) {
+      String? networkId,
+      bool Function()? onLedgerInteraction}) async {
+    if (_isZekoNetworkId(networkId)) {
       AppLocalizations dic = AppLocalizations.of(context)!;
       UI.toast(dic.notSupportNow);
       return null;
     }
-    final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
-        accountIndex: txInfo["accountIndex"]);
     final feeLarge = _toNanoMina(txInfo['fee'], COIN.decimals);
     final amountLarge = isDelegation
         ? 0
         : _toNanoMina(txInfo['amount'], COIN.decimals);
     final validUntil = "4294967295";
-    try {
+    return _withLedgerRecovery(context, 'Ledger transfer signing', (isCurrent) async {
+      final minaApp = MinaLedgerApp(store.ledger!.ledgerInstance!,
+          accountIndex: txInfo["accountIndex"]);
       int nextNetwork = -1;
       if (networkId != null) {
         nextNetwork = _isMainnetLikeNetworkId(networkId)
@@ -391,6 +395,7 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           memo: txInfo['memo'],
           validUntil: validUntil,
           networkId: nextNetwork);
+      if (!isCurrent()) return null;
       final prepareBody = prepareBroadcastBody(
           from: txInfo['fromAddress'],
           to: txInfo['toAddress'],
@@ -401,9 +406,107 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
           validUntil: validUntil,
           rawSignature: rawSignature);
       return prepareBody;
-    } on LedgerException catch (_) {
-      AppLocalizations dic = AppLocalizations.of(context)!;
-      UI.toast(dic.ledgerReject);
+    }, canContinue: onLedgerInteraction);
+  }
+
+  Future<dynamic> ledgerSignAndSendZkTx(
+    Map txInfo, {
+    required BuildContext context,
+    String? networkId,
+    String? gqlUrl,
+    bool Function()? onLedgerInteraction,
+  }) async {
+    AppLocalizations dic = AppLocalizations.of(context)!;
+    if (_isZekoNetworkId(networkId)) {
+      UI.toast(dic.notSupportNow);
+      return null;
+    }
+    final accountIndex = txInfo['accountIndex'];
+    if (accountIndex is! int) {
+      UI.toast(dic.buildFailed);
+      return null;
+    }
+
+    try {
+      return await _withLedgerRecovery(context, 'Ledger zkApp signing', (isCurrent) async {
+        final minaApp = MinaLedgerApp(
+          store.ledger!.ledgerInstance!,
+          accountIndex: accountIndex,
+        );
+        final accounts = await minaApp.getAccounts(
+          store.ledger!.ledgerDevice!,
+          showAddressInDevice: false,
+        );
+        if (!isCurrent()) return null;
+        if (accounts.isEmpty || accounts.first != txInfo['fromAddress']) {
+          UI.toast(dic.ledgerAccountMismatch);
+          return null;
+        }
+
+        final draft = createLedgerZkAppDraft(
+          transaction: txInfo['transaction'],
+          fromAddress: txInfo['fromAddress'],
+          fee: _toNanoMina(txInfo['fee'], COIN.decimals).toString(),
+          nonce: txInfo['nonce'].toString(),
+          memo: txInfo['memo']?.toString() ?? '',
+          onlySign: txInfo['zkOnlySign'] == true,
+        );
+        final commitments = await apiRoot.bridge.getZkappCommandCommitments(
+          draft.commitmentInput(getNextNetwork(networkId)),
+        );
+        if (!isCurrent()) return null;
+        final commitment = commitments['commitment']?.toString();
+        final fullCommitment = commitments['fullCommitment']?.toString();
+        if (commitment == null || fullCommitment == null) {
+          UI.toast(dic.buildFailed);
+          return null;
+        }
+
+        final prepared = completeLedgerZkAppDraft(
+          draft,
+          commitment: commitment,
+          fullCommitment: fullCommitment,
+        );
+        final ledgerNetworkId = _isMainnetLikeNetworkId(networkId)
+            ? Networks.MAINNET.value
+            : Networks.DEVNET.value;
+        for (final request in prepared.signingRequests) {
+          final rawSignature = await minaApp.signFieldElement(
+            store.ledger!.ledgerDevice!,
+            senderAccount: accountIndex,
+            networkId: ledgerNetworkId,
+            fieldElement: fieldElementToLedgerBytes(request.fieldElement),
+          );
+          if (!isCurrent()) return null;
+          applyLedgerZkAppSignature(
+            prepared,
+            request,
+            ledgerFieldElementSignatureToBase58(rawSignature),
+          );
+        }
+
+        if (!hasCompleteLedgerZkAppSignatures(prepared)) {
+          UI.toast(dic.buildFailed);
+          return null;
+        }
+
+        if (txInfo['zkOnlySign'] == true) {
+          return {'signedData': jsonEncode(prepared.signedData)};
+        }
+        return sendZkTx(prepared.zkappCommand, context: context, gqlUrl: gqlUrl);
+      }, canContinue: onLedgerInteraction);
+    } on LedgerZkAppException catch (error) {
+      ledgerErrorLog(
+          'Ledger zkApp signing preparation failure=${error.failure.name}', error);
+      UI.toast(_ledgerZkAppFailureMessage(dic, error.failure));
+      return null;
+    } catch (error, stackTrace) {
+      ledgerErrorLog(
+        'Ledger zkApp build or submit',
+        error,
+        stackTrace: stackTrace,
+      );
+      UI.toast(dic.buildFailed);
       return null;
     }
   }
@@ -492,20 +595,84 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
   }
 
   bool _isMainnetLikeNetworkId(String? networkId) {
-    if (networkId == null || networkId.isEmpty) {
-      return store.settings?.currentNode?.networkID == networkIDMap.mainnet ||
-          store.settings?.currentNode?.networkID == networkIDMap.zeko;
-    }
-    return networkId == networkIDMap.mainnet ||
-        networkId == networkIDMap.zeko ||
-        networkId.endsWith(':mainnet');
-  }
-
-  bool _isZekoMainnetNetworkId(String? networkId) {
     final targetNetworkId = networkId?.isNotEmpty == true
         ? networkId
         : store.settings?.currentNode?.networkID;
-    return targetNetworkId == networkIDMap.zeko;
+    return isMainnetLikeNetworkID(targetNetworkId);
+  }
+
+  bool _isZekoNetworkId(String? networkId) {
+    final targetNetworkId = networkId?.isNotEmpty == true
+        ? networkId
+        : store.settings?.currentNode?.networkID;
+    return isZekoNetworkID(targetNetworkId);
+  }
+
+  Future<T?> _withLedgerRecovery<T>(BuildContext context, String stage,
+      Future<T?> Function(bool Function() isCurrent) sign,
+      {bool Function()? canContinue}) async {
+    final route = ModalRoute.of(context);
+    bool isActive() => context.mounted && route?.isActive != false;
+    for (var attempt = 0; attempt < 2 && isActive(); attempt++) {
+      final ledger = store.ledger!.ledgerInstance;
+      final device = store.ledger!.ledgerDevice;
+      if (ledger == null || device == null) return null;
+      bool isCurrent() => isActive() &&
+          identical(store.ledger!.ledgerInstance, ledger) &&
+          identical(store.ledger!.ledgerDevice, device) &&
+          canContinue?.call() != false;
+      if (!isCurrent()) return null;
+      try {
+        return await sign(isCurrent);
+      } on LedgerException catch (error) {
+        ledgerErrorLog(stage, error);
+        if (!isActive() || !identical(store.ledger!.ledgerInstance, ledger) ||
+            (store.ledger!.ledgerDevice != null &&
+                !identical(store.ledger!.ledgerDevice, device))) return null;
+        store.ledger!.recordFailure(error);
+        if (canContinue?.call() == false) return null;
+        if (!await _presentLedgerFailure(context, error,
+            allowReconnect: attempt == 0)) return null;
+      } catch (_) {
+        if (!isCurrent()) return null;
+        rethrow;
+      }
+    }
+    return null;
+  }
+
+  Future<bool> _presentLedgerFailure(
+    BuildContext context,
+    Object error, {
+    required bool allowReconnect,
+  }) async {
+    if (!context.mounted || ModalRoute.of(context)?.isActive == false) return false;
+    final failure = classifyLedgerError(error);
+    if (allowReconnect && failure == LedgerFailureType.appNotOpen) {
+      final connected = await UI.showImportLedgerDialog(
+        context: context,
+        initialLedgerFailure: failure,
+      );
+      return context.mounted && ModalRoute.of(context)?.isActive != false &&
+          connected == true && store.ledger!.isReady;
+    }
+    final dic = AppLocalizations.of(context)!;
+    UI.toast(ledgerFailureMessage(dic, failure));
+    return false;
+  }
+
+  String _ledgerZkAppFailureMessage(
+    AppLocalizations dic,
+    LedgerZkAppFailure failure,
+  ) {
+    switch (failure) {
+      case LedgerZkAppFailure.invalidCommand:
+      case LedgerZkAppFailure.unsupportedStateLayout:
+        return dic.buildFailed;
+      case LedgerZkAppFailure.accountNotSigner:
+      case LedgerZkAppFailure.feePayerRequired:
+        return dic.buildFailed;
+    }
   }
 
   Int8List _getUint8ListFromString(String str) {
@@ -1146,15 +1313,22 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
       if (response.statusCode == 200) {
         return response.body;
       } else {
+        debugPrint(
+          '[TokenTransfer] buildzkv2 failed status=${response.statusCode}',
+        );
+        UI.toast(AppLocalizations.of(apiRoot.context)!.buildFailed);
         return null;
       }
     } catch (e) {
+      debugPrint(
+        '[TokenTransfer] buildzkv2 exception: $e',
+      );
       UI.toast(e.toString());
       return null;
     }
   }
 
-  Future<dynamic> postTokenResult(Map prepareBody) async {
+  Future<Map<String, dynamic>?> postTokenResult(Map prepareBody) async {
     String requestUrl = TokenBuildUrlv2 + "/sendzkv2";
     try {
       var response = await http.post(
@@ -1165,8 +1339,20 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         body: jsonEncode(prepareBody),
       );
       if (response.statusCode == 200) {
-        return response.body;
+        final decoded = jsonDecode(response.body);
+        if (decoded is! Map) {
+          debugPrint(
+            '[TokenTransfer] sendzkv2 invalid response',
+          );
+          UI.toast(AppLocalizations.of(apiRoot.context)!.buildFailed);
+          return null;
+        }
+        final result = decoded.map<String, dynamic>(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+        return result;
       } else {
+        debugPrint('[TokenTransfer] sendzkv2 failed status=${response.statusCode}');
         try {
           // Parse the response body into a Map
           var responseBody = jsonDecode(response.body);
@@ -1184,6 +1370,9 @@ $validUntil: UInt32,$scalar: String!, $field: String!) {
         return null;
       }
     } catch (e) {
+      debugPrint(
+        '[TokenTransfer] sendzkv2 exception: $e',
+      );
       UI.toast(e.toString());
       return null;
     }

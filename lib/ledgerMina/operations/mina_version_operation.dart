@@ -16,16 +16,12 @@ class MinaVersionOperation extends LedgerOperation<MinaVersion> {
     writer.writeUint8(0x01); // INS
     writer.writeUint8(0x00); // P1_FIRST
     writer.writeUint8(0x00); // P2_LAST
-    writer.writeUint8(0x04); //
-    writer.writeUint32(0x00); //
+    writer.writeUint8(0x00); // Lc
     return [writer.toBytes()];
   }
 
   @override
   Future<MinaVersion> read(ByteDataReader reader) async {
-    print('mina version back');
-    // print(reader.toString());
-    // print(hex.encode(reader.read(reader.remainingLength)));
     final versionMajor = reader.readUint8();
     final versionMinor = reader.readUint8();
     final versionPatch = reader.readUint8();

@@ -67,7 +67,7 @@ abstract class _SettingsStore with Store {
   }
 
   bool get isZekoNet {
-    return currentNode?.networkID.startsWith("zeko") ?? false;
+    return isZekoNetworkID(currentNode?.networkID);
   }
 
   @observable

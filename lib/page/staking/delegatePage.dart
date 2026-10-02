@@ -378,7 +378,7 @@ class _DelegatePageState extends State<DelegatePage>
           ),
           disabled: isWatchMode,
           buttonText: isWatchMode ? dic.watchMode : dic.confirm,
-          onConfirm: () async {
+          onConfirm: (onLedgerInteraction) async {
             String? privateKey;
             if (!isLedger) {
               String? password = await UI.showPasswordDialog(
@@ -430,8 +430,10 @@ class _DelegatePageState extends State<DelegatePage>
               // data = await webApi.account
               //     .ledgerSign(txInfo, context: context, isDelegation: true);
               print('stake: start sign ledger');
-              final tx = await webApi.account
-                  .ledgerSign(txInfo, context: context, isDelegation: true);
+              final tx = await webApi.account.ledgerSign(txInfo,
+                  context: context,
+                  isDelegation: true,
+                  onLedgerInteraction: onLedgerInteraction);
               if (tx == null) {
                 return false;
               }

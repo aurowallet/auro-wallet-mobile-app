@@ -739,5 +739,14 @@
   "mnemonicWarningContent": "If someone has your mnemonic phrase, they will have full control of your wallet. Do not share it.",
   "@mnemonicWarningContent": {},
   "done": "Done",
-  "@done": {}
+  "@done": {},
+  "ledgerConnectionError": "Unable to communicate with Ledger. Check the Bluetooth connection, unlock Ledger, open the Mina app, and try again.",
+  "ledgerBusyTip": "Ledger is busy. Please try again.",
+  "@ledgerBusyTip": {},
+  "ledgerAccountMismatch": "The connected Ledger account does not match this wallet account.",
+  "@ledgerAccountMismatch": {},
+  "ledgerZkAppUpdateRequired": "Please update the Mina app on your Ledger hardware to the latest version.",
+  "@ledgerZkAppUpdateRequired": {},
+  "ledgerZkAppBlindSigningTip": "Please enable Blind signing on your Ledger.",
+  "@ledgerZkAppBlindSigningTip": {}
 }

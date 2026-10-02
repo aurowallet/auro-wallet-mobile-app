@@ -24,6 +24,14 @@ bool isMainnetLikeNetworkID(String? networkID) {
       networkID.endsWith(':mainnet');
 }
 
+bool isZekoNetworkID(String? networkID) {
+  return networkID?.startsWith('zeko:') == true;
+}
+
+String resolveEffectiveNetworkID(String? networkID, String? currentNetworkID) {
+  return networkID?.isNotEmpty == true ? networkID! : currentNetworkID ?? '';
+}
+
 String resolveSignerNetwork(String? networkID) {
   if (networkID == networkIDMap.zeko) {
     return "zeko-mainnet";
@@ -47,21 +55,5 @@ final List<CustomNode> defaultNetworkList = [
     name: "Devnet",
     isDefaultNode: true,
     networkID: networkIDMap.testnet,
-  ),
-  CustomNode(
-    explorerUrl: ZEKO_MAINNET_TRANSACTIONS_EXPLORER_URL,
-    txUrl: ZEKO_MAINNET_TX_RECORDS_GQL_URL,
-    url: GRAPH_QL_ZEKO_MAINNET_NODE_URL,
-    name: "Zeko",
-    isDefaultNode: true,
-    networkID: networkIDMap.zeko,
-  ),
-  CustomNode(
-    explorerUrl: ZEKO_TESTNET_TRANSACTIONS_EXPLORER_URL,
-    txUrl: ZEKO_TESTNET_TX_RECORDS_GQL_URL,
-    url: GRAPH_QL_ZEKO_TESTNET_NODE_URL,
-    name: "Zeko Testnet",
-    isDefaultNode: true,
-    networkID: networkIDMap.zekotestnet,
   ),
 ];

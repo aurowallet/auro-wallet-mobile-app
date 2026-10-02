@@ -2,20 +2,18 @@ import 'dart:convert';
 
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
+import 'package:auro_wallet/common/consts/index.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
 import 'package:auro_wallet/store/browser/types/zkApp.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/walletSdk/minaSDK.dart';
 import 'package:decimal/decimal.dart';
 
-const String zkEmptyPublicKey =
-    "B62qiTKpEPjGTSHZrtM8uXiKgn8So916pLmNJKDhKeyBQL9TDb3nvBG";
-
 TransactionDetail getFormatFeePayerV2(
     dynamic zkappCommand, String currentAddress) {
   var feePayer = zkappCommand['feePayer'];
   String feePayerKey = feePayer['body']['publicKey'].toString();
-  if (feePayerKey.toLowerCase() == zkEmptyPublicKey.toLowerCase()) {
+  if (feePayerKey.toLowerCase() == zkAppEmptyPublicKey.toLowerCase()) {
     feePayerKey = currentAddress;
   }
   var fee = feePayer['body']['fee'].toString();

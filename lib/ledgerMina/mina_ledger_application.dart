@@ -5,9 +5,12 @@ import 'package:auro_wallet/ledgerMina/operations/mina_name_operation.dart';
 import 'package:auro_wallet/ledgerMina/operations/mina_sign_transfer_operation.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
+import 'ledger_error.dart';
+import 'ledger_status_code.dart';
 import 'mina_transformer.dart';
 import 'mina_version.dart';
 import 'operations/mina_public_key_operation.dart';
+import 'operations/mina_sign_field_element_operation.dart';
 import 'operations/mina_sign_msgpack_operation.dart';
 import 'operations/mina_version_operation.dart';
 
@@ -16,15 +19,6 @@ import 'operations/mina_version_operation.dart';
 ///
 /// https://github.com/LedgerHQ/app-algorand/blob/develop/docs/APDUSPEC.md
 class MinaLedgerApp extends LedgerApp {
-  static const errorExecution = 0x6400;
-  static const errorEmptyBuffer = 0x6982;
-  static const errorOutputBufferTooSmall = 0x6983;
-  static const errorCommandNotAllowed = 0x6986;
-  static const errorInsNotSupported = 0x6D00;
-  static const errorClaNotSupported = 0x6E00;
-  static const errorUnknown = 0x6F00;
-  static const success = 0x8000;
-
   int accountIndex;
   LedgerTransformer? transformer;
 
@@ -41,6 +35,35 @@ class MinaLedgerApp extends LedgerApp {
       transformer: transformer,
     );
   }
+  Future<void> ensureMinaAppReady(LedgerDevice device) async {
+    final app = await getAppName(device);
+    if (app.name.toLowerCase() != 'mina') {
+      throw LedgerException(
+        errorCode: LedgerStatusCode.mobileMinaAppNotOpen,
+        message: 'Open the Mina app on Ledger.',
+      );
+    }
+    await getVersion(device);
+  }
+
+  Future<void> ensureMinaAppReadyWithRetry(LedgerDevice device,
+      {required bool Function() isCurrent}) async {
+    for (var attempt = 0; attempt < 3 && isCurrent(); attempt++) {
+      try {
+        await ensureMinaAppReady(device);
+        return;
+      } catch (error, stackTrace) {
+        if (error is! LedgerException ||
+            !classifyLedgerError(error).canRetryReadiness || attempt == 2) {
+          ledgerErrorLog('Ledger connection readiness attempt=${attempt + 1}',
+              error, stackTrace: stackTrace);
+          rethrow;
+        }
+      }
+      if (!isCurrent()) return;
+      await Future<void>.delayed(Duration(milliseconds: 500 * (attempt + 1)));
+    }
+  }
 
   @override
   Future<MinaVersion> getVersion(LedgerDevice device) {
@@ -52,10 +75,12 @@ class MinaLedgerApp extends LedgerApp {
   }
 
   @override
-  Future<List<String>> getAccounts(LedgerDevice device) async {
+  Future<List<String>> getAccounts(LedgerDevice device,
+      {bool showAddressInDevice = true}) async {
     return ledger.sendOperation<List<String>>(
       device,
-      MinaPublicKeyOperation(accountIndex: accountIndex),
+      MinaPublicKeyOperation(
+          accountIndex: accountIndex, showAddressInDevice: showAddressInDevice),
       transformer: transformer,
     );
   }
@@ -114,6 +139,25 @@ class MinaLedgerApp extends LedgerApp {
       device,
       MinaSignTransferOperation(
         transaction: transaction,
+      ),
+      transformer: transformer,
+    );
+  }
+
+  /// Signs a zkApp transaction commitment or fullCommitment, including token transfers.
+  /// The method name matches Ledger's SIGN_FIELD_ELEMENT instruction.
+  Future<Uint8List> signFieldElement(
+    LedgerDevice device, {
+    required int senderAccount,
+    required int networkId,
+    required Uint8List fieldElement,
+  }) {
+    return ledger.sendOperation<Uint8List>(
+      device,
+      MinaSignFieldElementOperation(
+        accountIndex: senderAccount,
+        networkId: networkId,
+        fieldElement: fieldElement,
       ),
       transformer: transformer,
     );

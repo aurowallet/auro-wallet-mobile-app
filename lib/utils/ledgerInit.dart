@@ -1,130 +1,174 @@
 import 'dart:async';
 
+import 'package:auro_wallet/ledgerMina/ledger_error.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'persistentLedgerBleSearchManager.dart';
+import 'appLedgerBleConnectionManager.dart';
+
 class LedgerInit {
   static StreamSubscription<LedgerDevice>? cancelScan;
-  static List<void Function(LedgerDevice)> scanListeners = [];
+  static int _scanGeneration = 0;
 
-  static offScanListener() {
-    scanListeners.clear();
+  /// Invalidates the current scan before cancelling it so a late stream
+  /// callback cannot update a newer dialog session.
+  static Future<void> stopScanLoop({Ledger? ledger}) async {
+    final generation = ++_scanGeneration;
+    final subscription = cancelScan;
+    cancelScan = null;
+    await subscription?.cancel();
+    if (generation != _scanGeneration) return;
+    if (ledger != null) {
+      try {
+        await ledger.stopScanning();
+      } catch (error, stackTrace) {
+        ledgerErrorLog('BLE stop scan', error, stackTrace: stackTrace);
+      }
+    }
   }
 
-  static bool scaning = false;
-
   static Future<void> scanLoop(Ledger ledger,
-      {void Function(LedgerDevice)? onScanSuccess, recursion = false}) async {
-    if (!recursion &&
-        !scanListeners.contains(onScanSuccess) &&
-        onScanSuccess != null) {
-      scanListeners.add(onScanSuccess);
-    }
-    print('start scan');
-    bool foundDevice = false;
-    // if (!recursion && scaning) {
-    //   return;
-    // }
-    // if (ledger.devices.length > 0 && onScanSuccess != null) {
-    //   onScanSuccess(ledger.devices[0]);
-    //   offScanListener(onScanSuccess);
-    //   return;
-    // }
-    await cancelScan?.cancel();
-    // cancelScan = null;
-    if (!recursion) {
-      scaning = true;
+      {void Function(LedgerDevice)? onScanSuccess}) async {
+    final activeGeneration = ++_scanGeneration;
+    final previousSubscription = cancelScan;
+    cancelScan = null;
+    await previousSubscription?.cancel();
+    if (activeGeneration != _scanGeneration) {
+      return;
     }
     try {
       await ledger.stopScanning();
-      print('stop scan finish');
-    } catch (e) {
-      print('stop error');
+    } catch (error, stackTrace) {
+      ledgerErrorLog('BLE stop previous scan', error, stackTrace: stackTrace);
     }
-    cancelScan = ledger.scan().listen((device) async {
-      print('scanced a device' + DateTime.now().toUtc().toString());
-      foundDevice = true;
-      scaning = false;
-      cancelScan?.cancel();
+    if (activeGeneration != _scanGeneration) {
+      return;
+    }
+    late final StreamSubscription<LedgerDevice> subscription;
+    subscription = ledger.scan().listen((device) async {
+      if (activeGeneration != _scanGeneration || cancelScan != subscription) {
+        return;
+      }
       cancelScan = null;
-      await ledger.stopScanning();
-      scanListeners.forEach((callback) {
-        callback(device);
-      });
+      await subscription.cancel();
+      if (activeGeneration != _scanGeneration) return;
+      try {
+        await ledger.stopScanning();
+      } catch (error, stackTrace) {
+        ledgerErrorLog('BLE stop after Ledger discovery', error,
+            stackTrace: stackTrace);
+      }
+      if (activeGeneration != _scanGeneration) return;
+      onScanSuccess?.call(device);
     }, onDone: () async {
-      await cancelScan?.cancel();
-      cancelScan = null;
-      if (!foundDevice) {
-        print('scanLoop start');
-        await Future.delayed(Duration(seconds: 1));
-        print('scanLoop again');
-        await scanLoop(ledger, onScanSuccess: onScanSuccess, recursion: true);
-        print('scanLoop finish');
+      if (activeGeneration != _scanGeneration || cancelScan != subscription) {
+        return;
       }
-      print('scance' + foundDevice.toString());
-      print(ledger.devices.length);
-      print('ledger scan done' + DateTime.now().toUtc().toString());
-    }, onError: (e) async {
-      await cancelScan?.cancel();
       cancelScan = null;
-      if (!foundDevice) {
-        await Future.delayed(Duration(seconds: 1));
-        await scanLoop(ledger, onScanSuccess: onScanSuccess, recursion: true);
+    }, onError: (error) async {
+      if (activeGeneration != _scanGeneration || cancelScan != subscription) {
+        return;
       }
-      print('ledger scan error' + DateTime.now().toUtc().toString());
-      print(e);
+      cancelScan = null;
+      ledgerErrorLog('Ledger scan stream', error);
     });
+    cancelScan = subscription;
   }
 
   static Future<Ledger> init() async {
     final store = globalAppStore;
-    // await store.ledger?.ledgerInstance?.dispose();
-    // await store.ledger?.ledgerInstance?.stopScanning();
-    print('ledger init');
-    // store.ledger?.setDevice(null);
-    // store.ledger?.setLedger(null);
     if (store.ledger?.ledgerInstance == null) {
       final options = LedgerOptions(
+        // PersistentLedgerBleSearchManager owns discovery lifetime and does
+        // not use this duration; retain it for the Ledger API contract.
+        scanMode: ScanMode.lowLatency,
         maxScanDuration: const Duration(seconds: 15),
-        prescanDuration: const Duration(seconds: 5),
-        connectionTimeout: const Duration(seconds: 10),
+        // Pairing confirmation happens outside the app.
+        prescanDuration: const Duration(seconds: 8),
+        connectionTimeout: const Duration(seconds: 30),
       );
-      final ledger = Ledger(
+      late final Ledger ledger;
+      bool isCurrentDevice(LedgerDevice device) =>
+          identical(store.ledger?.ledgerInstance, ledger) &&
+          store.ledger?.ledgerDevice?.id == device.id;
+      ledger = Ledger(
         options: options,
-        onPermissionRequest: (status) async {
-          // Location was granted, now request BLE
-          Map<Permission, PermissionStatus> statuses = await [
-            Permission.location,
-            Permission.bluetoothScan,
-            Permission.bluetoothConnect,
-            Permission.bluetoothAdvertise,
-          ].request();
-
-          if (status != BleStatus.ready) {
-            return false;
-          }
-          return statuses.values.where((status) => status.isDenied).isEmpty;
-        },
+        bleSearchManager: PersistentLedgerBleSearchManager(
+          options: options,
+          onPermissionRequest: _requestPermissions,
+        ),
+        bleConnectionManager: AppLedgerBleConnectionManager(
+          options: options,
+          onPermissionRequest: _requestPermissions,
+          onSessionClosed: (device, error) {
+            if (!isCurrentDevice(device)) return;
+            store.ledger!.setDevice(null);
+            store.ledger!.recordFailure(error);
+          },
+          onOperationError: (device, error) {
+            if (isCurrentDevice(device)) store.ledger!.recordFailure(error);
+          },
+          onActivityChanged: (device, pending) {
+            if (isCurrentDevice(device)) {
+              store.ledger!.operationPending = pending;
+            }
+          },
+        ),
+        onPermissionRequest: _requestPermissions,
       );
       store.ledger?.setLedger(ledger);
       return ledger;
     }
-    // await ledger.close(ConnectionType.ble);
     return store.ledger!.ledgerInstance!;
   }
 
+  static Future<bool> _requestPermissions(BleStatus status) async {
+    final statuses = await [
+      Permission.location,
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
+    ].request();
+    if (statuses.values.any((permissionStatus) => permissionStatus.isDenied)) {
+      return false;
+    }
+    if (status == BleStatus.ready) {
+      return true;
+    }
+    try {
+      await FlutterReactiveBle()
+          .statusStream
+          .firstWhere((value) => value == BleStatus.ready)
+          .timeout(const Duration(seconds: 5));
+      return true;
+    } on TimeoutException {
+      return false;
+    }
+  }
+
   static dispose() async {
-    print('dispose ledger');
     final store = globalAppStore;
     final ledgerInstance = store.ledger?.ledgerInstance;
     store.ledger?.setLedger(null);
     store.ledger?.setDevice(null);
     if (ledgerInstance != null) {
-      await ledgerInstance.stopScanning();
-      await ledgerInstance.dispose();
+      try {
+        await ledgerInstance.stopScanning();
+      } catch (error, stackTrace) {
+        ledgerErrorLog(
+          'Ledger dispose stop scan',
+          error,
+          stackTrace: stackTrace,
+        );
+      }
+      try {
+        await ledgerInstance.dispose();
+      } catch (error, stackTrace) {
+        ledgerErrorLog('Ledger dispose', error, stackTrace: stackTrace);
+      }
     }
-    cancelScan?.cancel();
-    cancelScan = null;
+    await stopScanLoop(ledger: ledgerInstance);
   }
 }

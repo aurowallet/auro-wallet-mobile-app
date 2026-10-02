@@ -9,6 +9,12 @@ This directory contains unit tests for the Auro Wallet Flutter application.
 | `wallet_store_test.dart` | Wallet data structure basic tests |
 | `wallet_multi_wallet_test.dart` | Multi-wallet functionality tests |
 | `wallet_seed_storage_test.dart` | Seed storage structure tests |
+| `wallet_keyring_test.dart` | Keyring serialization, wallet display names, sorting, and wallet-type filtering |
+| `assets_speedup_test.dart` | Pending transaction selection for speed-up |
+| `ledger_zkapp_test.dart` | zkApp data, networks, signing targets, APDU encoding, and error classification |
+| `persistent_ledger_ble_search_manager_test.dart` | BLE service matching, continuous scanning, restart, and cancellation isolation |
+| `ledger_connection_flow_test.dart` | Shared readiness checks, modal recovery, loading reset, cancellation, session replacement, localized errors, and status-driven confirmation |
+| `app_ledger_transport_test.dart` | Fast GATT responses, request serialization, timeouts, service discovery, and connection lifecycle |
 
 ---
 

@@ -1190,4 +1190,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get done => 'Done';
+
+  @override
+  String get ledgerConnectionError =>
+      'Unable to communicate with Ledger. Check the Bluetooth connection, unlock Ledger, open the Mina app, and try again.';
+
+  @override
+  String get ledgerBusyTip => 'Ledger is busy. Please try again.';
+
+  @override
+  String get ledgerAccountMismatch =>
+      'The connected Ledger account does not match this wallet account.';
+
+  @override
+  String get ledgerZkAppUpdateRequired =>
+      'Please update the Mina app on your Ledger hardware to the latest version.';
+
+  @override
+  String get ledgerZkAppBlindSigningTip =>
+      'Please enable Blind signing on your Ledger.';
 }

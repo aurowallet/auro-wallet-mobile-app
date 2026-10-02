@@ -2,15 +2,12 @@ import 'package:auro_wallet/common/components/TxAction/txAdvanceDialog.dart';
 import 'package:auro_wallet/common/components/ledgerWaitingContent.dart';
 import 'package:auro_wallet/common/components/ledgerStatusView.dart';
 import 'package:auro_wallet/common/components/networkStatusView.dart';
-import 'package:auro_wallet/common/consts/network.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
-import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:auro_wallet/page/browser/components/zkAppBottomButton.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/types/transferData.dart';
-import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
 import 'package:auro_wallet/utils/screenAwake.dart';
@@ -20,7 +17,6 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:styled_text/styled_text.dart';
 
 enum TxActionType { speedup, cancel }
@@ -99,40 +95,9 @@ class _TxActionDialogState extends State<TxActionDialog> {
   }
 
   List<Widget> renderLedgerConfirm() {
-    return [LedgerWaitingContent()];
-  }
-
-  Future<bool> _ledgerCheck() async {
-    bool showLedgerDialog = false;
-    if (widget.store.ledger!.ledgerDevice == null) {
-      showLedgerDialog = true;
-    } else {
-      try {
-        final minaApp = MinaLedgerApp(widget.store.ledger!.ledgerInstance!,
-            accountIndex: 0);
-        await Future.delayed(Duration(
-            milliseconds: 400)); // avoid conflict with ledgerStatus Component
-        await minaApp
-            .getVersion(widget.store.ledger!.ledgerDevice!)
-            .timeout(const Duration(seconds: 10));
-        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.available);
-      } on LedgerException {
-        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
-        showLedgerDialog = true;
-      } catch (e) {
-        widget.store.ledger!.setLedgerStatus(LedgerStatusTypes.unavailable);
-        showLedgerDialog = true;
-      }
-    }
-    if (showLedgerDialog) {
-      bool? connected = await UI.showImportLedgerDialog(context: context);
-      if (connected != true) {
-        return false;
-      }
-      await Future.delayed(const Duration(milliseconds: 500));
-      return true;
-    }
-    return true;
+    final isZkAppSpeedUp = widget.txData.type.toLowerCase() == 'zkapp' &&
+        widget.modalType == TxActionType.speedup;
+    return [LedgerWaitingContent(zkApp: isZkAppSpeedUp)];
   }
 
   void showAdvanceDialog() async {
@@ -154,8 +119,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
   Future<bool> onClickNextStep() async {
     bool isDelagetion = false;
     AppLocalizations dic = AppLocalizations.of(context)!;
-    if (isLedger &&
-        widget.store.settings?.currentNode?.networkID == networkIDMap.zeko) {
+    if (isLedger && widget.store.settings?.isZekoNet == true) {
       UI.toast(dic.notSupportNow);
       return false;
     }
@@ -214,6 +178,7 @@ class _TxActionDialogState extends State<TxActionDialog> {
       if (txType == 'zkapp') {
         txInfo = {
           "privateKey": privateKey,
+          "accountIndex": _initAccountIndex,
           "fromAddress": _initAddress,
           "fee": nextStateFee,
           "nonce": widget.txData.nonce,
@@ -240,19 +205,32 @@ class _TxActionDialogState extends State<TxActionDialog> {
       }
     }
     TransferData? data;
+    final targetNode = widget.store.settings?.currentNode;
     if (isLedger) {
-      final tx = await webApi.account
-          .ledgerSign(txInfo, context: context, isDelegation: isDelagetion);
-      if (tx == null) {
-        return false;
-      }
-      if (mounted) {
-        data = await webApi.account
-            .sendTxBody(tx, context: context, isDelegation: isDelagetion);
+      if (txType == 'zkapp' && widget.modalType == TxActionType.speedup) {
+        data = await webApi.account.ledgerSignAndSendZkTx(
+          txInfo,
+          context: context,
+          networkId: targetNode?.networkID,
+          gqlUrl: targetNode?.url,
+        );
+      } else {
+        final tx = await webApi.account
+            .ledgerSign(txInfo, context: context, isDelegation: isDelagetion);
+        if (tx == null) {
+          return false;
+        }
+        if (mounted) {
+          data = await webApi.account
+              .sendTxBody(tx, context: context, isDelegation: isDelagetion);
+        }
       }
     } else {
       if (txType == 'zkapp' && widget.modalType == TxActionType.speedup) {
-        data = await webApi.account.signAndSendZkTx(txInfo, context: context);
+        data = await webApi.account.signAndSendZkTx(txInfo,
+            context: context,
+            networkId: targetNode?.networkID,
+            gqlUrl: targetNode?.url);
       } else {
         if (isDelagetion) {
           data = await webApi.account
@@ -438,14 +416,9 @@ class _TxActionDialogState extends State<TxActionDialog> {
                     ZkAppBottomButton(
                       confirmBtnText: widget.buttonText ?? dic.confirm,
                       onConfirm: () async {
+                        if (!mounted || submitting || checkingLedger) return;
                         if (isLedger &&
-                            widget.txData.type.toLowerCase() == "zkapp") {
-                          UI.toast(dic.notSupportNow);
-                          return;
-                        }
-                        if (isLedger &&
-                            widget.store.settings?.currentNode?.networkID ==
-                                networkIDMap.zeko) {
+                            widget.store.settings?.isZekoNet == true) {
                           UI.toast(dic.notSupportNow);
                           return;
                         }
@@ -453,18 +426,14 @@ class _TxActionDialogState extends State<TxActionDialog> {
                           setState(() {
                             checkingLedger = true;
                           });
-                          if (!await _ledgerCheck()) {
-                            if (mounted) {
-                              setState(() {
-                                checkingLedger = false;
-                              });
-                            }
-                            return;
-                          }
-                          if (mounted) {
-                            setState(() {
-                              checkingLedger = false;
-                            });
+                          try {
+                            if (!await UI.ensureLedgerReady(
+                                context: context,
+                                ledgerStore: widget.store.ledger!,
+                                stage: 'Ledger speed-up/cancel readiness'))
+                              return;
+                          } finally {
+                            if (mounted) setState(() => checkingLedger = false);
                           }
                         }
                         if (!mounted) return;

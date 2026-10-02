@@ -6,11 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ## [2.3.3]
 ### Enhancements
-- Improve native coin and token amount handling with precise decimal arithmetic across formatting, transfers, WalletConnect payments, and token fiat-value totals.
+- Add Ledger zkApp signing for token transfers, dApps, WalletConnect, and transaction speed-up.
+- Remove Zeko networks from the default network list.
+- Retain Android native symbol tables for release diagnostics.
+- Add Ledger regression tests.
+- Improve native coin and token amount precision.
 
 ### Fixed
-- Fix floating-point precision errors in amount formatting and conversion, including confirmation amount display and precision loss for atomic or large amounts.
-- Fix parsing failures in transaction speed-up and cancellation flows caused by grouped balance strings.
+- Fix Ledger Bluetooth connection, Mina app detection, and response parsing.
+- Synchronize Ledger status and improve transaction loading, retry, and error feedback.
+- Validate Ledger zkApp accounts and networks, and preserve transaction expiry.
+- Show token transaction build and submission errors.
+- Fix amount display and conversion precision errors.
+- Fix transaction speed-up and cancellation with formatted balances.
 
 ## [2.3.2]
 ### Enhancements

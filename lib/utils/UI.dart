@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/common/components/TxAction/txActionDialog.dart';
 import 'package:auro_wallet/common/components/importLedgerDialog.dart';
+import 'package:auro_wallet/ledgerMina/ledger_error.dart';
+import 'package:auro_wallet/store/ledger/ledger.dart';
 import 'package:auro_wallet/common/components/networkSelectionDialog.dart';
 import 'package:auro_wallet/common/components/tokenTxDialog.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
@@ -33,6 +35,8 @@ import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/common/components/TimerManager.dart';
 
 class UI {
+  static final Expando<bool> _ledgerDialogOpen = Expando<bool>();
+
   static void copyAndNotify(BuildContext context, String? text) {
     Clipboard.setData(ClipboardData(text: text ?? ''));
     AppLocalizations dic = AppLocalizations.of(context)!;
@@ -68,12 +72,14 @@ class UI {
     required BuildContext context,
     required String title,
     required List<TxItem> items,
-    required Future<bool?> Function() onConfirm,
+    required Future<bool?> Function(bool Function() onLedgerInteraction)
+        onConfirm,
     String? buttonText,
     String? headLabel,
     Widget? headValue,
     bool disabled = false,
     bool isLedger = false,
+    bool ledgerZkApp = false,
     TimerManager? timerManager,
   }) {
     return showModalBottomSheet<void>(
@@ -87,16 +93,19 @@ class UI {
             title: title,
             items: items,
             isLedger: isLedger,
+            ledgerZkApp: ledgerZkApp,
             disabled: disabled,
             headerLabel: headLabel,
             headerValue: headValue,
             buttonText: buttonText,
             timerManager: timerManager,
-            onConfirm: () async {
-              bool? success = await onConfirm();
-              if (success != true && context.mounted) {
+            onConfirm: (onLedgerInteraction) async {
+              bool? success = await onConfirm(onLedgerInteraction);
+              if (success != true && context.mounted &&
+                  ModalRoute.of(context)?.isCurrent == true) {
                 Navigator.of(context).pop();
               }
+              return success;
             });
       },
     );
@@ -173,26 +182,79 @@ class UI {
     );
   }
 
+  static Future<bool> ensureLedgerReady({
+    required BuildContext context,
+    required LedgerStore ledgerStore,
+    required String stage,
+  }) async {
+    bool isActive() => context.mounted &&
+        ModalRoute.of(context)?.isActive != false;
+    if (!isActive()) return false;
+    final readiness = await ledgerStore.prepareForTransaction(
+      stage: stage,
+      isActive: isActive,
+    );
+    if (!isActive()) return false;
+    switch (readiness) {
+      case LedgerReadiness.ready:
+        return true;
+      case LedgerReadiness.cancelled:
+        return false;
+      case LedgerReadiness.rejected:
+        toast(AppLocalizations.of(context)!.ledgerReject);
+        return false;
+      case LedgerReadiness.connect:
+        break;
+    }
+
+    final connected = await showImportLedgerDialog(
+      context: context,
+      initialLedgerFailure: ledgerStore.lastFailure,
+    );
+    return isActive() &&
+        connected == true &&
+        ledgerStore.isReady;
+  }
+
   static Future<bool?> showImportLedgerDialog(
       {required BuildContext context,
       bool generateAddress = false,
       int? accountIndex,
       String? accountName,
-      String password = ""}) {
-    return showModalBottomSheet<bool?>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
-      builder: (_) {
-        return ImportLedger(
-            generateAddress: generateAddress,
-            accountIndex: accountIndex,
-            accountName: accountName,
-            password: password);
-      },
-    );
+      String password = "",
+      LedgerFailureType? initialLedgerFailure}) async {
+    
+    if (!context.mounted || ModalRoute.of(context)?.isActive == false) return null;
+    final navigator = Navigator.of(context);
+    if (_ledgerDialogOpen[navigator] == true) return null;
+    _ledgerDialogOpen[navigator] = true;
+    ModalRoute<dynamic>? dialogRoute;
+    try {
+      return await showModalBottomSheet<bool?>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        isDismissible: false,
+        enableDrag: false,
+        builder: (sheetContext) {
+          dialogRoute = ModalRoute.of(sheetContext);
+          return ImportLedger(
+              generateAddress: generateAddress,
+              accountIndex: accountIndex,
+              accountName: accountName,
+              password: password,
+              initialLedgerFailure: initialLedgerFailure);
+        },
+      );
+    } finally {
+      if (dialogRoute == null) {
+        _ledgerDialogOpen[navigator] = false;
+      } else {
+        unawaited(dialogRoute!.completed.then((_) {
+          _ledgerDialogOpen[navigator] = false;
+        }));
+      }
+    }
   }
 
   static Future<bool?> showConfirmDialog(

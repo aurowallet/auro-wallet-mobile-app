@@ -761,5 +761,14 @@
   "mnemonicWarningContent": "Birisi anımsatıcı kelimelerinize sahip olursa, cüzdanınızın tam kontrolünü ele geçirir. Paylaşmayın.",
   "@mnemonicWarningContent": {},
   "done": "Tamam",
-  "@done": {}
+  "@done": {},
+  "ledgerConnectionError": "Ledger ile iletişim kurulamadı. Bluetooth bağlantısını kontrol edin, Ledger kilidini açın, Mina uygulamasını açıp tekrar deneyin.",
+  "ledgerBusyTip": "Ledger meşgul. Lütfen tekrar deneyin.",
+  "@ledgerBusyTip": {},
+  "ledgerAccountMismatch": "Bağlı Ledger hesabı bu cüzdan hesabıyla eşleşmiyor.",
+  "@ledgerAccountMismatch": {},
+  "ledgerZkAppUpdateRequired": "Ledger donanımındaki Mina uygulamasını en son sürüme güncelleyin.",
+  "@ledgerZkAppUpdateRequired": {},
+  "ledgerZkAppBlindSigningTip": "Lütfen Ledger'ınızda Blind signing'i açın.",
+  "@ledgerZkAppBlindSigningTip": {}
 }

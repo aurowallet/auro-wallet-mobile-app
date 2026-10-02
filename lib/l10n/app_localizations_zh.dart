@@ -1149,4 +1149,20 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get done => '完成';
+
+  @override
+  String get ledgerConnectionError =>
+      '无法与 Ledger 通信。请检查蓝牙连接，解锁 Ledger 并打开 Mina 应用后重试。';
+
+  @override
+  String get ledgerBusyTip => 'Ledger 正忙，请重试。';
+
+  @override
+  String get ledgerAccountMismatch => '当前连接的 Ledger 账户与钱包账户不匹配。';
+
+  @override
+  String get ledgerZkAppUpdateRequired => '请将 Ledger 硬件中的 Mina 应用升级到最新版本。';
+
+  @override
+  String get ledgerZkAppBlindSigningTip => '请在 Ledger 上开启 Blind signing。';
 }

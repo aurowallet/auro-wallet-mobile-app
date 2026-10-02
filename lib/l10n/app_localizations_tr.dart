@@ -1190,4 +1190,23 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get done => 'Tamam';
+
+  @override
+  String get ledgerConnectionError =>
+      'Ledger ile iletişim kurulamadı. Bluetooth bağlantısını kontrol edin, Ledger kilidini açın, Mina uygulamasını açıp tekrar deneyin.';
+
+  @override
+  String get ledgerBusyTip => 'Ledger meşgul. Lütfen tekrar deneyin.';
+
+  @override
+  String get ledgerAccountMismatch =>
+      'Bağlı Ledger hesabı bu cüzdan hesabıyla eşleşmiyor.';
+
+  @override
+  String get ledgerZkAppUpdateRequired =>
+      'Ledger donanımındaki Mina uygulamasını en son sürüme güncelleyin.';
+
+  @override
+  String get ledgerZkAppBlindSigningTip =>
+      'Lütfen Ledger\'ınızda Blind signing\'i açın.';
 }

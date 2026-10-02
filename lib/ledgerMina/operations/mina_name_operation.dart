@@ -1,44 +1,55 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:auro_wallet/utils/format.dart';
-import 'package:convert/convert.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
-/// GET VERSION APDU PROTOCOL:
-///
-/// https://github.com/LedgerHQ/app-algorand/blob/develop/docs/APDUSPEC.md#get_version
+/// Ledger's common GET_APP_AND_VERSION command. It does not derive keys.
 class MinaNameOperation extends LedgerOperation<LedgerAppName> {
-  MinaNameOperation();
-
   @override
   Future<List<Uint8List>> write(ByteDataWriter writer) async {
-    writer.writeUint8(0xb0); // LEDGER_CLA
-    writer.writeUint8(0x01); // INS
-    writer.writeUint8(0x00); // P1_FIRST
-    writer.writeUint8(0x00); // P2_LAST
-    return [writer.toBytes()];
+    return [
+      Uint8List.fromList([0xb0, 0x01, 0x00, 0x00, 0x00])
+    ];
   }
 
   @override
   Future<LedgerAppName> read(ByteDataReader reader) async {
-    print('version back');
-    final response = hex.encode(reader.read(reader.remainingLength));
-    final info = response.substring(4);
+    int readByte() {
+      if (reader.remainingLength < 1) {
+        throw FormatException('Truncated Ledger app information.');
+      }
+      return reader.readUint8();
+    }
 
-    final returnCode = response.substring(0, 2).toString();
-    final separatorPosition = info.lastIndexOf('05');
-    final name = Fmt.hexToAscii(info.substring(0, separatorPosition));
-    final version = String.fromCharCodes(
-        hex.decode(info.substring(separatorPosition + 2, info.length)));
+    String readString() {
+      final length = readByte();
+      if (length == 0 || reader.remainingLength < length) {
+        throw FormatException('Invalid Ledger app information length.');
+      }
+      return ascii.decode(reader.read(length));
+    }
 
-    return LedgerAppName(name, version, returnCode);
+    final format = readByte();
+    if (format != 1) {
+      throw FormatException('Unsupported Ledger app information format.');
+    }
+    final name = readString();
+    final version = readString();
+    // Dashboard (BOLOS) responses can omit flags entirely.
+    if (reader.remainingLength > 0) {
+      final flagsLength = readByte();
+      if (reader.remainingLength != flagsLength) {
+        throw FormatException('Invalid Ledger app information flags.');
+      }
+      reader.read(flagsLength);
+    }
+    return LedgerAppName(name, version);
   }
 }
 
 class LedgerAppName {
-  LedgerAppName(this.name, this.version, this.returnCode);
+  LedgerAppName(this.name, this.version);
 
   final String name;
   final String version;
-  final String returnCode;
 }
