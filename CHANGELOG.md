@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+### Enhancements
+- Support installing Debug and Release builds side by side on Android and iOS.
 
 ## [2.3.3]
 ### Enhancements
