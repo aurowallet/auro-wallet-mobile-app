@@ -9,16 +9,31 @@ enum LedgerFailureType {
   appNotOpen,
   unsupported,
   pairing,
+  pairingIncomplete,
   other,
 }
 
+/// Android reported bonding in progress, but the transport failed before it
+/// could proceed. This does not imply rejection or mismatched pairing keys.
+class LedgerPairingIncompleteException implements Exception {
+  final Object cause;
+  LedgerPairingIncompleteException(this.cause);
+
+  @override
+  String toString() => 'Ledger pairing did not complete: $cause';
+}
+
 extension LedgerFailureTypeX on LedgerFailureType {
+  bool get isPairingFailure =>
+      this == LedgerFailureType.pairing ||
+      this == LedgerFailureType.pairingIncomplete;
+
   /// Busy can settle after pairing; user-action and pairing errors cannot.
   bool get canRetryReadiness =>
       this == LedgerFailureType.busy || this == LedgerFailureType.other;
 
-  /// Generic communication failures resume discovery; other errors wait for
-  /// an explicit device-row retry. Rejection is presented as a toast.
+  /// Errors that require user action keep their specific connection message.
+  /// Generic failures use the connection error; rejection is shown as a toast.
   bool get requiresConnectionAction =>
       this != LedgerFailureType.other && this != LedgerFailureType.rejected;
 }
@@ -47,6 +62,9 @@ LedgerFailureType classifyLedgerErrorCode(int errorCode) {
 }
 
 LedgerFailureType classifyLedgerError(Object error) {
+  if (error is LedgerPairingIncompleteException) {
+    return LedgerFailureType.pairingIncomplete;
+  }
   final failure = error is LedgerException
       ? classifyLedgerErrorCode(error.errorCode)
       : LedgerFailureType.other;

@@ -17,6 +17,8 @@ String ledgerFailureMessage(AppLocalizations dic, LedgerFailureType failure) {
       return dic.ledgerZkAppUpdateRequired;
     case LedgerFailureType.pairing:
       return dic.ledgerPairingError;
+    case LedgerFailureType.pairingIncomplete:
+      return dic.ledgerConnectionError;
     case LedgerFailureType.other:
       return dic.buildFailed;
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/services.dart' show PlatformException;
 
 import 'package:auro_wallet/ledgerMina/ledger_error.dart';
 import 'package:auro_wallet/ledgerMina/operations/mina_public_key_operation.dart';
@@ -30,13 +31,16 @@ class AppLedgerGattGateway extends GattGateway {
   Future<void> _operationTail = Future<void>.value();
   int _mtu;
   bool _closed = false;
+  bool _waitingForPairing = false;
   Object? _transportError;
   Future<void>? _closing;
   final _disconnected = Completer<void>();
   final Duration probeTimeout;
   final Duration publicKeyTimeout;
   final Duration writeTimeout;
+  final Duration preparationTimeout;
   final void Function(Object error)? onTransportError;
+  final void Function(bool pending)? onPairingChanged;
 
   AppLedgerGattGateway({
     required FlutterReactiveBle bleManager,
@@ -47,7 +51,9 @@ class AppLedgerGattGateway extends GattGateway {
     this.probeTimeout = const Duration(seconds: 10),
     this.publicKeyTimeout = const Duration(minutes: 2),
     this.writeTimeout = const Duration(seconds: 30),
+    this.preparationTimeout = const Duration(seconds: 30),
     this.onTransportError,
+    this.onPairingChanged,
   }) : _bleManager = bleManager,
        _ledger = ledger,
        _reader = reader ?? LedgerGattReader(),
@@ -74,6 +80,8 @@ class AppLedgerGattGateway extends GattGateway {
     if (_closed) throw LedgerException(message: 'Ledger BLE disconnected.');
 
     final notify = _notifyCharacteristic!;
+    // Keep the known-good initialization order. The convenience API owns its
+    // lookup; do not add write-characteristic polling after subscribing.
     _reader.read(
       _bleManager
           .subscribeToCharacteristic(
@@ -86,7 +94,14 @@ class AppLedgerGattGateway extends GattGateway {
           .transform(
             StreamTransformer<List<int>, List<int>>.fromHandlers(
               handleError: (Object error, StackTrace stackTrace, sink) {
-                unawaited(_abort(error));
+                // CCCD errors alone do not prove a pairing failure. Only add
+                // this context when Android explicitly reported BONDING.
+                final failure = _waitingForPairing &&
+                        '$error'.toLowerCase().contains(
+                            'cannot write client characteristic config descriptor')
+                    ? LedgerPairingIncompleteException(error)
+                    : error;
+                unawaited(_abort(failure));
               },
               handleDone: (sink) {
                 unawaited(
@@ -140,6 +155,25 @@ class AppLedgerGattGateway extends GattGateway {
     final writer = ByteDataWriter();
     final output = await operation.write(writer);
     if (_closed) throw LedgerException(message: 'Ledger BLE disconnected.');
+    // The convenience write API queries services before every packet. Android
+    // rejects that query during bonding even though no packet has been sent.
+    // Resolve once per APDU, before its response timeout starts; only this
+    // side-effect-free preparation may retry. Keep the notification stream alive.
+    final Characteristic characteristic;
+    try {
+      characteristic = await Future.any<Characteristic>([
+        _resolveWriteBeforeSending(),
+        _disconnected.future.then((_) => throw _transportError!),
+      ]).timeout(preparationTimeout);
+    } catch (error) {
+      final failure = error is TimeoutException && _waitingForPairing
+          ? LedgerPairingIncompleteException(error)
+          : error;
+      await _abort(failure);
+      if (identical(failure, error)) rethrow;
+      throw failure;
+    }
+    if (_closed) throw _transportError!;
     final completion = Completer<T>();
     final pending = _PendingOperation(operation, transformer, completion);
     _pendingOperation = pending;
@@ -174,20 +208,12 @@ class AppLedgerGattGateway extends GattGateway {
     }
     Future<void> writePackets() async {
       try {
-        final write = _writeCharacteristic!;
-        final characteristic = QualifiedCharacteristic(
-          serviceId: write.serviceId,
-          characteristicId: write.characteristicId,
-          deviceId: _ledger.device.id,
-        );
         for (final payload in output) {
           for (final packet in _packer.pack(payload, _mtu)) {
             if (_closed)
               throw LedgerException(message: 'Ledger BLE disconnected.');
-            await _bleManager.writeCharacteristicWithResponse(
-              characteristic,
-              value: packet,
-            ).timeout(writeTimeout);
+            await characteristic.write(packet, withResponse: true)
+                .timeout(writeTimeout);
           }
         }
         finished.complete();
@@ -204,6 +230,41 @@ class AppLedgerGattGateway extends GattGateway {
       timer?.cancel();
       if (identical(_pendingOperation, pending)) _pendingOperation = null;
     }
+  }
+
+  Future<Characteristic> _resolveWriteBeforeSending() async {
+    final write = _writeCharacteristic!;
+    final qualified = QualifiedCharacteristic(
+      serviceId: write.serviceId,
+      characteristicId: write.characteristicId,
+      deviceId: _ledger.device.id,
+    );
+    while (true) {
+      if (_closed) throw _transportError!;
+      try {
+        final characteristic = await _bleManager.resolveSingle(qualified);
+        if (_closed) throw _transportError!;
+        _setPairingPending(false);
+        return characteristic;
+      } catch (error) {
+        if (_closed || error is! PlatformException ||
+            error.code != 'service_discovery_failure' ||
+            !(error.message ?? '').toLowerCase().contains('bonding is in progress')) {
+          rethrow;
+        }
+        _setPairingPending(true);
+        await Future.any<void>([
+          Future<void>.delayed(const Duration(milliseconds: 500)),
+          _disconnected.future,
+        ]);
+      }
+    }
+  }
+
+  void _setPairingPending(bool pending) {
+    if (_waitingForPairing == pending) return;
+    _waitingForPairing = pending;
+    onPairingChanged?.call(pending);
   }
 
   Future<void> _handleData(Uint8List data) async {
@@ -290,6 +351,7 @@ class AppLedgerGattGateway extends GattGateway {
     if (_closing != null) return _closing!;
     _closed = true;
     _transportError = error;
+    _setPairingPending(false);
     _disconnected.complete();
     if (notifyManager) ledgerErrorLog('GATT channel closed', error);
     _completePendingError(error, null);

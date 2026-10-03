@@ -48,12 +48,17 @@ class FakeLedger extends Fake implements Ledger {
   String? transferSignature;
   Completer<void>? signingGate;
   Completer<void>? versionGate;
+  Completer<void>? connectGate;
   Completer<List<String>>? accountsGate;
   final disconnectedDevices = <LedgerDevice>[];
   Object? versionFailure;
   int scans = 0;
   int connects = 0;
   int disconnects = 0;
+  final connectedDevices = <LedgerDevice>[];
+
+  @override
+  List<LedgerDevice> get devices => List.unmodifiable(connectedDevices);
 
   @override
   Future<T> sendOperation<T>(
@@ -99,11 +104,13 @@ class FakeLedger extends Fake implements Ledger {
   Future<void> disconnect(LedgerDevice device) async {
     disconnects++;
     disconnectedDevices.add(device);
+    connectedDevices.remove(device);
   }
 
   @override
   Future<void> connect(LedgerDevice device, {LedgerOptions? options}) async {
     connects++;
+    await connectGate?.future;
     if (connectFailure != null) throw connectFailure!;
   }
 
@@ -157,7 +164,7 @@ void main() {
   });
   tearDown(() async {
     await LedgerInit.stopScanLoop(ledger: ledger);
-    await ledger.discoveries.close();
+    if (!ledger.discoveries.isClosed) await ledger.discoveries.close();
   });
 
   Widget host(Widget child) => MaterialApp(
@@ -263,6 +270,238 @@ void main() {
         throwsFormatException,
       );
     }
+  });
+
+  testWidgets('pairing progress and failure survive native cleanup until explicit retry', (tester) async {
+    ledger.versionGate = Completer<void>();
+    ledger.versionFailure = LedgerPairingIncompleteException(
+      Exception('Cannot write client characteristic config descriptor (code 3)'),
+    );
+    await tester.pumpWidget(host(ImportLedger()));
+    await pumpFlow(tester);
+    final store = globalAppStore.ledger!;
+    final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
+    store.pairingDevice.value = device;
+    await tester.pump();
+    expect(find.text(dic.loading), findsOneWidget);
+    // The real manager clears the device before the pending APDU fails.
+    store.setDevice(null);
+    store.recordFailure(ledger.versionFailure!);
+    ledger.versionGate!.complete();
+    await pumpFlow(tester);
+    expect(find.text(dic.loading), findsNothing);
+    expect(find.text(dic.ledgerConnectionError), findsOneWidget);
+    expect(find.text(dic.ledgerPairingError), findsNothing);
+    expect(find.byType(RotatingCircle), findsNothing);
+    expect(toasts, isEmpty);
+    expect(ledger.operations, hasLength(2));
+    await tester.pump(const Duration(seconds: 20));
+    expect(find.text('689C'), findsOneWidget);
+    expect(find.text(dic.retry), findsNothing);
+    expect(ledger.scans, 0);
+    expect(ledger.connects, 0);
+    expect(find.text(dic.ledgerConnectionError), findsOneWidget);
+    ledger.versionFailure = null;
+    ledger.versionGate = null;
+    await tester.tap(find.text('689C'));
+    await pumpFlow(tester);
+    expect(ledger.connects, 1);
+    expect(store.ledgerStatus, LedgerStatusTypes.available);
+    expect(find.text(dic.ledgerConnectionError), findsNothing);
+  });
+
+  testWidgets('pairing failure during connect does not automatically reconnect', (tester) async {
+    globalAppStore.ledger!.setDevice(null);
+    ledger.connectFailure = LedgerPairingIncompleteException(TimeoutException('pairing'));
+    await tester.pumpWidget(host(ImportLedger()));
+    await pumpFlow(tester);
+    ledger.discoveries.add(device);
+    await pumpFlow(tester);
+    await tester.tap(find.text('689C'));
+    await pumpFlow(tester);
+    await tester.pump(const Duration(seconds: 5));
+    final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
+    expect(ledger.connects, 1);
+    expect(find.text(dic.ledgerConnectionError), findsOneWidget);
+    expect(find.byType(RotatingCircle), findsNothing);
+    expect(toasts, isEmpty);
+  });
+
+  for (final appOpen in [true, false]) {
+    testWidgets('recovers a managed connection without advertising; Mina open=$appOpen', (tester) async {
+      globalAppStore.ledger!.setDevice(null);
+      ledger.connectedDevices.add(device);
+      ledger.appName = appOpen ? 'Mina' : 'BOLOS';
+      bool? connected;
+      await tester.pumpWidget(host(Builder(builder: (context) => TextButton(
+        onPressed: () async { connected = await UI.showImportLedgerDialog(context: context); },
+        child: const Text('Connect'),
+      ))));
+      await tester.tap(find.text('Connect'));
+      await pumpFlow(tester);
+      expect(ledger.scans, 0);
+      expect(ledger.connects, 0);
+      expect(ledger.operations.first, isA<MinaNameOperation>());
+      expect(globalAppStore.ledger!.ledgerDevice, same(device));
+      if (appOpen) {
+        expect(connected, isTrue);
+        expect(globalAppStore.ledger!.isReady, isTrue);
+      } else {
+        final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
+        expect(find.text(dic.openMinaApp), findsOneWidget);
+        expect(find.text(dic.ledgerSearching), findsNothing);
+        expect(find.text(dic.ledgerConnectionError), findsNothing);
+        expect(connected, isNull);
+      }
+    });
+  }
+
+  testWidgets('failed recovered session keeps its name and reconnects on tap', (tester) async {
+    globalAppStore.ledger!.setDevice(null);
+    ledger.connectedDevices.add(device);
+    ledger.failure = TimeoutException('old session lost');
+    await tester.pumpWidget(host(ImportLedger()));
+    await pumpFlow(tester);
+    final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
+    expect(ledger.disconnects, 1);
+    expect(ledger.connectedDevices, isEmpty);
+    expect(ledger.scans, 0);
+    expect(find.text(dic.ledgerConnectionError), findsOneWidget);
+    expect(globalAppStore.ledger!.isReady, isFalse);
+    expect(globalAppStore.ledger!.ledgerDevice, isNull);
+    await tester.pump(const Duration(seconds: 20));
+    expect(find.text('689C'), findsOneWidget);
+    expect(find.text(dic.retry), findsNothing);
+    expect(find.text(dic.ledgerSearching), findsNothing);
+    expect(find.byType(RotatingCircle), findsNothing);
+    ledger.failure = null;
+    await tester.tap(find.text('689C'));
+    await pumpFlow(tester);
+    expect(ledger.connects, 1);
+    expect(ledger.scans, 0);
+    expect(globalAppStore.ledger!.isReady, isTrue);
+  });
+
+  testWidgets('new connection probe failure keeps the device as the retry target', (tester) async {
+    globalAppStore.ledger!.setDevice(null);
+    ledger.failure = TimeoutException('notification channel closed');
+    await tester.pumpWidget(host(ImportLedger()));
+    await pumpFlow(tester);
+    ledger.discoveries.add(device);
+    await pumpFlow(tester);
+    await tester.tap(find.text('689C'));
+    await pumpFlow(tester);
+    final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
+    expect(ledger.connects, 1);
+    expect(ledger.disconnects, 1);
+    expect(globalAppStore.ledger!.ledgerDevice, isNull);
+    await tester.pump(const Duration(seconds: 20));
+    expect(find.text(dic.ledgerConnectionError), findsOneWidget);
+    expect(find.text('689C'), findsOneWidget);
+    expect(find.text(dic.retry), findsNothing);
+    expect(find.text(dic.ledgerSearching), findsNothing);
+    expect(find.byType(RotatingCircle), findsNothing);
+    expect(ledger.scans, 1);
+    ledger.failure = null;
+    await tester.tap(find.text('689C'));
+    await pumpFlow(tester);
+    expect(ledger.connects, 2);
+    expect(ledger.scans, 1);
+    expect(globalAppStore.ledger!.isReady, isTrue);
+  });
+
+  for (final replaceTransport in [false, true]) {
+    testWidgets('audit: late connect cannot replace a newer ${replaceTransport ? "transport" : "device"}', (tester) async {
+      globalAppStore.ledger!.setDevice(null);
+      ledger.connectGate = Completer<void>();
+      await tester.pumpWidget(host(ImportLedger()));
+      await pumpFlow(tester);
+      ledger.discoveries.add(device);
+      await pumpFlow(tester);
+      await tester.tap(find.text('689C'));
+      await pumpFlow(tester);
+      expect(ledger.connects, 1);
+      final replacement = device.copyWith(name: () => 'new session');
+      final nextLedger = FakeLedger();
+      if (replaceTransport) globalAppStore.ledger!.setLedger(nextLedger);
+      globalAppStore.ledger!.setDevice(replacement);
+      globalAppStore.ledger!.setLedgerStatus(LedgerStatusTypes.available);
+      ledger.connectGate!.complete();
+      await pumpFlow(tester);
+      expect(globalAppStore.ledger!.ledgerDevice, same(replacement));
+      expect(globalAppStore.ledger!.isReady, isTrue);
+      expect(ledger.operations, isEmpty);
+      expect(nextLedger.operations, isEmpty);
+      expect(ledger.disconnects, replaceTransport ? 1 : 0);
+      await tester.pumpWidget(host(const SizedBox()));
+      await nextLedger.discoveries.close();
+    });
+  }
+
+  testWidgets('empty search stops after 15 seconds and Retry discovers a device', (tester) async {
+    globalAppStore.ledger!.setDevice(null);
+    await tester.pumpWidget(host(ImportLedger()));
+    await tester.pump();
+    await tester.pump();
+    final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
+    expect(ledger.scans, 1);
+    expect(find.text(dic.ledgerSearching), findsOneWidget);
+    await tester.pump(const Duration(seconds: 16));
+    await tester.pump();
+    expect(find.text(dic.ledgerConnectionError), findsOneWidget);
+    expect(find.text(dic.ledgerSearching), findsNothing);
+    expect(find.byType(RotatingCircle), findsNothing);
+    expect(ledger.discoveries.hasListener, isFalse);
+    expect(toasts, isEmpty);
+    await tester.tap(find.text(dic.retry));
+    await tester.pump();
+    await tester.pump();
+    expect(ledger.scans, 2);
+    expect(find.text(dic.ledgerConnectionError), findsNothing);
+    ledger.discoveries.add(device);
+    await pumpFlow(tester);
+    expect(find.text('689C'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 16));
+    expect(find.text(dic.ledgerConnectionError), findsNothing);
+    expect(ledger.connects, 0);
+  });
+
+  for (final event in ['error', 'done']) {
+    testWidgets('scan $event ends searching and exposes manual retry', (tester) async {
+      globalAppStore.ledger!.setDevice(null);
+      await tester.pumpWidget(host(ImportLedger()));
+      await pumpFlow(tester);
+      if (event == 'error') {
+        ledger.discoveries.addError(StateError('Bluetooth unavailable'));
+      } else {
+        unawaited(ledger.discoveries.close());
+      }
+      await pumpFlow(tester);
+      final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
+      expect(find.text(dic.ledgerConnectionError), findsOneWidget);
+      expect(find.text(dic.retry), findsOneWidget);
+      expect(find.text(dic.ledgerSearching), findsNothing);
+      expect(find.byType(RotatingCircle), findsNothing);
+      expect(ledger.connects, 0);
+      expect(toasts, isEmpty);
+    });
+  }
+
+  testWidgets('closing search cancels its deadline without affecting the next sheet', (tester) async {
+    globalAppStore.ledger!.setDevice(null);
+    await tester.pumpWidget(host(ImportLedger()));
+    await pumpFlow(tester);
+    await tester.pumpWidget(host(const SizedBox()));
+    await tester.pump();
+    expect(ledger.discoveries.hasListener, isFalse);
+    await tester.pumpWidget(host(ImportLedger()));
+    await pumpFlow(tester);
+    ledger.discoveries.add(device);
+    await pumpFlow(tester);
+    await tester.pump(const Duration(seconds: 20));
+    expect(find.text('689C'), findsOneWidget);
+    expect(find.byType(RotatingCircle), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('new device selection closes sheet and hands off session', (
@@ -477,9 +716,19 @@ void main() {
       expect(find.text(dic.ledgerConnectionError), findsOneWidget);
       expect(find.text(dic.ledgerPairingError), findsNothing);
       expect(toasts, isEmpty);
-      ledger.discoveries.add(device);
-      await pumpFlow(tester);
+      expect(ledger.scans, 1);
+      expect(globalAppStore.ledger!.ledgerDevice, isNull);
+      await tester.pump(const Duration(seconds: 20));
       expect(find.text('689C'), findsOneWidget);
+      expect(find.text(dic.retry), findsNothing);
+      expect(find.text(dic.ledgerSearching), findsNothing);
+      expect(find.byType(RotatingCircle), findsNothing);
+      ledger.connectFailure = null;
+      await tester.tap(find.text('689C'));
+      await pumpFlow(tester);
+      expect(ledger.connects, 4);
+      expect(ledger.scans, 1);
+      expect(globalAppStore.ledger!.isReady, isTrue);
     },
   );
 
@@ -578,6 +827,7 @@ void main() {
           LedgerFailureType.appNotOpen: dic.openMinaApp,
           LedgerFailureType.unsupported: dic.ledgerZkAppUpdateRequired,
           LedgerFailureType.pairing: dic.ledgerPairingError,
+          LedgerFailureType.pairingIncomplete: dic.ledgerConnectionError,
           LedgerFailureType.other: dic.buildFailed,
         };
         for (final entry in messages.entries) {

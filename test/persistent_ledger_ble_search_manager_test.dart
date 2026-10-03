@@ -6,6 +6,225 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
 void main() {
+  DiscoveredDevice advertisement(String id, {String name = '689C'}) =>
+      DiscoveredDevice(
+        id: id, name: name, serviceData: const {},
+        manufacturerData: Uint8List(0), rssi: -42,
+        serviceUuids: [Uuid.parse(PersistentLedgerBleSearchManager.serviceId)],
+      );
+
+  test('recovers the original named device without a new advertisement', () async {
+    final advertisements = StreamController<DiscoveredDevice>.broadcast();
+    final connections = StreamController<ConnectionStateUpdate>.broadcast();
+    final gate = Completer<bool>();
+    final checked = <LedgerDevice>[];
+    final manager = PersistentLedgerBleSearchManager(
+      options: LedgerOptions(), statusProvider: () => BleStatus.ready,
+      scanForDevices: (_, __, ___) => advertisements.stream,
+      connectedDeviceUpdates: connections.stream,
+      prepareConnectedDevice: (device) { checked.add(device); return gate.future; },
+    );
+    final found = <LedgerDevice>[];
+    var sub = manager.scan().listen(found.add);
+    await Future<void>.delayed(Duration.zero);
+    advertisements.add(advertisement('connected-ledger'));
+    await Future<void>.delayed(Duration.zero);
+    final original = found.single;
+    await sub.cancel(); await manager.stop();
+    found.clear();
+    sub = manager.scan().listen(found.add);
+    await Future<void>.delayed(Duration.zero);
+    for (var i = 0; i < 2; i++) {
+      connections.add(const ConnectionStateUpdate(deviceId: 'connected-ledger',
+        connectionState: DeviceConnectionState.connected, failure: null));
+    }
+    await Future<void>.delayed(Duration.zero);
+    expect(checked.single, same(original));
+    expect(found, isEmpty);
+    gate.complete(true);
+    await Future<void>.delayed(Duration.zero);
+    expect(found.single, same(original));
+    expect(found.single.name, '689C');
+    await sub.cancel(); await manager.stop();
+    expect(connections.hasListener, isFalse);
+    await advertisements.close(); await connections.close();
+  });
+
+  test('unknown native ID is not probed or exposed as a generic Ledger', () async {
+    final advertisements = StreamController<DiscoveredDevice>();
+    final connections = StreamController<ConnectionStateUpdate>();
+    var checks = 0;
+    final manager = PersistentLedgerBleSearchManager(
+      options: LedgerOptions(), statusProvider: () => BleStatus.ready,
+      scanForDevices: (_, __, ___) => advertisements.stream,
+      connectedDeviceUpdates: connections.stream,
+      prepareConnectedDevice: (_) async { checks++; return true; },
+    );
+    final found = <LedgerDevice>[];
+    final sub = manager.scan().listen(found.add);
+    await Future<void>.delayed(Duration.zero);
+    connections.add(const ConnectionStateUpdate(deviceId: 'unknown',
+      connectionState: DeviceConnectionState.connected, failure: null));
+    advertisements.add(advertisement('unknown', name: ''));
+    await Future<void>.delayed(Duration.zero);
+    expect(checks, 0);
+    expect(found, isEmpty);
+    advertisements.add(advertisement('unknown'));
+    await Future<void>.delayed(Duration.zero);
+    expect(found.single.name, '689C');
+    expect(found.single.id, 'unknown');
+    await sub.cancel(); await manager.stop();
+    await advertisements.close(); await connections.close();
+  });
+
+  for (final outcome in ['unsupported', 'error', 'disconnected', 'cancelled', 'advertised']) {
+    test('connected-device recovery handles $outcome validation', () async {
+      final advertisements = StreamController<DiscoveredDevice>.broadcast();
+      final connections = StreamController<ConnectionStateUpdate>.broadcast();
+      final gate = Completer<bool>();
+      var checks = 0;
+      final manager = PersistentLedgerBleSearchManager(
+        options: LedgerOptions(), statusProvider: () => BleStatus.ready,
+        scanForDevices: (_, __, ___) => advertisements.stream,
+        connectedDeviceUpdates: connections.stream,
+        prepareConnectedDevice: (_) { checks++; return gate.future; },
+      );
+      final found = <LedgerDevice>[];
+      var sub = manager.scan().listen(found.add);
+      await Future<void>.delayed(Duration.zero);
+      advertisements.add(advertisement('candidate'));
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel(); await manager.stop();
+      found.clear();
+      sub = manager.scan().listen(found.add);
+      await Future<void>.delayed(Duration.zero);
+      connections.add(const ConnectionStateUpdate(deviceId: 'candidate',
+        connectionState: DeviceConnectionState.connected, failure: null));
+      await Future<void>.delayed(Duration.zero);
+      expect(checks, 1);
+      if (outcome == 'disconnected') {
+        connections.add(const ConnectionStateUpdate(deviceId: 'candidate',
+          connectionState: DeviceConnectionState.disconnected, failure: null));
+        await Future<void>.delayed(Duration.zero);
+      } else if (outcome == 'cancelled') {
+        await sub.cancel(); await manager.stop();
+        sub = manager.scan().listen(found.add);
+        await Future<void>.delayed(Duration.zero);
+      } else if (outcome == 'advertised') {
+        advertisements.add(advertisement('candidate', name: 'Updated 689C'));
+        await Future<void>.delayed(Duration.zero);
+      }
+      if (outcome == 'error') {
+        gate.completeError(StateError('GATT is unavailable'));
+      } else {
+        gate.complete(outcome != 'unsupported');
+      }
+      await Future<void>.delayed(Duration.zero);
+      if (outcome == 'advertised') {
+        expect(found.single.name, 'Updated 689C');
+      } else {
+        expect(found, isEmpty);
+        advertisements.add(advertisement('advertised-ledger'));
+        await Future<void>.delayed(Duration.zero);
+        expect(found.single.id, 'advertised-ledger');
+      }
+      await sub.cancel(); await manager.stop();
+      await advertisements.close(); await connections.close();
+    });
+  }
+
+  test('audit: validation from a disconnected link cannot validate its replacement', () async {
+    final advertisements = StreamController<DiscoveredDevice>.broadcast();
+    final connections = StreamController<ConnectionStateUpdate>.broadcast();
+    final checks = <Completer<bool>>[];
+    final manager = PersistentLedgerBleSearchManager(
+      options: LedgerOptions(), statusProvider: () => BleStatus.ready,
+      scanForDevices: (_, __, ___) => advertisements.stream,
+      connectedDeviceUpdates: connections.stream,
+      prepareConnectedDevice: (_) {
+        final gate = Completer<bool>(); checks.add(gate); return gate.future;
+      },
+    );
+    final found = <LedgerDevice>[];
+    var sub = manager.scan().listen(found.add);
+    await Future<void>.delayed(Duration.zero);
+    advertisements.add(advertisement('candidate'));
+    await Future<void>.delayed(Duration.zero);
+    await sub.cancel(); await manager.stop();
+    found.clear();
+    sub = manager.scan().listen(found.add);
+    await Future<void>.delayed(Duration.zero);
+    for (final state in [DeviceConnectionState.connected,
+        DeviceConnectionState.disconnected, DeviceConnectionState.connected]) {
+      connections.add(ConnectionStateUpdate(deviceId: 'candidate',
+        connectionState: state, failure: null));
+      await Future<void>.delayed(Duration.zero);
+    }
+    checks.first.complete(true);
+    await Future<void>.delayed(Duration.zero);
+    final staleResults = found.length;
+    if (checks.length > 1) checks.last.complete(true);
+    await Future<void>.delayed(Duration.zero);
+    await sub.cancel(); await manager.stop();
+    await advertisements.close(); await connections.close();
+    expect(staleResults, 0);
+    expect(checks, hasLength(2));
+    expect(found.single.name, '689C');
+  });
+
+  test('denied scan permission reports once without repeatedly prompting', () async {
+    var requests = 0;
+    var starts = 0;
+    final errors = <Object>[];
+    final manager = PersistentLedgerBleSearchManager(
+      options: LedgerOptions(),
+      statusProvider: () => BleStatus.ready,
+      restartDelay: const Duration(milliseconds: 1),
+      onPermissionRequest: (_) async { requests++; return false; },
+      scanForDevices: (_, __, ___) { starts++; return const Stream.empty(); },
+    );
+    final finished = Completer<void>();
+    final sub = manager.scan().listen((_) {}, onError: errors.add, onDone: finished.complete);
+    await finished.future.timeout(const Duration(seconds: 1));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(requests, 1);
+    expect(starts, 0);
+    expect(errors, hasLength(1));
+    await sub.cancel();
+    await manager.stop();
+  });
+
+  test('repeated native failures terminate and a manual scan starts a fresh budget', () async {
+    var starts = 0;
+    var failing = true;
+    final errors = <Object>[];
+    final source = StreamController<DiscoveredDevice>();
+    final manager = PersistentLedgerBleSearchManager(
+      options: LedgerOptions(),
+      statusProvider: () => BleStatus.ready,
+      restartDelay: const Duration(milliseconds: 1),
+      scanForDevices: (_, __, ___) {
+        starts++;
+        if (failing) throw StateError('scanner unavailable');
+        return source.stream;
+      },
+    );
+    final finished = Completer<void>();
+    final sub = manager.scan().listen((_) {}, onError: errors.add, onDone: finished.complete);
+    await finished.future.timeout(const Duration(seconds: 1));
+    expect(starts, 3);
+    expect(errors, hasLength(1));
+    await sub.cancel();
+    failing = false;
+    final next = manager.scan().listen((_) {});
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    expect(starts, 4);
+    expect(source.hasListener, isTrue);
+    await next.cancel();
+    await manager.stop();
+    await source.close();
+  });
+
   test('retries a synchronous native scan startup failure', () async {
     final source = StreamController<DiscoveredDevice>();
     var starts = 0;

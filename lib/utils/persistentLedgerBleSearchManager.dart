@@ -18,10 +18,20 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
   final BleDeviceScan _scanForDevices;
   final Duration _restartDelay;
   final BleStatus Function() _statusProvider;
+  final Stream<ConnectionStateUpdate>? _connectedDeviceUpdates;
+  final Future<bool> Function(LedgerDevice device)? _prepareConnectedDevice;
+
+  // Keep actual advertised metadata for this manager's lifetime, not on disk.
+  // Native connection events contain an ID but no display name.
+  final _knownDevices = <String, LedgerDevice>{};
 
   final _scannedIds = <String>{};
+  int _interruptions = 0;
   StreamController<LedgerDevice>? _controller;
   StreamSubscription<DiscoveredDevice>? _subscription;
+  StreamSubscription<ConnectionStateUpdate>? _connectionSubscription;
+  final _checkingConnectedIds = <String, Object>{};
+  final _connectedIds = <String>{};
   Timer? _restartTimer;
   LedgerOptions? _activeOptions;
   bool _isScanning = false;
@@ -36,9 +46,13 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
     BleDeviceScan? scanForDevices,
     Duration restartDelay = const Duration(seconds: 1),
     BleStatus Function()? statusProvider,
+    Stream<ConnectionStateUpdate>? connectedDeviceUpdates,
+    Future<bool> Function(LedgerDevice device)? prepareConnectedDevice,
   }) : _defaultOptions = options,
        _onPermissionRequest = onPermissionRequest,
        _restartDelay = restartDelay,
+       _connectedDeviceUpdates = connectedDeviceUpdates,
+       _prepareConnectedDevice = prepareConnectedDevice,
        _statusProvider = statusProvider ?? (() => FlutterReactiveBle().status),
        _scanForDevices =
            scanForDevices ??
@@ -58,6 +72,9 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
 
     _activeOptions = options ?? _defaultOptions;
     _scannedIds.clear();
+    _checkingConnectedIds.clear();
+    _connectedIds.clear();
+    _interruptions = 0;
     _isScanning = true;
     final session = ++_scanSession;
     late final StreamController<LedgerDevice> nextController;
@@ -92,11 +109,28 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
           'BLE scan permission',
           StateError('Bluetooth is not ready'),
         );
-        _scheduleRestart(session);
+        _failScan(session, StateError('Bluetooth permission or readiness denied'));
         return;
       }
 
       final options = _activeOptions!;
+      // Recover previously discovered devices that have stopped advertising.
+      // An unknown native ID is not enough to create a selectable device.
+      _connectionSubscription ??= _connectedDeviceUpdates?.listen(
+        (update) {
+          if (!_isActiveSession(session)) return;
+          if (update.connectionState == DeviceConnectionState.connected) {
+            _connectedIds.add(update.deviceId);
+            unawaited(_checkConnectedDevice(session, update.deviceId));
+          } else {
+            _connectedIds.remove(update.deviceId);
+            _checkingConnectedIds.remove(update.deviceId);
+          }
+        },
+        // This is an additional discovery source; ordinary scanning remains
+        // available if the connection event stream is unavailable.
+        onError: (Object _) {},
+      );
       _subscription =
           _scanForDevices(
             const <Uuid>[],
@@ -105,19 +139,21 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
           ).listen(
             (device) {
               if (!_isActiveSession(session)) return;
-              if (!isLedgerCandidate(device) ||
-                  _scannedIds.contains(device.id)) {
-                return;
-              }
+              if (!isLedgerCandidate(device)) return;
+              final known = _knownDevices[device.id];
+              final candidate = device.name.trim().isEmpty
+                  ? known
+                  : LedgerDevice(
+                      id: device.id,
+                      name: device.name,
+                      connectionType: ConnectionType.ble,
+                      rssi: device.rssi,
+                    );
+              if (candidate == null) return;
+              _knownDevices[device.id] = candidate;
+              if (_scannedIds.contains(device.id)) return;
               _scannedIds.add(device.id);
-              _controller?.add(
-                LedgerDevice(
-                  id: device.id,
-                  name: device.name,
-                  connectionType: ConnectionType.ble,
-                  rssi: device.rssi,
-                ),
-              );
+              _controller?.add(candidate);
             },
             onDone: () =>
                 unawaited(_handleInterruption(session)),
@@ -139,11 +175,43 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
         device.serviceData.keys.any(isLedgerService);
   }
 
+  Future<void> _checkConnectedDevice(int session, String id) async {
+    final check = _prepareConnectedDevice;
+    final device = _knownDevices[id];
+    // A native ID alone does not identify a Ledger or supply its display name.
+    if (device == null || check == null ||
+        _scannedIds.contains(id) || _checkingConnectedIds.containsKey(id)) return;
+    final checkToken = Object();
+    _checkingConnectedIds[id] = checkToken;
+    try {
+      final supported = await check(device);
+      if (!_isActiveSession(session) || !_connectedIds.contains(id) ||
+          !identical(_checkingConnectedIds[id], checkToken) ||
+          !supported || _scannedIds.contains(id)) {
+        return;
+      }
+      _scannedIds.add(id);
+      _controller?.add(device);
+    } catch (_) {
+      // A stale native connection or pairing in progress cannot be used yet.
+      // Continue normal discovery without treating it as a verified device.
+    } finally {
+      if (_isActiveSession(session) &&
+          identical(_checkingConnectedIds[id], checkToken)) {
+        _checkingConnectedIds.remove(id);
+      }
+    }
+  }
+
   Future<void> _handleInterruption(int session) {
     if (!_isActiveSession(session)) return Future<void>.value();
     final interruption = _interruption;
     if (interruption != null) {
       return interruption;
+    }
+    if (++_interruptions >= 3) {
+      _failScan(session, StateError('Bluetooth scan repeatedly interrupted'));
+      return Future<void>.value();
     }
     final nextInterruption = _cancelAndRestart(session);
     _interruption = nextInterruption;
@@ -182,6 +250,12 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
     });
   }
 
+  void _failScan(int session, Object error) {
+    if (!_isActiveSession(session)) return;
+    _controller?.addError(error);
+    unawaited(stop());
+  }
+
   @override
   Future<void> stop() {
     _scanSession++;
@@ -192,11 +266,19 @@ class PersistentLedgerBleSearchManager extends BleSearchManager {
     _subscription = null;
     final controller = _controller;
     _controller = null;
+    final connectionSubscription = _connectionSubscription;
+    _connectionSubscription = null;
     final previousStop = _stopping;
     final interruption = _interruption;
     return _stopping = () async {
       await previousStop;
       await interruption;
+      try {
+        await connectionSubscription?.cancel();
+      } catch (error, stackTrace) {
+        ledgerErrorLog('BLE connection discovery cleanup', error,
+            stackTrace: stackTrace);
+      }
       try {
         await subscription?.cancel();
       } catch (error, stackTrace) {

@@ -9,6 +9,8 @@ import 'package:auro_wallet/ledgerMina/operations/mina_sign_message_operation.da
 import 'package:auro_wallet/ledgerMina/operations/mina_version_operation.dart';
 import 'package:auro_wallet/utils/appLedgerBleConnectionManager.dart';
 import 'package:auro_wallet/utils/appLedgerGattGateway.dart';
+import 'package:auro_wallet/utils/persistentLedgerBleSearchManager.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
@@ -46,6 +48,23 @@ final services = [
 
 Future<void> flush() => Future<void>.delayed(Duration.zero);
 final ledgerError = isA<LedgerException>();
+final bondingInProgress = PlatformException(
+  code: 'service_discovery_failure',
+  message: 'java.lang.Exception: Bonding is in progress wait for bonding to be '
+      'finished before executing more operations on the device',
+);
+
+class FakeWriteCharacteristic extends Fake implements Characteristic {
+  final FakeBle ble;
+  FakeWriteCharacteristic(this.ble);
+
+  @override
+  Future<void> write(List<int> value, {bool withResponse = true}) async {
+    expect(withResponse, isTrue);
+    ble.packets.add(value);
+    await ble.onWrite?.call();
+  }
+}
 
 class FakeService extends Fake implements Service {
   final DiscoveredService source;
@@ -79,31 +98,44 @@ class FakeCharacteristic extends Fake implements Characteristic {
 class FakeBle extends Fake implements FlutterReactiveBle {
   final bluetoothStatuses = StreamController<BleStatus>.broadcast(sync: true);
   final notifications = StreamController<List<int>>.broadcast(sync: true);
+  int nativeEventTeardowns = 0;
+  late final nativeConnectionUpdates = StreamController<ConnectionStateUpdate>.broadcast(
+    onCancel: () => nativeEventTeardowns++,
+  );
   final connections = <StreamController<ConnectionStateUpdate>>[];
   final packets = <List<int>>[];
   Future<void> Function()? onWrite;
+  Future<void> Function()? onResolveWrite;
+  int writeLookups = 0;
   Future<List<DiscoveredService>> Function()? discovery;
   Object? mtuError;
   Object? subscribeError;
   int discoveries = 0;
   int serviceReads = 0;
   List<DiscoveredService>? discoveredServices;
-  List<Uuid>? prescanFilter;
+  int directConnects = 0;
+  Future<void>? disconnectGate;
+  Duration? nativeConnectionTimeout;
 
   @override
   BleStatus get status => BleStatus.ready;
   @override
   Stream<BleStatus> get statusStream => bluetoothStatuses.stream;
   @override
-  Stream<ConnectionStateUpdate> connectToAdvertisingDevice({
+  Stream<ConnectionStateUpdate> get connectedDeviceStream => nativeConnectionUpdates.stream;
+  @override
+  Stream<ConnectionStateUpdate> connectToDevice({
     required String id,
-    required List<Uuid> withServices,
-    required Duration prescanDuration,
     Duration? connectionTimeout,
     Map<Uuid, List<Uuid>>? servicesWithCharacteristicsToDiscover,
   }) {
-    prescanFilter = withServices;
-    final source = StreamController<ConnectionStateUpdate>(sync: true);
+    directConnects++;
+    nativeConnectionTimeout = connectionTimeout;
+    final source = StreamController<ConnectionStateUpdate>(
+      sync: true, onCancel: () {
+        return disconnectGate;
+      },
+    );
     connections.add(source);
     return source.stream;
   }
@@ -145,12 +177,19 @@ class FakeBle extends Fake implements FlutterReactiveBle {
   }
 
   @override
+  Future<Characteristic> resolveSingle(QualifiedCharacteristic characteristic) async {
+    writeLookups++;
+    await onResolveWrite?.call();
+    return FakeWriteCharacteristic(this);
+  }
+
+  @override
   Future<void> writeCharacteristicWithResponse(
     QualifiedCharacteristic characteristic, {
     required List<int> value,
   }) async {
-    packets.add(value);
-    await onWrite?.call();
+    // The plugin convenience method resolves services before it writes.
+    await (await resolveSingle(characteristic)).write(value, withResponse: true);
   }
 
   void respond(List<int> data) {
@@ -160,6 +199,7 @@ class FakeBle extends Fake implements FlutterReactiveBle {
   }
 
   Future<void> close() async {
+    await nativeConnectionUpdates.close();
     await bluetoothStatuses.close();
     await notifications.close();
     for (final source in connections) {
@@ -236,6 +276,181 @@ void main() {
     ack.complete();
     expect(await response, 7);
   });
+
+  test('bonding before first APDU preserves notifications and waits beyond probe timeout', () async {
+    await gateway.start();
+    var bonding = true;
+    ble.onResolveWrite = () async {
+      if (bonding) throw bondingInProgress;
+    };
+    ble.onWrite = () async => ble.respond([1, 2, 3, 0x90, 0]);
+    final response = gateway.sendOperation(
+      MinaVersionOperation(), transformer: const MinaTransformer(),
+    );
+    // Failures are observed immediately so the regression has no unhandled error.
+    final checked = expectLater(response, completion(isNotNull));
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    expect(ble.packets, isEmpty);
+    expect(ble.notifications.hasListener, isTrue);
+    bonding = false;
+    await checked;
+    expect((await response).versionMajor, 1);
+    expect(ble.packets, hasLength(1));
+  });
+
+  for (final pairing in [false, true]) {
+    test('CCCD failure includes pairing context only after observed bonding: $pairing', () async {
+      await gateway.disconnect();
+      final progress = <bool>[];
+      gateway = AppLedgerGattGateway(
+        bleManager: ble,
+        ledger: DiscoveredLedger(device: device, subscription: null, services: services),
+        onPairingChanged: progress.add,
+      );
+      await gateway.start();
+      final lookup = Completer<void>();
+      ble.onResolveWrite = () async {
+        if (pairing) throw bondingInProgress;
+        await lookup.future;
+      };
+      final failure = Exception('Cannot write client characteristic config descriptor (code 3)');
+      final pending = gateway.sendOperation<int>(Probe());
+      final checked = expectLater(pending, throwsA(pairing
+          ? isA<LedgerPairingIncompleteException>().having((e) => e.cause, 'cause', same(failure))
+          : same(failure)));
+      await flush();
+      expect(progress, pairing ? [true] : isEmpty);
+      ble.notifications.addError(failure);
+      await checked;
+      lookup.complete();
+      await Future<void>.delayed(const Duration(milliseconds: 550));
+      expect(progress, pairing ? [true, false] : isEmpty);
+      expect(ble.packets, isEmpty);
+      expect(ble.notifications.hasListener, isFalse);
+    });
+  }
+
+  test('pairing progress clears before write and never replays an APDU', () async {
+    await gateway.disconnect();
+    final progress = <bool>[];
+    gateway = AppLedgerGattGateway(
+      bleManager: ble,
+      ledger: DiscoveredLedger(device: device, subscription: null, services: services),
+      onPairingChanged: progress.add,
+    );
+    await gateway.start();
+    ble.onResolveWrite = () async {
+      if (ble.writeLookups == 1) throw bondingInProgress;
+    };
+    ble.onWrite = () async {
+      expect(progress, [true, false]);
+      ble.respond([7, 0x90, 0]);
+    };
+    expect(await gateway.sendOperation<int>(Probe()), 7);
+    expect(ble.packets, hasLength(1));
+  });
+
+  test('cancelling while bonding clears progress without claiming pairing failure', () async {
+    await gateway.disconnect();
+    final progress = <bool>[];
+    gateway = AppLedgerGattGateway(
+      bleManager: ble,
+      ledger: DiscoveredLedger(device: device, subscription: null, services: services),
+      onPairingChanged: progress.add,
+    );
+    await gateway.start();
+    ble.onResolveWrite = () async => throw bondingInProgress;
+    final checked = expectLater(gateway.sendOperation<int>(Probe()), throwsA(ledgerError));
+    await flush();
+    await gateway.disconnect();
+    await checked;
+    expect(progress, [true, false]);
+    expect(ble.packets, isEmpty);
+  });
+
+  test('fragmented APDU resolves once and never retries a failed native write', () async {
+    await gateway.start();
+    ble.onWrite = () async {
+      if (ble.packets.length == 2) throw bondingInProgress;
+    };
+    await expectLater(gateway.sendOperation<int>(Probe(bytes: 50)),
+        throwsA(same(bondingInProgress)));
+    await Future<void>.delayed(const Duration(milliseconds: 550));
+    expect(ble.writeLookups, 1);
+    expect(ble.packets, hasLength(2));
+    expect(ble.notifications.hasListener, isFalse);
+  });
+
+  test('a real pairing failure is not retried as bonding in progress', () async {
+    await gateway.start();
+    final failure = PlatformException(
+      code: 'service_discovery_failure', message: 'Bonding failed',
+    );
+    ble.onResolveWrite = () async => throw failure;
+    await expectLater(gateway.sendOperation<int>(Probe()), throwsA(same(failure)));
+    expect(ble.writeLookups, 1);
+    expect(ble.packets, isEmpty);
+    expect(ble.notifications.hasListener, isFalse);
+  });
+
+  test('preparation timeout releases queued work and ignores a late lookup', () async {
+    await gateway.disconnect();
+    gateway = AppLedgerGattGateway(
+      bleManager: ble,
+      ledger: DiscoveredLedger(device: device, subscription: null, services: services),
+      preparationTimeout: const Duration(milliseconds: 30),
+    );
+    await gateway.start();
+    final lookup = Completer<void>();
+    ble.onResolveWrite = () => lookup.future;
+    final failed = expectLater(gateway.sendOperation<int>(Probe()), throwsA(isA<TimeoutException>()));
+    final queued = expectLater(gateway.sendOperation<int>(Probe()), throwsA(ledgerError));
+    await Future.wait([failed, queued]);
+    lookup.complete();
+    await flush();
+    expect(ble.packets, isEmpty);
+    expect(ble.writeLookups, 1);
+    expect(ble.notifications.hasListener, isFalse);
+  });
+
+  test('repeated bonding errors cannot renew the preparation deadline', () async {
+    await gateway.disconnect();
+    gateway = AppLedgerGattGateway(
+      bleManager: ble,
+      ledger: DiscoveredLedger(device: device, subscription: null, services: services),
+      preparationTimeout: const Duration(milliseconds: 650),
+    );
+    await gateway.start();
+    ble.onResolveWrite = () async => throw bondingInProgress;
+    await expectLater(gateway.sendOperation<int>(Probe()).timeout(const Duration(seconds: 2)),
+        throwsA(isA<LedgerPairingIncompleteException>()));
+    expect(ble.writeLookups, 2);
+    expect(ble.notifications.hasListener, isFalse);
+    expect(ble.packets, isEmpty);
+  });
+
+  for (final end in ['cancel', 'notification failure']) {
+    test('$end interrupts preparation and cannot write after a late lookup', () async {
+      await gateway.start();
+      final lookup = Completer<void>();
+      final failure = StateError('CCCD transport failed');
+      ble.onResolveWrite = () => lookup.future;
+      final pending = expectLater(gateway.sendOperation<int>(Probe()),
+          throwsA(end == 'cancel' ? ledgerError : same(failure)));
+      await flush();
+      if (end == 'cancel') {
+        await gateway.disconnect();
+      } else {
+        ble.notifications.addError(failure);
+      }
+      await pending;
+      lookup.complete();
+      await flush();
+      expect(ble.packets, isEmpty);
+      expect(ble.writeLookups, 1);
+      expect(ble.notifications.hasListener, isFalse);
+    });
+  }
 
   test('early 0x6511 is caught and preserves the session for retry', () async {
     await gateway.start();
@@ -485,6 +700,199 @@ void main() {
       await pending;
     }
 
+    test('audit: cancelling a retry during cleanup prevents a later connection', () async {
+      await connect();
+      final gate = Completer<void>();
+      ble.disconnectGate = gate.future;
+      final stopping = manager.disconnect(device);
+      await flush();
+      final retry = manager.connect(device);
+      Object? retryError;
+      var retryFinished = false;
+      final observed = retry.then((_) { retryFinished = true; },
+        onError: (Object error) { retryError = error; retryFinished = true; });
+      final cancelling = manager.disconnect(device);
+      gate.complete();
+      await Future.wait([stopping, cancelling]);
+      await flush();
+      final starts = ble.directConnects;
+      // Clean up even on the pre-fix path so failure cannot leave a timer.
+      await manager.dispose();
+      await observed;
+      expect(starts, 1);
+      expect(retryFinished, isTrue);
+      expect(retryError, isA<LedgerException>());
+    });
+
+    test('audit: session close callback can immediately request a new connection', () async {
+      await manager.dispose();
+      Future<void>? retry;
+      Object? callbackError;
+      var requested = false;
+      manager = AppLedgerBleConnectionManager(bleManager: ble,
+        options: LedgerOptions(connectionTimeout: const Duration(seconds: 2)),
+        onSessionClosed: (device, _) {
+          if (requested) return;
+          requested = true;
+          try { retry = manager.connect(device); } catch (error) { callbackError = error; }
+        });
+      await connect();
+      await manager.disconnect(device);
+      await flush();
+      expect(callbackError, isNull);
+      expect(ble.directConnects, 2);
+      ble.state(DeviceConnectionState.connected);
+      await retry;
+      expect(manager.devices, [device]);
+    });
+
+    test('audit: local disconnect invalidates replay without a native callback', () async {
+      await connect();
+      ble.nativeConnectionUpdates.add(ConnectionStateUpdate(deviceId: device.id,
+        connectionState: DeviceConnectionState.connected, failure: null));
+      await flush();
+      await manager.disconnect(device);
+      final replay = <ConnectionStateUpdate>[];
+      final sub = manager.deviceStateChanges.listen(replay.add);
+      await flush();
+      expect(replay.where((s) => s.connectionState == DeviceConnectionState.connected), isEmpty);
+      await sub.cancel();
+    });
+
+    test('stopping discovery must not tear down the native connection event channel', () async {
+      // Android DeviceConnectionHandler.onCancel calls disconnectAllDevices;
+      // its CompositeDisposable.dispose is terminal for the native client.
+      final advertisements = StreamController<DiscoveredDevice>.broadcast();
+      final scanner = PersistentLedgerBleSearchManager(
+        options: LedgerOptions(), statusProvider: () => BleStatus.ready,
+        scanForDevices: (_, __, ___) => advertisements.stream,
+        connectedDeviceUpdates: ble.connectedDeviceStream,
+      );
+      for (var retry = 0; retry < 2; retry++) {
+        final sub = scanner.scan().listen((_) {});
+        await flush();
+        await sub.cancel(); await scanner.stop();
+        expect(ble.nativeEventTeardowns, 0,
+          reason: 'scan cancellation must not call native disconnectAll');
+      }
+      await connect();
+      await manager.disconnect(device);
+      expect(ble.nativeEventTeardowns, 0);
+      await connect();
+      expect(manager.devices, [device]);
+      await scanner.dispose();
+      await advertisements.close();
+      await manager.dispose();
+      expect(ble.nativeEventTeardowns, 1);
+    });
+
+    test('unknown native state waits for a named advertisement without connecting', () async {
+      final advertisements = StreamController<DiscoveredDevice>();
+      final scanner = PersistentLedgerBleSearchManager(
+        options: LedgerOptions(), statusProvider: () => BleStatus.ready,
+        scanForDevices: (_, __, ___) => advertisements.stream,
+        connectedDeviceUpdates: manager.deviceStateChanges,
+        prepareConnectedDevice: (candidate) async {
+          await manager.connect(candidate, nativeConnectionEstablished: true);
+          return manager.devices.contains(candidate);
+        },
+      );
+      // The native snapshot predates scanning and has no advertised name.
+      ble.nativeConnectionUpdates.add(ConnectionStateUpdate(deviceId: device.id,
+        connectionState: DeviceConnectionState.connected, failure: null));
+      await flush();
+      final found = <LedgerDevice>[];
+      final subscription = scanner.scan().listen(found.add);
+      await flush();
+      await flush();
+      expect(ble.directConnects, 0);
+      expect(ble.discoveries, 0);
+      expect(ble.nativeEventTeardowns, 0);
+      expect(found, isEmpty);
+      expect(ble.notifications.hasListener, isFalse);
+      expect(ble.packets, isEmpty);
+      advertisements.add(DiscoveredDevice(
+        id: device.id, name: '689C', serviceData: const {},
+        manufacturerData: Uint8List(0), rssi: -42, serviceUuids: [serviceId],
+      ));
+      await flush();
+      expect(found.single.name, '689C');
+      expect(found.single.id, device.id);
+      await subscription.cancel(); await scanner.stop();
+      final connecting = manager.connect(found.single);
+      await flush();
+      ble.state(DeviceConnectionState.connected);
+      await connecting;
+      expect(manager.devices.single, same(found.single));
+      await advertisements.close();
+    });
+
+    test('retry after cleanup requires a fresh connection and retains selected metadata', () async {
+      await connect();
+      final gate = Completer<void>();
+      ble.disconnectGate = gate.future;
+      final stopping = manager.disconnect(device);
+      await flush();
+      final selected = LedgerDevice(id: device.id, name: 'Updated 689C',
+        connectionType: ConnectionType.ble);
+      final connecting = manager.connect(selected, nativeConnectionEstablished: true);
+      expect(manager.devices, isEmpty);
+      expect(ble.directConnects, 1);
+      gate.complete();
+      await stopping;
+      await flush();
+      expect(ble.connections.first.hasListener, isFalse);
+      expect(ble.directConnects, 2);
+      expect(manager.devices, isEmpty);
+      expect(ble.discoveries, 1); // The old connected snapshot cannot initialize this link.
+      ble.state(DeviceConnectionState.connected);
+      await connecting;
+      expect(manager.devices.single, same(selected));
+      expect(ble.connections.last.hasListener, isTrue);
+    });
+
+    test('adopts an existing native connection without waiting for a duplicate connected event', () async {
+      await manager.connect(device, nativeConnectionEstablished: true);
+      expect(ble.directConnects, 1);
+      expect(manager.devices, [device]);
+      expect(ble.discoveries, 1);
+      ble.state(DeviceConnectionState.connected);
+      await flush();
+      expect(ble.discoveries, 1);
+      ble.onWrite = () async => ble.respond([7, 0x90, 0]);
+      expect(await manager.sendOperation<int>(device, Probe(), null), 7);
+      await manager.disconnect(device);
+      expect(ble.connections.single.hasListener, isFalse);
+      expect(ble.notifications.hasListener, isFalse);
+    });
+
+    test('native connected state cannot bypass Ledger service verification', () async {
+      ble.discovery = () async => [];
+      await expectLater(manager.connect(device, nativeConnectionEstablished: true),
+          throwsA(ledgerError));
+      await flush();
+      expect(manager.devices, isEmpty);
+      expect(ble.packets, isEmpty);
+      expect(ble.connections.single.hasListener, isFalse);
+    });
+
+    test('bonding during APDU preparation retains the same native connection', () async {
+      await connect();
+      ble.onResolveWrite = () async {
+        if (ble.writeLookups == 1) throw bondingInProgress;
+      };
+      ble.onWrite = () async => ble.respond([7, 0x90, 0]);
+      final pending = manager.sendOperation<int>(device, Probe(), null);
+      await flush();
+      expect(ble.connections.single.hasListener, isTrue);
+      expect(ble.notifications.hasListener, isTrue);
+      expect(ble.packets, isEmpty);
+      expect(await pending, 7);
+      expect(ble.connections, hasLength(1));
+      expect(ble.connections.single.hasListener, isTrue);
+      expect(ble.packets, hasLength(1));
+    });
+
     test(
       'Bluetooth off reports session loss once and releases the native link',
       () async {
@@ -632,13 +1040,14 @@ void main() {
     );
 
     test(
-      'duplicate connect and connected events initialize only once',
+      'known device connects without advertising and duplicate events initialize only once',
       () async {
         final first = manager.connect(device);
         final second = manager.connect(device);
         await flush();
         expect(ble.connections, hasLength(1));
-        expect(ble.prescanFilter, isEmpty);
+        expect(ble.directConnects, 1);
+        expect(ble.nativeConnectionTimeout, const Duration(seconds: 2));
         ble.state(DeviceConnectionState.connected);
         ble.state(DeviceConnectionState.connected);
         await Future.wait([first, second]);

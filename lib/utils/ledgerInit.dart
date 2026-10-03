@@ -30,7 +30,9 @@ class LedgerInit {
   }
 
   static Future<void> scanLoop(Ledger ledger,
-      {void Function(LedgerDevice)? onScanSuccess}) async {
+      {void Function(LedgerDevice)? onScanSuccess,
+      void Function(Object error)? onScanError,
+      void Function()? onScanDone}) async {
     final activeGeneration = ++_scanGeneration;
     final previousSubscription = cancelScan;
     cancelScan = null;
@@ -67,12 +69,13 @@ class LedgerInit {
         return;
       }
       cancelScan = null;
+      onScanDone?.call();
     }, onError: (error) async {
       if (activeGeneration != _scanGeneration || cancelScan != subscription) {
         return;
       }
-      cancelScan = null;
       ledgerErrorLog('Ledger scan stream', error);
+      onScanError?.call(error);
     });
     cancelScan = subscription;
   }
@@ -85,37 +88,56 @@ class LedgerInit {
         // not use this duration; retain it for the Ledger API contract.
         scanMode: ScanMode.lowLatency,
         maxScanDuration: const Duration(seconds: 15),
-        // Pairing confirmation happens outside the app.
-        prescanDuration: const Duration(seconds: 8),
         connectionTimeout: const Duration(seconds: 30),
       );
       late final Ledger ledger;
+      final ble = FlutterReactiveBle();
       bool isCurrentDevice(LedgerDevice device) =>
           identical(store.ledger?.ledgerInstance, ledger) &&
           store.ledger?.ledgerDevice?.id == device.id;
+      final connectionManager = AppLedgerBleConnectionManager(
+        options: options,
+        bleManager: ble,
+        onPermissionRequest: _requestPermissions,
+        onSessionClosed: (device, error) {
+          if (!isCurrentDevice(device)) return;
+          store.ledger!.setDevice(null);
+          store.ledger!.recordFailure(error);
+        },
+        onOperationError: (device, error) {
+          if (isCurrentDevice(device)) store.ledger!.recordFailure(error);
+        },
+        onActivityChanged: (device, pending) {
+          if (isCurrentDevice(device)) {
+            store.ledger!.operationPending = pending;
+          }
+        },
+        onPairingChanged: (device, pending) {
+          if (!identical(store.ledger?.ledgerInstance, ledger)) return;
+          final notifier = store.ledger!.pairingDevice;
+          if (pending) {
+            notifier.value = device;
+          } else if (identical(notifier.value, device)) {
+            notifier.value = null;
+          }
+        },
+      );
       ledger = Ledger(
         options: options,
         bleSearchManager: PersistentLedgerBleSearchManager(
           options: options,
           onPermissionRequest: _requestPermissions,
-        ),
-        bleConnectionManager: AppLedgerBleConnectionManager(
-          options: options,
-          onPermissionRequest: _requestPermissions,
-          onSessionClosed: (device, error) {
-            if (!isCurrentDevice(device)) return;
-            store.ledger!.setDevice(null);
-            store.ledger!.recordFailure(error);
-          },
-          onOperationError: (device, error) {
-            if (isCurrentDevice(device)) store.ledger!.recordFailure(error);
-          },
-          onActivityChanged: (device, pending) {
-            if (isCurrentDevice(device)) {
-              store.ledger!.operationPending = pending;
-            }
+          bleManager: ble,
+          connectedDeviceUpdates: connectionManager.deviceStateChanges,
+          prepareConnectedDevice: (device) async {
+            // Adopt the native link under the normal manager before querying
+            // GATT: discovery must not create an unowned native connection.
+            await connectionManager.connect(device,
+                nativeConnectionEstablished: true);
+            return connectionManager.devices.contains(device);
           },
         ),
+        bleConnectionManager: connectionManager,
         onPermissionRequest: _requestPermissions,
       );
       store.ledger?.setLedger(ledger);

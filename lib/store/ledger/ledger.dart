@@ -1,6 +1,7 @@
 import 'package:auro_wallet/ledgerMina/ledger_error.dart';
 import 'package:auro_wallet/ledgerMina/mina_ledger_application.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ledger.g.dart';
@@ -20,6 +21,7 @@ abstract class LedgerBase with Store {
   Future<void>? _statusCheck;
   bool operationPending = false;
   LedgerFailureType? lastFailure;
+  final pairingDevice = ValueNotifier<LedgerDevice?>(null);
 
   @MakeObservable(equals: _sameLedgerDevice)
   LedgerDevice? ledgerDevice = null;
@@ -61,6 +63,7 @@ abstract class LedgerBase with Store {
   }
 
   void _invalidateSession() {
+    pairingDevice.value = null;
     _sessionRevision++;
     _statusCheck = null;
     operationPending = false;
