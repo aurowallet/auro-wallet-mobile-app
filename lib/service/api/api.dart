@@ -21,7 +21,14 @@ class Api {
 
   final BuildContext context;
   final AppStore store;
-  late GraphQLClient graphQLClient;
+  late GraphQLClient _graphQLClient;
+  String? _graphQLUrl;
+
+  GraphQLClient get graphQLClient {
+    final url = store.settings!.currentNode!.url;
+    if (_graphQLUrl != url) updateGqlClient(url);
+    return _graphQLClient;
+  }
 
   final configStorage = GetStorage('configuration');
 
@@ -37,9 +44,7 @@ class Api {
     assets = ApiAssets(this);
     staking = ApiStaking(this);
     setting = ApiSetting(this);
-    graphQLClient =
-        clientFor(uri: store.settings!.currentNode!.url, subscriptionUri: null)
-            .value;
+    updateGqlClient(store.settings!.currentNode!.url);
 
     // Load security flags from SecureStorage (with GetStorage migration)
     // before any flag reads (e.g. initLockCheck in app.dart).
@@ -54,10 +59,11 @@ class Api {
     await bridge.init();
   }
 
-  void dispose() {}
+  void dispose() { store.requests.invalidate(); }
 
   void updateGqlClient(String endpoint) {
-    graphQLClient = clientFor(uri: endpoint, subscriptionUri: null).value;
+    _graphQLClient = clientFor(uri: endpoint, subscriptionUri: null).value;
+    _graphQLUrl = endpoint;
   }
 
   Future<void> fetchInitialInfo() async {

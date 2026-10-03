@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -82,26 +83,37 @@ class LocalStorage {
     return null;
   }
 
-  Future<void> clearAccountsCache(String key) async {
-    await setObject(key, {});
+  Future<void> clearAccountsCache(String key) =>
+      _queueCacheWrite(key, () async { await setObject(key, {}); });
+
+  final Map<String, Future<void>> _cacheWrites = {};
+
+  Future<void> setAccountCache(String accPubKey, String key, dynamic value) {
+    final snapshot = jsonDecode(jsonEncode(value));
+    return _queueCacheWrite(key, () async {
+      final cached = await getObject(key);
+      final data = cached is Map ? Map<String, dynamic>.from(cached) : <String, dynamic>{};
+      data[accPubKey] = snapshot;
+      await setObject(key, data);
+    });
   }
 
-  Future<void> setAccountCache(
-      String accPubKey, String key, dynamic value) async {
-    Map? data = await getObject(key) as Map?;
-    if (data == null) {
-      data = {};
-    }
-    data[accPubKey] = value;
-    await setObject(key, data);
+  Future<void> _queueCacheWrite(String key, Future<void> Function() update) {
+    final previous = _cacheWrites[key] ?? Future<void>.value();
+    final write = previous.then((_) => update());
+    // A failed write must not poison subsequent writes to this cache.
+    final settled = write.catchError((Object _) {});
+    _cacheWrites[key] = settled;
+    unawaited(settled.then((_) {
+      if (identical(_cacheWrites[key], settled)) _cacheWrites.remove(key);
+    }));
+    return write;
   }
 
   Future<Object?> getAccountCache(String accPubKey, String key) async {
-    Map? data = await getObject(key) as Map?;
-    if (data == null) {
-      return null;
-    }
-    return data[accPubKey];
+    await _cacheWrites[key];
+    final data = await getObject(key);
+    return data is Map ? data[accPubKey] : null;
   }
 
   // cache timeout 10 minutes

@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:auro_wallet/service/requestTracker.dart';
 
 import 'package:auro_wallet/service/WalletConnectService.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,10 @@ final AppStore globalAppStore = AppStore();
 class AppStore extends _AppStore with _$AppStore {}
 
 abstract class _AppStore with Store {
+  late final requests = RequestTracker(() => jsonEncode([
+    wallet?.currentAddress, settings?.currentNode?.networkID,
+    settings?.currentNode?.url, settings?.currentNode?.txUrl,
+  ]));
 
   
   GlobalKey<RefreshIndicatorState>? balanceRefreshKey;

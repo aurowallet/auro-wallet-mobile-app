@@ -1,6 +1,7 @@
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/utils/networkCache.dart';
 import 'package:auro_wallet/store/assets/types/accountInfo.dart';
 import 'package:auro_wallet/store/assets/types/fees.dart';
 import 'package:auro_wallet/store/assets/types/scamInfo.dart';
@@ -29,13 +30,15 @@ abstract class _AssetsStore with Store {
   final String localStorageBlocksKey = 'blocks';
 
   final String localStorageFeesKey = 'fee_config_v1';
-  final String cacheBalanceKey = 'balance';
+  String get cacheBalanceKey => 'balance_v2_$networkCacheKey';
   final String cachePriceKey = 'coin_price_v2';
 
   final String cacheScamListKey = 'wallet_sacm_list';
-  final String cacheFullTxsKey = 'accounts_full_txs';
+  String get cacheFullTxsKey => 'accounts_full_txs_v2_$networkCacheKey';
 
-  final String cacheTokensKey = 'account_token_v1';
+  String get cacheTokensKey => 'account_token_v2_$networkCacheKey';
+
+  String get networkCacheKey => getNetworkCacheKey(rootStore.settings?.currentNode);
 
   final String cacheTokenConfigKey = 'account_token_config_v1';
 
@@ -264,7 +267,8 @@ abstract class _AssetsStore with Store {
         String networkID = rootStore.settings?.currentNode?.networkID ?? '';
         // If delegate equals pubKey, it means not delegated (self-delegation)
         String? delegationKey = (delegate != null && delegate != pubKey) ? delegate : '';
-        rootStore.staking?.setDelegationCache(delegationKey, pubKey, networkID);
+        rootStore.staking?.setDelegationCache(delegationKey, pubKey, networkID,
+            shouldCache: needCache);
       }
     }
 
@@ -441,6 +445,7 @@ abstract class _AssetsStore with Store {
             tempZkTxList.add(tx);
         }
       });
+      rootStore.requests.start('history-cache');
       tokenFullTxs[tokenId] = tempZkTxList;
       if (shouldCache) {
         Map<String, List<Map<String, dynamic>>> jsonMap = {};
@@ -449,7 +454,7 @@ abstract class _AssetsStore with Store {
               .map((transferData) => TransferData.toJson(transferData))
               .toList();
         });
-        rootStore.localStorage.setAccountCache(
+        await rootStore.localStorage.setAccountCache(
             rootStore.wallet!.currentWallet.pubKey, cacheFullTxsKey, jsonMap);
       }
     } catch (e) {
@@ -478,9 +483,12 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadMultiAccountCache() async {
+    final isCurrent = rootStore.requests.start('multi-account-cache');
+    final balancesCurrent = rootStore.requests.start('balances', fromCache: true);
     for (var account in rootStore.wallet!.accountListAll) {
       Map? cache = await rootStore.localStorage
           .getAccountCache(account.pubKey, cacheBalanceKey) as Map?;
+      if (!isCurrent() || !balancesCurrent()) return;
       if (cache != null) {
         setAccountInfo(account.pubKey, cache, needCache: false);
       }
@@ -489,27 +497,34 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadAccountCache() async {
+    final isCurrent = rootStore.requests.start('account-cache');
+    final assetsCurrent = rootStore.requests.start('token-assets', fromCache: true);
+    final balancesCurrent = rootStore.requests.start('balances', fromCache: true);
+    final historyCurrent = rootStore.requests.start('history-cache', fromCache: true);
     String pubKey = rootStore.wallet!.currentAccountPubKey;
     if (pubKey.isEmpty) {
       return;
     }
     await loadTokenLocalConfigCache();
+    if (!isCurrent()) return;
     List cache = await Future.wait([
       rootStore.localStorage.getAccountCache(pubKey, cacheBalanceKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTokensKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheFullTxsKey),
     ]);
 
-    if (cache[0] != null) {
+    if (!isCurrent()) return;
+    if (balancesCurrent() && cache[0] != null) {
       setAccountInfo(pubKey, cache[0], needCache: false);
     }
-    if (cache[1] != null) {
+    if (assetsCurrent() && cache[1] != null) {
       tokenList.clear();
       List<Token> ls = List.of(cache[1]).map((i) => Token.fromJson(i)).toList();
       updateTokenAssets(ls, pubKey);
-    } else {
+    } else if (assetsCurrent()) {
       tokenList = ObservableList<Token>();
     }
+    if (!historyCurrent()) return;
     if (cache[2] != null) {
       tokenFullTxs.clear();
       Map<String, dynamic> jsonMap = cache[2];
@@ -529,8 +544,10 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadMarketPricesCache() async {
+    final isCurrent = rootStore.requests.start('market-price', fromCache: true);
     Map<String, dynamic>? prices = await rootStore.localStorage
         .getObject(cachePriceKey) as Map<String, dynamic>?;
+    if (!isCurrent()) return;
     if (prices != null) {
       marketPrices
           .addAll(prices.map((key, value) => MapEntry(key, value as double)));
@@ -697,6 +714,7 @@ abstract class _AssetsStore with Store {
     String keys =
         '${rootStore.wallet!.currentWallet.pubKey}_${networkId}_$cacheTokenConfigKey';
     if (shouldCache) {
+      rootStore.requests.start('token-config-cache');
       rootStore.localStorage.setAccountCache(
           rootStore.wallet!.currentWallet.pubKey, keys, localConfig);
     }
@@ -836,6 +854,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> clearAssestNodeCache() async {
+    rootStore.requests.invalidate();
     accountsInfo.clear();
 
     pendingTxs.clear();
@@ -851,10 +870,6 @@ abstract class _AssetsStore with Store {
     localHideTokenMap.clear();
     localShowedTokenIds.clear();
     tokenInfoList.clear();
-
-    rootStore.localStorage.clearAccountsCache(cacheFullTxsKey);
-    rootStore.localStorage.clearAccountsCache(cacheTokensKey);
-    rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
   }
 
   @action
@@ -888,10 +903,12 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadTokenInfoCache() async {
+    final isCurrent = rootStore.requests.start('token-info', fromCache: true);
     String? networkId = rootStore.settings!.currentNode?.networkID;
     String readableNetworkId = getReadableNetworkId(networkId ?? "");
     List<dynamic>? tempTokenInfo = await rootStore.localStorage
         .getObject(cacheTokenInfoKey + readableNetworkId) as List<dynamic>?;
+    if (!isCurrent()) return;
     if (tempTokenInfo == null) {
       tempTokenInfo = [];
     }
@@ -902,6 +919,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadTokenLocalConfigCache() async {
+    final isCurrent = rootStore.requests.start('token-config-cache');
     String pubKey = rootStore.wallet!.currentAccountPubKey;
     if (pubKey.isEmpty) {
       return;
@@ -911,11 +929,15 @@ abstract class _AssetsStore with Store {
     dynamic localConfig =
         await rootStore.localStorage.getAccountCache(pubKey, configKey);
 
+    if (!isCurrent()) return;
     if (localConfig != null) {
       localShowedTokenIds = ObservableList<String>.of(
           List<String>.from(localConfig['localShowedTokenIds'] ?? []));
       localHideTokenMap = ObservableMap<String, dynamic>.of(
           Map<String, dynamic>.from(localConfig['localHideTokenList'] ?? {}));
+    } else {
+      localShowedTokenIds.clear();
+      localHideTokenMap.clear();
     }
   }
 

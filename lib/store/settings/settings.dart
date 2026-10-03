@@ -227,7 +227,17 @@ abstract class _SettingsStore with Store {
     if (!value.isDefaultNode && !_isSecureCustomNode(value)) {
       value = _mainnetNode;
     }
+    rootStore.requests.invalidate();
     currentNode = value;
+    rootStore.staking?.clearOverviewData();
+    rootStore.staking?.lastLoadedDataKey = null;
+    rootStore.staking?.cachedDelegationKey = null;
+    rootStore.staking?.cachedDelegationOwner = null;
+    rootStore.staking?.cachedDelegationNetwork = null;
+    if (!isMainnet) {
+      rootStore.staking?.clearStakingAPR();
+      rootStore.staking?.setValidatorsInfo([], [], shouldCache: false);
+    }
     await rootStore.localStorage.setObject(localStorageCurrentNodeKey, value);
   }
 

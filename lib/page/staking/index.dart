@@ -22,6 +22,7 @@ class _StakingState extends State<Staking> {
   _StakingState(this.store);
 
   final AppStore store;
+  String get _dataKey => '${store.wallet!.currentAddress}_${store.assets!.networkCacheKey}';
   bool loading = true;
   Timer? _refreshTimer;
   ReactionDisposer? _storeChangeDisposer;
@@ -31,7 +32,7 @@ class _StakingState extends State<Staking> {
   @override
   void initState() {
     super.initState();
-    final currentKey = '${store.wallet!.currentAddress}_${store.settings!.currentNode?.networkID}';
+    final currentKey = _dataKey;
     final hasCachedData = store.assets!.mainTokenNetInfo.tokenBaseInfo != null;
     loading = store.staking!.lastLoadedDataKey != currentKey || !hasCachedData;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -41,7 +42,7 @@ class _StakingState extends State<Staking> {
         _onRefresh();
       });
       _storeChangeDisposer = reaction(
-        (_) => '${store.wallet!.currentAddress}_${store.settings!.currentNode?.networkID}',
+        (_) => _dataKey,
         (_) {
           store.staking!.clearAccountSpecificData();
           setState(() {
@@ -54,14 +55,15 @@ class _StakingState extends State<Staking> {
   }
 
   Future<void> _fetchData() async {
+    final isCurrent = store.requests.start('staking-page');
     await Future.wait([
       webApi.staking.fetchValidators(),
       webApi.assets.fetchAllTokenAssets(),
       webApi.staking.fetchStakingOverview(),
       webApi.staking.fetchStakingAPR(),
     ]);
-    if (mounted) {
-      store.staking!.lastLoadedDataKey = '${store.wallet!.currentAddress}_${store.settings!.currentNode?.networkID}';
+    if (mounted && isCurrent()) {
+      store.staking!.lastLoadedDataKey = _dataKey;
       setState(() {
         loading = false;
       });

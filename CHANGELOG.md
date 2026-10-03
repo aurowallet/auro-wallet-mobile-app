@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Add Ledger regression tests.
 - Improve native coin and token amount precision.
 - Share staking calculations and adapt epoch estimates and labels to Mesa network timing.
+- Add request and cache isolation regression tests.
 
 ### Fixed
 - Fix Ledger Bluetooth connection, Mina app detection, and response parsing.
@@ -24,6 +25,8 @@ All notable changes to this project will be documented in this file.
 - Fix transaction speed-up and cancellation with formatted balances.
 - Show unknown staking overview values when queries fail instead of Epoch 0.
 - Handle invalid staking values and prevent calculation overflow and rounding errors.
+- Prevent stale responses from overwriting assets, history, staking data, and loading states after account or network changes.
+- Isolate caches by account, network, and node, and prevent concurrent cache writes from losing data.
 
 ## [2.3.2]
 ### Enhancements

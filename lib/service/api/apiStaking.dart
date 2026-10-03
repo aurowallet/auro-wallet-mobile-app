@@ -15,7 +15,7 @@ class ApiStaking {
 
   Future<void> refreshStaking({clearCache = true}) async {
     if (clearCache) {
-      store.staking!.setValidatorsInfo([], []);
+      store.staking!.setValidatorsInfo([], [], shouldCache: false);
     }
     fetchStakingOverview();
     fetchValidators();
@@ -23,6 +23,7 @@ class ApiStaking {
   }
 
   Future<double?> fetchStakingAPR() async {
+    final isCurrent = store.requests.start('staking-apr');
     if (!store.settings!.isMainnet) {
       // Clear APR when not on mainnet to avoid showing stale mainnet data
       store.staking!.clearStakingAPR();
@@ -32,6 +33,7 @@ class ApiStaking {
     try {
       var response = await http.get(Uri.parse(url),
           headers: {'Content-Type': 'application/json; charset=utf-8'});
+      if (!isCurrent()) return null;
       if (response.statusCode == 200) {
         Map<String, dynamic> data = convert.jsonDecode(utf8.decode(response.bodyBytes));
         double? apr = (data['apr'] as num?)?.toDouble();
@@ -47,14 +49,16 @@ class ApiStaking {
   }
 
   Future<void> fetchValidators() async {
+    final isCurrent = store.requests.start('staking-validators');
     if (!store.settings!.isMainnet) {
-      store.staking!.setValidatorsInfo([], []);
+      store.staking!.setValidatorsInfo([], [], shouldCache: false);
       return;
     }
     String txUrl = "$BASE_INFO_URL/validators/v2";
     try {
       var response = await http.get(Uri.parse(txUrl),
           headers: {'Content-Type': 'application/json; charset=utf-8'});
+      if (!isCurrent()) return;
       if (response.statusCode == 200) {
         Map<String, dynamic> data = convert.jsonDecode(utf8.decode(response.bodyBytes));
         List activeList = data['active'] ?? [];
@@ -106,6 +110,7 @@ class ApiStaking {
   }
 
   Future<void> fetchStakingOverview() async {
+    final isCurrent = store.requests.start('staking-overview');
     final client = apiRoot.graphQLClient;
     if (store.settings!.isZekoNet) {
       store.staking!.clearOverviewData();
@@ -133,6 +138,7 @@ class ApiStaking {
 
     try {
       final result = await client.query(_options);
+      if (!isCurrent()) return;
       final daemonStatus = result.data?['daemonStatus'];
       if (result.hasException || daemonStatus is! Map ||
           daemonStatus['consensusConfiguration'] is! Map ||
@@ -142,6 +148,7 @@ class ApiStaking {
       }
       final stateHash = daemonStatus['stateHash'] as String;
       final consensusState = await fetchBlockInfo(stateHash, client: client);
+      if (!isCurrent()) return;
       if (consensusState == null || consensusState['epoch'] < 0 || consensusState['slot'] < 0) {
         store.staking!.clearOverviewData();
         return;
@@ -153,7 +160,7 @@ class ApiStaking {
         'blockchainLength': daemonStatus['blockchainLength'],
       });
     } catch (error) {
-      store.staking!.clearOverviewData();
+      if (isCurrent()) store.staking!.clearOverviewData();
       print('Request staking overview failed: $error');
     }
   }

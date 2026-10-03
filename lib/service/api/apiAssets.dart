@@ -65,6 +65,7 @@ class ApiAssets {
 //   }
 
   Future<dynamic> fetchPendingTransactions(pubKey, {isDev = false}) async {
+    final isCurrent = store.requests.start('pending-payment${isDev ? ':dev' : ''}');
     if (store.settings!.isZekoNet) {
       return [];
     }
@@ -94,6 +95,7 @@ class ApiAssets {
         queryRequestTimeout: const Duration(seconds: 60));
 
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (!isCurrent()) return;
     if (result.hasException) {
       print('request pending tx request');
       print(result.exception.toString());
@@ -116,6 +118,7 @@ class ApiAssets {
   }
 
   Future<dynamic> fetchPendingZkTransactions(publicKey, {isDev = false}) async {
+    final isCurrent = store.requests.start('pending-zkapp${isDev ? ':dev' : ''}');
     if (store.settings!.isZekoNet) {
       return [];
     }
@@ -290,6 +293,7 @@ class ApiAssets {
         },
         queryRequestTimeout: const Duration(seconds: 60));
     final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    if (!isCurrent()) return;
     if (result.hasException) {
       print('zk pending throw error');
       print(result.exception.toString());
@@ -400,6 +404,8 @@ class ApiAssets {
 
   Future<dynamic> fetchBatchAccountsInfo(List<String> pubkeys,
       {String? gqlUrl}) async {
+    final isCurrent = gqlUrl == null
+        ? store.requests.start('balances') : () => true;
     var variablesStr = List<String>.generate(
         pubkeys.length, (int index) => '\$account$index:PublicKey!').join(',');
 
@@ -440,6 +446,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
 
     final QueryResult result = await graphQLClient.query(_options);
+    if (!isCurrent()) return;
     if (result.hasException) {
       print('fetch balance error');
       print(result.exception.toString());
@@ -477,6 +484,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 
   Future<void> _fetchMarketPrice() async {
+    final isCurrent = store.requests.start('market-price');
     final networkID = store.settings!.currentNode?.networkID;
     final supportMainCoinPrice = networkID == networkIDMap.mainnet ||
         networkID == networkIDMap.zeko;
@@ -486,6 +494,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
     String txUrl =
         "$BASE_INFO_URL/prices?currency=" + store.settings!.currencyCode;
     var response = await http.get(Uri.parse(txUrl));
+    if (!isCurrent()) return;
     if (response.statusCode == 200) {
       Map priceRes =
           convert.jsonDecode(convert.utf8.decode(response.bodyBytes));
@@ -563,7 +572,6 @@ ${List<String>.generate(pubkeys.length, (int index) {
     }
 
     String nonce = result.data?['account']?['inferredNonce'] ?? "0";
-    print("nonce $nonce");
     return int.parse(nonce);
   }
 
@@ -592,7 +600,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 
   Future<List<TokenAssetInfo>> fetchTokenAssets(String pubKey,
-      {isDev = false}) async {
+      {isDev = false, GraphQLClient? client}) async {
     const String query = r'''
   query tokenQueryBody($publicKey: PublicKey!) {
     accounts(publicKey: $publicKey) {
@@ -618,7 +626,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
         },
         queryRequestTimeout: const Duration(seconds: 60));
 
-    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    final QueryResult result = await (client ?? apiRoot.graphQLClient).query(_options);
     if (result.hasException) {
       print('request all token assets failed');
       print(result.exception.toString());
@@ -675,7 +683,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 
   Future<Map<String, dynamic>> fetchAllTokenInfo(
-    List<String> tokenIds,
+    List<String> tokenIds, {GraphQLClient? client}
   ) async {
     if (tokenIds.isEmpty) {
       return {};
@@ -688,7 +696,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
         variables: {},
         queryRequestTimeout: const Duration(seconds: 60));
 
-    final QueryResult result = await apiRoot.graphQLClient.query(_options);
+    final QueryResult result = await (client ?? apiRoot.graphQLClient).query(_options);
     if (result.hasException) {
       print('request all token info failed');
       print(result.exception.toString());
@@ -700,21 +708,25 @@ ${List<String>.generate(pubkeys.length, (int index) {
   /// get balance and delegate info
   Future<dynamic> fetchAllTokenAssets(
       {bool showIndicator = false, isDev = false}) async {
+    final isCurrent = store.requests.start('token-assets${isDev ? ':dev' : ''}');
+    final client = apiRoot.graphQLClient;
     try {
       String pubKey = store.wallet!.currentWallet.pubKey;
       print('object pubKey: $pubKey');
-      if (showIndicator) {
+      if (showIndicator && !isDev) {
         store.assets!.setAssetsLoading(true);
       }
       _fetchMarketPrice();
       if (pubKey.isNotEmpty) {
         List<TokenAssetInfo> tokenAssets =
-            await fetchTokenAssets(pubKey, isDev: isDev);
+            await fetchTokenAssets(pubKey, isDev: isDev, client: client);
+        if (!isCurrent()) return;
         List<String> tokenIds =
             tokenAssets.map((token) => token.tokenId).toList();
         if (tokenIds.length > 0) {
           Map<String, dynamic> tokenNetInfos =
-              await fetchAllTokenInfo(tokenIds);
+              await fetchAllTokenInfo(tokenIds, client: client);
+          if (!isCurrent()) return;
 
           List<Token> tokens = tokenAssets.map((assetInfo) {
             TokenNetInfo? netInfo =
@@ -738,7 +750,6 @@ ${List<String>.generate(pubkeys.length, (int index) {
           }
         }
       }
-      store.assets!.setAssetsLoading(false);
     } catch (e) {
       print('Unexpected error: $e');
       return {
@@ -746,6 +757,8 @@ ${List<String>.generate(pubkeys.length, (int index) {
         'message': 'Unexpected error occurred: $e',
         'details': [],
       };
+    } finally {
+      if (!isDev && isCurrent()) store.assets!.setAssetsLoading(false);
     }
   }
 
@@ -782,10 +795,12 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 
   Future<void> fetchTokenInfo() async {
+    final isCurrent = store.requests.start('token-info');
     String networkId = store.settings?.currentNode?.networkID ?? "";
     String tokenUrl =
         "$BASE_INFO_URL/tokenInfo?networkId=" + getReadableNetworkId(networkId);
     var response = await http.get(Uri.parse(tokenUrl));
+    if (!isCurrent()) return;
     if (response.statusCode == 200) {
       List<dynamic> sourceList = convert.jsonDecode(response.body);
       List<TokenInfoData> tokenInfoList = sourceList.map((item) {
@@ -799,6 +814,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
 
   Future<dynamic> fetchTokenTransactions(
       String pubKey, String? tokenPublicKey) async {
+    final isCurrent = store.requests.start('token-build:$tokenPublicKey');
     String networkId = store.settings?.currentNode?.networkID ?? "";
     if (tokenPublicKey == null) {
       return null;
@@ -816,6 +832,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
       },
       body: jsonEncode(params),
     );
+    if (!isCurrent()) return;
     if (response.statusCode == 200) {
       dynamic buildListData = jsonDecode(response.body);
       List<dynamic> responseList = buildListData["list"] ?? [];
@@ -828,6 +845,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
   }
 
   Future<dynamic> fetchPendingTokenList(String pubKey, String nonce) async {
+    final isCurrent = store.requests.start('token-pending:$pubKey');
     String networkId = store.settings?.currentNode?.networkID ?? "";
     Map params = {
       "sender": pubKey,
@@ -842,6 +860,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
       },
       body: jsonEncode(params),
     );
+    if (!isCurrent()) return;
     if (response.statusCode == 200) {
       dynamic buildListData = jsonDecode(response.body);
       List<dynamic> responseList = buildListData["list"] ?? [];
@@ -855,6 +874,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
 
   Future<dynamic> fetchFullTransactions(publicKey,
       {tokenId = ZK_DEFAULT_TOKEN_ID, isDev = false}) async {
+    final isCurrent = store.requests.start('history:$tokenId${isDev ? ':dev' : ''}');
     String requestUrl = apiRoot.getTxRecordsApiUrl();
     if (requestUrl.isEmpty) {
       return [];
@@ -938,6 +958,7 @@ ${List<String>.generate(pubkeys.length, (int index) {
         },
         queryRequestTimeout: const Duration(seconds: 60));
     final QueryResult result = await client.query(_options);
+    if (!isCurrent()) return;
     if (result.hasException) {
       print('tx zk list throw error');
       print(result.exception.toString());

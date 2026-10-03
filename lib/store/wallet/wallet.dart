@@ -153,6 +153,7 @@ abstract class _WalletStore with Store {
     if (account == null) {
       return;
     }
+    rootStore.requests.invalidate();
     wallet.currentAccountIndex = account.accountIndex;
     await rootStore.localStorage.updateWallet(WalletData.toJson(wallet));
     await rootStore.localStorage.setCurrentWallet(wallet.id);

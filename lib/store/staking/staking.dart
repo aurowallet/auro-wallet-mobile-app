@@ -1,4 +1,5 @@
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/utils/networkCache.dart';
 import 'package:auro_wallet/store/staking/types/overviewData.dart';
 import 'package:auro_wallet/store/staking/types/validatorData.dart';
 import 'package:mobx/mobx.dart';
@@ -15,9 +16,9 @@ abstract class _StakingStore with Store {
   final AppStore rootStore;
 
   final String localStorageValidatorsV2Key = 'validators_v2';
-  final String localStorageOverviewKey = 'staking_overview';
+  String get localStorageOverviewKey => 'staking_overview_v2_${getNetworkCacheKey(rootStore.settings?.currentNode)}';
   final String localStorageStakingAPRKey = 'staking_apr';
-  final String localStorageDelegationCacheKey = 'delegation_cache';
+  String get localStorageDelegationCacheKey => 'delegation_cache_v2_${rootStore.wallet?.currentAddress}_${getNetworkCacheKey(rootStore.settings?.currentNode)}';
 
   @observable
   List<ValidatorData> validatorsInfo = [];
@@ -90,6 +91,7 @@ abstract class _StakingStore with Store {
 
   @action
   void setDelegationCache(String? delegationKey, String ownerAddress, String networkID, {bool shouldCache = true}) {
+    if (shouldCache) rootStore.requests.start('delegation');
     cachedDelegationKey = delegationKey;
     cachedDelegationOwner = ownerAddress;
     cachedDelegationNetwork = networkID;
@@ -142,13 +144,19 @@ abstract class _StakingStore with Store {
 
   @action
   Future<void> loadCache() async {
+    final isCurrent = rootStore.requests.start('staking-cache');
+    final delegationCurrent = rootStore.requests.start('delegation', fromCache: true);
+    final overviewCurrent = rootStore.requests.start('staking-overview', fromCache: true);
+    final aprCurrent = rootStore.requests.start('staking-apr', fromCache: true);
+    final validatorsCurrent = rootStore.requests.start('staking-validators', fromCache: true);
     List cacheData = await Future.wait([
       rootStore.localStorage.getObject(localStorageValidatorsV2Key),
       rootStore.localStorage.getObject(localStorageOverviewKey),
       rootStore.localStorage.getObject(localStorageStakingAPRKey),
       rootStore.localStorage.getObject(localStorageDelegationCacheKey),
     ]);
-    if (cacheData[0] != null) {
+    if (!isCurrent()) return;
+    if (validatorsCurrent() && cacheData[0] != null) {
       // Only load cached validators if on mainnet to avoid showing stale data
       if (rootStore.settings?.isMainnet == true) {
         Map<String, dynamic> validatorsData = cacheData[0] as Map<String, dynamic>;
@@ -162,17 +170,17 @@ abstract class _StakingStore with Store {
         }
       }
     }
-    if (cacheData[1] != null) {
+    if (overviewCurrent() && cacheData[1] != null) {
       setOverviewInfo(cacheData[1], shouldCache: false);
     }
     final cachedApr = cacheData[2];
-    if (cachedApr != null) {
+    if (aprCurrent() && cachedApr != null) {
       // Only load cached APR if on mainnet to avoid showing stale mainnet data.
       if (rootStore.settings?.isMainnet == true) {
         stakingAPR = (cachedApr as num).toDouble();
       }
     }
-    if (cacheData[3] != null) {
+    if (delegationCurrent() && cacheData[3] != null) {
       Map<String, dynamic> delegationCache = cacheData[3] as Map<String, dynamic>;
       cachedDelegationKey = delegationCache['key'] as String?;
       cachedDelegationOwner = delegationCache['owner'] as String?;
