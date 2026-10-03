@@ -283,7 +283,9 @@ void main() {
     final dic = AppLocalizations.of(tester.element(find.byType(ImportLedger)))!;
     store.pairingDevice.value = device;
     await tester.pump();
-    expect(find.text(dic.loading), findsOneWidget);
+    expect(find.text(dic.loading), findsNothing);
+    expect(find.text('689C'), findsOneWidget);
+    expect(find.byType(RotatingCircle), findsOneWidget);
     // The real manager clears the device before the pending APDU fails.
     store.setDevice(null);
     store.recordFailure(ledger.versionFailure!);

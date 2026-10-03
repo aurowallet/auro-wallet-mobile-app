@@ -678,20 +678,6 @@ class _ConnectLedgerState extends State<ConnectLedger> {
           text: dic.ledgerTip3,
         ),
         if (isError) renderError(),
-        ValueListenableBuilder<LedgerDevice?>(
-          valueListenable: store.ledger!.pairingDevice,
-          builder: (context, pairingDevice, _) {
-            if (!connecting || pairingDevice == null ||
-                !identical(pairingDevice, ledgerDevice)) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(dic.loading,
-                  style: const TextStyle(fontSize: 14, color: Color(0xFF666666))),
-            );
-          },
-        ),
         Padding(
           padding: EdgeInsets.only(top: isError ? 20 : 49, left: 0, right: 0),
           child: OutlinedButton(
