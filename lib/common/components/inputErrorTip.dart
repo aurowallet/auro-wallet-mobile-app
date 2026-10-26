@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/appTextScale.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -109,17 +110,18 @@ class _InputErrorTipState extends State<InputErrorTip> {
     } else {
       textColor = ColorsUtil.hexColor(0xFFC633);
     }
+    final message = Padding(
+        padding: EdgeInsets.only(left: widget.hideIcon ? 0 : 6),
+        child: Text(widget.message,
+            style: TextStyle(
+                color: textColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w600)));
     return Padding(
       padding: widget.padding,
       child: Row(children: [
         this.renderTip(widget.tipType, widget.hideIcon),
-        Padding(
-            padding: EdgeInsets.only(left: widget.hideIcon ? 0 : 6),
-            child: Text(widget.message,
-                style: TextStyle(
-                    color: textColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600)))
+        AppTextScale.isTablet(context) ? Flexible(child: message) : message,
       ]),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/mnemonicGrid.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
 import 'package:flutter/material.dart';
@@ -44,12 +45,8 @@ class ExportMnemonicResultPage extends StatelessWidget {
             ),
           )));
     }
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      crossAxisSpacing: 12,
+    return MnemonicGrid(
       mainAxisSpacing: 20,
-      childAspectRatio: 3.4666,
       children: cells,
     );
   }

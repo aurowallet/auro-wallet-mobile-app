@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/appTextScale.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -5,7 +6,8 @@ class ScamTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 18,
+      height: AppTextScale.isTablet(context) ? null : 18,
+      constraints: const BoxConstraints(minHeight: 18),
       decoration: BoxDecoration(
           border: Border.all(
             color: Color(0xFFD65A5A),

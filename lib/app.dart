@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:math';
 
+import 'package:auro_wallet/common/components/appTextScale.dart';
 import 'package:auro_wallet/common/components/loadingCircle.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/account/ledgerAccountNamePage.dart';
@@ -503,8 +503,6 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
       initialRoute: HomePage.route,
       theme: _theme,
       builder: EasyLoading.init(builder: (BuildContext context, Widget? child) {
-        final size = MediaQuery.of(context).size;
-        final factor = max(min(size.width / 375, 2.0), 1.0);
         final mainContent = GestureDetector(
           onTap: () {
             FocusScopeNode currentFocus = FocusScope.of(context);
@@ -515,9 +513,7 @@ class _WalletAppState extends State<WalletApp> with WidgetsBindingObserver {
           },
           child: TooltipVisibility(
             visible: false,
-            child: MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: TextScaler.linear(factor)),
+            child: AppTextScale(
               child: _isDangerous ? RootAlertPage() : child ?? Container(),
             ),
           ),

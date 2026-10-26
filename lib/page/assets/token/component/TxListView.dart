@@ -326,7 +326,7 @@ class TransferListItem extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
-                                  height: 20,
+                                  constraints: const BoxConstraints(minHeight: 20),
                                   child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,

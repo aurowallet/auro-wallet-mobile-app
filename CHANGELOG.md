@@ -3,8 +3,15 @@ All notable changes to this project will be documented in this file.
 
 
 ## [Un-Released]
+
+## [2.4.0]
 ### Enhancements
 - Support installing Debug and Release builds side by side on Android and iOS.
+- Improve tablet layouts and mnemonic grids.
+
+### Fixed
+- Fix tablet layout overflow and transaction address clipping.
+
 
 ## [2.3.3]
 ### Enhancements

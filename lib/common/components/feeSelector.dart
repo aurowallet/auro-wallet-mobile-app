@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/appTextScale.dart';
 import 'package:auro_wallet/common/components/TimerManager.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -134,8 +135,8 @@ class FeeItem extends StatelessWidget {
       onTap: _onClick,
       child: Container(
         // width: 86,
-        height: 37,
-        constraints: BoxConstraints(maxWidth: 104),
+        height: AppTextScale.isTablet(context) ? null : 37,
+        constraints: BoxConstraints(minHeight: 37, maxWidth: 104),
         decoration: BoxDecoration(
             color: Color(0xFFF9FAFC),
             borderRadius: BorderRadius.all(Radius.circular(6)),

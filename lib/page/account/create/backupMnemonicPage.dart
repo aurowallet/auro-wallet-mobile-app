@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/mnemonicGrid.dart';
 import 'package:auro_wallet/common/consts/enums.dart';
 import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -219,12 +220,8 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
         ),
       );
     }
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      crossAxisSpacing: 12,
+    return MnemonicGrid(
       mainAxisSpacing: 10,
-      childAspectRatio: 3.4666,
       children: cells,
     );
 
@@ -269,12 +266,8 @@ class _BackupMnemonicPageState extends State<BackupMnemonicPage> {
             },
           )));
     }
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      crossAxisSpacing: 12,
+    return MnemonicGrid(
       mainAxisSpacing: 10,
-      childAspectRatio: 3.4666,
       children: cells,
     );
     // return Container(

@@ -1,3 +1,4 @@
+import 'package:auro_wallet/common/components/appTextScale.dart';
 import 'package:auro_wallet/common/components/termsDialog.dart';
 import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -137,6 +138,9 @@ class CreateAccountEntryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
     var theme = Theme.of(context).textTheme;
+    final logoWidth = AppTextScale.isTablet(context)
+        ? 245.0
+        : MediaQuery.sizeOf(context).width * (245 / 375);
     return Container(
       color: Colors.white,
       child: SafeArea(
@@ -152,7 +156,7 @@ class CreateAccountEntryPage extends StatelessWidget {
             actions: null,
           ),
           resizeToAvoidBottomInset: false,
-          body: Column(
+          body: _adaptiveBody(context, Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -165,6 +169,7 @@ class CreateAccountEntryPage extends StatelessWidget {
                       margin: EdgeInsets.symmetric(horizontal: 20),
                       child: SvgPicture.asset(
                         "assets/images/entry/desc.svg",
+                        height: AppTextScale.isTablet(context) ? 72 : null,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -175,11 +180,8 @@ class CreateAccountEntryPage extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 60),
                 child: Image.asset(
                     "assets/images/entry/auro_logo.png",
-                    width: MediaQuery.of(context).size.width * (245 / 375),
-                    height:
-                        MediaQuery.of(context).size.width *
-                        (245 / 375) *
-                        (221 / 245),
+                    width: logoWidth,
+                    height: logoWidth * (221 / 245),
                 ),
               ),
               Padding(
@@ -272,7 +274,21 @@ class CreateAccountEntryPage extends StatelessWidget {
                 ),
               ),
             ],
-          ),
+          )),
+        ),
+      ),
+    );
+  }
+
+  Widget _adaptiveBody(BuildContext context, Widget content) {
+    if (!AppTextScale.isTablet(context)) return content;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(hasScrollBody: false, child: content),
+          ],
         ),
       ),
     );
