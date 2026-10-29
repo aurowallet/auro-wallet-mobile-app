@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 ### Enhancements
 - Support installing Debug and Release builds side by side on Android and iOS.
 - Improve tablet layouts and mnemonic grids.
+- Add an iPhone/iPad comparison launcher with synchronized hot reload and restart.
+- Add regression tests for mobile layouts and the comparison launcher.
 
 ### Fixed
 - Fix tablet layout overflow and transaction address clipping.
