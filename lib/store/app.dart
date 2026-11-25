@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:auro_wallet/service/requestTracker.dart';
+import 'package:auro_wallet/service/minaExchanges.dart';
 
 import 'package:auro_wallet/service/WalletConnectService.dart';
 import 'package:flutter/material.dart';
@@ -85,9 +86,13 @@ abstract class _AppStore with Store {
 
   LocalStorage localStorage = LocalStorage();
 
+  // Shared for the lifetime of the app store, including page/Tab rebuilds.
+  late final MinaExchanges minaExchanges = MinaExchanges(localStorage);
+
   @action
   Future<void> init(String sysLocaleCode) async {
-    
+    unawaited(minaExchanges.initialize());
+
     walletConnectService = WalletConnectService(this as AppStore);
 
     try {

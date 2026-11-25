@@ -596,6 +596,108 @@ void main() {
     },
   );
 
+  test('failed asset request preserves balances and cache without inventing zero', () async {
+    final store = globalAppStore;
+    await store.settings!.setCurrentNode(node('mina:devnet', 'https://dev.example'));
+    final api = TestApi()..graphQLClient = GraphQLClient(
+      link: Link.function((_, [__]) => Stream.value(Response(
+        response: const {}, errors: [GraphQLError(message: 'offline')]))),
+      cache: GraphQLCache(),
+    );
+    final assets = ApiAssets(api);
+    await assets.fetchAllTokenAssets(showIndicator: true);
+    expect(store.assets!.hasTokenAssets, isFalse);
+    expect(store.assets!.tokenList, isEmpty);
+    expect(store.assets!.isAssetsLoading, isFalse);
+    final funded = Token.fromJson({
+      ...defaultMINAAssets,
+      'tokenAssestInfo': <String, dynamic>{
+        ...defaultMINAAssets['tokenAssestInfo'],
+        'balance': {'total': '1000000000', 'liquid': '1000000000'},
+      },
+    });
+    store.assets!.updateTokenAssets([funded], 'account', shouldCache: true);
+    final before = await store.localStorage.getAccountCache('account', store.assets!.cacheTokensKey);
+    await assets.fetchAllTokenAssets(showIndicator: true);
+    expect(store.assets!.mainTokenNetInfo.tokenAssestInfo!.balance.total, '1000000000');
+    expect(store.assets!.hasTokenAssets, isTrue);
+    expect(await store.localStorage.getAccountCache('account', store.assets!.cacheTokensKey), before);
+  });
+
+  test('successful empty result is known zero, and context clearing resets it', () async {
+    final store = globalAppStore;
+    await store.settings!.setCurrentNode(node('mina:devnet', 'https://dev.example'));
+    final api = TestApi()..graphQLClient = GraphQLClient(
+      link: Link.function((_, [__]) => Stream.value(Response(
+        response: const {}, data: {'accounts': []}))),
+      cache: GraphQLCache(),
+    );
+    await ApiAssets(api).fetchAllTokenAssets();
+    expect(store.assets!.hasTokenAssets, isTrue);
+    expect(store.assets!.mainTokenNetInfo.tokenAssestInfo!.balance.total, '0');
+    await store.assets!.clearAccountAssestCache();
+    expect(store.assets!.hasTokenAssets, isFalse);
+    store.assets!.updateTokenAssets([], 'account');
+    await store.assets!.clearAssestNodeCache();
+    expect(store.assets!.hasTokenAssets, isFalse);
+  });
+
+  test('known zero belongs to its account and node before asynchronous clearing', () async {
+    final store = globalAppStore;
+    store.assets!.updateTokenAssets([], 'account');
+    expect(store.assets!.hasCurrentTokenAssets, isTrue);
+    await store.settings!.setCurrentNode(node('mina:mainnet', 'https://other.example'));
+    expect(store.assets!.hasCurrentTokenAssets, isFalse);
+    store.assets!.updateTokenAssets([], 'account');
+    expect(store.assets!.hasCurrentTokenAssets, isTrue);
+    store.wallet!.currentWalletId = 'missing';
+    expect(store.assets!.hasCurrentTokenAssets, isFalse);
+  });
+
+  test('fresh assets notify observers after a node change without an intermediate clear', () async {
+    final store = globalAppStore;
+    store.assets!.updateTokenAssets([], 'account');
+    final values = <bool>[];
+    final dispose = reaction<bool>((_) => store.assets!.hasCurrentTokenAssets, values.add);
+    addTearDown(dispose);
+    await store.settings!.setCurrentNode(node('mina:mainnet', 'https://new.example'));
+    store.assets!.updateTokenAssets([], 'account');
+    expect(values, [false, true]);
+  });
+
+  test('legacy zero-balance cache restores one valid native token', () async {
+    final store = globalAppStore;
+    await store.localStorage.setAccountCache('account', store.assets!.cacheTokensKey, [{
+      'tokenAssestInfo': null,
+      'tokenNetInfo': null,
+      'tokenBaseInfo': defaultMINAAssets['tokenBaseInfo'],
+      'localConfig': {'hideToken': false},
+    }]);
+    await store.assets!.loadAccountCache();
+    expect(store.assets!.tokenList, hasLength(1));
+    expect(store.assets!.mainTokenNetInfo.tokenAssestInfo!.balance.total, '0');
+    expect(store.assets!.hasCurrentTokenAssets, isTrue);
+  });
+
+  test('malformed balance processing does not erase previously known assets', () {
+    final store = globalAppStore;
+    store.assets!.updateTokenAssets([], 'account');
+    final invalid = Token(tokenAssestInfo: TokenAssetInfo(
+      balance: Balance(total: 'invalid', liquid: '0'),
+      tokenId: ZK_DEFAULT_TOKEN_ID, publicKey: 'account'));
+    expect(() => store.assets!.updateTokenAssets([invalid], 'account'), throwsFormatException);
+    expect(store.assets!.tokenList, hasLength(1));
+    expect(store.assets!.hasCurrentTokenAssets, isTrue);
+  });
+
+  test('missing asset cache leaves already known assets intact', () async {
+    final store = globalAppStore;
+    store.assets!.updateTokenAssets([], 'account');
+    await store.assets!.loadAccountCache();
+    expect(store.assets!.hasTokenAssets, isTrue);
+    expect(store.assets!.tokenList, hasLength(1));
+  });
+
   test('developer asset query does not invalidate a normal refresh', () async {
     final store = globalAppStore;
     await store.settings!.setCurrentNode(

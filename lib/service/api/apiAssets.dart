@@ -630,14 +630,12 @@ ${List<String>.generate(pubkeys.length, (int index) {
     if (result.hasException) {
       print('request all token assets failed');
       print(result.exception.toString());
-      if (isDev) {
-        throw {
-          'error': true,
-          'message': result.exception.toString(),
-          'details': result.exception?.graphqlErrors ?? [],
-        };
-      }
-      return [];
+      // A failed read is not an empty account. Keep the last known assets.
+      throw {
+        'error': true,
+        'message': result.exception.toString(),
+        'details': result.exception?.graphqlErrors ?? [],
+      };
     }
     List<dynamic> list = result.data!['accounts'];
     List<TokenAssetInfo> tokenAssets = list.map((item) {
@@ -711,9 +709,10 @@ ${List<String>.generate(pubkeys.length, (int index) {
     final isCurrent = store.requests.start('token-assets${isDev ? ':dev' : ''}');
     final client = apiRoot.graphQLClient;
     try {
+      if (!isDev) store.assets!.clearStaleTokenAssets();
       String pubKey = store.wallet!.currentWallet.pubKey;
       print('object pubKey: $pubKey');
-      if (showIndicator && !isDev) {
+      if (!isDev && (showIndicator || store.assets!.tokenList.isEmpty)) {
         store.assets!.setAssetsLoading(true);
       }
       _fetchMarketPrice();

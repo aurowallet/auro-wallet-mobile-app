@@ -1,4 +1,8 @@
 {
+  "buy": "Купить",
+  "earn": "Зарабатывайте",
+  "getMina": "Получить MINA",
+  "getMinaFrom": "Где получить MINA",
   "deleteConfirm": "Введите '{tag}', чтобы навсегда стереть текущий кошелек",
   "@deleteConfirm": {
     "placeholders": {

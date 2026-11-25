@@ -9,6 +9,18 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get buy => 'Купить';
+
+  @override
+  String get earn => 'Зарабатывайте';
+
+  @override
+  String get getMina => 'Получить MINA';
+
+  @override
+  String get getMinaFrom => 'Где получить MINA';
+
+  @override
   String get passwordError => 'Неверный пароль';
 
   @override

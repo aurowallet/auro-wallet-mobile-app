@@ -4,14 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Un-Released]
 
-## [2.4.0]
+## [2.3.4]
 ### Enhancements
+- Add Get MINA for mainnet accounts
+- Add an Earn label
+- Remove the Staking bottom tab.
+- Allow the wallet card and token list to scroll together while keeping Get MINA fixed at the bottom.
 - Support installing Debug and Release builds side by side on Android and iOS.
 - Improve tablet layouts and mnemonic grids.
 - Add an iPhone/iPad comparison launcher with synchronized hot reload and restart.
 - Add regression tests for mobile layouts and the comparison launcher.
 
 ### Fixed
+- Preserve existing balances during refreshes and when asset requests fail.
+- Prevent assets from the previous account or node from appearing after switching, while retaining per-account caches.
 - Fix tablet layout overflow and transaction address clipping.
 
 

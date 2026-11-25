@@ -9,6 +9,18 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
+  String get buy => 'Satın al';
+
+  @override
+  String get earn => 'Kazan';
+
+  @override
+  String get getMina => 'MINA Al';
+
+  @override
+  String get getMinaFrom => 'MINA Alabileceğiniz Platformlar';
+
+  @override
   String get passwordError => 'Hatalı şifre';
 
   @override

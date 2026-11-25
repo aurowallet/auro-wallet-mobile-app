@@ -1,3 +1,5 @@
+import 'package:auro_wallet/l10n/app_localizations.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:auro_wallet/common/consts/Currency.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenIcon.dart';
@@ -26,8 +28,6 @@ class TokenItemView extends StatelessWidget {
     String tokenName = "";
     String displayBalance = "";
     String? displayAmount;
-    // String? delegationText;
-    // bool isDelegation = false;
     bool isMinaNet = false;
     TokenAssetInfo? tokenAssestInfo = tokenItem.tokenAssestInfo;
 
@@ -41,7 +41,6 @@ class TokenItemView extends StatelessWidget {
       tokenSymbol = getTokenSymbol(tokenNetInfo);
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
-    // isDelegation = tokenBaseInfo?.isDelegation ?? false;
     tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
     displayBalance = tokenBaseInfo?.showBalance != null
         ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
@@ -56,11 +55,6 @@ class TokenItemView extends StatelessWidget {
           currencySymbol + " " + tokenBaseInfo!.showAmount.toString();
     }
     isMinaNet = store.settings!.isMinaNet;
-    if (isMinaNet && isMainToken && isInModal != true) {
-      // delegationText = tokenBaseInfo?.isDelegation == true
-      //     ? dic.stakingStatus_1
-      //     : dic.stakingStatus_2;
-    }
     return new Material(
       color: Colors.white,
       child: InkWell(
@@ -82,7 +76,7 @@ class TokenItemView extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
+                    Expanded(child: Row(
                       children: [
                         TokenIcon(
                           iconUrl: tokenIconUrl,
@@ -92,10 +86,12 @@ class TokenItemView extends StatelessWidget {
                         SizedBox(
                           width: 16,
                         ),
-                        Column(
+                        Expanded(child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              runSpacing: 4,
                               children: [
                                 Text(
                                   tokenSymbol,
@@ -106,36 +102,36 @@ class TokenItemView extends StatelessWidget {
                                         .withValues(alpha: 0.8),
                                   ),
                                 ),
-                                // delegationText != null
-                                //     ? Container(
-                                //         alignment: Alignment.center,
-                                //         child: Center(
-                                //           child: Text(
-                                //             delegationText,
-                                //             strutStyle: StrutStyle(
-                                //               fontSize: 12,
-                                //               leading: 0,
-                                //               height: 1.1,
-                                //               forceStrutHeight: true,
-                                //             ),
-                                //             style: TextStyle(
-                                //                 color: Colors.white,
-                                //                 height: 1.1,
-                                //                 fontSize: 12,
-                                //                 fontWeight: FontWeight.w500),
-                                //           ),
-                                //         ),
-                                //         margin: EdgeInsets.only(left: 5),
-                                //         padding: EdgeInsets.symmetric(
-                                //             horizontal: 8, vertical: 5),
-                                //         decoration: BoxDecoration(
-                                //           color: isDelegation
-                                //               ? Color(0xFF594AF1)
-                                //               : Colors.black.withValues(alpha: 0.3),
-                                //           borderRadius:
-                                //               BorderRadius.circular(29),
-                                //         ))
-                                //     : Container()
+                                if (isMinaNet && isMainToken && isInModal != true)
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF2F2F2),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(child: Text(
+                                          AppLocalizations.of(context)!.earn,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF594AF1),
+                                          ),
+                                        )),
+                                        const SizedBox(width: 4),
+                                        SvgPicture.asset(
+                                          'assets/images/assets/icon_earn.svg',
+                                          width: 12,
+                                          height: 12,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                               ],
                             ),
                             SizedBox(
@@ -149,9 +145,10 @@ class TokenItemView extends StatelessWidget {
                                   fontWeight: FontWeight.w400),
                             )
                           ],
-                        ),
+                        )),
                       ],
-                    ),
+                    )),
+                    SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:auro_wallet/common/components/copyContainer.dart';
 import 'package:auro_wallet/common/components/normalButton.dart';
@@ -9,6 +10,8 @@ import 'package:auro_wallet/page/account/scanPage.dart';
 import 'package:auro_wallet/page/account/walletManagePage.dart';
 import 'package:auro_wallet/page/assets/receive/receivePage.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenListView.dart';
+import 'package:auro_wallet/page/assets/token/component/GetMina.dart';
+import 'package:auro_wallet/service/minaExchanges.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/wallet/types/walletData.dart';
@@ -333,7 +336,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                   ),
                   Row(
                     children: [
-                      Padding(
+                      Flexible(child: Padding(
                         padding: EdgeInsets.only(top: 7),
                         child: CopyContainer(
                             iconColor: const Color(0x80FFFFFF),
@@ -342,6 +345,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                                 Fmt.address(store.wallet!.currentAddress,
                                     pad: 10),
                                 textAlign: TextAlign.left,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                     color: const Color(0x80FFFFFF),
                                     fontSize: 12,
@@ -349,7 +354,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
                               ),
                             ),
                             text: store.wallet!.currentAddress),
-                      )
+                      ))
                     ],
                   ),
                   Padding(
@@ -452,12 +457,37 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
           child: SafeArea(
             maintainBottomViewPadding: true,
             child: Container(
-                color: Colors.white,
+                color: const Color(0xFFEDEFF2),
                 child: Column(
                   children: <Widget>[
                     _buildTopBar(context),
-                    _buildTopCard(context),
-                    _buildTokenListView(),
+                    Expanded(
+                      child: CustomScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverToBoxAdapter(child: _buildTopCard(context)),
+                          _buildTokenListView(),
+                        ],
+                      ),
+                    ),
+                    ValueListenableBuilder<MinaExchangesConfig?>(
+                      valueListenable: store.minaExchanges,
+                      builder: (_, config, __) => Observer(builder: (_) {
+                        final node = store.settings!.currentNode;
+                        final address = store.wallet!.currentAddress;
+                        final assets = store.assets!;
+                        return GetMina(
+                          key: ValueKey(jsonEncode([address, node?.networkID, node?.url])),
+                          config: config,
+                          networkID: node?.networkID ?? '',
+                          address: address,
+                          balance: assets.hasCurrentTokenAssets
+                              ? assets.mainTokenNetInfo.tokenAssestInfo?.balance.total
+                              : null,
+                          isLoading: assets.isAssetsLoading,
+                        );
+                      }),
+                    ),
                   ],
                 )),
           ),

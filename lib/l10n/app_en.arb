@@ -1,4 +1,8 @@
 {
+  "buy": "Buy",
+  "earn": "Earn",
+  "getMina": "Get MINA",
+  "getMinaFrom": "Get MINA From",
   "passwordError": "Incorrect password",
   "@passwordError": {},
   "createWallet": "Create Wallet",

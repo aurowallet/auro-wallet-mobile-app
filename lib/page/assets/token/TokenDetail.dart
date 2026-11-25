@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:auro_wallet/common/consts/Currency.dart';
+import 'package:auro_wallet/page/assets/token/component/MinaExchangePicker.dart';
+import 'package:auro_wallet/service/minaExchanges.dart';
 import 'package:auro_wallet/service/tx_status_monitor.dart';
 import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
@@ -35,11 +38,9 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   late Token token;
   String tokenSymbol = "";
   String? tokenId;
-  String tokenName = "";
   String displayBalance = "";
   String? displayAmount;
   String tokenIconUrl = "";
-  bool showStakingEntry = false;
   bool isMainToken = false;
   bool isLoading = false;
   int tokenDecimal = COIN.decimals;
@@ -59,10 +60,8 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
     tokenId = tokenAssestInfo?.tokenId ?? "";
     if (isMainToken) {
       tokenSymbol = COIN.coinSymbol;
-      tokenName = COIN.name;
     } else {
       tokenSymbol = getTokenSymbol(tokenNetInfo);
-      tokenName = Fmt.address(tokenId, pad: 6);
       tokenDecimal = int.parse(tokenBaseInfo?.decimals ?? "0");
       tokenPublicKey = tokenNetInfo?.publicKey;
     }
@@ -84,10 +83,6 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
       displayAmount = "≈ " + showAmount;
     }
 
-    bool isMinaNet = widget.store.settings!.isMinaNet;
-    if (isMinaNet && isMainToken) {
-      showStakingEntry = true;
-    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.store.setTokenRefreshKey(_tokenRefreshKey);
       List<TransferData> txs = [
@@ -178,7 +173,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
               tokenSymbol,
             ),
             isMainToken
-                ? Text(tokenName,
+                ? Text(COIN.name,
                     style:
                         TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400))
                 : InkWell(
@@ -190,7 +185,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(tokenName,
+                        Text(Fmt.address(tokenId, pad: 6),
                             style: TextStyle(
                                 fontSize: 12.0, fontWeight: FontWeight.w400)),
                         SizedBox(
@@ -271,35 +266,10 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                                 )
                               : Container(),
                           SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Row(
-                                children: [
-                                  TokenActionItem(
-                                    type: TokenActionType.send,
-                                    token: token,
-                                    store: widget.store,
-                                  ),
-                                  SizedBox(
-                                    width: 20,
-                                  ),
-                                  TokenActionItem(
-                                      type: TokenActionType.receive,
-                                      store: widget.store,
-                                      tokenSymbol: tokenSymbol),
-                                  SizedBox(
-                                    width: showStakingEntry ? 20 : 0,
-                                  ),
-                                  showStakingEntry
-                                      ? TokenActionItem(
-                                          type: TokenActionType.delegation,
-                                          store: widget.store,
-                                        )
-                                      : Container()
-                                ],
-                              ),
-                            ],
+                          TokenDetailActions(
+                            store: widget.store,
+                            token: token,
+                            tokenSymbol: tokenSymbol,
                           ),
                           SizedBox(height: 30),
                         ],
@@ -320,12 +290,92 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   }
 }
 
-enum TokenActionType { send, receive, delegation }
+class TokenDetailActions extends StatelessWidget {
+  const TokenDetailActions({
+    super.key,
+    required this.store,
+    required this.token,
+    required this.tokenSymbol,
+  });
+
+  final AppStore store;
+  final Token token;
+  final String tokenSymbol;
+
+  @override
+  Widget build(BuildContext context) => Observer(
+    builder: (_) {
+      final mainToken = token.tokenBaseInfo?.isMainToken == true;
+      final node = store.settings!.currentNode;
+      final address = store.wallet!.currentAddress;
+      final showBuy = mainToken && store.settings!.isMainnet;
+      final showEarn = mainToken && store.settings!.isMinaNet;
+      return ValueListenableBuilder<MinaExchangesConfig?>(
+        valueListenable: store.minaExchanges,
+        builder: (_, config, __) {
+          final exchanges = config?.available ?? const <MinaExchange>[];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (showBuy && exchanges.isNotEmpty)
+                  Flexible(
+                    child: MinaExchangePicker(
+                      key: ValueKey(
+                        jsonEncode([address, node?.networkID, node?.url]),
+                      ),
+                      exchanges: exchanges,
+                      builder: (context, open) => TokenActionItem(
+                        type: TokenActionType.buy,
+                        store: store,
+                        onTap: open,
+                      ),
+                    ),
+                  ),
+                Flexible(
+                  child: TokenActionItem(
+                    type: TokenActionType.send,
+                    token: token,
+                    store: store,
+                  ),
+                ),
+                Flexible(
+                  child: TokenActionItem(
+                    type: TokenActionType.receive,
+                    store: store,
+                    tokenSymbol: tokenSymbol,
+                  ),
+                ),
+                if (showEarn)
+                  Flexible(
+                    child: TokenActionItem(
+                      type: TokenActionType.delegation,
+                      store: store,
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+enum TokenActionType { buy, send, receive, delegation }
 
 class TokenActionItem extends StatelessWidget {
-  TokenActionItem(
-      {required this.type, this.token, required this.store, this.tokenSymbol});
+  TokenActionItem({
+    required this.type,
+    this.token,
+    required this.store,
+    this.tokenSymbol,
+    this.onTap,
+  });
 
+  final VoidCallback? onTap;
   final TokenActionType type;
   final Token? token;
   final String? tokenSymbol;
@@ -351,6 +401,9 @@ class TokenActionItem extends StatelessWidget {
     String? nextRouter;
     String? actionIconUrl;
     switch (type) {
+      case TokenActionType.buy:
+        title = dic.buy;
+        break;
       case TokenActionType.send:
         title = dic.send;
         nextRouter = TransferPage.route;
@@ -362,40 +415,59 @@ class TokenActionItem extends StatelessWidget {
         actionIconUrl = "assets/images/assets/receive.svg";
         break;
       case TokenActionType.delegation:
-        title = dic.staking;
+        title = dic.earn;
         nextRouter = Staking.route;
         actionIconUrl = "assets/images/assets/delegation.svg";
         break;
     }
 
-    return GestureDetector(
-        onTap: () {
-          onClickItem(context, type, nextRouter!);
-        },
-        child: Column(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(48),
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap:
+            onTap ??
+            () {
+              onClickItem(context, type, nextRouter!);
+            },
+        child: SizedBox(
+          width: 64,
+          child: Column(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(48),
+                ),
+                child: type == TokenActionType.buy
+                    ? const Icon(Icons.add, color: Colors.white, size: 28)
+                    : SvgPicture.asset(
+                        actionIconUrl!,
+                        width: 20,
+                        height: 20,
+                        colorFilter: ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
               ),
-              child: SvgPicture.asset(actionIconUrl,
-                  width: 14,
-                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-            ),
-            SizedBox(height: 4),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).primaryColor,
+              SizedBox(height: 4),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
-            )
-          ],
-        ));
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

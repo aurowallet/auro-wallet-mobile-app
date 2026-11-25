@@ -2,10 +2,8 @@ import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/index.dart';
 import 'package:auro_wallet/page/browser/index.dart';
 import 'package:auro_wallet/page/settings/index.dart';
-import 'package:auro_wallet/page/staking/index.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,20 +23,17 @@ class _HomePageState extends State<HomePage> {
 
   List<String> _tabList = [
     'wallet',
-    'staking',
     'browser',
     'setting',
   ];
 
   List<String> _tabIconsSelected = [
     'tab_home_active',
-    'tab_stake_active',
     "tab_browser_active",
     'tab_setting_active',
   ];
   List<String> _tabIconsUnSelected = [
     'tab_home',
-    'tab_stake',
     "tab_browser",
     'tab_setting',
   ];
@@ -47,30 +42,17 @@ class _HomePageState extends State<HomePage> {
   List<BottomNavigationBarItem> _navBarItems(int activeItem) {
     Map<String, String> tabI10n = {
       'wallet': AppLocalizations.of(context)!.wallet,
-      'staking': AppLocalizations.of(context)!.staking,
       'browser': AppLocalizations.of(context)!.browser,
       'setting': AppLocalizations.of(context)!.setting
     };
 
-    bool showStaking = !store.settings!.isZekoNet;
-    List<String> filteredTabList = showStaking
-        ? _tabList
-        : _tabList.where((tab) => tab != 'staking').toList();
-    List<String> filteredTabIconsSelected = showStaking
-        ? _tabIconsSelected
-        : _tabIconsSelected
-            .where((icon) => icon != "tab_stake_active")
-            .toList();
-    List<String> filteredTabIconsUnSelected = showStaking
-        ? _tabIconsUnSelected
-        : _tabIconsUnSelected.where((icon) => icon != "tab_stake").toList();
-
-    return filteredTabList.asMap().keys.map((index) {
-      String label = filteredTabList[index];
+    return _tabList.asMap().keys.map((index) {
+      String label = _tabList[index];
       String showLabel = tabI10n[label]!;
-      bool isActive = filteredTabList[activeItem] == label;
-      List<String> nextList =
-          isActive ? filteredTabIconsSelected : filteredTabIconsUnSelected;
+      bool isActive = activeItem == index;
+      List<String> nextList = isActive
+          ? _tabIconsSelected
+          : _tabIconsUnSelected;
       String icon = 'assets/images/public/tab/${nextList[index]}.svg';
 
       return BottomNavigationBarItem(
@@ -87,22 +69,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _getPage(int i) {
-    if (store.settings!.isZekoNet) {
-      switch (i) {
-        case 0:
-          return Assets(store);
-        case 1:
-          return Browser(store);
-        default:
-          return Profile(store);
-      }
-    }
     switch (i) {
       case 0:
         return Assets(store);
       case 1:
-        return Staking(store);
-      case 2:
         return Browser(store);
       default:
         return Profile(store);
@@ -136,7 +106,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     initWalletConnect();
   }
-  
+
   Future<void> initWalletConnect() async {
     store.walletConnectService!.setContext(context);
   }
@@ -153,46 +123,36 @@ class _HomePageState extends State<HomePage> {
     final textStyle = TextStyle(
       fontSize: 12,
     );
-    return Observer(builder: (_) {
-      int maxIndex = !store.settings!.isZekoNet
-          ? _tabList.length - 1
-          : _tabList.length - 2;
-      if (_tabIndex > maxIndex) _tabIndex = maxIndex;
-
-      return Scaffold(
-        body: _buildPage(_tabIndex),
-        bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  width: 0.5,
-                ),
-              ),
-            ),
-            child: BottomNavigationBar(
-              currentIndex: _tabIndex,
-              backgroundColor: Colors.white,
-              elevation: 0,
-              iconSize: 24,
-              onTap: (index) {
-                setState(() {
-                  int newMaxIndex = !store.settings!.isZekoNet
-                      ? _tabList.length - 1
-                      : _tabList.length - 2;
-                  _tabIndex = index <= newMaxIndex ? index : newMaxIndex;
-                });
-              },
-              unselectedLabelStyle: textStyle,
-              selectedLabelStyle: textStyle.copyWith(color: Colors.black),
-              selectedItemColor: Colors.black,
-              unselectedItemColor: Colors.black.withValues(alpha: 0.5),
-              type: BottomNavigationBarType.fixed,
-              items: _navBarItems(_tabIndex),
+    return Scaffold(
+      body: _buildPage(_tabIndex),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: Colors.black.withValues(alpha: 0.1),
+              width: 0.5,
             ),
           ),
-      );
-    });
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _tabIndex,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconSize: 24,
+          onTap: (index) {
+            setState(() {
+              _tabIndex = index;
+            });
+          },
+          unselectedLabelStyle: textStyle,
+          selectedLabelStyle: textStyle.copyWith(color: Colors.black),
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.black.withValues(alpha: 0.5),
+          type: BottomNavigationBarType.fixed,
+          items: _navBarItems(_tabIndex),
+        ),
+      ),
+    );
   }
 }

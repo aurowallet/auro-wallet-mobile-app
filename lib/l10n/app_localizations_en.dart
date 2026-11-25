@@ -9,6 +9,18 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get buy => 'Buy';
+
+  @override
+  String get earn => 'Earn';
+
+  @override
+  String get getMina => 'Get MINA';
+
+  @override
+  String get getMinaFrom => 'Get MINA From';
+
+  @override
   String get passwordError => 'Incorrect password';
 
   @override

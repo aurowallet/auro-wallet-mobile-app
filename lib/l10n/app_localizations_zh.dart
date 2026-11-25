@@ -9,6 +9,18 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get buy => '购买';
+
+  @override
+  String get earn => '赚取';
+
+  @override
+  String get getMina => '获取 MINA';
+
+  @override
+  String get getMinaFrom => '获取 MINA 的方式';
+
+  @override
   String get passwordError => '密码错误';
 
   @override

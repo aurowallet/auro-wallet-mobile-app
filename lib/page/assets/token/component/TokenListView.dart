@@ -41,10 +41,10 @@ class _TokenListViewState extends State<TokenListView>
   Widget build(BuildContext context) {
     AppLocalizations dic = AppLocalizations.of(context)!;
 
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Container(
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
             decoration: BoxDecoration(
                 color: Colors.white,
@@ -87,32 +87,33 @@ class _TokenListViewState extends State<TokenListView>
               ],
             ),
           ),
-          Observer(builder: (BuildContext context) {
-            bool isLoading = store.assets!.isAssetsLoading;
+        ),
+        Observer(
+          builder: (BuildContext context) {
+            bool isLoading =
+                store.assets!.isAssetsLoading &&
+                store.assets!.tokenList.isEmpty;
             if (isLoading) {
-              return Expanded(
-                  child: Ink(
-                      color: Color(0xFFFFFFFF),
-                      child: Container(
-                        child: Center(
-                          child: LoadingCircle(),
-                        ),
-                      )));
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: ColoredBox(
+                  color: Colors.white,
+                  child: Center(child: LoadingCircle()),
+                ),
+              );
             }
-            return Expanded(
-                child: ListView.builder(
-                    itemCount: store.assets!.getTokenShowList().length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                          child: TokenItemView(
-                        tokenItem: store.assets!.getTokenShowList()[index],
-                        store: store,
-                        onClickTokenItem: onClickTokenItem,
-                      ));
-                    }));
-          })
-        ],
-      ),
+            final tokens = store.assets!.getTokenShowList();
+            return SliverList.builder(
+              itemCount: tokens.length,
+              itemBuilder: (context, index) => TokenItemView(
+                tokenItem: tokens[index],
+                store: store,
+                onClickTokenItem: onClickTokenItem,
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

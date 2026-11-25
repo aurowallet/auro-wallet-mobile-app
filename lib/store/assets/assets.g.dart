@@ -42,6 +42,24 @@ mixin _$AssetsStore on _AssetsStore, Store {
     });
   }
 
+  late final _$hasTokenAssetsAtom = Atom(
+    name: '_AssetsStore.hasTokenAssets',
+    context: context,
+  );
+
+  @override
+  bool get hasTokenAssets {
+    _$hasTokenAssetsAtom.reportRead();
+    return super.hasTokenAssets;
+  }
+
+  @override
+  set hasTokenAssets(bool value) {
+    _$hasTokenAssetsAtom.reportWrite(value, super.hasTokenAssets, () {
+      super.hasTokenAssets = value;
+    });
+  }
+
   late final _$accountsInfoAtom = Atom(
     name: '_AssetsStore.accountsInfo',
     context: context,
@@ -707,6 +725,7 @@ mixin _$AssetsStore on _AssetsStore, Store {
   String toString() {
     return '''
 isAssetsLoading: ${isAssetsLoading},
+hasTokenAssets: ${hasTokenAssets},
 accountsInfo: ${accountsInfo},
 transferFees: ${transferFees},
 pendingTxs: ${pendingTxs},

@@ -1,4 +1,8 @@
 {
+  "buy": "Satın al",
+  "earn": "Kazan",
+  "getMina": "MINA Al",
+  "getMinaFrom": "MINA Alabileceğiniz Platformlar",
   "txHash": "İşlem Kodu",
   "@txHash": {},
   "inputNewPwdRepeat": "Lütfen <bold>yeni</bold> şifreyi tekrar girin",

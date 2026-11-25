@@ -4,7 +4,7 @@ const String ZK_DEFAULT_TOKEN_ID =
     "wSHV2S4qX9jFsLjQo8r1BsMLH2ZRKsZx6EJd1sbozGPieEC4Jf";
 
 Map<String, dynamic> defaultMINAAssets = {
-  "tokenAssetInfo": {
+  "tokenAssestInfo": {
     "balance": {
       "total": "0",
       "liquid": "0",

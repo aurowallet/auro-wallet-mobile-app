@@ -104,6 +104,30 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @buy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get buy;
+
+  /// No description provided for @earn.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn'**
+  String get earn;
+
+  /// No description provided for @getMina.
+  ///
+  /// In en, this message translates to:
+  /// **'Get MINA'**
+  String get getMina;
+
+  /// No description provided for @getMinaFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Get MINA From'**
+  String get getMinaFrom;
+
   /// No description provided for @passwordError.
   ///
   /// In en, this message translates to:

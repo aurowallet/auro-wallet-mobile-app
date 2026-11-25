@@ -9,6 +9,18 @@ class AppLocalizationsUk extends AppLocalizations {
   AppLocalizationsUk([String locale = 'uk']) : super(locale);
 
   @override
+  String get buy => 'Купити';
+
+  @override
+  String get earn => 'Заробляйте';
+
+  @override
+  String get getMina => 'Отримати MINA';
+
+  @override
+  String get getMinaFrom => 'Де отримати MINA';
+
+  @override
   String get passwordError => 'Невірний пароль';
 
   @override

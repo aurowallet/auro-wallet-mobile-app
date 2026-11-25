@@ -362,13 +362,16 @@ abstract class _WalletStore with Store {
   Future<void> loadWallet() async {
     List<Map<String, dynamic>> accList =
         await rootStore.localStorage.getWalletList();
-    walletList = ObservableList.of(accList.map((i) => WalletData.fromJson(i)));
     var _currentWalletId = await rootStore.localStorage.getCurrentWallet();
+    // Apply the wallet list and selection together, then discard prior assets
+    // before observers can render the newly selected account.
+    walletList = ObservableList.of(accList.map((i) => WalletData.fromJson(i)));
     if (_currentWalletId != null) {
       currentWalletId = _currentWalletId;
     } else if (walletList.length > 0) {
       currentWalletId = walletList[0].id;
     }
+    rootStore.assets?.clearStaleTokenAssets();
     loading = false;
   }
 

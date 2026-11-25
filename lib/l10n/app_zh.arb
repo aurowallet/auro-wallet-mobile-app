@@ -1,4 +1,8 @@
 {
+  "buy": "购买",
+  "earn": "赚取",
+  "getMina": "获取 MINA",
+  "getMinaFrom": "获取 MINA 的方式",
   "passwordError": "密码错误",
   "@passwordError": {},
   "createWallet": "创建钱包",

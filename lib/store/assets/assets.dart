@@ -47,6 +47,29 @@ abstract class _AssetsStore with Store {
   @observable
   bool isAssetsLoading = true;
 
+  // The fallback MINA token alone does not establish a zero balance.
+  @observable
+  bool hasTokenAssets = false;
+
+  final _tokenAssetsContext = Observable<String?>(null);
+  String get _currentTokenAssetsContext =>
+      '${rootStore.wallet!.currentAddress}_$networkCacheKey';
+
+  // Context can change before the asynchronous cache clear finishes.
+  bool get hasCurrentTokenAssets =>
+      hasTokenAssets && _tokenAssetsContext.value == _currentTokenAssetsContext;
+
+  /// Only retain in-memory balances for the account and node that loaded them.
+  void clearStaleTokenAssets() {
+    if (_tokenAssetsContext.value == _currentTokenAssetsContext) return;
+    runInAction(() {
+      tokenList.clear();
+      nextToken = Token();
+      hasTokenAssets = false;
+      _tokenAssetsContext.value = null;
+    });
+  }
+
   @observable
   ObservableMap<String, AccountInfo> accountsInfo =
       ObservableMap<String, AccountInfo>();
@@ -497,6 +520,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> loadAccountCache() async {
+    clearStaleTokenAssets();
     final isCurrent = rootStore.requests.start('account-cache');
     final assetsCurrent = rootStore.requests.start('token-assets', fromCache: true);
     final balancesCurrent = rootStore.requests.start('balances', fromCache: true);
@@ -517,12 +541,9 @@ abstract class _AssetsStore with Store {
     if (balancesCurrent() && cache[0] != null) {
       setAccountInfo(pubKey, cache[0], needCache: false);
     }
-    if (assetsCurrent() && cache[1] != null) {
-      tokenList.clear();
+    if (assetsCurrent() && cache[1] is List) {
       List<Token> ls = List.of(cache[1]).map((i) => Token.fromJson(i)).toList();
       updateTokenAssets(ls, pubKey);
-    } else if (assetsCurrent()) {
-      tokenList = ObservableList<Token>();
     }
     if (!historyCurrent()) return;
     if (cache[2] != null) {
@@ -571,6 +592,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> clearAccountCache() async {
+    hasTokenAssets = false;
     rootStore.localStorage.clearAccountsCache(cacheFullTxsKey);
     rootStore.localStorage.clearAccountsCache(cacheBalanceKey);
     rootStore.localStorage.clearAccountsCache(cacheTokensKey);
@@ -724,12 +746,16 @@ abstract class _AssetsStore with Store {
   void updateTokenAssets(List<Token> ls, String address,
       {bool shouldCache = false}) {
     if (rootStore.wallet!.currentAddress != address) return;
-    tokenList.clear();
     if (ls.isEmpty) {
       Token mainTokenDefaultConfig = Token.fromJson(defaultMINAAssets);
       tokenList = ObservableList.of([mainTokenDefaultConfig]);
     } else {
       List<Token> nextTokenList = ls.map((tokenItem) {
+        // Older versions cached the default native token without asset info.
+        if (tokenItem.tokenAssestInfo == null &&
+            tokenItem.tokenBaseInfo?.isMainToken == true) {
+          tokenItem = Token.fromJson(defaultMINAAssets);
+        }
         TokenLocalConfig sourceLocalConfig =
             tokenItem.localConfig ?? TokenLocalConfig();
         TokenBaseInfo sourceBaseInfo =
@@ -850,10 +876,13 @@ abstract class _AssetsStore with Store {
       rootStore.localStorage.setAccountCache(
           rootStore.wallet!.currentWallet.pubKey, cacheTokensKey, tokenList);
     }
+    _tokenAssetsContext.value = _currentTokenAssetsContext;
+    hasTokenAssets = true;
   }
 
   @action
   Future<void> clearAssestNodeCache() async {
+    hasTokenAssets = false;
     rootStore.requests.invalidate();
     accountsInfo.clear();
 
@@ -874,8 +903,7 @@ abstract class _AssetsStore with Store {
 
   @action
   Future<void> clearAccountAssestCache() async {
-
-
+    hasTokenAssets = false;
     pendingTxs.clear();
 
     pendingZkTxs.clear();

@@ -4,6 +4,7 @@ import 'package:auro_wallet/common/consts/settings.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/settings/types/aboutUsData.dart';
+import 'package:auro_wallet/store/settings/types/minaExchangesConfig.dart';
 import 'package:auro_wallet/utils/index.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,18 @@ class ApiSetting {
 
   final Api apiRoot;
   final store = globalAppStore;
+
+  // AppStore loads this configuration before the webApi instance is initialized.
+  static Future<MinaExchangesConfig?> fetchMinaExchanges({
+    Future<http.Response> Function(Uri)? fetch,
+  }) async {
+    final response = await (fetch ?? http.get)(
+      Uri.parse('$BASE_INFO_URL/v1/config/mina-exchanges'),
+    ).timeout(const Duration(seconds: 30));
+    if (response.statusCode != 200) return null;
+    return MinaExchangesConfig.parse(
+        convert.jsonDecode(convert.utf8.decode(response.bodyBytes)));
+  }
 
   Future<void> fetchAboutUs() async {
     String url = "$BASE_INFO_URL/about_us.json";

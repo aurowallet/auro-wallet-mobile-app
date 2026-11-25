@@ -1,4 +1,8 @@
 {
+  "buy": "Купити",
+  "earn": "Заробляйте",
+  "getMina": "Отримати MINA",
+  "getMinaFrom": "Де отримати MINA",
     "passwordError": "Невірний пароль",
     "@passwordError": {},
     "createWallet": "Створити гаманець",
