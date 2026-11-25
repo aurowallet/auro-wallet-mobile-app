@@ -44,9 +44,8 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      bool showIndicator = store.assets!.tokenList.length == 0;
       store.setBalanceRefreshKey(_balanceRefreshKey);
-      this._onRefresh(showIndicator: showIndicator);
+      _onRefresh();
       _checkWatchMode();
       WidgetsBinding.instance.addObserver(this);
     });
@@ -69,14 +68,12 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     var isInForeground = state == AppLifecycleState.resumed;
     if (isInForeground) {
-      bool showIndicator = store.assets!.tokenList.length == 0;
-      this._onRefresh(showIndicator: showIndicator);
+      _onRefresh();
     }
   }
 
-  Future<void> _onRefresh({showIndicator = false}) async {
-    await webApi.assets.fetchAllTokenAssets(
-        showIndicator: showIndicator || store.assets!.tokenList.isEmpty);
+  Future<void> _onRefresh() async {
+    await webApi.assets.fetchAllTokenAssets(showIndicator: true);
   }
 
   void _onReceive() {
@@ -272,8 +269,10 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
     var currency = currencyConfig
         .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
-    Color amountColor =
-        (store.assets!.isAssetsLoading) ? Color(0xFFDDDDDD) : Color(0xFFFFFFFF);
+    final hasAssets = store.assets!.hasCurrentTokenAssets;
+    Color amountColor = store.assets!.isAssetsLoading || !hasAssets
+        ? Color(0xFFDDDDDD)
+        : Color(0xFFFFFFFF);
     String networkID = store.settings!.currentNode?.networkID ?? "";
     bool isZekoNet = store.settings!.isZekoNet;
     String nextNetIcon = isZekoNet
@@ -294,9 +293,7 @@ class _AssetsState extends State<Assets> with WidgetsBindingObserver {
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3);
-    String totalAmount = store.assets!.hasCurrentTokenAssets
-        ? store.assets!.getTokenTotalAmount()
-        : '--';
+    String totalAmount = hasAssets ? store.assets!.getTokenTotalAmount() : '0';
     String showAmount = currencySymbol + " " + totalAmount;
     return Container(
       color: Color(0xFFEDEFF2),

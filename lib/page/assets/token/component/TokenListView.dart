@@ -68,7 +68,6 @@ class _TokenListViewState extends State<TokenListView>
                   textAlign: TextAlign.left,
                 ),
                 Observer(builder: (BuildContext context) {
-                  bool isLoading = store.assets!.isAssetsLoading;
                   int count = store.assets!.newTokenCount;
                   String showCount = count.toString();
                   bool showTokenTip = count > 0;
@@ -76,7 +75,7 @@ class _TokenListViewState extends State<TokenListView>
                     showCount = "99+";
                   }
                   if (!store.assets!.hasCurrentTokenAssets ||
-                      store.assets!.tokenList.length <= 1 || isLoading) {
+                      store.assets!.tokenList.length <= 1) {
                     return Container();
                   }
                   return TokenManageIcon(

@@ -1,12 +1,16 @@
 import 'dart:async';
 
 import 'package:auro_wallet/common/components/loadingCircle.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
+import 'package:auro_wallet/common/consts/token.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/index.dart';
 import 'package:auro_wallet/page/assets/token/component/TokenItem.dart';
+import 'package:auro_wallet/page/assets/token/component/TokenListView.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/service/api/apiAssets.dart';
 import 'package:auro_wallet/store/app.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/wallet/wallet.dart';
 import 'package:auro_wallet/utils/localStorage.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +31,14 @@ class _Api extends Fake implements Api {
 }
 
 void main() {
-  for (final fails in [false, true]) {
+  for (final (cached, fails) in [
+    (false, false),
+    (false, true),
+    (true, false),
+    (true, true),
+  ]) {
     testWidgets(
-      'new account shows loading then MINA after request ${fails ? 'failure' : 'success'}',
+      '${cached ? 'cached' : 'new'} account dims balance during request ${fails ? 'failure' : 'success'}',
       (tester) async {
         SharedPreferences.setMockInitialValues({});
         final store = globalAppStore;
@@ -49,6 +58,26 @@ void main() {
         );
         store.settings!.currentNode!.name = 'Devnet';
         await tester.runAsync(() => store.assets!.loadAccountCache());
+        if (cached) {
+          store.assets!.marketPrices[ZK_DEFAULT_TOKEN_ID] = 2;
+          store.assets!.updateTokenAssets([
+            Token(
+              tokenAssestInfo: TokenAssetInfo(
+                balance: Balance(total: '7000000000', liquid: '7000000000'),
+                tokenId: ZK_DEFAULT_TOKEN_ID,
+                publicKey: store.wallet!.currentAddress,
+              ),
+            ),
+            Token(
+              tokenAssestInfo: TokenAssetInfo(
+                balance: Balance(total: '7', liquid: '7'),
+                tokenId: 'custom-token',
+                publicKey: store.wallet!.currentAddress,
+              ),
+            ),
+          ], store.wallet!.currentAddress);
+          store.assets!.setAssetsLoading(false);
+        }
 
         final response = Completer<Response>();
         webApi = _Api(
@@ -70,8 +99,27 @@ void main() {
           ),
         );
         await tester.pump(const Duration(milliseconds: 100));
-        expect(find.byType(LoadingCircle), findsOneWidget);
-        expect(find.byType(TokenItemView), findsNothing);
+        expect(
+          find.byType(LoadingCircle),
+          cached ? findsNothing : findsOneWidget,
+        );
+        expect(
+          find.byType(TokenItemView),
+          cached ? findsOneWidget : findsNothing,
+        );
+        final balanceFinder = find.byKey(TestKeys.balanceDisplay);
+        expect(
+          find.byType(TokenManageIcon),
+          cached ? findsOneWidget : findsNothing,
+        );
+        expect(
+          tester.widget<Text>(balanceFinder).data,
+          cached ? r'$ 14' : r'$ 0',
+        );
+        expect(
+          tester.widget<Text>(balanceFinder).style!.color,
+          const Color(0xFFDDDDDD),
+        );
 
         response.complete(
           Response(
@@ -84,10 +132,22 @@ void main() {
         expect(find.byType(LoadingCircle), findsNothing);
         expect(find.byType(TokenItemView), findsOneWidget);
         expect(find.text('MINA'), findsOneWidget);
-        expect(store.assets!.hasCurrentTokenAssets, !fails);
+        expect(store.assets!.hasCurrentTokenAssets, cached || !fails);
+        expect(
+          find.byType(TokenManageIcon),
+          cached && fails ? findsOneWidget : findsNothing,
+        );
+        expect(
+          tester.widget<Text>(balanceFinder).data,
+          cached && fails ? r'$ 14' : r'$ 0',
+        );
+        expect(
+          tester.widget<Text>(balanceFinder).style!.color,
+          !cached && fails ? const Color(0xFFDDDDDD) : Colors.white,
+        );
         final row = tester.widget<TokenItemView>(find.byType(TokenItemView));
-        expect(row.isBalanceKnown, !fails);
-        if (fails) {
+        expect(row.isBalanceKnown, cached || !fails);
+        if (fails && !cached) {
           expect(store.assets!.tokenList, isEmpty);
           expect(
             await tester.runAsync(

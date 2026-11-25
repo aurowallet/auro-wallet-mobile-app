@@ -196,11 +196,31 @@ void main() {
   testWidgets('keeps cached assets visible during a foreground refresh', (
     tester,
   ) async {
+    store.assets!.marketPrices[ZK_DEFAULT_TOKEN_ID] = 2;
+    store.assets!.updateTokenAssets([
+      Token(
+        tokenAssestInfo: TokenAssetInfo(
+          balance: Balance(total: '7000000000', liquid: '7000000000'),
+          tokenId: ZK_DEFAULT_TOKEN_ID,
+          publicKey: store.wallet!.currentAddress,
+        ),
+      ),
+    ], store.wallet!.currentAddress);
     await render(tester, const Size(393, 800));
     store.assets!.setAssetsLoading(true);
     await tester.pump();
     expect(find.text('MINA'), findsOneWidget);
     expect(find.byType(LoadingCircle), findsNothing);
+    final balanceFinder = find.byKey(TestKeys.balanceDisplay);
+    expect(tester.widget<Text>(balanceFinder).data, r'$ 14');
+    expect(
+      tester.widget<Text>(balanceFinder).style!.color,
+      const Color(0xFFDDDDDD),
+    );
+    store.assets!.setAssetsLoading(false);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(balanceFinder).data, r'$ 14');
+    expect(tester.widget<Text>(balanceFinder).style!.color, Colors.white);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -220,7 +240,11 @@ void main() {
     expect(store.assets!.tokenList, isEmpty);
     expect(
       tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).data,
-      endsWith(' --'),
+      r'$ 0',
+    );
+    expect(
+      tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).style!.color,
+      const Color(0xFFDDDDDD),
     );
     expect(
       await tester.runAsync(
@@ -239,6 +263,14 @@ void main() {
     expect(find.descendant(of: row, matching: find.text('--')), findsNothing);
     expect(find.text('获取 MINA'), findsOneWidget);
     expect(store.assets!.hasCurrentTokenAssets, isTrue);
+    expect(
+      tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).data,
+      r'$ 0',
+    );
+    expect(
+      tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).style!.color,
+      Colors.white,
+    );
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -260,7 +292,7 @@ void main() {
         await render(tester, const Size(393, 800));
         expect(
           tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).data,
-          endsWith(' 14'),
+          r'$ 14',
         );
         final row = find.byType(TokenItemView);
         expect(
@@ -290,7 +322,11 @@ void main() {
         expect(find.text('MINA'), findsOneWidget);
         expect(
           tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).data,
-          endsWith(' --'),
+          r'$ 0',
+        );
+        expect(
+          tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).style!.color,
+          const Color(0xFFDDDDDD),
         );
         expect(
           find.descendant(of: row, matching: find.text('7')),
