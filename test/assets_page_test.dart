@@ -2,13 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:auro_wallet/common/components/loadingCircle.dart';
+import 'package:auro_wallet/common/consts/token.dart';
+import 'package:auro_wallet/common/consts/testKeys.dart';
 import 'package:auro_wallet/l10n/app_localizations.dart';
 import 'package:auro_wallet/page/assets/index.dart';
+import 'package:auro_wallet/page/assets/token/component/TokenItem.dart';
 import 'package:auro_wallet/service/api/api.dart';
 import 'package:auro_wallet/service/api/apiAssets.dart';
 import 'package:auro_wallet/service/minaExchanges.dart';
 import 'package:auro_wallet/store/app.dart';
 import 'package:auro_wallet/store/assets/assets.dart';
+import 'package:auro_wallet/store/assets/types/token.dart';
 import 'package:auro_wallet/store/settings/settings.dart';
 import 'package:auro_wallet/store/settings/types/customNode.dart';
 import 'package:auro_wallet/store/wallet/types/accountData.dart';
@@ -18,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _AssetsApi extends Fake implements ApiAssets {
@@ -199,6 +204,122 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('uncached account shows MINA after an unsuccessful first load', (
+    tester,
+  ) async {
+    // A new account has no successful response or persisted asset cache yet.
+    store.assets = AssetsStore(store)..setAssetsLoading(false);
+    await tester.runAsync(() => store.assets!.loadAccountCache());
+    await render(tester, const Size(393, 800));
+
+    expect(find.text('MINA'), findsOneWidget);
+    final row = find.byType(TokenItemView);
+    expect(find.descendant(of: row, matching: find.text('--')), findsOneWidget);
+    expect(find.text('获取 MINA'), findsNothing);
+    expect(store.assets!.hasCurrentTokenAssets, isFalse);
+    expect(store.assets!.tokenList, isEmpty);
+    expect(
+      tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).data,
+      endsWith(' --'),
+    );
+    expect(
+      await tester.runAsync(
+        () => store.localStorage.getAccountCache(
+          store.wallet!.currentAddress,
+          store.assets!.cacheTokensKey,
+        ),
+      ),
+      isNull,
+    );
+
+    // A successful empty response confirms zero and replaces the placeholder.
+    store.assets!.updateTokenAssets([], store.wallet!.currentAddress);
+    await tester.pumpAndSettle();
+    expect(find.text('MINA'), findsOneWidget);
+    expect(find.descendant(of: row, matching: find.text('--')), findsNothing);
+    expect(find.text('获取 MINA'), findsOneWidget);
+    expect(store.assets!.hasCurrentTokenAssets, isTrue);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  for (final switchNode in [false, true]) {
+    testWidgets(
+      'MINA fallback hides old assets after switching ${switchNode ? 'node' : 'account'}',
+      (tester) async {
+        store.assets!.marketPrices[ZK_DEFAULT_TOKEN_ID] = 2;
+        store.assets!.updateTokenAssets([
+          Token(
+            tokenAssestInfo: TokenAssetInfo(
+              balance: Balance(total: '7000000000', liquid: '7000000000'),
+              tokenId: ZK_DEFAULT_TOKEN_ID,
+              publicKey: store.wallet!.currentAddress,
+            ),
+          ),
+        ], store.wallet!.currentAddress);
+        await render(tester, const Size(393, 800));
+        expect(
+          tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).data,
+          endsWith(' 14'),
+        );
+        final row = find.byType(TokenItemView);
+        expect(
+          find.descendant(of: row, matching: find.text('7')),
+          findsOneWidget,
+        );
+
+        if (switchNode) {
+          store.settings!.currentNode = CustomNode(
+            name: 'Other',
+            networkID: 'mina:mainnet',
+            url: 'https://other.example.com',
+          );
+        } else {
+          final wallet = WalletData.fromJson(
+            WalletData.toJson(store.wallet!.currentWallet),
+          );
+          wallet.accounts.add(
+            AccountData()
+              ..pubKey = 'new-account'
+              ..accountIndex = 1,
+          );
+          wallet.currentAccountIndex = 1;
+          store.wallet!.walletList = ObservableList.of([wallet]);
+        }
+        await tester.pumpAndSettle();
+        expect(find.text('MINA'), findsOneWidget);
+        expect(
+          tester.widget<Text>(find.byKey(TestKeys.balanceDisplay)).data,
+          endsWith(' --'),
+        );
+        expect(
+          find.descendant(of: row, matching: find.text('7')),
+          findsNothing,
+        );
+        expect(
+          find.descendant(of: row, matching: find.text('--')),
+          findsOneWidget,
+        );
+
+        store.assets!.clearStaleTokenAssets();
+        store.assets!.setAssetsLoading(true);
+        await tester.pump();
+        expect(find.byType(LoadingCircle), findsOneWidget);
+        store.assets!.setAssetsLoading(false);
+        await tester.pumpAndSettle();
+        expect(find.byType(LoadingCircle), findsNothing);
+        expect(find.text('MINA'), findsOneWidget);
+        expect(
+          find.descendant(of: row, matching: find.text('--')),
+          findsOneWidget,
+        );
+        expect(store.assets!.hasCurrentTokenAssets, isFalse);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+      },
+    );
+  }
+
   testWidgets('cleared assets show loading during a request and stop on failure', (tester) async {
     await render(tester, const Size(393, 800));
     store.wallet!.currentWalletId = 'other';
@@ -211,7 +332,7 @@ void main() {
     store.assets!.setAssetsLoading(false);
     await tester.pumpAndSettle();
     expect(find.byType(LoadingCircle), findsNothing);
-    expect(find.text('MINA'), findsNothing);
+    expect(find.text('MINA'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -258,6 +379,16 @@ void main() {
     await tester.drag(find.byType(Scrollable).first, const Offset(0, 400));
     await tester.pumpAndSettle();
     expect(api.assets.calls, greaterThan(before));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('an empty visible list still renders MINA', (tester) async {
+    // Even an empty in-memory list must not leave the page blank.
+    store.assets!.tokenList.clear();
+    await render(tester, const Size(393, 800));
+    expect(find.byType(LoadingCircle), findsNothing);
+    expect(find.text('MINA'), findsOneWidget);
+    expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
 }

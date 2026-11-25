@@ -75,7 +75,8 @@ class _TokenListViewState extends State<TokenListView>
                   if (count > 99) {
                     showCount = "99+";
                   }
-                  if (store.assets!.tokenList.length <= 1 || isLoading) {
+                  if (!store.assets!.hasCurrentTokenAssets ||
+                      store.assets!.tokenList.length <= 1 || isLoading) {
                     return Container();
                   }
                   return TokenManageIcon(
@@ -90,9 +91,9 @@ class _TokenListViewState extends State<TokenListView>
         ),
         Observer(
           builder: (BuildContext context) {
+            final hasAssets = store.assets!.hasCurrentTokenAssets;
             bool isLoading =
-                store.assets!.isAssetsLoading &&
-                store.assets!.tokenList.isEmpty;
+                store.assets!.isAssetsLoading && !hasAssets;
             if (isLoading) {
               return SliverFillRemaining(
                 hasScrollBody: false,
@@ -108,6 +109,7 @@ class _TokenListViewState extends State<TokenListView>
               itemBuilder: (context, index) => TokenItemView(
                 tokenItem: tokens[index],
                 store: store,
+                isBalanceKnown: hasAssets,
                 onClickTokenItem: onClickTokenItem,
               ),
             );

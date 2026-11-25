@@ -46,7 +46,8 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
                 showCloseIcon: true,
               ),
               Observer(builder: (_) {
-                if (store.assets!.newTokenCount <= 0) {
+                if (!store.assets!.hasCurrentTokenAssets ||
+                    store.assets!.newTokenCount <= 0) {
                   return Container();
                 }
                 return Container(
@@ -91,6 +92,9 @@ class _TokenManageDialogState extends State<TokenManageDialog> {
                     maxHeight: height * 0.6,
                   ),
                   child: Observer(builder: (BuildContext context) {
+                    if (!store.assets!.hasCurrentTokenAssets) {
+                      return const SizedBox.shrink();
+                    }
                     List<Token> manageList = store.assets!.tokenList
                         .where(
                           (tokenItem) =>

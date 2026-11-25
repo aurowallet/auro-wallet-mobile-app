@@ -55,13 +55,16 @@ class _TokenSelectDialogState extends State<TokenSelectionDialog> {
                     maxHeight: height * 0.6,
                   ),
                   child: Observer(builder: (BuildContext context) {
+                    final tokens = store.assets!.getTokenShowList();
+                    final hasAssets = store.assets!.hasCurrentTokenAssets;
                     return ListView.builder(
-                        itemCount: store.assets!.getTokenShowList().length,
+                        itemCount: tokens.length,
                         itemBuilder: (context, index) {
                           return Container(
                               child: TokenItemView(
-                                  tokenItem: store.assets!.getTokenShowList()[index],
+                                  tokenItem: tokens[index],
                                   store: store,
+                                  isBalanceKnown: hasAssets,
                                   onClickTokenItem: onClickTokenItem,
                                   isInModal: true));
                         });

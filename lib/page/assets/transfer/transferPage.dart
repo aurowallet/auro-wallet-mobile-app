@@ -25,7 +25,6 @@ import 'package:auro_wallet/utils/camera.dart';
 import 'package:auro_wallet/utils/colorsUtil.dart';
 import 'package:auro_wallet/utils/format.dart';
 import 'package:auro_wallet/utils/index.dart';
-import 'package:collection/collection.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -72,7 +71,15 @@ class _TransferPageState extends State<TransferPage> {
 
   String tokenSymbol = '';
   bool isSendMainToken = false;
-  double? availableBalance;
+  String? _balanceContext;
+  Token? get _currentToken {
+    final currentContext =
+        '${store.wallet!.currentAddress}_${store.assets!.networkCacheKey}';
+    if (_balanceContext != currentContext) return null;
+    return store.assets!.getCurrentToken(tokenId);
+  }
+
+  double? get availableBalance => _currentToken?.tokenBaseInfo?.showBalance;
   String? availableDecimals;
   String? tokenPublicKey;
   String tokenId = "";
@@ -96,6 +103,7 @@ class _TransferPageState extends State<TransferPage> {
       _feeCtrl.addListener(_onFeeInputChange);
 
       _initAddress = store.wallet!.currentAddress;
+      _balanceContext = '${_initAddress}_${store.assets!.networkCacheKey}';
       _initWallet = store.wallet!.currentWallet;
       _initAccountIndex = _initWallet.currentAccountIndex;
       _nonceManager = AccountNonceManager(
@@ -133,7 +141,6 @@ class _TransferPageState extends State<TransferPage> {
         availableDecimals = tokenBaseInfo?.decimals;
         tokenPublicKey = tokenNetInfo?.publicKey;
       }
-      availableBalance = tokenBaseInfo?.showBalance;
       tokenId = tokenAssestInfo?.tokenId ?? "";
 
       int intervalTime = _feeCtrl.text.isNotEmpty
@@ -305,12 +312,13 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   bool _isAllTransfer() {
-    if (availableBalance == null || _amountCtrl.text.trim().isEmpty) {
+    final currentBalance = availableBalance;
+    if (currentBalance == null || _amountCtrl.text.trim().isEmpty) {
       return false;
     }
     try {
       final amount = Decimal.parse(Fmt.parseNumber(_amountCtrl.text));
-      final balance = Decimal.parse(availableBalance.toString());
+      final balance = Decimal.parse(currentBalance.toString());
       return amount.compareTo(balance) == 0;
     } catch (_) {
       return false;
@@ -620,22 +628,6 @@ class _TransferPageState extends State<TransferPage> {
     if (mounted) setState(() { submitting = false; });
   }
 
-  void _updateAvailableBalance() {
-    Token? freshToken;
-    if (isSendMainToken) {
-      freshToken = store.assets!.mainTokenNetInfo;
-    } else {
-      freshToken = store.assets!.tokenList.firstWhereOrNull(
-          (t) => t.tokenAssestInfo?.tokenId == tokenId);
-    }
-    if (freshToken != null && freshToken.tokenBaseInfo?.showBalance != null) {
-      setState(() {
-        availableBalance = freshToken!.tokenBaseInfo!.showBalance;
-      });
-      store.assets!.setNextToken(freshToken);
-    }
-  }
-
   Future<void> _loadData() async {
     List data = await Future.wait([
       webApi.assets.fetchAllTokenAssets(),
@@ -644,7 +636,10 @@ class _TransferPageState extends State<TransferPage> {
           .getZekoNetFee(weight: store.settings!.isZekoNet ? _zekoFeeWeight : 0)
     ]);
     if (!mounted) return;
-    _updateAvailableBalance();
+    final freshToken = _currentToken;
+    if (freshToken != null) {
+      store.assets!.setNextToken(freshToken);
+    }
     await _nonceManager?.fetchPendingTokenListOnce();
     if (!mounted) return;
     if (store.settings!.isZekoNet && data[2] != null) {
@@ -734,8 +729,7 @@ class _TransferPageState extends State<TransferPage> {
   String? _validateAmount() {
     bool isAllTransferFlag = _isAllTransfer();
     AppLocalizations dic = AppLocalizations.of(context)!;
-    double availableBalanceStr =
-        (availableBalance != null ? availableBalance : 0) as double;
+    double availableBalanceStr = availableBalance ?? 0.0;
     Decimal available = Decimal.parse(availableBalanceStr.toString());
     double fee = currentFee ?? store.assets!.transferFees.medium;
     Decimal transferFee = Decimal.parse(fee.toString());
@@ -775,8 +769,9 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   void _onAllClick() {
-    _amountCtrl.text = availableBalance.toString();
-    _amountCtrl.text = Fmt.parseShowBalance(availableBalance!,
+    final balance = availableBalance;
+    if (balance == null) return;
+    _amountCtrl.text = Fmt.parseShowBalance(balance,
         showLength: int.parse(availableDecimals ?? "0"));
   }
 
@@ -794,12 +789,10 @@ class _TransferPageState extends State<TransferPage> {
         nextBottom = nextBottom.isNegative ? 0 : nextBottom;
         String symbol = tokenSymbol;
         String pageTitle = dic.send + " " + symbol;
-        String showBalance =
-            store.assets!.nextToken.tokenBaseInfo?.showBalance != null
-                ? Fmt.parseShowBalance(
-                    store.assets!.nextToken.tokenBaseInfo!.showBalance!,
-                    showLength: decimals)
-                : "0.0";
+        final balance = availableBalance;
+        String showBalance = balance != null
+            ? Fmt.parseShowBalance(balance, showLength: decimals)
+            : "--";
         return Scaffold(
           appBar: AppBar(
             title: Text(pageTitle),

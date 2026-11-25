@@ -15,10 +15,12 @@ class TokenItemView extends StatelessWidget {
       {required this.tokenItem,
       required this.store,
       this.onClickTokenItem,
+      this.isBalanceKnown = true,
       this.isInModal});
   final Token tokenItem;
   final AppStore store;
   final Function? onClickTokenItem;
+  final bool isBalanceKnown;
   final bool? isInModal;
 
   @override
@@ -42,15 +44,20 @@ class TokenItemView extends StatelessWidget {
       tokenName = Fmt.address(tokenAssestInfo?.tokenId, pad: 6);
     }
     tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
-    displayBalance = tokenBaseInfo?.showBalance != null
-        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!)
-        : "0.0";
+    final balance = tokenBaseInfo?.showBalance;
+    if (!isBalanceKnown) {
+      displayBalance = '--';
+    } else if (balance != null) {
+      displayBalance = Fmt.parseShowBalance(balance);
+    } else {
+      displayBalance = "0.0";
+    }
 
     var currency = currencyConfig
         .firstWhere((element) => element.key == store.settings!.currencyCode);
     var currencySymbol = currency.symbol;
 
-    if (tokenBaseInfo?.showAmount != null) {
+    if (isBalanceKnown && tokenBaseInfo?.showAmount != null) {
       displayAmount =
           currencySymbol + " " + tokenBaseInfo!.showAmount.toString();
     }

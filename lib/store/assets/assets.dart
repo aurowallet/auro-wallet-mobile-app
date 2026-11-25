@@ -175,9 +175,23 @@ abstract class _AssetsStore with Store {
   }
 
   List<Token> getTokenShowList() {
-    return tokenList
-        .where((tokenItem) => !(tokenItem.localConfig?.hideToken ?? false))
-        .toList();
+    final tokens = <Token>[];
+    if (hasCurrentTokenAssets) {
+      tokens.addAll(tokenList.where(
+          (tokenItem) => !(tokenItem.localConfig?.hideToken ?? false)));
+    }
+    if (tokens.isEmpty) {
+      tokens.add(Token.fromJson(defaultMINAAssets));
+    }
+    return tokens;
+  }
+
+  Token? getCurrentToken(String tokenId) {
+    if (!hasCurrentTokenAssets) return null;
+    for (final token in tokenList) {
+      if (token.tokenAssestInfo?.tokenId == tokenId) return token;
+    }
+    return null;
   }
 
   @action

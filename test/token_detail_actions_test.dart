@@ -352,4 +352,51 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('detail updates unknown and cached balances without reopening', (
+    tester,
+  ) async {
+    await store.assets!.clearAccountAssestCache();
+    await tester.pumpWidget(app(fullPage: true));
+    await tester.pumpAndSettle();
+    expect(find.text('-- MINA'), findsOneWidget);
+    expect(find.textContaining('≈'), findsNothing);
+
+    store.assets!.marketPrices[ZK_DEFAULT_TOKEN_ID] = 2;
+    store.assets!.updateTokenAssets([
+      Token(
+        tokenAssestInfo: TokenAssetInfo(
+          balance: Balance(total: '7000000000', liquid: '7000000000'),
+          tokenId: ZK_DEFAULT_TOKEN_ID,
+          publicKey: 'account',
+        ),
+      ),
+    ], 'account');
+    await tester.pumpAndSettle();
+    expect(find.text('7 MINA'), findsOneWidget);
+    expect(find.textContaining('≈'), findsOneWidget);
+    await tester.tap(find.text('Send'));
+    expect(store.assets!.nextToken.tokenBaseInfo!.showBalance, 7);
+    tester.state<NavigatorState>(find.byType(Navigator)).pop();
+    await tester.pumpAndSettle();
+
+    store.assets!.setAssetsLoading(true);
+    await tester.pump();
+    expect(find.text('7 MINA'), findsOneWidget);
+    store.assets!.setAssetsLoading(false);
+    await tester.pumpAndSettle();
+    expect(find.text('7 MINA'), findsOneWidget);
+
+    store.settings!.currentNode = helpers.node(
+      'mina:mainnet',
+      'https://other.example',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('-- MINA'), findsOneWidget);
+    expect(find.textContaining('≈'), findsNothing);
+    store.assets!.updateTokenAssets([], 'account');
+    await tester.pumpAndSettle();
+    expect(find.text('0 MINA'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
 }

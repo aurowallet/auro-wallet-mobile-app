@@ -38,8 +38,6 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
   late Token token;
   String tokenSymbol = "";
   String? tokenId;
-  String displayBalance = "";
-  String? displayAmount;
   String tokenIconUrl = "";
   bool isMainToken = false;
   bool isLoading = false;
@@ -67,22 +65,6 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
     }
 
     tokenIconUrl = tokenBaseInfo?.iconUrl ?? "";
-    displayBalance = tokenBaseInfo?.showBalance != null
-        ? Fmt.parseShowBalance(tokenBaseInfo!.showBalance!,
-            showLength: tokenDecimal)
-        : "0.0";
-    displayBalance = displayBalance + " " + tokenSymbol;
-
-    double? tokenAmount = tokenBaseInfo?.showAmount;
-
-    if (tokenAmount != null) {
-      var currency = currencyConfig.firstWhere(
-          (element) => element.key == widget.store.settings!.currencyCode);
-      var currencySymbol = currency.symbol;
-      String showAmount = currencySymbol + " " + tokenAmount.toString();
-      displayAmount = "≈ " + showAmount;
-    }
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.store.setTokenRefreshKey(_tokenRefreshKey);
       List<TransferData> txs = [
@@ -210,6 +192,19 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
             maintainBottomViewPadding: true,
             child: Observer(
               builder: (_) {
+                final currentToken =
+                    widget.store.assets!.getCurrentToken(tokenId!);
+                final baseInfo = currentToken?.tokenBaseInfo;
+                final balance = baseInfo?.showBalance;
+                final balanceText = balance == null
+                    ? '--'
+                    : Fmt.parseShowBalance(balance, showLength: tokenDecimal);
+                final displayBalance = '$balanceText $tokenSymbol';
+                final amount = baseInfo?.showAmount;
+                final currency = currencyConfig.firstWhere(
+                    (item) => item.key == widget.store.settings!.currencyCode);
+                final displayAmount =
+                    amount == null ? null : '≈ ${currency.symbol} $amount';
                 List<TransferData> pendingTx =
                     widget.store.assets!.getTotalPendingTxs(tokenId!);
                 List<TransferData> tx =
@@ -255,7 +250,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                           displayAmount != null
                               ? Container(
                                   child: Text(
-                                    displayAmount!,
+                                    displayAmount,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w400,
@@ -268,7 +263,7 @@ class _TokenDetail extends State<TokenDetailPage> with WidgetsBindingObserver {
                           SizedBox(height: 20),
                           TokenDetailActions(
                             store: widget.store,
-                            token: token,
+                            token: currentToken ?? token,
                             tokenSymbol: tokenSymbol,
                           ),
                           SizedBox(height: 30),
